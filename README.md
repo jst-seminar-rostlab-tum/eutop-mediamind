@@ -6,6 +6,7 @@ containing curated, anonymized newspaper articles helping teams stay on top of
 relevant coverage.
 
 ## Project Structure
+```
 eutop-mediamind/
 ├── apps/                  # Main applications
 │   ├── frontend/          # Frontend app
@@ -26,6 +27,7 @@ eutop-mediamind/
 ├── .gitignore
 │
 └── README.md
+```
 
 ## Getting started
 TODO
