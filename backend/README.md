@@ -4,6 +4,12 @@ Directory containing backend services and packages.
 
 ## Setup
 
+- Create a virtual environment:
+
+  ```bash
+  python -m venv venv
+  ```
+
 - Install dependencies:
 
   ```bash
