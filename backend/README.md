@@ -10,6 +10,12 @@ Directory containing backend services and packages.
   pip install -r requirements.txt
   ```
 
+- Start the server:
+
+  ```bash
+  ...TODO...
+  ```
+
 ## Linting and Formatting
 
 - **Black**: Code formatter (run `black .` to format the code)
