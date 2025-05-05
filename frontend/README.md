@@ -8,6 +8,10 @@
   npm ci
   ```
 
+- Run Server:
+
+  TBD
+
 ## Linting and Formatting
 
 - **Prettier**: Code formatter (run `npm run prettier` to format the code)
