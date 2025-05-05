@@ -12,3 +12,14 @@ exclude = '''
   | env
 )/
 '''
+[tool.isort]
+profile = "black"
+line_length = 88
+skip = [
+    ".venv",
+    "__pycache__",
+    "build",
+    "dist",
+    "venv",
+    "env",
+]
