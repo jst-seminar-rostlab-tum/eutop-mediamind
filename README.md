@@ -8,17 +8,13 @@ relevant coverage.
 ## Project Structure
 ```
 eutop-mediamind/
-├── apps/                  # Main applications
-│   ├── frontend/          # Frontend app
-│   └── backend/           # Backend app
+├── frontend/              # Frontend app
+│
+├── backend/               # Backend app
 │
 ├── database/              # DB migrations and configs
 │
-├── packages/              # Reusable libraries/modules (if any)
-│
 ├── infra/                 # Infrastructure
-│   ├── dev/
-│   └── prod/
 │
 ├── scripts/               # Project-level scripts
 │
