@@ -1,13 +1,5 @@
 # Quality Control: Coding Guidelines
 
-## Repository Structure
-
-* **Root Directory**:  
-  * `backend/`: Contains all backend-related code.  
-  * `frontend/`: Contains all frontend-related code.  
-  * `README.md`: Provides an overview of the project and its structure.  
-  * Config files for the entire repository, like GitHub Actions YAML.
-
 ## Linting & Formatting
 
 Change the settings in VSCode to look for the config files of Linter and Formatter in the `backend/` or `frontend/` directory of the project.
@@ -98,10 +90,12 @@ Before merging a PR (in both Frontend and Backend), the pre-merge pipeline must 
   * Format: `<type>(<scope>): <description>`  
   * Example: `feat(auth): add login functionality`  
 * **Pull Requests**:  
-  * Names should start with either “Frontend: …” or “Backend: …”.  
+  * Use the corresponding __frontend__ or __backend__ labels for better filtering and categorization of the PRs.
   * Ensure all checks pass before requesting a review.  
   * Include a clear description of the changes and any relevant context.  
   * Link related issues or tasks to keep track.
+
+See also: [Better Git Practices](https://nutritious-request-5b4.notion.site/Student-Resources-WIP-a328da1665194638ae2f694bf127727f#09174eaa615c4658bfda117bd320a13b)
 
 ## Documentation
 
