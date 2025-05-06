@@ -82,7 +82,7 @@ Before merging a PR (in both Frontend and Backend), the pre-merge pipeline must 
 ## Version Control & Collaboration
 
 * **Branching Strategy**: Use feature branches named using the pattern `type/short-description`, e.g., `feature/backend-setup`. The type can be:  
-  * `feature/feat`: the branch introduces a new feature.  
+  * `feat`: the branch introduces a new feature.  
   * `fix`: the branch fixes a bug.  
   * `docs`: the branch contains documentation  
   * `release`: the branch is needed for the release process  
