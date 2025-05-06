@@ -3,7 +3,9 @@
 ## Linting & Formatting
 
 Change the settings in VSCode to look for the config files of Linter and Formatter in the `backend/` or `frontend/` directory of the project.
+
 **Linter:** Fix all Linter/Typechecker warnings/errors before committing code.
+
 **Formatter:** Turn on “format on save” in VSCode settings.
 
 ## Backend
@@ -73,23 +75,29 @@ Follow the [Google TypeScript Style Guide](https://google.github.io/styleguide/t
 ## CI/CD
 
 Before merging a PR (in both Frontend and Backend), the pre-merge pipeline must successfully execute. This pipeline will:
-
-- Enforce the compliance of the new code with the relative linter configuration.  
-- Ensure that the code builds without errors.  
-- Execute unit, integration and e2e tests to ensure that the new feature does not break existent code.  
-- (TBD) Ensure Docker is able to build an image from the codebase.
+  * Enforce the compliance of the new code with the relative linter configuration.  
+  * Ensure that the code builds without errors.  
+  * Execute unit, integration and e2e tests to ensure that the new feature does not break existent code.  
+  * (TBD) Ensure Docker is able to build an image from the codebase.
 
 ## Version Control & Collaboration
 
-* **Branching Strategy**: Use feature branches named using the pattern `type/short-description`, e.g., `feature/backend-setup`. The type can be:  
+### Branching Strategy
+
+Use feature branches named using the pattern `type/short-description`, e.g., `feat/backend-setup`. The type can be:  
   * `feat`: the branch introduces a new feature.  
   * `fix`: the branch fixes a bug.  
   * `docs`: the branch contains documentation  
-  * `release`: the branch is needed for the release process  
-* **Commit Messages**: Follow the [Conventional Commits](https://www.conventionalcommits.org/) specification:  
+  * `release`: the branch is needed for the release process
+
+### Commit Messages
+
+Follow the [Conventional Commits](https://www.conventionalcommits.org/) specification:  
   * Format: `<type>(<scope>): <description>`  
   * Example: `feat(auth): add login functionality`  
-* **Pull Requests**:  
+
+### Pull Requests
+
   * Use the corresponding __frontend__ or __backend__ labels for better filtering and categorization of the PRs.
   * Ensure all checks pass before requesting a review.  
   * Include a clear description of the changes and any relevant context.  
