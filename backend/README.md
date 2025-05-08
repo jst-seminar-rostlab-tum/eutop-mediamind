@@ -16,8 +16,6 @@ The folder structure was taken from [here](https://github.com/jujumilk3/fastapi-
 
 - _api_: routing, divided by api version
 - _core_: common core configurations
-- _models_: DB models
-- _schema_: JSON requests and responses (DTOs)
 - _repositories_: DB repositories (see "service repository" pattern)
 - _services_: services (see "service repository" pattern)
 - _utils_: self explanatory
