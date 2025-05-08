@@ -42,3 +42,8 @@ DB_HOST=localhost
 DB_PORT=5432
 ```
 
+
+## Linting and Formatting
+
+- **Black**: Code formatter (run `black .` to format the code)
+- **Flake8**: Linter (run `flake8` to check for linting issues)
