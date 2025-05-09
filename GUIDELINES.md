@@ -2,11 +2,27 @@
 
 ## Linting & Formatting
 
-Change the settings in VSCode to look for the config files of Linter and Formatter in the `backend/` or `frontend/` directory of the project.
-
 **Linter:** Fix all Linter/Typechecker warnings/errors before committing code.
 
-**Formatter:** Turn on “format on save” in VSCode settings.
+**Formatter:** Turn on “format on save” in your IDE settings.
+
+### VSCode
+
+Install the required extensions:
+* Frontend:
+  * [Prettier](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode)
+  * [ESlint](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint)
+* Backend:
+  * [Black](https://marketplace.visualstudio.com/items?itemName=ms-python.black-formatter)
+  * [Flake8](https://marketplace.visualstudio.com/items?itemName=ms-python.flake8)
+  * [isort](https://marketplace.visualstudio.com/items?itemName=ms-python.isort)
+
+Change the settings in VSCode to look for the config files of Linter and Formatter in the `backend/` or `frontend/` directory of the project, respectively. Then turn on “format on save”, also in the settings.
+
+### PyCharm
+
+Install __black__ & __isort__ and add them to the FileWatchers.
+This automatically formats the code according to PEP 8 when saving the files.
 
 ## Backend
 
