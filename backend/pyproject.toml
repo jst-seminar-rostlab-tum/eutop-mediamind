@@ -1,5 +1,5 @@
 [tool.black]
-line-length = 88
+line-length = 79
 target-version = ["py311", "py312", "py313"]
 include = '\.pyi?$'
 exclude = '''
@@ -12,3 +12,14 @@ exclude = '''
   | env
 )/
 '''
+[tool.isort]
+profile = "black"
+line_length = 79
+skip = [
+    ".venv",
+    "__pycache__",
+    "build",
+    "dist",
+    "venv",
+    "env",
+]
