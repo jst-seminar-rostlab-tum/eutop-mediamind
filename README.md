@@ -18,6 +18,8 @@ eutop-mediamind/
 │
 ├── scripts/               # Project-level scripts
 │
+├── docs/                  # Documentation
+│
 ├── .github/               # GitHub-specific configs (actions, issue templates)
 │
 ├── .gitignore
