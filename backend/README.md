@@ -30,7 +30,7 @@ Directory containing backend services and packages.
   pip install -r requirements.txt
   ```
 
-- Run the example script:
+- Start the server:
 
   ```bash
   python main.py
