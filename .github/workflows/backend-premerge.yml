@@ -1,11 +1,6 @@
 name: Backend pre-merge
 
 on:
-  push:
-    branches:
-      - master
-    paths:
-      - "backend/**"
   pull_request:
     paths:
       - "backend/**"
