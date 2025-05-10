@@ -1,10 +1,7 @@
 import pytest
-
 from fastapi.testclient import TestClient
 
-from app.core.config import configs
 from app.main import AppCreator
-
 
 
 @pytest.fixture
@@ -13,6 +10,7 @@ def client():
     app = app_creator.app
     with TestClient(app) as client:
         yield client
+
 
 @pytest.fixture
 def test_name(request):
