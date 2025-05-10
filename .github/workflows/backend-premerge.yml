@@ -1,9 +1,10 @@
 name: Backend pre-merge
 
 on:
+  workflow_call:
   pull_request:
-    paths:
-      - "backend/**"
+  #   paths:
+  #     - "backend/**"
 
 jobs:
   setup:
