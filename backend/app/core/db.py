@@ -1,5 +1,5 @@
-from supabase import Client, create_client
 from config import Configs
+from supabase import Client, create_client
 
 
 def get_supabase_client(cfg: Configs) -> Client:
