@@ -10,6 +10,20 @@ Directory containing backend services and packages.
   python -m venv venv
   ```
 
+- Activate the virtual environment:
+
+  - On Windows:
+
+    ```bash
+    venv\Scripts\activate
+    ```
+
+  - On macOS and Linux:
+
+    ```bash
+    source venv/bin/activate
+    ```
+
 - Install dependencies:
 
   ```bash
@@ -19,10 +33,11 @@ Directory containing backend services and packages.
 - Start the server:
 
   ```bash
-  ...TODO...
+  python main.py
   ```
 
 ## Linting and Formatting
 
-- **Black**: Code formatter (run `black .` to format the code)
+- **Black**: Code formatter (run `black src` to format the code)
+- **Isort**: Import sorter (run `isort src` to sort imports)
 - **Flake8**: Linter (run `flake8` to check for linting issues)
