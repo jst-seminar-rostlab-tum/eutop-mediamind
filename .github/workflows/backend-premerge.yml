@@ -30,12 +30,13 @@ jobs:
           pip install -r requirements.txt
 
       - name: Check formatting with Black
-        run: black --check .
+        run: black --check app
 
       - name: Check import sorting with isort
-        run: isort --check-only .
+        run: isort --check-only app
+
       - name: Run flake8 lint
-        run: flake8 .
+        run: flake8 app
 
       - name: Run tests
         run: pytest
