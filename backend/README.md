@@ -6,6 +6,8 @@ Server
    2. options
       1. host: `--host 0.0.0.0`
       2. port: `--port 8000`
+
+You can then see the API definition at `http://localhost:8000/api/docs`
 Test
    1. `pytest`: base 
    2. `pytest --cov=app --cov-report=term-missing`: coverage with stdout

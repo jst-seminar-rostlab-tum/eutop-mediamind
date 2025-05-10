@@ -10,7 +10,8 @@ class AppCreator:
         # set app default
         self.app = FastAPI(
             title=configs.PROJECT_NAME,
-            openapi_url=f"/api/openapi.json",
+            openapi_url="/api/openapi.json",
+            docs_url="/api/docs",
             version="0.0.1",
         )
 
