@@ -23,23 +23,13 @@ The folder structure was taken from [here](https://github.com/jujumilk3/fastapi-
 
 ## Sample env
 ```dotenv
-# mysql case
-ENV=dev
-DB=mysql
-DB_USER=root
-DB_PASSWORD=qwer1234
-DB_HOST=localhost
-DB_PORT=3306
-
 # postgres case
-ENV=dev
 DB=postgresql
-DB_USER=gyu
-DB_PASSWORD=
+DB_USER=myuser
+DB_PASSWORD=supersecretpass
 DB_HOST=localhost
 DB_PORT=5432
 ```
-
 
 ## Linting and Formatting
 
