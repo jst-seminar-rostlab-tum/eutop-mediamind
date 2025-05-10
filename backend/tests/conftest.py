@@ -15,4 +15,3 @@ def client():
 @pytest.fixture
 def test_name(request):
     return request.node.name
-
