@@ -1,9 +1,6 @@
-name: Backend Lint
+name: Backend pre-merge
 
 on:
-  push:
-    paths:
-      - "backend/**"
   pull_request:
     paths:
       - "backend/**"
@@ -13,7 +10,7 @@ jobs:
     runs-on: ubuntu-24.04
     strategy:
       matrix:
-        python-version: ["3.11", "3.12", "3.13"]
+        python-version: ["3.13"]
     defaults:
       run:
         working-directory: ./backend
@@ -31,10 +28,16 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+
       - name: Check formatting with Black
-        run: black --check .
+        run: black --check app
 
       - name: Check import sorting with isort
-        run: isort --check-only .
+        run: isort --check-only app
+
       - name: Run flake8 lint
-        run: flake8 .
+        run: flake8 app
+
+      - name: Run tests
+        run: pytest
+

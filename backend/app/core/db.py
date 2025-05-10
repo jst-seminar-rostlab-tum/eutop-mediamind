@@ -1,22 +1,14 @@
-import os
-
-from dotenv import load_dotenv
+from config import Configs
 from supabase import Client, create_client
 
-# Load env variables from .env
-load_dotenv()
 
-SUPABASE_URL = os.getenv("SUPABASE_URL")
-SUPABASE_KEY = os.getenv("SUPABASE_KEY")
-
-
-def get_supabase_client() -> Client:
-    if not SUPABASE_URL or not SUPABASE_KEY:
+def get_supabase_client(cfg: Configs) -> Client:
+    if not cfg.SUPABASE_URL or not cfg.SUPABASE_KEY:
         raise Exception(
             status_code=500, detail="Supabase credentials are not set"
         )
     try:
-        supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+        supabase: Client = create_client(cfg.SUPABASE_URL, cfg.SUPABASE_KEY)
         return supabase
     except Exception as e:
         raise Exception(
