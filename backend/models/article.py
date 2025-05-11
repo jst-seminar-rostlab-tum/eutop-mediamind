@@ -1,24 +1,40 @@
-from pydantic import BaseModel, Field
-from datetime import datetime
+from pydantic import BaseModel, HttpUrl, Field
 from typing import List, Optional
+from datetime import date, datetime
+
+
+class Author(BaseModel):
+    uri: str
+    isAgency: bool
+
+
+class Source(BaseModel):
+    uri: str
+    dataType: str
+    title: str
+
 
 class Article(BaseModel):
-    """
-    Data model for news articles used throughout the scraping and preprocessing pipeline.
-    """
-
-    title: str = Field(..., description="Headline of the article")
-    author: Optional[str] = Field(None, description="Author(s) of the article, if available")
-    published_at: Optional[datetime] = Field(
-        None, description="Publication date and time of the article"
-    )
-    source: Optional[str] = Field(None, description="Source or publisher name")
-    url: Optional[str] = Field(None, description="Original URL of the article")
-    text: str = Field(..., description="Full text or body of the article")
-    keywords: List[str] = Field(default_factory=list, description="Query or keywords that matched the article")
-    entities: List[str] = Field(default_factory=list, description="Extracted named entities or topics")
+    uri: str
+    lang: str
+    isDuplicate: bool
+    date: date
+    time: str
+    dateTime: datetime
+    dateTimePub: datetime = Field(..., alias="dateTimePub")
+    dataType: str
+    sim: float
+    url: HttpUrl
+    title: str
+    body: str
+    source: Source
+    authors: List[Author]
+    image: Optional[HttpUrl]
+    eventUri: Optional[str]
+    sentiment: Optional[str]
+    wgt: Optional[float]
+    relevance: Optional[float]
 
     class Config:
-        orm_mode = True
-        anystr_strip_whitespace = True
-        allow_population_by_field_name = True
+        validate_by_name = True
+        extra = "ignore"
