@@ -4,13 +4,20 @@ from datetime import datetime
 
 from eventregistry import EventRegistry, QueryArticlesIter
 
-
-
-from base import BaseScraper
+from backend.config.settings import Settings
+from backend.models.article import Article
+from backend.scrapers.base import BaseScraper
 
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)  # Set the logging level to DEBUG or INFO
+console_handler = logging.StreamHandler()
+console_handler.setLevel(logging.DEBUG)  # Ensure DEBUG messages are shown in the console
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+console_handler.setFormatter(formatter)
+logger.addHandler(console_handler)
 
-class NewsAPIAIScraper(BaseScraper):
+
+class NewsApiAiScraper(BaseScraper):
     """
     Scraper for NewsAPI.ai using the official Python SDK (eventregistry).
 
@@ -26,7 +33,8 @@ class NewsAPIAIScraper(BaseScraper):
     def __init__(self, config: Dict[str, Any]) -> None:
         super().__init__(config)
         settings = Settings()
-        self.api_key: str = config.get("api_key") or settings.newsapi_ai_key
+        print(settings.API_KEY_NEWS_API_AI)
+        self.api_key: str = config.get("api_key") or settings.API_KEY_NEWS_API_AI
         # Initialize EventRegistry client
         self.er = EventRegistry(apiKey=self.api_key, allowUseOfArchive=False)
 
@@ -47,6 +55,9 @@ class NewsAPIAIScraper(BaseScraper):
             sourceUri=sources
         )
         for raw in q.execQuery(self.er, maxItems=max_items):
+            logger.debug(
+                f"Fetched article structure: { {k: v if k != 'body' else '<<omitted>>' for k, v in raw.items()} }")
+            logger.debug(f"Fetched article: {raw}")
             yield raw
 
     def parse(self, raw: Dict[str, Any]) -> Article:
@@ -54,40 +65,15 @@ class NewsAPIAIScraper(BaseScraper):
         Parse an EventRegistry article dict into our Article model.
         """
         # Parse publication date
-        date_iso: Optional[str] = raw.get("datePublishedIso")
-        published_dt: Optional[datetime] = None
-        if date_iso:
-            try:
-                published_dt = datetime.fromisoformat(date_iso)
-            except ValueError:
-                logger.warning("Invalid ISO date format: %s", date_iso)
-
-        # Extract source name
-        source_info = raw.get("source", {})
-        source_name = source_info.get("title") if isinstance(source_info, dict) else None
-
-        return Article(
-            title=raw.get("title", "").strip(),
-            author=raw.get("author"),
-            published_at=published_dt,
-            source=source_name,
-            url=raw.get("url"),
-            text=raw.get("body") or "",
-            keywords=[self.config.get("query")] if self.config.get("query") else [],
-            entities=raw.get("entities", [])
-        )
-
-    
+        return Article(**raw)
 
 
-
-from newsapi_ai_client import NewsApiAiClient
-
+"""
 config = {
-    "api_key": "",  # Replace with your NewsAPI.ai API key
+    "api_key": "0dd48ba4-0539-4d0f-9962-894ae442092c",  # Replace with your NewsAPI.ai API key
     "query": "",  # Replace with your desired search keywords
     "from": "2025-05-10",  # Replace with your desired start date (YYYY-MM-DD)
-    "to": "2023-05-11",  # Replace with your desired end date (YYYY-MM-DD)
+    "to": "2025-05-11",  # Replace with your desired end date (YYYY-MM-DD)
     "sources": ["faz.net"],  # Replace with your desired source URIs
     "max_items": 5  # Replace with your desired maximum number of articles
 }
@@ -95,7 +81,8 @@ config = {
 
 # Execute the scraper with the provided configuration
 scraper = NewsAPIAIScraper(config)
-result = scraper.run()
+logger.info("Starting NewsAPI.ai scraper with config: %s", config)
+for i in scraper.run():
+    print(i)
 
-print(result)
-
+"""
