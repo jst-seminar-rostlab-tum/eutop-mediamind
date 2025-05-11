@@ -13,6 +13,7 @@ def main():
             "title": s.title,
             "url": s.url,
             "scraper_type": s.scraper_type,
+
         }
         pipeline = PreprocessingPipeline(cfg)
         pipeline.run()

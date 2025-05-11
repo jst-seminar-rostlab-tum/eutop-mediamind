@@ -1,11 +1,12 @@
 import logging
 from typing import Iterator, Any, Dict, Optional
-from datetime import datetime
+from datetime import datetime, timedelta, date
 
 from eventregistry import EventRegistry, QueryArticlesIter
+from sqlalchemy.orm import Session
 
 from backend.config.settings import Settings
-from backend.models.article import Article
+from backend.models.article import Article, Source, Author
 from backend.scrapers.base import BaseScraper
 
 logger = logging.getLogger(__name__)
@@ -30,8 +31,9 @@ class NewsApiAiScraper(BaseScraper):
       - max_items: max articles to fetch (default: 100)
     """
 
-    def __init__(self, config: Dict[str, Any]) -> None:
+    def __init__(self, config: Dict[str, Any], db: Session) -> None:
         super().__init__(config)
+        self.db = db
         settings = Settings()
         print(settings.API_KEY_NEWS_API_AI)
         self.api_key: str = config.get("api_key") or settings.API_KEY_NEWS_API_AI
@@ -45,7 +47,14 @@ class NewsApiAiScraper(BaseScraper):
         query: str = self.config.get("query", "")
         date_start: Optional[str] = self.config.get("from")
         date_end: Optional[str] = self.config.get("to")
-        sources = self.config.get("sources")
+
+        if date_start is None and date_end is None:
+            today = date.today()
+            yesterday = today - timedelta(days=1)
+            date_start = yesterday.isoformat()  # YYYY-MM-DD
+            date_end = today.isoformat()
+
+        sources = self.config.get("url")
         max_items: int = self.config.get("max_items", 100)
 
         q = QueryArticlesIter(
@@ -62,27 +71,56 @@ class NewsApiAiScraper(BaseScraper):
 
     def parse(self, raw: Dict[str, Any]) -> Article:
         """
-        Parse an EventRegistry article dict into our Article model.
+        Parse an EventRegistry article dict into unser Article-Model.
+        CamelCase in snake_case mappen und vorhandene Source wiederverwenden.
         """
-        # Parse publication date
-        return Article(**raw)
+        # 1) Mappe die einfachen Felder
+        mapped = {
+            "uri":           raw.get("uri"),
+            "lang":          raw.get("lang"),
+            "is_duplicate":  raw.get("isDuplicate"),
+            "date":          date.fromisoformat(raw.get("date")),
+            "time":          raw.get("time"),
+            "date_time":     datetime.fromisoformat(raw.get("dateTime").replace("Z", "+00:00")),
+            "date_time_pub": datetime.fromisoformat(raw.get("dateTimePub").replace("Z", "+00:00")),
+            "data_type":     raw.get("dataType"),
+            "sim":           raw.get("sim", 0.0),
+            "url":           raw.get("url"),
+            "title":         raw.get("title"),
+            "body":          raw.get("body"),
+            "image":         raw.get("image"),
+            "event_uri":     raw.get("eventUri"),
+            "sentiment":     raw.get("sentiment"),
+            "wgt":           raw.get("wgt"),
+            "relevance":     raw.get("relevance"),
+        }
 
+        # 2) Article nur mit den gemappten Feldern anlegen
+        article = Article(**mapped)
 
-"""
-config = {
-    "api_key": "0dd48ba4-0539-4d0f-9962-894ae442092c",  # Replace with your NewsAPI.ai API key
-    "query": "",  # Replace with your desired search keywords
-    "from": "2025-05-10",  # Replace with your desired start date (YYYY-MM-DD)
-    "to": "2025-05-11",  # Replace with your desired end date (YYYY-MM-DD)
-    "sources": ["faz.net"],  # Replace with your desired source URIs
-    "max_items": 5  # Replace with your desired maximum number of articles
-}
+        # 3) Source: get-or-create basierend auf uri
+        src_data = raw.get("source", {})
+        src_uri = src_data.get("uri")
+        if src_uri:
+            # vorausgesetzt, self.db ist eure SQLAlchemy-Session
+            existing = self.db.query(Source).filter_by(uri=src_uri).first()
+            if existing:
+                article.source = existing
+            else:
+                article.source = Source(
+                    uri=src_uri,
+                    data_type=src_data.get("dataType"),
+                    title=src_data.get("title"),
+                )
 
+        # 4) Authors anlegen und anhängen
+        for a in raw.get("authors", []):
+            article.authors.append(
+                Author(
+                    uri=a.get("uri"),
+                    is_agency=a.get("isAgency", False)
+                )
+            )
 
-# Execute the scraper with the provided configuration
-scraper = NewsAPIAIScraper(config)
-logger.info("Starting NewsAPI.ai scraper with config: %s", config)
-for i in scraper.run():
-    print(i)
+        return article
 
-"""

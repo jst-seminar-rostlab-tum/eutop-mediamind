@@ -5,9 +5,11 @@ Factory to instantiate the appropriate Scraper class based on configuration.
 import importlib
 from typing import Dict, Type
 
+from sqlalchemy.orm import Session
+
 from backend.scrapers.base import BaseScraper
 
-def get_scraper(source_config: Dict) -> BaseScraper:
+def get_scraper(source_config: Dict, db: Session) -> BaseScraper:
     """
         Return an instance of a scraper based on source_config. source_config must include a 'scraper_type' type: 'newsapi_ai'
         The scraper_key is used to determine which scraper class to instantiate.
@@ -27,4 +29,4 @@ def get_scraper(source_config: Dict) -> BaseScraper:
     except (ImportError, AttributeError) as e:
         raise ValueError(f"Could not find scraper for type '{scraper_type}': {e}")
 
-    return ScraperClass(source_config)
+    return ScraperClass(source_config, db)
