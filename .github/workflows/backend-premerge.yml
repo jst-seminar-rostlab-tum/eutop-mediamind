@@ -3,7 +3,6 @@ name: Backend pre-merge
 on:
   workflow_call:
   pull_request:
-  # TODO: Uncomment as soon as #30 is merged and change `src` to `app`
   #   paths:
   #     - "backend/**"
 
@@ -56,13 +55,13 @@ jobs:
           pip install flake8 black isort
 
       - name: Check formatting with Black
-        run: black --check src
+        run: black --check app
 
       - name: Check import sorting with isort
-        run: isort --check-only src
+        run: isort --check-only app
 
       - name: Run flake8 lint
-        run: flake8 src
+        run: flake8 app
 
   test:
     needs: setup
@@ -88,8 +87,7 @@ jobs:
           pip install pytest pytest-cov
 
       - name: Run tests with coverage
-        run: PYTHONPATH=src pytest . --cov=src --cov-report=xml --cov-report=term --cov-fail-under=75
-        # TODO: Uncomment once #30 is merged: run: PYTHONPATH=src pytest ../tests/* --cov=src --cov-report=xml --cov-report=term --cov-fail-under=75
+        run: PYTHONPATH=app pytest ../tests/* --cov=app --cov-report=xml --cov-report=term --cov-fail-under=75
 
       - name: Upload coverage report
         uses: actions/upload-artifact@v4
