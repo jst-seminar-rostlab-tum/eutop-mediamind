@@ -9,9 +9,6 @@ on:
 jobs:
   lint:
     runs-on: ubuntu-24.04
-    strategy:
-      matrix:
-        python-version: ["3.13"]
     defaults:
       run:
         working-directory: ./backend
@@ -22,7 +19,7 @@ jobs:
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: "3.13"
           cache: "pip"
 
       - name: Install dependencies

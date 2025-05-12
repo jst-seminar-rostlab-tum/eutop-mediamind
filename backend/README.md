@@ -43,12 +43,6 @@ The folder structure was taken from [here](https://github.com/jujumilk3/fastapi-
 - _services_: services (see "service repository" pattern)
 - _utils_: self explanatory
 
-## Sample env
-```dotenv
-SUPABASE_URL=""
-SUPABASE_KEY=""
-```
-
 ## Linting and Formatting
 
 - **Black**: Code formatter (run `black app` to format the code)
