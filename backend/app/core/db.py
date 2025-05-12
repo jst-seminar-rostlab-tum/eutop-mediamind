@@ -1,17 +1,16 @@
+import psycopg2
 from config import Configs
-from supabase import Client, create_client
+from psycopg2 import OperationalError
+from psycopg2.extensions import connection as PgConnection
 
 
-def get_supabase_client(cfg: Configs) -> Client:
-    if not cfg.SUPABASE_URL or not cfg.SUPABASE_KEY:
-        raise Exception(
-            status_code=500, detail="Supabase credentials are not set"
-        )
+def get_postgresql_connection(cfg: Configs) -> PgConnection:
+    if not cfg.DATABASE_URL:
+        raise ValueError("DATABASE_URL not set in config.")
+
     try:
-        supabase: Client = create_client(cfg.SUPABASE_URL, cfg.SUPABASE_KEY)
-        return supabase
+        return psycopg2.connect(dsn=cfg.DATABASE_URL)
+    except OperationalError as e:
+        raise Exception(f"Failed to connect to PostgreSQL database: {str(e)}")
     except Exception as e:
-        raise Exception(
-            status_code=500,
-            detail=f"Failed to initialize Supabase client: {str(e)}",
-        )
+        raise Exception(f"Failed to initialize PostgreSQL client: {str(e)}")
