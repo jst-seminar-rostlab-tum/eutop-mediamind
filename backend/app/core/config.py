@@ -19,8 +19,7 @@ class Configs:
     BACKEND_CORS_ORIGINS: List[str] = ["*"]
 
     # database
-    SUPABASE_URL = os.getenv("SUPABASE_URL")
-    SUPABASE_KEY = os.getenv("SUPABASE_KEY")
+    DATABASE_URL = os.getenv("DATABASE_URL")
 
 
 configs = Configs()
