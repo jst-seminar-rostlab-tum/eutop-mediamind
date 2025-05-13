@@ -1,0 +1,25 @@
+import os
+from typing import List
+
+from dotenv import load_dotenv
+
+load_dotenv()
+
+
+class Configs:
+    # base
+    ENV: str = os.getenv("ENV", "dev")
+    PROJECT_NAME: str = "mediamind"
+
+    PROJECT_ROOT: str = os.path.dirname(
+        os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    )
+
+    # CORS
+    BACKEND_CORS_ORIGINS: List[str] = ["*"]
+
+    # database
+    DATABASE_URL = os.getenv("DATABASE_URL")
+
+
+configs = Configs()
