@@ -1,6 +1,7 @@
 # EUTOP Mediamind backend
 
-## Getting started 
+## Getting started
+
 - Activate the virtual environment:
 
   - On Windows:
@@ -22,19 +23,20 @@
   ```
 
 - Start the server:
-   1. `uvicorn app.main:app --reload`: base
-   2. options
+  1.  `uvicorn app.main:app --reload`: base
+  2.  options
       1. host: `--host 0.0.0.0`
       2. port: `--port 8000`
 
 You can then see the API definition at `http://localhost:8000/api/docs`
 
 - Run tests
-   1. `pytest`: base 
-   2. `pytest --cov=app --cov-report=term-missing`: coverage with stdout
-   3. `pytest --cov=app --cov-report=html`: coverage with html
+  1.  `pytest`: base
+  2.  `pytest --cov=app --cov-report=term-missing`: coverage with stdout
+  3.  `pytest --cov=app --cov-report=html`: coverage with html
 
 ## App folder structure
+
 The folder structure was taken from [here](https://github.com/jujumilk3/fastapi-clean-architecture).
 
 - _api_: routing, divided by api version
