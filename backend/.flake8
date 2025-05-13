@@ -3,4 +3,4 @@ max-line-length = 79
 extend-ignore = E203, W503
 exclude = .git,__pycache__,docs,old,build,dist,venv,env
 import-order-style = pep8 
-application-import-names = src
+application-import-names = app
