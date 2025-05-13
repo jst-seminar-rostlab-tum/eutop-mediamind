@@ -14,6 +14,7 @@ exclude = '''
 '''
 [tool.isort]
 profile = "black"
+known_first_party = ["app"]
 line_length = 79
 skip = [
     ".venv",
