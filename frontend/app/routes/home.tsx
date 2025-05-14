@@ -1,7 +1,6 @@
 import { Welcome } from "../pages/welcome/welcome";
-import type { MetaArgs } from "react-router";
 
-export function meta({}: MetaArgs) {
+export function meta() {
   return [
     { title: "MediaMind | Landingpage" },
     { name: "description", content: "Welcome to MediaMind!" },
