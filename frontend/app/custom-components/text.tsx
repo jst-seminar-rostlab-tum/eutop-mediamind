@@ -1,8 +1,13 @@
-import type { ComponentType, JSX, PropsWithChildren } from "react";
+import type {
+  ComponentType,
+  HTMLAttributes,
+  JSX,
+  PropsWithChildren,
+} from "react";
 
 interface Props {
   hierachy?: number; // headline level, if none specified normal text
-  tag?: ComponentType<any>;
+  tag?: ComponentType<HTMLAttributes<HTMLElement>>;
 }
 
 /*
