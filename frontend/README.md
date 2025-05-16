@@ -1,20 +1,68 @@
-# Frontend
+# Welcome to MediaMind Frontend!
 
-## Setup
+## Getting Started
 
-- Install packages:
+### Installation
 
-  ```bash
-  npm ci
-  ```
+Install the dependencies:
 
-- Run Server:
+```bash
+npm install
+```
 
-  TBD
+### Development
 
-## Linting and Formatting
+Start the development server with HMR:
 
-- **Prettier**: Code formatter (run `npm run prettier` to format the code)
-- **ESLint**:
-  - run `npm run lint` to check for linting issues
-  - run `npm run lint:fix` to fix potential issues
+```bash
+npm run dev
+```
+
+Your application will be available at `http://localhost:5173`.
+
+## Building for Production
+
+Create a production build:
+
+```bash
+npm run build
+```
+
+## Deployment
+
+### Docker Deployment
+
+To build and run using Docker:
+
+```bash
+docker build -t mediamind .
+
+# Run the container
+docker run -p 3000:3000 mediamind
+```
+
+### DIY Deployment
+
+If you're familiar with deploying Node applications, the built-in app server is production-ready.
+
+Make sure to deploy the output of `npm run build`
+
+```
+├── package.json
+├── package-lock.json
+├── build/
+│   ├── client/    # Static assets
+│   └── server/    # Server-side code
+```
+
+## Styling
+
+We use [Shadcn](https://ui.shadcn.com/) as design framework. See their documentation to see a full list of components.
+
+In case you want to use a component, which is not yet used in our application, use the following command:
+
+```
+npx shadcn@latest add button
+```
+
+This will auto generate the specified components within the components folder.
