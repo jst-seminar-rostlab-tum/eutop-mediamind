@@ -11,7 +11,7 @@ interface Props {
 }
 
 /*
-Component to handle Text in the app consistent. Lets develop this component on the fly an add new hierachy levels once we need them.
+Component to handle Text in the app consistent. Lets develop this component on the fly and add new hierachy levels once we need them.
 Check out https://ui.shadcn.com/docs/components/typography for a guide on typography (in code view you can copy the css classes from shadcn)
 */
 export default function Text({
@@ -28,8 +28,6 @@ export default function Text({
       </Tag>
     );
   }
-
-  // TODO: add other headline levels
 
   // Normal Text
   return <p className="leading-7 [&:not(:first-child)]:mt-6">{children}</p>;

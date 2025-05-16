@@ -49,7 +49,7 @@ Make sure to deploy the output of `npm run build`
 
 ```
 ├── package.json
-├── package-lock.json (or pnpm-lock.yaml, or bun.lockb)
+├── package-lock.json
 ├── build/
 │   ├── client/    # Static assets
 │   └── server/    # Server-side code
@@ -64,3 +64,5 @@ In case you want to use a component, which is not yet used in our application, u
 ```
 npx shadcn@latest add button
 ```
+
+This will auto generate the specified components within the components folder.
