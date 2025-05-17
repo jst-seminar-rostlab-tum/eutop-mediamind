@@ -10,6 +10,9 @@ from app.models.organization import (
     OrganizationCreate,
     OrganizationUpdate,
 )
+from app.models.article import (
+    Article,
+)
 from app.models.search_profile import (
     SearchProfile,
     SearchProfileCreate,
@@ -171,3 +174,21 @@ def delete_search_profile(
 ) -> None:
     session.delete(db_search_profile)
     session.commit()
+
+def get_article_by_id(
+    *, session: Session, article_id: uuid.UUID
+) -> Article | None:
+    return session.get(Article, article_id)
+
+def update_article(
+    *,
+    session: Session,
+    db_article: Article,
+    #article_update: ArticleUpdate,
+) -> Article:
+    update_data = article_update.model_dump(exclude_unset=True)
+    db_article.sqlmodel_update(update_data)
+    session.add(db_article)
+    session.commit()
+    session.refresh(db_article)
+    return db_article
