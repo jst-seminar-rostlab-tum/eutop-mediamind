@@ -1,12 +1,18 @@
-from sqlmodel import SQLModel, Field, Relationship
 import uuid
-from typing import TYPE_CHECKING, List
-from app.models.associations import ArticleKeywordLink
-from app.models.associations import OrganizationSubscriptionLink
 from datetime import datetime
+from typing import TYPE_CHECKING, List
+
+from sqlmodel import Field, Relationship, SQLModel
+
+from app.models.associations import (
+    ArticleKeywordLink,
+    OrganizationSubscriptionLink,
+)
+
 if TYPE_CHECKING:
-    from app.models.subscription import Subscription
     from app.models.keyword import Keyword
+    from app.models.subscription import Subscription
+
 
 class Article(SQLModel, table=True):
     __tablename__ = "articles"

@@ -22,7 +22,9 @@ class EmailData:
     subject: str
 
 
-def render_email_template(*, template_name: str, context: dict[str, Any]) -> str:
+def render_email_template(
+    *, template_name: str, context: dict[str, Any]
+) -> str:
     template_str = (
         Path(__file__).parent / "email-templates" / "build" / template_name
     ).read_text()
@@ -36,7 +38,9 @@ def send_email(
     subject: str = "",
     html_content: str = "",
 ) -> None:
-    assert settings.emails_enabled, "no provided configuration for email variables"
+    assert (
+        settings.emails_enabled
+    ), "no provided configuration for email variables"
     message = emails.Message(
         subject=subject,
         html=html_content,
@@ -65,7 +69,9 @@ def generate_test_email(email_to: str) -> EmailData:
     return EmailData(html_content=html_content, subject=subject)
 
 
-def generate_reset_password_email(email_to: str, email: str, token: str) -> EmailData:
+def generate_reset_password_email(
+    email_to: str, email: str, token: str
+) -> EmailData:
     project_name = settings.PROJECT_NAME
     subject = f"{project_name} - Password recovery for user {email}"
     link = f"{settings.FRONTEND_HOST}/reset-password?token={token}"

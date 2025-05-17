@@ -1,11 +1,11 @@
 # models package
-from .user import *
+from .article import Article
+from .associations import *
 from .auth import *
+from .keyword import Keyword
+from .match import Match
 from .organization import Organization
 from .search_profile import SearchProfile
 from .subscription import Subscription
 from .topic import Topic
-from .keyword import Keyword
-from .associations import *
-from .article import Article
-from .match import Match
+from .user import *

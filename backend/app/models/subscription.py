@@ -1,12 +1,18 @@
 import uuid
-from sqlmodel import SQLModel, Field, Relationship
-from typing import List, TYPE_CHECKING
-from app.models.associations import OrganizationSubscriptionLink
-from app.models.associations import SearchProfileSubscriptionLink
+from typing import TYPE_CHECKING, List
+
+from sqlmodel import Field, Relationship, SQLModel
+
+from app.models.associations import (
+    OrganizationSubscriptionLink,
+    SearchProfileSubscriptionLink,
+)
+
 if TYPE_CHECKING:
-    from app.models.organization import Organization
     from app.models.article import Article
+    from app.models.organization import Organization
     from app.models.search_profile import SearchProfile
+
 
 class Subscription(SQLModel, table=True):
     __tablename__ = "subscriptions"
@@ -25,9 +31,9 @@ class Subscription(SQLModel, table=True):
     )
     articles: List["Article"] = Relationship(
         back_populates="subscription",
-        sa_relationship_kwargs={"cascade": "all, delete-orphan"}
+        sa_relationship_kwargs={"cascade": "all, delete-orphan"},
     )
     search_profiles: List["SearchProfile"] = Relationship(
         back_populates="subscriptions",
-        link_model=SearchProfileSubscriptionLink
+        link_model=SearchProfileSubscriptionLink,
     )

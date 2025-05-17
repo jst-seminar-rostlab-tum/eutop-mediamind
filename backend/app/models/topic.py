@@ -1,15 +1,15 @@
 # models/topic.py
 
 import uuid
-from sqlmodel import Field, Relationship, SQLModel
-from typing import List, TYPE_CHECKING
-from app.models.associations import TopicKeywordLink
+from typing import TYPE_CHECKING, List
 
+from sqlmodel import Field, Relationship, SQLModel
+
+from app.models.associations import TopicKeywordLink
 
 if TYPE_CHECKING:
     from app.models.keyword import Keyword
     from app.models.search_profile import SearchProfile
-
 
 
 class Topic(SQLModel, table=True):
@@ -28,4 +28,3 @@ class Topic(SQLModel, table=True):
         back_populates="topics",
         link_model=TopicKeywordLink,
     )
-
