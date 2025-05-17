@@ -1,38 +1,35 @@
-# models/associations.py
-
 import uuid
-from sqlmodel import Field, Relationship, SQLModel
-from sqlalchemy import UniqueConstraint
-
-class OrganizationSubscription(SQLModel, table=True):
-    __tablename__ = "organization_subscriptions"
-    __table_args__ = (UniqueConstraint("organization_id", "subscription_id", name="uq_org_sub"),)
-
-    organization_id: uuid.UUID = Field(foreign_key="organizations.id", primary_key=True)
-    subscription_id: uuid.UUID = Field(foreign_key="subscriptions.id", primary_key=True)
-
-    organization = Relationship(back_populates="subscriptions_link")
-    subscription = Relationship(back_populates="organizations_link")
+from sqlmodel import Field, SQLModel, Relationship
 
 
-class TopicKeyword(SQLModel, table=True):
-    __tablename__ = "topic_keywords"
-    __table_args__ = (UniqueConstraint("topic_id", "keyword_id", name="uq_topic_keyword"),)
+class TopicKeywordLink(SQLModel, table=True):
+    __tablename__ = "topics_keywords"
 
-    topic_id: uuid.UUID = Field(foreign_key="topics.id", primary_key=True)
-    keyword_id: uuid.UUID = Field(foreign_key="keywords.id", primary_key=True)
-
-    topic = Relationship(back_populates="topics_link")
-    keyword = Relationship(back_populates="keywords_link")
+    topic_id: uuid.UUID = Field(foreign_key="topics.id", nullable=False, primary_key=True)
+    keyword_id: uuid.UUID = Field(foreign_key="keywords.id", nullable=False, primary_key=True)
 
 
-class ArticleKeyword(SQLModel, table=True):
-    __tablename__ = "article_keywords"
-    __table_args__ = (UniqueConstraint("article_id", "keyword_id", name="uq_article_keyword"),)
+class OrganizationSubscriptionLink(SQLModel, table=True):
+    __tablename__ = "organizations_subscriptions"
 
-    article_id: uuid.UUID = Field(foreign_key="articles.id", primary_key=True)
-    keyword_id: uuid.UUID = Field(foreign_key="keywords.id", primary_key=True)
-    score: float = Field(default=0.0)
+    organization_id: uuid.UUID = Field(foreign_key="organizations.id", nullable=False, primary_key=True)
+    subscription_id: uuid.UUID = Field(foreign_key="subscriptions.id", nullable=False, primary_key=True)    
 
-    article = Relationship(back_populates="keywords_link")
-    keyword = Relationship(back_populates="articles_link")
+class ArticleKeywordLink(SQLModel, table=True):
+    __tablename__ = "articles_keywords"
+
+    article_id: uuid.UUID = Field(foreign_key="articles.id", nullable=False, primary_key=True)
+    keyword_id: uuid.UUID = Field(foreign_key="keywords.id", nullable=False, primary_key=True)
+    score: float
+
+class SearchProfileSubscriptionLink(SQLModel, table=True):
+    __tablename__ = "search_profiles_subscriptions"
+
+    search_profile_id: uuid.UUID = Field(foreign_key="search_profiles.id", nullable=False, primary_key=True)
+    subscription_id: uuid.UUID = Field(foreign_key="subscriptions.id", nullable=False, primary_key=True)
+
+class UserSearchProfileLink(SQLModel, table=True):
+    __tablename__ = "users_search_profiles"
+
+    user_id: uuid.UUID = Field(foreign_key="users.id", nullable=False, primary_key=True)
+    search_profile_id: uuid.UUID = Field(foreign_key="search_profiles.id", nullable=False, primary_key=True)

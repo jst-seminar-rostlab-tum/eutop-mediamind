@@ -1,24 +1,33 @@
-# models/subscription.py
-
 import uuid
-from pydantic import AnyUrl
-from sqlalchemy import Column, JSON
-from sqlmodel import Field, Relationship
-from .timestamp import TimestampMixin
+from sqlmodel import SQLModel, Field, Relationship
+from typing import List, TYPE_CHECKING
+from app.models.associations import OrganizationSubscriptionLink
+from app.models.associations import SearchProfileSubscriptionLink
+if TYPE_CHECKING:
+    from app.models.organization import Organization
+    from app.models.article import Article
+    from app.models.search_profile import SearchProfile
 
-class Subscription(TimestampMixin, table=True):
+class Subscription(SQLModel, table=True):
     __tablename__ = "subscriptions"
-
+    # Attributes
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     name: str = Field(max_length=255)
-    domain: AnyUrl
+    domain: str = Field(max_length=255)
     vault_path: str = Field(max_length=255)
-    config: dict = Field(sa_column=Column(JSON), default_factory=dict)
+    config: str = Field(max_length=255)
     scraper_type: str = Field(max_length=255)
 
-    organizations_link = Relationship(back_populates="subscription")
-    organizations = Relationship(
+    # Relationships
+    organizations: List["Organization"] = Relationship(
         back_populates="subscriptions",
-        link_model="OrganizationSubscription",
-        sa_relationship_kwargs={"viewonly": True},
+        link_model=OrganizationSubscriptionLink,
+    )
+    articles: List["Article"] = Relationship(
+        back_populates="subscription",
+        sa_relationship_kwargs={"cascade": "all, delete-orphan"}
+    )
+    search_profiles: List["SearchProfile"] = Relationship(
+        back_populates="subscriptions",
+        link_model=SearchProfileSubscriptionLink
     )

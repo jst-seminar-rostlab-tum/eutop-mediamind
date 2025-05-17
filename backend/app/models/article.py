@@ -1,33 +1,35 @@
-# models/article.py
-
+from sqlmodel import SQLModel, Field, Relationship
 import uuid
-from datetime import date
-from typing import List, Optional
-from pydantic import AnyUrl
-from sqlalchemy import Column, JSON
-from sqlmodel import Field, Relationship
-from .timestamp import TimestampMixin
+from typing import TYPE_CHECKING, List
+from app.models.associations import ArticleKeywordLink
+from app.models.associations import OrganizationSubscriptionLink
+from datetime import datetime
+if TYPE_CHECKING:
+    from app.models.subscription import Subscription
+    from app.models.keyword import Keyword
 
-class Article(TimestampMixin, table=True):
+class Article(SQLModel, table=True):
     __tablename__ = "articles"
 
+    # Attributes
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
-    url: AnyUrl
-    title: str = Field(max_length=255, index=True)
-    author: str = Field(max_length=255)
+    title: str = Field(max_length=255)
     content: str
-    published: date
-    lang: str = Field(max_length=10)
-    category: str = Field(max_length=50)
-    summary: str = Field(max_length=255)
-    vector_embedding: Optional[List[float]] = Field(
-        default=None, sa_column=Column(JSON)
+    url: str
+    author: str
+    published_at: datetime
+    language: str
+    category: str
+    summary: str | None = Field(default=None, max_length=255)
+    # vector_embedding
+    subscription_id: uuid.UUID = Field(
+        foreign_key="subscriptions.id", nullable=False, index=True
     )
 
-    keywords_link = Relationship(back_populates="article")
-    keywords = Relationship(
+    # Relationships
+    subscription: "Subscription" = Relationship(back_populates="articles")
+    keywords: List["Keyword"] = Relationship(
         back_populates="articles",
-        link_model="ArticleKeyword",
-        sa_relationship_kwargs={"viewonly": True},
+        link_model=ArticleKeywordLink,
     )
-    matches = Relationship(back_populates="article")
+    matches: List["Match"] = Relationship(back_populates="article")

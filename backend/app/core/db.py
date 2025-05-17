@@ -4,8 +4,12 @@ from app import crud
 from app.core.config import settings
 from app.models import User, UserCreate
 
-engine = create_engine(str(settings.SQLALCHEMY_DATABASE_URI), echo=True)
+engine = create_engine(str(settings.SQLALCHEMY_DATABASE_URI))
 
+# Drop and recreate all tables to apply new schema changes
+# SQLModel.metadata.drop_all(engine)
+
+# SQLModel.metadata.create_all(engine)
 
 # make sure all SQLModel models are imported (app.models) before initializing DB
 # otherwise, SQLModel might fail to initialize relationships properly
@@ -19,13 +23,12 @@ def init_db(session: Session) -> None:
     # from sqlmodel import SQLModel
 
     # This works because the models are already imported and registered from app.models
-    #SQLModel.metadata.create_all(engine)
+    SQLModel.metadata.drop_all(engine)
+    SQLModel.metadata.create_all(engine)
 
     user = session.exec(
         select(User).where(User.email == settings.FIRST_SUPERUSER)
     ).first()
-    print("----------------------")
-    print(user)
     if not user:
         user_in = UserCreate(
             email=settings.FIRST_SUPERUSER,

@@ -1,26 +1,28 @@
-# models/keyword.py
-
 import uuid
-from sqlmodel import Field, Relationship
-from sqlalchemy import UniqueConstraint
-from .timestamp import TimestampMixin
+from sqlmodel import Field, SQLModel, Relationship
+from typing import List
+from typing import TYPE_CHECKING
+from app.models.associations import TopicKeywordLink
+from app.models.associations import ArticleKeywordLink
 
-class Keyword(TimestampMixin, table=True):
+
+if TYPE_CHECKING:
+    from app.models.topic import Topic
+    from app.models.article import Article
+
+
+class Keyword(SQLModel, table=True):
     __tablename__ = "keywords"
-    __table_args__ = (UniqueConstraint("term", name="uq_keyword_term"),)
-
+    # Attributes
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
-    term: str = Field(max_length=255, index=True)
+    name: str = Field(max_length=255)
 
-    articles_link = Relationship(back_populates="keyword")
-    articles = Relationship(
+    # Relationships
+    topics: List["Topic"] = Relationship(
         back_populates="keywords",
-        link_model="ArticleKeyword",
-        sa_relationship_kwargs={"viewonly": True},
+        link_model=TopicKeywordLink
     )
-    topics_link = Relationship(back_populates="keyword")
-    topics = Relationship(
+    articles: List["Article"] = Relationship(
         back_populates="keywords",
-        link_model="TopicKeyword",
-        sa_relationship_kwargs={"viewonly": True},
+        link_model=ArticleKeywordLink
     )

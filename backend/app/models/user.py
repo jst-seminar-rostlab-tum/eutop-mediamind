@@ -1,21 +1,59 @@
-# models/user.py
-
 import uuid
 from pydantic import EmailStr
-from sqlmodel import Field, Relationship
-from sqlalchemy import UniqueConstraint
-from .timestamp import TimestampMixin
+from sqlmodel import Field, Relationship, SQLModel
+from .organization import Organization
+from typing import List
+from typing import TYPE_CHECKING
+from app.models.associations import UserSearchProfileLink
+if TYPE_CHECKING:
 
-class User(TimestampMixin, table=True):
-    __tablename__ = "users"
-    __table_args__ = (UniqueConstraint("email", name="uq_user_email"),)
+    from app.models.search_profile import SearchProfile
 
-    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
-    name: str = Field(max_length=255)
+# Shared properties
+class UserBase(SQLModel):
     email: EmailStr = Field(unique=True, index=True, max_length=255)
-    is_admin: bool = Field(default=False)
-    organization_id: uuid.UUID = Field(foreign_key="organizations.id")
+    is_superuser: bool = False
+    full_name: str | None = Field(default=None, max_length=255)
+    organization_id: uuid.UUID | None = Field(default=None, foreign_key="organizations.id", index=True)
 
-    organization = Relationship(back_populates="users")
-    search_profiles = Relationship(back_populates="created_by_user")
-    matches = Relationship(back_populates="comment_by")
+# Properties to receive via API on creation
+class UserCreate(UserBase):
+    password: str = Field(min_length=8, max_length=40)
+
+class UserRegister(SQLModel):
+    email: EmailStr = Field(max_length=255)
+    password: str = Field(min_length=8, max_length=40)
+    full_name: str | None = Field(default=None, max_length=255)
+
+# Properties to receive via API on update, all are optional
+class UserUpdate(UserBase):
+    email: EmailStr | None = Field(default=None, max_length=255)
+    password: str | None = Field(default=None, min_length=8, max_length=40)
+
+class UserUpdateMe(SQLModel):
+    full_name: str | None = Field(default=None, max_length=255)
+    email: EmailStr | None = Field(default=None, max_length=255)
+
+class UpdatePassword(SQLModel):
+    current_password: str = Field(min_length=8, max_length=40)
+    new_password: str = Field(min_length=8, max_length=40)
+
+# Database model, table inferred from class name
+class User(UserBase, table=True):
+    __tablename__ = "users"
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    hashed_password: str
+    
+    organization: Organization = Relationship(back_populates="users")
+    search_profiles: List["SearchProfile"] = Relationship(
+        back_populates="users",
+        link_model=UserSearchProfileLink,
+    )
+
+# Properties to return via API, id is always required
+class UserPublic(UserBase):
+    id: uuid.UUID
+
+class UsersPublic(SQLModel):
+    data: list[UserPublic]
+    count: int
