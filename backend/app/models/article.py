@@ -1,16 +1,33 @@
-from datetime import datetime
+# models/article.py
 
-from sqlmodel import Field, Relationship, SQLModel
 import uuid
+from datetime import date
+from typing import List, Optional
+from pydantic import AnyUrl
+from sqlalchemy import Column, JSON
+from sqlmodel import Field, Relationship
+from .timestamp import TimestampMixin
 
-class Article(SQLModel):
+class Article(TimestampMixin, table=True):
     __tablename__ = "articles"
+
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
-    title: str = Field(max_length=255)
+    url: AnyUrl
+    title: str = Field(max_length=255, index=True)
     author: str = Field(max_length=255)
-    content: str = Field()
-    published: datetime = Field()
-    language: str = Field(max_length=10)
+    content: str
+    published: date
+    lang: str = Field(max_length=10)
     category: str = Field(max_length=50)
     summary: str = Field(max_length=255)
-    created_at: datetime = Field(default_factory=datetime.now)
+    vector_embedding: Optional[List[float]] = Field(
+        default=None, sa_column=Column(JSON)
+    )
+
+    keywords_link = Relationship(back_populates="article")
+    keywords = Relationship(
+        back_populates="articles",
+        link_model="ArticleKeyword",
+        sa_relationship_kwargs={"viewonly": True},
+    )
+    matches = Relationship(back_populates="article")
