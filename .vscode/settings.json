@@ -1,5 +1,0 @@
-{
-  // damit Intellisense/Auto-Import deinen Projekt-Ordner durchsucht
-  "python.analysis.extraPaths": ["${workspaceFolder}/backend"],
-  "python.autoComplete.extraPaths": ["${workspaceFolder}/backend"]
-}
