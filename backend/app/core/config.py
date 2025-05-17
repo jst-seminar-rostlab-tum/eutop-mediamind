@@ -21,14 +21,9 @@ class Configs:
     # database
     DATABASE_URL = os.getenv("DATABASE_URL")
 
-    # Supabase Auth
-    SUPABASE_URL = os.getenv("SUPABASE_URL", "")
-    SUPABASE_KEY = os.getenv("SUPABASE_KEY", "")
-    SUPABASE_JWT_SECRET = os.getenv("SUPABASE_JWT_SECRET", "")
-    SUPABASE_PROJECT_ID = os.getenv("SUPABASE_PROJECT_ID", "")
-    REDIRECT_URL = os.getenv(
-        "SUPABASE_REDIRECT_URL", "http://localhost:8000/api/v1/auth/callback"
-    )
+    # Clerk Configuration
+    CLERK_SECRET_KEY = os.getenv("CLERK_SECRET_KEY")
+    CLERK_PUBLISHABLE_KEY = os.getenv("CLERK_PUBLISHABLE_KEY")
 
 
 configs = Configs()

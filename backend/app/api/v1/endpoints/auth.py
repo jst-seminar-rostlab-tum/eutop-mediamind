@@ -1,151 +1,109 @@
-from typing import Dict, Optional
-
 import httpx
-from fastapi import APIRouter, Depends, Request, Response
-from fastapi.security import OAuth2PasswordRequestForm
-from pydantic import BaseModel, EmailStr
+from fastapi import APIRouter, Depends, HTTPException, status
+from pydantic import BaseModel
 
 from app.core.config import configs
 from app.core.dependencies import get_current_user
-from app.core.exceptions import AuthError
+
+router = APIRouter()
 
 
-# define request model
-class SignupRequest(BaseModel):
-    email: EmailStr
+class UserCreate(BaseModel):
+    email_address: str
     password: str
-    redirect_to: Optional[str] = None
+    first_name: str | None = None
+    last_name: str | None = None
 
 
-router = APIRouter(prefix="/auth", tags=["authentication"])
-
-# Supabase config
-SUPABASE_URL = configs.SUPABASE_URL
-SUPABASE_KEY = configs.SUPABASE_KEY
-AUTH_BASE_URL = f"{SUPABASE_URL}/auth/v1"
-SUPABASE_HEADERS = {"apikey": SUPABASE_KEY, "Content-Type": "application/json"}
-
-
-async def _make_supabase_request(
-    method: str, url: str, expect_json: bool = True, **kwargs
-) -> Dict:
-    """Make a request to Supabase API with error handling"""
-    if not SUPABASE_URL or not SUPABASE_KEY:
-        raise AuthError(detail="Supabase configuration missing")
-
-    try:
-        async with httpx.AsyncClient() as client:
-            response = await getattr(client, method)(url, **kwargs)
-            response.raise_for_status()
-            return response.json() if expect_json else {}
-    except httpx.HTTPStatusError as e:
-        error_data = (
-            e.response.json() if e.response.content else {"msg": str(e)}
-        )
-        error_msg = error_data.get("msg", "Unknown error")
-        raise AuthError(detail=f"Request failed: {error_msg}")
-    except httpx.RequestError as e:
-        raise AuthError(detail=f"Request failed: {str(e)}")
-
-
-@router.post("/signup")
-async def signup(data: SignupRequest):
-    """register a new user"""
-    try:
-        payload = {
-            "email": data.email,
-            "password": data.password,
-            "data": {},
-            "redirect_to": data.redirect_to or configs.REDIRECT_URL,
-        }
-        return await _make_supabase_request(
-            "post",
-            f"{AUTH_BASE_URL}/signup",
-            json=payload,
-            headers=SUPABASE_HEADERS,
-        )
-    except AuthError as e:
-        raise e
-    except Exception as e:
-        raise AuthError(detail=str(e))
-
-
-@router.post("/login")
-async def login(form_data: OAuth2PasswordRequestForm = Depends()):
-    """user login"""
-    try:
-        payload = {"email": form_data.username, "password": form_data.password}
-        return await _make_supabase_request(
-            "post",
-            f"{AUTH_BASE_URL}/token?grant_type=password",
-            json=payload,
-            headers=SUPABASE_HEADERS,
-        )
-    except AuthError as e:
-        raise e
-    except Exception as e:
-        raise AuthError(detail=str(e))
-
-
-@router.get("/signin")
-def sso_signin(provider: str):
-    redirect = configs.REDIRECT_URL
-    url = (
-        f"{AUTH_BASE_URL}/authorize?"
-        f"provider={provider}&"
-        f"redirect_to={redirect}"
-    )
-    return {"url": url}
-
-
-@router.get("/callback")
-async def sso_callback(request: Request):
+@router.get("/me")
+async def get_current_user_info(current_user=Depends(get_current_user)):
+    """
+    Get current user information
+    """
     return {
-        "message": (
-            "SSO callback handled here "
-            "(use frontend to parse token from hash)."
-        )
+        "id": current_user["id"],
+        "email": (
+            current_user["email_addresses"][0]["email_address"]
+            if current_user.get("email_addresses")
+            else None
+        ),
+        "first_name": current_user.get("first_name"),
+        "last_name": current_user.get("last_name"),
     }
 
 
-@router.post("/logout")
-async def logout(
-    current_user: dict = Depends(get_current_user), response: Response = None
-):
-    """User logout"""
-    try:
-        token = current_user.get("access_token")
-        headers = {**SUPABASE_HEADERS, "Authorization": f"Bearer {token}"}
-
-        await _make_supabase_request(
-            "post",
-            f"{AUTH_BASE_URL}/logout",
-            headers=headers,
-            expect_json=False,  # Supabase logout endpoint returns empty
+@router.get("/users")
+async def list_users(current_user=Depends(get_current_user)):
+    """
+    List all users (requires authentication)
+    """
+    async with httpx.AsyncClient() as client:
+        response = await client.get(
+            "https://api.clerk.dev/v1/users",
+            headers={
+                "Authorization": f"Bearer {configs.CLERK_SECRET_KEY}",
+                "Content-Type": "application/json",
+            },
         )
 
-        if response:
-            response.delete_cookie("supabase-auth")
-        return {"success": True, "message": "Successfully logged out"}
-    except AuthError as e:
-        raise e
-    except Exception as e:
-        raise AuthError(detail=str(e))
+        if response.status_code != 200:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Failed to fetch users from Clerk",
+            )
 
-
-@router.get("/status")
-async def auth_status(
-    current_user: Optional[dict] = Depends(get_current_user),
-):
-    """check auth status"""
-    if current_user:
+        users_data = response.json()
         return {
-            "authenticated": True,
-            "user": {
-                "id": current_user.get("sub"),
-                "email": current_user.get("email"),
-                "role": current_user.get("role"),
-            },
+            "users": [
+                {
+                    "id": user["id"],
+                    "email": (
+                        user["email_addresses"][0]["email_address"]
+                        if user.get("email_addresses")
+                        else None
+                    ),
+                    "first_name": user.get("first_name"),
+                    "last_name": user.get("last_name"),
+                }
+                for user in users_data
+            ]
         }
 
-    return {"authenticated": False}
+
+@router.post("/users")
+async def create_user(user_data: UserCreate):
+    """
+    Create a new user
+    """
+    async with httpx.AsyncClient() as client:
+        response = await client.post(
+            "https://api.clerk.dev/v1/users",
+            headers={
+                "Authorization": f"Bearer {configs.CLERK_SECRET_KEY}",
+                "Content-Type": "application/json",
+            },
+            json={
+                "email_address": user_data.email_address,
+                "password": user_data.password,
+                "first_name": user_data.first_name,
+                "last_name": user_data.last_name,
+            },
+        )
+
+        if response.status_code != 200:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Failed to create user in Clerk",
+            )
+
+        user = response.json()
+        return {
+            "id": user["id"],
+            "email": (
+                user["email_addresses"][0]["email_address"]
+                if user.get("email_addresses")
+                else None
+            ),
+            "first_name": user.get("first_name"),
+            "last_name": user.get("last_name"),
+        }

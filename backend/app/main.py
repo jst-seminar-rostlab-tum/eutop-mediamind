@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 
+from app.api.v1.endpoints.auth import router as auth_router
 from app.api.v1.routes import routers as v1_routers
 from app.core.config import configs
 
@@ -28,6 +29,7 @@ class AppCreator:
             )
 
         self.app.include_router(v1_routers, prefix="/api/v1")
+        self.app.include_router(auth_router, prefix="/api/v1/auth")
 
 
 app_creator = AppCreator()
