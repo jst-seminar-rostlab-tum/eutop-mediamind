@@ -27,11 +27,17 @@ eutop-mediamind/
 └── README.md
 ```
 
-## Getting started
-TODO
+## Monitoring & Error Reporting
 
-## Contributors
-TODO
+This project uses **Sentry** for error monitoring, performance tracing, and session replay in both the frontend and backend.
+
+- **Frontend:**  
+  Sentry is integrated via `@sentry/react` and `@sentry/browser`. It automatically captures JavaScript errors, performance metrics, and session replays. Users can also submit bug reports directly from the UI.
+
+- **Backend:**  
+  The FastAPI backend uses the Sentry Python SDK to capture unhandled exceptions and performance data, including environment and PII settings.
+
+All errors and performance data are sent to our Sentry project at [csee.sentry.io](https://csee.sentry.io/).  
 
 ## Licence 
 TODO
