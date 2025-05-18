@@ -11,9 +11,7 @@ client = TestClient(app)
 
 def test_get_current_user_info_unauthorized():
     response = client.get("/api/v1/auth/me")
-    assert (
-        response.status_code == 403
-    )  # FastAPI's HTTPBearer returns 403 for missing token
+    assert response.status_code == 403
 
 
 @pytest.fixture
@@ -52,12 +50,12 @@ def test_list_users_unauthorized():
 
 def test_list_users_success(mock_user_data):
     mock_token = "valid.jwt.token"
-    # 覆盖依赖
+    # override dependency
     app.dependency_overrides[auth_module.get_current_user] = (
         lambda: mock_user_data
     )
     with patch("app.api.v1.endpoints.auth.clerk.users.list") as mock_list:
-        # Mock 返回多个用户数据
+        # mock multiple users data
         mock_list.return_value = [
             Mock(
                 id="user_2xHHfEG7I4WILfdKA3MboZC33ii",
@@ -81,5 +79,5 @@ def test_list_users_success(mock_user_data):
         assert len(data["users"]) == 2
         assert data["users"][0]["email"] == "apitest1@example.com"
         assert data["users"][1]["email"] == "test2@example.com"
-    # 清理依赖覆盖
+    # clean up dependency override
     app.dependency_overrides = {}
