@@ -13,6 +13,8 @@ jobs:
   backend-premerge:
     uses: ./.github/workflows/backend-premerge.yml
 
+    uses: ./.github/workflows/generate-api-types.yml
+
   # TODO uncomment when we will have a CR
   # docker-build-push:
   #   needs: backend-premerge
