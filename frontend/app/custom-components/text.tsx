@@ -23,7 +23,7 @@ export default function Text({
     // For first level headlines
     const Tag = tag || "h1";
     return (
-      <Tag className="text-4xl font-extrabold tracking-tight lg:text-5xl">
+      <Tag className="text-4xl font-extrabold tracking-tight lg:text-5xl p-4">
         {children}
       </Tag>
     );
