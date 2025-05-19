@@ -50,3 +50,4 @@ The folder structure was taken from [here](https://github.com/jujumilk3/fastapi-
 - **Black**: Code formatter (run `black app` to format the code)
 - **Isort**: Import sorter (run `isort app` to sort imports)
 - **Flake8**: Linter (run `flake8` to check for linting issues)
+
