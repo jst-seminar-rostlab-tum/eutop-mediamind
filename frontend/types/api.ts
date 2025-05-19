@@ -6,7 +6,7 @@ const client = createClient<paths>({
   baseUrl: "https://myapi.dev/v1/", // TODO change with proper be url
 });
 
-const useQuery = createQueryHook(client, "my-api");
+const useQuery = createQueryHook(client, "my-api"); // eslint-disable-line @typescript-eslint/no-unused-vars
 
 /*
 Example:
