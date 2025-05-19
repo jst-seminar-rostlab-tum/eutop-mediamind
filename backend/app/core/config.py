@@ -21,7 +21,7 @@ class Configs:
     # database
     DATABASE_URL = os.getenv("DATABASE_URL")
 
-    # Clerk Configuration
+    # Configuration of the user management tool (Clerk)
     CLERK_SECRET_KEY = os.getenv("CLERK_SECRET_KEY")
     CLERK_PUBLISHABLE_KEY = os.getenv("CLERK_PUBLISHABLE_KEY")
 

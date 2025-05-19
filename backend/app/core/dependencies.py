@@ -18,18 +18,17 @@ async def get_current_user(
                     "Content-Type": "application/json",
                 },
             )
+            response.raise_for_status()
+            return response.json()
 
-            if response.status_code != 200:
-                raise HTTPException(
-                    status_code=status.HTTP_401_UNAUTHORIZED,
-                    detail="Invalid authentication credentials",
-                )
-
-            user = response.json()
-            return user
-
-    except Exception:
+    except httpx.HTTPStatusError:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid authentication credentials",
+        )
+
+    except httpx.RequestError:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Authentication service unavailable",
         )

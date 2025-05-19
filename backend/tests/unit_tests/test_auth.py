@@ -1,5 +1,6 @@
 from unittest.mock import Mock, patch
 
+import httpx
 import pytest
 from fastapi import HTTPException
 
@@ -36,6 +37,9 @@ async def test_get_current_user_invalid_token():
         mock_response = Mock()
         mock_response.status_code = 401
         mock_response.json.return_value = {}
+        mock_response.raise_for_status.side_effect = httpx.HTTPStatusError(
+            "401 error", request=Mock(), response=mock_response
+        )
         mock_get.return_value = mock_response
         credentials = Mock(credentials="invalid.token")
         with pytest.raises(HTTPException) as exc_info:
