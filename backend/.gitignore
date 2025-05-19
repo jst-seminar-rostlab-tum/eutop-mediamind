@@ -176,3 +176,6 @@ cython_debug/
 
 # MacOs Finder stuff:
 .DS_Store
+
+# For Testing Scrapers:
+accounts_and_passwords.json
