@@ -2,10 +2,10 @@ from typing import Optional
 
 from litellm import completion
 
-from backend.app.services.llm_client.llm_models import LLMModels
+from app.services.llm_service.llm_models import LLMModels
 
 
-class LLMService:
+class LLMClient:
     """
     This takes the LiteLLM Gateway to communicate to any llm provider
 
@@ -17,7 +17,7 @@ class LLMService:
         https://docs.litellm.ai/docs/
 
     Examples:
-        >>> service = LLMService(LLMModels.GPT_4)
+        >>> service = LLMClient(LLMModels.GPT_4)
         >>> response = service.generate_response("Tell me a joke")
     """
 
@@ -35,4 +35,4 @@ class LLMService:
             kwargs["api_key"] = self.api_key
 
         response = completion(**kwargs)
-        return response
+        return response.choices[0].message.content
