@@ -7,19 +7,3 @@ const client = createClient<paths>({
 });
 
 const useQuery = createQueryHook(client, "my-api"); // eslint-disable-line @typescript-eslint/no-unused-vars
-
-/*
-Example:
-
-function MyComponent() {
-  const { data, error, isLoading, isValidating, mutate } = useQuery(
-    "/api/v1/users"
-  );
-
-  if (isLoading || !data) return "Loading...";
-
-  if (error) return `An error occured: ${error.message}`;
-
-  return <div>{ data.title } </div>;
-}
-*/
