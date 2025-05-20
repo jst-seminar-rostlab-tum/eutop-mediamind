@@ -1,21 +1,20 @@
 name: Lint
 
 on:
-  push:
-    paths:
-      - "frontend/**"
   pull_request:
     paths:
       - "frontend/**"
+  workflow_call:
 
 jobs:
-  eslint:
-    runs-on: ubuntu-24.04
+  premerge:
+    runs-on: ubuntu-22.04
     defaults:
       run:
         working-directory: ./frontend
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
@@ -30,3 +29,6 @@ jobs:
 
       - name: Check code format
         run: npx prettier --check .
+
+      - name: Build
+        run: npm run build
