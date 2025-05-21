@@ -8,6 +8,7 @@ import type {
 interface Props {
   hierachy?: number; // headline level, if none specified normal text
   tag?: ComponentType<HTMLAttributes<HTMLElement>>;
+  className?: string;
 }
 
 /*
@@ -18,17 +19,24 @@ export default function Text({
   tag,
   hierachy,
   children,
+  className,
 }: PropsWithChildren<Props>): JSX.Element {
   if (hierachy == 1) {
     // For first level headlines
     const Tag = tag || "h1";
     return (
-      <Tag className="text-4xl font-extrabold tracking-tight lg:text-5xl p-4">
+      <Tag
+        className={`${className} text-4xl font-extrabold tracking-tight lg:text-5xl p-4`}
+      >
         {children}
       </Tag>
     );
   }
 
   // Normal Text
-  return <p className="leading-7 [&:not(:first-child)]:mt-6">{children}</p>;
+  return (
+    <p className={`${className} leading-7 [&:not(:first-child)]:mt-6`}>
+      {children}
+    </p>
+  );
 }
