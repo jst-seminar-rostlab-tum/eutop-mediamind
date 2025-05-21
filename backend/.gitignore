@@ -178,4 +178,4 @@ cython_debug/
 .DS_Store
 
 # For Testing Scrapers:
-accounts_and_passwords.json
+newspapers_accounts.json
