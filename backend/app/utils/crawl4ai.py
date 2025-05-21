@@ -1,5 +1,3 @@
-import asyncio
-
 from bs4 import BeautifulSoup
 from crawl4ai import *
 
@@ -9,9 +7,10 @@ def clean_html(html: str) -> str:
     return soup.get_text(separator="\n").strip()
 
 
-async def process_page():
+async def process_page(source_uris: list[str]):
     async with AsyncWebCrawler() as crawler:
-        result = await crawler.arun(
-            url="https://www.nbcnews.com/business",
-        )
+        for source_uri in source_uris:
+            result = await crawler.arun(
+                url=source_uri,
+            )
         print(result.markdown)
