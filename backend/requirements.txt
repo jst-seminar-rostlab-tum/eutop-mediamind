@@ -25,3 +25,4 @@ beautifulsoup4~=4.13.4
 Crawl4AI~=0.6.3
 eventregistry~=9.1
 sentry-sdk~=2.20.0
+requests~=2.32.3
