@@ -7,7 +7,7 @@ from app.services.llm_service.llm_models import LLMModels
 
 class LLMClient:
     """
-    This takes the LiteLLM Gateway to communicate to any llm provider
+    This takes the LiteLLM Gateway to communicate to any LLM provider
 
     Parameters:
         model (LLMModels): An enum value representing the language model to
