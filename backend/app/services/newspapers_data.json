@@ -1,0 +1,325 @@
+{
+  "newspapers": {
+    "newspaper1": {
+      "name": "FAZ/FASZ - E-Paper",
+      "link": "https://zeitung.faz.net/",
+      "cookies_button": "class=message-component message-button no-children focusable sp_choice_type_11",
+      "login_button": "<use xlink:href=\"#user\"></use>",
+      "login_button2": "class=\"offcanvas-nav__item js-open-snacks-login\"",
+      "iframe": "",
+      "user_input": "class=\"jdpaT vrL-l lxM9b\"",
+      "password_input": "class=\"jdpaT vrL-l EaA6Q DZUBU\"",
+      "submit_button": "class=\"me6VR WTxi9 sZg3G d0e3r _2grDs -qiCE\""
+    },
+    "newspaper2": {
+      "name": "Financial Times - Onlinezugang / ePaper",
+      "link": "https://www.ft.com/todaysnewspaper",
+      "cookies_button": "",
+      "login_button": "",
+      "iframe": "",
+      "user_input": "",
+      "password_input": "",
+      "submit_button": ""
+    },
+    "newspaper3": {
+      "name": "Handelsblatt - ePaper",
+      "link": "https://epaper.handelsblatt.com/",
+      "cookies_button": "",
+      "login_button": "",
+      "iframe": "",
+      "user_input": "",
+      "password_input": "",
+      "submit_button": ""
+    },
+    "newspaper4": {
+      "name": "SZ - ePaper + Onlinezugang",
+      "link": "https://epaper.sueddeutsche.de/stadtausgabe",
+      "cookies_button": "",
+      "login_button": "",
+      "iframe": "",
+      "user_input": "",
+      "password_input": "",
+      "submit_button": ""
+    },
+    "newspaper5": {
+      "name": "B\u0161rsen-Zeitung E-Paper",
+      "link": "https://www.boersen-zeitung.de/epaper",
+      "cookies_button": "",
+      "login_button": "",
+      "iframe": "",
+      "user_input": "",
+      "password_input": "",
+      "submit_button": ""
+    },
+    "newspaper6": {
+      "name": "Bild & Bild+",
+      "link": "https://www.bild.de/bild-plus/bildplus-startseite/bildplus/home-30723544.bild.html",
+      "cookies_button": "",
+      "login_button": "",
+      "iframe": "",
+      "user_input": "",
+      "password_input": "",
+      "submit_button": ""
+    },
+    "newspaper7": {
+      "name": "Die Welt",
+      "link": "https://epaper.welt.de/",
+      "cookies_button": "",
+      "login_button": "",
+      "iframe": "",
+      "user_input": "",
+      "password_input": "",
+      "submit_button": ""
+    },
+    "newspaper8": {
+      "name": "FOCUS ePaper",
+      "link": "https://focus-epaper.de/login",
+      "cookies_button": "",
+      "login_button": "",
+      "iframe": "",
+      "user_input": "",
+      "password_input": "",
+      "submit_button": ""
+    },
+    "newspaper9": {
+      "name": "Manager Magazin - Onlinezugang / ePaper",
+      "link": "https://www.manager-magazin.de/",
+      "cookies_button": "",
+      "login_button": "",
+      "iframe": "",
+      "user_input": "",
+      "password_input": "",
+      "submit_button": ""
+    },
+    "newspaper10": {
+      "name": "Spiegel - ePaper",
+      "link": "https://www.spiegel.de/international/",
+      "cookies_button": "",
+      "login_button": "",
+      "iframe": "",
+      "user_input": "",
+      "password_input": "",
+      "submit_button": ""
+    },
+    "newspaper11": {
+      "name": "WiWo - ePaper",
+      "link": "https://www.wiwo.de/",
+      "cookies_button": "",
+      "login_button": "",
+      "iframe": "",
+      "user_input": "",
+      "password_input": "",
+      "submit_button": ""
+    },
+    "newspaper12": {
+      "name": "The Economist Digitalpass",
+      "link": "https://www.economist.com/",
+      "cookies_button": "",
+      "login_button": "",
+      "iframe": "",
+      "user_input": "",
+      "password_input": "",
+      "submit_button": ""
+    },
+    "newspaper13": {
+      "name": "Cicero",
+      "link": "https://epaper.cicero.de/de/profiles/d9ce75fad03c/editions",
+      "cookies_button": "",
+      "login_button": "",
+      "iframe": "",
+      "user_input": "",
+      "password_input": "",
+      "submit_button": ""
+    },
+    "newspaper14": {
+      "name": "Chemical Watch - Onlinezugang",
+      "link": "https://www.enhesa.com/",
+      "cookies_button": "",
+      "login_button": "",
+      "iframe": "",
+      "user_input": "",
+      "password_input": "",
+      "submit_button": ""
+    },
+    "newspaper15": {
+      "name": "Politico",
+      "link": "https://www.politico.eu/",
+      "cookies_button": "",
+      "login_button": "",
+      "iframe": "",
+      "user_input": "",
+      "password_input": "",
+      "submit_button": ""
+    },
+    "newspaper16": {
+      "name": "EUobserver",
+      "link": "https://euobserver.com/",
+      "cookies_button": "",
+      "login_button": "",
+      "iframe": "",
+      "user_input": "",
+      "password_input": "",
+      "submit_button": ""
+    },
+    "newspaper17": {
+      "name": "Tagesspiegel",
+      "link": "https://www.tagesspiegel.de/",
+      "cookies_button": "",
+      "login_button": "",
+      "iframe": "",
+      "user_input": "",
+      "password_input": "",
+      "submit_button": ""
+    },
+    "newspaper18": {
+      "name": "Background_Tagesspiegel",
+      "link": "https://background.tagesspiegel.de/",
+      "cookies_button": "",
+      "login_button": "",
+      "iframe": "",
+      "user_input": "",
+      "password_input": "",
+      "submit_button": ""
+    },
+    "newspaper19": {
+      "name": "Contexte",
+      "link": "https://www.contexte.com/eu/",
+      "cookies_button": "",
+      "login_button": "",
+      "iframe": "",
+      "user_input": "",
+      "password_input": "",
+      "submit_button": ""
+    },
+    "newspaper20": {
+      "name": "The Pioneer",
+      "link": "https://www.thepioneer.de/",
+      "cookies_button": "",
+      "login_button": "",
+      "iframe": "",
+      "user_input": "",
+      "password_input": "",
+      "submit_button": ""
+    },
+    "newspaper21": {
+      "name": "Berlin.Table",
+      "link": "berlin.table.media",
+      "cookies_button": "",
+      "login_button": "",
+      "iframe": "",
+      "user_input": "",
+      "password_input": "",
+      "submit_button": ""
+    },
+    "newspaper22": {
+      "name": "Bulletin Quotidien Europe",
+      "link": "https://agenceurope.eu/fr/accueil.html",
+      "cookies_button": "",
+      "login_button": "",
+      "iframe": "",
+      "user_input": "",
+      "password_input": "",
+      "submit_button": ""
+    },
+    "newspaper23": {
+      "name": "Business Insider",
+      "link": "https://www.businessinsider.de/",
+      "cookies_button": "",
+      "login_button": "",
+      "iframe": "",
+      "user_input": "",
+      "password_input": "",
+      "submit_button": ""
+    },
+    "newspaper24": {
+      "name": "Genios",
+      "link": "https://www.genios.de/",
+      "cookies_button": "",
+      "login_button": "",
+      "iframe": "",
+      "user_input": "",
+      "password_input": "",
+      "submit_button": ""
+    },
+    "newspaper25": {
+      "name": "Heise.de",
+      "link": "https://www.heise.de/",
+      "cookies_button": "",
+      "login_button": "",
+      "iframe": "",
+      "user_input": "",
+      "password_input": "",
+      "submit_button": ""
+    },
+    "newspaper26": {
+      "name": "HORIZONT+",
+      "link": "https://www.horizont.net/",
+      "cookies_button": "",
+      "login_button": "",
+      "iframe": "",
+      "user_input": "",
+      "password_input": "",
+      "submit_button": ""
+    },
+    "newspaper27": {
+      "name": "Le Soir",
+      "link": "https://www.lesoir.be/",
+      "cookies_button": "",
+      "login_button": "",
+      "iframe": "",
+      "user_input": "",
+      "password_input": "",
+      "submit_button": ""
+    },
+    "newspaper28": {
+      "name": "Lebensmittelzeitung",
+      "link": "https://www.lebensmittelzeitung.net/",
+      "cookies_button": "",
+      "login_button": "",
+      "iframe": "",
+      "user_input": "",
+      "password_input": "",
+      "submit_button": ""
+    },
+    "newspaper29": {
+      "name": "Mace Magazine",
+      "link": "https://macemagazine.com/",
+      "cookies_button": "",
+      "login_button": "",
+      "iframe": "",
+      "user_input": "",
+      "password_input": "",
+      "submit_button": ""
+    },
+    "newspaper30": {
+      "name": "Medien Insider",
+      "link": "https://www.digitalfernsehen.de/news/",
+      "cookies_button": "",
+      "login_button": "",
+      "iframe": "",
+      "user_input": "",
+      "password_input": "",
+      "submit_button": ""
+    },
+    "newspaper31": {
+      "name": "MEEDIA",
+      "link": "https://meedia.de/",
+      "cookies_button": "",
+      "login_button": "",
+      "iframe": "",
+      "user_input": "",
+      "password_input": "",
+      "submit_button": ""
+    },
+    "newspaper32": {
+      "name": "Platow Brief",
+      "link": "https://www.platow.de/",
+      "cookies_button": "//button[contains(text(), 'Alle akzeptieren')]",
+      "login_button": "//a[contains(text(), 'Login')]",
+      "iframe": "//iframe[@id='plenigoFramecheckout']",
+      "user_input": "//input[@id='login_form__username']",
+      "password_input": "//input[@id = 'login_form__password']",
+      "submit_button": "//button[contains(text(), 'Anmelden')]"
+    }
+  }
+}
