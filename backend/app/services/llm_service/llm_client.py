@@ -1,8 +1,11 @@
+import logging
 from typing import Optional
 
 from litellm import completion
 
 from app.services.llm_service.llm_models import LLMModels
+
+logger = logging.getLogger(__name__)
 
 
 class LLMClient:
@@ -34,5 +37,12 @@ class LLMClient:
         if self.api_key:
             kwargs["api_key"] = self.api_key
 
-        response = completion(**kwargs)
-        return response.choices[0].message.content
+        try:
+            response = completion(**kwargs)
+            return response.choices[0].message.content
+        except Exception as e:
+            logger.exception(
+                f"Error occurred while generating response with model \
+                '{self.model}': {e}"
+            )
+            raise
