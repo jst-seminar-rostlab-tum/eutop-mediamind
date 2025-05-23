@@ -1,5 +1,15 @@
 {
   "newspapers": {
+    "newspaper00": {
+      "name": "Platow Brief",
+      "link": "https://www.platow.de/",
+      "cookies_button": "//button[contains(text(), 'Alle akzeptieren')]",
+      "login_button": "//a[contains(text(), 'Login')]",
+      "iframe": "//iframe[@id='plenigoFramecheckout']",
+      "user_input": "//input[@id='login_form__username']",
+      "password_input": "//input[@id = 'login_form__password']",
+      "submit_button": "//button[contains(text(), 'Anmelden')]"
+    },
     "newspaper1": {
       "name": "FAZ/FASZ - E-Paper",
       "link": "https://zeitung.faz.net/",
@@ -24,12 +34,12 @@
     "newspaper3": {
       "name": "Handelsblatt - ePaper",
       "link": "https://epaper.handelsblatt.com/",
-      "cookies_button": "",
-      "login_button": "",
+      "cookies_button": "class=\"message-component message-button no-children focusable sp_choice_type_11 first-focusable-el\"",
+      "login_button": "a.login-user[href*='handelsblatt.com/login']",
       "iframe": "",
-      "user_input": "",
-      "password_input": "",
-      "submit_button": ""
+      "user_input": "input[name='login']",
+      "password_input": "input[name='password']",
+      "submit_button": "button[type='submit']"
     },
     "newspaper4": {
       "name": "SZ - ePaper + Onlinezugang",
@@ -320,6 +330,16 @@
       "user_input": "//input[@id='login_form__username']",
       "password_input": "//input[@id = 'login_form__password']",
       "submit_button": "//button[contains(text(), 'Anmelden')]"
+    },
+    "newspaper33": {
+      "name": "Platow Brief",
+      "link": "https://www.platow.de/",
+      "cookies_button": "button.brlbs-btn-accept-all",
+      "login_button": "a[href^=\"https://www.platow.de/anmeldung/\"]",
+      "iframe": "//iframe[@id='plenigoFramecheckout']",
+      "user_input": "input[name=\"login_form[_username]\"]",
+      "password_input": "input[name=\"login_form[_password]\"]",
+      "submit_button": "button[type=\"submit\"].btn.btn-primary:not([disabled])"
     }
   }
 }
