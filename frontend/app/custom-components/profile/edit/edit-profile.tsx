@@ -31,6 +31,7 @@ import { Topics } from "~/custom-components/profile/edit/topics";
 import { Mailing } from "~/custom-components/profile/edit/mailing";
 import { Subscriptions } from "~/custom-components/profile/edit/subscriptions";
 import useProfileSubscriptionsApi from "~/hooks/api/profile-subscriptions-api";
+import { ScrollArea } from "~/components/ui/scroll-area";
 
 interface EditProfileProps {
   profile: Profile;
@@ -42,7 +43,8 @@ export function EditProfile({ profile }: EditProfileProps) {
       <DialogTrigger asChild>
         <Button variant="outline">Edit Profile</Button>
       </DialogTrigger>
-      <DialogContent className="min-w-1/2 rounded-3xl max-h-3/4 overflow-auto">
+
+      <DialogContent className={"min-w-1/2 rounded-3xl max-h-3/4"}>
         <DialogHeader>
           <div className={"flex items-center gap-5"}>
             <DialogTitle className={"text-xl"}>
@@ -52,53 +54,55 @@ export function EditProfile({ profile }: EditProfileProps) {
           </div>
         </DialogHeader>
 
-        <Accordion
-          type="multiple"
-          defaultValue={["topics", "mailing", "subscriptions"]}
-          className="w-full"
-        >
-          <AccordionItem value="topics">
-            <AccordionTrigger>
-              <div className={"flex items-center gap-2"}>
-                <Book className="h-5 w-5" />
-                <h2 className={"font-bold"}>Topics</h2>
-              </div>
-            </AccordionTrigger>
-            <AccordionContent className={"p-3"}>
-              <Topics profile={profile} />
-            </AccordionContent>
-          </AccordionItem>
-
-          <AccordionItem value="mailing">
-            <AccordionTrigger>
-              <div className={"flex items-center gap-4"}>
-                <div className={"flex gap-2 items-center "}>
-                  <Mail className="h-5 w-5" />
-                  <h2 className={"font-bold"}>Mailing</h2>
+        <ScrollArea className="max-h-[60vh] pr-9">
+          <Accordion
+            type="multiple"
+            defaultValue={["topics", "mailing", "subscriptions"]}
+            className="w-full"
+          >
+            <AccordionItem value="topics">
+              <AccordionTrigger>
+                <div className={"flex items-center gap-2"}>
+                  <Book className="h-5 w-5" />
+                  <h2>Topics</h2>
                 </div>
-                <Switch
-                  defaultChecked={true}
-                  onClick={(e) => e.stopPropagation()}
-                />
-              </div>
-            </AccordionTrigger>
-            <AccordionContent className={"p-3"}>
-              <Mailing profile={profile} />
-            </AccordionContent>
-          </AccordionItem>
+              </AccordionTrigger>
+              <AccordionContent className={"p-3"}>
+                <Topics profile={profile} />
+              </AccordionContent>
+            </AccordionItem>
 
-          <AccordionItem value="subscriptions">
-            <AccordionTrigger>
-              <div className={"flex items-center gap-2"}>
-                <Newspaper className="h-5 w-5" />
-                <h2 className={"font-bold"}>Subscriptions</h2>
-              </div>
-            </AccordionTrigger>
-            <AccordionContent className={"p-3"}>
-              <Subscriptions subscriptions={useProfileSubscriptionsApi()} />
-            </AccordionContent>
-          </AccordionItem>
-        </Accordion>
+            <AccordionItem value="mailing">
+              <AccordionTrigger>
+                <div className={"flex items-center gap-4"}>
+                  <div className={"flex gap-2 items-center "}>
+                    <Mail className="h-5 w-5" />
+                    <h2>Mailing</h2>
+                  </div>
+                  <Switch
+                    defaultChecked={true}
+                    onClick={(e) => e.stopPropagation()}
+                  />
+                </div>
+              </AccordionTrigger>
+              <AccordionContent className={"p-3"}>
+                <Mailing profile={profile} />
+              </AccordionContent>
+            </AccordionItem>
+
+            <AccordionItem value="subscriptions">
+              <AccordionTrigger>
+                <div className={"flex items-center gap-2"}>
+                  <Newspaper className="h-5 w-5" />
+                  <h2>Subscriptions</h2>
+                </div>
+              </AccordionTrigger>
+              <AccordionContent className={"p-3"}>
+                <Subscriptions subscriptions={useProfileSubscriptionsApi()} />
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+        </ScrollArea>
       </DialogContent>
     </Dialog>
   );
