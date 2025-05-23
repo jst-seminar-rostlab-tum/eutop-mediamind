@@ -67,7 +67,7 @@ def submit_login(driver, wait, selector):
         print(f"Could not submit login: {e}")
 
 driver = webdriver.Chrome()
-wait = WebDriverWait(driver, 15)
+wait = WebDriverWait(driver, 20)
 
 # Load newspapers data
 with open('app/services/newspapers_data.json', 'r') as f:
@@ -78,7 +78,7 @@ with open('app/services/newspapers_accounts.json', 'r') as f:
     accounts = json.load(f)
 
 # Add any keys you want to test, test one by one
-whitelist = ["newspaper3"]  
+whitelist = ["newspaper1"]  
     
 for key, paper in data['newspapers'].items():
     if key not in whitelist:
