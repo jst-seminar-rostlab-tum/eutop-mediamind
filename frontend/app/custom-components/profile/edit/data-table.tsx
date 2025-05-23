@@ -30,6 +30,7 @@ import {
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
 import { Input } from "~/components/ui/input";
+import { ScrollArea } from "~/components/ui/scroll-area";
 
 export interface MailingTableProps {
   name: string;
@@ -153,7 +154,8 @@ export function DataTable({ name, dataArray }: MailingTableProps) {
           Add
         </Button>
       </div>
-      <div className="rounded-xl border h-[400px] overflow-auto">
+      {/*<div className="rounded-xl border h-[400px] overflow-auto">*/}
+      <ScrollArea className={"h-[400px]"}>
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
@@ -202,7 +204,8 @@ export function DataTable({ name, dataArray }: MailingTableProps) {
             )}
           </TableBody>
         </Table>
-      </div>
+      </ScrollArea>
+      {/*</div>*/}
       <div className="flex items-center justify-end space-x-2 py-4">
         <div className="flex-1 text-sm text-muted-foreground">
           {table.getFilteredSelectedRowModel().rows.length} of{" "}
