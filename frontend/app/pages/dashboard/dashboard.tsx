@@ -1,7 +1,7 @@
 import { ProfileCard } from "~/custom-components/dashboard/profile-card";
 import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
 import { Newspaper, Plus, Rocket } from "lucide-react";
-import { useSearchProfiles } from "~/hooks/api/search-profile-api";
+import { useSearchProfiles } from "~/hooks/api/search-profiles-api";
 import { Button } from "~/components/ui/button";
 import {
   Breadcrumb,
