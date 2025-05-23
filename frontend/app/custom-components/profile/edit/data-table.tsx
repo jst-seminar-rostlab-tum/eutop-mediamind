@@ -2,43 +2,46 @@ import {
   Table,
   TableHeader,
   TableBody,
-  TableFooter,
   TableHead,
   TableRow,
   TableCell,
-  TableCaption,
-} from "~/components/ui/table"
-import * as React from "react"
+} from "~/components/ui/table";
+import * as React from "react";
 
 import {
-  type ColumnDef, type ColumnFiltersState, flexRender,
-  getCoreRowModel, getFilteredRowModel, getPaginationRowModel, getSortedRowModel,
+  type ColumnDef,
+  type ColumnFiltersState,
+  flexRender,
+  getCoreRowModel,
+  getFilteredRowModel,
+  getSortedRowModel,
   type SortingState,
   useReactTable,
   type VisibilityState,
 } from "@tanstack/react-table";
 import { Checkbox } from "~/components/ui/checkbox";
 import { Button } from "~/components/ui/button";
-import { ArrowUpDown, ChevronDown, MoreHorizontal, Plug, Plus } from "lucide-react";
+import { ArrowUpDown, MoreHorizontal, Plus } from "lucide-react";
 import {
-  DropdownMenu, DropdownMenuCheckboxItem,
-  DropdownMenuContent, DropdownMenuItem,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
 import { Input } from "~/components/ui/input";
 
-
 export interface MailingTableProps {
-  mails: string[]
+  name: string;
+  dataArray: string[];
 }
 
-type EmailRow = {
-  email: string;
-  // active: boolean;
-}
+type DataRow = {
+  data: string;
+  active: boolean;
+};
 
-export const columns: ColumnDef<EmailRow>[] = [
+export const getColumns = (name: string): ColumnDef<DataRow>[] => [
   {
     id: "select",
     header: ({ table }) => (
@@ -62,23 +65,24 @@ export const columns: ColumnDef<EmailRow>[] = [
     enableHiding: false,
   },
   {
-    accessorKey: "email",
+    accessorKey: "data",
     header: ({ column }) => {
       return (
         <Button
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          Email
+          {name} {/* Use the name prop here */}
           <ArrowUpDown />
         </Button>
-      )
+      );
     },
-    cell: ({ row }) => <div className="lowercase">{row.getValue("email")}</div>,
+    cell: ({ row }) => <div className="lowercase">{row.getValue("data")}</div>,
   },
   {
     id: "actions",
     enableHiding: false,
+    header: "Delete",
     cell: () => {
       return (
         <DropdownMenu>
@@ -93,27 +97,27 @@ export const columns: ColumnDef<EmailRow>[] = [
             <DropdownMenuItem>Delete</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-      )
+      );
     },
   },
-]
+];
 
-
-export function MailingTable({mails}: MailingTableProps) {
-  const [sorting, setSorting] = React.useState<SortingState>([])
+export function DataTable({ name, dataArray }: MailingTableProps) {
+  const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    []
-  )
+    [],
+  );
   const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({})
-  const [rowSelection, setRowSelection] = React.useState({})
+    React.useState<VisibilityState>({});
+  const [rowSelection, setRowSelection] = React.useState({});
 
-  //TODO: is this proper?
-  const data = React.useMemo(() =>
-      mails.map(email => ({
-        email: email,
+  const columns = React.useMemo(() => getColumns(name), [name]);
+  const data = React.useMemo(
+    () =>
+      dataArray.map((data) => ({
+        data: data,
       })),
-    [mails]
+    [dataArray],
   );
   const table = useReactTable({
     data,
@@ -121,7 +125,6 @@ export function MailingTable({mails}: MailingTableProps) {
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
@@ -132,25 +135,25 @@ export function MailingTable({mails}: MailingTableProps) {
       columnVisibility,
       rowSelection,
     },
-  })
+  });
 
   return (
     <div className="w-full">
       <div className="flex items-center py-4 justify-between">
         <Input
-          placeholder="Filter emails..."
-          value={(table.getColumn("email")?.getFilterValue() as string) ?? ""}
+          placeholder={`Filter ${name.toLowerCase()}s...`}
+          value={(table.getColumn("data")?.getFilterValue() as string) ?? ""}
           onChange={(event) =>
-            table.getColumn("email")?.setFilterValue(event.target.value)
+            table.getColumn("data")?.setFilterValue(event.target.value)
           }
           className="max-w-sm"
         />
         <Button>
-          <Plus/>
+          <Plus />
           Add
         </Button>
       </div>
-      <div className="rounded-md border">
+      <div className="rounded-xl border h-[400px] overflow-auto">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
@@ -161,11 +164,11 @@ export function MailingTable({mails}: MailingTableProps) {
                       {header.isPlaceholder
                         ? null
                         : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
+                            header.column.columnDef.header,
+                            header.getContext(),
+                          )}
                     </TableHead>
-                  )
+                  );
                 })}
               </TableRow>
             ))}
@@ -181,7 +184,7 @@ export function MailingTable({mails}: MailingTableProps) {
                     <TableCell key={cell.id}>
                       {flexRender(
                         cell.column.columnDef.cell,
-                        cell.getContext()
+                        cell.getContext(),
                       )}
                     </TableCell>
                   ))}
@@ -205,25 +208,7 @@ export function MailingTable({mails}: MailingTableProps) {
           {table.getFilteredSelectedRowModel().rows.length} of{" "}
           {table.getFilteredRowModel().rows.length} row(s) selected.
         </div>
-        <div className="space-x-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
-          >
-            Previous
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
-          >
-            Next
-          </Button>
-        </div>
       </div>
     </div>
-  )
+  );
 }
