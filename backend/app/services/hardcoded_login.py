@@ -1,4 +1,5 @@
 import json
+import time
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
@@ -8,6 +9,14 @@ def accept_cookies(driver, wait, selector):
     if not selector:
         return
     try:
+        # Try switching to the iframe if it exists
+        try:
+            iframe = driver.find_element(By.CSS_SELECTOR, "iframe[id^='sp_message_iframe']")
+            driver.switch_to.frame(iframe)
+            print("Switched to cookie iframe.")
+        except Exception:
+            pass  # No iframe, continue
+
         if selector.startswith('class='):
             btn = wait.until(EC.element_to_be_clickable((By.CLASS_NAME, selector.replace('class=', '').split()[0])))
         elif selector.startswith('//'):
@@ -16,8 +25,15 @@ def accept_cookies(driver, wait, selector):
             btn = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, selector)))
         btn.click()
         print("Cookies accepted.")
+
+        driver.switch_to.default_content()  # Always switch back to main context
     except Exception as e:
         print(f"Could not click cookie button: {e}")
+        try:
+            driver.switch_to.default_content()
+        except:
+            pass
+
 
 def click_login(driver, wait, selector):
     if not selector:
@@ -62,12 +78,13 @@ def submit_login(driver, wait, selector):
         else:
             btn = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, selector)))
         btn.click()
+        input("Press Enter to close browser:")
         print("Login submitted.")
     except Exception as e:
         print(f"Could not submit login: {e}")
 
 driver = webdriver.Chrome()
-wait = WebDriverWait(driver, 20)
+wait = WebDriverWait(driver, 5)
 
 # Load newspapers data
 with open('app/services/newspapers_data.json', 'r') as f:
@@ -78,7 +95,7 @@ with open('app/services/newspapers_accounts.json', 'r') as f:
     accounts = json.load(f)
 
 # Add any keys you want to test, test one by one
-whitelist = ["newspaper1"]  
+whitelist = ["newspaper8"]  
     
 for key, paper in data['newspapers'].items():
     if key not in whitelist:
@@ -113,7 +130,6 @@ for key, paper in data['newspapers'].items():
         print(f"submit_button: {paper.get('submit_button', '')}")
         submit_login(driver, wait, paper.get('submit_button', ''))
         print(f"------------------------------")
-
     except Exception as e:
         print(f"Failed to process {paper['name']}: {e}")
 
