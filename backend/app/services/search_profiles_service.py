@@ -4,6 +4,7 @@ from app.models import SearchProfile
 from app.repositories.match_repository import MatchRepository
 from app.repositories.search_profile_repository import SearchProfileRepository
 from app.schemas.articles_schemas import ArticleOverviewResponse, ArticleOverviewItem, MatchDetailResponse
+from app.schemas.match_schemas import MatchFeedbackRequest
 from app.schemas.search_profile_schemas import SearchProfileUpdateRequest
 
 
@@ -98,3 +99,19 @@ class SearchProfiles:
             category=article.category,
             summary=article.summary,
         )
+
+    @staticmethod
+    async def update_match_feedback(
+            profile_id: UUID,
+            match_id: UUID,
+            data: MatchFeedbackRequest,
+    ) -> bool:
+        match = await MatchRepository.update_match_feedback(
+            profile_id,
+            match_id,
+            comment=data.comment,
+            reason=data.reason,
+            ranking=data.ranking
+        )
+        return match is not None
+

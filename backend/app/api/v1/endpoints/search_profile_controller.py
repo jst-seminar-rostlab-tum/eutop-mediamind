@@ -3,6 +3,7 @@ from uuid import UUID
 
 from app.core.dependencies import get_current_user
 from app.schemas.articles_schemas import ArticleOverviewResponse, MatchDetailResponse
+from app.schemas.match_schemas import MatchFeedbackRequest
 from app.schemas.search_profile_schemas import SearchProfileUpdateRequest, SearchProfileDetailResponse
 from app.services.search_profiles_service import SearchProfiles
 
@@ -37,3 +38,14 @@ async def get_profile_overview(profile_id: UUID):
 async def get_match_detail(profile_id: UUID, match_id: UUID):
     detail = await SearchProfiles.get_match_detail(profile_id, match_id)
     return detail
+
+@router.put("/{profile_id}/article/{match_id}")
+async def update_match_feedback(
+    profile_id: UUID,
+    match_id: UUID,
+    feedback: MatchFeedbackRequest,
+):
+    success = await SearchProfiles.update_match_feedback(profile_id, match_id, feedback)
+    if not success:
+        return {"status": "failed"}
+    return {"status": "updated"}

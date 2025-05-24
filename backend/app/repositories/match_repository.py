@@ -30,3 +30,21 @@ class MatchRepository:
                 )
             )
             return result.scalars().first()
+
+    @staticmethod
+    async def update_match_feedback(
+            profile_id: UUID,
+            match_id: UUID,
+            comment: str,
+            reason: str,
+            ranking: int
+    ) -> Match | None:
+        async with async_session() as session:
+            match = await session.get(Match, match_id)
+            if not match or match.search_profile_id != profile_id:
+                return None
+
+            match.comment = f"{comment} [reason: {reason}, ranking: {ranking}]"
+            await session.commit()
+            await session.refresh(match)
+            return match
