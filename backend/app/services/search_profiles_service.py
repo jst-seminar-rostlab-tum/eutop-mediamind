@@ -1,0 +1,100 @@
+from uuid import UUID
+
+from app.models import SearchProfile
+from app.repositories.match_repository import MatchRepository
+from app.repositories.search_profile_repository import SearchProfileRepository
+from app.schemas.articles_schemas import ArticleOverviewResponse, ArticleOverviewItem, MatchDetailResponse
+from app.schemas.search_profile_schemas import SearchProfileUpdateRequest
+
+
+class SearchProfiles:
+
+    @staticmethod
+    async def get_search_profile(search_profile_id: UUID, current_user) -> SearchProfile | None:
+        profile = await SearchProfileRepository.get_by_id(search_profile_id)
+        if not profile:
+            return None
+
+        has_access = (
+            profile.is_public
+            or any(u.id == current_user["id"] for u in profile.users)
+            or profile.organization_id == current_user["organization_id"]
+        )
+        if not has_access:
+            return None
+
+        return profile
+
+    @staticmethod
+    async def get_available_search_profiles(current_user) -> list[SearchProfile]:
+        profiles = await SearchProfileRepository.get_accessible_profiles(
+            current_user["id"], current_user["organization_id"]
+        )
+        return profiles
+
+    @staticmethod
+    async def update_search_profile(
+            profile_id: UUID,
+            data: SearchProfileUpdateRequest,
+            current_user: dict,
+    ) -> dict | None:
+        profile = await SearchProfileRepository.get_by_id(profile_id)
+
+        if not profile:
+            return None
+
+        # Rechte prüfen
+        is_owner = profile.created_by_id == current_user["id"]
+        is_editable = data.is_editable or is_owner
+        if not is_editable:
+            return None
+
+        updated = await SearchProfileRepository.update_by_id(profile_id, data)
+
+        return updated
+
+    @staticmethod
+    async def get_article_overview(profile_id: UUID) -> ArticleOverviewResponse:
+        matches = await MatchRepository.get_articles_by_profile(profile_id)
+
+        articles = [
+            ArticleOverviewItem(
+                id=m.article.id,
+                title=m.article.title,
+                url=m.article.url,
+                author=m.article.author,
+                published_at=m.article.published_at,
+                language=m.article.language,
+                category=m.article.category,
+                summary=m.article.summary,
+                sorting_order=m.sorting_order,
+            )
+            for m in matches if m.article
+        ]
+
+        return ArticleOverviewResponse(
+            search_profile_id=profile_id,
+            articles=articles,
+        )
+
+    @staticmethod
+    async def get_match_detail(profile_id: UUID, match_id: UUID) -> MatchDetailResponse | None:
+        match = await MatchRepository.get_match_by_id(profile_id, match_id)
+        if not match or not match.article:
+            return None
+
+        article = match.article
+
+        return MatchDetailResponse(
+            match_id=match.id,
+            comment=match.comment,
+            sorting_order=match.sorting_order,
+            article_id=article.id,
+            title=article.title,
+            url=article.url,
+            author=article.author,
+            published_at=article.published_at,
+            language=article.language,
+            category=article.category,
+            summary=article.summary,
+        )
