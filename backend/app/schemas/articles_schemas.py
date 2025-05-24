@@ -1,5 +1,6 @@
 from datetime import datetime
 from uuid import UUID
+
 from pydantic import BaseModel
 
 
@@ -39,4 +40,3 @@ class MatchDetailResponse(BaseModel):
 
     class Config:
         orm_mode = True
-

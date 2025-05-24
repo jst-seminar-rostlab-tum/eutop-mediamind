@@ -1,4 +1,5 @@
 from fastapi import APIRouter, HTTPException, status
+
 from app.services.auth_service import AuthService, UserCreate
 
 router = APIRouter(prefix="/auth", tags=["auth"])

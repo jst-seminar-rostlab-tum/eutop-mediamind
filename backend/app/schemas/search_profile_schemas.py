@@ -1,5 +1,6 @@
 from typing import List, Optional
 from uuid import UUID
+
 from pydantic import BaseModel
 
 
@@ -25,6 +26,7 @@ class SearchProfileUpdateRequest(BaseModel):
     is_owner: Optional[bool] = False
     subscriptions: Optional[List[SubscriptionUpdate]] = []
     topics: Optional[List[TopicUpdate]] = []
+
 
 class TopicOut(BaseModel):
     name: str

@@ -1,9 +1,11 @@
 # app/services/user_service.py
 
 from typing import Optional
+
 from clerk_backend_api import Clerk
-from app.core.config import configs
 from pydantic import BaseModel
+
+from app.core.config import configs
 
 
 class UserUpdate(BaseModel):

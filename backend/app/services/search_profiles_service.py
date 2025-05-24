@@ -3,7 +3,11 @@ from uuid import UUID
 from app.models import SearchProfile
 from app.repositories.match_repository import MatchRepository
 from app.repositories.search_profile_repository import SearchProfileRepository
-from app.schemas.articles_schemas import ArticleOverviewResponse, ArticleOverviewItem, MatchDetailResponse
+from app.schemas.articles_schemas import (
+    ArticleOverviewItem,
+    ArticleOverviewResponse,
+    MatchDetailResponse,
+)
 from app.schemas.match_schemas import MatchFeedbackRequest
 from app.schemas.search_profile_schemas import SearchProfileUpdateRequest
 
@@ -11,7 +15,9 @@ from app.schemas.search_profile_schemas import SearchProfileUpdateRequest
 class SearchProfiles:
 
     @staticmethod
-    async def get_search_profile(search_profile_id: UUID, current_user) -> SearchProfile | None:
+    async def get_search_profile(
+        search_profile_id: UUID, current_user
+    ) -> SearchProfile | None:
         profile = await SearchProfileRepository.get_by_id(search_profile_id)
         if not profile:
             return None
@@ -27,7 +33,9 @@ class SearchProfiles:
         return profile
 
     @staticmethod
-    async def get_available_search_profiles(current_user) -> list[SearchProfile]:
+    async def get_available_search_profiles(
+        current_user,
+    ) -> list[SearchProfile]:
         profiles = await SearchProfileRepository.get_accessible_profiles(
             current_user["id"], current_user["organization_id"]
         )
@@ -35,9 +43,9 @@ class SearchProfiles:
 
     @staticmethod
     async def update_search_profile(
-            profile_id: UUID,
-            data: SearchProfileUpdateRequest,
-            current_user: dict,
+        profile_id: UUID,
+        data: SearchProfileUpdateRequest,
+        current_user: dict,
     ) -> dict | None:
         profile = await SearchProfileRepository.get_by_id(profile_id)
 
@@ -55,7 +63,9 @@ class SearchProfiles:
         return updated
 
     @staticmethod
-    async def get_article_overview(profile_id: UUID) -> ArticleOverviewResponse:
+    async def get_article_overview(
+        profile_id: UUID,
+    ) -> ArticleOverviewResponse:
         matches = await MatchRepository.get_articles_by_profile(profile_id)
 
         articles = [
@@ -70,7 +80,8 @@ class SearchProfiles:
                 summary=m.article.summary,
                 sorting_order=m.sorting_order,
             )
-            for m in matches if m.article
+            for m in matches
+            if m.article
         ]
 
         return ArticleOverviewResponse(
@@ -79,7 +90,9 @@ class SearchProfiles:
         )
 
     @staticmethod
-    async def get_match_detail(profile_id: UUID, match_id: UUID) -> MatchDetailResponse | None:
+    async def get_match_detail(
+        profile_id: UUID, match_id: UUID
+    ) -> MatchDetailResponse | None:
         match = await MatchRepository.get_match_by_id(profile_id, match_id)
         if not match or not match.article:
             return None
@@ -102,16 +115,15 @@ class SearchProfiles:
 
     @staticmethod
     async def update_match_feedback(
-            profile_id: UUID,
-            match_id: UUID,
-            data: MatchFeedbackRequest,
+        profile_id: UUID,
+        match_id: UUID,
+        data: MatchFeedbackRequest,
     ) -> bool:
         match = await MatchRepository.update_match_feedback(
             profile_id,
             match_id,
             comment=data.comment,
             reason=data.reason,
-            ranking=data.ranking
+            ranking=data.ranking,
         )
         return match is not None
-
