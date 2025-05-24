@@ -1,11 +1,11 @@
-import logging
 from typing import Optional
 
 from litellm import completion
 
+from app.core.logger import get_logger
 from app.services.llm_service.llm_models import LLMModels
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 class LLMClient:
