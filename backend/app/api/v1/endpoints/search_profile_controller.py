@@ -14,7 +14,11 @@ from app.schemas.search_profile_schemas import (
 )
 from app.services.search_profiles_service import SearchProfiles
 
-router = APIRouter(prefix="/search-profiles", tags=["users"])
+router = APIRouter(
+    prefix="/search-profiles",
+    tags=["search-profiles"],
+    dependencies=[Depends(get_current_user)],
+)
 
 
 @router.get("", response_model=list[SearchProfileDetailResponse])
