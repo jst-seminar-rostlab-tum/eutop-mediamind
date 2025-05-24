@@ -31,5 +31,6 @@ for keyword in keywords:
     )
     for match in matches:
         print(
-            f"Keyword: {keyword} matched Article ID {match.id} with score {match.score}"
+            f"Keyword: {keyword} matched Article ID {match.id} with score "
+            f"{match.score}"
         )

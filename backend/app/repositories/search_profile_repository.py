@@ -32,10 +32,10 @@ class SearchProfileRepository:
                 .where(
                     # Public in organization only
                     (
-                        SearchProfile.is_public
-                        == True & SearchProfile.organization_id
-                        == organization_id
+                        (SearchProfile.is_public.is_(True)) &
+                        (SearchProfile.organization_id == organization_id)
                     )
+
                     | (SearchProfile.users.any(id=user_id))
                 )
             )
