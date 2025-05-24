@@ -21,12 +21,7 @@ import { Book, Mail, Newspaper } from "lucide-react";
 import { KeywordField } from "~/custom-components/profile/edit/keyword-field";
 import { useState } from "react";
 import { Switch } from "~/components/ui/switch";
-import {
-  Accordion,
-  AccordionItem,
-  AccordionTrigger,
-  AccordionContent,
-} from "~/components/ui/accordion";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { Topics } from "~/custom-components/profile/edit/topics";
 import { Mailing } from "~/custom-components/profile/edit/mailing";
 import { Subscriptions } from "~/custom-components/profile/edit/subscriptions";
@@ -54,55 +49,42 @@ export function EditProfile({ profile }: EditProfileProps) {
           </div>
         </DialogHeader>
 
-        <ScrollArea className="max-h-[60vh] pr-9">
-          <Accordion
-            type="multiple"
-            defaultValue={["topics", "mailing", "subscriptions"]}
-            className="w-full"
-          >
-            <AccordionItem value="topics">
-              <AccordionTrigger>
-                <div className={"flex items-center gap-2"}>
-                  <Book className="h-5 w-5" />
-                  <h2>Topics</h2>
-                </div>
-              </AccordionTrigger>
-              <AccordionContent className={"p-3"}>
-                <Topics profile={profile} />
-              </AccordionContent>
-            </AccordionItem>
+        <ScrollArea className="max-h-[60vh] pr-2">
+          <Tabs defaultValue="topics" className="w-full">
+            <TabsList className="grid w-full grid-cols-3">
+              <TabsTrigger value="topics" className="flex items-center gap-2">
+                <Book className="h-5 w-5" />
+                <span>Topics</span>
+              </TabsTrigger>
+              <TabsTrigger value="mailing" className="flex items-center gap-2">
+                <Mail className="h-5 w-5" />
+                <span>Mailing</span>
+              </TabsTrigger>
+              <TabsTrigger
+                value="subscriptions"
+                className="flex items-center gap-2"
+              >
+                <Newspaper className="h-5 w-5" />
+                <span>Subscriptions</span>
+              </TabsTrigger>
+            </TabsList>
 
-            <AccordionItem value="mailing">
-              <AccordionTrigger>
-                <div className={"flex items-center gap-4"}>
-                  <div className={"flex gap-2 items-center "}>
-                    <Mail className="h-5 w-5" />
-                    <h2>Mailing</h2>
-                  </div>
-                  <Switch
-                    defaultChecked={true}
-                    onClick={(e) => e.stopPropagation()}
-                  />
-                </div>
-              </AccordionTrigger>
-              <AccordionContent className={"p-3"}>
-                <Mailing profile={profile} />
-              </AccordionContent>
-            </AccordionItem>
+            <TabsContent value="topics">
+              <Topics profile={profile} />
+            </TabsContent>
 
-            <AccordionItem value="subscriptions">
-              <AccordionTrigger>
-                <div className={"flex items-center gap-2"}>
-                  <Newspaper className="h-5 w-5" />
-                  <h2>Subscriptions</h2>
-                </div>
-              </AccordionTrigger>
-              <AccordionContent className={"p-3"}>
-                <Subscriptions subscriptions={useProfileSubscriptionsApi()} />
-              </AccordionContent>
-            </AccordionItem>
-          </Accordion>
+            <TabsContent value="mailing">
+              <Mailing profile={profile} />
+            </TabsContent>
+
+            <TabsContent value="subscriptions">
+              <Subscriptions subscriptions={useProfileSubscriptionsApi()} />
+            </TabsContent>
+          </Tabs>
         </ScrollArea>
+        <DialogFooter>
+          <Button type="submit">Save changes</Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

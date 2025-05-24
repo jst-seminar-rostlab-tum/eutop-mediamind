@@ -8,6 +8,7 @@ import {
 } from "~/components/ui/card";
 import { Button } from "~/components/ui/button";
 import { KeywordTag } from "~/custom-components/profile/edit/keyword-tag";
+import { Input } from "~/components/ui/input";
 
 interface KeywordFieldProps {
   keywords: string[];
@@ -20,10 +21,14 @@ export function KeywordField({ keywords }: KeywordFieldProps) {
         <CardTitle>Keywords</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className={"flex flex-wrap gap-2"}>
+        <div className={"flex flex-wrap gap-2 pb-2"}>
           {keywords.map((keyword) => (
             <KeywordTag name={keyword} />
           ))}
+          <Input
+            placeholder={"+ Add keyword"}
+            className={"w-[150px] border-0 shadow-none"}
+          />
         </div>
       </CardContent>
     </Card>
