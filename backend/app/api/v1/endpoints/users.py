@@ -8,7 +8,7 @@ from pydantic import BaseModel
 from app.core.config import configs
 from app.core.dependencies import get_current_user
 
-router = APIRouter(prefix="/users", tags=["users"])
+router = APIRouter(prefix="/users", tags=["users"], dependencies=[Depends(get_current_user)])
 
 
 class UserUpdate(BaseModel):
@@ -17,7 +17,7 @@ class UserUpdate(BaseModel):
 
 
 @router.get("")
-async def list_users(_: Depends = Depends(get_current_user)):
+async def list_users():
     try:
         async with Clerk(bearer_auth=configs.CLERK_SECRET_KEY) as clerk:
             users = await clerk.users.list_async()

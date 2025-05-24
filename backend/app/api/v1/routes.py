@@ -1,10 +1,11 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
 
 from app.api.v1.endpoints.auth import router as auth_router
 from app.api.v1.endpoints.users import router as user_router
+from app.core.dependencies import get_current_user
 
-routers = APIRouter()
+routers = APIRouter(dependencies=[Depends(get_current_user)])
 router_list = [user_router, auth_router]
 
 
