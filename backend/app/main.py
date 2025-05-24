@@ -1,11 +1,9 @@
 import sentry_sdk
 from fastapi import FastAPI
-from sqlmodel import SQLModel
 from starlette.middleware.cors import CORSMiddleware
 
 from app.api.v1.routes import routers as v1_routers
 from app.core.config import configs
-from app.core.db import engine  # ensure database tables are created
 from app.core.logger import get_logger
 
 
@@ -27,7 +25,8 @@ class AppCreator:
         # Set app default
         self.app = FastAPI(
             title=configs.PROJECT_NAME,
-            openapi_url=f"{configs.API_V1_STR}/openapi.json",
+            openapi_url="/api/openapi.json",
+            docs_url="/api/docs",
             generate_unique_id_function=self.custom_generate_unique_id,
             version="0.0.1",
         )
@@ -42,7 +41,7 @@ class AppCreator:
                 allow_headers=["*"],
             )
 
-        SQLModel.metadata.create_all(engine)
+        # SQLModel.metadata.create_all(engine)
 
         # Include API routers
         self.app.include_router(v1_routers, prefix=configs.API_V1_STR)

@@ -9,3 +9,16 @@ from .search_profile import SearchProfile
 from .subscription import Subscription
 from .topic import Topic
 from .user import *
+
+__all__ = [
+    "Article",
+    "ArticleKeywordLink",
+    "UserUpdateMe",
+    "Keyword",
+    "Match",
+    "Organization",
+    "SearchProfile",
+    "Subscription",
+    "Topic",
+    "User",
+]
