@@ -24,7 +24,7 @@ def parse_cors(v: Any) -> list[str] | str:
     raise ValueError(v)
 
 
-class Settings(BaseSettings):
+class Configs(BaseSettings):
     model_config = SettingsConfigDict(
         # Use top level .env file (one level above ./backend/)
         env_file=".env",
@@ -117,7 +117,7 @@ class Settings(BaseSettings):
         return self
 
     # Configuration of the user management tool (Clerk)
-    CLERK_SECRET_KEY: str
-    CLERK_PUBLISHABLE_KEY: str
+    CLERK_SECRET_KEY: str = "changethis"
+    CLERK_PUBLISHABLE_KEY: str = "changethis"
 
-settings = Settings()  # type: ignore
+configs = Configs()  # type: ignore

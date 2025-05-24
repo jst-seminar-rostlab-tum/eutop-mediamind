@@ -1,54 +1,59 @@
 import sentry_sdk
 from fastapi import FastAPI
-from fastapi.routing import APIRoute
-from sqlmodel import Field, Relationship, SQLModel
 from starlette.middleware.cors import CORSMiddleware
+from sqlmodel import Field, Relationship, SQLModel
 
-
-from app.core.config import settings
-from app.core.db import engine  # ensure database tables are created
 from app.api.v1.routes import routers as v1_routers
 from app.core.config import configs
 from app.core.logger import get_logger
-
-logger = get_logger(__name__)
-
-def custom_generate_unique_id(route: APIRoute) -> str:
-    return f"{route.tags[0]}-{route.name}"
+from app.core.db import engine  # ensure database tables are created
 
 
-logger.info("Starting FastAPI app initialization.")
+class AppCreator:
+    logger = get_logger(__name__)
 
-
-if settings.SENTRY_DSN and settings.ENVIRONMENT != "local":
-    sentry_sdk.init(
-                dsn=settings.SENTRY_DSN,  # noqa: E501
+    def __init__(self):
+        # see https://docs.sentry.io/platforms/python/data-management/data-collected/ for more info  # noqa: E501
+        if configs.SENTRY_DSN and configs.ENVIRONMENT != "local":
+            sentry_sdk.init(
+                dsn=configs.SENTRY_DSN,  # noqa: E501
                 send_default_pii=True,
                 traces_sample_rate=1.0,
                 environment=configs.ENV,
             )
-    
 
-app = FastAPI(
-    title=settings.PROJECT_NAME,
-    openapi_url=f"{settings.API_V1_STR}/openapi.json",
-    generate_unique_id_function=custom_generate_unique_id,
-    version="0.0.1"
-)
+        self.logger.info("Starting FastAPI app initialization.")
+        
+        # Set app default
+        self.app = FastAPI(
+            title=configs.PROJECT_NAME,
+            openapi_url=f"{configs.API_V1_STR}/openapi.json",
+            generate_unique_id_function=self.custom_generate_unique_id,
+            version="0.0.1"
+        )
 
-# Set all CORS enabled origins
-if settings.all_cors_origins:
-    app.add_middleware(
-        CORSMiddleware,
-        allow_origins=settings.all_cors_origins,
-        allow_credentials=True,
-        allow_methods=["*"],
-        allow_headers=["*"],
-    )
+        # Set CORS middleware
+        if configs.all_cors_origins:
+            self.app.add_middleware(
+                CORSMiddleware,
+                allow_origins=configs.all_cors_origins,
+                allow_credentials=True,
+                allow_methods=["*"],
+                allow_headers=["*"],
+            )
+
+        # Create database tables
+        from app.core.db import engine  # ensure database tables are created
+        SQLModel.metadata.create_all(engine)
+
+        # Include API routers
+        self.app.include_router(v1_routers, prefix=configs.API_V1_STR)
+        
+        self.logger.info("FastAPI app initialized successfully.")
+
+    def custom_generate_unique_id(self, route):
+        return f"{route.tags[0]}-{route.name}"
 
 
-SQLModel.metadata.create_all(engine)
-
-app.include_router(api_router, prefix=settings.API_V1_STR)
-
-logger.info("FastAPI app initialized successfully.")
+app_creator = AppCreator()
+app = app_creator.app
