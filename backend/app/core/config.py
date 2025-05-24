@@ -120,4 +120,5 @@ class Configs(BaseSettings):
     CLERK_SECRET_KEY: str = "changethis"
     CLERK_PUBLISHABLE_KEY: str = "changethis"
 
+
 configs = Configs()  # type: ignore

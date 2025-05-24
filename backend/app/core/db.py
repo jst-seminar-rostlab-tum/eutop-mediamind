@@ -1,6 +1,5 @@
 from sqlmodel import Session, SQLModel, create_engine, select
 
-
 from app.core.config import configs
 from app.models import User, UserCreate
 
@@ -25,5 +24,3 @@ def init_db(session: Session) -> None:
     # This works because the models are already imported and registered from app.models
     SQLModel.metadata.drop_all(engine)
     SQLModel.metadata.create_all(engine)
-
-    
