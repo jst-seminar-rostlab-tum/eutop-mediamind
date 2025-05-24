@@ -173,3 +173,9 @@ cython_debug/
 # PyPI configuration file
 .pypirc
 .vercel
+
+# MacOs Finder stuff:
+.DS_Store
+
+# For Testing Scrapers:
+newspapers_accounts.json
