@@ -1,4 +1,5 @@
 import { X } from "lucide-react";
+import { Label } from "~/components/ui/label";
 
 interface KeywordTagProps {
   name: string;
@@ -7,14 +8,16 @@ interface KeywordTagProps {
 export function KeywordTag({ name }: KeywordTagProps) {
   return (
     <div
-      className={
-        "inline-flex p-1.5 rounded-md border border-gray-300 items-center gap-1"
-      }
+      className={"inline-flex p-1.5 rounded-md items-center gap-1 bg-gray-100"}
     >
-      <div>
-        <X className={"h-4 w-4"} />
+      <Label>{name}</Label>
+      <div
+        className={
+          "hover:bg-gray-200 transition-colors duration-200 rounded-xs p-0.5"
+        }
+      >
+        <X strokeWidth={"3"} className={"h-3.5 w-3.5 text-gray-400"} />
       </div>
-      {name}
     </div>
   );
 }
