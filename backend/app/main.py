@@ -1,6 +1,6 @@
 import sentry_sdk
 from fastapi import FastAPI
-from sqlmodel import Field, Relationship, SQLModel
+from sqlmodel import SQLModel
 from starlette.middleware.cors import CORSMiddleware
 
 from app.api.v1.routes import routers as v1_routers
@@ -41,9 +41,6 @@ class AppCreator:
                 allow_methods=["*"],
                 allow_headers=["*"],
             )
-
-        # Create database tables
-        from app.core.db import engine  # ensure database tables are created
 
         SQLModel.metadata.create_all(engine)
 

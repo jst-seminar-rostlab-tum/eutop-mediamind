@@ -6,11 +6,11 @@ from sqlmodel import Field, Relationship, SQLModel
 
 from app.models.associations import (
     ArticleKeywordLink,
-    OrganizationSubscriptionLink,
 )
 
 if TYPE_CHECKING:
     from app.models.keyword import Keyword
+    from app.models.match import Match
     from app.models.subscription import Subscription
 
 

@@ -1,6 +1,6 @@
 import uuid
 
-from sqlmodel import Field, Relationship, SQLModel
+from sqlmodel import Field, SQLModel
 
 
 class TopicKeywordLink(SQLModel, table=True):
