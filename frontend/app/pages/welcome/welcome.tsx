@@ -5,6 +5,10 @@ import Header from "~/custom-components/header";
 import Layout from "~/custom-components/layout";
 import Text from "~/custom-components/text";
 
+export function loader() {
+  return null;
+}
+
 export function Welcome() {
   return (
     <>
