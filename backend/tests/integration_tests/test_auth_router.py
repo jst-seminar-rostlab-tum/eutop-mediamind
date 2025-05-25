@@ -23,7 +23,7 @@ def test_signup_success():
         last_name="Test",
     )
 
-    with patch("app.api.v1.endpoints.auth.Clerk") as mock_clerk_class:
+    with patch("app.services.auth_service.Clerk") as mock_clerk_class:
         mock_clerk = Mock()
         mock_clerk.users.create_async = async_return(mock_user)
         mock_clerk_class.return_value.__aenter__.return_value = mock_clerk

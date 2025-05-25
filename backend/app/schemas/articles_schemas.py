@@ -1,7 +1,7 @@
 from datetime import datetime
 from uuid import UUID
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class ArticleOverviewItem(BaseModel):
@@ -15,8 +15,7 @@ class ArticleOverviewItem(BaseModel):
     summary: str | None
     sorting_order: int
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class ArticleOverviewResponse(BaseModel):
@@ -38,5 +37,4 @@ class MatchDetailResponse(BaseModel):
     category: str
     summary: str | None
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)

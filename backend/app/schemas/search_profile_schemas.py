@@ -1,7 +1,7 @@
 from typing import List, Optional
 from uuid import UUID
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class TopicUpdate(BaseModel):
@@ -45,5 +45,4 @@ class SearchProfileDetailResponse(BaseModel):
     is_owner: bool
     topics: List[TopicOut]
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
