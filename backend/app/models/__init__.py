@@ -22,4 +22,10 @@ __all__ = [
     "Subscription",
     "Topic",
     "User",
+    "NewPassword",
+    "Token",
+    "TokenPayload",
+    "UpdatePassword",
+    "UserPublic",
+    "UserUpdate",
 ]
