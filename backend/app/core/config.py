@@ -116,6 +116,9 @@ class Configs(BaseSettings):
 
         return self
 
+    # Qdrant
+    QDRANT_URL = os.getenv("QDRANT_URL")
+
     # Configuration of the user management tool (Clerk)
     CLERK_SECRET_KEY: str = "changethis"
     CLERK_PUBLISHABLE_KEY: str = "changethis"
