@@ -18,7 +18,7 @@ services:
     restart: always
     volumes:
       - ../backend:/app
-      - ../backend/logs:/app/logs  # persistent logs directory
+      - backend_logs_volumes:/app/logs # persistent logs directory
     logging:
       driver: json-file
       options:
@@ -27,3 +27,4 @@ services:
 
 volumes:
   qdrant_data:
+  backend_logs_volumes:
