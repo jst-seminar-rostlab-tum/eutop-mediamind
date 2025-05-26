@@ -1,27 +1,4 @@
 import * as Sentry from "@sentry/react";
-
-// see https://docs.sentry.io/platforms/javascript/guides/react-router/data-management/data-collected/ for more info
-Sentry.init({
-  dsn: "https://852023ec5d9fe86c64eed907e04346e4@o4509334816489472.ingest.de.sentry.io/4509334885564496",
-  sendDefaultPii: true,
-  integrations: [
-    Sentry.browserTracingIntegration(),
-    Sentry.replayIntegration(),
-    Sentry.feedbackIntegration({
-      colorScheme: "system",
-    }),
-  ],
-  tracesSampleRate: 1.0,
-  tracePropagationTargets: [
-    "localhost",
-    /^https:\/\/eutop-mediamind-backend\.vercel\.app\/api/,
-  ],
-  // Session Replay
-  replaysSessionSampleRate: 0.1,
-  replaysOnErrorSampleRate: 1.0,
-  environment: import.meta.env.MODE,
-});
-
 import {
   isRouteErrorResponse,
   Links,
@@ -30,9 +7,9 @@ import {
   Scripts,
   ScrollRestoration,
 } from "react-router";
-
 import type { Route } from "./+types/root";
 import "./app.css";
+import { useEffect } from "react";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -66,6 +43,30 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
+  useEffect(() => {
+    // see https://docs.sentry.io/platforms/javascript/guides/react-router/data-management/data-collected/ for more info
+    Sentry.init({
+      dsn: "https://852023ec5d9fe86c64eed907e04346e4@o4509334816489472.ingest.de.sentry.io/4509334885564496",
+      sendDefaultPii: true,
+      integrations: [
+        Sentry.browserTracingIntegration(),
+        Sentry.replayIntegration(),
+        Sentry.feedbackIntegration({
+          colorScheme: "system",
+        }),
+      ],
+      tracesSampleRate: 1.0,
+      tracePropagationTargets: [
+        "localhost",
+        /^https:\/\/eutop-mediamind-backend\.vercel\.app\/api/,
+      ],
+      // Session Replay
+      replaysSessionSampleRate: 0.1,
+      replaysOnErrorSampleRate: 1.0,
+      environment: import.meta.env.MODE,
+    });
+  }, []);
+
   return <Outlet />;
 }
 
