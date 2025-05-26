@@ -7,6 +7,7 @@ This directory contains infrastructure-as-code and configuration files for deplo
 To deploy or update infrastructure:
 
 0. Set Variables
+
 ```sh
 touch infra/terraform.tfvars # Create a terraform.tfvars file if it doesn't exist.
 echo 'db_username = "your_db_username"' >> infra/terraform.tfvars
