@@ -15,4 +15,19 @@ services:
       driver: json-file
       options:
         max-size: "50m"
-        max-file: "10" #Max 10 files of 50MB each
+        max-file: "10" # Max 10 files of 50MB each
+    environment:
+      - VAULT_ADDR=http://vault:8200
+  vault:
+    image: hashicorp/vault:1.19.3
+    container_name: vault
+    ports:
+      - "8200:8200"
+    restart: always
+    cap_add:
+      - IPC_LOCK
+    volumes:
+      - ./vault/logs:/vault/logs
+      - ./vault/file:/vault/file
+      - ./vault/config:/vault/config
+    entrypoint: vault server -config=/vault/config/config.hcl
