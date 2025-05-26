@@ -2,7 +2,10 @@ import httpx
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
+from app.core.logger import get_logger
+
 security = HTTPBearer()
+logger = get_logger(__name__)
 
 
 async def get_current_user(
@@ -22,12 +25,14 @@ async def get_current_user(
             return response.json()
 
     except httpx.HTTPStatusError:
+        logger.debug("Invalid authentication credentials")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid authentication credentials",
         )
 
     except httpx.RequestError:
+        logger.debug("Authentication service unavailable")
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             detail="Authentication service unavailable",
