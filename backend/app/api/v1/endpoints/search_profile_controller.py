@@ -72,4 +72,4 @@ async def update_match_feedback(
     )
     if not success:
         return {"status": "failed"}
-    return {"status": "updated"}
+    return {"status": "success"}

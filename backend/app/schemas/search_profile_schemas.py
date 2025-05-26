@@ -20,7 +20,6 @@ class SearchProfileUpdateRequest(BaseModel):
     organization_emails: Optional[List[str]] = []
     profile_emails: Optional[List[str]] = []
     public: bool
-    editable: Optional[bool] = True
     is_editable: Optional[bool] = True
     owner: UUID
     is_owner: Optional[bool] = False

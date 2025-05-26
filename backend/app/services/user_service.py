@@ -1,16 +1,6 @@
-# app/services/user_service.py
-
-from typing import Optional
-
 from clerk_backend_api import Clerk
-from pydantic import BaseModel
 
 from app.core.config import configs
-
-
-class UserUpdate(BaseModel):
-    first_name: Optional[str] = None
-    last_name: Optional[str] = None
 
 
 class UserService:

@@ -1,5 +1,3 @@
-# app/services/auth_service.py
-
 from clerk_backend_api import Clerk
 from pydantic import BaseModel
 

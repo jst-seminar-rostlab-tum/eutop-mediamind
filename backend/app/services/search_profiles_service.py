@@ -52,7 +52,7 @@ class SearchProfiles:
         if not profile:
             return None
 
-        # Rechte prüfen
+        # Check write rights
         is_owner = profile.created_by_id == current_user["id"]
         is_editable = data.is_editable or is_owner
         if not is_editable:
