@@ -25,5 +25,5 @@ sqlmodel==0.0.24
 sentry-sdk==2.20.0
 SQLAlchemy==2.0.41
 pydantic-settings==2.0
-pydantic[email]==2.11.5
+pydantic[email]==2.11.4
 psycopg[binary]==3.1
