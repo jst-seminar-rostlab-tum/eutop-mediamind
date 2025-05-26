@@ -1,11 +1,10 @@
-from sqlmodel import Session, SQLModel, create_engine
-
-from app.core.config import configs
 import psycopg2
 from psycopg2 import OperationalError
 from psycopg2.extensions import connection as PgConnection
 from qdrant_client import QdrantClient
+from sqlmodel import Session, SQLModel, create_engine
 
+from app.core.config import configs
 from app.core.logger import get_logger
 
 from .config import Configs
@@ -19,6 +18,8 @@ def init_db(session: Session) -> None:
 
     SQLModel.metadata.drop_all(engine)
     SQLModel.metadata.create_all(engine)
+
+
 def get_postgresql_connection(cfg: Configs) -> PgConnection:
     if not cfg.DATABASE_URL:
         logger.error("DATABASE_URL not set in config.")
