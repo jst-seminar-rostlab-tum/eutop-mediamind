@@ -10,47 +10,60 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 input_xpath_templates = [
-    '//input[contains(@id, "{keyword}")]',
-    '//input[contains(@name, "{keyword}")]',
-    '//input[contains(@placeholder, "{keyword}")]'
+    # '//input[contains(@id, "{keyword}")]',
+    # '//input[contains(@name, "{keyword}")]',
+    # '//input[contains(@placeholder, "{keyword}")]'
 ]
 
 button_xpath_templates = [
-    '//button[contains(text(), "{keyword}")]',
-    '//button[contains(@id, "{keyword}")]',
-    '//button[contains(@name, "{keyword}")]',
-    '//button[contains(@class, "{keyword}")]'
+    # '//button[contains(text(), "{keyword}")]',
+    # '//button[contains(@id, "{keyword}")]',
+    # '//button[contains(@name, "{keyword}")]',
+    # '//button[contains(@class, "{keyword}")]'
 ]
 
 link_xpath_templates = [
-    '//a[contains(@href, "{keyword}")]',
-    '//a[contains(text(), "{keyword}")]',
-    '//a[@title and contains(@title, "{keyword}")]'
+    # '//a[contains(@href, "{keyword}")]',
+    # '//a[contains(text(), "{keyword}")]',
+    # '//a[@title and contains(@title, "{keyword}")]'
 ]
 
-login_page_keywords = ['Login', 'login', 'anmeldung', 'anmelden']
+login_page_keywords = [
+    # 'Login',
+    # 'login',
+    # 'anmeldung',
+    # 'anmelden'
+]
 
-profile_page_keywords = ['Profil', 'profil', 'profile', 'Profile']
+profile_page_keywords = [
+    # 'Profil',
+    # 'profil',
+    # 'profile',
+    # 'Profile'
+]
 
-logout_keywords = ['Logout', 'logout']
+logout_keywords = [
+    # 'Logout',
+    # 'logout'
+]
 
 cookies_keywords = [
-    'alle akzeptieren',
-    'akzeptieren',
-    'accept'
+    # 'alle akzeptieren',
+    # 'akzeptieren',
+    # 'accept'
 ]
 
 user_keywords = [
-    'username'
+    # 'username'
 ]
 
 password_keywords = [
-    'password'
+    # 'password'
 ]
 
 submit_keywords = [
-    'Anmelden',
-    'anmelden',
+    # 'Anmelden',
+    # 'anmelden',
 ]
 
 
@@ -68,6 +81,7 @@ def find_element(driver, xpath_templates, keywords):
     return None
 
 
+# CHANGES THIS
 def change_frame(driver, frame, site_name):
     try:
         driver.switch_to.frame(frame)
