@@ -3,6 +3,8 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict
 
+from app.models import Match
+
 
 class ArticleOverviewItem(BaseModel):
     id: UUID
@@ -16,6 +18,21 @@ class ArticleOverviewItem(BaseModel):
     sorting_order: int
 
     model_config = ConfigDict(from_attributes=True)
+
+    @classmethod
+    def from_entity(cls, match: Match) -> "ArticleOverviewItem":
+        article = match.article
+        return cls(
+            id=article.id,
+            title=article.title,
+            url=article.url,
+            author=article.author,
+            published_at=article.published_at,
+            language=article.language,
+            category=article.category,
+            summary=article.summary,
+            sorting_order=match.sorting_order,
+        )
 
 
 class ArticleOverviewResponse(BaseModel):

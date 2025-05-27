@@ -15,8 +15,12 @@ from app.schemas.search_profile_schemas import SearchProfileUpdateRequest
 class SearchProfiles:
 
     @staticmethod
-    async def get_search_profile(search_profile_id: UUID, current_user) -> SearchProfile | None:
-        return await SearchProfileRepository.get_by_id(search_profile_id, current_user)
+    async def get_search_profile(
+        search_profile_id: UUID, current_user
+    ) -> SearchProfile | None:
+        return await SearchProfileRepository.get_by_id(
+            search_profile_id, current_user
+        )
 
     @staticmethod
     async def get_available_search_profiles(
@@ -50,14 +54,12 @@ class SearchProfiles:
 
     @staticmethod
     async def get_article_overview(
-            profile_id: UUID,
+        profile_id: UUID,
     ) -> ArticleOverviewResponse:
         matches = await MatchRepository.get_articles_by_profile(profile_id)
 
         articles = [
-            ArticleOverviewItem.from_entity(m)
-            for m in matches
-            if m.article
+            ArticleOverviewItem.from_entity(m) for m in matches if m.article
         ]
 
         return ArticleOverviewResponse(

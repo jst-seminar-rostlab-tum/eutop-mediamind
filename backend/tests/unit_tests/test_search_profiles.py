@@ -36,10 +36,14 @@ def test_get_search_profile_with_access():
 def test_get_article_overview():
     with patch("app.services.search_profiles_service.MatchRepository.get_articles_by_profile", new_callable=AsyncMock) as mock_get:
         profile_id = uuid4()
+        from datetime import datetime
+
         article = type("Article", (), {
             "id": uuid4(), "title": "Test", "url": "http://test", "author": "Author",
-            "published_at": "2023-01-01", "language": "en", "category": "news", "summary": "summary"
+            "published_at": datetime(2023, 1, 1),
+            "language": "en", "category": "news", "summary": "summary"
         })()
+
         match = type("Match", (), {"article": article, "sorting_order": 1, "article_id": article.id})()
         mock_get.return_value = [match]
 

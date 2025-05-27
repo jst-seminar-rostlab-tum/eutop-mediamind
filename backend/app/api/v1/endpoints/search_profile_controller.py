@@ -70,7 +70,9 @@ async def update_match_feedback(
     match_id: UUID,
     feedback: MatchFeedbackRequest,
 ):
-    success = await SearchProfiles.update_match_feedback(profile_id, match_id, feedback)
+    success = await SearchProfiles.update_match_feedback(
+        profile_id, match_id, feedback
+    )
     if not success:
         raise HTTPException(
             status=status.HTTP_404_NOT_FOUND,
