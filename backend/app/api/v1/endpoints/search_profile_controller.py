@@ -44,7 +44,7 @@ async def update_search_profile(
     request: SearchProfileUpdateRequest,
     current_user=Depends(get_current_user),
 ):
-    return  await SearchProfiles.update_search_profile(
+    return await SearchProfiles.update_search_profile(
         profile_id, request, current_user
     )
 
@@ -59,7 +59,6 @@ async def get_profile_overview(profile_id: UUID):
 )
 async def get_match_detail(profile_id: UUID, match_id: UUID):
     return await SearchProfiles.get_match_detail(profile_id, match_id)
-
 
 
 @router.put("/{profile_id}/article/{match_id}")
