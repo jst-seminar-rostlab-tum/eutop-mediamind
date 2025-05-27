@@ -1,11 +1,12 @@
 # Mediamind
 
-MediaMind is a tool designed to keep client teams informed and prepared by 
+MediaMind is a tool designed to keep client teams informed and prepared by
 delivering daily press reviews. Each morning, it compiles and distributes PDFs
 containing curated, anonymized newspaper articles helping teams stay on top of
 relevant coverage.
 
 ## Project Structure
+
 ```
 eutop-mediamind/
 ├── frontend/              # React frontend app
@@ -57,3 +58,11 @@ This project uses **Sentry** for error monitoring, performance tracing, and sess
   The FastAPI backend uses the Sentry Python SDK to capture unhandled exceptions and performance data, including environment and PII settings.
 
 All errors and performance data are sent to our Sentry project at [csee.sentry.io](https://csee.sentry.io/).
+
+## Vector Database (Qdrant)
+
+The project uses **Qdrant** as a vector database for efficient storage and retrieval of document embeddings. You can access the Qdrant dashboard locally by navigating to [http://localhost:6333/dashboard](http://localhost:6333/dashboard) after starting the Qdrant service (via Docker Compose).
+
+## Licence
+
+TODO
