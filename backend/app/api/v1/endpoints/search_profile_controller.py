@@ -44,24 +44,22 @@ async def update_search_profile(
     request: SearchProfileUpdateRequest,
     current_user=Depends(get_current_user),
 ):
-    updated = await SearchProfiles.update_search_profile(
+    return  await SearchProfiles.update_search_profile(
         profile_id, request, current_user
     )
-    return updated
 
 
 @router.get("/{profile_id}/overview", response_model=ArticleOverviewResponse)
 async def get_profile_overview(profile_id: UUID):
-    overview = await SearchProfiles.get_article_overview(profile_id)
-    return overview
+    return await SearchProfiles.get_article_overview(profile_id)
 
 
 @router.get(
     "/{profile_id}/article/{match_id}", response_model=MatchDetailResponse
 )
 async def get_match_detail(profile_id: UUID, match_id: UUID):
-    detail = await SearchProfiles.get_match_detail(profile_id, match_id)
-    return detail
+    return await SearchProfiles.get_match_detail(profile_id, match_id)
+
 
 
 @router.put("/{profile_id}/article/{match_id}")
