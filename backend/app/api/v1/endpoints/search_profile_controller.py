@@ -1,6 +1,8 @@
+from http.client import HTTPException
 from uuid import UUID
 
 from fastapi import APIRouter, Depends
+from starlette import status
 
 from app.core.dependencies import get_current_user
 from app.schemas.articles_schemas import (
@@ -8,6 +10,7 @@ from app.schemas.articles_schemas import (
     MatchDetailResponse,
 )
 from app.schemas.match_schemas import MatchFeedbackRequest
+from app.schemas.request_response import FeedbackResponse
 from app.schemas.search_profile_schemas import (
     SearchProfileDetailResponse,
     SearchProfileUpdateRequest,
@@ -67,9 +70,10 @@ async def update_match_feedback(
     match_id: UUID,
     feedback: MatchFeedbackRequest,
 ):
-    success = await SearchProfiles.update_match_feedback(
-        profile_id, match_id, feedback
-    )
+    success = await SearchProfiles.update_match_feedback(profile_id, match_id, feedback)
     if not success:
-        return {"status": "failed"}
-    return {"status": "success"}
+        raise HTTPException(
+            status=status.HTTP_404_NOT_FOUND,
+            detail="Match or profile not found or feedback update failed",
+        )
+    return FeedbackResponse(status="success")

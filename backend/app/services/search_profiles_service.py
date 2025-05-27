@@ -15,22 +15,8 @@ from app.schemas.search_profile_schemas import SearchProfileUpdateRequest
 class SearchProfiles:
 
     @staticmethod
-    async def get_search_profile(
-        search_profile_id: UUID, current_user
-    ) -> SearchProfile | None:
-        profile = await SearchProfileRepository.get_by_id(search_profile_id)
-        if not profile:
-            return None
-
-        has_access = (
-            profile.is_public
-            or any(u.id == current_user["id"] for u in profile.users)
-            or profile.organization_id == current_user["organization_id"]
-        )
-        if not has_access:
-            return None
-
-        return profile
+    async def get_search_profile(search_profile_id: UUID, current_user) -> SearchProfile | None:
+        return await SearchProfileRepository.get_by_id(search_profile_id, current_user)
 
     @staticmethod
     async def get_available_search_profiles(
@@ -64,22 +50,12 @@ class SearchProfiles:
 
     @staticmethod
     async def get_article_overview(
-        profile_id: UUID,
+            profile_id: UUID,
     ) -> ArticleOverviewResponse:
         matches = await MatchRepository.get_articles_by_profile(profile_id)
 
         articles = [
-            ArticleOverviewItem(
-                id=m.article.id,
-                title=m.article.title,
-                url=m.article.url,
-                author=m.article.author,
-                published_at=m.article.published_at,
-                language=m.article.language,
-                category=m.article.category,
-                summary=m.article.summary,
-                sorting_order=m.sorting_order,
-            )
+            ArticleOverviewItem.from_entity(m)
             for m in matches
             if m.article
         ]

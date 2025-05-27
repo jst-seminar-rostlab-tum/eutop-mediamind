@@ -3,21 +3,31 @@ from uuid import UUID
 
 from sqlalchemy.ext.asyncio import async_session
 from sqlalchemy.orm import selectinload
-from sqlmodel import select
+from sqlmodel import select, and_, or_
 
 from app.models.search_profile import SearchProfile
 from app.schemas.search_profile_schemas import SearchProfileUpdateRequest
 
 
 class SearchProfileRepository:
+    from sqlalchemy import or_, and_
 
     @staticmethod
-    async def get_by_id(search_profile_id: UUID) -> SearchProfile | None:
+    async def get_by_id(search_profile_id: UUID, current_user) -> SearchProfile | None:
         async with async_session() as session:
             result = await session.exec(
                 select(SearchProfile)
                 .options(selectinload(SearchProfile.users))
-                .where(SearchProfile.id == search_profile_id)
+                .where(
+                    and_(
+                        SearchProfile.id == search_profile_id,
+                        or_(
+                            SearchProfile.is_public == True,
+                            SearchProfile.organization_id == current_user["organization_id"],
+                            SearchProfile.users.any(id=current_user["id"]),
+                        ),
+                    )
+                )
             )
             return result.one_or_none()
 
