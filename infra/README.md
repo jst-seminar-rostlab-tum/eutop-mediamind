@@ -34,12 +34,6 @@ terraform validate # Check the configuration for syntax errors and other issues.
 terraform plan # Show the changes that will be made to the infrastructure.
 ```
 
-4. Apply the changes to provision or update the infrastructure.
-
-```sh
-terraform apply # Apply the planned changes to the AWS infrastructure.
-```
-
 ## Notes
 
 - Find vpcId:
