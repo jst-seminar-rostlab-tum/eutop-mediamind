@@ -75,7 +75,7 @@ def test_list_users_success(mock_user_data):
         ),
     ]
 
-    with patch("app.api.v1.endpoints.users.Clerk") as mock_clerk_class:
+    with patch("app.services.user_service.Clerk") as mock_clerk_class:
         mock_clerk = Mock()
         mock_clerk.users.list_async = async_return(mock_users)
         mock_clerk_class.return_value.__aenter__.return_value = mock_clerk

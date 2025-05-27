@@ -2,12 +2,20 @@ import psycopg2
 from psycopg2 import OperationalError
 from psycopg2.extensions import connection as PgConnection
 from qdrant_client import QdrantClient
+from sqlmodel import Session, SQLModel, create_engine
 
+from app.core.config import configs
 from app.core.logger import get_logger
 
 from .config import Configs
 
 logger = get_logger(__name__)
+
+engine = create_engine(str(configs.SQLALCHEMY_DATABASE_URI))
+
+
+def init_db(session: Session) -> None:
+    SQLModel.metadata.create_all(engine)
 
 
 def get_postgresql_connection(cfg: Configs) -> PgConnection:
