@@ -91,31 +91,33 @@ def submit_login(driver, wait, selector):
             btn = wait.until(EC.element_to_be_clickable(
                 (By.CSS_SELECTOR, selector)))
         btn.click()
-        input("Press Enter to close browser:")
+#        input("Press Enter to close browser:") # Remove when not testing
         print("Login submitted.")
     except Exception as e:
         print(f"Could not submit login: {e}")
 
 
-driver = webdriver.Chrome()
-wait = WebDriverWait(driver, 5)
+def hardcoded_login(key):
+    driver = webdriver.Chrome()
+    wait = WebDriverWait(driver, 5)
 
-# Load newspapers data
-with open('app/services/newspapers_data.json', 'r') as f:
-    data = json.load(f)
+    # Load newspapers data
+    with open('app/services/newspapers_data.json', 'r') as f:
+        data = json.load(f)
 
-# Load newspapers accounts
-with open('app/services/newspapers_accounts.json', 'r') as f:
-    accounts = json.load(f)
+    # Load newspapers accounts
+    with open('app/services/newspapers_accounts.json', 'r') as f:
+        accounts = json.load(f)
 
-# Add any keys you want to test, test one by one
-whitelist = ["newspaper3"]
-
-for key, paper in data['newspapers'].items():
-    if key not in whitelist:
-        continue
-    print(f"\nProcessing: {paper['name']}")
     try:
+        paper = data['newspapers'].get(key)
+        if not paper:
+            print(f"No newspaper found with key: {key}")
+            driver.quit()
+            return False
+
+        print(f"\nProcessing: {paper['name']}")
+
         driver.get(paper['link'])
 
         # find account by matching link
@@ -148,7 +150,9 @@ for key, paper in data['newspapers'].items():
         submit_login(driver, wait, paper.get('submit_button', ''))
         print("------------------------------")
 
+        return True
     except Exception as e:
-        print(f"Failed to process {paper['name']}: {e}")
-
-# driver.quit()
+        print(f"Failed to process {key}: {e}")
+        return False
+    finally:
+        driver.quit()
