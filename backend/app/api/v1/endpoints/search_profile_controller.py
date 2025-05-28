@@ -48,7 +48,7 @@ async def update_search_profile(
         profile_id, request, current_user
     )
 
-  
+
 @router.get("/{profile_id}/overview", response_model=ArticleOverviewResponse)
 async def get_profile_overview(profile_id: UUID):
     return await SearchProfiles.get_article_overview(profile_id)
