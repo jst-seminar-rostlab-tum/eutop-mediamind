@@ -27,3 +27,8 @@ SQLAlchemy==2.0.41
 pydantic-settings==2.0
 pydantic[email]==2.11.4
 litellm==1.70.0
+langchain-qdrant
+langchain
+langchain_openai
+qdrant-client
+fastembed
