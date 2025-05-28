@@ -1,38 +1,48 @@
 import uuid
 from typing import Optional
-from sqlmodel import Session
-from app.crud import get_article_by_id, update_article
-from app.models.article import Article
-langchain_community.chat_models import ChatOpenAI
+
 from langchain.chains.summarize import load_summarize_chain
-from langchain.text_splitter import CharacterTextSplitter
 from langchain.docstore.document import Document
-from app.core.config import settings
+from langchain.text_splitter import CharacterTextSplitter
+from langchain_openai import ChatOpenAI
+from sqlmodel import Session
+
+from app.core.config import configs
+from app.models.article import Article
+from app.repositories.article_repository import ArticleRepository
+
 
 def summarize_text(text: str) -> str:
-    """Erzeuge eine Zusammenfassung mit LangChain und baue einen Knowledge Graph mit LangGraph."""
-    # LLM für Zusammenfassung konfigurieren
-    llm = ChatOpenAI(model="gpt-4o-mini", temperature=0, api_key=settings.OPENAI_API_KEY)
-    
-    # Text in kleinere Abschnitte aufteilen
+    """
+    Summarizes the given text using a language model.
+
+    Args:
+        text (str): The text to summarize.
+
+    Returns:
+        str: The summarized text.
+    """
+
+    llm = ChatOpenAI(
+        model="gpt-4o-mini", temperature=0, api_key=configs.OPENAI_API_KEY
+    )
+
     text_splitter = CharacterTextSplitter(chunk_size=1000, chunk_overlap=0)
     texts = text_splitter.split_text(text)
 
-    # Dokumente erstellen
     docs = [Document(page_content=t) for t in texts]
 
-    # Zusammenfassungs-Chain laden
     chain = load_summarize_chain(llm, chain_type="map_reduce")
 
-    # Zusammenfassung erstellen
     summary = chain.invoke(docs)
     return summary
+
 
 def summarize_and_store(
     *, session: Session, article_id: uuid.UUID
 ) -> Optional[Article]:
     # 1. Artikel laden
-    article = get_article_by_id(session=session, article_id=article_id)
+    article = ArticleRepository.get_article_by_id(article_id)
     if not article:
         return None
 
@@ -40,9 +50,10 @@ def summarize_and_store(
     article.summary = summarize_text(article.content)
 
     # 3. Zusammenfassung speichern
-    return update_article(session=session, db_article=article)
+    return ArticleRepository.update_article(article)
 
-TEST_TEXT = """
+
+TEST_TEXT = r"""
 ### Das Europäische Parlament: Eine umfassende Betrachtung seiner Geschichte, Struktur, Aufgaben und Bedeutung
 
 Das **Europäische Parlament (EP)** ist eine der zentralen Institutionen der Europäischen Union (EU) und spielt eine entscheidende Rolle in der Gesetzgebung, politischen Kontrolle und der Repräsentation der Bürger der EU. Es ist das einzige Organ der EU, dessen Mitglieder direkt von den Bürgern der Mitgliedsstaaten gewählt werden. Im folgenden Artikel gehen wir detailliert auf die Geschichte, Struktur, Aufgaben und Bedeutung des Europäischen Parlaments ein und betrachten, wie es die politische Landschaft der EU beeinflusst.
@@ -119,9 +130,7 @@ Das Europäische Parlament ist eine der bedeutendsten Institutionen der EU und h
 """
 
 if __name__ == "__main__":
-    x = summarize_text(
-        text=TEST_TEXT
-    )
+    x = summarize_text(text=TEST_TEXT)
     print(x)
     print("--------------------")
     print(x.output_text)
