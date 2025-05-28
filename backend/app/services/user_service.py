@@ -24,6 +24,7 @@ class UserService:
                 ]
             }
 
+
     @staticmethod
     def get_current_user_info(current_user: dict) -> dict:
         return {
