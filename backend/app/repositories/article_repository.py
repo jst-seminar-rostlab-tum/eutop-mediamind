@@ -2,7 +2,6 @@ from uuid import UUID
 
 from sqlalchemy.ext.asyncio import async_session
 from sqlalchemy.future import select
-from sqlalchemy.orm import selectinload
 
 from app.models.article import Article
 
