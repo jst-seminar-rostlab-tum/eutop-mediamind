@@ -40,10 +40,11 @@ def summarize_text(text: str) -> str:
 def summarize_and_store(article_id: uuid.UUID) -> Optional[Article]:
 
     article = ArticleRepository.get_article_by_id(article_id)
-    
+
     if not article:
         return None
 
-    article.summary = summarize_text(article.content)
+    temp_summary = summarize_text(article.content)
+    article.summary = temp_summary["output_text"]
 
     return ArticleRepository.update_article(article)
