@@ -1,15 +1,5 @@
 {
   "newspapers": {
-    "newspaper00": {
-      "name": "Platow Brief",
-      "link": "https://www.platow.de/",
-      "cookies_button": "//button[contains(text(), 'Alle akzeptieren')]",
-      "login_button": "//a[contains(text(), 'Login')]",
-      "iframe": "//iframe[@id='plenigoFramecheckout']",
-      "user_input": "//input[@id='login_form__username']",
-      "password_input": "//input[@id = 'login_form__password']",
-      "submit_button": "//button[contains(text(), 'Anmelden')]"
-    },
     "newspaper1": {
       "name": "FAZ/FASZ - E-Paper",
       "link": "https://zeitung.faz.net/",
@@ -46,10 +36,10 @@
       "link": "https://epaper.sueddeutsche.de/stadtausgabe",
       "cookies_button": "//button[@title='Akzeptieren' and contains(@class, 'sp_choice_type_11')]",
       "login_button": "//a[contains(@href, 'auth.sueddeutsche.de') and contains(text(), 'Anmelden')]",
-      "iframe": "",
       "user_input": "//input[@id='login' and @name='email']",
       "password_input": "//input[@id='current-password' and @name='current-password']",
-      "submit_button": "//button[@type='submit' and contains(text(), 'Einloggen')]"
+      "submit_button": "//button[@type='submit' and contains(text(), 'Einloggen')]",
+      "logout_button": "//a[contains(@href, '/abmelden')]"
     },
     "newspaper5": {
       "name": "Börsen-Zeitung E-Paper",
@@ -74,12 +64,14 @@
     "newspaper7": {
       "name": "Die Welt",
       "link": "https://epaper.welt.de/",
+      "iframe_cookies": "//iframe[@id='sp_message_iframe_1304391']",
       "cookies_button": "//button[@title='ALLE AKZEPTIEREN' and contains(@class, 'sp_choice_type_11')]",
       "login_button": "//button[contains(@class, 'is-login') and span[contains(text(), 'Anmelden')]]",
-      "iframe": "",
       "user_input": "//input[@id='identifier' and @name='identifier']",
       "password_input": "//input[@id='password' and @name='password']",
-      "submit_button": "//button[@type='submit' and @name='method' and @value='password']"
+      "submit_button": "//button[@type='submit' and @name='method' and @value='password']",
+      "profile_section": "//button[contains(@class, 'c-header-top-tools__button') and contains(@class, 'is-login')]",
+      "logout_button": "//a[text()='Abmelden']"
     },
     "newspaper8": {
       "name": "FOCUS ePaper",
@@ -137,7 +129,6 @@
       "link": "https://epaper.cicero.de/",
       "cookies_button": "//a[@data-behavior='allow-all-cookies' and contains(text(), 'Alle akzeptieren')]",
       "login_button": "//a[contains(@href, '/users/sign_in') and contains(text(), 'Login')]",
-      "iframe": "",
       "user_input": "//input[@id='user_email' and @name='user[email]']",
       "password_input": "//input[@id='user_password' and @name='user[password]']",
       "submit_button": "//input[@type='submit' and @value='Anmelden']"
@@ -146,12 +137,10 @@
       "name": "Chemical Watch - Onlinezugang",
       "link": "https://product.enhesa.com/",
       "cookies_button": "//button[@id='cookieAccept' and contains(text(), 'OK')]",
-      "login_button": "",
-      "iframe": "",
       "user_input": "//input[@name='email' and @type='text']",
       "password_input": "//input[@name='password' and @type='password']",
       "submit_button": "//button[@type='submit' and @data-testid='login-button']",
-      "logout_trigger": "//div[@role='button' and @data-testid='trigger']",
+      "profile_section": "//div[@class=' UserAvatar']",
       "logout_button": "//div[contains(text(), 'Log out') and contains(@class, 'hoverable')]"
     },
     "newspaper15": {
@@ -178,35 +167,21 @@
     },
     "newspaper17": {
       "name": "Tagesspiegel",
-      "link": "https://www.tagesspiegel.de/",
-      "cookies_button": "",
-      "login_button": "",
-      "iframe": "",
-      "user_input": "",
-      "password_input": "",
-      "submit_button": ""
+      "link": "https://www.tagesspiegel.de/"
     },
     "newspaper18": {
       "name": "Background_Tagesspiegel",
-      "link": "https://background.tagesspiegel.de/",
-      "cookies_button": "",
-      "login_button": "",
-      "iframe": "",
-      "user_input": "",
-      "password_input": "",
-      "submit_button": ""
+      "link": "https://background.tagesspiegel.de/"
     },
     "newspaper19": {
       "name": "Contexte",
       "link": "https://www.contexte.com/eu/",
-      "cookies_button": "",
       "login_button": "//a[contains(@href, 'login')]",
-      "iframe": "",
       "user_input": "//input[@name='username']",
       "password_input": "//input[@name='password']",
       "submit_button": "//button[contains(text(), 'Login')]",
-      "profile_page": "//a[@href='/compte/abonnement']",
-      "logout": "//button[contains(text(), 'Déconnexion')]"
+      "profile_section": "//a[@href='/compte/abonnement']",
+      "logout_button": "//button[contains(text(), 'Déconnexion')]"
     },
     "newspaper20": {
       "name": "The Pioneer",
@@ -214,35 +189,28 @@
       "iframe_cookies": "//iframe[@id='sp_message_iframe_1251936']",
       "cookies_button": "//button[contains(text(), 'Alle akzeptieren')]",
       "login_button": "//button[contains(text(), 'Log In')]",
-      "iframe": "//iframe[starts-with(@id, 'piano-id-')]",
+      "iframe_credentials": "//iframe[starts-with(@id, 'piano-id-')]",
       "user_input": "//input[@name='email']",
       "password_input": "//input[@aria-label='password']",
       "submit_button": "//button[.//t[text()='Weiter']]",
-      "submit_button2": "//button[.//t[text()='Anmelden']]",
-      "profile_page": "//button[contains(@class, 'sc__sc-fa155557-11')]",
-      "logout": "//button[contains(text(), 'Abmelden')]"
+      "second_submit_button": "//button[.//t[text()='Anmelden']]",
+      "profile_section": "//button[contains(@class, 'sc__sc-fa155557-11')]",
+      "logout_button": "//button[contains(text(), 'Abmelden')]"
     },
     "newspaper21": {
       "name": "Berlin.Table",
-      "link": "https://table.media/berlin",
-      "cookies_button": "//button[contains(text(), 'Allow all')]",
-      "login_button": "//div[@id='accountBtn']",
-      "iframe": "",
-      "user_input": "//input[@id='email']",
-      "password_input": "//input[@id='password']",
-      "submit_button": "//input[@type='submit' and contains(@class, 'login') and @value='Login']"
+      "link": "https://table.media/berlin"
     },
     "newspaper22": {
       "name": "Bulletin Quotidien Europe",
       "link": "https://agenceurope.eu/fr/accueil.html",
       "cookies_button": "//button[@id='button-accept-cookies']",
       "login_button": "//a[@href='javascript:void(0)']",
-      "iframe": "",
       "user_input": "//input[@id='Login']",
       "password_input": "//input[@id='password']",
       "submit_button": "//div[@class='button-login']",
-      "profile_page": "//a[contains(text(), 'Mon compte')]",
-      "logout": "//a[contains(normalize-space(.), 'Déconnecter')]"
+      "profile_section": "//a[contains(text(), 'Mon compte')]",
+      "logout_button": "//a[contains(normalize-space(.), 'Déconnecter')]"
     },
     "newspaper23": {
       "name": "Business Insider",
@@ -250,125 +218,96 @@
       "iframe_cookies": "//iframe[@id='sp_message_iframe_1253152']",
       "cookies_button": "//button[normalize-space()='Zustimmen']",
       "refuse_notifications": "//button[contains(@class, 'cleverpush-confirm-btn-deny')]",
+      "path_to_login_button": "//button[@aria-label='Profil']",
       "login_button": "//button[contains(text(), 'Einloggen')]",
-      "iframe": "//iframe[starts-with(@id, 'piano-id-')]",
+      "iframe_credentials": "//iframe[starts-with(@id, 'piano-id-')]",
       "user_input": "//input[@name='email']",
       "password_input": "//input[@aria-label='password']",
       "submit_button": "//button[.//t[text()='Anmelden']]",
-      "profile_page": "//button[@aria-label='Profil']",
-      "logout": "//button[contains(text(), 'Abmelden')]"
+      "profile_section": "//button[@aria-label='Profil']",
+      "logout_button": "//button[contains(text(), 'Abmelden')]"
     },
     "newspaper24": {
       "name": "Genios",
-      "link": "https://www.genios.de/",
-      "cookies_button": "",
-      "login_button": "",
-      "iframe": "",
-      "user_input": "",
-      "password_input": "",
-      "submit_button": ""
+      "link": "https://www.genios.de/"
     },
     "newspaper25": {
       "name": "Heise.de",
-      "link": "https://www.heise.de/",
-      "iframe_cookies": "//iframe[@id='sp_message_iframe_1301242']",
-      "cookies_button": "//button[@title='Agree' and contains(text(), 'Agree')]",
-      "login_button": "//a[contains(text(), 'Log in with Pur')]",
-      "iframe": "",
-      "user_input": "//input[@name='username']",
-      "password_input": "//input[@name='password']",
-      "submit_button": "//button[normalize-space()='Anmelden']"
+      "link": "https://www.heise.de/"
     },
     "newspaper26": {
       "name": "HORIZONT+",
       "link": "https://www.horizont.net/",
-      "shadow": "#usercentrics-cmp-ui",
+      "shadow_cookies": "#usercentrics-cmp-ui",
       "cookies_button": "button.accept.uc-accept-button",
       "login_button": "//a[contains(@href, 'login')]",
-      "iframe": "",
       "user_input": "//input[@name='i_email']",
       "password_input": "//input[@name='i_password']",
       "submit_button": "//button[@id='i_OKuser']",
-      "profile_page": "//a[contains(@href, 'user/edit')]",
-      "logout": "//input[@type='submit' and @value='Logout']"
+      "profile_section": "//a[contains(@href, 'user/edit')]",
+      "logout_button": "//input[@type='submit' and @value='Logout']"
     },
     "newspaper27": {
       "name": "Le Soir",
       "link": "https://www.lesoir.be/",
       "cookies_button": "//span[text()='Accepter & Fermer']",
       "login_button": "//span[contains(text(), 'identifier')]",
-      "iframe": "",
       "user_input": "//input[@name='email']",
       "password_input": "//input[@name='password']",
       "submit_button": "//button[normalize-space()='Continuer']",
-      "profile_page": "//span[contains(@class, 'js-sso--user')]",
-      "logout": "//a[contains(text(), 'Déconnexion')]"
+      "second_submit_button": "//button[normalize-space()='Continuer']",
+      "profile_section": "//span[contains(@class, 'js-sso--user')]",
+      "logout_button": "//a[contains(text(), 'Déconnexion')]"
     },
     "newspaper28": {
       "name": "Lebensmittelzeitung",
       "link": "https://www.lebensmittelzeitung.net/",
-      "shadow": "#usercentrics-cmp-ui",
+      "shadow_cookies": "#usercentrics-cmp-ui",
       "cookies_button": "button.accept.uc-accept-button",
       "login_button": "//a[contains(@href, 'login')]",
-      "iframe": "",
       "user_input": "//input[@name='i_email']",
       "password_input": "//input[@name='i_password']",
       "submit_button": "//button[@id='i_OKuser']",
-      "profile_page": "//a[contains(@href, 'user/edit')]",
-      "logout": "//input[@type='submit' and @value='Logout']"
+      "profile_section": "//a[contains(@href, 'user/edit')]",
+      "logout_button": "//input[@type='submit' and @value='Logout']"
     },
     "newspaper29": {
       "name": "Mace Magazine",
       "link": "https://macemagazine.com/",
-      "iframe_cookies": "",
-      "cookies_button": "",
       "login_button": "//a[contains(text(), 'Login')]",
-      "iframe": "",
       "user_input": "//input[@id='user_login']",
       "password_input": "//input[@id='user_pass']",
       "submit_button": "//input[@id='wp-submit']",
-      "profile_page": "//a[contains(@href, 'profil')]",
-      "iframe2": "",
-      "logout": "//a[contains(@href, 'logout')]"
+      "profile_section": "//a[contains(@href, 'profil')]",
+      "logout_button": "//a[contains(@href, 'logout')]"
     },
     "newspaper30": {
       "name": "Medien Insider",
-      "link": "https://www.digitalfernsehen.de/news/",
-      "iframe_cookies": "//iframe[@id='sp_message_iframe_1011842']",
-      "cookies_button": "//button[contains(text(), 'Akzeptieren und weiter')]",
-      "login_button": "",
-      "iframe": "",
-      "user_input": "",
-      "password_input": "",
-      "submit_button": "",
-      "profile_page": "",
-      "iframe2": "",
-      "logout": ""
+      "link": "https://www.digitalfernsehen.de/news/"
     },
     "newspaper31": {
       "name": "MEEDIA",
       "link": "https://meedia.de/",
-      "iframe_cookies": "",
       "cookies_button": "//a[contains(text(), 'Alle Cookies erlauben')]",
       "login_button": "//a[contains(@href, 'login')]",
-      "iframe": "",
       "user_input": "//input[@id='inputEmail']",
       "password_input": "//input[@id='inputPassword']",
       "submit_button": "//input[@value='Anmelden']",
-      "profile_page": "//a[@id='dropdownMenuLink']",
-      "iframe2": "",
-      "logout": "//a[contains(@href, 'logout')]"
+      "profile_section": "//a[@id='dropdownMenuLink']",
+      "logout_button": "//a[contains(@href, 'logout')]"
     },
     "newspaper32": {
       "name": "Platow Brief",
       "link": "https://www.platow.de/",
-      "iframe_cookies": "",
       "cookies_button": "//button[contains(text(), 'Alle akzeptieren')]",
       "login_button": "//a[contains(text(), 'Login')]",
-      "iframe": "//iframe[@id='plenigoFramecheckout']",
+      "iframe_credentials": "//iframe[@id='plenigoFramecheckout']",
       "user_input": "//input[@id='login_form__username']",
       "password_input": "//input[@id = 'login_form__password']",
-      "submit_button": "//button[contains(text(), 'Anmelden')]"
+      "submit_button": "//button[contains(text(), 'Anmelden')]",
+      "profile_section": "//a[contains(@href, 'profil')]",
+      "iframe_logout": "//iframe[@id='plenigoFramesnippetsplenigoLogin']",
+      "logout_button": "//a[contains(text(), 'Logout')]"
     }
   }
 }

@@ -1,106 +1,130 @@
 import json
 import time
-from selenium import webdriver
+import logging
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
-def accept_cookies(driver, wait, selector):
-    if not selector:
-        return
+
+def click_element(driver, wait, selector):
     try:
-        # Try switching to the iframe if it exists
-        try:
-            iframe = driver.find_element(By.CSS_SELECTOR, "iframe[id^='sp_message_iframe']")
-            driver.switch_to.frame(iframe)
-            print("Switched to cookie iframe.")
-        except Exception:
-            pass  # No iframe, continue
-
+        time.sleep(1)
         if selector.startswith('class='):
             btn = wait.until(EC.element_to_be_clickable(
-                (By.CLASS_NAME, selector.replace('class=', '').split()[0])))
+                (By.CLASS_NAME, selector.replace('class=', '').split()[0])
+            ))
         elif selector.startswith('//'):
-            btn = wait.until(EC.element_to_be_clickable(
-                (By.XPATH, selector)))
+            btn = wait.until(EC.element_to_be_clickable((By.XPATH, selector)))
         else:
             btn = wait.until(EC.element_to_be_clickable(
-                (By.CSS_SELECTOR, selector)))
-        btn.click()
-        print("Cookies accepted.")
-
-        driver.switch_to.default_content()  # Always switch back to main context
-    except Exception as e:
-        print(f"Could not click cookie button: {e}")
+                (By.CSS_SELECTOR, selector)
+            ))
         try:
-            driver.switch_to.default_content()
+            btn.click()
+            logger.info("Element clicked")
+            return True
         except Exception:
-            pass
-
-
-def click_login(driver, wait, selector):
-    if not selector:
-        return
-    try:
-        if selector.startswith('//'):
-            btn = wait.until(EC.element_to_be_clickable((By.XPATH, selector)))
-        else:
-            btn = wait.until(EC.element_to_be_clickable(
-                (By.CSS_SELECTOR, selector)))
-        btn.click()
-        print("Login button clicked.")
+            logger.info("Trying to click element with JavaScript")
+            try:
+                driver.execute_script(
+                    "arguments[0].click();", btn
+                )
+                logger.info("Element clicked")
+                return True
+            except Exception as e:
+                logger.error(f"Was not possible to click element: {e}")
+                return False
     except Exception as e:
-        print(f"Could not click login button: {e}")
+        logger.error(f"Element to click not found: {e}")
+        return False
 
 
-# email_sel, pass_sel = Selectors to locate the email and
-# password input fields on the webpage
-def fill_credentials(driver, wait, email_sel, pass_sel, email, password):
-    if not email_sel or not pass_sel:
-        return
+def click_shadow_element(driver, wait, element_selector, shadow_selector):
     try:
-        if email_sel.startswith('//'):
-            email_input = wait.until(EC.presence_of_element_located(
-                (By.XPATH, email_sel)))
-        else:
-            email_input = wait.until(EC.presence_of_element_located(
-                (By.CSS_SELECTOR, email_sel)))
-        email_input.send_keys(email)
+        time.sleep(1)
+        shadow_host = wait.until(
+            EC.presence_of_element_located((By.CSS_SELECTOR, shadow_selector))
+        )
+        shadow_root = driver.execute_script(
+            "return arguments[0].shadowRoot", shadow_host
+        )
+        clickable_element = shadow_root.find_element(
+            By.CSS_SELECTOR, element_selector
+        )
 
-        if pass_sel.startswith('//'):
-            pass_input = wait.until(EC.presence_of_element_located(
-                (By.XPATH, pass_sel)))
-        else:
-            pass_input = wait.until(EC.presence_of_element_located(
-                (By.CSS_SELECTOR, pass_sel)))
-        pass_input.send_keys(password)
-
-        print("Filled in credentials.")
+        try:
+            clickable_element.click()
+            logger.info("Button clicked")
+            return True
+        except Exception:
+            try:
+                driver.execute_script(
+                    "arguments[0].click();", clickable_element
+                )
+                logger.info("Button clicked with JavaScript")
+                return True
+            except Exception as e:
+                logger.error(
+                    f"Was not possible to click element in shadow DOM: {e}"
+                )
+                return False
     except Exception as e:
-        print(f"Could not fill in credentials: {e}")
+        logger.error(f"Element to click not found: {e}")
+        return False
 
 
-def submit_login(driver, wait, selector):
-    if not selector:
-        return
+def change_frame(driver, wait, selector):
     try:
-        if selector.startswith('//'):
-            btn = wait.until(EC.element_to_be_clickable((By.XPATH, selector)))
-        else:
-            btn = wait.until(EC.element_to_be_clickable(
-                (By.CSS_SELECTOR, selector)))
-        btn.click()
-#        input("Press Enter to close browser:") # Remove when not testing
-        print("Login submitted.")
+        iframe = wait.until(
+            EC.presence_of_element_located((By.XPATH, selector))
+        )
+        driver.switch_to.frame(iframe)
+        logger.info("Changed to iframe")
     except Exception as e:
-        print(f"Could not submit login: {e}")
+        logger.error(f"Error when changing frames: {e}")
 
 
-def hardcoded_login(key):
-    driver = webdriver.Chrome()
-    wait = WebDriverWait(driver, 5)
+def scroll_to_element(driver, wait, selector):
+    try:
+        element = wait.until(
+            EC.visibility_of_element_located((By.XPATH, selector)))
+        driver.execute_script(
+            "arguments[0].scrollIntoView({"
+            "block: 'center', "
+            "behavior: 'instant'"
+            "});", element)
+        time.sleep(1)
 
+        logger.info("Scrolled to element")
+        return True
+    except Exception as e:
+        logger.error(f"Failed to scroll to element: {e}")
+        return False
+
+
+def insert_credential(driver, wait, credential, input_selector):
+    try:
+        if input_selector.startswith('//'):
+            input_field = wait.until(EC.presence_of_element_located(
+                (By.XPATH, input_selector)
+            ))
+        else:
+            input_field = wait.until(EC.presence_of_element_located(
+                (By.CSS_SELECTOR, input_selector)
+            ))
+        input_field.clear()
+        input_field.send_keys(credential)
+        time.sleep(1)
+        logger.info("Credential inserted")
+        return True
+    except Exception as e:
+        logger.warning(f"Could not insert credential: {e}")
+        return False
+
+
+def hardcoded_login(driver, wait, key):
     # Load newspapers data
     with open('app/services/newspapers_data.json', 'r') as f:
         data = json.load(f)
@@ -109,50 +133,111 @@ def hardcoded_login(key):
     with open('app/services/newspapers_accounts.json', 'r') as f:
         accounts = json.load(f)
 
+    # Load newspaper
+    paper = data['newspapers'].get(key)
+    if not paper:
+        logger.error(f"No newspaper found with key: {key}")
+        return False
+    logger.info(f"Processing: {paper['name']}")
+
+    # Find account credentials
+    account = accounts['newspapers'].get(key)
+    if not account:
+        logger.error(f"No account found for key: {key}")
+        return False
+    username = account.get("user_email")
+    password = account.get("password")
+    if not username or not password:
+        logger.error("No credentials found for this newspaper.")
+        return False
+
+    # Initialize newspaper website
     try:
-        paper = data['newspapers'].get(key)
-        if not paper:
-            print(f"No newspaper found with key: {key}")
-            driver.quit()
+        driver.get(paper['link'])
+    except Exception:
+        logger.error(f"No link provided for: {paper['name']}")
+        return False
+
+    driver.maximize_window()
+
+    # Change to cookies iframe
+    if (paper.get("iframe_cookies")):
+        change_frame(driver, wait, paper["iframe_cookies"])
+
+    # Accept cookies
+    if (paper.get("shadow_cookies") and paper.get("cookies_button")):
+        click_shadow_element(
+            driver, wait, paper["cookies_button"], paper["shadow_cookies"]
+        )
+    elif (paper.get("cookies_button")):
+        if not click_element(driver, wait, paper["cookies_button"]):
+            try:
+                logger.info("Searching for unregistered iframe")
+                iframe = driver.find_element(
+                    By.CSS_SELECTOR, "iframe[id^='sp_message_iframe']"
+                )
+                driver.switch_to.frame(iframe)
+                time.sleep(1)
+                click_element(driver, wait, paper["cookies_button"])
+            except Exception:
+                logger.warning("Was not possible to accept cookies")
+
+    driver.switch_to.default_content()  # Always switch back to main context
+
+    # Remove notifications window
+    if (paper.get("refuse_notifications")):
+        click_element(driver, wait, paper["refuse_notifications"])
+
+    # Go to login section
+    if (paper.get("path_to_login_button")):
+        click_element(driver, wait, paper["path_to_login_button"])
+    if (paper.get("login_button")):
+        click_element(driver, wait, paper["login_button"])
+
+    # Change to credentials iframe
+    if (paper.get("iframe_credentials")):
+        change_frame(driver, wait, paper["iframe_credentials"])
+
+    # Insert and submit credentials
+    if (paper.get("user_input")):
+        click_element(driver, wait, paper["user_input"])
+        insert_credential(driver, wait, username, paper["user_input"])
+    if (paper.get("second_submit_button")
+            and paper.get("submit_button")):
+        scroll_to_element(driver, wait, paper["submit_button"])
+        click_element(driver, wait, paper["submit_button"])
+    if (paper.get("password_input")):
+        click_element(driver, wait, paper["password_input"])
+        insert_credential(driver, wait, password, paper["password_input"])
+    if (paper.get("second_submit_button")):
+        scroll_to_element(driver, wait, paper["second_submit_button"])
+        if not click_element(driver, wait, paper["second_submit_button"]):
+            logger.error("Failed to click second submit button")
+            return False
+    elif (paper.get("submit_button")):
+        scroll_to_element(driver, wait, paper["submit_button"])
+        if not click_element(driver, wait, paper["submit_button"]):
+            logger.error("Failed to click submit button")
             return False
 
-        print(f"\nProcessing: {paper['name']}")
+    driver.switch_to.default_content()  # Always switch back to main context
 
-        driver.get(paper['link'])
+    return paper
 
-        # find account by matching link
-        email = "didnt_find@email.com"
-        password = "didnt_find_password"
-        for acc in accounts.values():
-            if acc.get("link") == paper.get("link"):
-                email = acc.get("email", email)
-                password = acc.get("password", password)
-                break
 
-        print("------------------------------")
-        print(f"cookies_button: {paper.get('cookies_button', '')}")
-        accept_cookies(driver, wait, paper.get('cookies_button', ''))
-        print("------------------------------")
+def hardcoded_logout(driver, wait, paper):
+    # Go to profile section
+    if (paper.get("profile_section")):
+        click_element(driver, wait, paper["profile_section"])
 
-        print(f"login_button: {paper.get('login_button', '')}")
-        click_login(driver, wait, paper.get('login_button', ''))
-        print("------------------------------")
+    # Change to logout iframe
+    if (paper.get("iframe_logout")):
+        change_frame(driver, wait, paper["iframe_logout"])
 
-        print(f"email_input: {email}")
-        fill_credentials(
-            driver, wait,
-            paper.get('user_input', ''),
-            paper.get('password_input', ''), email, password
-        )
-        print("------------------------------")
+    # Logout
+    if (paper.get("logout_button")):
+        if not click_element(driver, wait, paper["logout_button"]):
+            logger.error("Failed to logout from page")
+            return False
 
-        print(f"submit_button: {paper.get('submit_button', '')}")
-        submit_login(driver, wait, paper.get('submit_button', ''))
-        print("------------------------------")
-
-        return True
-    except Exception as e:
-        print(f"Failed to process {key}: {e}")
-        return False
-    finally:
-        driver.quit()
+    return True

@@ -1,7 +1,7 @@
-import json
+# import json
 import logging
 import time
-from selenium import webdriver
+# from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
@@ -9,151 +9,34 @@ from selenium.webdriver.support import expected_conditions as EC
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-input_xpath_templates = [
-    # '//input[contains(@id, "{keyword}")]',
-    # '//input[contains(@name, "{keyword}")]',
-    # '//input[contains(@placeholder, "{keyword}")]'
-]
 
-button_xpath_templates = [
-    # '//button[contains(text(), "{keyword}")]',
-    # '//button[contains(@id, "{keyword}")]',
-    # '//button[contains(@name, "{keyword}")]',
-    # '//button[contains(@class, "{keyword}")]'
-]
-
-link_xpath_templates = [
-    # '//a[contains(@href, "{keyword}")]',
-    # '//a[contains(text(), "{keyword}")]',
-    # '//a[@title and contains(@title, "{keyword}")]'
-]
-
-login_page_keywords = [
-    # 'Login',
-    # 'login',
-    # 'anmeldung',
-    # 'anmelden'
-]
-
-profile_page_keywords = [
-    # 'Profil',
-    # 'profil',
-    # 'profile',
-    # 'Profile'
-]
-
-logout_keywords = [
-    # 'Logout',
-    # 'logout'
-]
-
-cookies_keywords = [
-    # 'alle akzeptieren',
-    # 'akzeptieren',
-    # 'accept'
-]
-
-user_keywords = [
-    # 'username'
-]
-
-password_keywords = [
-    # 'password'
-]
-
-submit_keywords = [
-    # 'Anmelden',
-    # 'anmelden',
-]
-
-
-def accept_cookies(driver, wait, selector):
-    if not selector:
-        return
+def change_frame(driver, frame):
     try:
-        if selector.startswith('class='):
-            btn = wait.until(EC.element_to_be_clickable(
-                (By.CLASS_NAME, selector.replace('class=', '').split()[0])))
-        elif selector.startswith('//'):
-            btn = wait.until(EC.element_to_be_clickable(
-                (By.XPATH, selector)))
-        else:
-            btn = wait.until(EC.element_to_be_clickable(
-                (By.CSS_SELECTOR, selector)))
-        btn.click()
-        print("Cookies accepted.")
-    except Exception as e:
-        print(f"Could not click cookie button: {e}")
-
-
-def find_element(driver, xpath_templates, keywords):
-    for k in keywords:
-        for template in xpath_templates:
-            current_xpath = template.format(keyword=k)
-            try:
-                WebDriverWait(driver, 3).until(
-                    EC.presence_of_element_located((By.XPATH, current_xpath))
-                )
-                return current_xpath
-            except Exception:
-                continue
-    return None
-
-
-def change_frame(driver, frame, site_name):
-    try:
-        f = WebDriverWait(driver, 10).until(
+        iframe = WebDriverWait(driver, 10).until(
             EC.presence_of_element_located((By.XPATH, frame))
         )
-        driver.switch_to.frame(f)
-        logger.info(f"Frame changed on {site_name}")
+        driver.switch_to.frame(iframe)
+        logger.info("Changed to iframe")
     except Exception as e:
-        logger.error(f"Error when changing frames on {site_name}: {e}")
+        logger.error(f"Error when changing frames: {e}")
 
 
-def insert_credentials(driver, user_xpath,
-                       password_xpath, user, password, site_name):
+def insert_credential(driver, credential, xpath_input_field):
     try:
-        user_input_field = WebDriverWait(driver, 10).until(
-            EC.presence_of_element_located((By.XPATH, user_xpath)))
-        user_input_field.clear()
-        user_input_field.send_keys(user)
+        input_field = WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located((By.XPATH, xpath_input_field)))
+        input_field.clear()
+        input_field.send_keys(credential)
+        time.sleep(1)
 
-        password_input_field = WebDriverWait(driver, 10).until(
-            EC.presence_of_element_located((By.XPATH, password_xpath)))
-        password_input_field.clear()
-        password_input_field.send_keys(password)
-
-        logger.info(f"Credentials inserted on {site_name}")
+        logger.info("Credential inserted")
         return True
     except Exception as e:
-        logger.warning(f"Could not insert credentials on {site_name}: {e}")
+        logger.warning(f"Could not insert credential: {e}")
         return False
 
 
-def insert_credential(driver, cred, xpath_cred, site_name):
-    try:
-        input_field = WebDriverWait(driver, 10).until(
-            EC.presence_of_element_located((By.XPATH, xpath_cred)))
-        input_field.clear()
-        input_field.send_keys(cred)
-
-        logger.info(f"Credential inserted on {site_name}")
-        return True
-    except Exception as e:
-        logger.warning(f"Trying second approach on {site_name}: {e}")
-        try:
-            input_login = WebDriverWait(driver, 10).until(
-                EC.element_to_be_clickable((By.NAME, xpath_cred))
-            )
-            input_field.clear()
-            input_login.send_keys(cred)
-        except Exception as e:
-            logger.warning(f"Could not insert credential on {site_name}: {e}")
-            return False
-
-
-def scroll_to_element(driver, element_xpath, site_name):
+def scroll_to_element(driver, element_xpath):
     try:
         element = WebDriverWait(driver, 10).until(
             EC.visibility_of_element_located((By.XPATH, element_xpath)))
@@ -162,209 +45,159 @@ def scroll_to_element(driver, element_xpath, site_name):
             "block: 'center', "
             "behavior: 'instant'"
             "});", element)
-        time.sleep(3)
+        time.sleep(1)
 
-        logger.info(f"Scrolled to element in {site_name}")
+        logger.info("Scrolled to element")
         return True
     except Exception as e:
-        logger.error(f"Failed to scroll to element in {site_name}: {e}")
+        logger.error(f"Failed to scroll to element: {e}")
         return False
 
 
-def click_element(driver, button_xpath, site_name):
+def click_element(driver, element_xpath):
     try:
+        time.sleep(1)
         clickable_element = WebDriverWait(driver, 10).until(
-            EC.element_to_be_clickable((By.XPATH, button_xpath)))
+            EC.element_to_be_clickable((By.XPATH, element_xpath)))
         try:
             clickable_element.click()
-            logger.info(f"Button clicked on {site_name}")
+            logger.info("Element clicked")
             return True
         except Exception:
-            logger.info(f"Trying to click button with JavaScript {site_name}")
+            logger.info("Trying to click element with JavaScript")
             try:
                 driver.execute_script(
                     "arguments[0].click();", clickable_element
                 )
-                logger.info(f"Button clicked on {site_name}")
+                logger.info("Element clicked")
                 return True
             except Exception as e:
-                logger.error(
-                    f"Was not possible to click button on {site_name}: {e}"
-                )
+                logger.error(f"Was not possible to click element: {e}")
                 return False
     except Exception as e:
-        logger.error(f"Element to click not found on {site_name}: {e}")
+        logger.error(f"Element to click not found: {e}")
         return False
 
 
-with open("newspapers_complete.json", "r") as file:
-    sites = json.load(file)
-site = sites["newspapers"]["newspaper21"]  # HERE CHANGES
+def click_shadow_element(driver, element, shadow):
+    try:
+        time.sleep(1)
+        shadow_host = WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located((By.CSS_SELECTOR, shadow))
+        )
+        shadow_root = driver.execute_script(
+            "return arguments[0].shadowRoot", shadow_host
+        )
+        clickable_element = shadow_root.find_element(By.CSS_SELECTOR, element)
 
-user = site["user_email"]
-password = site["password"]
+        try:
+            clickable_element.click()
+            logger.info("Button clicked")
+            return True
+        except Exception:
+            try:
+                driver.execute_script(
+                    "arguments[0].click();", clickable_element
+                )
+                logger.info("Button clicked with JavaScript")
+                return True
+            except Exception as e:
+                logger.error(
+                    f"Was not possible to click element in shadow DOM: {e}"
+                )
+                return False
+    except Exception as e:
+        logger.error(f"Element to click not found: {e}")
+        return False
 
+
+def login_paywalled_website(driver, username, password, site_data):
+    # Change to cookies iframe
+    if (site_data.get("iframe_cookies")):
+        change_frame(driver, site_data["iframe_cookies"])
+
+    # Accept cookies
+    if (site_data.get("shadow_cookies") and site_data.get("cookies_button")):
+        click_shadow_element(
+            driver, site_data["cookies_button"], site_data["shadow_cookies"]
+        )
+    elif (site_data.get("cookies_button")):
+        click_element(driver, site_data["cookies_button"])
+    driver.switch_to.default_content()
+
+    # Remove notifications window
+    if (site_data.get("refuse_notifications")):
+        click_element(driver, site_data["refuse_notifications"])
+
+    # Go to login section
+    if (site_data.get("path_to_login_button")):
+        click_element(driver, site_data["path_to_login_button"])
+    if (site_data.get("login_button")):
+        click_element(driver, site_data["login_button"])
+
+    # Change to credentials iframe
+    if (site_data.get("iframe_credentials")):
+        change_frame(driver, site_data["iframe_credentials"])
+
+    # Insert and submit credentials
+    if (site_data.get("user_input")):
+        click_element(driver, site_data["user_input"])
+        insert_credential(driver, username, site_data["user_input"])
+    if (site_data.get("second_submit_button")
+            and site_data.get("submit_button")):
+        scroll_to_element(driver, site_data["submit_button"])
+        click_element(driver, site_data["submit_button"])
+    if (site_data.get("password_input")):
+        click_element(driver, site_data["password_input"])
+        insert_credential(driver, password, site_data["password_input"])
+    if (site_data.get("second_submit_button")):
+        scroll_to_element(driver, site_data["second_submit_button"])
+        click_element(driver, site_data["second_submit_button"])
+    elif (site_data.get("submit_button")):
+        scroll_to_element(driver, site_data["submit_button"])
+        click_element(driver, site_data["submit_button"])
+    driver.switch_to.default_content()
+
+
+def logout_paywalled_website(driver, site_data):
+    # Go to profile section
+    if (site_data.get("profile_section")):
+        click_element(driver, site_data["profile_section"])
+
+    # Change to logout iframe
+    if (site_data.get("iframe_logout")):
+        change_frame(driver, site_data["iframe_logout"])
+
+    # Logout
+    if (site_data.get("logout_button")):
+        click_element(driver, site_data["logout_button"])
+
+
+"""
+# Site dredentials
+with open("newspapers_credentials.json", "r") as file:
+    creds = json.load(file)
+username = creds["newspapers"]["newspaper32"]["user_email"]
+password = creds["newspapers"]["newspaper32"]["password"]
+
+# Site data
 with open("newspapers_data.json", "r") as file:
     sites = json.load(file)
-sitio = sites["newspapers"]["newspaper21"]  # HERE CHANGES
+site_data = sites["newspapers"]["newspaper32"]
+name = site_data["name"]
 
-site_name = sitio["name"]
-link = sitio["link"]
-# iframe_c = sitio["iframe_cookies"]
-# shadow = sitio["shadow"]
-# cookies = sitio["cookies_button"]
-# notifications = sitio["refuse_notifications"]
-# login_button = sitio["login_button"]
-# iframe = sitio["iframe"]
-# user_input = sitio["user_input"]
-# password_input = sitio["password_input"]
-# submit = sitio["submit_button"]
-# submit2 = sitio["submit_button2"]
-# profile = sitio["profile_page"]
-# iframe2 = sitio["iframe2"]
-# logout = sitio["logout"]
-
+# Initialization
 driver = webdriver.Chrome()
-wait = WebDriverWait(driver, 15)
-driver.get(link)
+driver.get(site_data["link"])
 driver.maximize_window()
 
+try:
+    logger.info(f"Running code on website: {name}")
+    login_paywalled_website(driver, username, password, site_data)
+    logout_paywalled_website(driver, site_data)
+    logger.info(f"Process successful on website: {name}")
+except Exception:
+    logger.error(f"Error on website: {name}")
 
-# click_element(driver, login_button, site_name)
-# driver.switch_to.default_content()
-# insert_credentials(
-#    driver, user_input, password_input, user, password, site_name)
-# click_element(driver, submit, site_name)
-
-time.sleep(300)
-
-driver.quit()
-
-# QUOTIDIEN EUROPE
-# click_element(driver, cookies, site_name)
-# click_element(driver, login_button, site_name)
-# click_element(driver, user_input, site_name)
-# insert_credential(driver, user, user_input, site_name)
-# insert_credential(driver, password, password_input, site_name)
-# click_element(driver, submit, site_name)
-# click_element(driver, profile, site_name)
-# click_element(driver, logout, site_name)
-
-# THE PIONEER
-# change_frame(driver, iframe_c, site_name)
-# click_element(driver, cookies, site_name)
-# driver.switch_to.default_content()
-# click_element(driver, login_button, site_name)
-# time.sleep(2)
-# change_frame(driver, iframe, site_name)
-# insert_credential(driver, user, user_input, site_name)
-# click_element(driver, submit, site_name)
-# insert_credential(driver, password, password_input, site_name)
-# click_element(driver, submit2, site_name)
-# driver.switch_to.default_content()
-# click_element(driver, profile, site_name)
-# click_element(driver, logout, site_name)
-
-# CONTEXTE
-# click_element(driver, login_button, site_name)
-# insert_credentials(
-#    driver, user_input, password_input, user, password, site_name)
-# click_element(driver, submit, site_name)
-# click_element(driver, profile, site_name)
-# click_element(driver, logout, site_name)
-
-# BUSINESS INSIDER
-# change_frame(driver, iframe_c, site_name)
-# click_element(driver, cookies, site_name)
-# time.sleep(3)
-# driver.switch_to.default_content()
-# click_element(driver, notifications, site_name)
-# click_element(driver, profile, site_name)
-# click_element(driver, login_button, site_name)
-# change_frame(driver, iframe, site_name)
-# time.sleep(2)
-# insert_credentials(
-#    driver, user_input, password_input, user, password, site_name)
-# time.sleep(2)
-# click_element(driver, submit, site_name)
-# driver.switch_to.default_content()
-# click_element(driver, profile, site_name)
-# click_element(driver, logout, site_name)
-
-# HORIZON
-# shadow_host = WebDriverWait(driver, 10).until(
-#    EC.presence_of_element_located((By.CSS_SELECTOR, shadow))
-# )
-# shadow_root = driver.execute_script(
-#    "return arguments[0].shadowRoot", shadow_host)
-# accept_button = shadow_root.find_element(
-#    By.CSS_SELECTOR, cookies)
-# accept_button.click()
-# click_element(driver, login_button, site_name)
-# insert_credentials(
-#    driver, user_input, password_input, user, password, site_name)
-# click_element(driver, submit, site_name)
-# click_element(driver, profile, site_name)
-# click_element(driver, logout, site_name)
-
-# LE SOIR
-# click_element(driver, cookies, site_name)
-# click_element(driver, login_button, site_name)
-# insert_credential(driver, user, user_input, site_name)
-# click_element(driver, submit, site_name)
-# insert_credential(driver, password, password_input, site_name)
-# click_element(driver, submit, site_name)
-# click_element(driver, profile, site_name)
-# click_element(driver, logout, site_name)
-
-# LEBENSMITTELZEITUNG
-# shadow_host = WebDriverWait(driver, 10).until(
-#    EC.presence_of_element_located((By.CSS_SELECTOR, shadow))
-# )
-# shadow_root = driver.execute_script(
-#    "return arguments[0].shadowRoot", shadow_host)
-# accept_button = shadow_root.find_element(
-#    By.CSS_SELECTOR, cookies)
-# accept_button.click()
-# click_element(driver, login_button, site_name)
-# insert_credentials(
-#    driver, user_input, password_input, user, password, site_name)
-# click_element(driver, submit, site_name)
-# click_element(driver, profile, site_name)
-# click_element(driver, logout, site_name)
-
-# MACE MAGAZINE
-# click_element(driver, login_button, site_name)
-# insert_credentials(
-#   driver, user_input, password_input, user, password, site_name)
-# click_element(driver, submit, site_name)
-# click_element(driver, profile, site_name)
-# click_element(driver, logout, site_name)
-
-# MEDIEN INSIDER ??????????
-# change_frame(driver, iframe_c, site_name)
-# click_element(driver, cookies, site_name)
-
-# MEEDIA
-# click_element(driver, cookies, site_name)
-# click_element(driver, login_button, site_name)
-# insert_credentials(
-#   driver, user_input, password_input, user, password, site_name)
-# scroll_to_element(driver, submit, site_name)
-# click_element(driver, submit, site_name)
-# click_element(driver, profile, site_name)
-# click_element(driver, logout, site_name)
-
-# PLATOW
-# click_element(driver, cookies, site_name)
-# click_element(driver, login_button, site_name)
-# time.sleep(2)
-# driver.switch_to.default_content()
-# change_frame(driver, iframe, site_name)
-# insert_credentials(
-#   driver, user_input, password_input, user, password, site_name)
-# scroll_to_element(driver, submit, site_name)
-# click_element(driver, submit, site_name)
-# click_element(driver, profile, site_name)
-# change_frame(driver, iframe2, site_name)
-# click_element(driver, logout, site_name)
+time.sleep(60)
+"""
