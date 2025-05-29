@@ -6,6 +6,15 @@ variable "redis_endpoint" { type = string }
 variable "subnet_ids" { type = list(string) }
 variable "vpc_id" { type = string }
 variable "secrets_arn" { type = string }
+variable "log_group_name" {
+  type    = string
+  default = "/ecs/${var.service_name}"
+}
+
+resource "aws_cloudwatch_log_group" "ecs" {
+  name              = var.log_group_name
+  retention_in_days = 7
+}
 
 resource "aws_ecs_cluster" "this" {
   name = var.cluster_name
@@ -72,6 +81,14 @@ resource "aws_ecs_task_definition" "app" {
         }
       ]
       portMappings = [{ containerPort = 8000 }]
+      logConfiguration = {
+        logDriver = "awslogs"
+        options = {
+          awslogs-group         = aws_cloudwatch_log_group.ecs.name
+          awslogs-region        = "eu-central-1"
+          awslogs-stream-prefix = "ecs"
+        }
+      }
     }
   ])
 }
