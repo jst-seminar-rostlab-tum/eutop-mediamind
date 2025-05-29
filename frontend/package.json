@@ -13,6 +13,7 @@
     "test": "jest --pass-with-no-tests"
   },
   "dependencies": {
+    "@esbuild/linux-x64": "0.25.5",
     "@radix-ui/react-slot": "1.2.2",
     "@react-router/node": "7.5.3",
     "@react-router/serve": "7.5.3",
