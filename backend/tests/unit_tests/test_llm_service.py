@@ -9,7 +9,7 @@ from app.services.llm_service.llm_models import LLMModels
 
 @pytest.fixture
 def llm_service_wrong_key():
-    return LLMClient(model=LLMModels.openai_4o, api_key="wrong-key")
+    return LLMClient(model=LLMModels.openai_4o)
 
 
 @patch("app.services.llm_service.llm_client.completion")
