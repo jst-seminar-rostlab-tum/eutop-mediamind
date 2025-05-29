@@ -23,12 +23,14 @@ interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   onAdd?: () => void;
+  onSearchChange?: (value: string) => void;
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
   onAdd,
+  onSearchChange,
 }: DataTableProps<TData, TValue>) {
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     [],
@@ -50,9 +52,11 @@ export function DataTable<TData, TValue>({
         <Input
           placeholder="Search"
           value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
-          onChange={(event) =>
-            table.getColumn("name")?.setFilterValue(event.target.value)
-          }
+          onChange={(event) => {
+            const value = event.target.value;
+            table.getColumn("name")?.setFilterValue(value);
+            onSearchChange?.(value); // send value to parent
+          }}
         />
         <Button variant={"outline"} className="ml-4" onClick={onAdd}>
           Add

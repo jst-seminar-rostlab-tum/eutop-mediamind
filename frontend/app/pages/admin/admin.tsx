@@ -30,9 +30,17 @@ import {
 } from "~/components/ui/dialog";
 import { Label } from "@radix-ui/react-dropdown-menu";
 import { Input } from "~/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "~/components/ui/select";
 
 export type Organization = {
   name: string;
+  users: User[];
 };
 
 export type Subscription = {
@@ -42,20 +50,33 @@ export type Subscription = {
   password: string;
 };
 
+export type User = {
+  name: string;
+  role: "admin" | "user";
+};
+
 async function getOrgaData(): Promise<Organization[]> {
   // Fetch data from your API here
   return [
     {
       name: "BMW",
+      users: [
+        { name: "jonathan@bmw.com", role: "admin" },
+        { name: "rafael@bmw.com", role: "user" },
+        { name: "leo@bmw.com", role: "user" },
+      ],
     },
     {
       name: "Allianz",
+      users: [{ name: "leo@allianz.com", role: "user" }],
     },
     {
       name: "EUTOP",
+      users: [{ name: "leo@eutop.com", role: "user" }],
     },
     {
       name: "ADAC",
+      users: [{ name: "leo@adac.com", role: "user" }],
     },
   ];
 }
@@ -78,32 +99,6 @@ async function getSubsData(): Promise<Subscription[]> {
   ];
 }
 
-export const OrgaColumns: ColumnDef<Organization>[] = [
-  {
-    accessorKey: "name",
-    header: "Organization Name",
-  },
-  {
-    id: "actions",
-    cell: () => {
-      return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem>Edit Organization</DropdownMenuItem>
-            <DropdownMenuItem>Delete Organization</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      );
-    },
-  },
-];
-
 export const SubsColumns: ColumnDef<Subscription>[] = [
   {
     accessorKey: "name",
@@ -125,14 +120,67 @@ export const SubsColumns: ColumnDef<Subscription>[] = [
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem>Edit Organization</DropdownMenuItem>
-            <DropdownMenuItem>Delete Organization</DropdownMenuItem>
+            <DropdownMenuItem>Edit Subscription</DropdownMenuItem>
+            <DropdownMenuItem>Delete Subscription</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       );
     },
   },
 ];
+
+export function getUserColumns(
+  onRoleChange: (index: number, role: "admin" | "user") => void,
+): ColumnDef<User>[] {
+  return [
+    {
+      accessorKey: "name",
+      header: "User",
+    },
+    {
+      accessorKey: "role",
+      header: "Role",
+      cell: ({ row }) => {
+        const role = row.getValue("role") as "admin" | "user";
+        const index = row.index;
+
+        return (
+          <Select
+            value={role}
+            onValueChange={(newRole) =>
+              onRoleChange(index, newRole as "admin" | "user")
+            }
+          >
+            <SelectTrigger className="w-[120px]">
+              <SelectValue placeholder="Select role" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="admin">admin</SelectItem>
+              <SelectItem value="user">user</SelectItem>
+            </SelectContent>
+          </Select>
+        );
+      },
+    },
+    {
+      id: "actions",
+      cell: () => (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className="h-8 w-8 p-0">
+              <span className="sr-only">Open menu</span>
+              <MoreHorizontal className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem>Edit User</DropdownMenuItem>
+            <DropdownMenuItem>Delete User</DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      ),
+    },
+  ];
+}
 
 export function Admin() {
   const [orgaData, setOrgaData] = React.useState<Organization[]>([]);
@@ -145,6 +193,77 @@ export function Admin() {
   const [newURL, setNewURL] = React.useState("");
   const [newUsername, setNewUsername] = React.useState("");
   const [newPassword, setNewPassword] = React.useState("");
+
+  const [isEditMode, setIsEditMode] = React.useState(false);
+  const [editingOrgIndex, setEditingOrgIndex] = React.useState<number | null>(
+    null,
+  );
+
+  const [editingUserData, setEditingUserData] = React.useState<User[]>([]);
+
+  const OrgaColumns: ColumnDef<Organization>[] = [
+    {
+      accessorKey: "name",
+      header: "Organization Name",
+    },
+    {
+      id: "actions",
+      cell: ({ row }) => {
+        const orgName = row.getValue("name") as string;
+        return (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="h-8 w-8 p-0">
+                <span className="sr-only">Open menu</span>
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => handleEditOrganization(orgName)}>
+                Edit Organization
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => handleDeleteOrganization(orgName)}
+              >
+                Delete Organization
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        );
+      },
+    },
+  ];
+
+  function handleDeleteOrganization(name: string) {
+    setOrgaData((prev) => prev.filter((org) => org.name !== name));
+  }
+
+  function handleEditOrganization(name: string) {
+    const index = orgaData.findIndex((org) => org.name === name);
+    if (index !== -1) {
+      setNewOrgaName(orgaData[index].name);
+      setEditingOrgIndex(index);
+      setIsEditMode(true);
+
+      // call api here to get the actual users of this org
+      const usersForOrg = orgaData[index].users ?? [];
+      setEditingUserData(usersForOrg);
+
+      setShowOrgaDialog(true);
+    }
+  }
+
+  const [searchInputForAdd, setSearchInputForAdd] = React.useState("");
+
+  function handleAddNewUser() {
+    const email = searchInputForAdd.trim().toLowerCase();
+    // if mail is not blank and not already in list
+    if (!email || editingUserData.some((u) => u.name.toLowerCase() === email))
+      return;
+    // add user
+    setEditingUserData((prev) => [...prev, { name: email, role: "user" }]);
+    setSearchInputForAdd("");
+  }
 
   React.useEffect(() => {
     async function fetchData() {
@@ -165,10 +284,27 @@ export function Admin() {
   function handleSaveOrganization() {
     if (!newOrgaName.trim()) return;
 
-    const newOrga = { name: newOrgaName.trim() };
-    setOrgaData((prev) => [...prev, newOrga]);
-    setNewOrgaName(""); // reset field
-    setShowOrgaDialog(false); // close dialog
+    const trimmedName = newOrgaName.trim();
+
+    if (isEditMode && editingOrgIndex !== null) {
+      setOrgaData((prev) =>
+        prev.map((org, i) =>
+          i === editingOrgIndex
+            ? { ...org, name: trimmedName, users: editingUserData }
+            : org,
+        ),
+      );
+    } else {
+      setOrgaData((prev) => [
+        ...prev,
+        { name: trimmedName, users: editingUserData },
+      ]);
+    }
+
+    setNewOrgaName("");
+    setShowOrgaDialog(false);
+    setIsEditMode(false);
+    setEditingOrgIndex(null);
   }
 
   function handleSaveSubscription() {
@@ -221,7 +357,13 @@ export function Admin() {
                 <DataTable
                   columns={OrgaColumns}
                   data={orgaData}
-                  onAdd={() => setShowOrgaDialog(true)}
+                  onAdd={() => {
+                    setIsEditMode(false);
+                    setEditingOrgIndex(null);
+                    setNewOrgaName("");
+                    setEditingUserData([]);
+                    setShowOrgaDialog(true);
+                  }}
                 />
               </CardContent>
             </Card>
@@ -250,11 +392,23 @@ export function Admin() {
         <Dialog open={showOrgaDialog} onOpenChange={setShowOrgaDialog}>
           <DialogContent className="sm:max-w-[425px]">
             <DialogHeader>
-              <DialogTitle>Add Organization</DialogTitle>
-              <DialogDescription>
-                Enter the name of the organization you want to add. Click save
-                when you're done.
-              </DialogDescription>
+              {isEditMode && (
+                <>
+                  <DialogTitle>Edit Organization</DialogTitle>
+                  <DialogDescription>
+                    Edit your organization here. Click save when you're done.
+                  </DialogDescription>
+                </>
+              )}
+              {!isEditMode && (
+                <>
+                  <DialogTitle>Add Organization</DialogTitle>
+                  <DialogDescription>
+                    Enter the name of the organization you want to add. Click
+                    save when you're done.
+                  </DialogDescription>
+                </>
+              )}
             </DialogHeader>
             <div className="grid grid-cols-4 items-center gap-4">
               <Label className="text-right">Name</Label>
@@ -264,6 +418,23 @@ export function Admin() {
                 onChange={(e) => setNewOrgaName(e.target.value)}
                 placeholder="New Organization"
                 className="col-span-3"
+              />
+            </div>
+            <div className="mt-4">
+              <DataTable
+                columns={getUserColumns((index, newRole) =>
+                  // callback to update roles
+                  setEditingUserData((prev) =>
+                    prev.map((user, i) =>
+                      i === index ? { ...user, role: newRole } : user,
+                    ),
+                  ),
+                )}
+                data={editingUserData}
+                onSearchChange={setSearchInputForAdd}
+                onAdd={() => {
+                  handleAddNewUser();
+                }}
               />
             </div>
             <DialogFooter>
