@@ -18,7 +18,8 @@ provider "aws" {
 }
 
 locals {
-  secrets_arn = "arn:aws:secretsmanager:eu-central-1:313193269185:secret:mediamind/app-env-fUauFQ"
+  secrets_arn  = "arn:aws:secretsmanager:eu-central-1:313193269185:secret:mediamind/app-env-fUauFQ"
+  cluster_name = "mediamind-cluster"
 }
 
 data "aws_vpc" "selected" {
@@ -32,7 +33,7 @@ data "aws_subnets" "selected" {
   }
 }
 
-data "aws_secretsmanager_secret_version" "db_creds" {
+data "aws_secretsmanager_secret_version" "creds" {
   secret_id = local.secrets_arn
 }
 
@@ -44,8 +45,8 @@ module "ecr" {
 module "database" {
   source      = "./modules/database"
   db_name     = "mediamind"
-  db_username = jsondecode(data.aws_secretsmanager_secret_version.db_creds.secret_string)["POSTGRES_USER"]
-  db_password = jsondecode(data.aws_secretsmanager_secret_version.db_creds.secret_string)["POSTGRES_PASSWORD"]
+  db_username = jsondecode(data.aws_secretsmanager_secret_version.creds.secret_string)["POSTGRES_USER"]
+  db_password = jsondecode(data.aws_secretsmanager_secret_version.creds.secret_string)["POSTGRES_PASSWORD"]
 }
 
 module "redis" {
@@ -55,12 +56,22 @@ module "redis" {
 
 module "ecs" {
   source          = "./modules/ecs"
-  cluster_name    = "mediamind-cluster"
   service_name    = "mediamind-service"
+  cluster_name    = local.cluster_name
   container_image = module.ecr.repository_url
   db_endpoint     = module.database.endpoint
   redis_endpoint  = module.redis.endpoint
   subnet_ids      = data.aws_subnets.selected.ids
   vpc_id          = data.aws_vpc.selected.id
   secrets_arn     = local.secrets_arn
+}
+
+module "qdrant" {
+  source         = "./modules/qdrant"
+  service_name   = "mediamind"
+  cluster_name   = local.cluster_name
+  subnet_ids     = data.aws_subnets.selected.ids
+  vpc_id         = data.aws_vpc.selected.id
+  vpc_cidr_block = data.aws_vpc.selected.cidr_block
+  api_key        = jsondecode(data.aws_secretsmanager_secret_version.creds.secret_string)["QDRANT_API_KEY"]
 }

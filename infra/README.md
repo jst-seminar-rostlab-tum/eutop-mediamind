@@ -63,3 +63,81 @@ aws secretsmanager update-secret \
   --secret-id mediamind/app-env \
   --secret-string file://secrets.json
 ```
+
+- Get IP addr of ECS task:
+
+  - Get ECS cluster name:
+
+  ```sh
+  aws ecs list-tasks --cluster mediamind-cluster
+  ```
+
+  - Get ENI ID of ECS task:
+
+  ```sh
+  aws ecs describe-tasks --cluster <cluster_name> --tasks <task_id>
+  ```
+
+- Short command to get private IP address of ECS task:
+
+```sh
+aws ecs describe-tasks \
+  --cluster mediamind-cluster \
+  --tasks <task_id> \
+  --query "tasks[0].attachments[0].details[?name=='privateIPv4Address'].value" \
+  --output text
+```
+
+- Short command to get public IP address of ECS task:
+
+```sh
+aws ecs describe-tasks \
+  --cluster mediamind-cluster \
+  --tasks <task_id> \
+  --query "tasks[0].attachments[0].details[?name=='networkInterfaceId'].value" \
+  --output text
+```
+```sh
+aws ec2 describe-network-interfaces \
+  --network-interface-ids <eni-id> \
+  --query "NetworkInterfaces[0].Association.PublicIp" \
+  --output text
+```
+
+- Get connection string for RDS:
+
+```sh
+aws rds describe-db-instances \
+  --query "DBInstances[*].{Endpoint:Endpoint.Address,Port:Endpoint.Port,DBInstanceIdentifier:DBInstanceIdentifier}" \
+  --output table
+```
+
+- Get connection string for Redis:
+
+```sh
+aws elasticache describe-cache-clusters \
+  --cache-cluster-id <cache_cluster_name> \
+  --query "CacheClusters[0].ConfigurationEndpoint.Address" \
+  --output text
+```
+
+- Get connection string for Qdrant:
+
+```sh
+aws qdrant describe-collection \
+  --collection-name <collection_name> \
+  --query "collectionName" \
+  --output text
+```
+
+- Manually push Docker image to ECR:
+
+Replace `12345678910` with your AWS account ID and `mediamind-backend` with your Docker image name.
+
+```sh
+aws ecr get-login-password --region eu-central-1 | docker login --username AWS --password-stdin 12345678910.dkr.ecr.eu-central-1.amazonaws.com
+
+docker tag mediamind-backend:latest 12345678910.dkr.ecr.eu-central-1.amazonaws.com/ecr-mediamind:latest
+
+docker push 12345678910.dkr.ecr.eu-central-1.amazonaws.com/ecr-mediamind:latest
+```

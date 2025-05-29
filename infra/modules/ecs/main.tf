@@ -41,7 +41,7 @@ resource "aws_lb_target_group" "ecs" {
 
 resource "aws_lb_listener" "ecs" {
   load_balancer_arn = aws_lb.ecs_nlb.arn
-  port              = 8000
+  port              = 80
   protocol          = "TCP"
   default_action {
     type             = "forward"
@@ -54,7 +54,7 @@ resource "aws_ecs_cluster" "this" {
 }
 
 resource "aws_iam_role" "ecs_task_execution_role" {
-  name = "${var.service_name}-ecs-task-execution"
+  name               = "${var.service_name}-ecs-task-execution"
   assume_role_policy = data.aws_iam_policy_document.ecs_task_assume_role_policy.json
 }
 
@@ -131,7 +131,7 @@ data "aws_vpc" "selected" {
 }
 
 resource "aws_security_group" "ecs_service" {
-  name        = "${var.service_name}-sg"
+  name_prefix = "${var.service_name}-sg-"
   description = "Allow inbound traffic to ECS service from NLB"
   vpc_id      = var.vpc_id
   lifecycle {
@@ -172,6 +172,6 @@ resource "aws_ecs_service" "app" {
 }
 
 output "nlb_dns_name" {
-  value = aws_lb.ecs_nlb.dns_name
+  value       = aws_lb.ecs_nlb.dns_name
   description = "The DNS name of the Network Load Balancer for the ECS service."
 }

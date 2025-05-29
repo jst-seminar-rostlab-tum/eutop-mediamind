@@ -62,8 +62,8 @@ To build and run using Docker:
 
 3. Pass it as an environment variable to the Docker container:
    ```bash
-    # Make sure to replace `secrets.json` with the path to your actual secrets file
-   docker run -e APP_CONFIG_JSON="$(cat secrets.json)" mediamind-backend
+   # Make sure to replace `secrets.json` with the path to your actual secrets file
+   docker run -e APP_CONFIG_JSON="$(cat secrets.json)" -p 8000:8000 mediamind-backend
    ```
 
 ## App folder structure
