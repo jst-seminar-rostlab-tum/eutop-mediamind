@@ -53,11 +53,10 @@ jobs:
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         script: |
-          #### Validation
           const output = `
           <details><summary>Validation Output</summary>
 
-          \`\`\`\n
+          \`\`\`
           ${{ steps.validate.outputs.stdout }}
           \`\`\`
 
@@ -67,16 +66,15 @@ jobs:
 
           <details><summary>Show Plan</summary>
 
-          \`\`\`\n
+          \`\`\`
           ${process.env.PLAN}
           \`\`\`
 
           </details>
-
+          `;
           github.rest.issues.createComment({
             issue_number: context.issue.number,
             owner: context.repo.owner,
             repo: context.repo.repo,
             body: output
           })
-
