@@ -11,7 +11,7 @@ resource "aws_db_instance" "postgres" {
   username             = var.db_username
   password             = var.db_password
   skip_final_snapshot  = true
-  publicly_accessible  = false
+  publicly_accessible  = true
 }
 
 output "endpoint" {
