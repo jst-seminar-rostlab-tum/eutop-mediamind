@@ -25,6 +25,13 @@ data "aws_vpc" "selected" {
   default = true
 }
 
+data "aws_subnets" "selected" {
+  filter {
+    name   = "vpc-id"
+    values = [data.aws_vpc.selected.id]
+  }
+}
+
 data "aws_secretsmanager_secret_version" "db_creds" {
   secret_id = local.secrets_arn
 }
@@ -53,11 +60,7 @@ module "ecs" {
   container_image = module.ecr.repository_url
   db_endpoint     = module.database.endpoint
   redis_endpoint  = module.redis.endpoint
-  subnet_ids = [
-    "subnet-02d92c593c836cd8c",
-    "subnet-0906bc6f2f546aec8",
-    "subnet-0825cd05d0b85c59d"
-  ]
-  vpc_id      = data.aws_vpc.selected.id
-  secrets_arn = local.secrets_arn
+  subnet_ids      = data.aws_subnets.selected.ids
+  vpc_id          = data.aws_vpc.selected.id
+  secrets_arn     = local.secrets_arn
 }
