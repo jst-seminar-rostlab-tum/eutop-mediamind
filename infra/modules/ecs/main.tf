@@ -20,6 +20,35 @@ resource "aws_cloudwatch_log_group" "ecs" {
   retention_in_days = 7
 }
 
+resource "aws_lb" "ecs_nlb" {
+  name               = "${var.service_name}-nlb"
+  internal           = false
+  load_balancer_type = "network"
+  subnets            = var.subnet_ids
+}
+
+resource "aws_lb_target_group" "ecs" {
+  name        = "${var.service_name}-tg"
+  port        = 8000
+  protocol    = "TCP"
+  vpc_id      = var.vpc_id
+  target_type = "ip"
+  health_check {
+    protocol = "TCP"
+    port     = "8000"
+  }
+}
+
+resource "aws_lb_listener" "ecs" {
+  load_balancer_arn = aws_lb.ecs_nlb.arn
+  port              = 8000
+  protocol          = "TCP"
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.ecs.arn
+  }
+}
+
 resource "aws_ecs_cluster" "this" {
   name = var.cluster_name
 }
@@ -97,16 +126,20 @@ resource "aws_ecs_task_definition" "app" {
   ])
 }
 
+data "aws_vpc" "selected" {
+  id = var.vpc_id
+}
+
 resource "aws_security_group" "ecs_service" {
   name        = "${var.service_name}-sg"
-  description = "Allow inbound traffic to ECS service"
+  description = "Allow inbound traffic to ECS service from NLB"
   vpc_id      = var.vpc_id
 
   ingress {
     from_port   = 8000
     to_port     = 8000
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"] # Open to the world; TODO: restrict for production!
+    cidr_blocks = [data.aws_vpc.selected.cidr_block]
   }
 
   egress {
@@ -124,8 +157,19 @@ resource "aws_ecs_service" "app" {
   desired_count   = 1
   launch_type     = "FARGATE"
   network_configuration {
-    subnets         = var.subnet_ids
+    subnets          = var.subnet_ids
     assign_public_ip = true
     security_groups  = [aws_security_group.ecs_service.id]
   }
+  load_balancer {
+    target_group_arn = aws_lb_target_group.ecs.arn
+    container_name   = var.service_name
+    container_port   = 8000
+  }
+  depends_on = [aws_lb_listener.ecs]
+}
+
+output "nlb_dns_name" {
+  value = aws_lb.ecs_nlb.dns_name
+  description = "The DNS name of the Network Load Balancer for the ECS service."
 }
