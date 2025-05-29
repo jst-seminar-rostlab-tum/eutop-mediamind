@@ -2,6 +2,7 @@ from typing import Optional
 
 from litellm import completion
 
+from app.core.config import configs
 from app.core.logger import get_logger
 from app.services.llm_service.llm_models import LLMModels
 
@@ -24,9 +25,9 @@ class LLMClient:
         >>> response = service.generate_response("Tell me a joke")
     """
 
-    def __init__(self, model: LLMModels, api_key: Optional[str] = None):
+    def __init__(self, model: LLMModels):
         self.model = model.value
-        self.api_key = api_key
+        self.api_key = configs.OPENAI_API_KEY
 
     def generate_response(self, prompt: str) -> str:
         kwargs = {
