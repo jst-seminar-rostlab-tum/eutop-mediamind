@@ -13,7 +13,6 @@
     "test": "jest --pass-with-no-tests"
   },
   "dependencies": {
-    "@esbuild/linux-x64": "0.25.5",
     "@radix-ui/react-slot": "1.2.2",
     "@react-router/node": "7.5.3",
     "@react-router/serve": "7.5.3",
@@ -31,6 +30,7 @@
     "tailwind-merge": "3.3.0"
   },
   "devDependencies": {
+    "@esbuild/linux-x64": "0.25.5",
     "@eslint/js": "9.26.0",
     "@react-router/dev": "7.5.3",
     "@tailwindcss/vite": "4.1.4",
