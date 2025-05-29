@@ -17,11 +17,3 @@ resource "aws_db_instance" "postgres" {
 output "endpoint" {
   value = aws_db_instance.postgres.endpoint
 }
-
-output "username" {
-  value = var.db_username
-}
-
-output "password" {
-  value = var.db_password
-}

@@ -47,3 +47,11 @@ aws ec2 describe-vpcs --query "Vpcs[?IsDefault].VpcId" --output text
 ```sh
 aws ec2 describe-subnets --query "Subnets[?VpcId=='<vpcId>'].SubnetId" --output text
 ```
+
+- Create secrets in AWS Secrets Manager:
+
+```sh
+aws secretsmanager create-secret \
+  --name mediamind/app-env \
+  --secret-string file://secrets.json
+```

@@ -2,11 +2,10 @@ variable "cluster_name" { type = string }
 variable "service_name" { type = string }
 variable "container_image" { type = string }
 variable "db_endpoint" { type = string }
-variable "db_username" { type = string }
-variable "db_password" { type = string }
 variable "redis_endpoint" { type = string }
 variable "subnet_ids" { type = list(string) }
 variable "vpc_id" { type = string }
+variable "secrets_arn" { type = string }
 
 resource "aws_ecs_cluster" "this" {
   name = var.cluster_name
@@ -32,6 +31,24 @@ resource "aws_iam_role_policy_attachment" "ecs_task_execution_role_policy" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 }
 
+resource "aws_iam_role_policy" "ecs_secrets" {
+  name = "${var.service_name}-secrets"
+  role = aws_iam_role.ecs_task_execution_role.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "secretsmanager:GetSecretValue"
+        ]
+        Resource = var.secrets_arn
+      }
+    ]
+  })
+}
+
 resource "aws_ecs_task_definition" "app" {
   family                   = var.service_name
   network_mode             = "awsvpc"
@@ -45,8 +62,14 @@ resource "aws_ecs_task_definition" "app" {
       image     = var.container_image
       essential = true
       environment = [
-        { name = "DATABASE_URL", value = "postgres://${var.db_username}:${var.db_password}@${var.db_endpoint}:5432/postgres" },
-        { name = "REDIS_URL", value = var.redis_endpoint }
+        { name = "REDIS_URL", value = var.redis_endpoint },
+        { name = "POSTGRES_SERVER", value = var.db_endpoint },
+      ]
+      secrets = [
+        {
+          name      = "APP_CONFIG_JSON"
+          valueFrom = var.secrets_arn
+        }
       ]
       portMappings = [{ containerPort = 8000 }]
     }
@@ -62,7 +85,7 @@ resource "aws_security_group" "ecs_service" {
     from_port   = 8000
     to_port     = 8000
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"] # Open to the world; restrict for production!
+    cidr_blocks = ["0.0.0.0/0"] # Open to the world; TODO: restrict for production!
   }
 
   egress {
