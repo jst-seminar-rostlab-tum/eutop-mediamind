@@ -8,11 +8,15 @@ variable "vpc_id" { type = string }
 variable "secrets_arn" { type = string }
 variable "log_group_name" {
   type    = string
-  default = "/ecs/${var.service_name}"
+  default = null
+}
+
+locals {
+  effective_log_group_name = var.log_group_name != null ? var.log_group_name : "/ecs/${var.service_name}"
 }
 
 resource "aws_cloudwatch_log_group" "ecs" {
-  name              = var.log_group_name
+  name              = local.effective_log_group_name
   retention_in_days = 7
 }
 
