@@ -5,7 +5,7 @@ on:
     branches:
       - master
 env:
-  DOCKER_IMAGE: eutop/backend 
+  DOCKER_IMAGE: eutop/backend
   DOCKERFILE_PATH: ./backend/Dockerfile
   DOCKER_CONTEXT: ./backend
 

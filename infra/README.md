@@ -55,3 +55,11 @@ aws secretsmanager create-secret \
   --name mediamind/app-env \
   --secret-string file://secrets.json
 ```
+
+- Update secrets in AWS Secrets Manager:
+
+```sh
+aws secretsmanager update-secret \
+  --secret-id mediamind/app-env \
+  --secret-string file://secrets.json
+```

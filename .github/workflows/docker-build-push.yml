@@ -21,7 +21,7 @@ on:
       registry:
         required: false
         type: string
-        default: ghcr.io 
+        default: ghcr.io
 
     secrets:
       registry_username:
@@ -34,21 +34,20 @@ jobs:
     runs-on: ubuntu-24.04
 
     steps:
-    - name: Checkout source code
-      uses: actions/checkout@v3
+      - name: Checkout source code
+        uses: actions/checkout@v3
 
-    - name: Log in to registry
-      uses: docker/login-action@v3
-      with:
-        registry: ${{ inputs.registry }}
-        username: ${{ secrets.registry_username }}
-        password: ${{ secrets.registry_password }}
+      - name: Log in to registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ inputs.registry }}
+          username: ${{ secrets.registry_username }}
+          password: ${{ secrets.registry_password }}
 
-    - name: Build and push Docker image
-      uses: docker/build-push-action@v5
-      with:
-        context: ${{ inputs.context }}
-        file: ${{ inputs.dockerfile_path }}
-        push: true
-        tags: ${{ inputs.registry }}/${{ inputs.image_name }}:${{ inputs.image_tag }}
-
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: ${{ inputs.context }}
+          file: ${{ inputs.dockerfile_path }}
+          push: true
+          tags: ${{ inputs.registry }}/${{ inputs.image_name }}:${{ inputs.image_tag }}
