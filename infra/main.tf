@@ -17,6 +17,10 @@ provider "aws" {
   region = "eu-central-1"
 }
 
+data "aws_vpc" "selected" {
+  default = true
+}
+
 module "ecr" {
   source = "./modules/ecr"
   name   = "ecr-mediamind"
@@ -48,5 +52,5 @@ module "ecs" {
     "subnet-0906bc6f2f546aec8",
     "subnet-0825cd05d0b85c59d"
   ]
-  vpc_id = "vpc-0666de4e21eff9400"
+  vpc_id = data.aws_vpc.selected.id
 }
