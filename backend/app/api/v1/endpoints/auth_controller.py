@@ -7,5 +7,4 @@ router = APIRouter(prefix="/auth", tags=["auth"])
 
 @router.post("/signup")
 async def signup(user_data: UserCreate):
-    user = await AuthService.create_user(user_data)
-    return user
+    return await AuthService.create_user(user_data)
