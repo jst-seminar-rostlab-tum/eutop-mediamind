@@ -1,6 +1,10 @@
-import httpx
-from fastapi import Depends, HTTPException, status
+import os
+
+from clerk_backend_api import Clerk
+from clerk_backend_api.jwks_helpers import AuthenticateRequestOptions
+from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from sentry_sdk.integrations import httpx
 
 from app.core.logger import get_logger
 
@@ -8,31 +12,42 @@ security = HTTPBearer()
 logger = get_logger(__name__)
 
 
-async def get_current_user(
+def get_current_user(
+    request: Request,
     credentials: HTTPAuthorizationCredentials = Depends(security),
 ):
     try:
-        # Verify session token with Clerk
-        async with httpx.AsyncClient() as client:
-            response = await client.get(
-                "https://api.clerk.dev/v1/me",
-                headers={
-                    "Authorization": f"Bearer {credentials.credentials}",
-                    "Content-Type": "application/json",
-                },
-            )
-            response.raise_for_status()
-            return response.json()
+        # Authenticate request using Clerk SDK
+        sdk = Clerk(bearer_auth=os.getenv("CLERK_SECRET_KEY"))
 
-    except httpx.HTTPStatusError:
-        logger.debug("Invalid authentication credentials")
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid authentication credentials",
+        # Manually construct an httpx.Request from FastAPI request data
+        clerk_request = httpx.Request(
+            method=request.method,
+            url=str(request.url),
+            headers={
+                **request.headers,
+                "Authorization": f"Bearer {credentials.credentials}",
+            },
         )
 
-    except httpx.RequestError:
-        logger.debug("Authentication service unavailable")
+        request_state = sdk.authenticate_request(
+            clerk_request,
+            AuthenticateRequestOptions(
+                authorized_parties=["https://example.com"]
+            ),
+        )
+
+        if not request_state.is_signed_in:
+            logger.debug("Invalid authentication credentials (not signed in)")
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid authentication credentials",
+            )
+
+        return request_state.to_dict()
+
+    except Exception as e:
+        logger.debug(f"Authentication failed: {str(e)}")
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             detail="Authentication service unavailable",
