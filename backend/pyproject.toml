@@ -24,3 +24,5 @@ skip = [
     "venv",
     "env",
 ]
+[tool.pytest.ini_options]
+pythonpath = ["."]
