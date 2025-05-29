@@ -35,8 +35,8 @@ module "ecr" {
 }
 
 module "database" {
-  source  = "./modules/database"
-  db_name = "mediamind"
+  source      = "./modules/database"
+  db_name     = "mediamind"
   db_username = jsondecode(data.aws_secretsmanager_secret_version.db_creds.secret_string)["POSTGRES_USER"]
   db_password = jsondecode(data.aws_secretsmanager_secret_version.db_creds.secret_string)["POSTGRES_PASSWORD"]
 }
