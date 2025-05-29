@@ -134,7 +134,9 @@ resource "aws_security_group" "ecs_service" {
   name        = "${var.service_name}-sg"
   description = "Allow inbound traffic to ECS service from NLB"
   vpc_id      = var.vpc_id
-
+  lifecycle {
+    create_before_destroy = true
+  }
   ingress {
     from_port   = 8000
     to_port     = 8000
