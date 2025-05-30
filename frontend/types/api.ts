@@ -1,9 +1,19 @@
 import createClient from "openapi-fetch";
-import { createQueryHook } from "swr-openapi";
-import type { paths } from "./api-types-v1";
+import { createQueryHook, createMutateHook, createImmutableHook, createInfiniteHook } from "swr-openapi";
+import type { paths } from "./schema";
+import { isMatch } from "lodash-es";
 
 const client = createClient<paths>({
-  baseUrl: "https://myapi.dev/v1/", // TODO change with proper be url
+  baseUrl: "http://localhost:8000",
 });
 
-const useQuery = createQueryHook(client, "my-api"); // eslint-disable-line @typescript-eslint/no-unused-vars
+const API_PREFIX = "my-api";
+
+export const useQuery = createQueryHook(client, API_PREFIX);
+export const useImmutable = createImmutableHook(client, API_PREFIX);
+export const useInfinite = createInfiniteHook(client, API_PREFIX);
+export const useMutate = createMutateHook(
+  client,
+  API_PREFIX,
+  isMatch,
+);
