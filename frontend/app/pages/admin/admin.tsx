@@ -18,7 +18,7 @@ import {
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
 import { Button } from "~/components/ui/button";
-import { MoreHorizontal } from "lucide-react";
+import { MoreHorizontal, Trash } from "lucide-react";
 import React from "react";
 import {
   Dialog,
@@ -37,6 +37,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "~/components/ui/select";
+import {
+  AlertDialog,
+  AlertDialogTrigger,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogFooter,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogCancel,
+  AlertDialogAction,
+} from "~/components/ui/alert-dialog";
 
 export type Organization = {
   name: string;
@@ -55,6 +66,7 @@ export type User = {
   role: "admin" | "user";
 };
 
+// Fetch Orgas
 async function getOrgaData(): Promise<Organization[]> {
   // Fetch data from your API here
   return [
@@ -80,7 +92,7 @@ async function getOrgaData(): Promise<Organization[]> {
     },
   ];
 }
-
+//Fetch Subs
 async function getSubsData(): Promise<Subscription[]> {
   // Fetch data from your API here
   return [
@@ -99,38 +111,46 @@ async function getSubsData(): Promise<Subscription[]> {
   ];
 }
 
-export const SubsColumns: ColumnDef<Subscription>[] = [
-  {
-    accessorKey: "name",
-    header: "Subscriptions",
-  },
-  {
-    accessorKey: "url",
-    header: "URL",
-  },
-  {
-    id: "actions",
-    cell: () => {
-      return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem>Edit Subscription</DropdownMenuItem>
-            <DropdownMenuItem>Delete Subscription</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      );
+export function getSubsColumns(
+  onEdit: (index: number) => void,
+  onDelete: (index: number) => void,
+): ColumnDef<Subscription>[] {
+  return [
+    { accessorKey: "name", header: "Subscriptions" },
+    { accessorKey: "url", header: "URL" },
+    {
+      id: "actions",
+      cell: ({ row }) => {
+        const index = row.index;
+        return (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="h-8 w-8 p-0">
+                <span className="sr-only">Open menu</span>
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => onEdit(index)}>
+                Edit Subscription
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => onDelete(index)}
+                className="text-red-500"
+              >
+                Delete Subscription
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        );
+      },
     },
-  },
-];
+  ];
+}
 
 export function getUserColumns(
   onRoleChange: (index: number, role: "admin" | "user") => void,
+  onDelete: (index: number) => void,
 ): ColumnDef<User>[] {
   return [
     {
@@ -164,42 +184,74 @@ export function getUserColumns(
     },
     {
       id: "actions",
-      cell: () => (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem>Edit User</DropdownMenuItem>
-            <DropdownMenuItem>Delete User</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      ),
+      cell: ({ row }) => {
+        const index = row.index;
+        return (
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button variant={"ghost"}>
+                <Trash className="text-red-500" />
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This will permanently remove the user from this organization.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction onClick={() => onDelete(index)}>
+                  Delete
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        );
+      },
     },
   ];
 }
-
 export function Admin() {
+  //Organizations
   const [orgaData, setOrgaData] = React.useState<Organization[]>([]);
   const [showOrgaDialog, setShowOrgaDialog] = React.useState(false);
   const [newOrgaName, setNewOrgaName] = React.useState("");
+  const [isEditMode, setIsEditMode] = React.useState(false);
+  const [editingOrgIndex, setEditingOrgIndex] = React.useState<number | null>(
+    null,
+  );
+  const [editingUserData, setEditingUserData] = React.useState<User[]>([]);
+  const [searchInputForAdd, setSearchInputForAdd] = React.useState("");
 
+  // Subscriptions
   const [subsData, setSubsData] = React.useState<Subscription[]>([]);
   const [showSubsDialog, setShowSubsDialog] = React.useState(false);
   const [newSubsName, setNewSubsName] = React.useState("");
   const [newURL, setNewURL] = React.useState("");
   const [newUsername, setNewUsername] = React.useState("");
   const [newPassword, setNewPassword] = React.useState("");
-
-  const [isEditMode, setIsEditMode] = React.useState(false);
-  const [editingOrgIndex, setEditingOrgIndex] = React.useState<number | null>(
+  const [isEditSubsMode, setIsEditSubsMode] = React.useState(false);
+  const [editingSubsIndex, setEditingSubsIndex] = React.useState<number | null>(
     null,
   );
 
-  const [editingUserData, setEditingUserData] = React.useState<User[]>([]);
+  React.useEffect(() => {
+    async function fetchData() {
+      const data = await getOrgaData();
+      setOrgaData(data);
+    }
+    fetchData();
+  }, []);
+
+  React.useEffect(() => {
+    async function fetchData() {
+      const data = await getSubsData();
+      setSubsData(data);
+    }
+    fetchData();
+  }, []);
 
   const OrgaColumns: ColumnDef<Organization>[] = [
     {
@@ -224,6 +276,7 @@ export function Admin() {
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => handleDeleteOrganization(orgName)}
+                className="text-red-500"
               >
                 Delete Organization
               </DropdownMenuItem>
@@ -253,8 +306,6 @@ export function Admin() {
     }
   }
 
-  const [searchInputForAdd, setSearchInputForAdd] = React.useState("");
-
   function handleAddNewUser() {
     const email = searchInputForAdd.trim().toLowerCase();
     // if mail is not blank and not already in list
@@ -264,22 +315,6 @@ export function Admin() {
     setEditingUserData((prev) => [...prev, { name: email, role: "user" }]);
     setSearchInputForAdd("");
   }
-
-  React.useEffect(() => {
-    async function fetchData() {
-      const data = await getOrgaData();
-      setOrgaData(data);
-    }
-    fetchData();
-  }, []);
-
-  React.useEffect(() => {
-    async function fetchData() {
-      const data = await getSubsData();
-      setSubsData(data);
-    }
-    fetchData();
-  }, []);
 
   function handleSaveOrganization() {
     if (!newOrgaName.trim()) return;
@@ -307,6 +342,8 @@ export function Admin() {
     setEditingOrgIndex(null);
   }
 
+  // Subscriptions Functions
+
   function handleSaveSubscription() {
     if (
       !newSubsName.trim() ||
@@ -323,12 +360,37 @@ export function Admin() {
       password: newPassword.trim(),
     };
 
-    setSubsData((prev) => [...prev, newSubs]);
-    setNewSubsName(""); // reset field
-    setNewURL(""); // reset field
-    setNewUsername(""); // reset field
-    setNewPassword(""); // reset field
-    setShowSubsDialog(false); // close dialog
+    if (isEditSubsMode && editingSubsIndex !== null) {
+      setSubsData((prev) =>
+        prev.map((sub, i) => (i === editingSubsIndex ? newSubs : sub)),
+      );
+    } else {
+      setSubsData((prev) => [...prev, newSubs]);
+    }
+
+    // reset
+    setNewSubsName("");
+    setNewURL("");
+    setNewUsername("");
+    setNewPassword("");
+    setIsEditSubsMode(false);
+    setEditingSubsIndex(null);
+    setShowSubsDialog(false);
+  }
+
+  function handleEditSubscription(index: number) {
+    const sub = subsData[index];
+    setNewSubsName(sub.name);
+    setNewURL(sub.url);
+    setNewUsername(sub.username);
+    setNewPassword(sub.password);
+    setEditingSubsIndex(index);
+    setIsEditSubsMode(true);
+    setShowSubsDialog(true);
+  }
+
+  function handleDeleteSubscription(index: number) {
+    setSubsData((prev) => prev.filter((_, i) => i !== index));
   }
 
   return (
@@ -380,9 +442,20 @@ export function Admin() {
               </CardHeader>
               <CardContent>
                 <DataTable
-                  columns={SubsColumns}
+                  columns={getSubsColumns(
+                    handleEditSubscription,
+                    handleDeleteSubscription,
+                  )}
                   data={subsData}
-                  onAdd={() => setShowSubsDialog(true)}
+                  onAdd={() => {
+                    setNewSubsName("");
+                    setNewURL("");
+                    setNewUsername("");
+                    setNewPassword("");
+                    setIsEditSubsMode(false);
+                    setEditingSubsIndex(null);
+                    setShowSubsDialog(true);
+                  }}
                 />
               </CardContent>
             </Card>
@@ -422,13 +495,21 @@ export function Admin() {
             </div>
             <div className="mt-4">
               <DataTable
-                columns={getUserColumns((index, newRole) =>
-                  // callback to update roles
-                  setEditingUserData((prev) =>
-                    prev.map((user, i) =>
-                      i === index ? { ...user, role: newRole } : user,
-                    ),
-                  ),
+                columns={getUserColumns(
+                  (index, newRole) => {
+                    // call back to update roles
+                    setEditingUserData((prev) =>
+                      prev.map((user, i) =>
+                        i === index ? { ...user, role: newRole } : user,
+                      ),
+                    );
+                  },
+                  (index) => {
+                    // handle delete
+                    setEditingUserData((prev) =>
+                      prev.filter((_, i) => i !== index),
+                    );
+                  },
                 )}
                 data={editingUserData}
                 onSearchChange={setSearchInputForAdd}
@@ -448,11 +529,23 @@ export function Admin() {
         <Dialog open={showSubsDialog} onOpenChange={setShowSubsDialog}>
           <DialogContent className="sm:max-w-[425px]">
             <DialogHeader>
-              <DialogTitle>Add Subscription</DialogTitle>
-              <DialogDescription>
-                Enter the name and address of the subscription you want to add.
-                Click save when you're done.
-              </DialogDescription>
+              {!isEditSubsMode && (
+                <>
+                  <DialogTitle>Add Subscription</DialogTitle>
+                  <DialogDescription>
+                    Enter the credentials of the subscription you want to add.
+                    Click save when you're done.
+                  </DialogDescription>
+                </>
+              )}
+              {isEditSubsMode && (
+                <>
+                  <DialogTitle>Edit Subscription</DialogTitle>
+                  <DialogDescription>
+                    Edit your subscription here. Click save when you're done.
+                  </DialogDescription>
+                </>
+              )}
             </DialogHeader>
             <div className="grid grid-cols-4 items-center gap-4">
               <Label className="text-right">Name</Label>
