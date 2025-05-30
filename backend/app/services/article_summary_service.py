@@ -19,9 +19,7 @@ def summarize_text(text: str) -> str:
     Returns:
         str: The summarized text.
     """
-    llm_client = LLMClient(
-        model=LLMModels.openai_4o_mini
-    )
+    llm_client = LLMClient(model=LLMModels.openai_4o_mini)
 
     text_splitter = CharacterTextSplitter(chunk_size=1000, chunk_overlap=0)
     chunks = text_splitter.split_text(text)
