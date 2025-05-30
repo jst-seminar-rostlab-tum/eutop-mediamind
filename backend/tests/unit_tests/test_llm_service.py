@@ -1,6 +1,6 @@
+from multiprocessing.context import AuthenticationError
 from unittest.mock import patch
 
-import litellm.exceptions
 import pytest
 
 from app.services.llm_service.llm_client import LLMClient
@@ -16,10 +16,8 @@ def llm_service_wrong_key():
 def test_generate_response_with_wrong_api_key(
     mock_completion, llm_service_wrong_key
 ):
-    mock_completion.side_effect = litellm.exceptions.AuthenticationError(
-        message="Invalid API key", llm_provider="openai", model="gpt-4o"
-    )
+    mock_completion.side_effect = AuthenticationError
 
     # Test that the error is propagated
-    with pytest.raises(litellm.exceptions.AuthenticationError):
+    with pytest.raises(AuthenticationError):
         llm_service_wrong_key.generate_response("Hello!")
