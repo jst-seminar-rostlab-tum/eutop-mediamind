@@ -21,7 +21,7 @@ import {
 } from "@tanstack/react-table";
 import { Checkbox } from "~/components/ui/checkbox";
 import { Button } from "~/components/ui/button";
-import { ArrowUpDown, MoreHorizontal, Plus } from "lucide-react";
+import { ArrowUpDown, MoreHorizontal, Trash2 } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -31,6 +31,7 @@ import {
 } from "~/components/ui/dropdown-menu";
 import { Input } from "~/components/ui/input";
 import { ScrollArea } from "~/components/ui/scroll-area";
+import { AddMailDialog } from "~/custom-components/profile/edit/add-mail-dialog";
 
 export interface MailingTableProps {
   name: string;
@@ -39,7 +40,6 @@ export interface MailingTableProps {
 
 type DataRow = {
   data: string;
-  active: boolean;
 };
 
 export const getColumns = (name: string): ColumnDef<DataRow>[] => [
@@ -73,8 +73,8 @@ export const getColumns = (name: string): ColumnDef<DataRow>[] => [
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          {name} {/* Use the name prop here */}
-          <ArrowUpDown />
+          {name}
+          <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
       );
     },
@@ -83,19 +83,24 @@ export const getColumns = (name: string): ColumnDef<DataRow>[] => [
   {
     id: "actions",
     enableHiding: false,
-    header: "Delete",
     cell: () => {
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="h-8 w-8 p-0">
               <span className="sr-only">Open menu</span>
-              <MoreHorizontal />
+              <MoreHorizontal className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem>Delete</DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() =>
+                console.log("Delete action triggered from dropdown")
+              }
+            >
+              Delete
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       );
@@ -103,7 +108,7 @@ export const getColumns = (name: string): ColumnDef<DataRow>[] => [
   },
 ];
 
-export function DataTable({ name, dataArray }: MailingTableProps) {
+export function DataTableMailing({ name, dataArray }: MailingTableProps) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     [],
@@ -115,8 +120,8 @@ export function DataTable({ name, dataArray }: MailingTableProps) {
   const columns = React.useMemo(() => getColumns(name), [name]);
   const data = React.useMemo(
     () =>
-      dataArray.map((data) => ({
-        data: data,
+      dataArray.map((item) => ({
+        data: item,
       })),
     [dataArray],
   );
@@ -138,6 +143,14 @@ export function DataTable({ name, dataArray }: MailingTableProps) {
     },
   });
 
+  const numSelectedRows = table.getFilteredSelectedRowModel().rows.length;
+  const canDelete = numSelectedRows > 0;
+
+  const handleDeleteSelected = () => {
+    if (!canDelete) return;
+    // TODO: delete logic
+  };
+
   return (
     <div className="w-full">
       <div className="flex items-center py-4 justify-between">
@@ -149,12 +162,19 @@ export function DataTable({ name, dataArray }: MailingTableProps) {
           }
           className="max-w-sm"
         />
-        <Button>
-          <Plus />
-          Add
-        </Button>
+        <div className="flex items-center space-x-2">
+          <Button
+            variant="outline"
+            onClick={handleDeleteSelected}
+            disabled={!canDelete}
+            className={!canDelete ? "cursor-not-allowed opacity-50" : ""}
+          >
+            <Trash2 className="mr-2 h-4 w-4" />
+            Delete ({numSelectedRows})
+          </Button>
+          <AddMailDialog />
+        </div>
       </div>
-      {/*<div className="rounded-xl border h-[400px] overflow-auto">*/}
       <ScrollArea className={"h-[400px]"}>
         <Table>
           <TableHeader>
@@ -205,11 +225,10 @@ export function DataTable({ name, dataArray }: MailingTableProps) {
           </TableBody>
         </Table>
       </ScrollArea>
-      {/*</div>*/}
       <div className="flex items-center justify-end space-x-2 py-4">
         <div className="flex-1 text-sm text-muted-foreground">
-          {table.getFilteredSelectedRowModel().rows.length} of{" "}
-          {table.getFilteredRowModel().rows.length} row(s) selected.
+          {numSelectedRows} of {table.getFilteredRowModel().rows.length} row(s)
+          selected.
         </div>
       </div>
     </div>
