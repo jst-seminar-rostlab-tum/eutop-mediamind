@@ -4,6 +4,9 @@ import time
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from app.services.hardcoded_login import hardcoded_login, hardcoded_logout
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.alert import Alert
+
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -20,10 +23,15 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
+    chrome_options = Options()
+    # Add uBlock Origin or similar extension
+    chrome_options.add_extension('./cookie-blocker.crx')
+
     if args.newspaper_key:
         key = args.newspaper_key
         logger.info(f"Trying login for {key}.")
-        driver = webdriver.Chrome()
+        driver = webdriver.Chrome(options=chrome_options)
+
         wait = WebDriverWait(driver, 5)
         newspaper = hardcoded_login(driver, wait, key)
         if newspaper:
