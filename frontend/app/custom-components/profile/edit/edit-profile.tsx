@@ -8,18 +8,9 @@ import {
 } from "~/components/ui/dialog";
 import { Button } from "~/components/ui/button";
 import type { Profile } from "~/types/profile";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from "~/components/ui/select";
+
 import { Book, Mail, Newspaper } from "lucide-react";
-import { KeywordField } from "~/custom-components/profile/edit/keyword-field";
-import { useState } from "react";
+
 import { Switch } from "~/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { Topics } from "~/custom-components/profile/edit/topics";
