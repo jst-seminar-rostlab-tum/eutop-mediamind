@@ -3,7 +3,6 @@ from typing import Optional
 
 from langchain.text_splitter import CharacterTextSplitter
 
-from app.core.config import configs
 from app.models.article import Article
 from app.repositories.article_repository import ArticleRepository
 from app.services.llm_service.llm_client import LLMClient
@@ -21,7 +20,7 @@ def summarize_text(text: str) -> str:
         str: The summarized text.
     """
     llm_client = LLMClient(
-        model=LLMModels.openai_4o_mini, api_key=configs.OPENAI_API_KEY
+        model=LLMModels.openai_4o_mini
     )
 
     text_splitter = CharacterTextSplitter(chunk_size=1000, chunk_overlap=0)

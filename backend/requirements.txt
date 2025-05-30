@@ -26,6 +26,5 @@ sentry-sdk==2.20.0
 SQLAlchemy==2.0.41
 pydantic-settings==2.0
 pydantic[email]==2.11.4
-litellm==1.70.0
 qdrant-client==1.14.2
 tenacity==9.1.2
