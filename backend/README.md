@@ -41,12 +41,15 @@ The folder structure was taken from [here](https://github.com/jujumilk3/fastapi-
 
 - _api_: routing, divided by api version
 - _core_: common core configurations
-- _repositories_: DB repositories (see "service repository" pattern)
-- _services_: services (see "service repository" pattern)
-- _utils_: self explanatory
+- _models_: Database models using SQLModel. Reflects the actual DB schema.
+- _repositories_: DB repositories responsible for interacting with the database. Follows the "service repository" pattern to abstract query logic.
+- _schemas_: Pydantic models for request validation and response serialization. Decouples API data structures from DB models.
+- _services_: Business logic layer. Implements domain-specific workflows and delegates persistence to repositories. See "service repository" pattern.
+- _utils_: Miscellaneous utilities and helpers (e.g. crawling logic, formatters, converters). Self-explanatory and isolated.
 
 ## Linting and Formatting
 
 - **Black**: Code formatter (run `black app` to format the code)
 - **Isort**: Import sorter (run `isort app` to sort imports)
 - **Flake8**: Linter (run `flake8` to check for linting issues)
+

@@ -1,0 +1,30 @@
+services:
+  qdrant:
+    image: qdrant/qdrant:v1.14.0
+    container_name: qdrant
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    volumes:
+      - qdrant_data:/qdrant/storage
+
+  backend:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
+    container_name: backend
+    ports:
+      - "8000:8000"
+    restart: always
+    volumes:
+      - ../backend:/app
+      - backend_logs_volumes:/app/logs # persistent logs directory
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "10"
+
+volumes:
+  qdrant_data:
+  backend_logs_volumes:
