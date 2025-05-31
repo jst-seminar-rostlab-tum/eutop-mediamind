@@ -2,6 +2,11 @@ name: Generate API types
 
 on:
   workflow_call:
+    secrets:
+      API_TYPES_EMAIL:
+        required: true
+      API_TYPES_PAT_TOKEN:
+        required: true
 
 permissions:
   contents: write
@@ -9,9 +14,6 @@ permissions:
 jobs:
   build-and-push:
     runs-on: ubuntu-24.04
-    env:
-      API_TYPES_EMAIL: ${{ secrets.API_TYPES_EMAIL }}
-      API_TYPES_PAT_TOKEN: ${{ secrets.API_TYPES_PAT_TOKEN }}
 
     steps:
     - name: Checkout source code
@@ -20,6 +22,8 @@ jobs:
         persist-credentials: false
 
     - name: Configure Git
+      env:
+        API_TYPES_EMAIL: ${{ secrets.API_TYPES_EMAIL }}
       run: |
         if [ -z "${API_TYPES_EMAIL}" ]; then
           echo "Error: API_TYPES_EMAIL is not set or empty."
@@ -58,6 +62,8 @@ jobs:
         npx openapi-typescript /tmp/openapi.json -o ./frontend/types/api-types-v1.d.ts
 
     - name: Commit & Push changes
+      env:
+        API_TYPES_PAT_TOKEN: ${{ secrets.API_TYPES_PAT_TOKEN }}
       run: |
         if [ -z "${API_TYPES_PAT_TOKEN}" ]; then
           echo "Error: API_TYPES_PAT_TOKEN is not set or empty."
