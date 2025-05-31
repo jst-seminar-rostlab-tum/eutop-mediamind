@@ -119,6 +119,9 @@ class Configs(BaseSettings):
     # Qdrant
     QDRANT_URL: str | None = None
 
+    # OpenAI
+    OPENAI_API_KEY: str | None = None
+
     # Configuration of the user management tool (Clerk)
     CLERK_SECRET_KEY: str = "changethis"
     CLERK_PUBLISHABLE_KEY: str = "changethis"
