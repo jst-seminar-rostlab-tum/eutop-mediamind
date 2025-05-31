@@ -33,8 +33,11 @@ COPY . .
 
 # Copy entrypoint and set permissions/install jq BEFORE switching user
 COPY entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh && apt-get update && apt-get install -y jq
-
+RUN chmod +x /entrypoint.sh && \
+    apt-get update && \
+    apt-get install -y jq && \
+    rm -rf /var/lib/apt/lists/*
+    
 # Set permissions and switch to non-root user
 RUN chown -R appuser:appuser /app
 USER appuser
