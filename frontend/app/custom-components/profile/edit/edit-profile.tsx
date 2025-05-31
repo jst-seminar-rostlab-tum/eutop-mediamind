@@ -21,14 +21,13 @@ import { ScrollArea } from "~/components/ui/scroll-area";
 
 interface EditProfileProps {
   profile: Profile;
+  trigger: React.ReactElement;
 }
 
-export function EditProfile({ profile }: EditProfileProps) {
+export function EditProfile({ profile, trigger }: EditProfileProps) {
   return (
     <Dialog>
-      <DialogTrigger asChild>
-        <Button variant="outline">Edit Profile</Button>
-      </DialogTrigger>
+      <DialogTrigger asChild>{trigger}</DialogTrigger>
 
       <DialogContent className={"min-w-1/2 rounded-3xl max-h-3/4"}>
         <DialogHeader>
