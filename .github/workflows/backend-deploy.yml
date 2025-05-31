@@ -18,7 +18,7 @@ jobs:
   build-and-push:
     uses: ./.github/workflows/docker-build-push.yml
     with:
-      image_name: mediamind-backend
+      image_name: ecr-mediamind
       image_tag: latest
       dockerfile_path: ./backend/Dockerfile
       context: ./backend
