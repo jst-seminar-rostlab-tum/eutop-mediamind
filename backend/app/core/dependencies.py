@@ -2,6 +2,7 @@ import httpx
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
+from app.core import config
 from app.core.logger import get_logger
 
 security = HTTPBearer()
