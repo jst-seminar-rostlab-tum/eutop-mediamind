@@ -1,7 +1,7 @@
 name: Test Build and Push
 
 on:
-  workflow_dispatch:
+  push:
 
 jobs:
   build-and-push:
