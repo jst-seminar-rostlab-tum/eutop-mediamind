@@ -137,7 +137,7 @@ Replace `12345678910` with your AWS account ID and `mediamind-backend` with your
 ```sh
 aws ecr get-login-password --region eu-central-1 | docker login --username AWS --password-stdin 12345678910.dkr.ecr.eu-central-1.amazonaws.com
 
-docker tag mediamind-backend:latest 12345678910.dkr.ecr.eu-central-1.amazonaws.com/ecr-mediamind:latest
+docker tag mediamind-backend:latest 12345678910.dkr.ecr.eu-central-1.amazonaws.com/mediamind-backend:latest
 
-docker push 12345678910.dkr.ecr.eu-central-1.amazonaws.com/ecr-mediamind:latest
+docker push 12345678910.dkr.ecr.eu-central-1.amazonaws.com/mediamind-backend:latest
 ```

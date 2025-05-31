@@ -4,10 +4,6 @@ on:
   push:
     branches:
       - master
-env:
-  DOCKER_IMAGE: eutop/backend
-  DOCKERFILE_PATH: ./backend/Dockerfile
-  DOCKER_CONTEXT: ./backend
 
 jobs:
   backend-premerge:
@@ -18,3 +14,16 @@ jobs:
     secrets:
       API_TYPES_EMAIL: ${{ secrets.API_TYPES_EMAIL }}
       API_TYPES_PAT_TOKEN: ${{ secrets.API_TYPES_PAT_TOKEN }}
+
+  build-and-push:
+    uses: ./.github/workflows/docker-build-push.yml
+    with:
+      image_name: mediamind-backend
+      image_tag: latest
+      dockerfile_path: ./backend/Dockerfile
+      context: ./backend
+      aws_region: eu-central-1
+      ecr_registry: 313193269185.dkr.ecr.eu-central-1.amazonaws.com
+    secrets:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
