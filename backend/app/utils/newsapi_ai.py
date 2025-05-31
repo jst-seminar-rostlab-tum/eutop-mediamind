@@ -1,3 +1,4 @@
+import asyncio
 from typing import Any
 
 from eventregistry import *
@@ -32,7 +33,7 @@ async def get_articles_from_news_api_ai(
     q = QueryArticlesIter.initWithComplexQuery(query)
 
     articles = []
-    for article in q.execQuery(er, maxItems=100):
+    for article in q.execQuery(er, maxItems=10):
         articles.append(
             {
                 "title": article.get("title"),
@@ -89,7 +90,7 @@ def get_best_matching_source(prefix: str, api_key: str) -> Any | None:
     # Definiere den API-Endpunkt und die Parameter
     url = 'https://newsapi.ai/api/v1/suggestSources'
     params = {
-        'text': domain,
+        'prefix': domain,
         'apiKey': api_key
     }
 
@@ -118,3 +119,12 @@ def get_best_matching_source(prefix: str, api_key: str) -> Any | None:
     except requests.exceptions.RequestException as e:
         print(f"Ein Fehler ist bei der API-Anfrage aufgetreten: {e}")
         return None
+    
+if __name__ == "__main__":
+    # Beispielaufruf der Funktion
+    best_source = asyncio.run(get_articles_from_news_api_ai(
+        source_uris=["bild.de"],
+        date_start="2025-05-01",
+        date_end="2025-05-31"
+    ))
+    print(best_source)  # Gibt die beste Übereinstimmung aus, falls vorhanden
