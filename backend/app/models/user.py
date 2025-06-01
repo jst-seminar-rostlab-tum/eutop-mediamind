@@ -15,11 +15,13 @@ if TYPE_CHECKING:
 
 # Shared properties
 class UserBase(SQLModel):
-    clerk_id: str = Field(max_length=255, index=True)
+    id: str = Field(max_length=255, index=True)
     email: EmailStr = Field(unique=True, index=True, max_length=255)
     full_name: str | None = Field(default=None, max_length=255)
     is_superuser: bool = False
-    organization_id: uuid.UUID | None = Field(default=None, foreign_key="organizations.id")
+    organization_id: uuid.UUID | None = Field(
+        default=None, foreign_key="organizations.id"
+    )
 
 
 class UserRegister(SQLModel):

@@ -128,5 +128,4 @@ class Configs(BaseSettings):
     CLERK_JWT_KEY: str | None = None
 
 
-
 configs = Configs()  # type: ignore

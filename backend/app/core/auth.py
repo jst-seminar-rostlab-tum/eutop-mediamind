@@ -1,7 +1,8 @@
 from clerk_backend_api import Clerk
+from clerk_backend_api.jwks_helpers import VerifyTokenOptions, verify_token
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
-from clerk_backend_api.jwks_helpers import verify_token, VerifyTokenOptions
+
 from app.core.config import configs
 from app.core.logger import get_logger
 
@@ -20,13 +21,15 @@ async def get_authenticated_user(
             token,
             VerifyTokenOptions(
                 secret_key=configs.CLERK_SECRET_KEY,
-            )
+            ),
         )
 
         user_id = user_claim["sub"]
 
         if not user_id:
-            raise HTTPException(status_code=401, detail="Missing user ID in token")
+            raise HTTPException(
+                status_code=401, detail="Missing user ID in token"
+            )
 
         # Step 2: Use Clerk SDK to fetch the user
         async with Clerk(bearer_auth=configs.CLERK_SECRET_KEY) as clerk:
