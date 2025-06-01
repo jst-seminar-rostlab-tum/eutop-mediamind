@@ -75,6 +75,8 @@ class Configs(BaseSettings):
         )
 
     SENDGRID_KEY: str = ""
+    SENDER_EMAIL: EmailStr = ""
+    MAX_EMAIL_ATTEMPTS: int = 2
 
     EMAIL_TEST_USER: EmailStr = "test@example.com"
     FIRST_SUPERUSER: EmailStr = "test@example.com"

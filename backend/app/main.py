@@ -7,6 +7,7 @@ from starlette.responses import JSONResponse
 from app.api.v1.routes import routers as v1_routers
 from app.core.config import configs
 from app.core.logger import get_logger
+from app.initial_data import main
 
 logger = get_logger(__name__)
 
