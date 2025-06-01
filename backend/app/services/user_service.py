@@ -36,12 +36,29 @@ class UserService:
         async with async_session() as session:
             query = select(User).where(User.clerk_id == user_in.clerk_id)
             result = await session.execute(query)
-            existing_user = (
-                result.scalar_one_or_none()
-            )
+            existing_user = result.scalar_one_or_none()
+
             if existing_user:
+                # Check if any fields have changed
+                updated = False
+                if existing_user.email != user_in.email:
+                    existing_user.email = user_in.email
+                    updated = True
+                if existing_user.first_name != user_in.first_name:
+                    existing_user.first_name = user_in.first_name
+                    updated = True
+                if existing_user.last_name != user_in.last_name:
+                    existing_user.last_name = user_in.last_name
+                    updated = True
+
+                if updated:
+                    session.add(existing_user)
+                    await session.commit()
+                    await session.refresh(existing_user)
+
                 return existing_user
 
+            # Create new user if not found
             user = User(**user_in.model_dump())
             session.add(user)
             await session.commit()
