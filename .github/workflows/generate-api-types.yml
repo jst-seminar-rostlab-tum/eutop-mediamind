@@ -44,7 +44,7 @@ jobs:
       working-directory: ./backend
 
     - name: Extract OpenAPI spec
-      run: python extract-openapi.py --app-dir ../ --app app.main:app --out /tmp/openapi.json
+      run: python extract-openapi.py app.main:app --app-dir ../ --out /tmp/openapi.json
       working-directory: ./backend/scripts
 
     - name: Setup Node
