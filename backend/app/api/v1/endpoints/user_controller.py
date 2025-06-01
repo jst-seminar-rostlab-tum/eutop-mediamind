@@ -8,9 +8,8 @@ router = APIRouter(prefix="/users", tags=["users"])
 
 
 @router.get("")
-async def list_users(_: Depends = Depends(get_authenticated_user)):
-    users = await UserService.list_users()
-    return {"users": users}
+async def list_users(_: Depends = Depends(get_current_user)):
+    return await UserService.list_users()
 
 
 @router.get("/me")

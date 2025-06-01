@@ -9,22 +9,24 @@ from app.services.auth_service import UserCreate
 
 class UserService:
     @staticmethod
-    async def list_users() -> list[dict]:
+    async def list_users() -> dict:
         async with Clerk(bearer_auth=configs.CLERK_SECRET_KEY) as clerk:
             users = await clerk.users.list_async()
-            return [
-                {
-                    "id": user.id,
-                    "email": (
-                        user.email_addresses[0].email_address
-                        if user.email_addresses
-                        else None
-                    ),
-                    "first_name": user.first_name,
-                    "last_name": user.last_name,
-                }
-                for user in users
-            ]
+            return {
+                "users": [
+                    {
+                        "id": user.id,
+                        "email": (
+                            user.email_addresses[0].email_address
+                            if user.email_addresses
+                            else None
+                        ),
+                        "first_name": user.first_name,
+                        "last_name": user.last_name,
+                    }
+                    for user in users
+                ]
+            }
 
     @staticmethod
     async def create_user_if_not_exists(user_in: UserCreate) -> User:

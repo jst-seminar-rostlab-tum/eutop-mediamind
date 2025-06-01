@@ -27,7 +27,7 @@ def parse_cors(v: Any) -> list[str] | str:
 class Configs(BaseSettings):
     model_config = SettingsConfigDict(
         # Use top level .env.example file (one level above ./backend/)
-        env_file=".env.example",
+        env_file=".env",
         env_ignore_empty=True,
         extra="ignore",
     )
@@ -118,6 +118,9 @@ class Configs(BaseSettings):
 
     # Qdrant
     QDRANT_URL: str | None = None
+
+    # OpenAI
+    OPENAI_API_KEY: str | None = None
 
     # Configuration of the user management tool (Clerk)
     CLERK_SECRET_KEY: str | None = None
