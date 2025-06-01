@@ -3,7 +3,7 @@ from datetime import datetime, timezone
 from typing import Dict
 from enum import Enum
 
-from sqlmodel import Field, SQLModel
+from sqlmodel import Field, SQLModel, JSON, Column
 
 class EmailState(Enum):
     PENDING = "pending"
@@ -26,9 +26,9 @@ class Email(SQLModel, table=True):
     attachment_name: str | None = Field(default=None)
     attempts: int = Field(default=0, nullable=False)
     state : EmailState = Field(default=EmailState.PENDING, nullable=False)
-    errors: Dict[str, str] | None = Field(default=None, nullable=True)
-    created_at: datetime = Field(default_factory=datetime.now(timezone.utc), nullable=False)
-    updated_at: datetime = Field(default_factory=datetime.now(timezone.utc), nullable=False)
+    errors: Dict[str, str] | None = Field(default_factory=dict, sa_column=Column(JSON))
+    created_at: datetime = Field(default_factory=datetime.now, nullable=False)
+    updated_at: datetime = Field(default_factory=datetime.now, nullable=False)
 
 
     def add_error(self, error: str):

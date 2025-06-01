@@ -2,7 +2,7 @@ from app.core.config import configs
 from app.core.logger import get_logger
 from app.models.email import Email, EmailState
 from app.repositories.email_repository import EmailRepository
-from sendgrid.helpers.mail import Mail, Email, To, Content, Attachment
+from sendgrid.helpers.mail import Mail, Email as SEmail, To, Content, Attachment
 from sendgrid import SendGridAPIClient
 
 logger = get_logger(__name__)
@@ -19,7 +19,7 @@ class EmailService:
     __sg_client= SendGridAPIClient(api_key=configs.SENDGRID_KEY)
 
     @staticmethod
-    def schedule_email(schedule: EmailSchedule) -> Email:
+    async def schedule_email(schedule: EmailSchedule) -> Email:
         email = Email()
         email.sender = configs.SENDER_EMAIL
         email.recipient = schedule.recipient
@@ -28,17 +28,17 @@ class EmailService:
         email.content = schedule.content
         email.attachment = schedule.attachment
 
-        return EmailRepository.add_email(email)
+        return await EmailRepository.add_email(email)
 
     @staticmethod
-    def send_scheduled_emails():
-        emails = EmailRepository.get_all_unsent_emails()
+    async def send_scheduled_emails():
+        emails = await EmailRepository.get_all_unsent_emails()
 
         for email in emails:
             try:
                 EmailService.__send_email(email)
                 email.state = EmailState.SENT
-                EmailRepository.update_email(email)
+                await EmailRepository.update_email(email)
             except Exception as e:
                 logger.error(f"Failed to send email to {email.recipient}: {str(e)}")
                 email.attempts += 1
@@ -47,12 +47,12 @@ class EmailService:
                     email.state = EmailState.FAILED
                 else:
                     email.state = EmailState.RETRY
-                EmailRepository.update_email(email)
+                await EmailRepository.update_email(email)
 
 
     @staticmethod
     def __send_email(schedule: EmailSchedule):
-        from_email = Email(configs.SENDER_EMAIL)  
+        from_email = SEmail(configs.SENDER_EMAIL)  
         to_email = To(schedule.recipient)  
         content = Content(schedule.content_type, schedule.content)
         attachment = Attachment(schedule.attachment, "report.pdf", "application/pdf", "attachment")
