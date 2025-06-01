@@ -1,7 +1,7 @@
 import uuid
 from typing import TYPE_CHECKING, List
 
-from pydantic import EmailStr
+from pydantic import BaseModel, EmailStr
 from sqlmodel import Field, Relationship, SQLModel
 
 from app.models.associations import UserSearchProfileLink
@@ -13,12 +13,21 @@ if TYPE_CHECKING:
     from app.models.search_profile import SearchProfile
 
 
+class UserCreate(BaseModel):
+    clerk_id: str
+    email: str
+    first_name: str
+    last_name: str
+    organization_id: uuid.UUID | None = None
+
+
 # Shared properties
 class UserBase(SQLModel):
-    id: str = Field(max_length=255, index=True)
-    email: EmailStr = Field(unique=True, index=True, max_length=255)
-    full_name: str | None = Field(default=None, max_length=255)
-    is_superuser: bool = False
+    clerk_id: str = Field(max_length=255, index=True)
+    email: EmailStr = Field(index=True, max_length=255)
+    first_name: str = Field(max_length=255)
+    last_name: str = Field(max_length=255)
+    is_superuser: bool = Field(default=False)
     organization_id: uuid.UUID | None = Field(
         default=None, foreign_key="organizations.id"
     )

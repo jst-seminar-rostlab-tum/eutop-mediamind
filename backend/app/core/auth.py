@@ -33,7 +33,7 @@ async def get_authenticated_user(
 
         # Step 2: Use Clerk SDK to fetch the user
         async with Clerk(bearer_auth=configs.CLERK_SECRET_KEY) as clerk:
-            user = await clerk.users.get_async(user_id)
+            user = await clerk.users.get_async(user_id=user_id)
 
         return {
             "id": user.id,

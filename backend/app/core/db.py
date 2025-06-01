@@ -2,9 +2,8 @@ import psycopg2
 from psycopg2 import OperationalError
 from psycopg2.extensions import connection as PgConnection
 from qdrant_client import QdrantClient
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import sessionmaker
-from sqlmodel import Session, SQLModel, create_engine
+from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
+from sqlmodel import Session, SQLModel
 
 from app.core.config import configs
 from app.core.logger import get_logger
@@ -13,14 +12,14 @@ from .config import Configs
 
 logger = get_logger(__name__)
 
-engine = create_engine(str(configs.SQLALCHEMY_DATABASE_URI))
-async_session = sessionmaker(
-    engine, class_=AsyncSession, expire_on_commit=False
-)
+engine = create_async_engine(str(configs.SQLALCHEMY_DATABASE_URI), echo=True)
+
+async_session = async_sessionmaker(engine, expire_on_commit=False)
 
 
-def init_db(session: Session) -> None:
-    SQLModel.metadata.create_all(engine)
+async def init_db(session: Session):
+    async with engine.begin() as conn:
+        await conn.run_sync(SQLModel.metadata.create_all)
 
 
 def get_postgresql_connection(cfg: Configs) -> PgConnection:
