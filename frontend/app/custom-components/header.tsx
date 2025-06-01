@@ -6,10 +6,7 @@ import {
 } from "@clerk/react-router";
 import { User } from "lucide-react";
 import { Button } from "~/components/ui/button";
-import {
-  NEW_USER_SEARCH_PARAM_NAME,
-  useAuthorization,
-} from "~/hooks/use-authorization";
+import { useAuthorization } from "~/hooks/use-authorization";
 
 export default function Header() {
   useAuthorization();
@@ -22,10 +19,7 @@ export default function Header() {
           <span>
             <User />
             {/* TODO: dashboard url */}
-            <SignInButton
-              forceRedirectUrl="/"
-              signUpForceRedirectUrl={`/?${NEW_USER_SEARCH_PARAM_NAME}=true`}
-            />
+            <SignInButton forceRedirectUrl="/" />
           </span>
         </Button>
       </SignedOut>
