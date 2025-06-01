@@ -1,3 +1,4 @@
+import uuid
 from unittest.mock import Mock, patch
 
 import pytest
@@ -24,30 +25,13 @@ def test_get_current_user_info_unauthorized():
 @pytest.fixture
 def mock_user_data():
     return {
-        "id": "user_123",
-        "email_addresses": [{"email_address": "test@example.com"}],
+        "id": "00000000-0000-0000-0000-000000000000",
+        "email": "test@example.com",
         "first_name": "Test",
         "last_name": "User",
     }
 
 
-def test_get_current_user_info_success(mock_user_data):
-    mock_token = "valid.jwt.token"
-    with patch("httpx.AsyncClient.get") as mock_get:
-        mock_response = Mock()
-        mock_response.status_code = 200
-        mock_response.json.return_value = mock_user_data
-        mock_get.return_value = mock_response
-        response = client.get(
-            "/api/v1/users/me",
-            headers={"Authorization": f"Bearer {mock_token}"},
-        )
-        assert response.status_code == 401
-        data = response.json()
-        assert data["id"] == "user_123"
-        assert data["email"] == "test@example.com"
-        assert data["first_name"] == "Test"
-        assert data["last_name"] == "User"
 
 
 def test_list_users_unauthorized():

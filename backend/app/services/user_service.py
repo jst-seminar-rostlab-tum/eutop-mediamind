@@ -1,10 +1,13 @@
 from clerk_backend_api import Clerk
 from sqlalchemy import select
-from sqlalchemy.ext.asyncio import async_session
+from sqlalchemy.ext.asyncio import async_sessionmaker
 
 from app.core.config import configs
+from app.core.db import engine
 from app.models import User
-from app.services.auth_service import UserCreate
+from app.models.user import UserCreate
+
+async_session = async_sessionmaker(engine, expire_on_commit=False)
 
 
 class UserService:
@@ -31,9 +34,11 @@ class UserService:
     @staticmethod
     async def create_user_if_not_exists(user_in: UserCreate) -> User:
         async with async_session() as session:
-            query = select(User).where(User.id == user_in.clerk_id)
-            result = await session.exec(query)
-            existing_user = result.first()
+            query = select(User).where(User.clerk_id == user_in.clerk_id)
+            result = await session.execute(query)
+            existing_user = (
+                result.scalar_one_or_none()
+            )
             if existing_user:
                 return existing_user
 
