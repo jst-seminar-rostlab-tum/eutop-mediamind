@@ -1,13 +1,15 @@
+from datetime import date
 from typing import List
 from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
 from reportlab.lib import colors
-from reportlab.pdfgen import canvas
 from io import BytesIO
 from models import Article
 
 class PDFService:
-    def create_pdf(self, articles: List[Article]) -> BytesIO:
+
+    @staticmethod
+    def create_pdf(articles: List[Article]) -> BytesIO:
         toc_entries = []
         temp_buffer = BytesIO()
         temp_canvas = canvas.Canvas(temp_buffer, pagesize=A4)
@@ -17,7 +19,7 @@ class PDFService:
 
         for article in articles:
             toc_entries.append((article.title, page_counter))
-            self.draw_article_page(temp_canvas, article)
+            draw_article_page(temp_canvas, article)
             temp_canvas.showPage()
             page_counter += 1
 
@@ -26,21 +28,22 @@ class PDFService:
         out_buffer = BytesIO()
         c = canvas.Canvas(out_buffer, pagesize=A4)
 
-        self.draw_front_page(c, "Mediamind", "cool subtitle")
+        today = date.ctime(date.today()).format("%d.%m.%Y")
+        draw_front_page(c, "Pressespiegel", "Erstellt am " + today + "\n" + str(len(articles)) + " Artikel")
         c.showPage()
 
-        self.draw_table_of_contents(c, toc_entries)
+        draw_table_of_contents(c, toc_entries)
         c.showPage()
 
         for article in articles:
-            self.draw_article_page(c, article)
+            draw_article_page(c, article)
             c.showPage()
 
         c.save()
         return out_buffer
 
-
-    def draw_front_page(self, c :canvas.Canvas, title: str, subtitle: str):
+    @staticmethod
+    def draw_front_page(c :canvas.Canvas, title: str, subtitle: str):
         from datetime import datetime
         width, height = A4
         margin = 50
@@ -70,7 +73,8 @@ class PDFService:
         date_str = datetime.today().strftime("%B %d, %Y")
         c.drawCentredString(width / 2, 100, f"Generated on {date_str}")
 
-    def draw_table_of_contents(self, c: canvas.Canvas, toc_entries):
+    @staticmethod
+    def draw_table_of_contents(c: canvas.Canvas, toc_entries):
         width, height = A4
         margin = 70
 
@@ -89,7 +93,8 @@ class PDFService:
             c.drawRightString(width - margin, y, f"Page {page}")
             y -= 20
 
-    def draw_article_page(self, c: canvas.Canvas, article: Article):
+    @staticmethod
+    def draw_article_page(c: canvas.Canvas, article: Article):
         width, height = A4
         margin = 50
         line_y = height - 100
@@ -122,7 +127,8 @@ class PDFService:
 
         c.drawText(text)
 
-    def split_paragraph(self, text, max_chars=90):
+    @staticmethod
+    def split_paragraph(text: str, max_chars=90) -> List[str]:
         """Wrap a string into lines of at most max_chars."""
         words = text.split()
         lines = []

@@ -5,6 +5,7 @@ from starlette.middleware.cors import CORSMiddleware
 from app.api.v1.routes import routers as v1_routers
 from app.core.config import configs
 from app.core.logger import get_logger
+from app.initial_data import main
 
 
 class AppCreator:
@@ -43,6 +44,7 @@ class AppCreator:
             )
 
         self.app.include_router(v1_routers, prefix="/api/v1")
+        #main()
         self.logger.info("FastAPI app initialized successfully.")
 
 
