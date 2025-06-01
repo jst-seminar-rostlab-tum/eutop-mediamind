@@ -1,4 +1,4 @@
-import { useUser } from "@clerk/react-router";
+import { useClerk, useSession, useUser } from "@clerk/react-router";
 import { useEffect } from "react";
 import { useSearchParams } from "react-router";
 
@@ -8,6 +8,10 @@ export const NEW_USER_SEARCH_PARAM_NAME = "new_user";
 export const useAuthorization = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const { isSignedIn, user, isLoaded } = useUser();
+  const { session } = useSession();
+  const clerkClient = useClerk();
+  console.log("clientId", clerkClient.client?.id);
+  session?.getToken().then((t) => console.log("sessionToken", t));
 
   // create user in mediamind backend, when they return from signing up at clerk
   useEffect(() => {
