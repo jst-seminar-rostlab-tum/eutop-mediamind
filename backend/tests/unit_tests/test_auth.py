@@ -4,7 +4,7 @@ import httpx
 import pytest
 from fastapi import HTTPException
 
-from app.core.dependencies import get_current_user
+from app.core.auth import get_authenticated_user
 
 
 @pytest.mark.asyncio
@@ -22,7 +22,7 @@ async def test_get_current_user_success():
         mock_response.json.return_value = mock_user_data
         mock_get.return_value = mock_response
         credentials = Mock(credentials=mock_token)
-        user = await get_current_user(credentials)
+        user = await get_authenticated_user(credentials)
         assert user["id"] == "user_123"
         assert (
             user["email_addresses"][0]["email_address"] == "test@example.com"
@@ -43,6 +43,6 @@ async def test_get_current_user_invalid_token():
         mock_get.return_value = mock_response
         credentials = Mock(credentials="invalid.token")
         with pytest.raises(HTTPException) as exc_info:
-            await get_current_user(credentials)
+            await get_authenticated_user(credentials)
         assert exc_info.value.status_code == 401
-        assert exc_info.value.detail == "Invalid authentication credentials"
+        assert exc_info.value.detail == "Invalid authentication token"

@@ -29,7 +29,7 @@ class UserService:
     @staticmethod
     async def create_user_if_not_exists(user_in: UserCreate) -> User:
         async with async_session() as session:
-            query = select(User).where(User.clerk_id == user_in.clerk_id)
+            query = select(User).where(User.id == user_in.clerk_id)
             result = await session.exec(query)
             existing_user = result.first()
             if existing_user:

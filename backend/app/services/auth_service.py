@@ -16,7 +16,7 @@ class AuthService:
     async def create_user(user_in: UserCreate) -> User:
         async with async_session() as session:
             user = User(
-                clerk_id=user_in.clerk_id,
+                id=user_in.clerk_id,
                 email=user_in.email,
                 first_name=user_in.first_name,
                 last_name=user_in.last_name,
@@ -27,4 +27,3 @@ class AuthService:
             await session.commit()
             await session.refresh(user)
             return user
-

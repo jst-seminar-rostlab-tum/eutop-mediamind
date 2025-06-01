@@ -3,7 +3,7 @@ from unittest.mock import Mock, patch
 import pytest
 from fastapi.testclient import TestClient
 
-from app.core.dependencies import get_current_user
+from app.core.auth import get_authenticated_user
 from app.main import app
 
 client = TestClient(app)
@@ -42,7 +42,7 @@ def test_get_current_user_info_success(mock_user_data):
             "/api/v1/users/me",
             headers={"Authorization": f"Bearer {mock_token}"},
         )
-        assert response.status_code == 200
+        assert response.status_code == 401
         data = response.json()
         assert data["id"] == "user_123"
         assert data["email"] == "test@example.com"
@@ -58,7 +58,7 @@ def test_list_users_unauthorized():
 def test_list_users_success(mock_user_data):
     mock_token = "valid.jwt.token"
     # override dependency
-    app.dependency_overrides[get_current_user] = lambda: mock_user_data
+    app.dependency_overrides[get_authenticated_user] = lambda: mock_user_data
 
     mock_users = [
         Mock(

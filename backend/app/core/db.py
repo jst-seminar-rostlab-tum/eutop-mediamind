@@ -14,7 +14,9 @@ from .config import Configs
 logger = get_logger(__name__)
 
 engine = create_engine(str(configs.SQLALCHEMY_DATABASE_URI))
-async_session = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
+async_session = sessionmaker(
+    engine, class_=AsyncSession, expire_on_commit=False
+)
 
 
 def init_db(session: Session) -> None:
