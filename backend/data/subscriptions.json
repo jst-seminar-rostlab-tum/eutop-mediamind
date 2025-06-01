@@ -1,0 +1,261 @@
+[
+  {
+    "name": "FAZ/FASZ - E-Paper",
+    "domain": "epaper.faz.net",
+    "paywall": true,
+    "login_works": null,
+    "newsapi_id": "faz.net"
+  },
+  {
+    "name": "Financial Times - Onlinezugang / ePaper",
+    "domain": "ft.com/todaysnewspaper",
+    "paywall": true,
+    "login_works": null,
+    "newsapi_id": "ft.com"
+  },
+  {
+    "name": "Handelsblatt - ePaper",
+    "domain": "epaper.handelsblatt.com",
+    "paywall": true,
+    "login_works": null,
+    "newsapi_id": "handelsblatt.com"
+  },
+  {
+    "name": "SZ - ePaper + Onlinezugang",
+    "domain": "epaper.sueddeutsche.de",
+    "paywall": true,
+    "login_works": true,
+    "newsapi_id": "sueddeutsche.de"
+  },
+  {
+    "name": "BÅ¡rsen-Zeitung E-Paper",
+    "domain": "boersen-zeitung.de/epaper",
+    "paywall": true,
+    "login_works": null,
+    "newsapi_id": "boersen-zeitung.de"
+  },
+  {
+    "name": "Bild & Bild+",
+    "domain": "https://www.bild.de/bild-plus/bildplus-startseite/bildplus/home-30723544.bild.html",
+    "paywall": true,
+    "login_works": null,
+    "newsapi_id": "bild.de"
+  },
+  {
+    "name": "Die Welt",
+    "domain": "epaper.welt.de",
+    "paywall": true,
+    "login_works": true,
+    "newsapi_id": "welt.de"
+  },
+  {
+    "name": "FOCUS ePaper",
+    "domain": "focus-epaper.de",
+    "paywall": true,
+    "login_works": null,
+    "newsapi_id": "focus.de"
+  },
+  {
+    "name": "Manager Magazin - Onlinezugang / ePaper",
+    "domain": "manager-magazin.de",
+    "paywall": true,
+    "login_works": null,
+    "newsapi_id": "manager-magazin.de"
+  },
+  {
+    "name": "Spiegel - ePaper",
+    "domain": "spiegel.de/international/",
+    "paywall": true,
+    "login_works": null,
+    "newsapi_id": "spiegel.de"
+  },
+  {
+    "name": "WiWo - ePaper",
+    "domain": "wiwo.de",
+    "paywall": true,
+    "login_works": null,
+    "newsapi_id": "wiwo.de"
+  },
+  {
+    "name": "The Economist Digitalpass",
+    "domain": "economist.com",
+    "paywall": true,
+    "login_works": null,
+    "newsapi_id": "economist.com"
+  },
+  {
+    "name": "Cicero",
+    "domain": "epaper.cicero.de",
+    "paywall": true,
+    "login_works": null,
+    "newsapi_id": "cicero.de"
+  },
+  {
+    "name": "Chemical Watch - Onlinezugang",
+    "domain": "product.enhesa.com",
+    "paywall": true,
+    "login_works": true,
+    "newsapi_id": "enhesa.com"
+  },
+  {
+    "name": "Politico",
+    "domain": "politico.eu",
+    "paywall": true,
+    "login_works": null,
+    "newsapi_id": "politico.eu"
+  },
+  {
+    "name": "EUobserver",
+    "domain": "euobserver.com",
+    "paywall": true,
+    "login_works": null,
+    "newsapi_id": "euobserver.com"
+  },
+  {
+    "name": "Tagesspiegel",
+    "domain": "https://www.tagesspiegel.de/",
+    "paywall": true,
+    "login_works": null,
+    "newsapi_id": "tagesspiegel.de"
+  },
+  {
+    "name": "Background_Tagesspiegel",
+    "domain": "background.tagesspiegel.de",
+    "paywall": true,
+    "login_works": null,
+    "newsapi_id": null
+  },
+  {
+    "name": "Contexte",
+    "domain": "contexte.com",
+    "paywall": true,
+    "login_works": true,
+    "newsapi_id": "contexte.com"
+  },
+  {
+    "name": "The Pioneer",
+    "domain": "thepioneer.de",
+    "paywall": true,
+    "login_works": true,
+    "newsapi_id": "thepioneer.de"
+  },
+  {
+    "name": "Berlin.Table",
+    "domain": "berlin.table.media",
+    "paywall": true,
+    "login_works": null,
+    "newsapi_id": null
+  },
+  {
+    "name": "Bulletin Quotidien Europe",
+    "domain": "agenceeurope.eu",
+    "paywall": true,
+    "login_works": true,
+    "newsapi_id": "agenceurope.eu"
+  },
+  {
+    "name": "Business Insider",
+    "domain": "businessinsider.de",
+    "paywall": true,
+    "login_works": true,
+    "newsapi_id": "businessinsider.com"
+  },
+  {
+    "name": "Genios",
+    "domain": "genios.de",
+    "paywall": true,
+    "login_works": null,
+    "newsapi_id": null
+  },
+  {
+    "name": "Heise.de",
+    "domain": "heise.de",
+    "paywall": true,
+    "login_works": null,
+    "newsapi_id": "heise.de"
+  },
+  {
+    "name": "HORIZONT+",
+    "domain": "horizont.net",
+    "paywall": true,
+    "login_works": true,
+    "newsapi_id": "horizont.net"
+  },
+  {
+    "name": "Le Soir",
+    "domain": "lesoir.be",
+    "paywall": true,
+    "login_works": true,
+    "newsapi_id": "lesoir.be"
+  },
+  {
+    "name": "Lebensmittelzeitung",
+    "domain": "lebensmittelzeitung.net",
+    "paywall": true,
+    "login_works": true,
+    "newsapi_id": "lebensmittelzeitung.net"
+  },
+  {
+    "name": "Mace Magazine",
+    "domain": "macemagazine.com",
+    "paywall": true,
+    "login_works": null,
+    "newsapi_id": null
+  },
+  {
+    "name": "Medien Insider",
+    "domain": "medieninsider.de",
+    "paywall": true,
+    "login_works": null,
+    "newsapi_id": null
+  },
+  {
+    "name": "MEEDIA",
+    "domain": "meedia.de",
+    "paywall": true,
+    "login_works": true,
+    "newsapi_id": "meedia.de"
+  },
+  {
+    "name": "Platow Brief",
+    "domain": "platow.de",
+    "paywall": true,
+    "login_works": true,
+    "newsapi_id": null
+  },
+  {
+    "name": "Das Parlament",
+    "domain": "das-parlament.de",
+    "paywall": false,
+    "login_works": null,
+    "newsapi_id": "das-parlament.de"
+  },
+  {
+    "name": "EU Matrix",
+    "domain": "eumatrix.eu",
+    "paywall": false,
+    "login_works": null,
+    "newsapi_id": null
+  },
+  {
+    "name": "Euro am Sonntag",
+    "domain": "eurams.de",
+    "paywall": false,
+    "login_works": null,
+    "newsapi_id": null
+  },
+  {
+    "name": "MÃ¼nchner Merkur",
+    "domain": "merkur.de",
+    "paywall": false,
+    "login_works": null,
+    "newsapi_id": "merkur.de"
+  },
+  {
+    "name": "Top Agrar",
+    "domain": "topagrar.com",
+    "paywall": false,
+    "login_works": null,
+    "newsapi_id": "topagrar.com"
+  }
+]

@@ -18,11 +18,14 @@ class Subscription(SQLModel, table=True):
     __tablename__ = "subscriptions"
     # Attributes
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
-    name: str = Field(max_length=255)
+    name: str = Field(max_length=255, unique=True)
     domain: str = Field(max_length=255)
-    vault_path: str = Field(max_length=255)
-    config: str = Field(max_length=255)
-    scraper_type: str = Field(max_length=255)
+    paywall: bool = Field(default=False)
+    login_works: bool = Field(default=False)
+    newsapi_id: str = Field(default=None, max_length=255, nullable=True)
+    vault_path: str = Field(max_length=255, nullable=True)
+    config: str = Field(max_length=255, nullable=True)
+    scraper_type: str = Field(max_length=255, nullable=True)
 
     # Relationships
     organizations: List["Organization"] = Relationship(

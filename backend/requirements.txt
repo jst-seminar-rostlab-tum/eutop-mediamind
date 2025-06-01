@@ -36,3 +36,5 @@ eventregistry~=9.1
 requests~=2.32.3
 sentence-transformers==4.1.0
 langchain==0.3.25
+psycopg==3.2.9
+psycopg_binary==3.2.9

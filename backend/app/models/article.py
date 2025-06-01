@@ -20,12 +20,12 @@ class Article(SQLModel, table=True):
     # Attributes
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     title: str = Field(max_length=255)
-    content: str
-    url: str
-    author: str
-    published_at: datetime
-    language: str
-    category: str
+    content: str = Field(nullable=True)
+    url: str = Field(max_length=255)
+    author: str = Field(max_length=255, nullable=True)
+    published_at: datetime = Field()
+    language: str = Field(max_length=255, nullable=True)
+    category: str = Field(max_length=255, nullable=True)
     summary: str | None = Field(default=None, max_length=255)
     # vector_embedding
     subscription_id: uuid.UUID = Field(

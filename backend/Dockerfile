@@ -15,7 +15,8 @@ RUN rm -rf /var/lib/apt/lists/*
 # Install Python dependencies
 COPY requirements.txt .
 RUN pip install --upgrade pip
-RUN pip install --prefix=/install -r requirements.txt
+RUN --mount=type=cache,target=/root/.cache/pip \
+    pip install --prefix=/install -r requirements.txt
 
 # ---------- Final stage ----------
 FROM python:${PYTHON_VERSION}-slim
