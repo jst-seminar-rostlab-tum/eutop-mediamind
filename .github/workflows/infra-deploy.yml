@@ -2,10 +2,10 @@ name: Infra deploy
 
 on:
   push:
-     branches:
-       - master
-     paths:
-       - "infra/**"
+    branches:
+      - master
+    paths:
+      - "infra/**"
 
 jobs:
   deploy:
