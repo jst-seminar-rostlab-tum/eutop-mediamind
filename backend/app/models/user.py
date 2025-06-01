@@ -15,29 +15,21 @@ if TYPE_CHECKING:
 
 # Shared properties
 class UserBase(SQLModel):
+    clerk_id: str = Field(max_length=255, index=True)
     email: EmailStr = Field(unique=True, index=True, max_length=255)
-    is_superuser: bool = False
     full_name: str | None = Field(default=None, max_length=255)
-    organization_id: uuid.UUID | None = Field(
-        default=None, foreign_key="organizations.id", index=True
-    )
-
-
-# Properties to receive via API on creation
-class UserCreate(UserBase):
-    password: str = Field(min_length=8, max_length=40)
+    is_superuser: bool = False
+    organization_id: uuid.UUID | None = Field(default=None, foreign_key="organizations.id")
 
 
 class UserRegister(SQLModel):
     email: EmailStr = Field(max_length=255)
-    password: str = Field(min_length=8, max_length=40)
     full_name: str | None = Field(default=None, max_length=255)
 
 
 # Properties to receive via API on update, all are optional
 class UserUpdate(UserBase):
     email: EmailStr | None = Field(default=None, max_length=255)
-    password: str | None = Field(default=None, min_length=8, max_length=40)
 
 
 class UserUpdateMe(SQLModel):
@@ -45,6 +37,7 @@ class UserUpdateMe(SQLModel):
     email: EmailStr | None = Field(default=None, max_length=255)
 
 
+# Probably not needed
 class UpdatePassword(SQLModel):
     current_password: str = Field(min_length=8, max_length=40)
     new_password: str = Field(min_length=8, max_length=40)
@@ -53,8 +46,8 @@ class UpdatePassword(SQLModel):
 # Database model, table inferred from class name
 class User(UserBase, table=True):
     __tablename__ = "users"
+
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
-    hashed_password: str
 
     organization: Organization = Relationship(back_populates="users")
     search_profiles: List["SearchProfile"] = Relationship(

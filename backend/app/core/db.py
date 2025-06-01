@@ -2,6 +2,8 @@ import psycopg2
 from psycopg2 import OperationalError
 from psycopg2.extensions import connection as PgConnection
 from qdrant_client import QdrantClient
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import sessionmaker
 from sqlmodel import Session, SQLModel, create_engine
 
 from app.core.config import configs
@@ -12,6 +14,7 @@ from .config import Configs
 logger = get_logger(__name__)
 
 engine = create_engine(str(configs.SQLALCHEMY_DATABASE_URI))
+async_session = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 
 
 def init_db(session: Session) -> None:

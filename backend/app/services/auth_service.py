@@ -1,12 +1,11 @@
-from clerk_backend_api import Clerk
 from pydantic import BaseModel
+from sqlalchemy.ext.asyncio import async_session
 
-from app.core.config import configs
+from app.models import User
 
 
 class UserCreate(BaseModel):
     email_address: str
-    password: str
     username: str
     first_name: str | None = None
     last_name: str | None = None
@@ -14,28 +13,18 @@ class UserCreate(BaseModel):
 
 class AuthService:
     @staticmethod
-    async def create_user(user_data: UserCreate) -> dict:
-        async with Clerk(bearer_auth=configs.CLERK_SECRET_KEY) as clerk:
-            user = await clerk.users.create_async(
-                request={
-                    "email_address": [user_data.email_address],
-                    "password": user_data.password,
-                    "username": user_data.username,
-                    "first_name": user_data.first_name,
-                    "last_name": user_data.last_name,
-                    "skip_password_checks": True,
-                    "skip_password_requirement": False,
-                }
+    async def create_user(user_in: UserCreate) -> User:
+        async with async_session() as session:
+            user = User(
+                clerk_id=user_in.clerk_id,
+                email=user_in.email,
+                first_name=user_in.first_name,
+                last_name=user_in.last_name,
+                is_superuser=user_in.is_superuser,
+                organization_id=user_in.organization_id,
             )
+            session.add(user)
+            await session.commit()
+            await session.refresh(user)
+            return user
 
-            return {
-                "id": user.id,
-                "email": (
-                    user.email_addresses[0].email_address
-                    if user.email_addresses
-                    else None
-                ),
-                "username": user.username,
-                "first_name": user.first_name,
-                "last_name": user.last_name,
-            }

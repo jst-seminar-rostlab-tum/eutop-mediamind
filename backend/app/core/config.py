@@ -51,11 +51,11 @@ class Configs(BaseSettings):
 
     PROJECT_NAME: str = "mediamind"
     SENTRY_DSN: HttpUrl | None = None
-    POSTGRES_SERVER: str = "localhost"
-    POSTGRES_PORT: int = 5432
-    POSTGRES_USER: str = "postgres"
-    POSTGRES_PASSWORD: str = ""
-    POSTGRES_DB: str = ""
+    POSTGRES_SERVER: str
+    POSTGRES_PORT: int
+    POSTGRES_USER: str
+    POSTGRES_PASSWORD: str
+    POSTGRES_DB: str
 
     @computed_field  # type: ignore[prop-decorator]
     @property
@@ -120,8 +120,10 @@ class Configs(BaseSettings):
     QDRANT_URL: str | None = None
 
     # Configuration of the user management tool (Clerk)
-    CLERK_SECRET_KEY: str = "changethis"
-    CLERK_PUBLISHABLE_KEY: str = "changethis"
+    CLERK_SECRET_KEY: str | None = None
+    CLERK_PUBLISHABLE_KEY: str | None = None
+    CLERK_JWT_KEY: str | None = None
+
 
 
 configs = Configs()  # type: ignore
