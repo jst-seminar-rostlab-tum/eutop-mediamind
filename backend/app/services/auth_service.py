@@ -1,10 +1,7 @@
 from clerk_backend_api import Clerk
-from fastapi import APIRouter, HTTPException, status
 from pydantic import BaseModel
 
 from app.core.config import configs
-
-router = APIRouter(prefix="/auth", tags=["auth"])
 
 
 class UserCreate(BaseModel):
@@ -15,9 +12,9 @@ class UserCreate(BaseModel):
     last_name: str | None = None
 
 
-@router.post("/signup")
-async def signup(user_data: UserCreate):
-    try:
+class AuthService:
+    @staticmethod
+    async def create_user(user_data: UserCreate) -> dict:
         async with Clerk(bearer_auth=configs.CLERK_SECRET_KEY) as clerk:
             user = await clerk.users.create_async(
                 request={
@@ -42,9 +39,3 @@ async def signup(user_data: UserCreate):
                 "first_name": user.first_name,
                 "last_name": user.last_name,
             }
-
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to create user: {str(e)}",
-        )

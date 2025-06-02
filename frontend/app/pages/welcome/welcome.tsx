@@ -98,14 +98,16 @@ export function Welcome() {
         </Card>
       </div>
 
-      <Layout className="grid-cols-2 place-items-center mt-16">
+      <Layout className="grid-cols-3 place-items-center mt-16 mb-6">
         <img src="/EUTOP_Logo.png" alt="EUTOP_Logo" width={"200px"} />
         <img src="/TUM_Logo.svg" alt="TUM_Logo" />
+        <img src="/csee-logo.webp" alt="CSEE Logo" className="h-20" />
       </Layout>
       <div>
         <Text className="text-center">
-          MediaMind was build in cooperation between EUTOP and the Technical
-          University of Munich during the Javascript Technology Practicum
+          MediaMind was build in cooperation between EUTOP, the Technical
+          University of Munich and CSEE during the Javascript Technology
+          Practicum.
         </Text>
       </div>
 
