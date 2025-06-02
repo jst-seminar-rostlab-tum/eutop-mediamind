@@ -71,10 +71,11 @@ export function EditProfile({ profile, trigger }: EditProfileProps) {
               <Subscriptions subscriptions={useProfileSubscriptionsApi()} />
             </TabsContent>
           </Tabs>
+          <DialogFooter>
+            <Button type="submit">Save changes</Button>
+          </DialogFooter>
         </ScrollArea>
-        <DialogFooter>
-          <Button type="submit">Save changes</Button>
-        </DialogFooter>
+
       </DialogContent>
     </Dialog>
   );

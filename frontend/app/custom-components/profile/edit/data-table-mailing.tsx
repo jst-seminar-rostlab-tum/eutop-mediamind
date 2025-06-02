@@ -31,7 +31,6 @@ import {
 } from "~/components/ui/dropdown-menu";
 import { Input } from "~/components/ui/input";
 import { ScrollArea } from "~/components/ui/scroll-area";
-import { AddMailDialog } from "~/custom-components/profile/edit/add-mail-dialog";
 
 export interface MailingTableProps {
   name: string;
@@ -163,6 +162,11 @@ export function DataTableMailing({ name, dataArray }: MailingTableProps) {
           className="max-w-sm"
         />
         <div className="flex items-center space-x-2">
+          <div className={"flex gap-3"}>
+            <Input placeholder="Email" name="email" />
+            <Button>Add</Button>
+          </div>
+
           <Button
             variant="outline"
             onClick={handleDeleteSelected}
@@ -172,7 +176,7 @@ export function DataTableMailing({ name, dataArray }: MailingTableProps) {
             <Trash2 className="mr-2 h-4 w-4" />
             Delete ({numSelectedRows})
           </Button>
-          <AddMailDialog />
+
         </div>
       </div>
       <ScrollArea className={"h-[400px]"}>

@@ -21,7 +21,7 @@ import {
   type RowData,
 } from "@tanstack/react-table";
 import { Button } from "~/components/ui/button";
-import { ArrowUpDown, Plus } from "lucide-react";
+import { ArrowUpDown } from "lucide-react";
 import { Input } from "~/components/ui/input";
 import { ScrollArea } from "~/components/ui/scroll-area";
 import { Switch } from "~/components/ui/switch";
@@ -152,10 +152,6 @@ export function DataTableSubsciptions({ name, dataArray }: MailingTableProps) {
           }
           className="max-w-sm"
         />
-        <Button>
-          <Plus className="mr-2 h-4 w-4" />
-          Add
-        </Button>
       </div>
       <ScrollArea className={"h-[400px] rounded-md border"}>
         <Table>
