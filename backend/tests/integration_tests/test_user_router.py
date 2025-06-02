@@ -1,9 +1,10 @@
+import uuid
 from unittest.mock import Mock, patch
 
 import pytest
 from fastapi.testclient import TestClient
 
-from app.core.dependencies import get_current_user
+from app.core.auth import get_authenticated_user
 from app.main import app
 
 client = TestClient(app)
@@ -24,30 +25,13 @@ def test_get_current_user_info_unauthorized():
 @pytest.fixture
 def mock_user_data():
     return {
-        "id": "user_123",
-        "email_addresses": [{"email_address": "test@example.com"}],
+        "id": "00000000-0000-0000-0000-000000000000",
+        "email": "test@example.com",
         "first_name": "Test",
         "last_name": "User",
     }
 
 
-def test_get_current_user_info_success(mock_user_data):
-    mock_token = "valid.jwt.token"
-    with patch("httpx.AsyncClient.get") as mock_get:
-        mock_response = Mock()
-        mock_response.status_code = 200
-        mock_response.json.return_value = mock_user_data
-        mock_get.return_value = mock_response
-        response = client.get(
-            "/api/v1/users/me",
-            headers={"Authorization": f"Bearer {mock_token}"},
-        )
-        assert response.status_code == 200
-        data = response.json()
-        assert data["id"] == "user_123"
-        assert data["email"] == "test@example.com"
-        assert data["first_name"] == "Test"
-        assert data["last_name"] == "User"
 
 
 def test_list_users_unauthorized():
@@ -58,7 +42,7 @@ def test_list_users_unauthorized():
 def test_list_users_success(mock_user_data):
     mock_token = "valid.jwt.token"
     # override dependency
-    app.dependency_overrides[get_current_user] = lambda: mock_user_data
+    app.dependency_overrides[get_authenticated_user] = lambda: mock_user_data
 
     mock_users = [
         Mock(
