@@ -15,6 +15,7 @@ import { ClerkProvider } from "@clerk/react-router";
 import Header from "./custom-components/header";
 import { ErrorPage } from "./pages/error/error";
 import { useEffect } from "react";
+import { AuthorizationContextProvider } from "./hooks/use-authorization";
 
 export async function loader(args: Route.LoaderArgs) {
   return rootAuthLoader(args);
@@ -103,8 +104,10 @@ export default function App({ loaderData }: Route.ComponentProps) {
 
   return (
     <ClerkProvider loaderData={loaderData}>
-      <Header />
-      <Outlet />
+      <AuthorizationContextProvider>
+        <Header />
+        <Outlet />
+      </AuthorizationContextProvider>
     </ClerkProvider>
   );
 }

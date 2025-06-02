@@ -7,15 +7,13 @@ import {
 import { User } from "lucide-react";
 import { Link, useSearchParams } from "react-router";
 import { Button } from "~/components/ui/button";
-import { useAuthorization } from "~/hooks/use-authorization";
 
 // TODO use dashboard
-const DEFAULT_REDIRECT_URL = "/";
+const DEFAULT_REDIRECT_URL = "/dashboard";
 
 export default function Header() {
   const [searchParams] = useSearchParams();
   const redirectUrl = searchParams.get("redirect_url");
-  useAuthorization();
 
   return (
     <div className="p-4 w-full flex justify-between items-center">

@@ -1,18 +1,58 @@
-import { useClerk, useSession, useUser } from "@clerk/react-router";
-import { useEffect } from "react";
+import { useSession, useUser } from "@clerk/react-router";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+  type PropsWithChildren,
+} from "react";
 import { useLocation, useNavigate } from "react-router";
+import { BASE_URL } from "types/api";
+
+type UseAuthorizationReturn = {
+  sessionToken?: string;
+  isLoaded: boolean;
+  isSignedIn: boolean;
+  authorizationHeaders: Record<string, string>;
+};
+
+const AuthorizationContext = createContext({
+  isLoaded: false,
+  isSignedIn: false,
+  authorizationHeaders: {},
+});
 
 // TODO: add mediamind backend request to return role/rights of user (+ within an organization)
-export const useAuthorization = () => {
+export const AuthorizationContextProvider = ({
+  children,
+}: PropsWithChildren) => {
+  const [token, setToken] = useState<string | undefined>();
   const { isSignedIn, user, isLoaded } = useUser();
   const { session } = useSession();
-  const clerkClient = useClerk();
 
   const navigate = useNavigate();
   const { pathname } = useLocation();
 
-  console.log("clientId", clerkClient.client?.id);
-  session?.getToken().then((t) => console.log("sessionToken", t));
+  useEffect(() => {
+    session?.getToken().then((t) => t && setToken(t));
+  }, [session]);
+
+  const authenticatedFetch = useCallback(
+    async (...args: [RequestInfo, RequestInit?]) => {
+      const [resource, config = {}] = args;
+      const headers = {
+        ...config.headers,
+        Authorization: `Bearer ${token}`,
+      };
+
+      return fetch(resource, {
+        ...config,
+        headers,
+      }).then((res) => res.json());
+    },
+    [token],
+  );
 
   // redirect to error page, when not signed in
   useEffect(() => {
@@ -29,16 +69,32 @@ export const useAuthorization = () => {
   // sync user, when signed up or when something was changed in the user profile
   useEffect(() => {
     if (
+      token &&
       isLoaded &&
       isSignedIn &&
       ((user.updatedAt &&
-        user.lastSignInAt &&
-        Math.abs(user.updatedAt.getTime() - user.lastSignInAt.getTime()) >
-          1000) ||
-        (user.createdAt && Date.now() - user.createdAt.getTime() < 5000))
+        Math.abs(Date.now() - user.updatedAt.getTime()) < 2000) ||
+        (user.createdAt && Date.now() - user.createdAt.getTime() < 2000))
     ) {
-      // Todo: Call backend to sync clerk user with mediamind db user
-      console.log("user updated!");
+      authenticatedFetch(BASE_URL + "/users/sync", {
+        method: "POST",
+      });
     }
-  }, [user, isLoaded, isSignedIn]);
+  }, [user, isLoaded, isSignedIn, token]);
+
+  const value: UseAuthorizationReturn = {
+    sessionToken: token,
+    isLoaded,
+    isSignedIn: Boolean(isSignedIn),
+    authorizationHeaders: {
+      Authorization: `Bearer ${token}`,
+    },
+  };
+  return (
+    <AuthorizationContext.Provider value={value}>
+      {children}
+    </AuthorizationContext.Provider>
+  );
 };
+
+export const useAuthorization = () => useContext(AuthorizationContext);
