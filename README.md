@@ -36,7 +36,7 @@ For detailed setup instructions and development workflows, refer to the componen
 ### Prerequisites
 - **Node.js 18+** - For frontend development
 - **Python 3.11+** - For backend development
-- **AWS CLI** - For infrastructure deployment (optional)
+- **AWS CLI** and **openTofu** - For infrastructure as code (optional)
 
 ### Environment Configuration
 Copy the example environment files and configure them for your setup:
