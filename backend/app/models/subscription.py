@@ -2,6 +2,7 @@ import uuid
 from typing import TYPE_CHECKING, List
 
 from sqlmodel import Field, Relationship, SQLModel
+from sqlalchemy import Column, JSON
 
 from app.models.associations import (
     OrganizationSubscriptionLink,
@@ -24,7 +25,7 @@ class Subscription(SQLModel, table=True):
     login_works: bool = Field(default=False)
     newsapi_id: str = Field(default=None, max_length=255, nullable=True)
     vault_path: str = Field(max_length=255, nullable=True)
-    config: str = Field(max_length=255, nullable=True)
+    config: dict = Field(default=None, sa_column=Column(JSON, nullable=True))
     scraper_type: str = Field(max_length=255, nullable=True)
 
     # Relationships

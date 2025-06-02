@@ -124,26 +124,17 @@ def insert_credential(driver, wait, credential, input_selector):
         return False
 
 
-def hardcoded_login(driver, wait, key):
-    # Load newspapers data
-    with open('app/services/newspapers_data.json', 'r') as f:
-        data = json.load(f)
+def hardcoded_login(driver, wait, subscription_name, paper):
 
     # Load newspapers accounts
-    with open('app/services/newspapers_accounts.json', 'r') as f:
+    with open('app/services/web_harvester/utils/newspapers_accounts.json', 'r') as f:
         accounts = json.load(f)
 
-    # Load newspaper
-    paper = data['newspapers'].get(key)
-    if not paper:
-        logger.error(f"No newspaper found with key: {key}")
-        return False
-    logger.info(f"Processing: {paper['name']}")
-
+    # logger.info(f"Processing: {paper['name']}")
     # Find account credentials
-    account = accounts['newspapers'].get(key)
+    account = accounts.get(subscription_name)
     if not account:
-        logger.error(f"No account found for key: {key}")
+        logger.error(f"No account found for key: {subscription_name}")
         return False
     username = account.get("user_email")
     password = account.get("password")
@@ -153,9 +144,10 @@ def hardcoded_login(driver, wait, key):
 
     # Initialize newspaper website
     try:
-        driver.get(paper['link'])
-    except Exception:
-        logger.error(f"No link provided for: {paper['name']}")
+        driver.get("https://epaper.sueddeutsche.de")
+    except Exception as e:
+        raise e
+        # logger.error(f"No link provided for: {paper['name']}")
         return False
 
     driver.maximize_window()
