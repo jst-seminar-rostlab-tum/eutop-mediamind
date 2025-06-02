@@ -1,23 +1,24 @@
+import { useState } from "react";
 import {
   Dialog,
   DialogTrigger,
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogFooter,
 } from "~/components/ui/dialog";
 import { Button } from "~/components/ui/button";
+import { Input } from "~/components/ui/input";
 import type { Profile } from "~/types/profile";
 
-import { Book, Mail, Newspaper } from "lucide-react";
+import { Book, Mail, Newspaper, Settings, Edit2, Check, X } from "lucide-react";
 
-import { Switch } from "~/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { Topics } from "~/custom-components/profile/edit/topics";
 import { Mailing } from "~/custom-components/profile/edit/mailing";
 import { Subscriptions } from "~/custom-components/profile/edit/subscriptions";
 import useProfileSubscriptionsApi from "~/hooks/api/profile-subscriptions-api";
 import { ScrollArea } from "~/components/ui/scroll-area";
+import { General } from "~/custom-components/profile/edit/general";
 
 interface EditProfileProps {
   profile: Profile;
@@ -25,23 +26,81 @@ interface EditProfileProps {
 }
 
 export function EditProfile({ profile, trigger }: EditProfileProps) {
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [profileName, setProfileName] = useState(profile.name);
+
+  const handleNameSave = () => {
+    // TODO: api
+    setIsEditingName(false);
+  };
+
+  const handleNameCancel = () => {
+    setProfileName(profile.name); // Reset to original name
+    setIsEditingName(false);
+  };
+
   return (
     <Dialog>
       <DialogTrigger asChild>{trigger}</DialogTrigger>
 
       <DialogContent className={"min-w-1/2 rounded-3xl max-h-3/4"}>
         <DialogHeader>
-          <div className={"flex items-center gap-5"}>
-            <DialogTitle className={"text-xl"}>
-              Edit Profile: {profile.name}
-            </DialogTitle>
-            <Switch />
+          <div className={"flex items-center gap-3"}>
+            {isEditingName ? (
+              <div className="flex items-center gap-2 flex-1">
+                <span className="text-xl font-semibold">Edit Profile:</span>
+                <Input
+                  value={profileName}
+                  onChange={(e) => setProfileName(e.target.value)}
+                  className="flex-1 max-w-xs"
+                  autoFocus
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") handleNameSave();
+                    if (e.key === "Escape") handleNameCancel();
+                  }}
+                />
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={handleNameSave}
+                  className="h-8 w-8 p-0"
+                >
+                  <Check className="h-4 w-4" />
+                </Button>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={handleNameCancel}
+                  className="h-8 w-8 p-0"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2">
+                <DialogTitle className={"text-xl"}>
+                  Edit Profile: {profileName}
+                </DialogTitle>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => setIsEditingName(true)}
+                  className="h-8 w-8 p-0"
+                >
+                  <Edit2 className="h-4 w-4" />
+                </Button>
+              </div>
+            )}
           </div>
         </DialogHeader>
 
-        <ScrollArea className="max-h-[60vh] pr-2">
-          <Tabs defaultValue="topics" className="w-full">
-            <TabsList className="grid w-full grid-cols-3">
+        <ScrollArea className="max-h-[60vh] pr-4">
+          <Tabs defaultValue="general" className="w-full">
+            <TabsList className="grid w-full grid-cols-4">
+              <TabsTrigger value="general" className="flex items-center gap-2">
+                <Settings className="h-5 w-5" />
+                <span>General</span>
+              </TabsTrigger>
               <TabsTrigger value="topics" className="flex items-center gap-2">
                 <Book className="h-5 w-5" />
                 <span>Topics</span>
@@ -58,6 +117,9 @@ export function EditProfile({ profile, trigger }: EditProfileProps) {
                 <span>Subscriptions</span>
               </TabsTrigger>
             </TabsList>
+            <TabsContent value="general">
+              <General profile={profile} />
+            </TabsContent>
 
             <TabsContent value="topics">
               <Topics profile={profile} />
@@ -71,10 +133,10 @@ export function EditProfile({ profile, trigger }: EditProfileProps) {
               <Subscriptions subscriptions={useProfileSubscriptionsApi()} />
             </TabsContent>
           </Tabs>
-          <DialogFooter>
-            <Button type="submit">Save changes</Button>
-          </DialogFooter>
         </ScrollArea>
+        <div className="flex justify-end">
+          <Button type="submit">Save changes</Button>
+        </div>
       </DialogContent>
     </Dialog>
   );

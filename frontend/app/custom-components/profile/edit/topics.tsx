@@ -13,6 +13,7 @@ import { Button } from "~/components/ui/button";
 import { KeywordField } from "~/custom-components/profile/edit/keyword-field";
 import { Label } from "~/components/ui/label";
 import { Input } from "~/components/ui/input";
+import { Trash2 } from "lucide-react";
 
 export function Topics({ profile }: { profile: Profile }) {
   const [selectedTopic, setSelectedTopic] = useState<string | undefined>(
@@ -49,16 +50,19 @@ export function Topics({ profile }: { profile: Profile }) {
               </SelectGroup>
             </SelectContent>
           </Select>
+          {selectedTopic && (
+            <Button variant="destructive">
+              <Trash2 />
+              {selectedTopic}
+            </Button>
+          )}
           <Input
             placeholder={"+ Add topic"}
-            className={"w-[180px] shadow-none"}
+            className={"w-[180px] shadow-none ml-auto"}
           />
         </div>
 
         {selectedTopic && <KeywordField keywords={selectedTopicKeywords} />}
-        {selectedTopic && (
-          <Button variant="outline">Delete "{selectedTopic}"</Button>
-        )}
       </div>
     </div>
   );
