@@ -32,6 +32,13 @@ COPY --from=builder /install /usr/local
 # Copy application code
 COPY . .
 
+# Copy entrypoint and set permissions/install jq BEFORE switching user
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh && \
+    apt-get update && \
+    apt-get install -y jq && \
+    rm -rf /var/lib/apt/lists/*
+    
 # Set permissions and switch to non-root user
 RUN chown -R appuser:appuser /app
 USER appuser
@@ -39,5 +46,5 @@ USER appuser
 # Expose port if needed (e.g. for web app)
 EXPOSE 8000
 
-# Set the default command (customize if needed)
+ENTRYPOINT ["/entrypoint.sh"]
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
