@@ -19,12 +19,15 @@ services:
     volumes:
       - ../backend:/app
       - backend_logs_volumes:/app/logs # persistent logs directory
+    depends_on:
+      - qdrant
     logging:
       driver: json-file
       options:
-        max-size: "50m"
+        max-size: "50m" # maximum size of each log file 50MB
         max-file: "10"
 
 volumes:
   qdrant_data:
   backend_logs_volumes:
+    driver: local
