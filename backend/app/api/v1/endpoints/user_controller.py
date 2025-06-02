@@ -30,5 +30,5 @@ async def sync_user_with_clerk(user_data=Depends(get_authenticated_user)):
         is_superuser=False,
         organization_id=None,
     )
-    user = await UserService.create_user_if_not_exists(user_create)
-    return {"id": str(user.id)}
+    return await UserService.create_user_if_not_exists(user_create)
+

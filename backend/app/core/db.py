@@ -1,6 +1,6 @@
-import psycopg2
-from psycopg2 import OperationalError
-from psycopg2.extensions import connection as PgConnection
+import psycopg
+from psycopg import OperationalError
+from psycopg import connection as PgConnection
 from qdrant_client import QdrantClient
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 from sqlmodel import Session, SQLModel
@@ -27,7 +27,7 @@ def get_postgresql_connection(cfg: Configs) -> PgConnection:
         logger.error("DATABASE_URL not set in config.")
         raise ValueError("DATABASE_URL not set in config.")
     try:
-        return psycopg2.connect(dsn=cfg.DATABASE_URL)
+        return psycopg.connect(dsn=cfg.DATABASE_URL)
     except OperationalError as e:
         logger.error(f"Failed to connect to PostgreSQL database: {str(e)}")
         raise Exception(f"Failed to connect to PostgreSQL database: {str(e)}")
