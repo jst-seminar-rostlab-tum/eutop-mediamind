@@ -22,6 +22,7 @@ class AppCreator:
 
         self.logger.info("Starting FastAPI app initialization.")
         # set app default
+
         self.app = FastAPI(
             title=configs.PROJECT_NAME,
             openapi_url="/api/openapi.json",

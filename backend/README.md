@@ -1,6 +1,6 @@
-# EUTOP Mediamind backend
+# EUTOP Mediamind Backend
 
-## Getting started
+## Getting Started
 
 - Activate the virtual environment:
 
@@ -35,7 +35,38 @@ You can then see the API definition at `http://localhost:8000/api/docs`
   2.  `pytest --cov=app --cov-report=term-missing`: coverage with stdout
   3.  `pytest --cov=app --cov-report=html`: coverage with html
 
-## App folder structure
+## Docker
+
+This approach is mainly for production deployment using terraform (which is why the envs are passed as a JSON), but you can also use it for local development.
+
+To build and run using Docker:
+
+1. Create a `secrets.json` file with your envs:
+
+   ```json
+   {
+     "API_URL": "https://api.example.com",
+     "SENTRY_DSN": "your_sentry_dsn_here"
+     // Add other environment variables as needed
+   }
+   ```
+
+   > This file should contain all the environment variables your application needs, formatted as a JSON object.
+   > **Make sure to keep this file secure and do not commit it to version control.**
+
+2. Build the Docker image:
+
+   ```bash
+   docker build -t mediamind-backend .
+   ```
+
+3. Pass it as an environment variable to the Docker container:
+   ```bash
+   # Make sure to replace `secrets.json` with the path to your actual secrets file
+   docker run -e APP_CONFIG_JSON="$(cat secrets.json)" -p 8000:8000 mediamind-backend
+   ```
+
+## App Folder Structure
 
 The folder structure was taken from [here](https://github.com/jujumilk3/fastapi-clean-architecture).
 
@@ -52,4 +83,3 @@ The folder structure was taken from [here](https://github.com/jujumilk3/fastapi-
 - **Black**: Code formatter (run `black app` to format the code)
 - **Isort**: Import sorter (run `isort app` to sort imports)
 - **Flake8**: Linter (run `flake8` to check for linting issues)
-
