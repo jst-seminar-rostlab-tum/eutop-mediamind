@@ -13,20 +13,20 @@ on:
       dockerfile_path:
         required: false
         type: string
-        default: Dockerfile
       context:
         required: false
         type: string
-        default: .
-      registry:
+      aws_region:
         required: false
         type: string
-        default: ghcr.io 
+      ecr_registry:
+        required: true
+        type: string
 
     secrets:
-      registry_username:
+      AWS_ACCESS_KEY_ID:
         required: true
-      registry_password:
+      AWS_SECRET_ACCESS_KEY:
         required: true
 
 jobs:
@@ -34,21 +34,23 @@ jobs:
     runs-on: ubuntu-24.04
 
     steps:
-    - name: Checkout source code
-      uses: actions/checkout@v3
+      - name: Checkout source code
+        uses: actions/checkout@v3
 
-    - name: Log in to registry
-      uses: docker/login-action@v3
-      with:
-        registry: ${{ inputs.registry }}
-        username: ${{ secrets.registry_username }}
-        password: ${{ secrets.registry_password }}
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ inputs.aws_region }}
 
-    - name: Build and push Docker image
-      uses: docker/build-push-action@v5
-      with:
-        context: ${{ inputs.context }}
-        file: ${{ inputs.dockerfile_path }}
-        push: true
-        tags: ${{ inputs.registry }}/${{ inputs.image_name }}:${{ inputs.image_tag }}
+      - name: Login to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v2
 
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: ${{ inputs.context }}
+          file: ${{ inputs.dockerfile_path }}
+          push: true
+          tags: ${{ inputs.ecr_registry }}/${{ inputs.image_name }}:${{ inputs.image_tag }}
