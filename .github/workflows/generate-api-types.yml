@@ -69,6 +69,13 @@ jobs:
             echo "Error: API_TYPES_PAT_TOKEN is not set or empty."
             exit 1
           fi
+
           git add ./frontend/types/api-types-v1.d.ts
-          git commit -m "feat: generated new API types"
-          git push https://x-access-token:${API_TYPES_PAT_TOKEN}@github.com/jst-seminar-rostlab-tum/eutop-mediamind.git HEAD:master
+              
+          if git diff --staged --quiet; then
+            echo "No changes detected in API types file. Skipping commit and push step."
+          else
+            echo "Changes detected. Committing and pushing..."
+            git commit -m "feat: generated new API types"
+            git push https://x-access-token:${API_TYPES_PAT_TOKEN}@github.com/jst-seminar-rostlab-tum/eutop-mediamind.git HEAD:master
+          fi
