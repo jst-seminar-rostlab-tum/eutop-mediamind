@@ -176,7 +176,6 @@ export function DataTableMailing({ name, dataArray }: MailingTableProps) {
             <Trash2 className="mr-2 h-4 w-4" />
             Delete ({numSelectedRows})
           </Button>
-
         </div>
       </div>
       <ScrollArea className={"h-[400px]"}>

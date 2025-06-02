@@ -75,7 +75,6 @@ export function EditProfile({ profile, trigger }: EditProfileProps) {
             <Button type="submit">Save changes</Button>
           </DialogFooter>
         </ScrollArea>
-
       </DialogContent>
     </Dialog>
   );
