@@ -1,5 +1,0 @@
-.terraform/
-terraform.tfvars
-*.tfvars
-*.env
-secrets.json

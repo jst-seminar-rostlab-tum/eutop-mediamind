@@ -1,24 +1,37 @@
-import { Settings, User } from "lucide-react";
+import {
+  SignedOut,
+  SignInButton,
+  SignedIn,
+  UserButton,
+} from "@clerk/react-router";
+import { User } from "lucide-react";
 import { Button } from "~/components/ui/button";
-import { Link } from "react-router";
+import {
+  NEW_USER_SEARCH_PARAM_NAME,
+  useAuthorization,
+} from "~/hooks/use-authorization";
 
 export default function Header() {
+  useAuthorization();
+
   return (
-    <div className="p-4 w-full grid grid-cols-13 items-center gap-4">
-      <div className="col-span-3">
-        <img src="/MediaMind_Logo.svg" alt="MediaMind_Logo" width="200" />
-      </div>
-      <div className="col-span-10 flex justify-end gap-2">
-        <Button variant="outline">
-          <User className="mr-2" />
-          Login
+    <div className="p-4 w-full flex justify-between items-center">
+      <img src="/MediaMind_Logo.svg" alt="MediaMind_Logo" width={"180px"} />
+      <SignedOut>
+        <Button variant={"outline"} asChild>
+          <span>
+            <User />
+            {/* TODO: dashboard url */}
+            <SignInButton
+              forceRedirectUrl="/"
+              signUpForceRedirectUrl={`/?${NEW_USER_SEARCH_PARAM_NAME}=true`}
+            />
+          </span>
         </Button>
-        <Link to="/admin">
-          <Button variant="outline">
-            <Settings />
-          </Button>
-        </Link>
-      </div>
+      </SignedOut>
+      <SignedIn>
+        <UserButton />
+      </SignedIn>
     </div>
   );
 }
