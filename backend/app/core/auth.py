@@ -11,10 +11,10 @@ logger = get_logger(__name__)
 
 
 async def get_authenticated_user(
-    credentials: HTTPAuthorizationCredentials = Depends(security),
+    auth_credentials: HTTPAuthorizationCredentials = Depends(security),
 ):
     try:
-        token = credentials.credentials
+        token = auth_credentials.credentials
 
         # Step 1: Verify token
         user_claim = verify_token(

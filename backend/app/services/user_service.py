@@ -1,5 +1,5 @@
 from clerk_backend_api import Clerk
-from sqlalchemy import select
+from sqlalchemy import inspect, select
 from sqlalchemy.ext.asyncio import async_sessionmaker
 
 from app.core.config import configs
@@ -39,17 +39,19 @@ class UserService:
             existing_user = result.scalar_one_or_none()
 
             if existing_user:
-                # Check if any fields have changed
+                user_data = user_in.model_dump()
+                model_fields = {
+                    c.key for c in inspect(User).mapper.column_attrs
+                }
                 updated = False
-                if existing_user.email != user_in.email:
-                    existing_user.email = user_in.email
-                    updated = True
-                if existing_user.first_name != user_in.first_name:
-                    existing_user.first_name = user_in.first_name
-                    updated = True
-                if existing_user.last_name != user_in.last_name:
-                    existing_user.last_name = user_in.last_name
-                    updated = True
+
+                for field in model_fields:
+                    if (
+                        field in user_data
+                        and getattr(existing_user, field) != user_data[field]
+                    ):
+                        setattr(existing_user, field, user_data[field])
+                        updated = True
 
                 if updated:
                     session.add(existing_user)
@@ -58,7 +60,7 @@ class UserService:
 
                 return existing_user
 
-            # Create new user if not found
+            # Create new user
             user = User(**user_in.model_dump())
             session.add(user)
             await session.commit()
