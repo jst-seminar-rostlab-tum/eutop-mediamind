@@ -127,7 +127,7 @@ class Configs(BaseSettings):
     CLERK_PUBLISHABLE_KEY: str | None = None
     CLERK_JWT_KEY: str | None = None
 
-    #Disable Authentication (local testing only!)
+    # Disable Authentication (local testing only!)
     DISABLE_AUTH: bool = False
 
 

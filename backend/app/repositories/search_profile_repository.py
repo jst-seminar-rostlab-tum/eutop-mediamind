@@ -14,13 +14,15 @@ class SearchProfileRepository:
 
     @staticmethod
     async def get_by_id(
-            search_profile_id: UUID, current_user
+        search_profile_id: UUID, current_user
     ) -> SearchProfile | None:
         user_id = current_user["id"]
         organization_id = current_user.get("organization_id")
 
         async with async_session() as session:
-            stmt = select(SearchProfile).options(selectinload(SearchProfile.users))
+            stmt = select(SearchProfile).options(
+                selectinload(SearchProfile.users)
+            )
 
             # Basic filter: match the search profile by ID
             base_condition = SearchProfile.id == search_profile_id
@@ -36,7 +38,9 @@ class SearchProfileRepository:
 
             # Only include organization condition if the user has one
             if organization_id is not None:
-                access_conditions.append(SearchProfile.organization_id == organization_id)
+                access_conditions.append(
+                    SearchProfile.organization_id == organization_id
+                )
 
             # Combine ID and access filters
             stmt = stmt.where(and_(base_condition, or_(*access_conditions)))
@@ -46,16 +50,18 @@ class SearchProfileRepository:
 
     @staticmethod
     async def get_accessible_profiles(
-            user_id: UUID, organization_id: UUID | None
+        user_id: UUID, organization_id: UUID | None
     ) -> list[SearchProfile]:
         async with async_session() as session:
-            stmt = select(SearchProfile).options(selectinload(SearchProfile.users))
+            stmt = select(SearchProfile).options(
+                selectinload(SearchProfile.users)
+            )
 
             if organization_id is not None:
                 stmt = stmt.where(
                     (
-                            (SearchProfile.is_public.is_(True))
-                            & (SearchProfile.organization_id == organization_id)
+                        (SearchProfile.is_public.is_(True))
+                        & (SearchProfile.organization_id == organization_id)
                     )
                     | (SearchProfile.users.any(id=user_id))
                 )
@@ -67,7 +73,7 @@ class SearchProfileRepository:
 
     @staticmethod
     async def update_by_id(
-            profile_id: UUID, data: SearchProfileUpdateRequest
+        profile_id: UUID, data: SearchProfileUpdateRequest
     ) -> Type[SearchProfile] | None:
         async with async_session() as session:
             profile = await session.get(SearchProfile, profile_id)
