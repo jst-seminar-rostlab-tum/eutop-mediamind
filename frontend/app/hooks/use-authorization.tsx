@@ -72,9 +72,8 @@ export const AuthorizationContextProvider = ({
       token &&
       isLoaded &&
       isSignedIn &&
-      ((user.updatedAt &&
-        Math.abs(Date.now() - user.updatedAt.getTime()) < 2000) ||
-        (user.createdAt && Date.now() - user.createdAt.getTime() < 2000))
+      user.lastSignInAt &&
+      Math.abs(Date.now() - user.lastSignInAt.getTime()) < 2000
     ) {
       authenticatedFetch(BASE_URL + "/users/sync", {
         method: "POST",
