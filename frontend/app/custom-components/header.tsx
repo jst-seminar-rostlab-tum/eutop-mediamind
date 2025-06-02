@@ -5,21 +5,30 @@ import {
   UserButton,
 } from "@clerk/react-router";
 import { User } from "lucide-react";
+import { Link, useSearchParams } from "react-router";
 import { Button } from "~/components/ui/button";
 import { useAuthorization } from "~/hooks/use-authorization";
 
+// TODO use dashboard
+const DEFAULT_REDIRECT_URL = "/";
+
 export default function Header() {
+  const [searchParams] = useSearchParams();
+  const redirectUrl = searchParams.get("redirect_url");
   useAuthorization();
 
   return (
     <div className="p-4 w-full flex justify-between items-center">
-      <img src="/MediaMind_Logo.svg" alt="MediaMind_Logo" width={"180px"} />
+      <Link to="/">
+        <img src="/MediaMind_Logo.svg" alt="MediaMind_Logo" width={"180px"} />
+      </Link>
       <SignedOut>
         <Button variant={"outline"} asChild>
           <span>
             <User />
-            {/* TODO: dashboard url */}
-            <SignInButton forceRedirectUrl="/" />
+            <SignInButton
+              forceRedirectUrl={redirectUrl ?? DEFAULT_REDIRECT_URL}
+            />
           </span>
         </Button>
       </SignedOut>

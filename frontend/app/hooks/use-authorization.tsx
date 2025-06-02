@@ -1,5 +1,6 @@
 import { useClerk, useSession, useUser } from "@clerk/react-router";
 import { useEffect } from "react";
+import { useLocation, useNavigate } from "react-router";
 
 // TODO: add mediamind backend request to return role/rights of user (+ within an organization)
 export const useAuthorization = () => {
@@ -7,8 +8,23 @@ export const useAuthorization = () => {
   const { session } = useSession();
   const clerkClient = useClerk();
 
+  const navigate = useNavigate();
+  const { pathname } = useLocation();
+
   console.log("clientId", clerkClient.client?.id);
   session?.getToken().then((t) => console.log("sessionToken", t));
+
+  // redirect to error page, when not signed in
+  useEffect(() => {
+    if (
+      isLoaded &&
+      !isSignedIn &&
+      !pathname.includes("error") &&
+      pathname !== "/"
+    ) {
+      navigate("error/401?redirect_url=" + pathname);
+    }
+  });
 
   // sync user, when signed up or when something was changed in the user profile
   useEffect(() => {

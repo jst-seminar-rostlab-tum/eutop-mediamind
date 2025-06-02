@@ -24,6 +24,7 @@ Sentry.init({
 
 import {
   isRouteErrorResponse,
+  Link,
   Links,
   Meta,
   Outlet,
@@ -36,9 +37,17 @@ import "./app.css";
 import { rootAuthLoader } from "@clerk/react-router/ssr.server";
 import { ClerkProvider } from "@clerk/react-router";
 import Header from "./custom-components/header";
+import { ErrorPage } from "./pages/error/error";
 
 export async function loader(args: Route.LoaderArgs) {
   return rootAuthLoader(args);
+}
+
+export function meta() {
+  return [
+    { title: "MediaMind" },
+    { name: "description", content: "Welcome to MediaMind!" },
+  ];
 }
 
 export const links: Route.LinksFunction = () => [
@@ -98,14 +107,13 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
   }
 
   return (
-    <main className="pt-16 p-4 container mx-auto">
-      <h1>{message}</h1>
-      <p>{details}</p>
-      {stack && (
-        <pre className="w-full p-4 overflow-x-auto">
-          <code>{stack}</code>
-        </pre>
-      )}
-    </main>
+    <>
+      <div className="p-4 w-full flex justify-between items-center">
+        <Link to="/">
+          <img src="/MediaMind_Logo.svg" alt="MediaMind_Logo" width={"180px"} />
+        </Link>
+      </div>
+      <ErrorPage title={message} message={details} stack={stack} />
+    </>
   );
 }
