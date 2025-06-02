@@ -1,6 +1,6 @@
-# EUTOP Mediamind backend
+# EUTOP Mediamind Backend
 
-## Getting started
+## Getting Started
 
 - Activate the virtual environment:
 
@@ -66,7 +66,7 @@ To build and run using Docker:
    docker run -e APP_CONFIG_JSON="$(cat secrets.json)" -p 8000:8000 mediamind-backend
    ```
 
-## App folder structure
+## App Folder Structure
 
 The folder structure was taken from [here](https://github.com/jujumilk3/fastapi-clean-architecture).
 
