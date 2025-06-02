@@ -9,7 +9,7 @@ WORKDIR /app
 
 # Install build dependencies
 RUN apt-get update 
-RUN apt-get install -y --no-install-recommends build-essential 
+RUN apt-get install -y --no-install-recommends build-essential postgresql libpq-dev
 RUN rm -rf /var/lib/apt/lists/*
 
 # Install Python dependencies
