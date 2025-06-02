@@ -46,7 +46,7 @@ class SubscriptionRepository:
     @staticmethod
     async def get_articles_with_empty_content(
         session: AsyncSession
-    ) -> dict:
+    ) -> list:
         stmt = (
             select(
                 Article.id, Article.url, Subscription.paywall,
@@ -58,22 +58,26 @@ class SubscriptionRepository:
         result = session.execute(stmt)
         rows = result.all()
 
-        grouped = {}
+        grouped = []
+        seen = {}
+
         for row in rows:
             article_id, url, paywall, config, sub_id, sub_name = row
-            key = (sub_id, sub_name)
-            if key not in grouped:
-                grouped[key] = {
+            if sub_id not in seen:
+                group = {
                     "subscription_id": sub_id,
                     "subscription_name": sub_name,
                     "paywall": paywall,
                     "config": config,
                     "content": []
                 }
-            grouped[key]["content"].append({
+                grouped.append(group)
+                seen[sub_id] = group
+            seen[sub_id]["content"].append({
                 "article_id": article_id,
                 "url": url
             })
+
         return grouped
 
     @staticmethod

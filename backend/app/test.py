@@ -1,8 +1,16 @@
+import asyncio
 from newsplease import NewsPlease
 from newspaper import Article
+from sqlmodel import Session
+from app.core.db import engine
+from app.repositories.subscription_repository import SubscriptionRepository
 
 
 if __name__ == "__main__":
-    a = NewsPlease.from_url(
-        "https://www.sueddeutsche.de/politik/krieg-in-der-ukraine-schwere-kaempfe-vor-neuen-ukraine-friedensgespraechen-dpa.urn-newsml-dpa-com-20090101-250601-930-616267")
-    print(a.maintext)
+    from newsplease.crawler.simple_crawler import SimpleCrawler
+    with Session(engine) as session:
+        a = asyncio.run(SubscriptionRepository.get_articles_with_empty_content(session))
+        print(a[0])
+        print(a[1])
+        print(a[2])
+

@@ -1,6 +1,7 @@
 import asyncio
 import random
 import time
+from typing import Any, List
 
 from sqlmodel import Session
 from app.repositories.subscription_repository import SubscriptionRepository
@@ -16,6 +17,7 @@ from app.services.web_harvester.url_extractor import NewsAPIUrlExtractor, UrlExt
 from app.models.article import Article
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
+from newsplease.crawler.simple_crawler import SimpleCrawler
 
 
 from sqlalchemy.exc import IntegrityError
@@ -66,39 +68,76 @@ class WebHarvester:
             for article in articles:
                 await self.save_article(subscription, article)
 
-    async def scrape_articles_with_empty_content(self):
+    async def scrape_articles(self):
         """
         Scrape articles that have empty content and save them.
         """
-        articles = await SubscriptionRepository.get_articles_with_empty_content(self.session)
-        if not articles:
+        articles_grouped_by_subscription = await SubscriptionRepository.get_articles_with_empty_content(self.session)
+        
+        if not articles_grouped_by_subscription:
             logger.info("No articles with empty content found.")
             return
+        
+        await self._start_scraping(articles_grouped_by_subscription)
 
-        for article_id, url, paywall, config, subscription_id, subscription_name in articles:
+    async def _start_scraping(self, articles_grouped_by_subscription):
+        tasks = []
+        #print(articles_grouped_by_subscription)
+        # Each subscription gets their own batch of articles
+        for subscription_id, subscription_name, paywall, config, articles in (
+            (d['subscription_id'], d['subscription_name'], d['paywall'], d['config'], d['content'])
+            for d in articles_grouped_by_subscription
+        ):
             if paywall:
-                logger.info(f"Skipping paywalled article: {url}")
-                context = self.handle_paywall_articles(
-                    config, subscription_name)
-                continue
+            # Handle paywall articles in parallel (with rate limiting)
+                print("ping ping2")
+            
+                #task = self._scrape_paywall_articles(subscription_id, subscription_name, config, articles)
             else:
-                logger.info(f"Scraping article with empty content: {url}")
-                try:
-                    raw_article = NewsPlease.from_url(url)
-                    article = Article(
-                        id=article_id,
-                        content=raw_article.maintext,
-                        author=raw_article.authors,
-                        language=raw_article.language,
-                        subscription_id=subscription_id
-                    )
-                    await SubscriptionRepository.update_article(self.session, article)
-                    logger.info(
-                        f"Article {url} scraped and updated successfully.")
-                    time.sleep(random.uniform(2, 4))
-                except Exception as e:
-                    logger.error(f"Failed to scrape article {url}: {e}")
-                    continue
+                print("ping ping ")
+                # Handle non-paywalled articles in parallel
+                task = asyncio.create_task(
+                    self._scrape_regular_articles(subscription_id, subscription_name, articles)
+                )
+                
+                tasks.append(task)
+
+        # Execute all subscription groups concurrently
+        results = await asyncio.gather(*tasks, return_exceptions=True)
+                # Log results
+        for result in results:
+            if isinstance(result, Exception):
+                logger.error(f"Error processing subscription: {result}")
+            else:
+                logger.info(f"Processed subscription: {result}")
+                
+    async def _scrape_regular_articles(self, subscription_id: int, subscription_name: str, articles: List[Any]) -> dict:
+        """
+        Scrape non-paywalled articles.
+        """
+        logger.info(f"Scraping {len(articles)} regular articles for {subscription_name}")
+        
+        for article in articles:
+            logger.info(f"Scraping article with empty content: {article['url']}")
+            try:
+                raw_article = NewsPlease.from_url(article["url"])
+                article = Article(
+                    id=article["article_id"],
+                    content=raw_article.maintext,
+                    author=raw_article.authors,
+                    language=raw_article.language,
+                    subscription_id=subscription_id
+                )
+                
+                await SubscriptionRepository.update_article(self.session, article)
+                time.sleep(20)
+            except Exception as e:
+                self.session.rollback()
+                logger.error(f"Failed to scrape article {article['url']}: {e}")
+        
+        
+        
+        
 
     async def handle_paywall_articles(self, config, subscription_name):
         """
@@ -114,53 +153,13 @@ class WebHarvester:
         wait = WebDriverWait(driver, 5)
         newspaper = hardcoded_login(driver, wait, key)
 
-    # async def run(self):
-    #     """
-    #     Run the harvester to fetch and save articles.
-    #     """
-    #     try:
-    #         await self.fetch_articles()
-    #         logger.info("Fetching and saving articles completed")
 
 
-    #     except Exception as e:
-    #         logger.error(f"Web harvester encountered an error: {e}")
-    #         raise e
 if __name__ == "__main__":
 
-    chrome_options = Options()
-    chrome_options.add_argument("--window-size=1200,800")
-    # chrome_options.add_argument("--start-maximized")
-    chrome_options.add_argument("--start-fullscreen")  # Optional
-    # <<< Keeps Chrome open after script ends
-    chrome_options.add_experimental_option("detach", True)
 
-    chrome_options.add_extension(
-        './app/services/web_harvester/utils/cookie-blocker.crx')
-    driver = webdriver.Chrome(options=chrome_options)
-
-    wait = WebDriverWait(driver, 5)
-    newspaper = hardcoded_login(driver, wait, "SZ - ePaper + Onlinezugang", paper={
-        "login_button": "//a[contains(@href, 'auth.sueddeutsche.de') and contains(text(), 'Anmelden')]",
-        "user_input": "//input[@id='login' and @name='email']",
-        "password_input": "//input[@id='current-password' and @name='current-password']",
-        "submit_button": "//button[@type='submit' and contains(text(), 'Einloggen')]",
-        "logout_button": "//a[contains(@href, '/abmelden')]"
-    })
-    if newspaper:
-        driver.get(
-            "https://www.welt.de/regionales/hessen/article256176216/nach-sechs-jahren-ebbe-fraport-macht-hoffnung-auf-dividende.html")
-        html = driver.page_source
-
-        # Save to local file
-        with open("sueddeutsche_article.html", "w", encoding="utf-8") as f:
-            f.write(html)
-        a = NewsPlease.from_html(
-            driver.page_source)
-        print(a.maintext)
-        print(a.title)
-
-    """ with Session(engine) as session:
+    with Session(engine) as session:
         harvester = WebHarvester(session)
-        a = asyncio.run(harvester.fetch_articles())
-        print(len(a)) """
+        print("test")
+        a = asyncio.run(harvester.scrape_articles())
+        print(a)
