@@ -26,7 +26,7 @@ async def sync_user_with_clerk(user_data=Depends(get_authenticated_user)):
         clerk_id=user_data["id"],
         email=user_data["email"],
         first_name=user_data.get("first_name"),
-        last_name=user_data.get("first_name"),
+        last_name=user_data.get("last_name"),
         is_superuser=False,
         organization_id=None,
     )
