@@ -22,7 +22,6 @@ async def get_current_user_info(current_user=Depends(get_authenticated_user)):
 
 @router.post("/sync", response_model=dict)
 async def sync_user_with_clerk(user_data=Depends(get_authenticated_user)):
-    logger.info(user_data)
     user_create = UserCreate(
         clerk_id=user_data["id"],
         email=user_data["email"],

@@ -48,12 +48,6 @@ class UserUpdateMe(SQLModel):
     email: EmailStr | None = Field(default=None, max_length=255)
 
 
-# Probably not needed
-class UpdatePassword(SQLModel):
-    current_password: str = Field(min_length=8, max_length=40)
-    new_password: str = Field(min_length=8, max_length=40)
-
-
 # Database model, table inferred from class name
 class User(UserBase, table=True):
     __tablename__ = "users"
