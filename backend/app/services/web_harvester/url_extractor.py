@@ -6,6 +6,8 @@ import requests
 from eventregistry import EventRegistry, QueryArticlesIter
 from app.core.logger import get_logger
 from app.core.config import configs
+from app.models.article import Article
+from app.models.subscription import Subscription
 
 logger = get_logger(__name__)
 
@@ -14,14 +16,15 @@ class UrlExtractor(ABC):
     @abstractmethod
     def extract_article_urls(
         self,
-        news_url: str,
+        subscription: Subscription,
         limit: int = 50,
         date_start: str = None,
         date_end: str = None
-    ) -> List[str]:
+    ) -> List[Article]:
         """
-        Given a list of news URLs, extract and return a list of sub-URLs that are news articles,
-        optionally filtered by a date range.
+        Given a Subscription, extract and returns a list of Articles,
+        optionally filtered by a date range. If no date range is provided,
+        it returns the most recent articles up to the specified limit.
 
         :param news_url: A list of news URLs to extract article links from.
         :param limit: The maximum number of article URLs to return.
@@ -33,54 +36,70 @@ class UrlExtractor(ABC):
 
 
 class NewsAPIUrlExtractor(UrlExtractor):
+    def __init__(self):
+        """
+        Initializes the NewsAPIUrlExtractor with the necessary configurations.
+        """
+        if not configs.NEWSAPIAI_API_KEY:
+            raise ValueError("NEWSAPIAI_API_KEY is not set in the configuration.")
+        logger.info("NewsAPIUrlExtractor initialized with API key.")
+        self.api_key = configs.NEWSAPIAI_API_KEY
+    
     def extract_article_urls(
         self,
-        news_url: str,
+        subscription: Subscription,
         limit: int = 50,
         date_start: str = None,
         date_end: str = None
-    ) -> List[str]:
+    ) -> List[Article]:
         try:
-            er = EventRegistry(apiKey=configs.NEWSAPIAI_API_KEY)
+            er = EventRegistry(apiKey=self.api_key)
         except Exception as e:
             logger.error(f"Failed to initialize EventRegistry: {e}")
             return []
 
-        query = {
-            "$query": {
-                "$and": [
-                    {"$or": [{"sourceUri": news_url}]},
-                    {
-                        "$or": [
-                            {"categoryUri": "news/Environment"},
-                            {"categoryUri": "news/Business"},
-                            {"categoryUri": "news/Health"},
-                            {"categoryUri": "news/Politics"},
-                            {"categoryUri": "news/Technology"},
-                            {"categoryUri": "news/Science"},
-                        ]
-                    },
-                    {"dateStart": date_start, "dateEnd": date_end},
+        newsapi_id = subscription.newsapi_id
+        if not newsapi_id:
+            logger.error(f"{subscription.name} does not have a NewsAPI ID.")
+            return []
+        
+        query_conditions = [
+            {"$or": [{"sourceUri": newsapi_id}]},
+            {
+                "$or": [
+                    {"categoryUri": "news/Environment"},
+                    {"categoryUri": "news/Business"},
+                    {"categoryUri": "news/Health"},
+                    {"categoryUri": "news/Politics"},
+                    {"categoryUri": "news/Technology"},
+                    {"categoryUri": "news/Science"},
                 ]
             }
-        }
+        ]
+        
+        if date_start and date_end:
+            query_conditions.append({"dateStart": date_start, "dateEnd": date_end})
 
+        query = {
+            "$query": {
+                "$and": query_conditions
+            }
+        }
+        
         q = QueryArticlesIter.initWithComplexQuery(query)
 
         articles = []
         for article in q.execQuery(er, maxItems=limit):
             articles.append(
-                {
-                    "title": article.get("title"),
-                    "url": article.get("url"),
-                    "datetime": article.get("dateTime"),
-                    "author": article.get("author", None),
-                }
+            Article(
+                title=article.get("title"),
+                url=article.get("url"),
+                published_at=article.get("dateTime"),
+                author=article.get("author", None),
+            )
             )
 
         logger.info(f"Number of articles: {len(articles)}")
-        for a in articles:
-            logger.debug(f"{a['title']} {a['url']}")
 
         return articles
 
@@ -102,7 +121,7 @@ class NewsAPIUrlExtractor(UrlExtractor):
         url = 'https://newsapi.ai/api/v1/suggestSources'
         params = {
             'prefix': domain,
-            'apiKey': configs.NEWSAPIAI_API_KEY
+            'apiKey': self.api_key
         }
 
         try:
@@ -134,7 +153,12 @@ class NewsAPIUrlExtractor(UrlExtractor):
 
 if __name__ == "__main__":
     extractor = NewsAPIUrlExtractor()
-    urls = extractor.get_best_matching_source(
-        "https://www.tagesschau.de/ukraine/ukraine-krieg-100.html"
+    urls = extractor.extract_article_urls(
+        subscription=Subscription(
+            id="12345",
+            name="Example Subscription",
+            newsapi_id="topagrar.com"
+        ),
+        limit=10
     )
     print(urls)  # This will print the extracted article URLs.

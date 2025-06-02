@@ -28,8 +28,13 @@ def init_db(session: Session) -> None:
 
 
 def seed_subscriptions(session: Session) -> None:
-    """Seed initial subscriptions data"""
+    """Seed initial subscriptions data if table is empty"""
     from app.models.subscription import Subscription
+
+    # Check if table is empty
+    if session.query(Subscription).first():
+        logger.info("Subscriptions table already seeded. Skipping seeding.")
+        return
 
     # Load seed data from JSON file
     seed_file_path = os.path.abspath("./data/subscriptions.json")

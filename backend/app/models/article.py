@@ -21,7 +21,7 @@ class Article(SQLModel, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     title: str = Field(max_length=255)
     content: str = Field(nullable=True)
-    url: str = Field(max_length=255)
+    url: str = Field(max_length=255, unique=True)
     author: str = Field(max_length=255, nullable=True)
     published_at: datetime = Field()
     language: str = Field(max_length=255, nullable=True)

@@ -254,7 +254,7 @@
   {
     "name": "Top Agrar",
     "domain": "topagrar.com",
-    "paywall": false,
+    "paywall": true,
     "login_works": null,
     "newsapi_id": "topagrar.com"
   }
