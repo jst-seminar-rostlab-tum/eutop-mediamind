@@ -14,22 +14,25 @@ async def get_authenticated_user(
     auth_credentials: HTTPAuthorizationCredentials = Depends(security),
 ):
     try:
-        token = auth_credentials.credentials
+        if configs.DISABLE_AUTH:
+            user_id = "user_2xd0q4SUzIlYIZZnUZ2UmNmHz8n"
+        else:
+            token = auth_credentials.credentials
 
-        # Step 1: Verify token
-        user_claim = verify_token(
-            token,
-            VerifyTokenOptions(
-                secret_key=configs.CLERK_SECRET_KEY,
-            ),
-        )
-
-        user_id = user_claim["sub"]
-
-        if not user_id:
-            raise HTTPException(
-                status_code=401, detail="Missing user ID in token"
+            # Step 1: Verify token
+            user_claim = verify_token(
+                token,
+                VerifyTokenOptions(
+                    secret_key=configs.CLERK_SECRET_KEY,
+                ),
             )
+
+            user_id = user_claim["sub"]
+
+            if not user_id:
+                raise HTTPException(
+                    status_code=401, detail="Missing user ID in token"
+                )
 
         # Step 2: Use Clerk SDK to fetch the user
         async with Clerk(bearer_auth=configs.CLERK_SECRET_KEY) as clerk:
