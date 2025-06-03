@@ -52,6 +52,7 @@ class Configs(BaseSettings):
         ] + [self.FRONTEND_HOST]
 
     PROJECT_NAME: str = "mediamind"
+    FERNET_KEY: str = "changethis"
     SENTRY_DSN: HttpUrl | None = None
     POSTGRES_SERVER: str = "localhost"
     POSTGRES_PORT: int = 5432
@@ -114,6 +115,7 @@ class Configs(BaseSettings):
     def _enforce_non_default_secrets(self) -> Self:
         self._check_default_secret("SECRET_KEY", self.SECRET_KEY)
         self._check_default_secret("POSTGRES_PASSWORD", self.POSTGRES_PASSWORD)
+        self._check_default_secret("FERNET_KEY", self.FERNET_KEY)
         self._check_default_secret(
             "FIRST_SUPERUSER_PASSWORD", self.FIRST_SUPERUSER_PASSWORD
         )
