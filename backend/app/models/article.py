@@ -7,6 +7,7 @@ from sqlmodel import Field, Relationship, SQLModel
 from app.models.associations import (
     ArticleKeywordLink,
 )
+from sqlalchemy import Column, Text
 
 if TYPE_CHECKING:
     from app.models.keyword import Keyword
@@ -26,7 +27,7 @@ class Article(SQLModel, table=True):
     published_at: datetime
     language: str
     category: str
-    summary: str | None = Field(default=None, max_length=255)
+    summary: str | None = Field(default=None, sa_column=Column(Text))
     # vector_embedding
     subscription_id: uuid.UUID = Field(
         foreign_key="subscriptions.id", nullable=False, index=True
