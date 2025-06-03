@@ -9,7 +9,7 @@ WORKDIR /app
 
 # Install build dependencies
 RUN apt-get update 
-RUN apt-get install -y --no-install-recommends build-essential 
+RUN apt-get install -y --no-install-recommends build-essential postgresql libpq-dev
 RUN rm -rf /var/lib/apt/lists/*
 
 # Install Python dependencies
@@ -28,9 +28,21 @@ WORKDIR /app
 # Copy installed Python packages from builder
 COPY --from=builder /install /usr/local
 
+# Create logs directory and set proper permissions
+RUN mkdir -p /app/logs && \
+    chown -R appuser:appuser /app && \
+    chmod -R 755 /app/logs
+
 # Copy application code
 COPY . .
 
+# Copy entrypoint and set permissions/install jq BEFORE switching user
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh && \
+    apt-get update && \
+    apt-get install -y jq && \
+    rm -rf /var/lib/apt/lists/*
+    
 # Set permissions and switch to non-root user
 RUN chown -R appuser:appuser /app
 USER appuser
@@ -38,5 +50,5 @@ USER appuser
 # Expose port if needed (e.g. for web app)
 EXPOSE 8000
 
-# Set the default command (customize if needed)
+ENTRYPOINT ["/entrypoint.sh"]
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
