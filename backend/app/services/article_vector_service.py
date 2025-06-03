@@ -26,26 +26,38 @@ class ArticleVectorService:
 
         self._qdrant_client = QdrantClient(
             url=configs.QDRANT_HOST,
-            api_key=configs.QDRANT_API_KEY,
-            prefer_grpc=True
+            api_key=configs.QDRANT_API_KEY
         )
 
-        self.create_collection(self.collection_name)
-        self.vector_store: QdrantVectorStore = self.init_vector_store(collection_name=self.collection_name)
+        self._ensure_collection(self.collection_name)
 
-    def init_vector_store(self, collection_name: str):
-        """
-        Initialize the Qdrant vector store with the specified collection name.
-        """
-        return QdrantVectorStore(
+        self.vector_store: QdrantVectorStore = QdrantVectorStore(
             client=self._qdrant_client,
-            collection_name=collection_name,
+            collection_name=self.collection_name,
             embedding=self._embeddings,
             sparse_embedding=self._sparse_embeddings,
             retrieval_mode=RetrievalMode.HYBRID,
             vector_name="dense",
             sparse_vector_name="sparse"
         )
+
+
+    def _ensure_collection(self, collection_name: str) -> None:
+
+        try:
+            if not self._qdrant_client.collection_exists(
+                collection_name=collection_name
+            ):
+                self._qdrant_client.create_collection(
+                    collection_name=collection_name,
+                    vectors_config={"dense": VectorParams(size=3072, distance=Distance.COSINE)},
+                    sparse_vectors_config={
+                        "sparse": SparseVectorParams(index=models.SparseIndexParams(on_disk=False))
+                    },
+                )
+        except Exception as e:
+            pass
+
 
     def create_collection(self, collection_name: str):
         """
