@@ -44,8 +44,7 @@ jobs:
         working-directory: ./backend
 
       - name: Copy env
-        run: cp .env.example .env
-        working-directory: ./backend
+        run: cp .backend/.env.example .backend/scripts/.env
 
       - name: Extract OpenAPI spec
         run: python extract-openapi.py app.main:app --app-dir ../ --out /tmp/openapi.json
