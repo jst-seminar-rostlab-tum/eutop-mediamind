@@ -28,7 +28,7 @@ export const AuthorizationContextProvider = ({
   children,
 }: PropsWithChildren) => {
   const [token, setToken] = useState<string | undefined>();
-  const { isSignedIn, user, isLoaded } = useUser();
+  const { isSignedIn, isLoaded } = useUser();
   const { session } = useSession();
 
   const navigate = useNavigate();
@@ -43,7 +43,7 @@ export const AuthorizationContextProvider = ({
       const [resource, config = {}] = args;
       const headers = {
         ...config.headers,
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${await session?.getToken()}`,
       };
 
       return fetch(resource, {
@@ -51,7 +51,7 @@ export const AuthorizationContextProvider = ({
         headers,
       }).then((res) => res.json());
     },
-    [token],
+    [session?.getToken],
   );
 
   // redirect to error page, when not signed in
@@ -68,18 +68,13 @@ export const AuthorizationContextProvider = ({
 
   // sync user, when signed up or when something was changed in the user profile
   useEffect(() => {
-    if (
-      token &&
-      isLoaded &&
-      isSignedIn &&
-      user.lastSignInAt &&
-      Math.abs(Date.now() - user.lastSignInAt.getTime()) < 2000
-    ) {
-      authenticatedFetch(BASE_URL + "/users/sync", {
+    if (isLoaded && isSignedIn) {
+      console.log("called");
+      authenticatedFetch(BASE_URL + "/api/v1/users/sync", {
         method: "POST",
       });
     }
-  }, [user, isLoaded, isSignedIn, token]);
+  }, [isLoaded, isSignedIn]);
 
   const value: UseAuthorizationReturn = {
     sessionToken: token,

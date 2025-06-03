@@ -7,6 +7,7 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
+  useLocation,
 } from "react-router";
 import type { Route } from "./+types/root";
 import "./app.css";
@@ -15,7 +16,10 @@ import { ClerkProvider } from "@clerk/react-router";
 import Header from "./custom-components/header";
 import { ErrorPage } from "./pages/error/error";
 import { useEffect } from "react";
-import { AuthorizationContextProvider } from "./hooks/use-authorization";
+import {
+  AuthorizationContextProvider,
+  useAuthorization,
+} from "./hooks/use-authorization";
 
 export async function loader(args: Route.LoaderArgs) {
   return rootAuthLoader(args);
@@ -77,6 +81,16 @@ export function Layout({ children }: { children: React.ReactNode }) {
   );
 }
 
+const OutletWrapper = () => {
+  const { sessionToken } = useAuthorization();
+  const { pathname } = useLocation();
+
+  const isProtectedPath = pathname !== "/" && !pathname.includes("error");
+
+  // ensure that no requests are sent before the authentication with clerk is completed (only for protected paths)
+  return (sessionToken || !isProtectedPath) && <Outlet />;
+};
+
 export default function App({ loaderData }: Route.ComponentProps) {
   useEffect(() => {
     // see https://docs.sentry.io/platforms/javascript/guides/react-router/data-management/data-collected/ for more info
@@ -106,7 +120,7 @@ export default function App({ loaderData }: Route.ComponentProps) {
     <ClerkProvider loaderData={loaderData}>
       <AuthorizationContextProvider>
         <Header />
-        <Outlet />
+        <OutletWrapper />
       </AuthorizationContextProvider>
     </ClerkProvider>
   );
