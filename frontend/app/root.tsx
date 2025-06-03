@@ -1,27 +1,4 @@
 import * as Sentry from "@sentry/react";
-
-// see https://docs.sentry.io/platforms/javascript/guides/react-router/data-management/data-collected/ for more info
-Sentry.init({
-  dsn: "https://852023ec5d9fe86c64eed907e04346e4@o4509334816489472.ingest.de.sentry.io/4509334885564496",
-  sendDefaultPii: true,
-  integrations: [
-    Sentry.browserTracingIntegration(),
-    Sentry.replayIntegration(),
-    Sentry.feedbackIntegration({
-      colorScheme: "system",
-    }),
-  ],
-  tracesSampleRate: 1.0,
-  tracePropagationTargets: [
-    "localhost",
-    /^https:\/\/eutop-mediamind-backend\.vercel\.app\/api/,
-  ],
-  // Session Replay
-  replaysSessionSampleRate: 0.1,
-  replaysOnErrorSampleRate: 1.0,
-  environment: import.meta.env.MODE,
-});
-
 import {
   isRouteErrorResponse,
   Links,
@@ -30,9 +7,9 @@ import {
   Scripts,
   ScrollRestoration,
 } from "react-router";
-
 import type { Route } from "./+types/root";
 import "./app.css";
+import { useEffect } from "react";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -48,6 +25,8 @@ export const links: Route.LinksFunction = () => [
 ];
 
 export function Layout({ children }: { children: React.ReactNode }) {
+  const hotjarId = import.meta.env.VITE_HOTJAR_TAG;
+
   return (
     <html lang="en">
       <head>
@@ -55,6 +34,22 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <Meta />
         <Links />
+        {/* Hotjar tracking tag */}
+        {hotjarId && (
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `(function (c, s, q, u, a, r, e) {
+                c.hj=c.hj||function(){(c.hj.q=c.hj.q||[]).push(arguments)};
+                c._hjSettings = { hjid: a };
+                r = s.getElementsByTagName('head')[0];
+                e = s.createElement('script');
+                e.async = true;
+                e.src = q + c._hjSettings.hjid + u;
+                r.appendChild(e);
+              })(window, document, 'https://static.hj.contentsquare.net/c/csq-', '.js', ${hotjarId});`,
+            }}
+          />
+        )}
       </head>
       <body>
         {children}
@@ -66,6 +61,30 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
+  useEffect(() => {
+    // see https://docs.sentry.io/platforms/javascript/guides/react-router/data-management/data-collected/ for more info
+    Sentry.init({
+      dsn: "https://852023ec5d9fe86c64eed907e04346e4@o4509334816489472.ingest.de.sentry.io/4509334885564496",
+      sendDefaultPii: true,
+      integrations: [
+        Sentry.browserTracingIntegration(),
+        Sentry.replayIntegration(),
+        Sentry.feedbackIntegration({
+          colorScheme: "system",
+        }),
+      ],
+      tracesSampleRate: 1.0,
+      tracePropagationTargets: [
+        "localhost",
+        /^https:\/\/eutop-mediamind-backend\.vercel\.app\/api/,
+      ],
+      // Session Replay
+      replaysSessionSampleRate: 0.1,
+      replaysOnErrorSampleRate: 1.0,
+      environment: import.meta.env.MODE,
+    });
+  }, []);
+
   return <Outlet />;
 }
 
