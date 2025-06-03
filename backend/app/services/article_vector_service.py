@@ -1,3 +1,4 @@
+import asyncio
 from typing import List
 import uuid
 
@@ -9,8 +10,10 @@ from qdrant_client.http.models import Distance, SparseVectorParams, VectorParams
 from langchain_qdrant import FastEmbedSparse, QdrantVectorStore, RetrievalMode
 from langchain.indexes import SQLRecordManager
 
+
 from app.core.config import configs
 from app.models import Article
+from app.repositories.article_repository import ArticleRepository
 
 
 class ArticleVectorService:
@@ -102,8 +105,42 @@ class ArticleVectorService:
 
         return self.vector_store.similarity_search_with_score(query=query, score_threshold=score_threshold)
 
+    def run_save_articles_to_vector_store(self) -> None:
+        """
+        Run the functionality to read articles from the database and add them to the vector store.
+        """
+        set_of = 0
+        while True:
+            articles = ArticleRepository.list_articles(limit=100, set_of=set_of)
+            if not articles:
+                if set_of == 0:
+                    print("No articles found in the database.")
+                break
 
-if __name__ == "__main__":
+            print(f"Found {len(articles)} articles in batch {set_of + 1} to add to the vector store.")
+            self.add_articles(articles)
+            set_of += 1
+
+        print("All articles have been added to the vector store.")
+
+    def run_assign_articles_to_keywords(self) -> None:
+        pass
+
+    def run(self) -> None:
+        """
+        Run the service functionality to read articles from the database and add them to the vector store.
+        Then assign the articles to the keywords based on their vector similarity.
+        """
+        self.run_save_articles_to_vector_store()
+        self.run_assign_articles_to_keywords()
+
+
+
+
+
+def test_run_():
+
+
     service = ArticleVectorService()
     print("ArticleVectorService initialized with OpenAI embeddings and sparse embeddings.")
     service.create_collection("my_documents")
@@ -113,17 +150,82 @@ if __name__ == "__main__":
     res = service.get_list_of_collections()
 
     test_articles = [
-        Article(id=str(uuid.uuid4()), title="Test Article 1", content="This is the content of test article 1.",
+        Article(id="3d8b0ee9-3f55-445e-b95b-d9cdca9477fe", title="Test Article 1",
+                content="This is the content of test article 1.",
                 url="http://example.com/article1", author="Author 1", published_at="2023-10-01T00:00:00Z",
                 language="en", category="test", summary="This is a summary of test article 1.",
-                subscription_id="sub_123"),
-        Article(id=str(uuid.uuid4()), title="Test Article 2", content="This is the content of test article 2.",
+                subscription_id=str(uuid.uuid4())),
+        Article(id="8e4790c7-e464-47de-8e5d-0aee2da78948", title="Test Article 2",
+                content="This is the content of test article 2.",
                 url="http://example.com/article2", author="Author 2", published_at="2023-10-02T00:00:00Z",
                 language="en", category="test", summary="This is a summary of test article 2.",
-                subscription_id="sub_456")
+                subscription_id=str(uuid.uuid4()))
     ]
 
-    #service.add_articles(test_articles)
+    service.add_articles(test_articles)
     res = service.retrieve_by_similarity("test article")
     print(res)
     # You can add more functionality to test the service here.
+
+    """
+    for i in test_articles:
+        ArticleRepository.create_article(i)
+
+    res = ArticleRepository.list_articles()
+    """
+    print(res)
+
+import asyncio
+from uuid import UUID
+from app.models.article import Article
+from app.repositories.article_repository import ArticleRepository
+from sqlmodel import Session
+
+from app.core.db import engine
+
+
+
+
+
+"""
+
+from uuid import UUID
+from app.models.article import Article
+from app.repositories.article_repository import ArticleRepository
+
+def main():
+    # 1) Neuen Artikel anlegen
+    art = Article(
+        id=UUID("3d8b0ee9-3f55-445e-b95b-d9cdca9477fe"),
+        title="Test",
+        content="...",
+        url="http://...",
+        author="Author",
+        published_at="2023-10-01T00:00:00Z",
+        language="en",
+        category="test",
+        summary="",
+        subscription_id=None
+
+    )
+
+    # Artikel erstellen
+    created = ArticleRepository.create_article(art)
+    print("Created:", created)
+
+    # Alle Artikel abrufen
+    all_articles = ArticleRepository.list_articles()
+    print("All:", all_articles)
+
+    # Einzelnen Artikel holen
+    fetched = ArticleRepository.get_article_by_id(art.id)
+    print("Fetched:", fetched)
+
+    # Artikel updaten
+    art.title = "Updated Title"
+    updated = ArticleRepository.update_article(art)
+    print("Updated:", updated)
+"""
+if __name__ == "__main__":
+    test_run_()
+
