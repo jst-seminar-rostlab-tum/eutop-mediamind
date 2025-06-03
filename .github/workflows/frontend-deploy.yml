@@ -12,18 +12,3 @@ env:
 jobs:
   frontend-premerge:
     uses: ./.github/workflows/frontend-premerge.yml
-
-  # TODO uncomment when we will have a CR
-  # docker-build-push:
-  #   needs: backend-premerge
-  #   uses: ./.github/workflows/docker-build-push.yml
-  #   with:
-  #     image_name: ${{ DOCKER_IMAGE }}
-  #     image_tag: pr-${{ github.event.pull_request.number || github.run_number }}
-  #     dockerfile_path: ${{ DOCKERFILE_PATH }}
-  #     context: ${{ DOCKER_CONTEXT }}
-  #
-  #   secrets:
-  #     registry_username: ${{ secrets.DOCKER_USERNAME }}
-  #     registry_password: ${{ secrets.DOCKER_PASSWORD }}
-  #
