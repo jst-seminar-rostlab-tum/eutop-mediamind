@@ -9,6 +9,7 @@ from langchain_openai import ChatOpenAI
 from app.core.config import configs
 from app.models.article import Article
 from app.repositories.article_repository import ArticleRepository
+from starlette.concurrency import run_in_threadpool
 
 
 class ArticleSummaryService:
@@ -57,7 +58,7 @@ class ArticleSummaryService:
     @staticmethod
     async def run(page_size: int = 100) -> None:
         """
-        Fetches all articles in batches, generates summaries for each,
+        Fetches all articles without a summary in batches, generates summaries for each,
         and updates the `summary` field in the database.
 
         Args:
@@ -65,12 +66,22 @@ class ArticleSummaryService:
         """
         page = 0
         while True:
-            articles = await ArticleRepository.list_articles(limit=page_size, offset=0, set_of=page)
+            offset = page * page_size
+            articles = await ArticleRepository.list_articles_without_summary(
+                limit=page_size, offset=offset
+            )
             if not articles:
                 break
 
             for article in articles:
-                summary = ArticleSummaryService.summarize_text(article.content)
-                await ArticleRepository.update_summary(article.id, summary)
+                try:
+                    # Run the blocking summarize_text in a threadpool to avoid blocking the event loop
+                    summary = await run_in_threadpool(
+                        ArticleSummaryService.summarize_text, article.content
+                    )
+                    await ArticleRepository.update_summary(article.id, summary)
+                except Exception:
+                    # Log the exception or handle it as needed, then continue with next article
+                    continue
 
             page += 1

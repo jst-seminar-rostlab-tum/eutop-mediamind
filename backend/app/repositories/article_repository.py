@@ -5,7 +5,7 @@ from sqlmodel import Session, select
 
 from app.models.article import Article
 from app.core.db import engine, async_session
-
+from sqlalchemy import or_
 
 class ArticleRepository:
     @staticmethod
@@ -83,3 +83,25 @@ class ArticleRepository:
             )
             result = await session.execute(statement)
             return result.scalars().all()
+
+    @staticmethod
+    async def list_articles_without_summary(limit: int = 100, offset: int = 0) -> Sequence[Article]:
+        """
+        List articles that have no summary yet, with pagination.
+        """
+        async with async_session() as session:
+            statement = (
+                select(Article)
+                .where(
+                    or_(
+                        Article.summary.is_(None),
+                        Article.summary == ""
+                    )
+                )
+                .limit(limit)
+                .offset(offset)
+            )
+            result = await session.execute(statement)
+            articles = result.scalars().all()
+            print(f"Found {len(articles)} articles without summary.")
+            return articles
