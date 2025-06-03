@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, BackgroundTasks
 
 from app.core.auth import get_authenticated_user
 from app.core.logger import get_logger
@@ -43,6 +43,20 @@ async def summarize_and_store_article(article_id: UUID):
         return "Article not found or could not be summarized"
 
     return updated_article
+
+@router.post("/summarize_all")
+async def summarize_all_articles(
+    background_tasks: BackgroundTasks,
+    page_size: int = 100
+):
+    """
+    Startet die Batch-Zusammenfassung im Hintergrund. Gibt sofort eine Bestätigung zurück.
+    """
+    # 1) Registrierung des Background-Tasks
+    background_tasks.add_task(ArticleSummaryService.run, page_size)
+
+    # 2) Sofortige Response
+    return {"detail": "Batch summarization wurde gestartet. Läuft im Hintergrund."}
 
 
 @router.get("", response_model=list[Article])

@@ -53,3 +53,24 @@ class ArticleSummaryService:
 
         summary = ArticleSummaryService.summarize_text(article.content)
         return await ArticleRepository.update_summary(article_id, summary)
+
+    @staticmethod
+    async def run(page_size: int = 100) -> None:
+        """
+        Fetches all articles in batches, generates summaries for each,
+        and updates the `summary` field in the database.
+
+        Args:
+            page_size (int): Number of articles to process in each batch.
+        """
+        page = 0
+        while True:
+            articles = await ArticleRepository.list_articles(limit=page_size, offset=0, set_of=page)
+            if not articles:
+                break
+
+            for article in articles:
+                summary = ArticleSummaryService.summarize_text(article.content)
+                await ArticleRepository.update_summary(article.id, summary)
+
+            page += 1
