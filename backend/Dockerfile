@@ -9,7 +9,7 @@ WORKDIR /app
 
 # Install build dependencies
 RUN apt-get update 
-RUN apt-get install -y --no-install-recommends build-essential 
+RUN apt-get install -y --no-install-recommends build-essential postgresql libpq-dev
 RUN rm -rf /var/lib/apt/lists/*
 
 # Install Python dependencies
@@ -27,6 +27,11 @@ WORKDIR /app
 
 # Copy installed Python packages from builder
 COPY --from=builder /install /usr/local
+
+# Create logs directory and set proper permissions
+RUN mkdir -p /app/logs && \
+    chown -R appuser:appuser /app && \
+    chmod -R 755 /app/logs
 
 # Copy application code
 COPY . .
