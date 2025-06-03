@@ -8,14 +8,17 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 WORKDIR /app
 
 # Install build dependencies
-RUN apt-get update 
-RUN apt-get install -y --no-install-recommends build-essential postgresql libpq-dev
-RUN rm -rf /var/lib/apt/lists/*
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    build-essential \
+    libpq-dev \
+    && rm -rf /var/lib/apt/lists/*
 
 # Install Python dependencies
 COPY requirements.txt .
-RUN pip install --upgrade pip
-RUN pip install --prefix=/install -r requirements.txt
+RUN --mount=type=cache,target=/root/.cache/pip \
+    pip install --upgrade pip && \
+    pip install --prefix=/install -r requirements.txt
 
 # ---------- Final stage ----------
 FROM python:${PYTHON_VERSION}-slim
@@ -24,6 +27,13 @@ FROM python:${PYTHON_VERSION}-slim
 RUN useradd -m -u 1000 appuser
 
 WORKDIR /app
+
+# Install runtime dependencies
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    libpq5 \
+    jq \
+    && rm -rf /var/lib/apt/lists/*
 
 # Copy installed Python packages from builder
 COPY --from=builder /install /usr/local
@@ -36,6 +46,10 @@ RUN mkdir -p /app/logs && \
 # Copy application code
 COPY . .
 
+# Copy entrypoint and set permissions
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+    
 # Set permissions and switch to non-root user
 RUN chown -R appuser:appuser /app
 USER appuser
@@ -43,5 +57,5 @@ USER appuser
 # Expose port if needed (e.g. for web app)
 EXPOSE 8000
 
-# Set the default command (customize if needed)
+ENTRYPOINT ["/entrypoint.sh"]
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]

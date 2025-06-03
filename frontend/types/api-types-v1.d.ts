@@ -55,7 +55,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/auth/signup": {
+    "/api/v1/users/sync": {
         parameters: {
             query?: never;
             header?: never;
@@ -64,8 +64,8 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Signup */
-        post: operations["signup_api_v1_auth_signup_post"];
+        /** Sync User With Clerk */
+        post: operations["sync_user_with_clerk_api_v1_users_sync_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -331,19 +331,6 @@ export interface components {
             /** Keywords */
             keywords: string[];
         };
-        /** UserCreate */
-        UserCreate: {
-            /** Email Address */
-            email_address: string;
-            /** Password */
-            password: string;
-            /** Username */
-            username: string;
-            /** First Name */
-            first_name?: string | null;
-            /** Last Name */
-            last_name?: string | null;
-        };
         /** ValidationError */
         ValidationError: {
             /** Location */
@@ -422,18 +409,14 @@ export interface operations {
             };
         };
     };
-    signup_api_v1_auth_signup_post: {
+    sync_user_with_clerk_api_v1_users_sync_post: {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UserCreate"];
-            };
-        };
+        requestBody?: never;
         responses: {
             /** @description Successful Response */
             200: {
@@ -441,16 +424,9 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": unknown;
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
                 };
             };
         };

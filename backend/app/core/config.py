@@ -35,9 +35,9 @@ class Configs(BaseSettings):
     SECRET_KEY: str = secrets.token_urlsafe(32)
     # 60 minutes * 24 hours * 8 days = 8 days
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 8
-    FRONTEND_HOST: str = "http://localhost:5173"
     ENVIRONMENT: Literal["local", "staging", "production"] = "local"
 
+    FRONTEND_HOST: str = "http://localhost:5173"
     BACKEND_CORS_ORIGINS: Annotated[
         list[AnyUrl] | str, BeforeValidator(parse_cors)
     ] = []
@@ -45,17 +45,19 @@ class Configs(BaseSettings):
     @computed_field  # type: ignore[prop-decorator]
     @property
     def all_cors_origins(self) -> list[str]:
+        if self.ENVIRONMENT == "local":
+            return ["*"]
         return [
             str(origin).rstrip("/") for origin in self.BACKEND_CORS_ORIGINS
         ] + [self.FRONTEND_HOST]
 
     PROJECT_NAME: str = "mediamind"
     SENTRY_DSN: HttpUrl | None = None
-    POSTGRES_SERVER: str
-    POSTGRES_PORT: int
-    POSTGRES_USER: str
-    POSTGRES_PASSWORD: str
-    POSTGRES_DB: str
+    POSTGRES_SERVER: str = "localhost"
+    POSTGRES_PORT: int = 5432
+    POSTGRES_USER: str = "postgres"
+    POSTGRES_PASSWORD: str = "postgres"
+    POSTGRES_DB: str = "test_db"
 
     @computed_field  # type: ignore[prop-decorator]
     @property
@@ -93,7 +95,7 @@ class Configs(BaseSettings):
 
     EMAIL_TEST_USER: EmailStr = "test@example.com"
     FIRST_SUPERUSER: EmailStr = "test@example.com"
-    FIRST_SUPERUSER_PASSWORD: str
+    FIRST_SUPERUSER_PASSWORD: str = "test_password"
 
     def _check_default_secret(self, var_name: str, value: str | None) -> None:
         if value == "changethis":
