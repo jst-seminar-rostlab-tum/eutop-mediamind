@@ -9,18 +9,21 @@ services:
       - qdrant_data:/qdrant/storage
 
   backend:
+    container_name: backend
     build:
       context: ../backend
       dockerfile: Dockerfile
-    container_name: backend
+    environment:
+      - COMPOSE_BAKE=true
+      - DOCKER_BUILDKIT=1
+    restart: always
+    depends_on:
+      - qdrant
     ports:
       - "8000:8000"
-    restart: always
     volumes:
       - ../backend:/app
       - backend_logs_volumes:/app/logs # persistent logs directory
-    depends_on:
-      - qdrant
     logging:
       driver: json-file
       options:
