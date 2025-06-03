@@ -36,7 +36,7 @@ class SearchProfiles:
         profile_id: UUID,
         data: SearchProfileUpdateRequest,
         current_user: dict,
-    ) -> dict | None:
+    ) -> SearchProfileUpdateRequest | None:
         profile = await SearchProfileRepository.get_by_id(profile_id)
 
         if not profile:
@@ -96,12 +96,11 @@ class SearchProfiles:
         profile_id: UUID,
         match_id: UUID,
         data: MatchFeedbackRequest,
-    ) -> bool:
-        match = await MatchRepository.update_match_feedback(
+    ) -> MatchDetailResponse | None:
+        return await MatchRepository.update_match_feedback(
             profile_id,
             match_id,
             comment=data.comment,
             reason=data.reason,
             ranking=data.ranking,
         )
-        return match is not None

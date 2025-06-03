@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 
 from app.core.auth import get_authenticated_user
 from app.core.logger import get_logger
-from app.models.user import UserCreate
+from app.models.user import User, UserCreate
 from app.services.user_service import UserService
 
 router = APIRouter(prefix="/users", tags=["users"])
@@ -10,17 +10,17 @@ router = APIRouter(prefix="/users", tags=["users"])
 logger = get_logger(__name__)
 
 
-@router.get("")
+@router.get("", response_model=list[User])
 async def list_users(_: Depends = Depends(get_authenticated_user)):
     return await UserService.list_users()
 
 
-@router.get("/me")
+@router.get("/me", response_model=User)
 async def get_current_user_info(current_user=Depends(get_authenticated_user)):
     return UserService.get_current_user_info(current_user)
 
 
-@router.post("/sync", response_model=dict)
+@router.post("/sync", response_model=User)
 async def sync_user_with_clerk(user_data=Depends(get_authenticated_user)):
     user_create = UserCreate(
         clerk_id=user_data["id"],
