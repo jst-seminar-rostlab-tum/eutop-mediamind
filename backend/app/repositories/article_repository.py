@@ -105,3 +105,22 @@ class ArticleRepository:
             articles = result.scalars().all()
             print(f"Found {len(articles)} articles without summary.")
             return articles
+
+    @staticmethod
+    async def list_articles_with_summary(limit: int = 100, offset: int = 0) -> Sequence[Article]:
+        """
+        Listet Artikel, bei denen das Feld `summary` nicht NULL und nicht leer ist,
+        mit Pagination (limit/offset).
+        """
+        async with async_session() as session:
+            statement = (
+                select(Article)
+                .where(
+                    Article.summary.isnot(None),
+                    Article.summary != ""
+                )
+                .limit(limit)
+                .offset(offset)
+            )
+            result = await session.execute(statement)
+            return result.scalars().all()
