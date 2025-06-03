@@ -34,6 +34,7 @@ class UserService:
                     if (
                         field in user_data
                         and getattr(existing_user, field) != user_data[field]
+                        and field != "organization_id"
                     ):
                         setattr(existing_user, field, user_data[field])
                         updated = True

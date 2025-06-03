@@ -39,7 +39,7 @@ class SearchProfiles:
         data: SearchProfileUpdateRequest,
         current_user: dict,
     ) -> SearchProfileUpdateRequest | None:
-        profile = await SearchProfileRepository.get_by_id(profile_id)
+        profile = await SearchProfileRepository.get_by_id(profile_id, current_user)
 
         if not profile:
             return None
