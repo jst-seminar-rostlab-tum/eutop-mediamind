@@ -1,0 +1,10 @@
+secrets.json
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.git/
+tests/
+data/
+*.md
+*.log

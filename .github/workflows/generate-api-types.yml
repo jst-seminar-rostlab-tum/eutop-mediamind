@@ -2,6 +2,11 @@ name: Generate API types
 
 on:
   workflow_call:
+    secrets:
+      API_TYPES_EMAIL:
+        required: true
+      API_TYPES_PAT_TOKEN:
+        required: true
 
 permissions:
   contents: write
@@ -11,49 +16,66 @@ jobs:
     runs-on: ubuntu-24.04
 
     steps:
-    - name: Checkout source code
-      uses: actions/checkout@v3
-      with:
-        persist-credentials: false
+      - name: Checkout source code
+        uses: actions/checkout@v3
+        with:
+          persist-credentials: false
 
-    - name: Configure Git
-      run: |
-        git config --global user.name 'API types'
-        git config --global user.email 'api-types@mediamind.eu'
+      - name: Configure Git
+        env:
+          API_TYPES_EMAIL: ${{ secrets.API_TYPES_EMAIL }}
+        run: |
+          if [ -z "${API_TYPES_EMAIL}" ]; then
+            echo "Error: API_TYPES_EMAIL is not set or empty."
+            exit 1
+          fi
+          git config --global user.name 'API types'
+          git config --global user.email ${API_TYPES_EMAIL}
 
-    - name: Setup Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: 3.13
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.13
 
-    - name: Install dependencies
-      run: |
+      - name: Install dependencies
+        run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-      working-directory: ./backend
+        working-directory: ./backend
 
-    - name: Extract OpenAPI spec
-      run: python extract-openapi.py --app-dir ../ app.main:app --out /tmp/openapi.json
-      working-directory: ./backend/scripts
+      - name: Extract OpenAPI spec
+        run: python extract-openapi.py app.main:app --app-dir ../ --out /tmp/openapi.json
+        working-directory: ./backend/scripts
 
-    - name: Setup Node
-      uses: actions/setup-node@v2
-      with:
-        node-version: 18
+      - name: Setup Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: 18
 
-    - name: Install openapi-typescript
-      run: |
-        npm install openapi-typescript typescript
+      - name: Install openapi-typescript
+        run: |
+          npm install openapi-typescript typescript
 
-    - name: Generate Typescript types
-      run: |
-        mkdir -p frontend/api-types/
-        npx openapi-typescript /tmp/openapi.json -o ./frontend/types/api-types-v1.d.ts
+      - name: Generate Typescript types
+        run: |
+          mkdir -p frontend/types/
+          npx openapi-typescript /tmp/openapi.json -o ./frontend/types/api-types-v1.d.ts
 
-    - name: Commit & Push changes
-      env:
-        API_TYPES_PAT_TOKEN: ${{ secrets.API_TYPES_PAT_TOKEN }}
-      run: |
-        git commit -am "feat: generated new API types"
-        git push https://x-access-token:${API_TYPES_PAT_TOKEN}@github.com/jst-seminar-rostlab-tum/eutop-mediamind.git HEAD:master
+      - name: Commit & Push changes
+        env:
+          API_TYPES_PAT_TOKEN: ${{ secrets.API_TYPES_PAT_TOKEN }}
+        run: |
+          if [ -z "${API_TYPES_PAT_TOKEN}" ]; then
+            echo "Error: API_TYPES_PAT_TOKEN is not set or empty."
+            exit 1
+          fi
 
+          git add ./frontend/types/api-types-v1.d.ts
+              
+          if git diff --staged --quiet; then
+            echo "No changes detected in API types file. Skipping commit and push step."
+          else
+            echo "Changes detected. Committing and pushing..."
+            git commit -m "feat: generated new API types"
+            git push https://x-access-token:${API_TYPES_PAT_TOKEN}@github.com/jst-seminar-rostlab-tum/eutop-mediamind.git HEAD:master
+          fi

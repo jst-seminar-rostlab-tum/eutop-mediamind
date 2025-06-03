@@ -4,28 +4,26 @@ on:
   push:
     branches:
       - master
-env:
-  DOCKER_IMAGE: eutop/backend 
-  DOCKERFILE_PATH: ./backend/Dockerfile
-  DOCKER_CONTEXT: ./backend
 
 jobs:
   backend-premerge:
     uses: ./.github/workflows/backend-premerge.yml
+
   api-types:
     uses: ./.github/workflows/generate-api-types.yml
+    secrets:
+      API_TYPES_EMAIL: ${{ secrets.API_TYPES_EMAIL }}
+      API_TYPES_PAT_TOKEN: ${{ secrets.API_TYPES_PAT_TOKEN }}
 
-  # TODO uncomment when we will have a CR
-  # docker-build-push:
-  #   needs: backend-premerge
-  #   uses: ./.github/workflows/docker-build-push.yml
-  #   with:
-  #     image_name: ${{ DOCKER_IMAGE }}
-  #     image_tag: pr-${{ github.event.pull_request.number || github.run_number }}
-  #     dockerfile_path: ${{ DOCKERFILE_PATH }}
-  #     context: ${{ DOCKER_CONTEXT }}
-  #
-  #   secrets:
-  #     registry_username: ${{ secrets.DOCKER_USERNAME }}
-  #     registry_password: ${{ secrets.DOCKER_PASSWORD }}
-  #
+  build-and-push:
+    uses: ./.github/workflows/docker-build-push.yml
+    with:
+      image_name: ecr-mediamind
+      image_tag: latest
+      dockerfile_path: ./backend/Dockerfile
+      context: ./backend
+      aws_region: eu-central-1
+      ecr_registry: 313193269185.dkr.ecr.eu-central-1.amazonaws.com
+    secrets:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
