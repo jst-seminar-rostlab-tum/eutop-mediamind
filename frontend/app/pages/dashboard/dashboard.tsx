@@ -9,9 +9,17 @@ import {
   BreadcrumbLink,
   BreadcrumbList,
 } from "~/components/ui/breadcrumb";
+import { useAuthorization } from "~/hooks/use-authorization";
+import { useQuery } from "types/api";
 
 export function DashboardPage() {
+  const { authorizationHeaders } = useAuthorization();
+  const { data, isLoading } = useQuery("/api/v1/search-profiles", {
+    headers: authorizationHeaders,
+  });
   const { data: profiles } = useSearchProfiles();
+
+  console.log(data, isLoading);
 
   return (
     <div className={" mx-auto w-full max-w-2xl xl:max-w-7xl mt-12"}>
