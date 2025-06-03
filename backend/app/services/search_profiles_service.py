@@ -29,7 +29,7 @@ class SearchProfiles:
         if not current_user.organization_id:
             return None
         profiles = await SearchProfileRepository.get_accessible_profiles(
-            current_user["id"], current_user["organization_id"]
+            current_user.id, current_user.organization_id
         )
         return profiles
 
@@ -39,7 +39,9 @@ class SearchProfiles:
         data: SearchProfileUpdateRequest,
         current_user: dict,
     ) -> SearchProfileUpdateRequest | None:
-        profile = await SearchProfileRepository.get_by_id(profile_id, current_user)
+        profile = await SearchProfileRepository.get_by_id(
+            profile_id, current_user
+        )
 
         if not profile:
             return None
