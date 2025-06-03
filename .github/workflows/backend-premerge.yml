@@ -79,7 +79,7 @@ jobs:
           pip install -r requirements.txt
           pip install pytest pytest-cov
 
-      - name: copy env
+      - name: Copy env
         run: cp .env.example .env
 
       - name: Run tests with coverage
