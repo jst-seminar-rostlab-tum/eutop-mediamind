@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from app.models import SearchProfile
+from app.models import SearchProfile, User
 from app.repositories.match_repository import MatchRepository
 from app.repositories.search_profile_repository import SearchProfileRepository
 from app.schemas.articles_schemas import (
@@ -24,8 +24,10 @@ class SearchProfiles:
 
     @staticmethod
     async def get_available_search_profiles(
-        current_user,
-    ) -> list[SearchProfile]:
+        current_user: User,
+    ) -> list[SearchProfile] | None:
+        if not current_user.organization_id:
+            return None
         profiles = await SearchProfileRepository.get_accessible_profiles(
             current_user["id"], current_user["organization_id"]
         )

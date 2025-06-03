@@ -12,7 +12,7 @@ async_session = async_sessionmaker(engine, expire_on_commit=False)
 
 class UserService:
     @staticmethod
-    async def list_users() -> list[User]:
+    async def list_users() -> list:
         async with Clerk(bearer_auth=configs.CLERK_SECRET_KEY) as clerk:
             return await clerk.users.list_async()
 
