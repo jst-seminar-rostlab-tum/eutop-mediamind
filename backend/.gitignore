@@ -135,6 +135,7 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+secrets.json
 
 # Spyder project settings
 .spyderproject
@@ -173,3 +174,9 @@ cython_debug/
 # PyPI configuration file
 .pypirc
 .vercel
+
+# MacOs Finder stuff:
+.DS_Store
+
+# For Testing Scrapers:
+newspapers_accounts.json

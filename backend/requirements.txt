@@ -1,6 +1,7 @@
 annotated-types==0.7.0
 anyio==4.9.0
 black==25.1.0
+clerk-backend-api==2.2.0
 click==8.1.8
 dotenv==0.9.9
 fastapi==0.115.12
@@ -9,7 +10,8 @@ flake8-isort==6.1.2
 h11==0.16.0
 httpx==0.28.1
 idna==3.10
-psycopg2-binary==2.9.10
+psycopg==3.2.9
+psycopg-c==3.2.9
 pydantic==2.11.4
 pydantic_core==2.33.2
 python-dotenv==1.1.0
@@ -20,9 +22,13 @@ starlette==0.46.2
 typing-inspection==0.4.0
 typing_extensions==4.13.2
 uvicorn==0.34.2
-Scrapy~=2.13.0
-beautifulsoup4~=4.13.4
-Crawl4AI~=0.6.3
-eventregistry~=9.1
-sentry-sdk~=2.20.0
-requests~=2.32.3
+sqlmodel==0.0.24
+sentry-sdk==2.20.0
+SQLAlchemy==2.0.41
+pydantic-settings==2.0
+pydantic[email]==2.11.4
+qdrant-client==1.14.2
+tenacity==9.1.2
+litellm==1.70.0
+sentence-transformers==4.1.0
+langchain==0.3.25
