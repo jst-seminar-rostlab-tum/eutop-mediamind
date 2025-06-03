@@ -17,11 +17,14 @@ type UseAuthorizationReturn = {
   authorizationHeaders: Record<string, string>;
 };
 
-const AuthorizationContext = createContext({
+const initialValue: UseAuthorizationReturn = {
   isLoaded: false,
   isSignedIn: false,
   authorizationHeaders: {},
-});
+  sessionToken: undefined,
+};
+
+const AuthorizationContext = createContext(initialValue);
 
 // TODO: add mediamind backend request to return role/rights of user (+ within an organization)
 export const AuthorizationContextProvider = ({
