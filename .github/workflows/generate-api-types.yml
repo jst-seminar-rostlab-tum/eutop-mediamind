@@ -43,6 +43,9 @@ jobs:
           pip install -r requirements.txt
         working-directory: ./backend
 
+      - name: Copy env
+        run: cp .env.example .env
+
       - name: Extract OpenAPI spec
         run: python extract-openapi.py app.main:app --app-dir ../ --out /tmp/openapi.json
         working-directory: ./backend/scripts
