@@ -1,5 +1,5 @@
 import asyncio
-from typing import List
+from typing import List, Optional
 import uuid
 
 from langchain_openai import OpenAIEmbeddings
@@ -9,7 +9,7 @@ from qdrant_client import QdrantClient, models
 from qdrant_client.http.models import Distance, SparseVectorParams, VectorParams
 from langchain_qdrant import FastEmbedSparse, QdrantVectorStore, RetrievalMode
 from langchain.indexes import SQLRecordManager
-
+from starlette.concurrency import run_in_threadpool
 
 from app.core.config import configs
 from app.models import Article
@@ -104,7 +104,7 @@ class ArticleVectorService:
 
         self.vector_store.add_documents(documents=documents, ids=uuids)
 
-    def retrieve_by_similarity(self, query: str, score_threshold: float = 0.3) -> list[tuple[Document, float]]:
+    async def retrieve_by_similarity(self, query: str, score_threshold: float = 0.3) -> list[tuple[Document, float]]:
         """
         Retrieve documents from the vector store based on similarity to the query.
         Args:
@@ -117,26 +117,67 @@ class ArticleVectorService:
 
         return self.vector_store.similarity_search_with_score(query=query, score_threshold=score_threshold)
 
-    def run_save_articles_to_vector_store(self) -> None:
+    async def run_save_articles_to_vector_store(self, page_size: int = 100) -> None:
         """
         Run the functionality to read articles from the database and add them to the vector store.
         """
-        set_of = 0
+        page = 0
         while True:
-            articles = ArticleRepository.list_articles(limit=100, set_of=set_of)
+            offset = page * page_size
+            # 1) Asynchron alle Artikel der Seite abrufen
+            articles = await ArticleRepository.list_articles_with_summary(limit=page_size, offset=offset)
             if not articles:
-                if set_of == 0:
-                    print("No articles found in the database.")
                 break
 
-            print(f"Found {len(articles)} articles in batch {set_of + 1} to add to the vector store.")
-            self.add_articles(articles)
-            set_of += 1
 
-        print("All articles have been added to the vector store.")
+            print(f"--> Processing page {page} with {len(articles)} articles...")
+
+            # 2) Nur Artikel mit nicht-leerer summary auswählen
+            documents = []
+            ids = []
+            for article in articles:
+                if article.summary and article.summary.strip():
+                    documents.append(
+                        Document(
+                            page_content=article.summary,
+                            metadata={
+                                "id": str(article.id),
+                                "subscription_id": str(article.subscription_id),
+                                "title": article.title,
+                            }
+                        )
+                    )
+                    ids.append(str(article.id))
+
+            print(f"--> Found {len(documents)} articles with non-empty summaries on page {page}.")
+
+            # 3) Falls Dokumente vorhanden sind, füge sie asynchron in Qdrant ein
+            if documents:
+                self.vector_store.add_documents(documents=documents, ids=ids)
+
+            page += 1
 
     def run_assign_articles_to_keywords(self) -> None:
         pass
+
+    async def add_article(self, article_id: uuid.UUID) -> None:
+        article: Optional[Article] = await ArticleRepository.get_article_by_id(article_id)
+        print(article)
+        if not article or not article.summary or not article.summary.strip():
+            return
+
+        document = Document(
+            page_content=article.summary,
+            metadata={
+                "id": str(article.id),
+                "subscription_id": str(article.subscription_id),
+                "title": article.title,
+            }
+        )
+
+        self.vector_store.add_documents(documents=[document], ids=[str(article.id)])
+
+
 
     def run(self) -> None:
         """
