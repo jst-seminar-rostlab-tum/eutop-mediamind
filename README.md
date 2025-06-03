@@ -9,6 +9,7 @@ relevant coverage.
 
 ```
 eutop-mediamind/
+│
 ├── .github/               # GitHub-specific configurations (actions, issue templates)
 │
 ├── backend/               # FastAPI backend app
@@ -34,8 +35,8 @@ For detailed setup instructions and development workflows, refer to the componen
 - **[Infrastructure](./infra/README.md)** - AWS deployment, Terraform configs
 
 ### Prerequisites
-- **Node.js 18+** - For frontend development
-- **Python 3.11+** - For backend development
+- **Node.js 22+** - For frontend development
+- **Python 3.13+** - For backend development
 - **AWS CLI** and **openTofu** - For infrastructure as code (optional)
 
 ### Environment Configuration
