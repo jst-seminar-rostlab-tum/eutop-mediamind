@@ -7,13 +7,16 @@ logger = get_logger(__name__)
 
 
 def init() -> None:
-    with Session(engine) as session:
-        init_db(session)
+    pass
+
+    #with Session(engine) as session:
+        #init_db(session)
+
 
 
 def main() -> None:
     logger.info("Creating initial data")
-    init()
+    #init()
     logger.info("Initial data created")
 
 
