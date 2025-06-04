@@ -1,5 +1,5 @@
 import { Label } from "~/components/ui/label";
-import { Plus, X } from "lucide-react";
+import { Plus } from "lucide-react";
 
 interface AiSuggestionTagProps {
   keyword: string;
