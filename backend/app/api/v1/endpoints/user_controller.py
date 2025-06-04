@@ -10,9 +10,9 @@ router = APIRouter(prefix="/users", tags=["users"])
 logger = get_logger(__name__)
 
 
-@router.get("", response_model=list[User])
-async def list_users(_: Depends = Depends(get_authenticated_user)):
-    return await UserService.list_users()
+@router.get("", response_model=list[User] | User)
+async def list_users(current_user=Depends(get_authenticated_user)):
+    return await UserService.list_users(current_user)
 
 
 @router.get("/me", response_model=User)
