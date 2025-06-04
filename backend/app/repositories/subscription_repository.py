@@ -30,7 +30,7 @@ class SubscriptionRepository:
             Subscription.login_works == True,
             Subscription.newsapi_id.isnot(None)
         )
-        result = session.execute(stmt)
+        result = await session.execute(stmt)
         return result.scalars().all()
 
     @staticmethod
@@ -50,26 +50,27 @@ class SubscriptionRepository:
         stmt = (
             select(
                 Article.id, Article.url, Subscription.paywall,
-                Subscription.config, Subscription.id, Subscription.name
+                Subscription.config, Subscription.id, Subscription.name, Subscription.domain
             )
             .join(Subscription, Article.subscription_id == Subscription.id)
             .where(Article.content == None, Article.url.isnot(None))
         )
-        result = session.execute(stmt)
+        result = await session.execute(stmt)
         rows = result.all()
 
         grouped = []
         seen = {}
 
         for row in rows:
-            article_id, url, paywall, config, sub_id, sub_name = row
+            article_id, url, paywall, config, sub_id, sub_name, sub_domain = row
             if sub_id not in seen:
                 group = {
                     "subscription_id": sub_id,
                     "subscription_name": sub_name,
                     "paywall": paywall,
                     "config": config,
-                    "content": []
+                    "content": [],
+                    "domain": sub_domain
                 }
                 grouped.append(group)
                 seen[sub_id] = group
@@ -82,16 +83,16 @@ class SubscriptionRepository:
 
     @staticmethod
     async def update_article(
-        session,
+        session: AsyncSession,
         article: Article
-    ) -> Article:
-        existing_article = session.get(Article, article.id)
+    ) -> Article | None:
+        existing_article = await session.get(Article, article.id)
         if existing_article:
             for attr, value in vars(article).items():
                 if attr != "_sa_instance_state":
                     setattr(existing_article, attr, value)
-            session.commit()
-            session.refresh(existing_article)
+            await session.commit()
+            await session.refresh(existing_article)
             return existing_article
         else:
             return None

@@ -8,7 +8,7 @@ from app.repositories.subscription_repository import SubscriptionRepository
 from app.core.logger import get_logger
 from app.core.db import engine
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 from app.services.web_harvester.login import hardcoded_login
 from newsplease import NewsPlease
 from selenium.webdriver.chrome.options import Options
@@ -18,11 +18,16 @@ from app.models.article import Article
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from newsplease.crawler.simple_crawler import SimpleCrawler
-
+from sqlalchemy.ext.asyncio import create_async_engine
+import logging
 
 from sqlalchemy.exc import IntegrityError
 
 logger = get_logger(__name__)
+
+
+logging.getLogger("newsplease").setLevel(logging.CRITICAL)
+
 
 
 class WebHarvester:
@@ -47,7 +52,7 @@ class WebHarvester:
             logger.info(
                 f"Article '{article.title}' saved successfully under subscription '{subscription.name}'.")
         except IntegrityError as e:
-            self.session.rollback()
+            await self.session.rollback()  # Use await for async sessions
             logger.warning(
                 f"Article '{article.title}' already exists under subscription '{subscription.name}'")
         except Exception as e:
@@ -82,84 +87,133 @@ class WebHarvester:
 
     async def _start_scraping(self, articles_grouped_by_subscription):
         tasks = []
-        #print(articles_grouped_by_subscription)
+        
         # Each subscription gets their own batch of articles
-        for subscription_id, subscription_name, paywall, config, articles in (
-            (d['subscription_id'], d['subscription_name'], d['paywall'], d['config'], d['content'])
+        for subscription_id, subscription_name, subscription_domain, paywall, config, articles in (
+            (d['subscription_id'], d['subscription_name'], d['domain'], d['paywall'], d['config'], d['content'])
             for d in articles_grouped_by_subscription
         ):
             if paywall:
-            # Handle paywall articles in parallel (with rate limiting)
-                print("ping ping2")
-            
-                #task = self._scrape_paywall_articles(subscription_id, subscription_name, config, articles)
+                task = asyncio.create_task(
+                    self._scrape_paywall_articles(subscription_id, subscription_name, subscription_domain, articles, config)
+                )
+                tasks.append(task)
             else:
-                print("ping ping ")
                 # Handle non-paywalled articles in parallel
                 task = asyncio.create_task(
                     self._scrape_regular_articles(subscription_id, subscription_name, articles)
                 )
-                
                 tasks.append(task)
 
         # Execute all subscription groups concurrently
-        results = await asyncio.gather(*tasks, return_exceptions=True)
-                # Log results
-        for result in results:
-            if isinstance(result, Exception):
-                logger.error(f"Error processing subscription: {result}")
-            else:
-                logger.info(f"Processed subscription: {result}")
-                
+        if tasks:
+            results = await asyncio.gather(*tasks, return_exceptions=True)
+            for result in results:
+                if isinstance(result, Exception):
+                    logger.error(f"Error during scraping: {result}")
+                else:
+                    logger.info(f"Scraping result: {result}")
+            
     async def _scrape_regular_articles(self, subscription_id: int, subscription_name: str, articles: List[Any]) -> dict:
         """
-        Scrape non-paywalled articles.
+        Scrape non-paywalled articles sequentially within each subscription.
         """
         logger.info(f"Scraping {len(articles)} regular articles for {subscription_name}")
         
-        for article in articles:
-            logger.info(f"Scraping article with empty content: {article['url']}")
+        successes = 0
+        failures = 0
+        
+        # Process articles sequentially within this subscription
+        for article_data in articles:
             try:
-                raw_article = NewsPlease.from_url(article["url"])
-                article = Article(
-                    id=article["article_id"],
-                    content=raw_article.maintext,
-                    author=raw_article.authors,
-                    language=raw_article.language,
-                    subscription_id=subscription_id
-                )
-                
-                await SubscriptionRepository.update_article(self.session, article)
-                time.sleep(20)
+                html = await SimpleCrawler.crawl(article_data["url"])
+                success = await self._scrape_single_article(subscription_id, article_data, html)
+                if success:
+                    successes += 1
+                else:
+                    failures += 1
+                    
             except Exception as e:
-                self.session.rollback()
-                logger.error(f"Failed to scrape article {article['url']}: {e}")
+                failures += 1
+                logger.error(f"Failed to scrape article {article_data['url']}: {e}")
         
+        logger.info(f"Completed scraping for {subscription_name}: {successes} successes, {failures} failures")
         
-        
-        
+        return {
+            'subscription_name': subscription_name,
+            'successes': successes,
+            'failures': failures
+        }
+                
+    async def _scrape_single_article(self, subscription_id: int, article_data: dict, html) -> bool:
+        """
+        Scrape a single article with proper async handling.
+        """
+        try:
+            logger.info(f"Scraping article with empty content: {article_data['url']}")
+            raw_article = NewsPlease.from_html(html)
+            
+            article = Article(
+                id=article_data["article_id"],
+                content=raw_article.maintext,
+                author=", ".join(raw_article.authors) if raw_article.authors else None,
+                language=raw_article.language,
+                subscription_id=subscription_id
+            )
+            engine = create_async_engine("postgresql+asyncpg://postgres:postgres@localhost:5432/mediamind")
+            async_session = async_sessionmaker(engine, class_=AsyncSession)
+            # Create a new session for this operation to avoid conflicts
+            async with async_session() as article_session:
+                await SubscriptionRepository.update_article(article_session, article)
+            await asyncio.sleep(10)  # Adjust delay as needed
+            return True
+            
+        except Exception as e:
+            logger.error(f"Failed to scrape article {article_data['url']}: {e}")
+            raise e
 
-    async def handle_paywall_articles(self, config, subscription_name):
+    async def _scrape_paywall_articles(self, subscription_id, subscription_name, subscription_domain, articles, config):
         """
         Handle articles that are paywalled.
         """
+        logger.info(f"Scraping {len(articles)} paywalled articles for {subscription_name}")
         chrome_options = Options()
-
-        chrome_options.add_extension('./cookie-blocker.crx')
+        chrome_options.add_argument("--start-maximized")
+        chrome_options.add_extension('./app/services/web_harvester/utils/cookie-blocker.crx')
+       
 
         logger.info(f"Trying login for {subscription_name}.")
         driver = webdriver.Chrome(options=chrome_options)
-
         wait = WebDriverWait(driver, 5)
-        newspaper = hardcoded_login(driver, wait, key)
+        login_success = hardcoded_login(driver, wait, subscription_name, config, subscription_domain)  
+        if login_success:
+            logger.info(f"Login successful for {subscription_name}.")
+            for article_data in articles:
+                driver.get(article_data["url"])
+                html = driver.page_source
+                await self._scrape_single_article(subscription_id, article_data, html)
+        else:
+            logger.error(f"Login failed for {subscription_name}.")
+            driver.quit()
+            return
+        
+        
+        
 
+
+# Example usage with proper async session
+async def main():
+    # Create async session
+    
+    engine = create_async_engine("postgresql+asyncpg://postgres:postgres@localhost:5432/mediamind")
+    async_session = async_sessionmaker(engine, class_=AsyncSession)
+    
+    async with async_session() as session:
+        harvester = WebHarvester(session)
+        print("Starting article scraping...")
+        await harvester.scrape_articles()
+        print("Article scraping completed.")
 
 
 if __name__ == "__main__":
-
-
-    with Session(engine) as session:
-        harvester = WebHarvester(session)
-        print("test")
-        a = asyncio.run(harvester.scrape_articles())
-        print(a)
+    asyncio.run(main())

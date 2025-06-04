@@ -124,7 +124,7 @@ def insert_credential(driver, wait, credential, input_selector):
         return False
 
 
-def hardcoded_login(driver, wait, subscription_name, paper):
+def hardcoded_login(driver, wait, subscription_name, paper, suscription_domain):
 
     # Load newspapers accounts
     with open('app/services/web_harvester/utils/newspapers_accounts.json', 'r') as f:
@@ -144,9 +144,8 @@ def hardcoded_login(driver, wait, subscription_name, paper):
 
     # Initialize newspaper website
     try:
-        driver.get("https://epaper.sueddeutsche.de")
+        driver.get(suscription_domain)
     except Exception as e:
-        raise e
         # logger.error(f"No link provided for: {paper['name']}")
         return False
 
@@ -233,3 +232,6 @@ def hardcoded_logout(driver, wait, paper):
             return False
 
     return True
+
+
+"""Hélène Rey von der London School of Economics, die die USA als sich selbstzerstörenden Hegemon sieht, meint, dass die strengere Bankenregulierung in der EU den Euro stärker macht. Europa solle als globale Führungsmacht bei der Klimapolitik klimafreundliche Produkte auf den Weltmärkten in Euro bepreisen, um den Euro attraktiver zu machen. EU-Schulden für die gemeinsame Verteidigung könnten der Startpunkt für ein in Euro denominiertes, sicheres Anlageinstrument sein.Laut Lagarde muss Europa seine Stellung in der Welt durch noch mehr Handel und militärische Partnerschaften stärken, um den Euro beliebter zu machen. Die Vertiefung des Binnen- und des gemeinsamen Kapitalmarktes müsse das Wachstum stärken, um Investitionen anzuziehen. Durch mehr Staatsverschuldung würde ein größerer Markt für sichere Anlagen in Euro geschaffen. Europa müsse stark mit einer einheitlichen Stimme sprechen.London kann es mit dem US-Finanzmarkt aufnehmenDoch Lagarde tangieren die notwendigen strukturellen und politischen Erfordernisse für eine internationale Währung bestenfalls indirekt. Der Euroraum hat zwar ein großes Handelsvolumen und die Wirtschaftsleistung liegt bei immerhin der Hälfte der USA. Über hoch entwickelte, freie Finanzmärkte, auf denen andere Länder ihre Fremdwährungsreserven anlegen können, verfügt die EU aber nicht.Der Finanzmarkt Europas, der es mit dem US-Finanzmarkt aufnehmen kann, liegt in London, also nach dem Brexit außerhalb der EU. Erschwerend kommt hinzu, dass die EU mit der Taxonomie die Kreditvergabe zentral nach Umwelt- und Klimakriterien lenken will.Doch die für eine Führungsrolle notwendige Stabilität einer Währung hängt eng an soliden Staatsfinanzen. Die Staatsverschuldung liegt als Anteil am Bruttoinlandsprodukt im Euroraum mit 89 Prozent zwar niedriger als in den USA (124 Prozent). Doch die Aufweichung der Schuldenbremse in Deutschland kündigt einen deutlichen Anstieg der Euro-Staatsverschuldung an.Dass der Euroraum aufgrund sehr unterschiedlicher Inflations- und Wachstumsraten, unflexibler Arbeitsmärkte sowie einer fehlenden gemeinsamen Finanz- und Sozialpolitik kein optimaler Währungsraum ist, deutet auf eine inhärente Instabilität der gemeinsamen Währung hin.Damit könnte doch die zukünftige Geld- und Finanzpolitik der USA stabilitätsorientierter sein. Am Ende dürften die Zölle der USA deutlich niedriger liegen als von Trump ursprünglich angekündigt. Ein durchschnittlicher Zoll von zehn Prozent könnte wie eine Art Mehrwertsteuer einen Beitrag zur Konsolidierung des Staatsdefizits der USA leisten, ohne dass der Welthandel maßgeblich beschädigt wird.Die Steuersenkungspläne der Republikaner im Rahmen der „Big Beautiful Bill“ kündigen zwar eine noch höhere Staatsverschuldung an. Doch Steuersenkungen können Wachstum schaffen. Eine umfangreiche Deregulierung, der Abbau der Beschäftigung im öffentlichen Sektor und die geplanten Kürzungen im Gesundheitssektor deuten zumindest auf etwas geringere Staatsausgaben hin. Das kann positive Wachstumseffekte haben. Ähnliche Reformen sind in Europa nicht in Sicht."""
