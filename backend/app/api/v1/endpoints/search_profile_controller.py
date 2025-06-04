@@ -26,13 +26,6 @@ router = APIRouter(
 )
 
 
-@router.get("", response_model=list[SearchProfileDetailResponse])
-async def get_available_search_profiles(
-    current_user=Depends(get_authenticated_user),
-):
-    return await SearchProfiles.get_available_search_profiles(current_user)
-
-
 @router.post("/create", response_model=SearchProfileRead, status_code=201)
 async def create_search_profile(
     profile_data: SearchProfileCreate,
@@ -47,7 +40,16 @@ async def create_search_profile(
 async def get_search_profile(
     profile_id: UUID, current_user=Depends(get_authenticated_user)
 ):
-    return await SearchProfiles.get_search_profile(profile_id, current_user)
+    return await SearchProfiles.get_search_profile_by_id(
+        profile_id, current_user
+    )
+
+
+@router.get("", response_model=list[SearchProfileDetailResponse])
+async def get_available_search_profiles(
+    current_user=Depends(get_authenticated_user),
+):
+    return await SearchProfiles.get_available_search_profiles(current_user)
 
 
 @router.put("/{profile_id}", response_model=SearchProfileRead)

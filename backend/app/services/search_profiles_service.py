@@ -10,7 +10,7 @@ from app.models.search_profile import (
 from app.repositories.match_repository import MatchRepository
 from app.repositories.search_profile_repository import (
     get_available_search_profiles,
-    get_by_id_raw,
+    get_by_id,
     save_search_profile,
     save_updated_search_profile,
 )
@@ -28,17 +28,6 @@ logger = get_logger(__name__)
 
 
 class SearchProfiles:
-
-    @staticmethod
-    async def get_search_profile(
-        search_profile_id: UUID,
-        current_user: User,
-    ) -> SearchProfileDetailResponse | None:
-        profiles = await SearchProfiles.get_available_search_profiles(
-            current_user
-        )
-        return next((p for p in profiles if p.id == search_profile_id), None)
-
     @staticmethod
     async def create_search_profile(
         profile_data: SearchProfileCreate,
@@ -52,6 +41,16 @@ class SearchProfiles:
         )
         saved_profile = await save_search_profile(new_profile)
         return SearchProfileRead.model_validate(saved_profile)
+
+    @staticmethod
+    async def get_search_profile_by_id(
+        search_profile_id: UUID,
+        current_user: User,
+    ) -> SearchProfileDetailResponse | None:
+        profiles = await SearchProfiles.get_available_search_profiles(
+            current_user
+        )
+        return next((p for p in profiles if p.id == search_profile_id), None)
 
     @staticmethod
     async def get_available_search_profiles(
@@ -68,7 +67,7 @@ class SearchProfiles:
         current_user: User,
     ) -> SearchProfileRead | None:
         # Load the raw SQLModel (not a response object)
-        profile = await get_by_id_raw(profile_id, current_user)
+        profile = await get_by_id(profile_id, current_user)
         if profile is None:
             return None
 
