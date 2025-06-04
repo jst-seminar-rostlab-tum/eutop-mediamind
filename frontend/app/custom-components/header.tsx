@@ -8,8 +8,6 @@ import { Link, useSearchParams } from "react-router";
 import { Settings, User } from "lucide-react";
 import { Button } from "~/components/ui/button";
 
-const DEFAULT_REDIRECT_URL = "/dashboard";
-
 export default function Header() {
   const [searchParams] = useSearchParams();
   const redirectUrl = searchParams.get("redirect_url");
@@ -17,16 +15,14 @@ export default function Header() {
   return (
     <div className="p-4 w-full flex justify-between items-center">
       <Link to="/">
-        <img src="/MediaMind_Logo.svg" alt="MediaMind_Logo" width={"180px"} />
+        <img src="/MediaMind_Logo.svg" alt="MediaMind_Logo" width={"140rem"} />
       </Link>
       <div className="col-span-10 flex justify-end gap-2">
         <SignedOut>
           <Button variant="outline" asChild>
             <span>
               <User />
-              <SignInButton
-                forceRedirectUrl={redirectUrl ?? DEFAULT_REDIRECT_URL}
-              />
+              <SignInButton forceRedirectUrl={redirectUrl ?? "/dashboard"} />
             </span>
           </Button>
         </SignedOut>

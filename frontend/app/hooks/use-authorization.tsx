@@ -29,7 +29,6 @@ const initialValue: UseAuthorizationReturn = {
 
 const AuthorizationContext = createContext(initialValue);
 
-// TODO: add mediamind backend request to return role/rights of user (+ within an organization)
 export const AuthorizationContextProvider = ({
   children,
 }: PropsWithChildren) => {
@@ -42,7 +41,15 @@ export const AuthorizationContextProvider = ({
   const { pathname } = useLocation();
 
   useEffect(() => {
-    session?.getToken().then((t) => t && setToken(t));
+    const fetchToken = async () => {
+      if (session) {
+        const token = await session.getToken();
+        if (token) {
+          setToken(token);
+        }
+      }
+    };
+    fetchToken();
   }, [session]);
 
   const authenticatedFetch = useCallback(
@@ -84,16 +91,23 @@ export const AuthorizationContextProvider = ({
     }
   }, [mediamindUser]);
 
-  // sync user, when signed up or when something was changed in the user profile
+  // We sync the clerk user, after intially loading the page and signing in at clerk
   useEffect(() => {
     if (isLoaded && isSignedIn) {
-      authenticatedFetch(BASE_URL + "/api/v1/users/sync", {
-        method: "POST",
-      }).then((res) => setMediamindUser(res));
+      const sync = async () => {
+        const returnedUser = await authenticatedFetch(
+          BASE_URL + "/api/v1/users/sync",
+          {
+            method: "POST",
+          },
+        );
+        setMediamindUser(returnedUser);
+      };
+      sync();
     }
   }, [isLoaded, isSignedIn]);
 
-  const value: UseAuthorizationReturn = {
+  const authorizationHookReturnValue: UseAuthorizationReturn = {
     sessionToken: token,
     isLoaded,
     isSignedIn: Boolean(isSignedIn),
@@ -103,7 +117,7 @@ export const AuthorizationContextProvider = ({
     user: mediamindUser,
   };
   return (
-    <AuthorizationContext.Provider value={value}>
+    <AuthorizationContext.Provider value={authorizationHookReturnValue}>
       {children}
     </AuthorizationContext.Provider>
   );
