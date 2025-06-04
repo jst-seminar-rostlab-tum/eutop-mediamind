@@ -1,18 +1,19 @@
 name: Backend deploy
 
 on:
-  push: {}
+  push:
+    branches:
+      - master
 
 jobs:
-  # backend-premerge:
-  #   uses: ./.github/workflows/backend-premerge.yml
+  backend-premerge:
+    uses: ./.github/workflows/backend-premerge.yml
 
-  # api-types:
-  #   uses: ./.github/workflows/generate-api-types.yml
-  #   secrets:
-  #     API_TYPES_EMAIL: ${{ secrets.API_TYPES_EMAIL }}
-  #     API_TYPES_PAT_TOKEN: ${{ secrets.API_TYPES_PAT_TOKEN }}
-
+  api-types:
+    uses: ./.github/workflows/generate-api-types.yml
+    secrets:
+      API_TYPES_EMAIL: ${{ secrets.API_TYPES_EMAIL }}
+      API_TYPES_PAT_TOKEN: ${{ secrets.API_TYPES_PAT_TOKEN }}
   build-and-push:
     uses: ./.github/workflows/docker-build-push.yml
     with:
