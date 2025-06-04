@@ -7,8 +7,10 @@ import {
 import { Link, useSearchParams } from "react-router";
 import { Settings, User } from "lucide-react";
 import { Button } from "~/components/ui/button";
+import { useAuthorization } from "~/hooks/use-authorization";
 
 export default function Header() {
+  const { isSignedIn } = useAuthorization();
   const [searchParams] = useSearchParams();
   const redirectUrl = searchParams.get("redirect_url");
 
@@ -29,11 +31,13 @@ export default function Header() {
         <SignedIn>
           <UserButton />
         </SignedIn>
-        <Link to="/admin">
-          <Button variant="outline">
-            <Settings />
-          </Button>
-        </Link>
+        {isSignedIn && (
+          <Link to="/admin">
+            <Button variant="outline">
+              <Settings />
+            </Button>
+          </Link>
+        )}
       </div>
     </div>
   );
