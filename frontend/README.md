@@ -85,8 +85,7 @@ checks to ensure the HTTP requests are compliant with the OpenAPI specification.
 ## Authorization
 
 We use [Clerk](https://clerk.com/) as authentication provider (only). After sign-up we hook into clerk and create a user in the mediamind backend to be in control here.
-
-In order to use the application in dev or production, you need two set two environment variables. There are different values for dev & prod environments.
+The following environment variables need to be set to start the frontend:
 
 ```
 VITE_CLERK_PUBLISHABLE_KEY=***
