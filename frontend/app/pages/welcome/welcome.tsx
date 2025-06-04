@@ -1,17 +1,12 @@
 import { SquareArrowOutUpRight } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
-import Header from "~/custom-components/header";
 import Layout from "~/custom-components/layout";
 import Text from "~/custom-components/text";
 
 export function Welcome() {
   return (
     <>
-      <Layout>
-        <Header />
-      </Layout>
-
       <img
         src="Eutop_Wallpaper.svg"
         alt="Wallpaper"
