@@ -21,7 +21,7 @@ export default function Header() {
       </Link>
       <div className="col-span-10 flex justify-end gap-2">
         <SignedOut>
-          <Button variant={"outline"} asChild>
+          <Button variant="outline" asChild>
             <span>
               <User />
               <SignInButton
