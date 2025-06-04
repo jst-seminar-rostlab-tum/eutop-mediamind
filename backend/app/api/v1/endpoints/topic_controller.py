@@ -1,4 +1,5 @@
 from uuid import UUID
+
 from fastapi import APIRouter, Depends
 
 from app.core.auth import get_authenticated_user
@@ -11,8 +12,11 @@ router = APIRouter(
     dependencies=[Depends(get_authenticated_user)],
 )
 
+
 @router.get("", response_model=list[TopicResponse])
-async def get_topics(profile_id: UUID, current_user=Depends(get_authenticated_user)):
+async def get_topics(
+    profile_id: UUID, current_user=Depends(get_authenticated_user)
+):
     return await TopicsService.get_topics(profile_id, current_user)
 
 
@@ -20,7 +24,7 @@ async def get_topics(profile_id: UUID, current_user=Depends(get_authenticated_us
 async def add_topic(
     profile_id: UUID,
     request: TopicCreateRequest,
-    current_user=Depends(get_authenticated_user)
+    current_user=Depends(get_authenticated_user),
 ):
     return await TopicsService.add_topic(profile_id, request, current_user)
 
@@ -29,6 +33,6 @@ async def add_topic(
 async def delete_topic(
     profile_id: UUID,
     topic_id: UUID,
-    current_user=Depends(get_authenticated_user)
+    current_user=Depends(get_authenticated_user),
 ):
     return await TopicsService.delete_topic(profile_id, topic_id, current_user)

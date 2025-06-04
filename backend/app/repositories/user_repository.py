@@ -37,7 +37,9 @@ async def get_user_list_from_organization(user: User) -> list[User] | User:
         elif user.organization_id is None:
             return user
         else:
-            query = select(User).where(User.organization_id == user.organization_id)
+            query = select(User).where(
+                User.organization_id == user.organization_id
+            )
 
         result = await session.execute(query)
         return result.scalars().all()
