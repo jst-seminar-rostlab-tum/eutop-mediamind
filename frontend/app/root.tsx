@@ -1,15 +1,36 @@
 import * as Sentry from "@sentry/react";
 import {
   isRouteErrorResponse,
+  Link,
   Links,
   Meta,
   Outlet,
   Scripts,
   ScrollRestoration,
+  useLocation,
 } from "react-router";
 import type { Route } from "./+types/root";
 import "./app.css";
+import { rootAuthLoader } from "@clerk/react-router/ssr.server";
+import { ClerkProvider } from "@clerk/react-router";
+import Header from "./custom-components/header";
+import { ErrorPage } from "./pages/error/error";
 import { useEffect } from "react";
+import {
+  AuthorizationContextProvider,
+  useAuthorization,
+} from "./hooks/use-authorization";
+
+export async function loader(args: Route.LoaderArgs) {
+  return rootAuthLoader(args);
+}
+
+export function meta() {
+  return [
+    { title: "MediaMind" },
+    { name: "description", content: "Welcome to MediaMind!" },
+  ];
+}
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -60,7 +81,17 @@ export function Layout({ children }: { children: React.ReactNode }) {
   );
 }
 
-export default function App() {
+const OutletWrapper = () => {
+  const { user } = useAuthorization();
+  const { pathname } = useLocation();
+
+  const isProtectedPath = pathname !== "/" && !pathname.includes("error");
+
+  // ensure that no requests are sent before the authentication with clerk is completed (only for protected paths)
+  return (user || !isProtectedPath) && <Outlet />;
+};
+
+export default function App({ loaderData }: Route.ComponentProps) {
   useEffect(() => {
     // see https://docs.sentry.io/platforms/javascript/guides/react-router/data-management/data-collected/ for more info
     Sentry.init({
@@ -85,7 +116,14 @@ export default function App() {
     });
   }, []);
 
-  return <Outlet />;
+  return (
+    <ClerkProvider loaderData={loaderData}>
+      <AuthorizationContextProvider>
+        <Header />
+        <OutletWrapper />
+      </AuthorizationContextProvider>
+    </ClerkProvider>
+  );
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
@@ -105,14 +143,13 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
   }
 
   return (
-    <main className="pt-16 p-4 container mx-auto">
-      <h1>{message}</h1>
-      <p>{details}</p>
-      {stack && (
-        <pre className="w-full p-4 overflow-x-auto">
-          <code>{stack}</code>
-        </pre>
-      )}
-    </main>
+    <>
+      <div className="p-4 w-full flex justify-between items-center">
+        <Link to="/">
+          <img src="/MediaMind_Logo.svg" alt="MediaMind_Logo" width={"180px"} />
+        </Link>
+      </div>
+      <ErrorPage title={message} message={details} stack={stack} />
+    </>
   );
 }
