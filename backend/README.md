@@ -1,27 +1,27 @@
-# EUTOP Mediamind backend
+# EUTOP Mediamind Backend
 
 ## Getting started
-
+- Create a virtual environment:
+  ```bash
+  python -m venv venv
+  ```
+  Notes:
+  - On Windows: Use `python` or `py -3` if you have the Python Launcher
+  - On macOS/Linux: Use `python3` if `python` points to Python 2
+  - Alternative Windows command: `py -m venv venv`
 - Activate the virtual environment:
-
   - On Windows:
-
     ```bash
     venv\Scripts\activate
     ```
-
   - On macOS and Linux:
-
     ```bash
     source venv/bin/activate
     ```
-
 - Install dependencies:
-
   ```bash
   pip install -r requirements.txt
   ```
-
 - Start the server:
   1.  `uvicorn app.main:app --reload`: base
   2.  options
@@ -66,7 +66,7 @@ To build and run using Docker:
    docker run -e APP_CONFIG_JSON="$(cat secrets.json)" -p 8000:8000 mediamind-backend
    ```
 
-## App folder structure
+## App Folder Structure
 
 The folder structure was taken from [here](https://github.com/jujumilk3/fastapi-clean-architecture).
 
