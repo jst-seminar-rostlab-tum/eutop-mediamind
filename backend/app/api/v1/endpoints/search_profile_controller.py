@@ -4,7 +4,11 @@ from fastapi import APIRouter, Depends, HTTPException
 
 from app.core.auth import get_authenticated_user
 from app.models import User
-from app.models.search_profile import SearchProfileRead, SearchProfileCreate, SearchProfileUpdate
+from app.models.search_profile import (
+    SearchProfileCreate,
+    SearchProfileRead,
+    SearchProfileUpdate,
+)
 from app.schemas.articles_schemas import (
     ArticleOverviewResponse,
     MatchDetailResponse,
@@ -12,7 +16,6 @@ from app.schemas.articles_schemas import (
 from app.schemas.match_schemas import MatchFeedbackRequest
 from app.schemas.search_profile_schemas import (
     SearchProfileDetailResponse,
-    SearchProfileUpdateRequest,
 )
 from app.services.search_profiles_service import SearchProfiles
 
@@ -35,7 +38,9 @@ async def create_search_profile(
     profile_data: SearchProfileCreate,
     current_user: User = Depends(get_authenticated_user),
 ):
-    return await SearchProfiles.create_search_profile(profile_data, current_user)
+    return await SearchProfiles.create_search_profile(
+        profile_data, current_user
+    )
 
 
 @router.get("/{profile_id}", response_model=SearchProfileDetailResponse)
@@ -51,10 +56,15 @@ async def update_search_profile(
     update_data: SearchProfileUpdate,
     current_user: User = Depends(get_authenticated_user),
 ):
-    updated = await SearchProfiles.update_search_profile(profile_id, update_data, current_user)
+    updated = await SearchProfiles.update_search_profile(
+        profile_id, update_data, current_user
+    )
     if updated is None:
-        raise HTTPException(status_code=404, detail="Search profile not found or not editable")
+        raise HTTPException(
+            status_code=404, detail="Search profile not found or not editable"
+        )
     return updated
+
 
 @router.get("/{profile_id}/overview", response_model=ArticleOverviewResponse)
 async def get_search_profile_overview(profile_id: UUID):

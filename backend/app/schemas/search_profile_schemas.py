@@ -36,6 +36,7 @@ class TopicResponse(BaseModel):
     name: str
     keywords: List[str]
 
+
 class SearchProfileDetailResponse(BaseModel):
     id: UUID
     name: str
