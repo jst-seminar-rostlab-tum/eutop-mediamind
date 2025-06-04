@@ -27,6 +27,11 @@ async def get_available_search_profiles(
 ):
     return await SearchProfiles.get_available_search_profiles(current_user)
 
+@router.put("/add", response_model=SearchProfileDetailResponse)
+async def add_search_profile( current_user=Depends(get_authenticated_user),
+):
+    return await SearchProfiles.get_available_search_profiles(current_user)
+
 
 @router.get("/{profile_id}", response_model=SearchProfileDetailResponse)
 async def get_search_profile(
@@ -47,7 +52,7 @@ async def update_search_profile(
 
 
 @router.get("/{profile_id}/overview", response_model=ArticleOverviewResponse)
-async def get_profile_overview(profile_id: UUID):
+async def get_serach_profile_overview(profile_id: UUID):
     return await SearchProfiles.get_article_overview(profile_id)
 
 
