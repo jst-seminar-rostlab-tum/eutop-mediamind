@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { cloneDeep, isMatch } from "lodash-es";
 import {
   Dialog,
   DialogTrigger,
@@ -28,14 +29,15 @@ interface EditProfileProps {
 export function EditProfile({ profile, trigger }: EditProfileProps) {
   const [isEditingName, setIsEditingName] = useState(false);
   const [profileName, setProfileName] = useState(profile.name);
+  const [editedProfile, setEditedProfile] = useState(cloneDeep(profile));
 
   const handleNameSave = () => {
-    // TODO: api
     setIsEditingName(false);
+    setEditedProfile({ ...editedProfile, name: profileName });
   };
 
   const handleNameCancel = () => {
-    setProfileName(profile.name); // Reset to original name
+    setProfileName(editedProfile.name); // Reset to original name
     setIsEditingName(false);
   };
 
@@ -48,9 +50,12 @@ export function EditProfile({ profile, trigger }: EditProfileProps) {
           <div className={"flex items-center gap-3"}>
             {isEditingName ? (
               <div className="flex items-center gap-2 flex-1">
-                <span className="text-xl font-semibold">Edit Profile:</span>
+                <span className="text-xl font-semibold">
+                  {!profile.name ? "Create" : "Edit"} Profile:
+                </span>
                 <Input
-                  value={profileName}
+                  value={profileName ?? ""}
+                  placeholder="Profile name"
                   onChange={(e) => setProfileName(e.target.value)}
                   className="flex-1 max-w-xs"
                   autoFocus
@@ -79,7 +84,7 @@ export function EditProfile({ profile, trigger }: EditProfileProps) {
             ) : (
               <div className="flex items-center gap-2">
                 <DialogTitle className={"text-xl"}>
-                  Edit Profile: {profileName}
+                  {!profile.name ? "Create" : "Edit"} Profile: {profileName}
                 </DialogTitle>
                 <Button
                   size="sm"
@@ -118,24 +123,30 @@ export function EditProfile({ profile, trigger }: EditProfileProps) {
               </TabsTrigger>
             </TabsList>
             <TabsContent value="general">
-              <General profile={profile} />
+              <General profile={editedProfile} setProfile={setEditedProfile} />
             </TabsContent>
 
             <TabsContent value="topics">
-              <Topics profile={profile} />
+              <Topics profile={editedProfile} setProfile={setEditedProfile} />
             </TabsContent>
 
             <TabsContent value="mailing">
-              <Mailing profile={profile} />
+              <Mailing profile={editedProfile} setProfile={setEditedProfile} />
             </TabsContent>
 
             <TabsContent value="subscriptions">
-              <Subscriptions subscriptions={useProfileSubscriptionsApi()} />
+              <Subscriptions
+                profile={editedProfile}
+                setProfile={setEditedProfile}
+                subscriptions={useProfileSubscriptionsApi()}
+              />
             </TabsContent>
           </Tabs>
         </ScrollArea>
         <div className="flex justify-end">
-          <Button type="submit">Save changes</Button>
+          <Button type="submit" disabled={isMatch(profile, editedProfile)}>
+            Save changes
+          </Button>
         </div>
       </DialogContent>
     </Dialog>

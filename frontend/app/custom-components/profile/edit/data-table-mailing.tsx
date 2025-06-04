@@ -30,10 +30,12 @@ import {
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
 import { Input } from "~/components/ui/input";
+import { useEffect } from "react";
 
 export interface MailingTableProps {
   name: string;
   dataArray: string[];
+  setDataArray: (array: string[]) => void;
 }
 
 type DataRow = {
@@ -106,7 +108,11 @@ export const getColumns = (name: string): ColumnDef<DataRow>[] => [
   },
 ];
 
-export function DataTableMailing({ name, dataArray }: MailingTableProps) {
+export function DataTableMailing({
+  name,
+  dataArray,
+  setDataArray,
+}: MailingTableProps) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     [],
@@ -123,6 +129,9 @@ export function DataTableMailing({ name, dataArray }: MailingTableProps) {
       })),
     [dataArray],
   );
+
+  useEffect(() => setDataArray(dataArray), [dataArray]);
+
   const table = useReactTable({
     data,
     columns,

@@ -1,15 +1,21 @@
-import type { Subscription } from "~/types/profile";
+import type { Profile, Subscription } from "~/types/profile";
 import { Label } from "~/components/ui/label";
 import { DataTableSubsciptions } from "~/custom-components/profile/edit/data-table-subscriptions";
 
 export interface SubscriptionsProps {
   subscriptions: Subscription[];
+  profile: Profile;
+  setProfile: (profile: Profile) => void;
 }
 
-export function Subscriptions({ subscriptions }: SubscriptionsProps) {
-  const subscriptionWebsites = subscriptions.map(
-    (subscriptions) => subscriptions.name,
-  );
+export function Subscriptions({
+  subscriptions,
+  profile,
+  setProfile,
+}: SubscriptionsProps) {
+  const setSubscriptions = (subscriptions: Subscription[]) =>
+    setProfile({ ...profile, subscriptions: subscriptions });
+
   return (
     <div>
       <h2 className={"font-bold pt-3 pb-3"}>Sources</h2>
@@ -18,7 +24,9 @@ export function Subscriptions({ subscriptions }: SubscriptionsProps) {
       </Label>
       <DataTableSubsciptions
         name={"Source"}
-        dataArray={subscriptionWebsites}
+        allSubscriptions={subscriptions}
+        selectedSubscriptions={profile.subscriptions}
+        setSubscriptions={setSubscriptions}
       ></DataTableSubsciptions>
     </div>
   );

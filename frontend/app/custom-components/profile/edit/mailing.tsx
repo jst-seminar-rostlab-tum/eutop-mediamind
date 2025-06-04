@@ -6,9 +6,15 @@ import { Label } from "~/components/ui/label";
 
 export interface MailingProps {
   profile: Profile;
+  setProfile: (profile: Profile) => void;
 }
 
-export function Mailing({ profile }: MailingProps): JSX.Element {
+export function Mailing({ profile, setProfile }: MailingProps): JSX.Element {
+  const setInternalMails = (emails: string[]) =>
+    setProfile({ ...profile, organization_emails: emails });
+  const setExternalMails = (emails: string[]) =>
+    setProfile({ ...profile, profile_emails: emails });
+
   return (
     <div>
       <h2 className={"font-bold pt-3 pb-3"}>Mailing List</h2>
@@ -22,12 +28,17 @@ export function Mailing({ profile }: MailingProps): JSX.Element {
         </TabsList>
         <TabsContent value={"internal"}>
           <DataTableMailing
-            name={"Email"}
+            name={"Internal Email"}
             dataArray={profile.organization_emails}
+            setDataArray={setInternalMails}
           />
         </TabsContent>
         <TabsContent value={"external"}>
-          <DataTableMailing name={"Email"} dataArray={profile.profile_emails} />
+          <DataTableMailing
+            name={"External Email"}
+            dataArray={profile.profile_emails}
+            setDataArray={setExternalMails}
+          />
         </TabsContent>
       </Tabs>
     </div>

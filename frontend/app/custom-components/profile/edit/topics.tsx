@@ -15,10 +15,16 @@ import { Label } from "~/components/ui/label";
 import { Input } from "~/components/ui/input";
 import { Trash2 } from "lucide-react";
 
-export function Topics({ profile }: { profile: Profile }) {
+interface TopicsProps {
+  profile: Profile;
+  setProfile: (profile: Profile) => void;
+}
+
+export function Topics({ profile, setProfile }: TopicsProps) {
   const [selectedTopic, setSelectedTopic] = useState<string | undefined>(
     profile.topics.length > 0 ? profile.topics[0].name : undefined,
   );
+  const [newTopicName, setNewTopicName] = useState("");
   const selectedTopicKeywords =
     profile.topics.find((topic) => topic.name === selectedTopic)?.keywords ||
     [];
@@ -51,14 +57,42 @@ export function Topics({ profile }: { profile: Profile }) {
             </SelectContent>
           </Select>
           {selectedTopic && (
-            <Button variant="destructive">
+            <Button
+              variant="destructive"
+              onClick={() => {
+                setProfile({
+                  ...profile,
+                  topics: profile.topics.filter(
+                    (t) => t.name !== selectedTopic,
+                  ),
+                });
+                setSelectedTopic(undefined);
+              }}
+            >
               <Trash2 />
               {selectedTopic}
             </Button>
           )}
           <Input
+            value={newTopicName}
             placeholder={"+ Add topic"}
             className={"w-[180px] shadow-none ml-auto"}
+            onChange={(e) => setNewTopicName(e.target.value)}
+            onKeyDown={(e) => {
+              if (
+                e.key === "Enter" &&
+                !profile.topics.map((t) => t.name).includes(newTopicName)
+              ) {
+                setProfile({
+                  ...profile,
+                  topics: [
+                    ...profile.topics,
+                    { name: newTopicName, keywords: [] },
+                  ],
+                });
+                setNewTopicName("");
+              }
+            }}
           />
         </div>
 

@@ -23,16 +23,18 @@ import {
 import { Button } from "~/components/ui/button";
 import { ArrowUpDown } from "lucide-react";
 import { Input } from "~/components/ui/input";
-import { ScrollArea } from "~/components/ui/scroll-area";
 import { Switch } from "~/components/ui/switch";
+import type { Subscription } from "~/types/profile";
 
 export interface MailingTableProps {
   name: string;
-  dataArray: string[];
+  allSubscriptions: Subscription[];
+  selectedSubscriptions: Subscription[];
+  setSubscriptions: (subs: Subscription[]) => void;
 }
 
 type DataRow = {
-  data: string;
+  data: Subscription;
   active: boolean;
 };
 
@@ -46,7 +48,11 @@ declare module "@tanstack/react-table" {
   }
 }
 
-export const getColumns = (name: string): ColumnDef<DataRow>[] => [
+const getColumns = (
+  name: string,
+  addSubscription: (s: Subscription) => void,
+  removeSubscription: (s: Subscription) => void,
+): ColumnDef<DataRow>[] => [
   {
     accessorKey: "data",
     header: ({ column }) => {
@@ -60,7 +66,9 @@ export const getColumns = (name: string): ColumnDef<DataRow>[] => [
         </Button>
       );
     },
-    cell: ({ row }) => <div className="lowercase">{row.getValue("data")}</div>,
+    cell: ({ row }) => (
+      <div className="lowercase">{row.getValue<Subscription>("data").name}</div>
+    ),
   },
   {
     accessorKey: "active",
@@ -70,6 +78,11 @@ export const getColumns = (name: string): ColumnDef<DataRow>[] => [
         checked={row.getValue("active")}
         onCheckedChange={(value) => {
           table.options.meta?.updateData(row.index, "active", !!value);
+          if (value) {
+            addSubscription(row.getValue("data"));
+          } else {
+            removeSubscription(row.getValue("data"));
+          }
         }}
         aria-label="Toggle active state"
       />
@@ -78,7 +91,12 @@ export const getColumns = (name: string): ColumnDef<DataRow>[] => [
   },
 ];
 
-export function DataTableSubsciptions({ name, dataArray }: MailingTableProps) {
+export function DataTableSubsciptions({
+  name,
+  allSubscriptions,
+  selectedSubscriptions,
+  setSubscriptions,
+}: MailingTableProps) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     [],
@@ -88,25 +106,37 @@ export function DataTableSubsciptions({ name, dataArray }: MailingTableProps) {
   const [rowSelection, setRowSelection] = React.useState({});
 
   const [internalData, setInternalData] = React.useState<DataRow[]>(() =>
-    dataArray.map((item) => ({
+    allSubscriptions.map((item) => ({
       data: item,
-      active: true,
+      active: selectedSubscriptions.map((s) => s.name).includes(item.name),
     })),
   );
 
+  const addSubscription = (sub: Subscription) =>
+    setSubscriptions([...selectedSubscriptions, sub]);
+
+  const removeSubscription = (sub: Subscription) =>
+    setSubscriptions(selectedSubscriptions.filter((s) => s.name !== sub.name));
   React.useEffect(() => {
     setInternalData((currentInternalData) =>
-      dataArray.map((item) => {
-        const existingRow = currentInternalData.find((d) => d.data === item);
+      allSubscriptions.map((item) => {
+        const existingRow = currentInternalData.find(
+          (d) => d.data.name === item.name,
+        );
         return {
           data: item,
-          active: existingRow ? existingRow.active : true,
+          active: existingRow
+            ? existingRow.active
+            : selectedSubscriptions.map((s) => s.name).includes(item.name),
         };
       }),
     );
-  }, [dataArray]);
+  }, [allSubscriptions, selectedSubscriptions]);
 
-  const columns = React.useMemo(() => getColumns(name), [name]);
+  const columns = React.useMemo(
+    () => getColumns(name, addSubscription, removeSubscription),
+    [name, addSubscription, removeSubscription],
+  );
 
   const table = useReactTable({
     data: internalData,

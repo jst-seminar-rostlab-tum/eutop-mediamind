@@ -1,7 +1,6 @@
 import type { Profile } from "~/types/profile";
 import { Label } from "~/components/ui/label";
 import { Switch } from "~/components/ui/switch";
-import { useState } from "react";
 import { Separator } from "~/components/ui/separator";
 import {
   Popover,
@@ -23,6 +22,7 @@ import { cn } from "~/lib/utils";
 
 export interface GeneralProps {
   profile: Profile;
+  setProfile: (profile: Profile) => void;
 }
 
 const users = [
@@ -44,14 +44,8 @@ const users = [
   },
 ];
 
-export function General({ profile }: GeneralProps) {
-  const [isPublic, setPublic] = useState(profile.public);
-
-  const handlePublicSwitchChange = (checked: boolean) => {
-    setPublic(checked);
-  };
+export function General({ profile, setProfile }: GeneralProps) {
   const [open, setOpen] = React.useState(false);
-  const [value, setValue] = React.useState("john.doe@example.com"); // Should be profile.owner
 
   return (
     <div>
@@ -68,8 +62,8 @@ export function General({ profile }: GeneralProps) {
               aria-expanded={open}
               className="w-[200px] justify-between"
             >
-              {value
-                ? users.find((user) => user.value === value)?.label
+              {profile.owner
+                ? users.find((user) => user.value === profile.owner)?.label
                 : "Select user..."}
               <ChevronsUpDown className="opacity-50" />
             </Button>
@@ -85,7 +79,7 @@ export function General({ profile }: GeneralProps) {
                       key={user.value}
                       value={user.value}
                       onSelect={(currentValue) => {
-                        setValue(currentValue === value ? "" : currentValue);
+                        setProfile({ ...profile, owner: currentValue });
                         setOpen(false);
                       }}
                     >
@@ -93,7 +87,9 @@ export function General({ profile }: GeneralProps) {
                       <Check
                         className={cn(
                           "ml-auto",
-                          value === user.value ? "opacity-100" : "opacity-0",
+                          profile.owner === user.value
+                            ? "opacity-100"
+                            : "opacity-0",
                         )}
                       />
                     </CommandItem>
@@ -110,7 +106,10 @@ export function General({ profile }: GeneralProps) {
       <h2 className={"font-bold pt-3 pb-3"}>Visibility</h2>
       <div className={"flex gap-3 items-center pb-3"}>
         <Label className={"text-gray-400 font-normal"}>Public</Label>
-        <Switch checked={isPublic} onCheckedChange={handlePublicSwitchChange} />
+        <Switch
+          checked={profile.public}
+          onCheckedChange={(e) => setProfile({ ...profile, public: e })}
+        />
       </div>
       <Label className={"text-gray-400 font-light pb-3"}>
         A public profile can be viewed by anyone in your organization, while a
@@ -119,7 +118,7 @@ export function General({ profile }: GeneralProps) {
 
       <Separator />
 
-      {isPublic && (
+      {profile.public && (
         <div>
           <h2 className={"font-bold pt-3 pb-3"}>Editability</h2>
           <div className={"flex gap-3"}>
