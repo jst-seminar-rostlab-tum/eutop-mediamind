@@ -18,6 +18,7 @@ class UserCreate(BaseModel):
     email: str
     first_name: str
     last_name: str
+    is_superuser: bool = False
     organization_id: uuid.UUID | None = None
 
 
