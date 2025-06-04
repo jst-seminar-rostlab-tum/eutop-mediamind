@@ -62,11 +62,13 @@ class Configs(BaseSettings):
     @computed_field  # type: ignore[prop-decorator]
     @property
     def SQLALCHEMY_DATABASE_URI(self) -> PostgresDsn:
+        # Remove port from host if present
+        host = self.POSTGRES_SERVER.split(":")[0]
         return MultiHostUrl.build(
             scheme="postgresql+psycopg",
             username=self.POSTGRES_USER,
             password=self.POSTGRES_PASSWORD,
-            host=self.POSTGRES_SERVER,
+            host=host,
             port=self.POSTGRES_PORT,
             path=self.POSTGRES_DB,
         )
