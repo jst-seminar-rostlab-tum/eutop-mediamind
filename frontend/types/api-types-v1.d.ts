@@ -89,6 +89,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/search-profiles/add": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Add Search Profile */
+        put: operations["add_search_profile_api_v1_search_profiles_add_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/search-profiles/{profile_id}": {
         parameters: {
             query?: never;
@@ -114,8 +131,8 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get Profile Overview */
-        get: operations["get_profile_overview_api_v1_search_profiles__profile_id__overview_get"];
+        /** Get Search Profile Overview */
+        get: operations["get_search_profile_overview_api_v1_search_profiles__profile_id__overview_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -331,6 +348,32 @@ export interface components {
             /** Keywords */
             keywords: string[];
         };
+        /** User */
+        User: {
+            /** Clerk Id */
+            clerk_id: string;
+            /**
+             * Email
+             * Format: email
+             */
+            email: string;
+            /** First Name */
+            first_name: string;
+            /** Last Name */
+            last_name: string;
+            /**
+             * Is Superuser
+             * @default false
+             */
+            is_superuser: boolean;
+            /** Organization Id */
+            organization_id?: string | null;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id?: string;
+        };
         /** ValidationError */
         ValidationError: {
             /** Location */
@@ -384,7 +427,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": unknown;
+                    "application/json": components["schemas"]["User"][] | components["schemas"]["User"];
                 };
             };
         };
@@ -404,7 +447,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": unknown;
+                    "application/json": components["schemas"]["User"];
                 };
             };
         };
@@ -424,9 +467,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        [key: string]: unknown;
-                    };
+                    "application/json": components["schemas"]["User"];
                 };
             };
         };
@@ -447,6 +488,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["SearchProfileDetailResponse"][];
+                };
+            };
+        };
+    };
+    add_search_profile_api_v1_search_profiles_add_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SearchProfileDetailResponse"];
                 };
             };
         };
@@ -503,7 +564,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": unknown;
+                    "application/json": components["schemas"]["SearchProfileDetailResponse"];
                 };
             };
             /** @description Validation Error */
@@ -517,7 +578,7 @@ export interface operations {
             };
         };
     };
-    get_profile_overview_api_v1_search_profiles__profile_id__overview_get: {
+    get_search_profile_overview_api_v1_search_profiles__profile_id__overview_get: {
         parameters: {
             query?: never;
             header?: never;
@@ -602,7 +663,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": unknown;
+                    "application/json": components["schemas"]["MatchDetailResponse"];
                 };
             };
             /** @description Validation Error */
