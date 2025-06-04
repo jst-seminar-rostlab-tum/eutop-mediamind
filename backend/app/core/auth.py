@@ -5,6 +5,12 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 from app.core.config import configs
 from app.core.logger import get_logger
+from app.models import User
+from app.repositories.user_repository import (
+    create_user,
+    get_user_by_clerk_id,
+    update_user,
+)
 
 security = HTTPBearer()
 logger = get_logger(__name__)
@@ -12,10 +18,10 @@ logger = get_logger(__name__)
 
 async def get_authenticated_user(
     auth_credentials: HTTPAuthorizationCredentials = Depends(security),
-):
+) -> User:
     try:
         if configs.DISABLE_AUTH:
-            user_id = "user_2xd0q4SUzIlYIZZnUZ2UmNmHz8n"
+            user_clerk_id = "user_2xd0q4SUzIlYIZZnUZ2UmNmHz8n"
         else:
             token = auth_credentials.credentials
 
@@ -27,27 +33,101 @@ async def get_authenticated_user(
                 ),
             )
 
-            user_id = user_claim["sub"]
+            user_clerk_id = user_claim["sub"]
 
-            if not user_id:
+            if not user_clerk_id:
                 raise HTTPException(
                     status_code=401, detail="Missing user ID in token"
                 )
 
-        # Step 2: Use Clerk SDK to fetch the user
-        async with Clerk(bearer_auth=configs.CLERK_SECRET_KEY) as clerk:
-            user = await clerk.users.get_async(user_id=user_id)
+        # User from local DB
+        user = await get_user_by_clerk_id(user_clerk_id)
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
 
-        return {
-            "id": user.id,
-            "email": (
-                user.email_addresses[0].email_address
-                if user.email_addresses
+        return user
+
+    except Exception as e:
+        logger.warning(f"Auth failed: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid authentication token",
+        )
+
+
+async def get_sync_user(
+    auth_credentials: HTTPAuthorizationCredentials = Depends(security),
+) -> User:
+    try:
+        if configs.DISABLE_AUTH:
+            user_clerk_id = "user_2xd0q4SUzIlYIZZnUZ2UmNmHz8n"
+        else:
+            token = auth_credentials.credentials
+
+            # Step 1: Verify the token and extract the Clerk user ID (sub)
+            user_claim = verify_token(
+                token,
+                VerifyTokenOptions(secret_key=configs.CLERK_SECRET_KEY),
+            )
+
+            user_clerk_id = user_claim["sub"]
+            if not user_clerk_id:
+                raise HTTPException(
+                    status_code=401, detail="Missing user ID in token"
+                )
+
+        # Step 2: Fetch the user from Clerk
+        async with Clerk(bearer_auth=configs.CLERK_SECRET_KEY) as clerk:
+            clerk_user = await clerk.users.get_async(user_id=user_clerk_id)
+            clerk_user_data = clerk_user.model_dump()
+
+            # Extract email from nested Clerk structure
+            clerk_email = (
+                clerk_user_data.get("email_addresses", [{}])[0].get(
+                    "email_address"
+                )
+                if clerk_user_data.get("email_addresses")
                 else None
-            ),
-            "first_name": user.first_name,
-            "last_name": user.last_name,
-        }
+            )
+
+            # Step 3: Try to fetch user from local database
+            user = await get_user_by_clerk_id(user_clerk_id)
+
+            # Step 4: If user does not exist, create it
+            if not user:
+                user = User(
+                    clerk_id=user_clerk_id,
+                    email=clerk_email,
+                    first_name=clerk_user_data.get("first_name"),
+                    last_name=clerk_user_data.get("last_name"),
+                )
+                user = await create_user(user)
+
+            # Step 5: Synchronize selected fields if needed
+            updated = False
+
+            if (
+                clerk_user_data.get("first_name")
+                and user.first_name != clerk_user_data["first_name"]
+            ):
+                user.first_name = clerk_user_data["first_name"]
+                updated = True
+
+            if (
+                clerk_user_data.get("last_name")
+                and user.last_name != clerk_user_data["last_name"]
+            ):
+                user.last_name = clerk_user_data["last_name"]
+                updated = True
+
+            if clerk_email and user.email != clerk_email:
+                user.email = clerk_email
+                updated = True
+
+            if updated:
+                user = await update_user(user)
+
+        return user
 
     except Exception as e:
         logger.warning(f"Auth failed: {e}")
