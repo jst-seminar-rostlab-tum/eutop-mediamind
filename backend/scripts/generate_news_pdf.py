@@ -5,12 +5,21 @@ from reportlab.lib.utils import ImageReader
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib import colors
 from reportlab.graphics import renderPDF
+from reportlab.platypus import Paragraph, Frame, Spacer, Image
+from reportlab.platypus.flowables import AnchorFlowable
+from reportlab.lib.styles import ParagraphStyle
 from svglib.svglib import svg2rlg
+from PIL import Image as PILImage
 import pillow_avif  # this automatically registers AVIF Images support with Pillow
 import json
 import requests
 from io import BytesIO
 import textwrap
+from reportlab.platypus import BaseDocTemplate, PageTemplate, Frame, NextPageTemplate, PageBreak
+from datetime import datetime
+from reportlab.platypus import HRFlowable
+import os
+from PyPDF2 import PdfMerger, PdfReader
 
 # This function wraps text to a specified width, ensuring that it fits within the PDF layout.
 def wrap_text(text, width):
@@ -22,60 +31,81 @@ def calculate_reading_time(text, words_per_minute=180):
     word_count = len(text.split())
     return max(1, int(round(word_count / words_per_minute)))
 
-def draw_cover_page(c, news_items, width, height):
-    y_position = height - 1.5 * inch
-    # Draw EUTOP SVG Logo
+def draw_cover_page(file_path, news_items, width, height):
+    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
+    from reportlab.platypus.flowables import HRFlowable
+
+    doc = SimpleDocTemplate(file_path, pagesize=A4, rightMargin=inch, leftMargin=inch, topMargin=inch, bottomMargin=inch)
+    styles = getSampleStyleSheet()
+
+    story = []
+
+    # Logo
     try:
         drawing = svg2rlg("scripts/eutop_logo.svg")
-        renderPDF.draw(drawing, c, inch, y_position - 2 * inch)
+        drawing.scale(0.5, 0.5)
+        story.append(drawing)
     except Exception as e:
         print(f"Error loading SVG logo: {e}")
 
+    story.append(Spacer(1, 0.5 * inch))
+
     # Title
-    y_position -= 2.5 * inch
-    c.setFont("Helvetica-Bold", 24)
-    c.setFillColorRGB(0.0, 0.2, 0.6)
-    c.drawCentredString(width / 2, y_position, "Daily News Report")
-    y_position -= 0.5 * inch
+    story.append(Paragraph("<b><font size=24 color='#003366'>Daily News Report</font></b>", styles['Title']))
+    story.append(Spacer(1, 0.3 * inch))
 
     # Total reading time
     total_text = " ".join(news['content'] for news in news_items)
     total_minutes = calculate_reading_time(total_text, words_per_minute=100)
-    c.setFont("Helvetica-Oblique", 12)
-    c.setFillColor(colors.darkgreen)
-    c.drawCentredString(width / 2, y_position, f"Total Estimated Reading Time: {total_minutes} min")
+    story.append(Paragraph(f"<font size=12 color='darkgreen'>Total Estimated Reading Time: {total_minutes} min</font>", styles['Normal']))
+    story.append(Spacer(1, 0.5 * inch))
 
-    # Table of Contents
-    y_position -= inch
-    c.setFont("Helvetica-Bold", 16)
-    c.setFillColorRGB(0.0, 0.2, 0.6)
-    c.drawString(inch, y_position, "Table of Contents")
-    c.setFillColor(colors.black)
-    y_position -= 0.5 * inch
-    c.setFont("Helvetica", 11)
+    # TOC
+    story.append(Paragraph("<b><font size=16 color='#003366'>Table of Contents</font></b>", styles['Heading2']))
+    story.append(Spacer(1, 0.2 * inch))
     for news in news_items:
         toc_line = f"{news['title']} ({news['newspaper']}, {news.get('date_time', '')})"
-        if y_position < inch:
-            c.showPage()
-            y_position = height - inch
-            c.setFont("Helvetica", 11)
-        c.drawString(inch, y_position, toc_line)
-        y_position -= 0.3 * inch
+        story.append(Paragraph(toc_line, styles['Normal']))
+        story.append(Spacer(1, 0.1 * inch))
+
+    doc.build(story)
+
+def draw_header_footer(canvas, doc):
+    width, height = A4
+    canvas.setFont("Helvetica-Bold", 12)
+    canvas.setFillColorRGB(0.0, 0.2, 0.6)
+    canvas.drawString(inch, height - inch + 5, "Continued News Report")
+
+    try:
+        drawing = svg2rlg("scripts/eutop_logo.svg")
+        target_height = 0.17 * inch
+        scale = target_height / drawing.height
+        drawing.width *= scale
+        drawing.height *= scale
+        drawing.scale(scale, scale)
+        renderPDF.draw(drawing, canvas, width - inch - drawing.width, height - inch + 5 - drawing.height + 2)
+    except Exception as e:
+        print(f"Could not load logo: {e}")
+
+    canvas.setFont("Helvetica", 9)
+    canvas.setFillColor(colors.black)
+    page_str = f"Page {doc.page}"
+    canvas.drawRightString(width - inch, 0.75 * inch, page_str)
 
 def create_news_pdf(file_name, news_items):
-    c = canvas.Canvas(file_name, pagesize=A4)
     width, height = A4
-    draw_cover_page(c, news_items, width, height)
-    c.showPage()
+    column_width = (width - 2 * inch) / 3
+    gutter = 0.15 * inch
+    # Define top and bottom margins to allow space for header and footer
+    top_margin = 1.25 * inch  # space for header
+    bottom_margin = 1.0 * inch  # space for footer
+    content_height = height - top_margin - bottom_margin
+    col_x = [inch + (column_width + gutter) * i for i in range(3)]
+    frames = [Frame(x, bottom_margin, column_width, content_height, id=f'col{i}', showBoundary=0) for i, x in enumerate(col_x)]
 
-    # Start news articles on new page
-    c.setFont("Helvetica", 9)
-    c.setFillColorRGB(0.0, 0.2, 0.6)
-    c.drawString(width - inch, 0.75 * inch, f"Page {c.getPageNumber()}")
-    c.setFillColor(colors.black)
-    y_position = height - inch
-
+    doc = BaseDocTemplate(file_name, pagesize=A4, rightMargin=inch, leftMargin=inch, topMargin=inch, bottomMargin=inch)
     styles = getSampleStyleSheet()
+
     keywords_style = styles["Normal"]
     keywords_style.fontName = "Helvetica-Oblique"
     keywords_style.fontSize = 8
@@ -99,136 +129,72 @@ def create_news_pdf(file_name, news_items):
     reading_time_style.leading = 12
     reading_time_style.textColor = colors.darkgreen
 
+    para_style = ParagraphStyle('ColumnContent', fontName="Helvetica", fontSize=10, leading=12)
+
+    story = []
+
     for news in news_items:
-        if y_position < 2 * inch:
-            c.showPage()
-            c.setFont("Helvetica", 9)
-            c.setFillColorRGB(0.0, 0.2, 0.6)
-            c.drawString(width - inch, 0.75 * inch, f"Page {c.getPageNumber()}")
-            c.setFillColor(colors.black)
-            y_position = height - inch
-            c.setFont("Helvetica-Bold", 16)
-            c.setFillColorRGB(0.0, 0.2, 0.6)
-            c.drawString(inch, y_position, "Continued News Report")
-            c.setFillColor(colors.black)
-            y_position -= 0.4 * inch
-
-        c.setFillColorRGB(0.0, 0.2, 0.6)
-        c.setFont("Helvetica-Bold", 12)
-        c.drawString(inch, y_position, news['title'])
-
-        # Draw Date/Time on the same line, right-aligned, formatted as "Time" (bold), hour+minute (bold), and date (italic)
+        anchor_name = f"dest_{news['title'].replace(' ', '_')}"
+        story.append(AnchorFlowable(anchor_name))
+        story.append(Paragraph(f"<b>{news['title']}</b>", styles['Heading3']))
         if 'date_time' in news and news['date_time']:
-            from datetime import datetime
             try:
                 dt = datetime.strptime(news['date_time'].replace("Z", ""), "%Y-%m-%dT%H:%M:%S")
+                time_str = f"<b>Time:</b> <b>{dt.strftime('%H:%M')}</b> <i>{dt.strftime('%d/%m/%y')}</i>"
             except Exception:
-                dt = None
-            if dt:
-                time_label = "Time:"
-                time_part = dt.strftime("%H:%M")
-                date_part = dt.strftime("%d/%m/%y")
+                time_str = news['date_time']
+            story.append(Paragraph(time_str, reading_time_style))
+            story.append(Spacer(1, 0.1 * inch))
 
-                c.setFont("Helvetica-Bold", 11)
-                time_label_width = c.stringWidth(time_label, "Helvetica-Bold", 11)
-                time_part_width = c.stringWidth(time_part, "Helvetica-Bold", 11)
-
-                c.setFont("Helvetica-Oblique", 9)
-                date_part_width = c.stringWidth(date_part, "Helvetica-Oblique", 9)
-
-                total_width = time_label_width + 6 + time_part_width + 6 + date_part_width
-                x_start = width - inch - total_width
-
-                c.setFont("Helvetica-Bold", 11)
-                c.drawString(x_start, y_position, time_label)
-                c.drawString(x_start + time_label_width + 2, y_position, time_part)
-
-                c.setFont("Helvetica-Oblique", 9)
-                c.drawString(x_start + time_label_width + 6 + time_part_width + 6, y_position, date_part)
-            else:
-                # fallback: just print raw date_time
-                c.setFont("Helvetica-BoldOblique", 10)
-                time_text_width = c.stringWidth(news['date_time'], "Helvetica-BoldOblique", 10)
-                c.drawString(width - inch - time_text_width, y_position, news['date_time'])
-
-        c.setFillColor(colors.black)
-        y_position -= 0.25 * inch
-
-        # Draw date/time below newspaper name (already drawn above, so skip here)
-
-        # Draw image if possible, scaled to 1/3 of original size
         if 'image_url' in news and news['image_url']:
             try:
                 response = requests.get(news['image_url'])
-                image = ImageReader(BytesIO(response.content))
-                img_width, img_height = image.getSize()
-                img_display_width = img_width / 3
-                img_display_height = img_height / 3
-                if y_position - img_display_height < inch:
-                    c.showPage()
-                    c.setFont("Helvetica", 9)
-                    c.setFillColorRGB(0.0, 0.2, 0.6)
-                    c.drawString(width - inch, 0.75 * inch, f"Page {c.getPageNumber()}")
-                    c.setFillColor(colors.black)
-                    y_position = height - inch
-                c.drawImage(image, inch, y_position - img_display_height, width=img_display_width, height=img_display_height)
-                y_position -= img_display_height + 0.3 * inch
+                img_data = BytesIO(response.content)
+                pil_img = PILImage.open(img_data)
+                aspect = pil_img.height / float(pil_img.width)
+                img_data.seek(0)
+                img = Image(img_data, width=column_width, height=(column_width * aspect))
+                story.append(img)
+                story.append(Spacer(1, 0.2 * inch))
             except Exception as e:
                 print(f"Error loading image: {e}")
 
-        c.setFont("Helvetica-Oblique", 11)
-        c.drawString(inch, y_position, f"Newspaper: {news['newspaper']}")
-        y_position -= 0.25 * inch
+        story.append(Paragraph(f"<b>Newspaper:</b> {news['newspaper']}", content_style))
+        story.append(Spacer(1, 0.1 * inch))
 
-        # Draw Keywords with smaller font and distinct style
         keywords_str = ", ".join(news['keywords'])
-        text_obj = c.beginText(inch, y_position)
-        text_obj.setFont(keywords_style.fontName, keywords_style.fontSize)
-        text_obj.setFillColor(keywords_style.textColor)
-        text_obj.textLine(f"Keywords: {keywords_str}")
-        c.drawText(text_obj)
-        y_position -= keywords_style.leading + 0.1 * inch
+        story.append(Paragraph(f"<b>Keywords:</b> {keywords_str}", keywords_style))
+        story.append(Spacer(1, 0.1 * inch))
 
-        # Draw Summary with word wrap
-        summary_text = wrap_text(f"Summary: {news['summary']}", 90)
-        text_obj = c.beginText(inch, y_position)
-        text_obj.setFont(summary_style.fontName, summary_style.fontSize)
-        text_obj.setFillColor(summary_style.textColor)
-        for line in summary_text.split('\n'):
-            text_obj.textLine(line)
-            y_position -= summary_style.leading
-        c.drawText(text_obj)
-        y_position -= 0.1 * inch
+        story.append(Paragraph(f"<b>Summary:</b> {news['summary']}", summary_style))
+        story.append(Spacer(1, 0.1 * inch))
 
-        # Calculate and draw estimated reading time
         estimated_minutes = calculate_reading_time(news['content'], words_per_minute=180)
-        reading_time_text = f"Estimated Reading Time: {estimated_minutes} min"
-        text_obj = c.beginText(inch, y_position)
-        text_obj.setFont(reading_time_style.fontName, reading_time_style.fontSize)
-        text_obj.setFillColor(reading_time_style.textColor)
-        text_obj.textLine(reading_time_text)
-        c.drawText(text_obj)
-        y_position -= reading_time_style.leading + 0.1 * inch
+        story.append(Paragraph(f"<b>Estimated Reading Time:</b> {estimated_minutes} min", reading_time_style))
+        story.append(Spacer(1, 0.1 * inch))
 
-        # Draw Content with word wrap
-        content_text = wrap_text(news['content'], 90)
-        text_obj = c.beginText(inch, y_position)
-        text_obj.setFont(content_style.fontName, content_style.fontSize)
-        text_obj.setFillColor(colors.black)
-        for line in content_text.split('\n'):
-            text_obj.textLine(line)
-            y_position -= content_style.leading
-        c.drawText(text_obj)
-        y_position -= 0.2 * inch
+        story.append(Paragraph(news['content'], para_style))
+        story.append(Spacer(1, 0.2 * inch))
 
-        y_position -= 0.2 * inch
+        if news != news_items[-1]:
+            story.append(HRFlowable(width="100%", thickness=1, color=colors.HexColor("#003366")))
+            story.append(Spacer(1, 0.2 * inch))
 
-    c.setFont("Helvetica", 9)
-    c.setFillColorRGB(0.0, 0.2, 0.6)
-    c.drawString(width - inch, 0.75 * inch, f"Page {c.getPageNumber()}")
-    c.setFillColor(colors.black)
+    doc.addPageTemplates([PageTemplate(id='ThreeCol', frames=frames, onPage=draw_header_footer)])
+    doc.build(story)
 
-    c.save()
+    # Generate cover page to separate PDF
+    cover_path = "cover_temp.pdf"
+    draw_cover_page(cover_path, news_items, width, height)
+
+    # Merge main report first, then cover at position 0
+    merger = PdfMerger()
+    merger.append(PdfReader(file_name))
+    merger.merge(position=0, fileobj=PdfReader(cover_path))
+    merger.write(file_name)
+    merger.close()
+    os.remove(cover_path)
+
     print(f"PDF generated: {file_name}")
 
 
