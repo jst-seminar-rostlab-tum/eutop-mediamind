@@ -10,6 +10,3 @@ class KeywordCreateRequest(BaseModel):
 class KeywordResponse(BaseModel):
     id: UUID
     value: str
-
-    class Config:
-        orm_mode = True

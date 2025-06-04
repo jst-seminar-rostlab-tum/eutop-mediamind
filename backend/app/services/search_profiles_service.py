@@ -1,56 +1,80 @@
+from typing import List
 from uuid import UUID
 
-from app.models import SearchProfile
+from app.models import SearchProfile, User
+from app.models.search_profile import SearchProfileCreate, SearchProfileRead, SearchProfileUpdate
 from app.repositories.match_repository import MatchRepository
-from app.repositories.search_profile_repository import SearchProfileRepository
+from app.repositories.search_profile_repository import get_available_search_profiles, get_by_id, update_by_id, \
+    save_search_profile, get_by_id_raw, save_updated_search_profile
 from app.schemas.articles_schemas import (
     ArticleOverviewItem,
     ArticleOverviewResponse,
     MatchDetailResponse,
 )
 from app.schemas.match_schemas import MatchFeedbackRequest
-from app.schemas.search_profile_schemas import SearchProfileUpdateRequest
+from app.schemas.search_profile_schemas import SearchProfileUpdateRequest, SearchProfileDetailResponse
+from app.core.logger import get_logger
+
+logger = get_logger(__name__)
+
 
 
 class SearchProfiles:
 
     @staticmethod
     async def get_search_profile(
-        search_profile_id: UUID, current_user
-    ) -> SearchProfile | None:
-        return await SearchProfileRepository.get_by_id(
-            search_profile_id, current_user
+            search_profile_id: UUID,
+            current_user: User,
+    ) -> SearchProfileDetailResponse | None:
+        profiles = await SearchProfiles.get_available_search_profiles(current_user)
+        return next((p for p in profiles if p.id == search_profile_id), None)
+
+    @staticmethod
+    async def create_search_profile(
+            profile_data: SearchProfileCreate,
+            current_user: User,
+    ) -> SearchProfileRead:
+        new_profile = SearchProfile(
+            name=profile_data.name,
+            organization_id=profile_data.organization_id,
+            is_public=False, #Default
+            created_by_id=current_user.id,
         )
+        saved_profile = await save_search_profile(new_profile)
+        return SearchProfileRead.model_validate(saved_profile)
 
     @staticmethod
     async def get_available_search_profiles(
-        current_user,
-    ) -> list[SearchProfile]:
-        profiles = await SearchProfileRepository.get_accessible_profiles(
-            current_user["id"], current_user["organization_id"]
+        current_user: User,
+    ) -> list[SearchProfileDetailResponse]:
+        profiles = await get_available_search_profiles(
+            current_user
         )
+        logger.info(profiles)
         return profiles
 
     @staticmethod
     async def update_search_profile(
-        profile_id: UUID,
-        data: SearchProfileUpdateRequest,
-        current_user: dict,
-    ) -> dict | None:
-        profile = await SearchProfileRepository.get_by_id(profile_id)
-
-        if not profile:
+            profile_id: UUID,
+            update_data: SearchProfileUpdate,
+            current_user: User,
+    ) -> SearchProfileRead | None:
+        # Load the raw SQLModel (not a response object)
+        profile = await get_by_id_raw(profile_id, current_user)
+        if profile is None:
             return None
 
-        # Check write rights
-        is_owner = profile.created_by_id == current_user["id"]
-        is_editable = data.is_editable or is_owner
-        if not is_editable:
+        # Only allow owner or superuser to update
+        if profile.created_by_id != current_user.id and not current_user.is_superuser:
             return None
 
-        updated = await SearchProfileRepository.update_by_id(profile_id, data)
+        if update_data.name is not None:
+            profile.name = update_data.name
+        if update_data.description is not None:
+            profile.description = update_data.description
 
-        return updated
+        updated_profile = await save_updated_search_profile(profile)
+        return SearchProfileRead.model_validate(updated_profile)
 
     @staticmethod
     async def get_article_overview(

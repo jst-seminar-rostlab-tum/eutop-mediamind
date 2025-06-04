@@ -1,7 +1,7 @@
 from typing import List, Optional
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, EmailStr
 
 
 class TopicUpdate(BaseModel):
@@ -32,16 +32,18 @@ class TopicOut(BaseModel):
     keywords: List[str]
 
 
+class TopicResponse(BaseModel):
+    name: str
+    keywords: List[str]
+
 class SearchProfileDetailResponse(BaseModel):
     id: UUID
     name: str
-    organization_emails: List[str]
-    profile_emails: List[str]
+    organization_emails: List[EmailStr]
+    profile_emails: List[EmailStr]
     public: bool
     editable: bool
     is_editable: bool
     owner: UUID
     is_owner: bool
-    topics: List[TopicOut]
-
-    model_config = ConfigDict(from_attributes=True)
+    topics: List[TopicResponse]
