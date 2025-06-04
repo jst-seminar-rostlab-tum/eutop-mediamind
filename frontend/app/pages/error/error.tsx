@@ -1,13 +1,22 @@
 import Layout from "~/custom-components/layout";
-import { AlertTriangle, Ban, CircleX, Lock } from "lucide-react";
+import { AlertTriangle, Ban, Building2, CircleX, Lock } from "lucide-react";
 import { useParams } from "react-router";
 import Text from "~/custom-components/text";
 import type { ReactElement } from "react";
+import {
+  Breadcrumb,
+  BreadcrumbList,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbSeparator,
+  BreadcrumbPage,
+} from "~/components/ui/breadcrumb";
 
 const icons: Record<string, ReactElement> = {
   "401": <Lock className="h-12 w-12" />,
   "403": <Ban className="h-12 w-12" />,
   "404": <AlertTriangle className="h-12 w-12" />,
+  "no-org": <Building2 className="h-12 w-12" />,
   fallback: <CircleX className="h-12 w-12" />,
 };
 
@@ -20,11 +29,16 @@ const defaultMessages: Record<string, { title: string; message: string }> = {
   "403": {
     title: "Access Denied",
     message:
-      "You don't have permission to view this page or you are not assigned to an organization yet. You need to be part of an organization to access Mediamind. Please contact your admin.",
+      "You don't have permission to view this page. You need to be part of an organization to access their pages. Please contact your admin.",
   },
   "404": {
     title: "Page Not Found",
     message: "The page you are looking for does not exist.",
+  },
+  "no-org": {
+    title: "No Organization",
+    message:
+      "You are not assigned to an organization. You need to be part of an organization to access Mediamind. Please contact your admin.",
   },
   fallback: {
     title: "Oohps!",
@@ -50,7 +64,18 @@ export const ErrorPage = ({
   return (
     <>
       <Layout className="flex justify-center">
-        <div className="flex justify-center mb-4">{usedIcon}</div>
+        <Breadcrumb>
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink href="/dashboard">Home</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>Error</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
+        <div className="flex justify-center my-10">{usedIcon}</div>
 
         <Text className="mb-2 flex justify-center" hierachy={1}>
           {usedTitle}

@@ -9,12 +9,14 @@ import {
 } from "react";
 import { useLocation, useNavigate } from "react-router";
 import { BASE_URL } from "types/api";
+import type { MediamindUser } from "types/model";
 
 type UseAuthorizationReturn = {
   sessionToken?: string;
   isLoaded: boolean;
   isSignedIn: boolean;
   authorizationHeaders: Record<string, string>;
+  user?: MediamindUser;
 };
 
 const initialValue: UseAuthorizationReturn = {
@@ -22,6 +24,7 @@ const initialValue: UseAuthorizationReturn = {
   isSignedIn: false,
   authorizationHeaders: {},
   sessionToken: undefined,
+  user: undefined,
 };
 
 const AuthorizationContext = createContext(initialValue);
@@ -33,6 +36,7 @@ export const AuthorizationContextProvider = ({
   const [token, setToken] = useState<string | undefined>();
   const { isSignedIn, isLoaded } = useUser();
   const { session } = useSession();
+  const [mediamindUser, setMediamindUser] = useState<MediamindUser>();
 
   const navigate = useNavigate();
   const { pathname } = useLocation();
@@ -69,13 +73,23 @@ export const AuthorizationContextProvider = ({
     }
   }, [isLoaded, isSignedIn, pathname]);
 
+  useEffect(() => {
+    if (
+      mediamindUser &&
+      !mediamindUser.organization_id &&
+      !pathname.includes("error") &&
+      pathname !== "/"
+    ) {
+      navigate("error/no-org" + pathname);
+    }
+  }, [mediamindUser]);
+
   // sync user, when signed up or when something was changed in the user profile
   useEffect(() => {
     if (isLoaded && isSignedIn) {
-      console.log("called");
       authenticatedFetch(BASE_URL + "/api/v1/users/sync", {
         method: "POST",
-      });
+      }).then((res) => setMediamindUser(res));
     }
   }, [isLoaded, isSignedIn]);
 
@@ -86,6 +100,7 @@ export const AuthorizationContextProvider = ({
     authorizationHeaders: {
       Authorization: `Bearer ${token}`,
     },
+    user: mediamindUser,
   };
   return (
     <AuthorizationContext.Provider value={value}>

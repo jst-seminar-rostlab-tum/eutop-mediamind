@@ -82,13 +82,13 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 const OutletWrapper = () => {
-  const { sessionToken } = useAuthorization();
+  const { user } = useAuthorization();
   const { pathname } = useLocation();
 
   const isProtectedPath = pathname !== "/" && !pathname.includes("error");
 
   // ensure that no requests are sent before the authentication with clerk is completed (only for protected paths)
-  return (sessionToken || !isProtectedPath) && <Outlet />;
+  return (user || !isProtectedPath) && <Outlet />;
 };
 
 export default function App({ loaderData }: Route.ComponentProps) {
