@@ -4,6 +4,15 @@ from app.models.email import Email, EmailState
 from app.repositories.email_repository import EmailRepository
 from sendgrid.helpers.mail import Mail, Email as SEmail, To, Content, Attachment
 from sendgrid import SendGridAPIClient
+"""
+sub: <SP name> Mediamind daily press review
+
+Hello,
+
+Here is your daily press review from the <date>.
+
+Best regards,
+"""
 
 logger = get_logger(__name__)
 
