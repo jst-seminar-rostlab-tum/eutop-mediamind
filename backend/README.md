@@ -88,7 +88,7 @@ from app.models.subscription import Subscription
 sub = Subscription(name="Test", domain="example.com", config="{}", scraper_type="test")
 sub.secrets = "password123"  # could be anything (e.g., single string, dict, etc.)
 print("Subscription (=what's stored in the db):", sub)
-print("Decrypted secret:", sub.secrets)`
+print("Decrypted secret:", sub.secrets)
 ```
 
 ```
