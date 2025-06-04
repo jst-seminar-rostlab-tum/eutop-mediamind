@@ -78,6 +78,25 @@ The folder structure was taken from [here](https://github.com/jujumilk3/fastapi-
 - _services_: Business logic layer. Implements domain-specific workflows and delegates persistence to repositories. See "service repository" pattern.
 - _utils_: Miscellaneous utilities and helpers (e.g. crawling logic, formatters, converters). Self-explanatory and isolated.
 
+## Secrets Management
+
+Example usage:
+```py
+from app.models.subscription import Subscription
+
+# Example usage of Subscription model to test encryption/decryption
+sub = Subscription(name="Test", domain="example.com", config="{}", scraper_type="test")
+sub.secrets = "password123"  # could be anything (e.g., single string, dict, etc.)
+print("Subscription (=what's stored in the db):", sub)
+print("Decrypted secret:", sub.secrets)`
+```
+
+```
+==> Output
+Subscription (=what's stored in the db): name='Test' domain='example.com' config='{}' scraper_type='test' id=UUID('57ea8fcc-e086-4e82-aeef-592ac2823d0e') encrypted_secrets=b'gAAAAABoQA6AfCRBzW-r1fHblfweVb3G6ModxYRKMAKQ6sqWOJDGFc4rRO9o2FF1b1EfpcLpc6wFDGw4eYgKUe2q3H1KQYWdMw=='
+Decrypted secret: password123
+```
+
 ## Linting and Formatting
 
 - **Black**: Code formatter (run `black app` to format the code)
