@@ -67,7 +67,7 @@ export const AuthorizationContextProvider = ({
     ) {
       navigate("error/401?redirect_url=" + pathname);
     }
-  });
+  }, [isLoaded, isSignedIn, pathname]);
 
   // sync user, when signed up or when something was changed in the user profile
   useEffect(() => {
