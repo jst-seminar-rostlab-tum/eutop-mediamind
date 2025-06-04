@@ -189,6 +189,7 @@ def hardcoded_login(driver, wait, subscription_name, paper, suscription_domain):
     if (paper.get("iframe_credentials")):
         change_frame(driver, wait, paper["iframe_credentials"])
 
+    current_url = driver.current_url
     # Insert and submit credentials
     if (paper.get("user_input")):
         click_element(driver, wait, paper["user_input"])
@@ -211,6 +212,7 @@ def hardcoded_login(driver, wait, subscription_name, paper, suscription_domain):
             logger.error("Failed to click submit button")
             return False
 
+    # wait.until(EC.url_changes(current_url))
     driver.switch_to.default_content()  # Always switch back to main context
 
     return paper

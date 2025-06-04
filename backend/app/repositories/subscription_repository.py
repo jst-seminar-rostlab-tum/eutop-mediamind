@@ -9,6 +9,8 @@ from sqlalchemy.ext.asyncio import async_session
 from app.models.article import Article
 from sqlalchemy import select
 
+from sqlalchemy.exc import IntegrityError
+
 
 class SubscriptionRepository:
     @staticmethod
@@ -24,12 +26,17 @@ class SubscriptionRepository:
 
     @staticmethod
     async def get_all_no_paywall_with_newsapi_id(
-        session: AsyncSession
+        session: AsyncSession,
+        uuid: str = None
     ) -> list[Subscription]:
         stmt = select(Subscription).where(
             Subscription.login_works == True,
             Subscription.newsapi_id.isnot(None)
         )
+
+        if uuid is not None:
+            stmt = stmt.where(Subscription.id == uuid)
+
         result = await session.execute(stmt)
         return result.scalars().all()
 
@@ -41,7 +48,13 @@ class SubscriptionRepository:
     ) -> None:
         article.subscription_id = subscription.id
         session.add(article)
-        session.commit()
+        try:
+            await session.commit()
+        except IntegrityError as e:
+            if 'duplicate key value violates unique constraint "articles_url_key"' in str(e):
+                await session.rollback()
+            else:
+                raise
 
     @staticmethod
     async def get_articles_with_empty_content(
@@ -96,3 +109,45 @@ class SubscriptionRepository:
             return existing_article
         else:
             return None
+
+    @staticmethod
+    async def get_articles_with_empty_content_for_subscription(
+        session: AsyncSession,
+        subscription_id: str
+    ) -> dict | None:
+        stmt = (
+            select(
+                Article.id, Article.url, Subscription.paywall,
+                Subscription.config, Subscription.id, Subscription.name, Subscription.domain
+            )
+            .join(Subscription, Article.subscription_id == Subscription.id)
+            .where(
+                Article.content == None,
+                Article.url.isnot(None),
+                Subscription.id == subscription_id
+            )
+        )
+        result = await session.execute(stmt)
+        rows = result.all()
+
+        if not rows:
+            return None
+
+        # Since we're filtering by a single subscription, we expect one group
+        group = {
+            "subscription_id": subscription_id,
+            "subscription_name": rows[0][5],
+            "paywall": rows[0][2],
+            "config": rows[0][3],
+            "content": [],
+            "domain": rows[0][6]
+        }
+
+        for row in rows:
+            article_id, url = row[0], row[1]
+            group["content"].append({
+                "article_id": article_id,
+                "url": url
+            })
+
+        return [group]
