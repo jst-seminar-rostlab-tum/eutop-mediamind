@@ -3,7 +3,7 @@ from uuid import UUID
 
 from sqlalchemy.ext.asyncio import async_sessionmaker
 from sqlalchemy.orm import selectinload
-from sqlmodel import and_, or_, select
+from sqlmodel import select
 
 from app.core.db import engine
 from app.models import Topic, User
@@ -23,33 +23,6 @@ async def save_search_profile(profile: SearchProfile) -> SearchProfile:
         await session.commit()
         await session.refresh(profile)
         return profile
-
-
-async def get_by_id(
-    search_profile_id: UUID, current_user
-) -> SearchProfileDetailResponse | None:
-    user_id = current_user.id
-    organization_id = current_user.organization_id
-
-    async with async_session() as session:
-        stmt = select(SearchProfile).options(selectinload(SearchProfile.users))
-
-        base_condition = SearchProfile.id == search_profile_id
-
-        access_conditions = [
-            SearchProfile.is_public,
-            SearchProfile.users.any(id=user_id),
-        ]
-
-        if organization_id is not None:
-            access_conditions.append(
-                SearchProfile.organization_id == organization_id
-            )
-
-        stmt = stmt.where(and_(base_condition, or_(*access_conditions)))
-
-        result = await session.execute(stmt)
-        return result.one_or_none()
 
 
 async def get_available_search_profiles(
@@ -160,7 +133,7 @@ async def get_accessible_profiles(user_id, organization_id):
         return result.unique().scalars().all()
 
 
-async def get_by_id_raw(
+async def get_by_id(
     profile_id: UUID, current_user: User
 ) -> SearchProfile | None:
     async with async_session() as session:
