@@ -66,7 +66,7 @@ class Configs(BaseSettings):
         # Remove port from host if present
         host = self.POSTGRES_SERVER.split(":")[0]
         return MultiHostUrl.build(
-            scheme="postgresql+psycopg",
+            scheme="postgresql+asyncpg",
             username=self.POSTGRES_USER,
             password=self.POSTGRES_PASSWORD,
             host=host,
