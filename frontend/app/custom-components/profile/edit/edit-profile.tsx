@@ -1,0 +1,154 @@
+import { useState } from "react";
+import { cloneDeep, isMatch } from "lodash-es";
+import {
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "~/components/ui/dialog";
+import { Button } from "~/components/ui/button";
+import { Input } from "~/components/ui/input";
+import type { Profile } from "~/types/profile";
+
+import { Book, Mail, Newspaper, Settings, Edit2, Check, X } from "lucide-react";
+
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
+import { Topics } from "~/custom-components/profile/edit/topics";
+import { Mailing } from "~/custom-components/profile/edit/mailing";
+import { Subscriptions } from "~/custom-components/profile/edit/subscriptions";
+import useProfileSubscriptionsApi from "~/hooks/api/profile-subscriptions-api";
+import { ScrollArea } from "~/components/ui/scroll-area";
+import { General } from "~/custom-components/profile/edit/general";
+
+interface EditProfileProps {
+  profile: Profile;
+  trigger: React.ReactElement;
+}
+
+export function EditProfile({ profile, trigger }: EditProfileProps) {
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [profileName, setProfileName] = useState(profile.name);
+  const [editedProfile, setEditedProfile] = useState(cloneDeep(profile));
+
+  const handleNameSave = () => {
+    setIsEditingName(false);
+    setEditedProfile({ ...editedProfile, name: profileName });
+  };
+
+  const handleNameCancel = () => {
+    setProfileName(editedProfile.name); // Reset to original name
+    setIsEditingName(false);
+  };
+
+  return (
+    <Dialog>
+      <DialogTrigger asChild>{trigger}</DialogTrigger>
+
+      <DialogContent className={"min-w-1/2 rounded-3xl max-h-3/4"}>
+        <DialogHeader>
+          <div className={"flex items-center gap-3"}>
+            {isEditingName ? (
+              <div className="flex items-center gap-2 flex-1">
+                <span className="text-xl font-semibold">
+                  {!profile.name ? "Create" : "Edit"} Profile:
+                </span>
+                <Input
+                  value={profileName ?? ""}
+                  placeholder="Profile name"
+                  onChange={(e) => setProfileName(e.target.value)}
+                  className="flex-1 max-w-xs"
+                  autoFocus
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") handleNameSave();
+                    if (e.key === "Escape") handleNameCancel();
+                  }}
+                />
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={handleNameSave}
+                  className="h-8 w-8 p-0"
+                >
+                  <Check className="h-4 w-4" />
+                </Button>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={handleNameCancel}
+                  className="h-8 w-8 p-0"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2">
+                <DialogTitle className={"text-xl"}>
+                  {!profile.name ? "Create" : "Edit"} Profile: {profileName}
+                </DialogTitle>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => setIsEditingName(true)}
+                  className="h-8 w-8 p-0"
+                >
+                  <Edit2 className="h-4 w-4" />
+                </Button>
+              </div>
+            )}
+          </div>
+        </DialogHeader>
+
+        <ScrollArea className="max-h-[60vh] pr-4">
+          <Tabs defaultValue="general" className="w-full">
+            <TabsList className="grid w-full grid-cols-4">
+              <TabsTrigger value="general" className="flex items-center gap-2">
+                <Settings className="h-5 w-5" />
+                <span>General</span>
+              </TabsTrigger>
+              <TabsTrigger value="topics" className="flex items-center gap-2">
+                <Book className="h-5 w-5" />
+                <span>Topics</span>
+              </TabsTrigger>
+              <TabsTrigger value="mailing" className="flex items-center gap-2">
+                <Mail className="h-5 w-5" />
+                <span>Mailing</span>
+              </TabsTrigger>
+              <TabsTrigger
+                value="subscriptions"
+                className="flex items-center gap-2"
+              >
+                <Newspaper className="h-5 w-5" />
+                <span>Subscriptions</span>
+              </TabsTrigger>
+            </TabsList>
+            <TabsContent value="general">
+              <General profile={editedProfile} setProfile={setEditedProfile} />
+            </TabsContent>
+
+            <TabsContent value="topics">
+              <Topics profile={editedProfile} setProfile={setEditedProfile} />
+            </TabsContent>
+
+            <TabsContent value="mailing">
+              <Mailing profile={editedProfile} setProfile={setEditedProfile} />
+            </TabsContent>
+
+            <TabsContent value="subscriptions">
+              <Subscriptions
+                profile={editedProfile}
+                setProfile={setEditedProfile}
+                subscriptions={useProfileSubscriptionsApi()}
+              />
+            </TabsContent>
+          </Tabs>
+        </ScrollArea>
+        <div className="flex justify-end">
+          <Button type="submit" disabled={isMatch(profile, editedProfile)}>
+            Save changes
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}

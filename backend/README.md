@@ -1,27 +1,27 @@
 # EUTOP Mediamind Backend
 
-## Getting Started
-
+## Getting started
+- Create a virtual environment:
+  ```bash
+  python -m venv venv
+  ```
+  Notes:
+  - On Windows: Use `python` or `py -3` if you have the Python Launcher
+  - On macOS/Linux: Use `python3` if `python` points to Python 2
+  - Alternative Windows command: `py -m venv venv`
 - Activate the virtual environment:
-
   - On Windows:
-
     ```bash
     venv\Scripts\activate
     ```
-
   - On macOS and Linux:
-
     ```bash
     source venv/bin/activate
     ```
-
 - Install dependencies:
-
   ```bash
   pip install -r requirements.txt
   ```
-
 - Start the server:
   1.  `uvicorn app.main:app --reload`: base
   2.  options
@@ -36,6 +36,28 @@ You can then see the API definition at `http://localhost:8000/api/docs`
   3.  `pytest --cov=app --cov-report=html`: coverage with html
 
 ## Docker
+
+### For development
+
+Use the provided [docker-compose.yml](/scripts/docker-compose.dev.yml) file.
+From root, execute the following commands to build and start the backend services:
+
+To build the images:
+```bash
+docker compose build
+```
+
+To start the containers:
+```bash
+docker compose up
+```
+
+You can also build and start in one command:
+```bash
+docker compose up --build
+```
+
+### For Production
 
 This approach is mainly for production deployment using terraform (which is why the envs are passed as a JSON), but you can also use it for local development.
 
@@ -77,6 +99,28 @@ The folder structure was taken from [here](https://github.com/jujumilk3/fastapi-
 - _schemas_: Pydantic models for request validation and response serialization. Decouples API data structures from DB models.
 - _services_: Business logic layer. Implements domain-specific workflows and delegates persistence to repositories. See "service repository" pattern.
 - _utils_: Miscellaneous utilities and helpers (e.g. crawling logic, formatters, converters). Self-explanatory and isolated.
+
+## Secrets Management
+
+We encrypt the credentials for subscriptions before storing them in the database.
+These are then decrypted when needed, using the key provided in the environment variables.
+
+Example usage:
+```py
+from app.models.subscription import Subscription
+
+# Example usage of Subscription model to test encryption/decryption
+sub = Subscription(name="Test", domain="example.com", config="{}", scraper_type="test")
+sub.secrets = "password123"  # could be anything (e.g., single string, dict, etc.)
+print("Subscription (=what's stored in the db):", sub)
+print("Decrypted secret:", sub.secrets)
+```
+
+```
+==> Output
+Subscription (=what's stored in the db): name='Test' domain='example.com' config='{}' scraper_type='test' id=UUID('57ea8fcc-e086-4e82-aeef-592ac2823d0e') encrypted_secrets=b'gAAAAABoQA6AfCRBzW-r1fHblfweVb3G6ModxYRKMAKQ6sqWOJDGFc4rRO9o2FF1b1EfpcLpc6wFDGw4eYgKUe2q3H1KQYWdMw=='
+Decrypted secret: password123
+```
 
 ## Linting and Formatting
 

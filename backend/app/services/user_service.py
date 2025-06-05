@@ -1,38 +1,17 @@
-from clerk_backend_api import Clerk
+from sqlalchemy.ext.asyncio import async_sessionmaker
 
-from app.core.config import configs
+from app.core.db import engine
+from app.models import User
+from app.repositories.user_repository import get_user_list_from_organization
+
+async_session = async_sessionmaker(engine, expire_on_commit=False)
 
 
 class UserService:
     @staticmethod
-    async def list_users() -> dict:
-        async with Clerk(bearer_auth=configs.CLERK_SECRET_KEY) as clerk:
-            users = await clerk.users.list_async()
-            return {
-                "users": [
-                    {
-                        "id": user.id,
-                        "email": (
-                            user.email_addresses[0].email_address
-                            if user.email_addresses
-                            else None
-                        ),
-                        "first_name": user.first_name,
-                        "last_name": user.last_name,
-                    }
-                    for user in users
-                ]
-            }
+    async def list_users(user: User) -> list[User] | User:
+        return await get_user_list_from_organization(user)
 
     @staticmethod
-    def get_current_user_info(current_user: dict) -> dict:
-        return {
-            "id": current_user["id"],
-            "email": (
-                current_user["email_addresses"][0]["email_address"]
-                if current_user.get("email_addresses")
-                else None
-            ),
-            "first_name": current_user.get("first_name"),
-            "last_name": current_user.get("last_name"),
-        }
+    def get_current_user_info(current_user: User) -> User:
+        return current_user
