@@ -1,5 +1,7 @@
-from sqlalchemy.ext.asyncio import async_session
 from app.models.email import Email, EmailState
+from app.core.db import async_session
+from sqlalchemy import select
+from uuid import UUID
 
 
 class EmailRepository:
@@ -13,11 +15,15 @@ class EmailRepository:
             return email
 
     @staticmethod
+    async def get_email_by_id(email_id: UUID) -> Email|None:
+        async with async_session() as session:
+            return await session.get(Email, email_id)
+
+    @staticmethod
     async def get_all_unsent_emails() -> list[Email]:
         async with async_session() as session:
-            result = (session
-                .query(Email)
-                .where(Email.state == EmailState.PENDING or EmailState.RETRY))
+            query = select(Email).where(Email.state == (EmailState.PENDING or EmailState.RETRY))
+            result = await session.execute(query)
             return result.scalars().all()
 
     @staticmethod

@@ -45,12 +45,12 @@ class EmailService:
 
         for email in emails:
             try:
+                email.attempts += 1
                 EmailService.__send_email(email)
                 email.state = EmailState.SENT
                 await EmailRepository.update_email(email)
             except Exception as e:
                 logger.error(f"Failed to send email to {email.recipient}: {str(e)}")
-                email.attempts += 1
                 email.add_error(str(e))
                 if email.attempts >= configs.MAX_EMAIL_ATTEMPTS:
                     email.state = EmailState.FAILED
