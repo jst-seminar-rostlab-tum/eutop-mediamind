@@ -1,5 +1,5 @@
 import uuid
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING, List, Optional
 
 from sqlmodel import Field, Relationship, SQLModel
 
@@ -13,6 +13,12 @@ if TYPE_CHECKING:
     from app.models.organization import Organization
     from app.models.search_profile import SearchProfile
 
+from cryptography.fernet import Fernet
+
+from app.core.config import configs
+
+fernet = Fernet(configs.FERNET_KEY)
+
 
 class Subscription(SQLModel, table=True):
     __tablename__ = "subscriptions"
@@ -20,9 +26,11 @@ class Subscription(SQLModel, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     name: str = Field(max_length=255)
     domain: str = Field(max_length=255)
-    vault_path: str = Field(max_length=255)
     config: str = Field(max_length=255)
     scraper_type: str = Field(max_length=255)
+    encrypted_secrets: Optional[bytes] = Field(
+        default=None, sa_column_kwargs={"nullable": True}
+    )
 
     # Relationships
     organizations: List["Organization"] = Relationship(
@@ -37,3 +45,13 @@ class Subscription(SQLModel, table=True):
         back_populates="subscriptions",
         link_model=SearchProfileSubscriptionLink,
     )
+
+    @property
+    def secrets(self) -> Optional[str]:
+        if self.encrypted_secrets:
+            return fernet.decrypt(self.encrypted_secrets).decode()
+        return None
+
+    @secrets.setter
+    def secrets(self, value: str):
+        self.encrypted_secrets = fernet.encrypt(value.encode())
