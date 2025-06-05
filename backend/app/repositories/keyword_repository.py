@@ -1,6 +1,6 @@
 from typing import Sequence, Optional
 from uuid import UUID
-
+from sqlalchemy.orm import selectinload
 from sqlmodel import Session, select
 
 from app.models import Keyword
@@ -67,3 +67,69 @@ class KeywordRepository:
                 result.append(article_obj)
 
         return result
+
+    @staticmethod
+    async def assign_articles_to_keywords(page_size: int = 100) -> None:
+        page = 0
+        while True:
+            offset = page * page_size
+
+            keywords = await KeywordRepository.list_keywords(
+                limit=page_size, offset=offset
+            )
+            print(f"Processing page {page} with {len(keywords)} keywords...")
+            if not keywords:
+                break
+
+            for keyword in keywords:
+
+                print(f"Processing keyword: {keyword.name}")
+                similar_articles = await article_vector_service.retrieve_by_similarity(query=keyword.name, score_threshold=0.3)
+
+                print("----------------------------------------")
+                print(keyword)
+                for similar_article in similar_articles:
+                    doc, score = similar_article
+                    print(f"Assigned article {doc.metadata['id']} to keyword {keyword.name}")
+                    await KeywordRepository.add_article_to_keyword(keyword.id, doc.metadata["id"])
+                    print(f"Assigned article {doc.metadata['id']} to keyword {keyword.name}")
+
+            page += 1
+
+    @staticmethod
+    async def add_article_to_keyword(
+            keyword_id: UUID, article_id: UUID
+    ) -> None:
+        """Assign an article to a keyword."""
+        async with async_session() as session:
+            # 1) When we fetch the Keyword, pull in its .articles collection with selectinload(...)
+            stmt = (
+                select(Keyword)
+                .options(selectinload(Keyword.articles))
+                .where(Keyword.id == keyword_id)
+            )
+            result = await session.execute(stmt)
+            keyword = result.scalars().first()
+
+            if not keyword:
+                raise ValueError(f"Keyword with id {keyword_id} does not exist.")
+
+            print(f"--> Adding {keyword.name}")
+
+            # 2) Fetch the article normally
+            stmt2 = select(Article).where(Article.id == article_id)
+            result = await session.execute(stmt2)
+            article = result.scalars().first()
+            if not article:
+                raise ValueError(f"Article with id {article_id} does not exist.")
+
+            # 3) Because we've already eagerly loaded keyword.articles, .append() no longer fires a lazy-load.
+            keyword.articles.append(article)
+            # (session.add(keyword) is not strictly necessary—'keyword' is already in the identity map—but harmless.)
+            session.add(keyword)
+
+            await session.commit()
+
+            # 4) If you really need to reflect the new state of keyword.articles back on `keyword`,
+            #    session.refresh(keyword) will also work without error, because everything it needs is already loaded.
+            await session.refresh(keyword)

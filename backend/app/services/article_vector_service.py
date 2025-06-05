@@ -157,10 +157,10 @@ class ArticleVectorService:
 
             page += 1
 
-    def run_assign_articles_to_keywords(self) -> None:
-        pass
 
-    async def add_article(self, article_id: uuid.UUID) -> None:
+
+
+async def add_article(self, article_id: uuid.UUID) -> None:
         article: Optional[Article] = await ArticleRepository.get_article_by_id(article_id)
         print(article)
         if not article or not article.summary or not article.summary.strip():
@@ -179,13 +179,7 @@ class ArticleVectorService:
 
 
 
-    def run(self) -> None:
-        """
-        Run the service functionality to read articles from the database and add them to the vector store.
-        Then assign the articles to the keywords based on their vector similarity.
-        """
-        self.run_save_articles_to_vector_store()
-        self.run_assign_articles_to_keywords()
+
 
 
 

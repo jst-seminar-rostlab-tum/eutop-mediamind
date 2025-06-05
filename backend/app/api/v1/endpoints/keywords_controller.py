@@ -38,3 +38,14 @@ async def get_most_similar_articles(keyword_id: UUID, score_threshold: float = 0
     """
     articles = await KeywordRepository.get_most_similar_articles(keyword_id, score_threshold=score_threshold)
     return articles
+
+@router.get("/assign-articles")
+async def assign_articles_to_vector_store(
+    background_tasks: BackgroundTasks
+):
+    """
+    Assign all articles to the vector store in the background.
+    """
+    #background_tasks.add_task(KeywordRepository.assign_articles_to_keywords)
+    await KeywordRepository.assign_articles_to_keywords()
+    return {"message": "All articles are being assigned to the vector store."}

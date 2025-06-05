@@ -69,3 +69,4 @@ async def search_vector_store_by_similarity(
     """
     results = await vector_service.retrieve_by_similarity(query, score_threshold)
     return results
+
