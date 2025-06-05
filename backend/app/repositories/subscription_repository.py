@@ -151,3 +151,12 @@ class SubscriptionRepository:
             })
 
         return [group]
+
+    @staticmethod
+    def get_subscription_by_id(
+        session,
+        subscription_id: str
+    ) -> Optional[Subscription]:
+        stmt = select(Subscription).where(Subscription.id == subscription_id)
+        result = session.execute(stmt)
+        return result.scalars().first()

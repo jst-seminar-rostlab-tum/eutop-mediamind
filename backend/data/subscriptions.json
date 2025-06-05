@@ -258,6 +258,8 @@
     "login_works": true,
     "newsapi_id": "thepioneer.de",
     "config": {
+      "iframe_cookies": "//iframe[@id='sp_message_iframe_1251936']",
+      "cookies_button": "//button[contains(text(), 'Alle akzeptieren')]",
       "login_button": "//button[contains(text(), 'Log In')]",
       "iframe_credentials": "//iframe[starts-with(@id, 'piano-id-')]",
       "user_input": "//input[@name='email']",

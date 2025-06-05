@@ -3,7 +3,8 @@ from typing import Any, List
 
 import requests
 from app.core.logger import get_logger
-from app.models.article import Article, Subscription
+from app.models.article import Article
+from app.models.subscription import Subscription
 from app.core.config import configs
 from datetime import date as Date
 from eventregistry import EventRegistry, QueryArticlesIter
@@ -20,7 +21,7 @@ class Crawler(ABC):
         subscription: Subscription,
         date_start: Date | None = None,
         date_end: Date | None = None,
-        limit: int | None = None
+        limit: int = -1
     ) -> List[Article]:
         """
         Given a Subscription, extract and returns a list of Articles (with the urls and subscription id at minimum).
@@ -28,7 +29,8 @@ class Crawler(ABC):
         :param subscription: A Subscription object containing the URL to crawl.
         :return: A list of URLs pointing to individual news articles.
         """
-        raise NotImplementedError("This method should be implemented by subclasses.")
+        raise NotImplementedError(
+            "This method should be implemented by subclasses.")
 
 
 class NewsAPICrawler(Crawler):
@@ -36,18 +38,20 @@ class NewsAPICrawler(Crawler):
     A crawler that uses the NewsAPI.ai service to extract article URLs based on a subscription.
     This crawler fetches articles from the NewsAPI.ai database based on the subscription's NewsAPI ID.
     """
+
     def __init__(self):
         if not configs.NEWSAPIAI_API_KEY:
-            raise ValueError("NEWSAPIAI_API_KEY is not set in the configuration.")
+            raise ValueError(
+                "NEWSAPIAI_API_KEY is not set in the configuration.")
         self.api_key = configs.NEWSAPIAI_API_KEY
         logger.info("NewsAPICrawler initialized with API key.")
-        
+
     def crawl_urls(
         self,
         subscription: Subscription,
         date_start: Date | None = None,
         date_end: Date | None = None,
-        limit: int | None = None
+        limit: int = -1
     ) -> List[Article]:
         try:
             er = EventRegistry(apiKey=self.api_key)
@@ -59,11 +63,15 @@ class NewsAPICrawler(Crawler):
         if not newsapi_id:
             logger.info(f"{subscription.name} does not have a NewsAPI ID.")
             return []
-        
+
         query_conditions = [
-            {"$or": [{"sourceUri": newsapi_id}]},
+            {"$or": [{"sourceUri": newsapi_id}],
+             "dataType": [
+                "news",
+                "blog"
+            ]},
         ]
-        
+
         if date_start and date_end:
             query_conditions.append({
                 "dateStart": date_start.strftime("%Y-%m-%d"),
@@ -73,23 +81,35 @@ class NewsAPICrawler(Crawler):
         query = {
             "$query": {
                 "$and": query_conditions
-            }
+            },
+            "$filter": {
+                "dataType": [
+                    "news",
+                    "blog"
+                ]
+            },
+            "resultType": "articles",
+            "articlesSortBy": "date",
         }
-        
+
         q = QueryArticlesIter.initWithComplexQuery(query)
 
         articles = []
         for article in q.execQuery(er, maxItems=limit):
             articles.append(
-            Article(
-                title=article.get("title"),
-                url=article.get("url"),
-                published_at=article.get("dateTime"),
-                author=article.get("author", None),
-            )
+                Article(
+                    title=article.get("title"),
+                    url=article.get("url"),
+                    published_at=article.get("dateTime"),
+                    author=article.get("author", None),
+                    subscription_id=subscription.id,
+                )
             )
 
-        logger.info(f"Number of articles: {len(articles)}")
+        logger.info(f"Found {len(articles)} for {subscription.name}.")
+        if not articles:
+            logger.info(f"No articles found for {subscription.name}.")
+            return []
 
         return articles
 

@@ -3,6 +3,7 @@ from typing import List
 from app.core.logger import get_logger
 from app.models.article import Article
 import trafilatura
+import json
 
 logger = get_logger(__name__)
 
@@ -11,6 +12,7 @@ class Scraper(ABC):
     @abstractmethod
     def extract(
         self,
+        html: str,
         article: Article,
     ) -> Article:
         """
@@ -18,8 +20,10 @@ class Scraper(ABC):
         :param article: An Article object containing the URL to scrape.
         :return: An Article object with the full content and metadata extracted.
         """
-        raise NotImplementedError("This method should be implemented by subclasses.")
-    
+        raise NotImplementedError(
+            "This method should be implemented by subclasses.")
+
+
 class TrafilaturaScraper(Scraper):
     def extract(
         self,
@@ -31,9 +35,11 @@ class TrafilaturaScraper(Scraper):
         :param article: An Article object containing the URL to scrape.
         :return: An Article object with the full content and metadata extracted.
         """
-        html_data = trafilatura.extract(html, output_format='json', with_metadata=True)
+        html_data = trafilatura.extract(
+            html, output_format='json', with_metadata=True)
 
         if html_data:
+            html_data = json.loads(html_data)
             if not article.title:
                 article.title = html_data.get('title')
             if not article.published_at:

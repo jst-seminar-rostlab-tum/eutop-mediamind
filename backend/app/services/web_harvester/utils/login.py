@@ -4,6 +4,8 @@ import logging
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 
+from app.models.subscription import Subscription
+
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -37,7 +39,8 @@ def click_element(driver, wait, selector):
                 logger.error(f"Was not possible to click element: {e}")
                 return False
     except Exception as e:
-        logger.error(f"Element to click not found: {e}")
+        driver.get_screenshot_as_file("page.png")
+        logger.error(f"Element to click {selector} not found: {e}")
         return False
 
 
@@ -124,7 +127,7 @@ def insert_credential(driver, wait, credential, input_selector):
         return False
 
 
-def hardcoded_login(driver, wait, subscription_name, paper, suscription_domain):
+def hardcoded_login(driver, wait, subscription: Subscription):
 
     # Load newspapers accounts
     with open('app/services/web_harvester/utils/newspapers_accounts.json', 'r') as f:
@@ -132,9 +135,9 @@ def hardcoded_login(driver, wait, subscription_name, paper, suscription_domain):
 
     # logger.info(f"Processing: {paper['name']}")
     # Find account credentials
-    account = accounts.get(subscription_name)
+    account = accounts.get(subscription.name)
     if not account:
-        logger.error(f"No account found for key: {subscription_name}")
+        logger.error(f"No account found for key: {subscription.name}")
         return False
     username = account.get("user_email")
     password = account.get("password")
@@ -144,13 +147,18 @@ def hardcoded_login(driver, wait, subscription_name, paper, suscription_domain):
 
     # Initialize newspaper website
     try:
-        driver.get(suscription_domain)
+        driver.get(subscription.domain)
     except Exception as e:
         # logger.error(f"No link provided for: {paper['name']}")
         return False
 
-    driver.maximize_window()
+    # this causes issues with some websites, so it is commented out
+    # driver.maximize_window()
+    paper = subscription.config
 
+    if not paper:
+        logger.error("No configuration found for this newspaper.")
+        return False
     # Change to cookies iframe
     if (paper.get("iframe_cookies")):
         change_frame(driver, wait, paper["iframe_cookies"])
