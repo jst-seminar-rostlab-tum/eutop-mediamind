@@ -1,11 +1,11 @@
 variable "name" { type = string }
 
 resource "aws_s3_bucket" "backend" {
-  bucket        = "mediamind"
+  bucket        = var.name
   force_destroy = true
 
   tags = {
-    Name        = "mediamind"
+    Name        = var.name
     Environment = terraform.workspace
   }
 }

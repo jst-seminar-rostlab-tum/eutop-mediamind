@@ -56,7 +56,7 @@ module "redis" {
 
 module "s3" {
   source = "./modules/s3"
-  name   = "mediamind"
+  name   = "eutop-mediamind"
 }
 
 module "ecs" {
