@@ -26,11 +26,11 @@ router = APIRouter(
 
 @router.post("/create", response_model=SearchProfileRead, status_code=201)
 async def create_search_profile(
-    profile_data: SearchProfileCreate,
+    new_search_profile_data: SearchProfileCreate,
     current_user: User = Depends(get_authenticated_user),
 ):
     return await SearchProfiles.create_search_profile(
-        profile_data, current_user
+        new_search_profile_data, current_user
     )
 
 

@@ -10,7 +10,7 @@ from app.models.search_profile import (
 from app.repositories.match_repository import MatchRepository
 from app.repositories.search_profile_repository import (
     get_available_search_profiles,
-    get_by_id,
+    get_search_profile_by_id,
     save_search_profile,
     save_updated_search_profile,
 )
@@ -28,17 +28,17 @@ logger = get_logger(__name__)
 class SearchProfiles:
     @staticmethod
     async def create_search_profile(
-        profile_data: SearchProfileCreate,
+        new_search_profile_data: SearchProfileCreate,
         current_user: User,
     ) -> SearchProfileRead:
-        new_profile = SearchProfile(
-            name=profile_data.name,
-            organization_id=profile_data.organization_id,
-            is_public=False,  # Default
+        new_search_profile = SearchProfile(
+            name=new_search_profile_data.name,
+            organization_id=new_search_profile_data.organization_id,
+            is_public=False,
             created_by_id=current_user.id,
         )
-        saved_profile = await save_search_profile(new_profile)
-        return SearchProfileRead.model_validate(saved_profile)
+        saved_search_profile = await save_search_profile(new_search_profile)
+        return SearchProfileRead.model_validate(saved_search_profile)
 
     @staticmethod
     async def get_search_profile_by_id(
@@ -65,23 +65,25 @@ class SearchProfiles:
         current_user: User,
     ) -> SearchProfileRead | None:
         # Load the raw SQLModel (not a response object)
-        profile = await get_by_id(search_profile_id, current_user)
-        if profile is None:
+        search_profile = await get_search_profile_by_id(
+            search_profile_id, current_user
+        )
+        if search_profile is None:
             return None
 
         # Only allow owner or superuser to update
         if (
-            profile.created_by_id != current_user.id
+            search_profile.created_by_id != current_user.id
             and not current_user.is_superuser
         ):
             return None
 
         if update_data.name is not None:
-            profile.name = update_data.name
+            search_profile.name = update_data.name
         if update_data.description is not None:
-            profile.description = update_data.description
+            search_profile.description = update_data.description
 
-        updated_profile = await save_updated_search_profile(profile)
+        updated_profile = await save_updated_search_profile(search_profile)
         return SearchProfileRead.model_validate(updated_profile)
 
     @staticmethod

@@ -21,8 +21,8 @@ class KeywordsRepository:
                     Topic.search_profile.has(user_id=user.id),
                 )
             )
-            result = await session.execute(query)
-            return result.scalars().all()
+            keywords = await session.execute(query)
+            return keywords.scalars().all()
 
     @staticmethod
     async def add_keyword(topic_id: UUID, request: KeywordCreateRequest, user):
@@ -41,6 +41,6 @@ class KeywordsRepository:
                 Keyword.topic_id == topic_id,
                 Keyword.topic.has(search_profile__user_id=user.id),
             )
-            result = await session.execute(query)
+            keywords = await session.execute(query)
             await session.commit()
-            return result.rowcount > 0
+            return keywords.rowcount > 0

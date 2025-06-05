@@ -10,7 +10,7 @@ from app.schemas.topic_schemas import TopicCreateRequest
 
 class TopicsRepository:
     @staticmethod
-    async def get_topics_by_profile(search_profile_id: UUID, user):
+    async def get_topics_by_search_profile(search_profile_id: UUID, user):
         async with async_session() as session:
             query = (
                 select(Topic)
@@ -20,8 +20,8 @@ class TopicsRepository:
                     SearchProfile.user_id == user.id,
                 )
             )
-            result = await session.execute(query)
-            return result.scalars().all()
+            topics = await session.execute(query)
+            return topics.scalars().all()
 
     @staticmethod
     async def add_topic(
@@ -44,6 +44,6 @@ class TopicsRepository:
                 Topic.search_profile_id == search_profile_id,
                 Topic.search_profile.has(user_id=user.id),
             )
-            result = await session.execute(query)
+            topics = await session.execute(query)
             await session.commit()
-            return result.rowcount > 0
+            return topics.rowcount > 0

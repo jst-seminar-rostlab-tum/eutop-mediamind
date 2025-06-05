@@ -13,20 +13,20 @@ class MatchRepository:
         search_profile_id: UUID,
     ) -> list[Match] | None:
         async with async_session() as session:
-            result = await session.execute(
+            artciles = await session.execute(
                 select(Match)
                 .options(selectinload(Match.article))
                 .where(Match.search_profile_id == search_profile_id)
                 .order_by(Match.sorting_order.asc())
             )
-            return result.scalars().all()
+            return artciles.scalars().all()
 
     @staticmethod
     async def get_match_by_id(
         search_profile_id: UUID, match_id: UUID
     ) -> Match | None:
         async with async_session() as session:
-            result = await session.execute(
+            matches = await session.execute(
                 select(Match)
                 .options(selectinload(Match.article))
                 .where(
@@ -34,7 +34,7 @@ class MatchRepository:
                     Match.search_profile_id == search_profile_id,
                 )
             )
-            return result.scalars().first()
+            return matches.scalars().first()
 
     @staticmethod
     async def update_match_feedback(

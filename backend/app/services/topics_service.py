@@ -10,7 +10,7 @@ from app.schemas.topic_schemas import TopicCreateRequest
 class TopicsService:
     @staticmethod
     async def get_topics(search_profile_id: UUID, user: User):
-        return await TopicsRepository.get_topics_by_profile(
+        return await TopicsRepository.get_topics_by_search_profile(
             search_profile_id, user
         )
 
