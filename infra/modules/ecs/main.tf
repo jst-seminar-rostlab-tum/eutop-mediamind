@@ -6,11 +6,12 @@ variable "redis_endpoint" { type = string }
 variable "subnet_ids" { type = list(string) }
 variable "vpc_id" { type = string }
 variable "secrets_arn" { type = string }
+variable "s3_backend_bucket" { type = string }
+variable "region" { type = string }
 variable "log_group_name" {
   type    = string
   default = null
 }
-
 locals {
   effective_log_group_name = var.log_group_name != null ? var.log_group_name : "/ecs/${var.service_name}"
 }
@@ -106,6 +107,8 @@ resource "aws_ecs_task_definition" "app" {
       environment = [
         { name = "REDIS_URL", value = var.redis_endpoint },
         { name = "POSTGRES_SERVER", value = var.db_endpoint },
+        { name = "AWS_S3_BUCKET_NAME", value = var.s3_backend_bucket },
+        { name = "AWS_REGION", value = var.region }
       ]
       secrets = [
         {
