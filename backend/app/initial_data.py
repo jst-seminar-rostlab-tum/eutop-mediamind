@@ -1,17 +1,13 @@
 import asyncio
 
-from sqlmodel import Session
-
-from app.core.db import engine, init_db
+from app.core.db import init_db
 from app.core.logger import get_logger
+from app.core.config import configs
 
 logger = get_logger(__name__)
 
-
 async def init() -> None:
-    with Session(engine) as session:
-        await init_db(session)
-
+    await init_db()
 
 async def main() -> None:
     logger.info("Creating initial data")
