@@ -101,7 +101,7 @@ export function Topics({ profile, setProfile }: TopicsProps) {
         <div className={"pl-5 pr-5"}>
           <div className="flex gap-2 items-center pb-2">
             <Sparkles className={"w-4 h-4"} />
-            <h2>AI Suggestions</h2>
+            <h2>AI Keyword Suggestions</h2>
           </div>
 
           <div className={"flex flex-wrap gap-2 pb-2"}>

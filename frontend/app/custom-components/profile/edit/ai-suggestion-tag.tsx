@@ -12,7 +12,7 @@ export function AiSuggestionTag({ keyword }: AiSuggestionTagProps) {
     >
       <Label
         className={
-          "bg-gradient-to-r from-blue-600 via-purple-500 to-pink-400 inline-block text-transparent bg-clip-text p-1"
+          "bg-gradient-to-r from-blue-800 via-purple-800 to-pink-800 inline-block text-transparent bg-clip-text p-1"
         }
       >
         {keyword}
