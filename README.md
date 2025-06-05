@@ -9,24 +9,44 @@ relevant coverage.
 
 ```
 eutop-mediamind/
-├── frontend/              # React frontend app
+│
+├── .github/               # GitHub-specific configurations (actions, issue templates)
 │
 ├── backend/               # FastAPI backend app
 │
-├── database/              # Database migrations and configurations
+├── docs/                  # (Additional) project documentation
+│
+├── frontend/              # React frontend app
 │
 ├── infra/                 # Infrastructure-as-code
 │
 ├── scripts/               # Project-level scripts
 │
-├── docs/                  # (Additional) project documentation
-│
-├── .github/               # GitHub-specific configurations (actions, issue templates)
-│
 ├── .gitignore
 │
 └── README.md
 ```
+
+## Development Setup
+For detailed setup instructions and development workflows, refer to the component-specific documentation:
+
+- **[Backend](./backend/README.md)** - FastAPI server, API documentation
+- **[Frontend](./frontend/README.md)** - React app, component library
+- **[Infrastructure](./infra/README.md)** - AWS deployment, Terraform configs
+
+### Prerequisites
+- **Node.js 22+** - For frontend development
+- **Python 3.13+** - For backend development
+- **AWS CLI** and **openTofu** - For infrastructure as code (optional)
+
+### Environment Configuration
+Copy the example environment files and configure them for your setup:
+```bash
+cp backend/.env.example backend/.env
+cp frontend/.env.example frontend/.env
+```
+
+Refer to each component's README for specific environment variable requirements.
 
 ## Guidelines
 
@@ -62,7 +82,3 @@ All errors and performance data are sent to our Sentry project at [csee.sentry.i
 ## Vector Database (Qdrant)
 
 The project uses **Qdrant** as a vector database for efficient storage and retrieval of document embeddings. You can access the Qdrant dashboard locally by navigating to [http://localhost:6333/dashboard](http://localhost:6333/dashboard) after starting the Qdrant service (via Docker Compose).
-
-## Licence
-
-TODO

@@ -3,7 +3,8 @@ import psycopg2
 from psycopg2 import OperationalError
 from psycopg2.extensions import connection as PgConnection
 from qdrant_client import QdrantClient
-from sqlmodel import Session, SQLModel, create_engine
+from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
+from sqlmodel import Session, SQLModel
 
 import json
 from app.core.config import configs
@@ -13,7 +14,9 @@ from .config import Configs
 
 logger = get_logger(__name__)
 
-engine = create_engine(str(configs.SQLALCHEMY_DATABASE_URI))
+engine = create_async_engine(str(configs.SQLALCHEMY_DATABASE_URI), echo=True)
+
+async_session = async_sessionmaker(engine, expire_on_commit=False)
 
 
 def load_json_data(file_path: str) -> list[dict]:
@@ -22,9 +25,10 @@ def load_json_data(file_path: str) -> list[dict]:
         return json.load(f)
 
 
-def init_db(session: Session) -> None:
-    SQLModel.metadata.create_all(engine)
-    seed_subscriptions(session)
+async def init_db(session: Session):
+    async with engine.begin() as conn:
+        await conn.run_sync(SQLModel.metadata.create_all)
+        seed_subscriptions(session)
 
 
 def seed_subscriptions(session: Session) -> None:
@@ -53,7 +57,7 @@ def get_postgresql_connection(cfg: Configs) -> PgConnection:
         logger.error("DATABASE_URL not set in config.")
         raise ValueError("DATABASE_URL not set in config.")
     try:
-        return psycopg2.connect(dsn=cfg.DATABASE_URL)
+        return psycopg.connect(dsn=cfg.DATABASE_URL)
     except OperationalError as e:
         logger.error(f"Failed to connect to PostgreSQL database: {str(e)}")
         raise Exception(f"Failed to connect to PostgreSQL database: {str(e)}")
