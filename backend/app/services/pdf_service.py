@@ -15,18 +15,20 @@ import pillow_avif  # this automatically registers AVIF Images support with Pill
 import requests
 from io import BytesIO
 import textwrap
+from PyPDF2 import PdfReader, PdfWriter
+
 
 class PDFService:
     @staticmethod
     def create_pdf(news_items) -> bytes:
         dimensions = A4
-        articles = PDFService.__create_articles(news_items, dimensions)
 
         # Generate cover page to separate PDF
-        cover_path = "cover_temp.pdf"
-        front_page = PDFService.__draw_cover_page(cover_path, news_items, dimensions)
+        body = PDFService.__create_articles(news_items, dimensions)
+        cover = PDFService.__draw_cover_page(news_items, dimensions)
 
-        return front_page.getvalue() + articles.getvalue()
+        return PDFService.__merge_pdfs_bytes(cover, body)
+
 
 
     # This function wraps text to a specified width, ensuring that it fits within the PDF layout.
@@ -42,10 +44,9 @@ class PDFService:
         return max(1, int(round(word_count / words_per_minute)))
 
     @staticmethod
-    def __draw_cover_page(news_items, dimensions: tuple[float, float]) -> BytesIO:
-        output = BytesIO()
-        doc = BaseDocTemplate(output, pagesize=A4)
-
+    def __draw_cover_page(news_items, dimensions: tuple[float, float]) -> bytes:
+        buffer = BytesIO()
+        doc = BaseDocTemplate(buffer, pagesize=A4, rightMargin=inch, leftMargin=inch, topMargin=inch, bottomMargin=inch)
         width, height = dimensions
         frame = Frame(inch, inch, width - 2*inch, height - 2*inch)
 
@@ -101,7 +102,8 @@ class PDFService:
             story.append(Spacer(1, 0.1 * inch))
 
         doc.build(story)
-        return output
+        buffer.seek(0)
+        return buffer.getvalue()
 
     @staticmethod
     def __draw_header_footer(canvas, doc):
@@ -152,7 +154,9 @@ class PDFService:
         canvas.drawRightString(width - inch, 0.4 * inch, page_str)
 
     @staticmethod
-    def __create_articles(news_items, dimensions: tuple[float, float]) -> BytesIO:
+    def __create_articles(news_items, dimensions: tuple[float, float]) -> bytes:
+        buffer = BytesIO()
+        doc = BaseDocTemplate(buffer, pagesize=A4, rightMargin=inch, leftMargin=inch, topMargin=inch, bottomMargin=inch)
         width, height = dimensions
         column_width = (width - 2 * inch) / 3
         gutter = 0.15 * inch
@@ -163,8 +167,6 @@ class PDFService:
         col_x = [inch + (column_width + gutter) * i for i in range(3)]
         frames = [Frame(x, bottom_margin, column_width, content_height, id=f'col{i}', showBoundary=0) for i, x in enumerate(col_x)]
 
-        final_pdf = BytesIO()
-        doc = BaseDocTemplate(final_pdf, pagesize=A4, rightMargin=inch, leftMargin=inch, topMargin=inch, bottomMargin=inch)
         styles = getSampleStyleSheet()
 
         keywords_style = styles["Normal"]
@@ -244,5 +246,33 @@ class PDFService:
         doc.addPageTemplates([PageTemplate(id='ThreeCol', frames=frames, onPage=PDFService.__draw_header_footer)])
         doc.build(story)
 
-        return final_pdf
+        buffer.seek(0)
+        return buffer.getvalue()
+
+
+    @staticmethod
+    def __merge_pdfs_bytes(pdf_bytes1: bytes, pdf_bytes2: bytes) -> bytes:
+        # Wrap byte strings in BytesIO objects
+        buffer1 = BytesIO(pdf_bytes1)
+        buffer2 = BytesIO(pdf_bytes2)
+
+        # Create PDF readers
+        reader1 = PdfReader(buffer1)
+        reader2 = PdfReader(buffer2)
+
+        # Create a PDF writer
+        writer = PdfWriter()
+
+        # Add pages from both readers
+        for page in reader1.pages:
+            writer.add_page(page)
+        for page in reader2.pages:
+            writer.add_page(page)
+
+        # Write merged output to a BytesIO
+        output_buffer = BytesIO()
+        writer.write(output_buffer)
+        output_buffer.seek(0)
+
+        return output_buffer.getvalue()
 
