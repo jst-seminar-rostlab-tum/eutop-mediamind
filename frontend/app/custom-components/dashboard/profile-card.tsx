@@ -8,6 +8,8 @@ interface ProfileCardProps {
 
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Button } from "~/components/ui/button";
+import { EditProfile } from "~/custom-components/profile/edit/edit-profile";
+import useSearchProfile from "~/hooks/api/search-profile-api";
 
 export function ProfileCard({
   title,
@@ -21,9 +23,18 @@ export function ProfileCard({
           <div>
             <CardTitle className="font-semibold text-xl">{title}</CardTitle>
           </div>
-          <Button variant="outline" size="icon" className={"rounded-[13px]"}>
-            <Settings />
-          </Button>
+          <EditProfile
+            profile={useSearchProfile()}
+            trigger={
+              <Button
+                variant="outline"
+                size="icon"
+                className={"rounded-[13px]"}
+              >
+                <Settings />
+              </Button>
+            }
+          />
         </div>
         <div className="flex items-center gap-2">
           <Rocket className={"h-4 w-4"} />

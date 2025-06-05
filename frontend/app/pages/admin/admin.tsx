@@ -7,7 +7,6 @@ import {
 } from "~/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { DataTable } from "~/custom-components/data-table";
-import Header from "~/custom-components/header";
 import Layout from "~/custom-components/layout";
 import Text from "~/custom-components/text";
 import React from "react";
@@ -205,7 +204,6 @@ export function AdminPage() {
   return (
     <>
       <Layout>
-        <Header />
         <Text className="mt-10" hierachy={1}>
           Admin Settings
         </Text>

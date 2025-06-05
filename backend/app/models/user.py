@@ -1,7 +1,7 @@
 import uuid
 from typing import TYPE_CHECKING, List
 
-from pydantic import EmailStr
+from pydantic import BaseModel, EmailStr
 from sqlmodel import Field, Relationship, SQLModel
 
 from app.models.associations import UserSearchProfileLink
@@ -13,31 +13,34 @@ if TYPE_CHECKING:
     from app.models.search_profile import SearchProfile
 
 
+class UserCreate(BaseModel):
+    clerk_id: str
+    email: str
+    first_name: str
+    last_name: str
+    organization_id: uuid.UUID | None = None
+
+
 # Shared properties
 class UserBase(SQLModel):
-    email: EmailStr = Field(unique=True, index=True, max_length=255)
-    is_superuser: bool = False
-    full_name: str | None = Field(default=None, max_length=255)
+    clerk_id: str = Field(max_length=255, index=True)
+    email: EmailStr = Field(index=True, max_length=255)
+    first_name: str = Field(max_length=255)
+    last_name: str = Field(max_length=255)
+    is_superuser: bool = Field(default=False)
     organization_id: uuid.UUID | None = Field(
-        default=None, foreign_key="organizations.id", index=True
+        default=None, foreign_key="organizations.id"
     )
-
-
-# Properties to receive via API on creation
-class UserCreate(UserBase):
-    password: str = Field(min_length=8, max_length=40)
 
 
 class UserRegister(SQLModel):
     email: EmailStr = Field(max_length=255)
-    password: str = Field(min_length=8, max_length=40)
     full_name: str | None = Field(default=None, max_length=255)
 
 
 # Properties to receive via API on update, all are optional
 class UserUpdate(UserBase):
     email: EmailStr | None = Field(default=None, max_length=255)
-    password: str | None = Field(default=None, min_length=8, max_length=40)
 
 
 class UserUpdateMe(SQLModel):
@@ -45,16 +48,11 @@ class UserUpdateMe(SQLModel):
     email: EmailStr | None = Field(default=None, max_length=255)
 
 
-class UpdatePassword(SQLModel):
-    current_password: str = Field(min_length=8, max_length=40)
-    new_password: str = Field(min_length=8, max_length=40)
-
-
 # Database model, table inferred from class name
 class User(UserBase, table=True):
     __tablename__ = "users"
+
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
-    hashed_password: str
 
     organization: Organization = Relationship(back_populates="users")
     search_profiles: List["SearchProfile"] = Relationship(
