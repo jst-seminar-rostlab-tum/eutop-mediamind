@@ -9,8 +9,17 @@ import {
   BreadcrumbLink,
   BreadcrumbList,
 } from "~/components/ui/breadcrumb";
+import { useAuthorization } from "~/hooks/use-authorization";
+import { useQuery } from "types/api";
 
 export function DashboardPage() {
+  const { authorizationHeaders } = useAuthorization();
+
+  // Todo: example
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { data, isLoading } = useQuery("/api/v1/search-profiles", {
+    headers: authorizationHeaders,
+  });
   const { data: profiles } = useSearchProfiles();
 
   return (

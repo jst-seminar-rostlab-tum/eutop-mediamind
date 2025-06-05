@@ -14,9 +14,7 @@ from app.schemas.articles_schemas import (
     MatchDetailResponse,
 )
 from app.schemas.match_schemas import MatchFeedbackRequest
-from app.schemas.search_profile_schemas import (
-    SearchProfileDetailResponse,
-)
+from app.schemas.search_profile_schemas import SearchProfileDetailResponse
 from app.services.search_profiles_service import SearchProfiles
 
 router = APIRouter(
@@ -28,20 +26,20 @@ router = APIRouter(
 
 @router.post("/create", response_model=SearchProfileRead, status_code=201)
 async def create_search_profile(
-    profile_data: SearchProfileCreate,
+    new_search_profile_data: SearchProfileCreate,
     current_user: User = Depends(get_authenticated_user),
 ):
     return await SearchProfiles.create_search_profile(
-        profile_data, current_user
+        new_search_profile_data, current_user
     )
 
 
-@router.get("/{profile_id}", response_model=SearchProfileDetailResponse)
+@router.get("/{search_profile_id}", response_model=SearchProfileDetailResponse)
 async def get_search_profile(
-    profile_id: UUID, current_user=Depends(get_authenticated_user)
+    search_profile_id: UUID, current_user=Depends(get_authenticated_user)
 ):
     return await SearchProfiles.get_search_profile_by_id(
-        profile_id, current_user
+        search_profile_id, current_user
     )
 
 
@@ -52,14 +50,14 @@ async def get_available_search_profiles(
     return await SearchProfiles.get_available_search_profiles(current_user)
 
 
-@router.put("/{profile_id}", response_model=SearchProfileRead)
+@router.put("/{search_profile_id}", response_model=SearchProfileRead)
 async def update_search_profile(
-    profile_id: UUID,
+    search_profile_id: UUID,
     update_data: SearchProfileUpdate,
     current_user: User = Depends(get_authenticated_user),
 ):
     updated = await SearchProfiles.update_search_profile(
-        profile_id, update_data, current_user
+        search_profile_id, update_data, current_user
     )
     if updated is None:
         raise HTTPException(
@@ -68,25 +66,28 @@ async def update_search_profile(
     return updated
 
 
-@router.get("/{profile_id}/overview", response_model=ArticleOverviewResponse)
-async def get_search_profile_overview(profile_id: UUID):
-    return await SearchProfiles.get_article_overview(profile_id)
+@router.get(
+    "/{search_profile_id}/overview", response_model=ArticleOverviewResponse
+)
+async def get_search_profile_overview(search_profile_id: UUID):
+    return await SearchProfiles.get_article_overview(search_profile_id)
 
 
 @router.get(
-    "/{profile_id}/article/{match_id}", response_model=MatchDetailResponse
+    "/{search_profile_id}/article/{match_id}",
+    response_model=MatchDetailResponse,
 )
-async def get_match_detail(profile_id: UUID, match_id: UUID):
-    return await SearchProfiles.get_match_detail(profile_id, match_id)
+async def get_match_detail(search_profile_id: UUID, match_id: UUID):
+    return await SearchProfiles.get_match_detail(search_profile_id, match_id)
 
 
-@router.put("/{profile_id}/article/{match_id}")
+@router.put("/{search_profile_id}/article/{match_id}")
 async def update_match_feedback(
-    profile_id: UUID,
+    search_profile_id: UUID,
     match_id: UUID,
     feedback: MatchFeedbackRequest,
 ) -> MatchDetailResponse:
     updated_match = await SearchProfiles.update_match_feedback(
-        profile_id, match_id, feedback
+        search_profile_id, match_id, feedback
     )
     return updated_match

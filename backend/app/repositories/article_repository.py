@@ -10,13 +10,13 @@ class ArticleRepository:
     @staticmethod
     async def get_article_by_id(article_id: UUID) -> Article | None:
         async with async_session() as session:
-            result = await session.execute(
+            article = await session.execute(
                 select(Article).where(Article.id == article_id)
             )
-            return result.scalars().first()
+            return article.scalars().first()
 
     @staticmethod
-    async def update_article(article: Article) -> Article:
+    async def update_article(article: Article) -> Article | None:
         async with async_session() as session:
             existing_article = await session.get(Article, article.id)
             if existing_article:

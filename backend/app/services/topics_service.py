@@ -9,19 +9,25 @@ from app.schemas.topic_schemas import TopicCreateRequest
 
 class TopicsService:
     @staticmethod
-    async def get_topics(profile_id: UUID, user: User):
-        return await TopicsRepository.get_topics_by_profile(profile_id, user)
+    async def get_topics(search_profile_id: UUID, user: User):
+        return await TopicsRepository.get_topics_by_search_profile(
+            search_profile_id, user
+        )
 
     @staticmethod
     async def add_topic(
-        profile_id: UUID, request: TopicCreateRequest, user: User
+        search_profile_id: UUID, request: TopicCreateRequest, user: User
     ):
-        return await TopicsRepository.add_topic(profile_id, request, user)
+        return await TopicsRepository.add_topic(
+            search_profile_id, request, user
+        )
 
     @staticmethod
-    async def delete_topic(profile_id: UUID, topic_id: UUID, user: User):
+    async def delete_topic(
+        search_profile_id: UUID, topic_id: UUID, user: User
+    ):
         success = await TopicsRepository.delete_topic(
-            profile_id, topic_id, user
+            search_profile_id, topic_id, user
         )
         if not success:
             raise HTTPException(
