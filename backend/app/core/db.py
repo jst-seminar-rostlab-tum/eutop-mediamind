@@ -1,5 +1,5 @@
 from qdrant_client import QdrantClient
-from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine, AsyncSession, AsyncEngine
+from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine, AsyncEngine
 from sqlmodel import SQLModel
 
 from app.core.config import configs
@@ -10,7 +10,7 @@ from .config import Configs
 logger = get_logger(__name__)
 
 engine: AsyncEngine = create_async_engine(str(configs.SQLALCHEMY_DATABASE_URI), echo=True)
-async_session: AsyncSession = async_sessionmaker(engine, expire_on_commit=False)
+async_session = async_sessionmaker(engine, expire_on_commit=False)
 
 async def init_db():
     async with engine.begin() as conn:

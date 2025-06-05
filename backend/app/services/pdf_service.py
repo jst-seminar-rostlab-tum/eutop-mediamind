@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import List
 from reportlab.lib.pagesizes import A4
 from reportlab.lib import colors
 from io import BytesIO
@@ -16,11 +17,21 @@ import requests
 from io import BytesIO
 import textwrap
 from PyPDF2 import PdfReader, PdfWriter
+from dataclasses import dataclass
 
+@dataclass
+class NewsItem:
+    title: str
+    summary: str
+    content: str
+    newspaper: str
+    keywords: list[str]
+    image_url: str | None = None
+    date_time: str | None = None
 
 class PDFService:
     @staticmethod
-    def create_pdf(news_items) -> bytes:
+    def create_pdf(news_items: List[NewsItem]) -> bytes:
         dimensions = A4
 
         # Generate cover page to separate PDF
@@ -28,7 +39,6 @@ class PDFService:
         cover = PDFService.__draw_cover_page(news_items, dimensions)
 
         return PDFService.__merge_pdfs_bytes(cover, body)
-
 
 
     # This function wraps text to a specified width, ensuring that it fits within the PDF layout.

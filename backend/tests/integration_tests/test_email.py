@@ -14,7 +14,7 @@ async def test_schedule_email():
 
     # Assert
     assert scheduled_email.recipient == email_schedule.recipient
-    assert scheduled_email.subject == email_schedule.sub
+    assert scheduled_email.subject == email_schedule.subject
     assert scheduled_email.content_type == email_schedule.content_type
     assert scheduled_email.content == email_schedule.content
     assert scheduled_email.attachment == email_schedule.attachment

@@ -10,8 +10,8 @@ class EmailRepository:
     async def add_email(email: Email) -> Email:
         async with async_session() as session:
             session.add(email)
-            session.commit()
-            session.refresh(email)
+            await session.commit()
+            await session.refresh(email)
             return email
 
     @staticmethod
@@ -29,13 +29,13 @@ class EmailRepository:
     @staticmethod
     async def update_email(email: Email) -> Email|None:
         async with async_session() as session:
-            existing_email = session.get(Email, email.id)
+            existing_email = await session.get(Email, email.id)
             if existing_email:
                 for attr, value in vars(email).items():
                     if attr != "_sa_instance_state":
                         setattr(existing_email, attr, value)
-                session.commit()
-                session.refresh(existing_email)
+                await session.commit()
+                await session.refresh(existing_email)
                 return existing_email
             else:
                 return None
