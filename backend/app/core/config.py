@@ -52,7 +52,7 @@ class Configs(BaseSettings):
         ] + [self.FRONTEND_HOST]
 
     PROJECT_NAME: str = "mediamind"
-    FERNET_KEY: str = "changethis"
+    FERNET_KEY: str = "nNjpIl9Ax2LRtm-p6ryCRZ8lRsL0DtuY0f9JeAe2wG0="
     SENTRY_DSN: HttpUrl | None = None
     POSTGRES_SERVER: str = "localhost"
     POSTGRES_PORT: int = 5432
