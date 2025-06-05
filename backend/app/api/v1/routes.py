@@ -1,16 +1,24 @@
 from fastapi import APIRouter
 from fastapi.responses import JSONResponse
 
+from app.api.v1.endpoints.article_controller import router as article_router
+from app.api.v1.endpoints.keywords_controller import router as keywords_router
 from app.api.v1.endpoints.search_profile_controller import (
     router as search_profile_router,
 )
 from app.api.v1.endpoints.user_controller import router as user_router
-from app.api.v1.endpoints.article_controller import router as article_router
-from app.api.v1.endpoints.vector_store_collection import router as vector_store_router
-from app.api.v1.endpoints.keywords_controller import router as keywords_router
+from app.api.v1.endpoints.vector_store_collection import (
+    router as vector_store_router,
+)
 
 routers = APIRouter()
-router_list = [user_router, search_profile_router, article_router, vector_store_router, keywords_router]
+router_list = [
+    user_router,
+    search_profile_router,
+    article_router,
+    vector_store_router,
+    keywords_router,
+]
 
 
 @routers.get("/healthcheck", tags=["healthcheck"])
