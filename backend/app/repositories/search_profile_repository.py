@@ -74,10 +74,10 @@ async def get_available_search_profiles(
 
 
 async def update_by_id(
-    profile_id: UUID, data: SearchProfileUpdateRequest
+    search_profile_id: UUID, data: SearchProfileUpdateRequest
 ) -> Type[SearchProfile] | None:
     async with async_session() as session:
-        profile = await session.get(SearchProfile, profile_id)
+        profile = await session.get(SearchProfile, search_profile_id)
         if not profile:
             return None
 
@@ -134,11 +134,11 @@ async def get_accessible_profiles(user_id, organization_id):
 
 
 async def get_by_id(
-    profile_id: UUID, current_user: User
+    search_profile_id: UUID, current_user: User
 ) -> SearchProfile | None:
     async with async_session() as session:
         result = await session.execute(
-            select(SearchProfile).where(SearchProfile.id == profile_id)
+            select(SearchProfile).where(SearchProfile.id == search_profile_id)
         )
         return result.scalars().one_or_none()
 

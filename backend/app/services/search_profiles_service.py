@@ -20,9 +20,7 @@ from app.schemas.articles_schemas import (
     MatchDetailResponse,
 )
 from app.schemas.match_schemas import MatchFeedbackRequest
-from app.schemas.search_profile_schemas import (
-    SearchProfileDetailResponse,
-)
+from app.schemas.search_profile_schemas import SearchProfileDetailResponse
 
 logger = get_logger(__name__)
 
@@ -62,12 +60,12 @@ class SearchProfiles:
 
     @staticmethod
     async def update_search_profile(
-        profile_id: UUID,
+        search_profile_id: UUID,
         update_data: SearchProfileUpdate,
         current_user: User,
     ) -> SearchProfileRead | None:
         # Load the raw SQLModel (not a response object)
-        profile = await get_by_id(profile_id, current_user)
+        profile = await get_by_id(search_profile_id, current_user)
         if profile is None:
             return None
 
@@ -88,24 +86,28 @@ class SearchProfiles:
 
     @staticmethod
     async def get_article_overview(
-        profile_id: UUID,
+        search_profile_id: UUID,
     ) -> ArticleOverviewResponse:
-        matches = await MatchRepository.get_articles_by_profile(profile_id)
+        matches = await MatchRepository.get_articles_by_profile(
+            search_profile_id
+        )
 
         articles = [
             ArticleOverviewItem.from_entity(m) for m in matches if m.article
         ]
 
         return ArticleOverviewResponse(
-            search_profile_id=profile_id,
+            search_profile_id=search_profile_id,
             articles=articles,
         )
 
     @staticmethod
     async def get_match_detail(
-        profile_id: UUID, match_id: UUID
+        search_profile_id: UUID, match_id: UUID
     ) -> MatchDetailResponse | None:
-        match = await MatchRepository.get_match_by_id(profile_id, match_id)
+        match = await MatchRepository.get_match_by_id(
+            search_profile_id, match_id
+        )
         if not match or not match.article:
             return None
 
@@ -127,12 +129,12 @@ class SearchProfiles:
 
     @staticmethod
     async def update_match_feedback(
-        profile_id: UUID,
+        search_profile_id: UUID,
         match_id: UUID,
         data: MatchFeedbackRequest,
     ) -> bool:
         match = await MatchRepository.update_match_feedback(
-            profile_id,
+            search_profile_id,
             match_id,
             comment=data.comment,
             reason=data.reason,
