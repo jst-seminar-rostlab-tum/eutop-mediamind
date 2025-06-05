@@ -37,6 +37,28 @@ You can then see the API definition at `http://localhost:8000/api/docs`
 
 ## Docker
 
+### For development
+
+Use the provided [docker-compose.yml](/scripts/docker-compose.dev.yml) file.
+From root, execute the following commands to build and start the backend services:
+
+To build the images:
+```bash
+docker compose build
+```
+
+To start the containers:
+```bash
+docker compose up
+```
+
+You can also build and start in one command:
+```bash
+docker compose up --build
+```
+
+### For Production
+
 This approach is mainly for production deployment using terraform (which is why the envs are passed as a JSON), but you can also use it for local development.
 
 To build and run using Docker:
@@ -79,6 +101,9 @@ The folder structure was taken from [here](https://github.com/jujumilk3/fastapi-
 - _utils_: Miscellaneous utilities and helpers (e.g. crawling logic, formatters, converters). Self-explanatory and isolated.
 
 ## Secrets Management
+
+We encrypt the credentials for subscriptions before storing them in the database.
+These are then decrypted when needed, using the key provided in the environment variables.
 
 Example usage:
 ```py
