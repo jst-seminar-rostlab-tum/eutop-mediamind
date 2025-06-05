@@ -1,6 +1,9 @@
 import logging
 import os
 from logging.handlers import RotatingFileHandler
+from multiprocessing.util import get_logger
+
+logger = get_logger()
 
 
 def get_logger(name: str) -> logging.Logger:

@@ -20,7 +20,7 @@ async def get_topics(
     return await TopicsService.get_topics(search_profile_id, current_user)
 
 
-@router.post("", response_model=TopicResponse)
+@staticmethod
 async def add_topic(
     search_profile_id: UUID,
     request: TopicCreateRequest,
