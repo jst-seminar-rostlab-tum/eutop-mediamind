@@ -19,7 +19,7 @@ logger = get_logger(__name__)
 class EmailSchedule:
     def __init__(self, recipient: str, subject: str, content_type: str, content: str, attachment: str) -> None:
         self.recipient = recipient
-        self.sub = subject
+        self.subject = subject
         self.content = content
         self.content_type = content_type
         self.attachment = attachment
@@ -32,7 +32,7 @@ class EmailService:
         email = Email()
         email.sender = configs.SENDER_EMAIL
         email.recipient = schedule.recipient
-        email.subject = schedule.sub
+        email.subject = schedule.subject
         email.content_type = schedule.content_type
         email.content = schedule.content
         email.attachment = schedule.attachment
@@ -60,13 +60,13 @@ class EmailService:
 
 
     @staticmethod
-    def __send_email(schedule: EmailSchedule):
+    def __send_email(email : Email):
         from_email = SEmail(configs.SENDER_EMAIL)  
-        to_email = To(schedule.recipient)  
-        content = Content(schedule.content_type, schedule.content)
-        attachment = Attachment(schedule.attachment, "report.pdf", "application/pdf", "attachment")
+        to_email = To(email.recipient)  
+        content = Content(email.content_type, email.content)
+        attachment = Attachment(email.attachment, "report.pdf", "application/pdf", "attachment")
 
-        mail = Mail(from_email, to_email, schedule.sub, content)
+        mail = Mail(from_email, to_email, email.subject, content)
         mail.add_attachment(attachment)
 
         response = EmailService.__sg_client.client.mail.send.post(request_body=mail.get())
