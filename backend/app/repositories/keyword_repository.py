@@ -1,17 +1,18 @@
-from typing import Sequence, Optional
+from typing import Optional, Sequence
 from uuid import UUID
+
+from sqlalchemy import or_
 from sqlalchemy.orm import selectinload
 from sqlmodel import Session, select
 
-from app.models import Keyword, ArticleKeywordLink
+from app.core.db import async_session, engine
+from app.models import ArticleKeywordLink, Keyword
 from app.models.article import Article
-from app.core.db import engine, async_session
-from sqlalchemy import or_
-
 from app.repositories.article_repository import ArticleRepository
 from app.services.article_vector_service import ArticleVectorService
 
 article_vector_service = ArticleVectorService()
+
 
 class KeywordRepository:
 
@@ -24,14 +25,12 @@ class KeywordRepository:
             return result.scalars().first()
 
     @staticmethod
-    async def list_keywords(limit: int = 100, offset: int = 0) -> Sequence[Keyword]:
+    async def list_keywords(
+        limit: int = 100, offset: int = 0
+    ) -> Sequence[Keyword]:
         """Retrieve a list of keywords with pagination."""
         async with async_session() as session:
-            statement = (
-                select(Keyword)
-                .limit(limit)
-                .offset(offset)
-            )
+            statement = select(Keyword).limit(limit).offset(offset)
             result = await session.execute(statement)
             keywords = result.scalars().all()
             return keywords
@@ -48,22 +47,17 @@ class KeywordRepository:
 
     @staticmethod
     async def add_article_to_keyword(
-            keyword_id: UUID, article_id: UUID, score: float
+        keyword_id: UUID, article_id: UUID, score: float
     ) -> None:
         """Assign an article to a keyword und speichere dabei den score in der Link-Tabelle."""
         async with async_session() as session:
 
-
             link = ArticleKeywordLink(
-                article_id=article_id,
-                keyword_id=keyword_id,
-                score=score
+                article_id=article_id, keyword_id=keyword_id, score=score
             )
             session.add(link)
 
-
             await session.commit()
-
 
     @staticmethod
     async def get_most_similar_articles(
@@ -74,14 +68,18 @@ class KeywordRepository:
         keyword = await KeywordRepository.get_keyword_by_id(keyword_id)
         if not keyword:
             return []
-        articles = await article_vector_service.retrieve_by_similarity(keyword.name, score_threshold=score_threshold)
+        articles = await article_vector_service.retrieve_by_similarity(
+            keyword.name, score_threshold=score_threshold
+        )
 
         result = []
         for article in articles:
             doc, score = article
 
             print(doc.metadata["id"])
-            article_obj = await ArticleRepository.get_article_by_id(doc.metadata["id"])
+            article_obj = await ArticleRepository.get_article_by_id(
+                doc.metadata["id"]
+            )
             if article_obj:
                 result.append(article_obj)
 
@@ -103,14 +101,19 @@ class KeywordRepository:
             for keyword in keywords:
 
                 print(f"Processing keyword: {keyword.name}")
-                similar_articles = await article_vector_service.retrieve_by_similarity(query=keyword.name, score_threshold=0.3)
+                similar_articles = (
+                    await article_vector_service.retrieve_by_similarity(
+                        query=keyword.name, score_threshold=0.3
+                    )
+                )
 
                 for similar_article in similar_articles:
                     doc, score = similar_article
-                    await KeywordRepository.add_article_to_keyword(keyword.id, doc.metadata["id"], score)
-                    print(f"Assigned article {doc.metadata['id']} to keyword {keyword.name}")
+                    await KeywordRepository.add_article_to_keyword(
+                        keyword.id, doc.metadata["id"], score
+                    )
+                    print(
+                        f"Assigned article {doc.metadata['id']} to keyword {keyword.name}"
+                    )
 
             page += 1
-
-
-

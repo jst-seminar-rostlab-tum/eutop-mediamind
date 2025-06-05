@@ -5,11 +5,11 @@ from langchain.chains.summarize import load_summarize_chain
 from langchain.docstore.document import Document
 from langchain.text_splitter import CharacterTextSplitter
 from langchain_openai import ChatOpenAI
+from starlette.concurrency import run_in_threadpool
 
 from app.core.config import configs
 from app.models.article import Article
 from app.repositories.article_repository import ArticleRepository
-from starlette.concurrency import run_in_threadpool
 
 
 class ArticleSummaryService:

@@ -2,12 +2,12 @@ import uuid
 from datetime import datetime
 from typing import TYPE_CHECKING, List
 
+from sqlalchemy import Column, Text
 from sqlmodel import Field, Relationship, SQLModel
 
 from app.models.associations import (
     ArticleKeywordLink,
 )
-from sqlalchemy import Column, Text
 
 if TYPE_CHECKING:
     from app.models.keyword import Keyword

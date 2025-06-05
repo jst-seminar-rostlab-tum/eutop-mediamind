@@ -1,11 +1,12 @@
-from typing import Sequence, Optional
+from typing import Optional, Sequence
 from uuid import UUID
 
+from sqlalchemy import or_
 from sqlmodel import Session, select
 
+from app.core.db import async_session, engine
 from app.models.article import Article
-from app.core.db import engine, async_session
-from sqlalchemy import or_
+
 
 class ArticleRepository:
     @staticmethod
@@ -31,7 +32,9 @@ class ArticleRepository:
                 return None
 
             # Nur die gesetzten Felder aus new_data extrahieren
-            existing_data = article.model_dump(exclude_unset=True, exclude={"id"})
+            existing_data = article.model_dump(
+                exclude_unset=True, exclude={"id"}
+            )
             for key, val in existing_data.items():
                 setattr(existing, key, val)
 
@@ -41,7 +44,9 @@ class ArticleRepository:
             return existing
 
     @staticmethod
-    async def update_summary(article_id: UUID, summary: str) -> Optional[Article]:
+    async def update_summary(
+        article_id: UUID, summary: str
+    ) -> Optional[Article]:
         """
         Update only the 'summary' field of an existing Article.
         Returns the updated Article, or None if it does not exist.
@@ -77,27 +82,22 @@ class ArticleRepository:
         """
         async with async_session() as session:
             statement = (
-                select(Article)
-                .limit(limit)
-                .offset(offset + (set_of * limit))
+                select(Article).limit(limit).offset(offset + (set_of * limit))
             )
             result = await session.execute(statement)
             return result.scalars().all()
 
     @staticmethod
-    async def list_articles_without_summary(limit: int = 100, offset: int = 0) -> Sequence[Article]:
+    async def list_articles_without_summary(
+        limit: int = 100, offset: int = 0
+    ) -> Sequence[Article]:
         """
         List articles that have no summary yet, with pagination.
         """
         async with async_session() as session:
             statement = (
                 select(Article)
-                .where(
-                    or_(
-                        Article.summary.is_(None),
-                        Article.summary == ""
-                    )
-                )
+                .where(or_(Article.summary.is_(None), Article.summary == ""))
                 .limit(limit)
                 .offset(offset)
             )
@@ -107,7 +107,9 @@ class ArticleRepository:
             return articles
 
     @staticmethod
-    async def list_articles_with_summary(limit: int = 100, offset: int = 0) -> Sequence[Article]:
+    async def list_articles_with_summary(
+        limit: int = 100, offset: int = 0
+    ) -> Sequence[Article]:
         """
         Listet Artikel, bei denen das Feld `summary` nicht NULL und nicht leer ist,
         mit Pagination (limit/offset).
@@ -115,10 +117,7 @@ class ArticleRepository:
         async with async_session() as session:
             statement = (
                 select(Article)
-                .where(
-                    Article.summary.isnot(None),
-                    Article.summary != ""
-                )
+                .where(Article.summary.isnot(None), Article.summary != "")
                 .limit(limit)
                 .offset(offset)
             )
