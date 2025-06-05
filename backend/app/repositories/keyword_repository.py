@@ -3,7 +3,7 @@ from uuid import UUID
 from sqlalchemy.orm import selectinload
 from sqlmodel import Session, select
 
-from app.models import Keyword
+from app.models import Keyword, ArticleKeywordLink
 from app.models.article import Article
 from app.core.db import engine, async_session
 from sqlalchemy import or_
@@ -45,6 +45,45 @@ class KeywordRepository:
             await session.commit()
             await session.refresh(new_keyword)
             return new_keyword
+
+    @staticmethod
+    async def add_article_to_keyword(
+            keyword_id: UUID, article_id: UUID, score: float
+    ) -> None:
+        """Assign an article to a keyword und speichere dabei den score in der Link-Tabelle."""
+        async with async_session() as session:
+            # 1) Keyword mitsamt vorhandener Artikel (eager) laden
+            stmt = (
+                select(Keyword)
+                .options(selectinload(Keyword.articles))
+                .where(Keyword.id == keyword_id)
+            )
+            result = await session.execute(stmt)
+            keyword = result.scalars().first()
+
+            if not keyword:
+                raise ValueError(f"Keyword mit id {keyword_id} existiert nicht.")
+
+            print(f"--> Adding {keyword.name}")
+
+            # 2) Article laden
+            stmt2 = select(Article).where(Article.id == article_id)
+            result = await session.execute(stmt2)
+            article = result.scalars().first()
+            if not article:
+                raise ValueError(f"Article mit id {article_id} existiert nicht.")
+
+            # 3) Link-Objekt manuell erstellen und Score setzen
+            link = ArticleKeywordLink(
+                article_id=article_id,
+                keyword_id=keyword_id,
+                score=score
+            )
+            session.add(link)
+
+            # 4) Commit und evtl. refresh, um die Relationships aktuell zu halten
+            await session.commit()
+            await session.refresh(keyword)
 
     @staticmethod
     async def get_most_similar_articles(
@@ -91,45 +130,10 @@ class KeywordRepository:
                 for similar_article in similar_articles:
                     doc, score = similar_article
                     print(f"Assigned article {doc.metadata['id']} to keyword {keyword.name}")
-                    await KeywordRepository.add_article_to_keyword(keyword.id, doc.metadata["id"])
+                    await KeywordRepository.add_article_to_keyword(keyword.id, doc.metadata["id"], score)
                     print(f"Assigned article {doc.metadata['id']} to keyword {keyword.name}")
 
             page += 1
 
-    @staticmethod
-    async def add_article_to_keyword(
-            keyword_id: UUID, article_id: UUID
-    ) -> None:
-        """Assign an article to a keyword."""
-        async with async_session() as session:
-            # 1) When we fetch the Keyword, pull in its .articles collection with selectinload(...)
-            stmt = (
-                select(Keyword)
-                .options(selectinload(Keyword.articles))
-                .where(Keyword.id == keyword_id)
-            )
-            result = await session.execute(stmt)
-            keyword = result.scalars().first()
 
-            if not keyword:
-                raise ValueError(f"Keyword with id {keyword_id} does not exist.")
 
-            print(f"--> Adding {keyword.name}")
-
-            # 2) Fetch the article normally
-            stmt2 = select(Article).where(Article.id == article_id)
-            result = await session.execute(stmt2)
-            article = result.scalars().first()
-            if not article:
-                raise ValueError(f"Article with id {article_id} does not exist.")
-
-            # 3) Because we've already eagerly loaded keyword.articles, .append() no longer fires a lazy-load.
-            keyword.articles.append(article)
-            # (session.add(keyword) is not strictly necessary—'keyword' is already in the identity map—but harmless.)
-            session.add(keyword)
-
-            await session.commit()
-
-            # 4) If you really need to reflect the new state of keyword.articles back on `keyword`,
-            #    session.refresh(keyword) will also work without error, because everything it needs is already loaded.
-            await session.refresh(keyword)
