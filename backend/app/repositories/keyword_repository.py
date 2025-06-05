@@ -52,28 +52,8 @@ class KeywordRepository:
     ) -> None:
         """Assign an article to a keyword und speichere dabei den score in der Link-Tabelle."""
         async with async_session() as session:
-            # 1) Keyword mitsamt vorhandener Artikel (eager) laden
-            stmt = (
-                select(Keyword)
-                .options(selectinload(Keyword.articles))
-                .where(Keyword.id == keyword_id)
-            )
-            result = await session.execute(stmt)
-            keyword = result.scalars().first()
 
-            if not keyword:
-                raise ValueError(f"Keyword mit id {keyword_id} existiert nicht.")
 
-            print(f"--> Adding {keyword.name}")
-
-            # 2) Article laden
-            stmt2 = select(Article).where(Article.id == article_id)
-            result = await session.execute(stmt2)
-            article = result.scalars().first()
-            if not article:
-                raise ValueError(f"Article mit id {article_id} existiert nicht.")
-
-            # 3) Link-Objekt manuell erstellen und Score setzen
             link = ArticleKeywordLink(
                 article_id=article_id,
                 keyword_id=keyword_id,
@@ -81,9 +61,9 @@ class KeywordRepository:
             )
             session.add(link)
 
-            # 4) Commit und evtl. refresh, um die Relationships aktuell zu halten
+
             await session.commit()
-            await session.refresh(keyword)
+
 
     @staticmethod
     async def get_most_similar_articles(
@@ -125,11 +105,8 @@ class KeywordRepository:
                 print(f"Processing keyword: {keyword.name}")
                 similar_articles = await article_vector_service.retrieve_by_similarity(query=keyword.name, score_threshold=0.3)
 
-                print("----------------------------------------")
-                print(keyword)
                 for similar_article in similar_articles:
                     doc, score = similar_article
-                    print(f"Assigned article {doc.metadata['id']} to keyword {keyword.name}")
                     await KeywordRepository.add_article_to_keyword(keyword.id, doc.metadata["id"], score)
                     print(f"Assigned article {doc.metadata['id']} to keyword {keyword.name}")
 
