@@ -9,8 +9,7 @@ import trafilatura
 import json
 
 if __name__ == "__main__":
-    downloaded = trafilatura.fetch_url(
-        'https://www.welt.de/wirtschaft/article256174234/Tesla-Verkaeufe-in-Europa-halbieren-sich-mehrere-Hersteller-ueberholen-den-E-Auto-Pionier.html')
-    result = trafilatura.extract(downloaded, output_format='json')
+    html_content = trafilatura.fetch_url("https://www.merkur.de/politik/trump-telefoniert-erneut-mit-putin-zum-ukraine-krieg-zr-93741274.html")
+    result = trafilatura.extract(html_content, output_format='json', with_metadata=True)
     a = json.loads(result)
-    print(a)
+    print(type(a))

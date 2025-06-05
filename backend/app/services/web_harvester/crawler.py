@@ -1,56 +1,53 @@
 from abc import ABC, abstractmethod
 from typing import Any, List
-from urllib.parse import urlparse
 
 import requests
-from eventregistry import EventRegistry, QueryArticlesIter
 from app.core.logger import get_logger
+from app.models.article import Article, Subscription
 from app.core.config import configs
-from app.models.article import Article
-from app.models.subscription import Subscription
+from datetime import date as Date
+from eventregistry import EventRegistry, QueryArticlesIter
+from urllib.parse import urlparse
+
 
 logger = get_logger(__name__)
 
 
-class UrlExtractor(ABC):
+class Crawler(ABC):
     @abstractmethod
-    def extract_article_urls(
+    def crawl_urls(
         self,
         subscription: Subscription,
-        limit: int = 50,
-        date_start: str = None,
-        date_end: str = None
+        date_start: Date | None = None,
+        date_end: Date | None = None,
+        limit: int | None = None
     ) -> List[Article]:
         """
-        Given a Subscription, extract and returns a list of Articles,
-        optionally filtered by a date range. If no date range is provided,
-        it returns the most recent articles up to the specified limit.
+        Given a Subscription, extract and returns a list of Articles (with the urls and subscription id at minimum).
 
-        :param news_url: A list of news URLs to extract article links from.
-        :param limit: The maximum number of article URLs to return.
-        :param date_start: The start date (inclusive) for filtering articles, in 'YYYY-MM-DD' format.
-        :param date_end: The end date (inclusive) for filtering articles, in 'YYYY-MM-DD' format.
+        :param subscription: A Subscription object containing the URL to crawl.
         :return: A list of URLs pointing to individual news articles.
         """
-        pass
+        raise NotImplementedError("This method should be implemented by subclasses.")
 
 
-class NewsAPIUrlExtractor(UrlExtractor):
+class NewsAPICrawler(Crawler):
+    """
+    A crawler that uses the NewsAPI.ai service to extract article URLs based on a subscription.
+    This crawler fetches articles from the NewsAPI.ai database based on the subscription's NewsAPI ID.
+    """
     def __init__(self):
-        """
-        Initializes the NewsAPIUrlExtractor with the necessary configurations.
-        """
         if not configs.NEWSAPIAI_API_KEY:
             raise ValueError("NEWSAPIAI_API_KEY is not set in the configuration.")
-        logger.info("NewsAPIUrlExtractor initialized with API key.")
         self.api_key = configs.NEWSAPIAI_API_KEY
-    
-    def extract_article_urls(
+        logger.info("NewsAPICrawler initialized with API key.")
+        
+    def crawl_urls(
         self,
         subscription: Subscription,
-        limit: int = 50,
-        date_start: str = None,
-        date_end: str = None
+        date_start: Date | None = None,
+        date_end: Date | None = None,
+        limit: int | None = None
     ) -> List[Article]:
         try:
             er = EventRegistry(apiKey=self.api_key)
@@ -60,25 +57,18 @@ class NewsAPIUrlExtractor(UrlExtractor):
 
         newsapi_id = subscription.newsapi_id
         if not newsapi_id:
-            logger.error(f"{subscription.name} does not have a NewsAPI ID.")
+            logger.info(f"{subscription.name} does not have a NewsAPI ID.")
             return []
         
         query_conditions = [
             {"$or": [{"sourceUri": newsapi_id}]},
-            {
-                "$or": [
-                    {"categoryUri": "news/Environment"},
-                    {"categoryUri": "news/Business"},
-                    {"categoryUri": "news/Health"},
-                    {"categoryUri": "news/Politics"},
-                    {"categoryUri": "news/Technology"},
-                    {"categoryUri": "news/Science"},
-                ]
-            }
         ]
         
         if date_start and date_end:
-            query_conditions.append({"dateStart": date_start, "dateEnd": date_end})
+            query_conditions.append({
+                "dateStart": date_start.strftime("%Y-%m-%d"),
+                "dateEnd": date_end.strftime("%Y-%m-%d")
+            })
 
         query = {
             "$query": {
@@ -149,16 +139,3 @@ class NewsAPIUrlExtractor(UrlExtractor):
         except requests.exceptions.RequestException as e:
             logger.error(f"An error occurred during the API request: {e}")
             return None
-
-
-if __name__ == "__main__":
-    extractor = NewsAPIUrlExtractor()
-    urls = extractor.extract_article_urls(
-        subscription=Subscription(
-            id="12345",
-            name="Example Subscription",
-            newsapi_id="topagrar.com"
-        ),
-        limit=10
-    )
-    print(urls)  # This will print the extracted article URLs.
