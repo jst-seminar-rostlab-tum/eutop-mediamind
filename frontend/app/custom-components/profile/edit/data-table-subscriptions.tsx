@@ -91,7 +91,7 @@ const getColumns = (
   },
 ];
 
-export function DataTableSubsciptions({
+export function DataTableSubscriptions({
   name,
   allSubscriptions,
   selectedSubscriptions,
