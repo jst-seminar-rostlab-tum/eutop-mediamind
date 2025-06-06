@@ -1,4 +1,7 @@
-from litellm import completion
+from litellm import CustomStreamWrapper, completion
+from typing import TypeVar, Type
+
+from litellm.files.main import ModelResponse
 
 from app.core.config import configs
 from app.core.logger import get_logger
@@ -28,10 +31,21 @@ class LLMClient:
         self.api_key = configs.OPENAI_API_KEY
 
     def generate_response(self, prompt: str) -> str:
+        return self.__prompt(prompt)
+        
+    T = TypeVar('T')
+    def generate_typed_response(self, prompt: str, resp_schema_type: Type[T]) -> T:
+        return self.__prompt(prompt, resp_schema=resp_schema_type)
+
+
+    def __prompt(self, prompt: str, resp_schema=None):
         kwargs = {
             "model": self.model,
             "messages": [{"role": "user", "content": prompt}],
         }
+
+        if resp_schema:
+            kwargs["response_format"] = resp_schema
 
         if self.api_key:
             kwargs["api_key"] = self.api_key
@@ -39,9 +53,13 @@ class LLMClient:
         try:
             response = completion(**kwargs)
             return response.choices[0].message.content
+
         except Exception as e:
             logger.exception(
                 f"Error occurred while generating response with model \
                 '{self.model}': {e}"
             )
             raise
+
+
+

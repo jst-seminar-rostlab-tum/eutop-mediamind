@@ -45,3 +45,7 @@ class SearchProfileDetailResponse(BaseModel):
     topics: List[TopicOut]
 
     model_config = ConfigDict(from_attributes=True)
+
+class KeywordSugestion(BaseModel):
+    topic: str
+    sugeestions: List[str]
