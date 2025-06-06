@@ -8,36 +8,91 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-def click_element(driver, wait, selector):
+def click_element(driver, wait, selector_xpath, selector_name):
     try:
         time.sleep(1)
-        if selector.startswith('class='):
+        if selector_xpath.startswith('class='):
             btn = wait.until(EC.element_to_be_clickable(
-                (By.CLASS_NAME, selector.replace('class=', '').split()[0])
+                (By.CLASS_NAME, selector_xpath.replace(
+                    'class=', '').split()[0])
             ))
-        elif selector.startswith('//'):
-            btn = wait.until(EC.element_to_be_clickable((By.XPATH, selector)))
+        elif selector_xpath.startswith('//'):
+            btn = wait.until(EC.element_to_be_clickable((
+                By.XPATH, selector_xpath
+            )))
         else:
             btn = wait.until(EC.element_to_be_clickable(
-                (By.CSS_SELECTOR, selector)
+                (By.CSS_SELECTOR, selector_xpath)
             ))
         try:
             btn.click()
-            logger.info("Element clicked")
+            logger.info(f"Element {selector_name} clicked")
             return True
         except Exception:
-            logger.info("Trying to click element with JavaScript")
             try:
                 driver.execute_script(
                     "arguments[0].click();", btn
                 )
-                logger.info("Element clicked")
+                logger.info(f"Element {selector_name} clicked")
                 return True
-            except Exception as e:
-                logger.error(f"Was not possible to click element: {e}")
+            except Exception:
+                logger.error(
+                    f"Was not possible to click element {selector_name}"
+                )
                 return False
-    except Exception as e:
-        logger.error(f"Element to click not found: {e}")
+    except Exception:
+        logger.error(f"Element to click {selector_name} not found")
+        return False
+
+
+def change_frame(driver, wait, selector_xpath, selector_name):
+    try:
+        iframe = wait.until(
+            EC.presence_of_element_located((By.XPATH, selector_xpath))
+        )
+        driver.switch_to.frame(iframe)
+        logger.info(f"Changed to iframe: {selector_name}")
+        return True
+    except Exception:
+        logger.error(f"Error when changing to iframe: {selector_name}")
+        return False
+
+
+def scroll_to_element(driver, wait, selector_xpath, selector_name):
+    try:
+        element = wait.until(
+            EC.visibility_of_element_located((By.XPATH, selector_xpath)))
+        driver.execute_script(
+            "arguments[0].scrollIntoView({"
+            "block: 'center', "
+            "behavior: 'instant'"
+            "});", element)
+        time.sleep(1)
+
+        logger.info(f"Scrolled to element {selector_name}")
+        return True
+    except Exception:
+        logger.error(f"Failed to scroll to element {selector_name}")
+        return False
+
+
+def insert_credential(driver, wait, input_selector, input_name, credential):
+    try:
+        if input_selector.startswith('//'):
+            input_field = wait.until(EC.presence_of_element_located(
+                (By.XPATH, input_selector)
+            ))
+        else:
+            input_field = wait.until(EC.presence_of_element_located(
+                (By.CSS_SELECTOR, input_selector)
+            ))
+        input_field.clear()
+        input_field.send_keys(credential)
+        time.sleep(1)
+        logger.info(f"Credential inserted for {input_name}")
+        return True
+    except Exception:
+        logger.warning(f"Could not insert credential for {input_name}")
         return False
 
 
@@ -72,55 +127,6 @@ def click_shadow_element(driver, wait, element_selector, shadow_selector):
                 return False
     except Exception as e:
         logger.error(f"Element to click not found: {e}")
-        return False
-
-
-def change_frame(driver, wait, selector):
-    try:
-        iframe = wait.until(
-            EC.presence_of_element_located((By.XPATH, selector))
-        )
-        driver.switch_to.frame(iframe)
-        logger.info("Changed to iframe")
-    except Exception as e:
-        logger.error(f"Error when changing frames: {e}")
-
-
-def scroll_to_element(driver, wait, selector):
-    try:
-        element = wait.until(
-            EC.visibility_of_element_located((By.XPATH, selector)))
-        driver.execute_script(
-            "arguments[0].scrollIntoView({"
-            "block: 'center', "
-            "behavior: 'instant'"
-            "});", element)
-        time.sleep(1)
-
-        logger.info("Scrolled to element")
-        return True
-    except Exception as e:
-        logger.error(f"Failed to scroll to element: {e}")
-        return False
-
-
-def insert_credential(driver, wait, credential, input_selector):
-    try:
-        if input_selector.startswith('//'):
-            input_field = wait.until(EC.presence_of_element_located(
-                (By.XPATH, input_selector)
-            ))
-        else:
-            input_field = wait.until(EC.presence_of_element_located(
-                (By.CSS_SELECTOR, input_selector)
-            ))
-        input_field.clear()
-        input_field.send_keys(credential)
-        time.sleep(1)
-        logger.info("Credential inserted")
-        return True
-    except Exception as e:
-        logger.warning(f"Could not insert credential: {e}")
         return False
 
 
