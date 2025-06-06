@@ -1,14 +1,23 @@
+from datetime import datetime, timedelta, timezone
+
 from fastapi import HTTPException
 from sqlalchemy import UUID
 
 from app.core.db import async_session
 from app.models import SearchProfile, Topic, User
 from app.repositories.match_repository import MatchRepository
+from app.repositories.match_repositoy import (
+    get_recent_match_counts_by_profile_ids,
+)
 from app.repositories.search_profile_repository import (
     create_profile_with_request,
     get_accessible_profiles,
     get_search_profile_by_id,
     update_profile_with_request,
+)
+from app.repositories.subscription_repository import (
+    get_available_subscriptions,
+    set_subscriptions_for_profile,
 )
 from app.schemas.articles_schemas import (
     ArticleOverviewItem,
@@ -19,7 +28,12 @@ from app.schemas.match_schemas import MatchFeedbackRequest
 from app.schemas.search_profile_schemas import (
     SearchProfileCreateRequest,
     SearchProfileDetailResponse,
+    SearchProfileDetailResponseWithNewArticleCount,
     SearchProfileUpdateRequest,
+)
+from app.schemas.subscription_schemas import (
+    SetSearchProfileSubscriptionsRequest,
+    SubscriptionSummary,
 )
 from app.schemas.topic_schemas import TopicResponse
 
@@ -52,15 +66,57 @@ class SearchProfileService:
     @staticmethod
     async def get_available_search_profiles(
         current_user: User,
-    ) -> list[SearchProfileDetailResponse]:
+    ) -> list[SearchProfileDetailResponseWithNewArticleCount]:
         accessible_profiles = await get_accessible_profiles(
             current_user.id, current_user.organization_id
         )
 
+        profile_ids = [p.id for p in accessible_profiles]
+        time_threshold = datetime.now(timezone.utc) - timedelta(hours=24)
+
+        count_map = await get_recent_match_counts_by_profile_ids(
+            profile_ids, time_threshold
+        )
+
         return [
-            SearchProfileService._build_profile_response(profile, current_user)
+            SearchProfileService._build_profile_response_with_count_map(
+                profile, current_user, count_map.get(profile.id, 0)
+            )
             for profile in accessible_profiles
         ]
+
+    @staticmethod
+    def _build_profile_response_with_count_map(
+        profile: SearchProfile, current_user: User, new_articles_count: int = 0
+    ) -> SearchProfileDetailResponseWithNewArticleCount:
+        is_owner = profile.created_by_id == current_user.id
+        is_editable = is_owner or current_user.is_superuser
+
+        organization_emails = SearchProfileService._filter_emails_by_org(
+            profile, current_user.organization_id, include=True
+        )
+        profile_emails = SearchProfileService._filter_emails_by_org(
+            profile, current_user.organization_id, include=False
+        )
+
+        topic_responses = [
+            SearchProfileService._build_topic_response(topic)
+            for topic in profile.topics
+        ]
+
+        return SearchProfileDetailResponseWithNewArticleCount(
+            id=profile.id,
+            name=profile.name,
+            organization_emails=organization_emails,
+            profile_emails=profile_emails,
+            public=profile.is_public,
+            editable=is_editable,
+            is_editable=is_editable,
+            owner=profile.created_by_id,
+            is_owner=is_owner,
+            topics=topic_responses,
+            new_articles_count=new_articles_count,
+        )
 
     @staticmethod
     def _build_profile_response(
@@ -193,3 +249,20 @@ class SearchProfileService:
             ranking=data.ranking,
         )
         return match is not None
+
+    @staticmethod
+    async def get_available_subscriptions_for_profile() -> (
+        list[SubscriptionSummary]
+    ):
+        return await get_available_subscriptions()
+
+    @staticmethod
+    async def set_search_profile_subscriptions(
+        request: SetSearchProfileSubscriptionsRequest,
+    ) -> None:
+        await set_subscriptions_for_profile(
+            profile_id=request.search_profile_id,
+            subscription_ids=[
+                s.subscription_id for s in request.subscriptions
+            ],
+        )

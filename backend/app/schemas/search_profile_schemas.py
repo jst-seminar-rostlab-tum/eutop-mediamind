@@ -32,6 +32,20 @@ class SearchProfileCreateRequest(BaseModel):
     topics: List[TopicCreateRequest]
 
 
+class SearchProfileDetailResponseWithNewArticleCount(BaseModel):
+    id: UUID
+    name: str
+    organization_emails: List[EmailStr]
+    profile_emails: List[EmailStr]
+    public: bool
+    editable: bool
+    is_editable: bool
+    owner: UUID
+    is_owner: bool
+    topics: list[TopicResponse]
+    new_articles_count: int
+
+
 class SearchProfileDetailResponse(BaseModel):
     id: UUID
     name: str

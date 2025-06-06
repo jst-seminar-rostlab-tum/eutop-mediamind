@@ -13,6 +13,7 @@ from app.schemas.match_schemas import MatchFeedbackRequest
 from app.schemas.search_profile_schemas import (
     SearchProfileCreateRequest,
     SearchProfileDetailResponse,
+    SearchProfileDetailResponseWithNewArticleCount,
     SearchProfileUpdateRequest,
 )
 from app.services.search_profiles_service import SearchProfileService
@@ -26,7 +27,9 @@ router = APIRouter(
 logger = get_logger(__name__)
 
 
-@router.get("", response_model=list[SearchProfileDetailResponse])
+@router.get(
+    "", response_model=list[SearchProfileDetailResponseWithNewArticleCount]
+)
 async def get_available_search_profiles(
     current_user=Depends(get_authenticated_user),
 ):
