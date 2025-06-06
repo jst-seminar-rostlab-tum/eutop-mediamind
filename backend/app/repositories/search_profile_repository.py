@@ -1,21 +1,45 @@
 from uuid import UUID
 
 from sqlalchemy import and_, or_
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 from sqlmodel import select
 
 from app.core.db import async_session
 from app.models import Topic, User
 from app.models.search_profile import SearchProfile
-from app.schemas.search_profile_schemas import SearchProfileUpdateRequest
+from app.repositories.topics_repository import TopicsRepository
+from app.schemas.search_profile_schemas import (
+    SearchProfileUpdateRequest, SearchProfileCreateRequest,
+)
 
 
-async def save_search_profile(search_profile: SearchProfile) -> SearchProfile:
-    async with async_session() as session:
-        session.add(search_profile)
-        await session.commit()
-        await session.refresh(search_profile)
-        return search_profile
+async def create_profile_with_request(
+    create_data: SearchProfileCreateRequest,
+    current_user: User,
+    session
+) -> SearchProfile:
+    # Create and persist base profile
+    profile = SearchProfile(
+        name=create_data.name,
+        is_public=create_data.public,
+        organization_id=create_data.organization_id,
+        created_by_id=current_user.id,
+    )
+    session.add(profile)
+    await session.commit()
+    await session.refresh(profile)
+
+    # Add related data: topics, emails
+    await TopicsRepository.update_topics(profile, create_data.topics, session)
+    #await update_emails(profile, create_data.organization_emails,
+    # create_data.profile_emails, session)
+
+    # Reload profile with relationships (just like in update)
+    await session.refresh(profile)
+    return profile
+
+
 
 
 async def get_accessible_profiles(
@@ -50,50 +74,32 @@ async def get_search_profile_by_id(
     search_profile_id: UUID, current_user: User
 ) -> SearchProfile | None:
     async with async_session() as session:
-        search_profile = await session.execute(
-            select(SearchProfile).where(SearchProfile.id == search_profile_id)
-        )
-        return search_profile.scalars().one_or_none()
-
-
-async def save_updated_search_profile(
-    search_profile: SearchProfile,
-) -> SearchProfile:
-    async with async_session() as session:
-        session.add(search_profile)
-        await session.commit()
-        await session.refresh(search_profile)
-        return search_profile
-
-
-async def update_search_profile_by_id(
-    search_profile_id: UUID, data: SearchProfileUpdateRequest
-) -> SearchProfile | None:
-    async with async_session() as session:
-        search_profile = await session.get(SearchProfile, search_profile_id)
-        if not search_profile:
-            return None
-
-        profile_update = data.model_dump(
-            exclude_unset=True, exclude={"subscriptions", "topics"}
-        )
-
-        for field, value in profile_update.items():
-            setattr(search_profile, field, value)
-
-        if data.subscriptions is not None:
-            search_profile.subscriptions.clear()
-            search_profile.subscriptions.extend(
-                sub.to_model() for sub in data.subscriptions
+        result = await session.execute(
+            select(SearchProfile)
+            .where(SearchProfile.id == search_profile_id)
+            .options(
+                selectinload(SearchProfile.users),
+                selectinload(SearchProfile.topics).selectinload(
+                    Topic.keywords
+                ),
             )
+        )
+        return result.scalars().one_or_none()
 
-        if data.topics is not None:
-            search_profile.topics.clear()
-            search_profile.topics.extend(
-                topic.to_model() for topic in data.topics
-            )
 
-        session.add(search_profile)
-        await session.commit()
-        await session.refresh(search_profile)
-        return search_profile
+async def update_profile_with_request(
+    profile: SearchProfile,
+    update_data: SearchProfileUpdateRequest,
+    session,
+):
+    # Update base fields
+    profile.name = update_data.name
+    profile.is_public = update_data.public
+
+    await TopicsRepository.update_topics(profile, update_data.topics, session)
+    # await update_emails(profile, update_data.organization_emails,
+    # update_data.profile_emails, session)
+
+    session.add(profile)
+    await session.commit()
+    await session.refresh(profile)

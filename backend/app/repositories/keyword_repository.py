@@ -2,6 +2,7 @@ from uuid import UUID
 
 from fastapi import HTTPException
 from sqlalchemy import delete, select
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
 from app.core.db import async_session
@@ -12,6 +13,23 @@ from app.schemas.keyword_schemas import KeywordCreateRequest
 
 
 class KeywordsRepository:
+
+    @staticmethod
+    async def get_or_create_keyword(
+        session: AsyncSession, name: str
+    ) -> Keyword:
+        result = await session.execute(
+            select(Keyword).where(Keyword.name == name)
+        )
+        keyword = result.scalar_one_or_none()
+        if keyword:
+            return keyword
+        keyword = Keyword(name=name)
+        session.add(keyword)
+        await session.commit()
+        await session.refresh(keyword)
+        return keyword
+
     @staticmethod
     async def get_keywords_by_topic(
         topic_id: UUID, user: User

@@ -1,23 +1,15 @@
-from uuid import UUID
-
 from fastapi import HTTPException
-from winerror import ERROR_PROFILE_NOT_FOUND
+from sqlalchemy import UUID
 
 from app.core.db import async_session
-from app.core.logger import get_logger
 from app.models import SearchProfile, Topic, User
-from app.models.search_profile import (
-    SearchProfileCreate,
-    SearchProfileRead,
-    SearchProfileUpdate,
-)
 from app.repositories.match_repository import MatchRepository
 from app.repositories.search_profile_repository import (
     get_accessible_profiles,
     get_search_profile_by_id,
-    save_search_profile,
-    save_updated_search_profile,
+    update_profile_with_request, create_profile_with_request,
 )
+from app.repositories.topics_repository import TopicsRepository
 from app.schemas.articles_schemas import (
     ArticleOverviewItem,
     ArticleOverviewResponse,
@@ -25,28 +17,23 @@ from app.schemas.articles_schemas import (
 )
 from app.schemas.match_schemas import MatchFeedbackRequest
 from app.schemas.search_profile_schemas import (
+    SearchProfileCreateRequest,
     SearchProfileDetailResponse,
     SearchProfileUpdateRequest,
 )
 from app.schemas.topic_schemas import TopicResponse
 
-logger = get_logger(__name__)
-
 
 class SearchProfileService:
     @staticmethod
     async def create_search_profile(
-        new_search_profile_data: SearchProfileCreate,
-        current_user: User,
-    ) -> SearchProfileRead:
-        new_search_profile = SearchProfile(
-            name=new_search_profile_data.name,
-            organization_id=new_search_profile_data.organization_id,
-            is_public=False,
-            created_by_id=current_user.id,
-        )
-        saved_search_profile = await save_search_profile(new_search_profile)
-        return SearchProfileRead.model_validate(saved_search_profile)
+            data: SearchProfileCreateRequest,
+            current_user: User,
+    ) -> SearchProfileDetailResponse:
+        async with async_session() as session:
+            profile = await create_profile_with_request(data, current_user, session)
+
+        return SearchProfileService._build_profile_response(profile, current_user)
 
     @staticmethod
     async def get_search_profile_by_id(
@@ -116,105 +103,37 @@ class SearchProfileService:
     @staticmethod
     def _build_topic_response(topic: Topic) -> TopicResponse:
         return TopicResponse(
-            name=topic.name, keywords=[kw.name for kw in topic.keywords]
+            id=topic.id,
+            name=topic.name,
+            keywords=[kw.name for kw in topic.keywords],
         )
 
     @staticmethod
     async def update_search_profile(
         search_profile_id: UUID,
-        update_data: SearchProfileUpdate,
-        current_user: User,
-    ) -> SearchProfileRead | None:
-        search_profile = await get_search_profile_by_id(
-            search_profile_id, current_user
-        )
-        if search_profile is None:
-            raise ERROR_PROFILE_NOT_FOUND("Search-profile not found")
-
-        if (
-            search_profile.created_by_id != current_user.id
-            and not current_user.is_superuser
-        ):
-            raise ERROR_PROFILE_NOT_FOUND("Search-profile not found")
-
-        # Perform partial update
-        if update_data.name is not None:
-            search_profile.name = update_data.name
-        if update_data.description is not None:
-            search_profile.description = update_data.description
-
-        updated_profile = await save_updated_search_profile(search_profile)
-        return SearchProfileRead.model_validate(updated_profile)
-
-    @staticmethod
-    async def update_full_profile(
-        search_profile_id: UUID,
         update_data: SearchProfileUpdateRequest,
         current_user: User,
-    ) -> SearchProfile | None:
+    ) -> SearchProfileDetailResponse:
+        profile = await get_search_profile_by_id(
+            search_profile_id, current_user
+        )
+        if profile is None:
+            raise HTTPException(status_code=404, detail="Profile not found")
+
+        if (
+            profile.created_by_id != current_user.id
+            and not current_user.is_superuser
+        ):
+            raise HTTPException(
+                status_code=403, detail="Not allowed to edit this profile"
+            )
+
         async with async_session() as session:
-            search_profile = await session.get(
-                SearchProfile, search_profile_id
-            )
-            if not search_profile:
-                return None
+            await update_profile_with_request(profile, update_data, session)
 
-            if (
-                search_profile.created_by_id != current_user.id
-                and not current_user.is_superuser
-            ):
-                raise HTTPException(status_code=403, detail="Forbidden")
-
-            SearchProfileService._update_basic_fields(
-                search_profile, update_data
-            )
-            SearchProfileService._update_optional_lists(
-                search_profile, update_data
-            )
-            SearchProfileService._update_relationships(
-                search_profile, update_data
-            )
-
-            session.add(search_profile)
-            await session.commit()
-            await session.refresh(search_profile)
-            return search_profile
-
-    @staticmethod
-    def _update_basic_fields(
-        search_profile: SearchProfile, data: SearchProfileUpdateRequest
-    ) -> None:
-        search_profile.name = data.name
-        search_profile.is_public = data.public
-        search_profile.is_editable = data.is_editable
-        search_profile.owner_id = data.owner
-        search_profile.is_owner = data.is_owner
-
-    @staticmethod
-    def _update_optional_lists(
-        search_profile: SearchProfile, data: SearchProfileUpdateRequest
-    ) -> None:
-        if data.organization_emails is not None:
-            search_profile.organization_emails = data.organization_emails
-
-        if data.profile_emails is not None:
-            search_profile.profile_emails = data.profile_emails
-
-    @staticmethod
-    def _update_relationships(
-        search_profile: SearchProfile, data: SearchProfileUpdateRequest
-    ) -> None:
-        if data.subscriptions is not None:
-            search_profile.subscriptions.clear()
-            search_profile.subscriptions.extend(
-                sub.to_model() for sub in data.subscriptions
-            )
-
-        if data.topics is not None:
-            search_profile.topics.clear()
-            search_profile.topics.extend(
-                topic.to_model() for topic in data.topics
-            )
+        return SearchProfileService._build_profile_response(
+            profile, current_user
+        )
 
     @staticmethod
     async def get_article_overview(
@@ -223,11 +142,9 @@ class SearchProfileService:
         matches = await MatchRepository.get_articles_by_profile(
             search_profile_id
         )
-
         articles = [
             ArticleOverviewItem.from_entity(m) for m in matches if m.article
         ]
-
         return ArticleOverviewResponse(
             search_profile_id=search_profile_id,
             articles=articles,
@@ -244,7 +161,6 @@ class SearchProfileService:
             return None
 
         article = match.article
-
         return MatchDetailResponse(
             match_id=match.id,
             comment=match.comment,

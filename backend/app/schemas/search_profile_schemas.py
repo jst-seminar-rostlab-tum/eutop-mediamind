@@ -1,12 +1,13 @@
-from typing import List, Optional
+from typing import List
 from uuid import UUID
 
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, ConfigDict, EmailStr
 
-
-class TopicUpdate(BaseModel):
-    name: str
-    keywords: List[str]
+from app.schemas.topic_schemas import (
+    TopicCreateRequest,
+    TopicResponse,
+    TopicUpdateRequest,
+)
 
 
 class SubscriptionUpdate(BaseModel):
@@ -15,26 +16,20 @@ class SubscriptionUpdate(BaseModel):
 
 
 class SearchProfileUpdateRequest(BaseModel):
-    id: UUID
     name: str
-    organization_emails: Optional[List[str]] = []
-    profile_emails: Optional[List[str]] = []
     public: bool
-    is_editable: Optional[bool] = True
-    owner: UUID
-    is_owner: Optional[bool] = False
-    subscriptions: Optional[List[SubscriptionUpdate]] = []
-    topics: Optional[List[TopicUpdate]] = []
+    organization_emails: list[EmailStr]
+    profile_emails: list[EmailStr]
+    topics: list[TopicUpdateRequest]
 
 
-class TopicOut(BaseModel):
+class SearchProfileCreateRequest(BaseModel):
     name: str
-    keywords: List[str]
-
-
-class TopicResponse(BaseModel):
-    name: str
-    keywords: List[str]
+    public: bool
+    organization_id: UUID
+    organization_emails: List[EmailStr]
+    profile_emails: List[EmailStr]
+    topics: List[TopicCreateRequest]
 
 
 class SearchProfileDetailResponse(BaseModel):
@@ -47,4 +42,6 @@ class SearchProfileDetailResponse(BaseModel):
     is_editable: bool
     owner: UUID
     is_owner: bool
-    topics: List[TopicResponse]
+    topics: list[TopicResponse]
+
+    model_config = ConfigDict(from_attributes=True)
