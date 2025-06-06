@@ -60,17 +60,18 @@ module "s3" {
 }
 
 module "ecs" {
-  source            = "./modules/ecs"
-  service_name      = "mediamind-service"
-  cluster_name      = local.cluster_name
-  container_image   = module.ecr.repository_url
-  db_endpoint       = module.database.endpoint
-  redis_endpoint    = module.redis.endpoint
-  subnet_ids        = data.aws_subnets.selected.ids
-  vpc_id            = data.aws_vpc.selected.id
-  secrets_arn       = local.secrets_arn
-  s3_backend_bucket = module.s3.bucket
-  region            = "eu-central-1"
+  source              = "./modules/ecs"
+  service_name        = "mediamind-service"
+  cluster_name        = local.cluster_name
+  container_image     = module.ecr.repository_url
+  db_endpoint         = module.database.endpoint
+  redis_endpoint      = module.redis.endpoint
+  subnet_ids          = data.aws_subnets.selected.ids
+  vpc_id              = data.aws_vpc.selected.id
+  secrets_arn         = local.secrets_arn
+  s3_backend_bucket   = module.s3.bucket
+  region              = "eu-central-1"
+  acm_certificate_arn = "arn:aws:acm:eu-central-1:313193269185:certificate/ba1c0b9b-2c80-4c0f-acf6-355dfb9ba658"
 }
 
 module "qdrant" {
