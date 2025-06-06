@@ -5,7 +5,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "~/components/ui/select";
-import type { Organization, Subscription, User } from "./types";
+import type { Organization, Subscription, User, DeleteTarget } from "./types";
 import type { ColumnDef } from "@tanstack/react-table";
 import {
   DropdownMenu,
@@ -18,7 +18,8 @@ import { Button } from "~/components/ui/button";
 
 export function getOrgaColumns(
   handleEdit: (name: string) => void,
-  handleDelete: (name: string) => void,
+  setDeleteTarget: (target: DeleteTarget) => void,
+  setOpenDeleteDialog: React.Dispatch<React.SetStateAction<boolean>>,
 ): ColumnDef<Organization>[] {
   return [
     {
@@ -42,7 +43,13 @@ export function getOrgaColumns(
                 Edit
               </DropdownMenuItem>
               <DropdownMenuItem
-                onClick={() => handleDelete(orgName)}
+                onClick={() => {
+                  setDeleteTarget({
+                    type: "organization",
+                    identifier: orgName,
+                  });
+                  setOpenDeleteDialog(true);
+                }}
                 className="text-red-500"
               >
                 Delete
@@ -57,7 +64,8 @@ export function getOrgaColumns(
 
 export function getSubsColumns(
   onEdit: (index: number) => void,
-  onDelete: (index: number) => void,
+  setDeleteTarget: (target: DeleteTarget) => void,
+  setOpenDeleteDialog: React.Dispatch<React.SetStateAction<boolean>>,
 ): ColumnDef<Subscription>[] {
   return [
     { accessorKey: "name", header: "Subscriptions" },
@@ -79,7 +87,10 @@ export function getSubsColumns(
                 Edit
               </DropdownMenuItem>
               <DropdownMenuItem
-                onClick={() => onDelete(index)}
+                onClick={() => {
+                  setDeleteTarget({ type: "subscription", identifier: index });
+                  setOpenDeleteDialog(true);
+                }}
                 className="text-red-500"
               >
                 Delete

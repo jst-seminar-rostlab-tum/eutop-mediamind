@@ -39,6 +39,10 @@ type Props = {
   onSave: () => void;
   unsavedEdits: boolean;
   setUnsavedEdits: (val: boolean) => void;
+  initialOrgaName: string;
+  showAlert: boolean;
+  setShowAlert: (val: boolean) => void;
+  showOrgaNameAlert: boolean;
 };
 
 export function OrganizationDialog({
@@ -54,8 +58,11 @@ export function OrganizationDialog({
   onSave,
   unsavedEdits,
   setUnsavedEdits,
+  initialOrgaName,
+  showAlert,
+  setShowAlert,
+  showOrgaNameAlert,
 }: Props) {
-  const [showAlert, setShowAlert] = React.useState(false);
   const [showLeaveConfirm, setShowLeaveConfirm] = React.useState(false);
 
   const handleRoleChange = (index: number, newRole: "admin" | "user") => {
@@ -91,7 +98,9 @@ export function OrganizationDialog({
       <Dialog
         open={open}
         onOpenChange={(isOpen) => {
-          if (!isOpen && unsavedEdits) {
+          const nameChanged = initialOrgaName !== name;
+
+          if (!isOpen && (unsavedEdits || nameChanged)) {
             setShowLeaveConfirm(true); // show AlertDialog instead
           } else {
             onOpenChange(isOpen); // normal open/close
@@ -109,13 +118,23 @@ export function OrganizationDialog({
                 : "Enter the name of the organization you want to add. Click save when you're done."}
             </DialogDescription>
           </DialogHeader>
-
+          {showOrgaNameAlert && (
+            <Alert className="mt-2" variant="destructive">
+              <AlertCircleIcon />
+              <AlertTitle>Organization Name is Empty</AlertTitle>
+              <AlertDescription>
+                Please insert a valid Organization Name
+              </AlertDescription>
+            </Alert>
+          )}
           <div className="grid grid-cols-4 items-center gap-4">
             <Label className="text-right">Name</Label>
             <Input
               id="name"
               value={name}
-              onChange={(e) => onNameChange(e.target.value)}
+              onChange={(e) => {
+                onNameChange(e.target.value);
+              }}
               placeholder="New Organization"
               className="col-span-3"
             />
