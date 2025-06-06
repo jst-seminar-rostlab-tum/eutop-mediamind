@@ -10,7 +10,7 @@ import { Button } from "~/components/ui/button";
 import { useAuthorization } from "~/hooks/use-authorization";
 
 export default function Header() {
-  const { isSignedIn } = useAuthorization();
+  const { isSignedIn, user } = useAuthorization();
   const [searchParams] = useSearchParams();
   const redirectUrl = searchParams.get("redirect_url");
 
@@ -31,7 +31,7 @@ export default function Header() {
         <SignedIn>
           <UserButton />
         </SignedIn>
-        {isSignedIn && (
+        {isSignedIn && user?.is_superuser && (
           <Link to="/admin">
             <Button variant="outline">
               <Settings />
