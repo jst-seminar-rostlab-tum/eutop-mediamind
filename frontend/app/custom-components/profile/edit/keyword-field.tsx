@@ -13,7 +13,7 @@ export function KeywordField({ keywords }: KeywordFieldProps) {
         <CardTitle>Keywords</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className={"flex flex-wrap gap-2 pb-2"}>
+        <div className={"flex flex-wrap gap-2 pb-5"}>
           {keywords.map((keyword) => (
             <KeywordTag name={keyword} />
           ))}
