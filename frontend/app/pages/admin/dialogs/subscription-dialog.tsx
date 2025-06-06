@@ -10,8 +10,8 @@ import { Label } from "@radix-ui/react-dropdown-menu";
 import { Input } from "~/components/ui/input";
 import { Button } from "~/components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
-import React from "react";
-import { AlertCircleIcon } from "lucide-react";
+import React, { useState } from "react";
+import { AlertCircleIcon, Eye, EyeOff } from "lucide-react";
 
 type Props = {
   open: boolean;
@@ -44,6 +44,8 @@ export function SubscriptionDialog({
   onSave,
   showAlert,
 }: Props) {
+  const [visible, setVisible] = useState(false);
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
@@ -103,12 +105,26 @@ export function SubscriptionDialog({
         <div className="grid grid-cols-4 items-center gap-4">
           <Label className="text-right">Password</Label>
           <Input
+            type={visible ? "text" : "password"}
             id="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="Password"
             className="col-span-3"
           />
+          <Button
+            type="button"
+            variant="ghostNoHover"
+            size="icon"
+            className="absolute right-6"
+            onClick={() => setVisible((v) => !v)}
+          >
+            {visible ? (
+              <EyeOff className="h-4 w-4" />
+            ) : (
+              <Eye className="h-4 w-4" />
+            )}
+          </Button>
         </div>
 
         <DialogFooter>

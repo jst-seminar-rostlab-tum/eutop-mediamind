@@ -85,6 +85,8 @@ export function AdminPage() {
     null,
   );
 
+  const [unsavedEdits, setUnsavedEdits] = React.useState(false);
+
   React.useEffect(() => {
     async function fetchData() {
       const data = await getOrgaData();
@@ -106,11 +108,14 @@ export function AdminPage() {
   }
 
   function handleEditOrganization(name: string) {
+    // set false on open for safety
+    setUnsavedEdits(false);
     const index = orgaData.findIndex((org) => org.name === name);
     if (index !== -1) {
       setNewOrgaName(orgaData[index].name);
       setEditingOrgIndex(index);
       setIsEditOrgaMode(true);
+      setUnsavedEdits(true);
 
       // call api here to get the actual users of this org
       const usersForOrg = orgaData[index].users ?? [];
@@ -144,6 +149,7 @@ export function AdminPage() {
     setShowOrgaDialog(false);
     setIsEditOrgaMode(false);
     setEditingOrgIndex(null);
+    setUnsavedEdits(false);
   }
 
   // Subscriptions Functions
@@ -204,10 +210,10 @@ export function AdminPage() {
   return (
     <>
       <Layout>
-        <Text className="mt-10" hierachy={1}>
+        <Text className="mt-10" hierachy={2}>
           Admin Settings
         </Text>
-        <Tabs defaultValue="organizations" className="m-6">
+        <Tabs defaultValue="organizations" className="m-2">
           <TabsList className="w-full">
             <TabsTrigger value="organizations">Organizations</TabsTrigger>
             <TabsTrigger value="subscriptions">Subscriptions</TabsTrigger>
@@ -283,6 +289,8 @@ export function AdminPage() {
           searchInput={searchInputForAdd}
           setSearchInput={setSearchInputForAdd}
           onSave={handleSaveOrganization}
+          unsavedEdits={unsavedEdits}
+          setUnsavedEdits={setUnsavedEdits}
         />
 
         <SubscriptionDialog

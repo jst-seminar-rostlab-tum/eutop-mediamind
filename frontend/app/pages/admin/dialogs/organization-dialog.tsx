@@ -15,6 +15,16 @@ import type { User } from "../types";
 import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
 import React from "react";
 import { AlertCircleIcon } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogFooter,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogCancel,
+  AlertDialogAction,
+} from "~/components/ui/alert-dialog";
 
 type Props = {
   open: boolean;
@@ -27,6 +37,8 @@ type Props = {
   searchInput: string;
   setSearchInput: (value: string) => void;
   onSave: () => void;
+  unsavedEdits: boolean;
+  setUnsavedEdits: (val: boolean) => void;
 };
 
 export function OrganizationDialog({
@@ -40,15 +52,20 @@ export function OrganizationDialog({
   searchInput,
   setSearchInput,
   onSave,
+  unsavedEdits,
+  setUnsavedEdits,
 }: Props) {
   const [showAlert, setShowAlert] = React.useState(false);
+  const [showLeaveConfirm, setShowLeaveConfirm] = React.useState(false);
 
   const handleRoleChange = (index: number, newRole: "admin" | "user") => {
     setUsers(users.map((u, i) => (i === index ? { ...u, role: newRole } : u)));
+    setUnsavedEdits(true);
   };
 
   const handleUserDelete = (index: number) => {
     setUsers(users.filter((_, i) => i !== index));
+    setUnsavedEdits(true);
   };
 
   const handleAddNewUser = () => {
@@ -66,11 +83,21 @@ export function OrganizationDialog({
     setShowAlert(false);
     setUsers([...users, { name: email, role: "user" }]);
     setSearchInput("");
+    setUnsavedEdits(true);
   };
 
   return (
     <>
-      <Dialog open={open} onOpenChange={onOpenChange}>
+      <Dialog
+        open={open}
+        onOpenChange={(isOpen) => {
+          if (!isOpen && unsavedEdits) {
+            setShowLeaveConfirm(true); // show AlertDialog instead
+          } else {
+            onOpenChange(isOpen); // normal open/close
+          }
+        }}
+      >
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
             <DialogTitle>
@@ -118,6 +145,29 @@ export function OrganizationDialog({
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <AlertDialog open={showLeaveConfirm} onOpenChange={setShowLeaveConfirm}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              You have unsaved changes right now
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-white shadow-xs hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60"
+              onClick={() => {
+                setShowLeaveConfirm(false);
+                onOpenChange(false); // close the main dialog
+              }}
+            >
+              Leave
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }

@@ -5,17 +5,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "~/components/ui/select";
-import {
-  AlertDialog,
-  AlertDialogTrigger,
-  AlertDialogContent,
-  AlertDialogHeader,
-  AlertDialogFooter,
-  AlertDialogTitle,
-  AlertDialogDescription,
-  AlertDialogCancel,
-  AlertDialogAction,
-} from "~/components/ui/alert-dialog";
 import type { Organization, Subscription, User } from "./types";
 import type { ColumnDef } from "@tanstack/react-table";
 import {
@@ -50,13 +39,13 @@ export function getOrgaColumns(
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem onClick={() => handleEdit(orgName)}>
-                Edit Organization
+                Edit
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => handleDelete(orgName)}
                 className="text-red-500"
               >
-                Delete Organization
+                Delete
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -87,13 +76,13 @@ export function getSubsColumns(
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem onClick={() => onEdit(index)}>
-                Edit Subscription
+                Edit
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => onDelete(index)}
                 className="text-red-500"
               >
-                Delete Subscription
+                Delete
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -122,9 +111,9 @@ export function getUserColumns(
         return (
           <Select
             value={role}
-            onValueChange={(newRole) =>
-              onRoleChange(index, newRole as "admin" | "user")
-            }
+            onValueChange={(newRole) => {
+              onRoleChange(index, newRole as "admin" | "user");
+            }}
           >
             <SelectTrigger className="w-[120px]">
               <SelectValue placeholder="Select role" />
@@ -142,27 +131,9 @@ export function getUserColumns(
       cell: ({ row }) => {
         const index = row.index;
         return (
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button variant={"ghost"}>
-                <Trash className="text-red-500" />
-              </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  This will permanently remove the user from this organization.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction onClick={() => onDelete(index)}>
-                  Delete
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
+          <Button variant={"ghost"} onClick={() => onDelete(index)}>
+            <Trash className="text-red-500" />
+          </Button>
         );
       },
     },
