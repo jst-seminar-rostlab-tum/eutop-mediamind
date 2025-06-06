@@ -1,7 +1,6 @@
 from uuid import UUID
 
 from sqlalchemy import and_, or_
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 from sqlmodel import select
 
@@ -10,14 +9,13 @@ from app.models import Topic, User
 from app.models.search_profile import SearchProfile
 from app.repositories.topics_repository import TopicsRepository
 from app.schemas.search_profile_schemas import (
-    SearchProfileUpdateRequest, SearchProfileCreateRequest,
+    SearchProfileCreateRequest,
+    SearchProfileUpdateRequest,
 )
 
 
 async def create_profile_with_request(
-    create_data: SearchProfileCreateRequest,
-    current_user: User,
-    session
+    create_data: SearchProfileCreateRequest, current_user: User, session
 ) -> SearchProfile:
     # Create and persist base profile
     profile = SearchProfile(
@@ -32,14 +30,12 @@ async def create_profile_with_request(
 
     # Add related data: topics, emails
     await TopicsRepository.update_topics(profile, create_data.topics, session)
-    #await update_emails(profile, create_data.organization_emails,
+    # await update_emails(profile, create_data.organization_emails,
     # create_data.profile_emails, session)
 
     # Reload profile with relationships (just like in update)
     await session.refresh(profile)
     return profile
-
-
 
 
 async def get_accessible_profiles(

@@ -5,11 +5,11 @@ from app.core.db import async_session
 from app.models import SearchProfile, Topic, User
 from app.repositories.match_repository import MatchRepository
 from app.repositories.search_profile_repository import (
+    create_profile_with_request,
     get_accessible_profiles,
     get_search_profile_by_id,
-    update_profile_with_request, create_profile_with_request,
+    update_profile_with_request,
 )
-from app.repositories.topics_repository import TopicsRepository
 from app.schemas.articles_schemas import (
     ArticleOverviewItem,
     ArticleOverviewResponse,
@@ -27,13 +27,17 @@ from app.schemas.topic_schemas import TopicResponse
 class SearchProfileService:
     @staticmethod
     async def create_search_profile(
-            data: SearchProfileCreateRequest,
-            current_user: User,
+        data: SearchProfileCreateRequest,
+        current_user: User,
     ) -> SearchProfileDetailResponse:
         async with async_session() as session:
-            profile = await create_profile_with_request(data, current_user, session)
+            profile = await create_profile_with_request(
+                data, current_user, session
+            )
 
-        return SearchProfileService._build_profile_response(profile, current_user)
+        return SearchProfileService._build_profile_response(
+            profile, current_user
+        )
 
     @staticmethod
     async def get_search_profile_by_id(
