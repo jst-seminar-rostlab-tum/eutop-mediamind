@@ -3,12 +3,14 @@ from uuid import UUID
 from fastapi import APIRouter, Depends
 
 from app.core.auth import get_authenticated_user
+from app.models.user import User
 from app.schemas.articles_schemas import (
     ArticleOverviewResponse,
     MatchDetailResponse,
 )
 from app.schemas.match_schemas import MatchFeedbackRequest
 from app.schemas.search_profile_schemas import (
+    KeywordSugestion,
     SearchProfileDetailResponse,
     SearchProfileUpdateRequest,
 )
@@ -75,3 +77,9 @@ async def update_match_feedback(
         profile_id, match_id, feedback
     )
     return updated_match
+
+@router.get("/suggestions", response_model=list[KeywordSugestion])
+async def get_keyword_sugestions(
+    current_user: User=Depends(get_authenticated_user),
+):
+    return await SearchProfiles.get_keyword_sugestions(current_user)

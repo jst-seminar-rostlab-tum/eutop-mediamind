@@ -1,6 +1,9 @@
 from uuid import UUID
+from fastapi import HTTPException
+from typing import List
 
 from app.models import SearchProfile
+from app.models.user import User
 from app.repositories.match_repository import MatchRepository
 from app.repositories.search_profile_repository import SearchProfileRepository
 from app.schemas.articles_schemas import (
@@ -9,8 +12,9 @@ from app.schemas.articles_schemas import (
     MatchDetailResponse,
 )
 from app.schemas.match_schemas import MatchFeedbackRequest
-from app.schemas.search_profile_schemas import SearchProfileUpdateRequest
-
+from app.schemas.search_profile_schemas import KeywordSugestion, SearchProfileUpdateRequest
+from app.services.llm_service.llm_client import LLMClient
+from app.services.llm_service.llm_models import LLMModels
 
 class SearchProfiles:
 
@@ -105,3 +109,35 @@ class SearchProfiles:
             ranking=data.ranking,
         )
         return match is not None
+
+    @staticmethod
+    async def get_keyword_sugestions(user: User) -> List[KeywordSugestion]:
+        visible_search_profiles = await SearchProfiles.get_available_search_profiles(user) 
+
+        # Avoid useless LLM calls if no profiles are available
+        if len(visible_search_profiles) == 0:
+            return []
+
+        lhm_client = LLMClient(LLMModels.openai_4o_mini)
+
+        prompt = """
+        I will give you a list of topics and, for each topic, a list of relevant
+        keywords. Please add 5 new relevant keyword for each topic.\n
+        """
+
+        for profile in visible_search_profiles:
+            for topic in profile.topics:
+                prompt += f"Topic: {topic.name}\n"
+                kw_names = list(map(lambda x: x.name, topic.keywords))
+                prompt += f"Keywords: {', '.join(kw_names)}\n\n"
+
+        response = lhm_client.generate_typed_response(prompt, List[KeywordSugestion])
+        if not response:
+            raise HTTPException(
+                status_code=500,
+                detail="Failed to generate keyword suggestions from LLM",
+            )
+
+        return response
+
+
