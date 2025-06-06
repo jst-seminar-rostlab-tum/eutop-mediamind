@@ -2,10 +2,7 @@ import asyncio
 from unittest.mock import AsyncMock, patch
 from uuid import uuid4
 
-from app.models import SearchProfile, User
-from app.schemas.search_profile_schemas import SearchProfileUpdateRequest
-from app.services.search_profiles_service import SearchProfiles
-
+from app.services.search_profiles_service import SearchProfileService
 
 def test_get_article_overview():
     with patch(
@@ -38,7 +35,7 @@ def test_get_article_overview():
         mock_get.return_value = [match]
 
         result = asyncio.run(
-            SearchProfiles.get_article_overview(search_profile_id)
+            SearchProfileService.get_article_overview(search_profile_id)
         )
         assert result.search_profile_id == search_profile_id
         assert len(result.articles) == 1
@@ -79,7 +76,7 @@ def test_get_match_detail_success():
         mock_get_match.return_value = match
 
         result = asyncio.run(
-            SearchProfiles.get_match_detail(search_profile_id, match_id)
+            SearchProfileService.get_match_detail(search_profile_id, match_id)
         )
         assert result.match_id == match_id
         assert result.title == "Test"
