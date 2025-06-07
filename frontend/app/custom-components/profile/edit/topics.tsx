@@ -13,12 +13,15 @@ import { Button } from "~/components/ui/button";
 import { KeywordField } from "~/custom-components/profile/edit/keyword-field";
 import { Label } from "~/components/ui/label";
 import { Input } from "~/components/ui/input";
+import type { components } from "../../../../types/api-types-v1";
 import { Sparkles, Trash2 } from "lucide-react";
 import { AiSuggestionTag } from "~/custom-components/profile/edit/ai-suggestion-tag";
+import { useAuthorization } from "~/hooks/use-authorization";
+import { client, useMutate } from "../../../../types/api";
 
 interface TopicsProps {
-  profile: Profile;
-  setProfile: (profile: Profile) => void;
+  profile: components["schemas"]["SearchProfileDetailResponse"];
+  setProfile: (profile: components["schemas"]["SearchProfileDetailResponse"]) => void;
 }
 
 export function Topics({ profile, setProfile }: TopicsProps) {
@@ -61,13 +64,7 @@ export function Topics({ profile, setProfile }: TopicsProps) {
             <Button
               variant="destructive"
               onClick={() => {
-                setProfile({
-                  ...profile,
-                  topics: profile.topics.filter(
-                    (t) => t.name !== selectedTopic,
-                  ),
-                });
-                setSelectedTopic(undefined);
+                //TODO:
               }}
             >
               <Trash2 />
@@ -84,14 +81,7 @@ export function Topics({ profile, setProfile }: TopicsProps) {
                 e.key === "Enter" &&
                 !profile.topics.map((t) => t.name).includes(newTopicName)
               ) {
-                setProfile({
-                  ...profile,
-                  topics: [
-                    ...profile.topics,
-                    { name: newTopicName, keywords: [] },
-                  ],
-                });
-                setNewTopicName("");
+                //TODO:
               }
             }}
           />

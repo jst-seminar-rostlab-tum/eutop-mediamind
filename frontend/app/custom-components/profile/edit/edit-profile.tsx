@@ -9,7 +9,6 @@ import {
 } from "~/components/ui/dialog";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
-import type { Profile } from "~/types/profile";
 
 import { Book, Mail, Newspaper, Settings, Edit2, Check, X } from "lucide-react";
 
@@ -20,9 +19,14 @@ import { Subscriptions } from "~/custom-components/profile/edit/subscriptions";
 import useProfileSubscriptionsApi from "~/hooks/api/profile-subscriptions-api";
 import { ScrollArea } from "~/components/ui/scroll-area";
 import { General } from "~/custom-components/profile/edit/general";
+import { client, useMutate } from "../../../../types/api";
+import { useAuthorization } from "~/hooks/use-authorization";
+import type { components } from "../../../../types/api-types-v1";
+
+
 
 interface EditProfileProps {
-  profile: Profile;
+  profile: components["schemas"]["SearchProfileDetailResponse"]
   trigger: React.ReactElement;
 }
 
@@ -31,14 +35,59 @@ export function EditProfile({ profile, trigger }: EditProfileProps) {
   const [profileName, setProfileName] = useState(profile.name);
   const [editedProfile, setEditedProfile] = useState(cloneDeep(profile));
 
+  const [newTopics, setNewTopics] = useState<components["schemas"]["SearchProfileDetailResponse"]>()
+
+
+  const transformToUpdateRequest = (
+    profile: components["schemas"]["SearchProfileDetailResponse"]
+  ): components["schemas"]["SearchProfileUpdateRequest"] => {
+    return {
+      name: profile.name,
+      public: profile.public,
+      organization_emails: profile.organization_emails,
+      profile_emails: profile.profile_emails,
+      subscriptions: profile.subscriptions,
+      topics: profile.topics,
+    };
+  };
+
   const handleNameSave = () => {
     setIsEditingName(false);
     setEditedProfile({ ...editedProfile, name: profileName });
   };
 
   const handleNameCancel = () => {
-    setProfileName(editedProfile.name); // Reset to original name
+    setProfileName(editedProfile.name);
     setIsEditingName(false);
+  };
+
+  const [isSaving, setIsSaving] = useState(false);
+  const { authorizationHeaders } = useAuthorization();
+  const mutate  = useMutate();
+
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+      const updateRequest = transformToUpdateRequest(editedProfile);
+      console.log(updateRequest);
+
+      const response = await client.PUT(
+        "/api/v1/search-profiles/{search_profile_id}",
+        {
+          params: { path: { search_profile_id: profile.id } },
+          body: updateRequest,
+          headers: authorizationHeaders,
+        }
+      );
+      console.log(response);
+      await mutate(["/api/v1/search-profiles"]);
+
+      console.log("Profile updated successfully!");
+    } catch (error) {
+      console.error("Failed to update profile:", error);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -144,8 +193,8 @@ export function EditProfile({ profile, trigger }: EditProfileProps) {
           </Tabs>
         </ScrollArea>
         <div className="flex justify-end">
-          <Button type="submit" disabled={isMatch(profile, editedProfile)}>
-            Save changes
+          <Button type="button" disabled={isMatch(profile, editedProfile)} onClick={handleSave}>
+            {isSaving ? "Saving..." : "Save changes"}
           </Button>
         </div>
       </DialogContent>

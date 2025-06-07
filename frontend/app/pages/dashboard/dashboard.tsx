@@ -1,7 +1,6 @@
 import { ProfileCard } from "~/custom-components/dashboard/profile-card";
 import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
 import { Newspaper, Plus, Rocket } from "lucide-react";
-import { useSearchProfiles } from "~/hooks/api/search-profiles-api";
 import { Button } from "~/components/ui/button";
 import {
   Breadcrumb,
@@ -11,16 +10,15 @@ import {
 } from "~/components/ui/breadcrumb";
 import { useAuthorization } from "~/hooks/use-authorization";
 import { useQuery } from "types/api";
+import { searchProfilesFactory } from "../../../api-client";
 
 export function DashboardPage() {
   const { authorizationHeaders } = useAuthorization();
 
-  // Todo: example
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { data, isLoading } = useQuery("/api/v1/search-profiles", {
+  const { data: profiles, isLoading, error } = useQuery("/api/v1/search-profiles", {
     headers: authorizationHeaders,
   });
-  const { data: profiles } = useSearchProfiles();
+
 
   return (
     <div className={" mx-auto w-full max-w-2xl xl:max-w-7xl mt-12"}>
@@ -51,10 +49,7 @@ export function DashboardPage() {
       <div className="flex flex-wrap gap-6 mt-4 mb-4">
         {profiles?.map((profile) => (
           <ProfileCard
-            key={profile.id}
-            title={profile.name}
-            newArticles={profile.newArticles}
-            imageUrl={profile.imageUrl}
+            profile={profile}
           />
         ))}
       </div>

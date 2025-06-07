@@ -1,30 +1,27 @@
 import { Rocket, Settings } from "lucide-react";
 
-interface ProfileCardProps {
-  title: string;
-  newArticles: number;
-  imageUrl: string;
-}
 
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Button } from "~/components/ui/button";
 import { EditProfile } from "~/custom-components/profile/edit/edit-profile";
-import useSearchProfile from "~/hooks/api/search-profile-api";
+import type { components } from "../../../types/api-types-v1";
+
+interface ProfileCardProps {
+  profile: components["schemas"]["SearchProfileDetailResponse"]
+}
 
 export function ProfileCard({
-  title,
-  newArticles,
-  imageUrl,
+  profile
 }: ProfileCardProps) {
   return (
     <Card className="w-[260px] h-[230px] rounded-3xl shadow-[2px_2px_15px_rgba(0,0,0,0.1)] hover:shadow-none transition-shadow duration-300 ease-in-out">
       <CardHeader className="-mt-2">
         <div className={"flex justify-between"}>
           <div>
-            <CardTitle className="font-semibold text-xl">{title}</CardTitle>
+            <CardTitle className="font-semibold text-xl">{profile.name}</CardTitle>
           </div>
           <EditProfile
-            profile={useSearchProfile()}
+            profile={profile}
             trigger={
               <Button
                 variant="outline"
@@ -39,14 +36,14 @@ export function ProfileCard({
         <div className="flex items-center gap-2">
           <Rocket className={"h-4 w-4"} />
           <span className="font-semibold text-sm">
-            {newArticles} new articles!
+            {0} new articles!
           </span>
         </div>
       </CardHeader>
       <CardContent className="-mt-4">
         <div className="w-full h-[112px] overflow-hidden rounded-[38px]">
           <img
-            src={imageUrl}
+            src={"https://developers.elementor.com/docs/assets/img/elementor-placeholder-image.png"}
             alt=""
             className="h-full w-full object-cover object-center"
           />
