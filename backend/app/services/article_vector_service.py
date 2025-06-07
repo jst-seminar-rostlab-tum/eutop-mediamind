@@ -22,11 +22,11 @@ from app.repositories.article_repository import ArticleRepository
 class ArticleVectorService:
 
     def __init__(self):
-        self._embeddings = OpenAIEmbeddings(
+        self._dense_embeddings = OpenAIEmbeddings(
             model="text-embedding-3-large", api_key=configs.OPENAI_API_KEY
         )
         self._sparse_embeddings = FastEmbedSparse(model_name="Qdrant/bm25")
-        self.collection_name = "article_vectors"
+        self.collection_name = configs.ARTICLE_VECTORS_COLLECTION
 
         self._qdrant_client = QdrantClient(
             url=configs.QDRANT_HOST, api_key=configs.QDRANT_API_KEY
@@ -37,11 +37,14 @@ class ArticleVectorService:
         self.vector_store: QdrantVectorStore = QdrantVectorStore(
             client=self._qdrant_client,
             collection_name=self.collection_name,
-            embedding=self._embeddings,
+            embedding=self._dense_embeddings,
             sparse_embedding=self._sparse_embeddings,
             retrieval_mode=RetrievalMode.HYBRID,
+            # Use both dense and sparse vectors during search for improved recall and precision
             vector_name="dense",
+            # Field name in Qdrant for storing dense vectors
             sparse_vector_name="sparse",
+            # Field name in Qdrant for storing sparse vectors
         )
 
     def _ensure_collection(self, collection_name: str) -> None:
@@ -104,8 +107,6 @@ class ArticleVectorService:
         Args:
             articles(List[Article]): List of Article objects to be added to the vector store.
 
-        Returns:
-
         """
         documents = [
             Document(
@@ -139,61 +140,52 @@ class ArticleVectorService:
             query=query, score_threshold=score_threshold
         )
 
-    async def run_save_articles_to_vector_store(
+    async def index_summarized_articles_to_vector_store(
         self, page_size: int = 100
     ) -> None:
         """
         Run the functionality to read articles from the database and add them to the vector store.
         """
-        page = 0
-        while True:
+        page: int = 0
+        offset: int = page * page_size
+
+        articles: List[Article] = await ArticleRepository.list_articles_with_summary(
+            limit=page_size,
+            offset=offset
+        )
+
+        while articles:
+            documents_to_index = []
+            document_ids = []
+
+            for article in articles:
+                documents_to_index.append(
+                    Document(
+                        page_content=article.summary,
+                        metadata={
+                            "id": article.id,
+                            "subscription_id": str(article.subscription_id),
+                            "title": article.title,
+                        },
+                    )
+                )
+                document_ids.append(article.id)
+
+            self.vector_store.add_documents(documents=documents_to_index, ids=document_ids)
+
+            page += 1
             offset = page * page_size
-            # 1) Asynchron alle Artikel der Seite abrufen
+
             articles = await ArticleRepository.list_articles_with_summary(
                 limit=page_size, offset=offset
             )
-            if not articles:
-                break
-
-            print(
-                f"--> Processing page {page} with {len(articles)} articles..."
-            )
-
-            # 2) Nur Artikel mit nicht-leerer summary auswählen
-            documents = []
-            ids = []
-            for article in articles:
-                if article.summary and article.summary.strip():
-                    documents.append(
-                        Document(
-                            page_content=article.summary,
-                            metadata={
-                                "id": str(article.id),
-                                "subscription_id": str(
-                                    article.subscription_id
-                                ),
-                                "title": article.title,
-                            },
-                        )
-                    )
-                    ids.append(str(article.id))
-
-            print(
-                f"--> Found {len(documents)} articles with non-empty summaries on page {page}."
-            )
-
-            # 3) Falls Dokumente vorhanden sind, füge sie asynchron in Qdrant ein
-            if documents:
-                self.vector_store.add_documents(documents=documents, ids=ids)
-
-            page += 1
 
 
 async def add_article(self, article_id: uuid.UUID) -> None:
     article: Optional[Article] = await ArticleRepository.get_article_by_id(
         article_id
     )
-    print(article)
+    
     if not article or not article.summary or not article.summary.strip():
         return
 
@@ -211,106 +203,4 @@ async def add_article(self, article_id: uuid.UUID) -> None:
     )
 
 
-def test_run_():
 
-    service = ArticleVectorService()
-    print(
-        "ArticleVectorService initialized with OpenAI embeddings and sparse embeddings."
-    )
-    service.create_collection("my_documents")
-    res = service.get_list_of_collections()
-    print(res)
-    service.delete_collection("my_documents")
-    res = service.get_list_of_collections()
-
-    test_articles = [
-        Article(
-            id="3d8b0ee9-3f55-445e-b95b-d9cdca9477fe",
-            title="Test Article 1",
-            content="This is the content of test article 1.",
-            url="http://example.com/article1",
-            author="Author 1",
-            published_at="2023-10-01T00:00:00Z",
-            language="en",
-            category="test",
-            summary="This is a summary of test article 1.",
-            subscription_id=str(uuid.uuid4()),
-        ),
-        Article(
-            id="8e4790c7-e464-47de-8e5d-0aee2da78948",
-            title="Test Article 2",
-            content="This is the content of test article 2.",
-            url="http://example.com/article2",
-            author="Author 2",
-            published_at="2023-10-02T00:00:00Z",
-            language="en",
-            category="test",
-            summary="This is a summary of test article 2.",
-            subscription_id=str(uuid.uuid4()),
-        ),
-    ]
-
-    service.add_articles(test_articles)
-    res = service.retrieve_by_similarity("test article")
-    print(res)
-    # You can add more functionality to test the service here.
-
-    """
-    for i in test_articles:
-        ArticleRepository.create_article(i)
-
-    res = ArticleRepository.list_articles()
-    """
-    print(res)
-
-
-import asyncio
-from uuid import UUID
-
-from sqlmodel import Session
-
-from app.core.db import engine
-from app.models.article import Article
-from app.repositories.article_repository import ArticleRepository
-
-"""
-
-from uuid import UUID
-from app.models.article import Article
-from app.repositories.article_repository import ArticleRepository
-
-def main():
-    # 1) Neuen Artikel anlegen
-    art = Article(
-        id=UUID("3d8b0ee9-3f55-445e-b95b-d9cdca9477fe"),
-        title="Test",
-        content="...",
-        url="http://...",
-        author="Author",
-        published_at="2023-10-01T00:00:00Z",
-        language="en",
-        category="test",
-        summary="",
-        subscription_id=None
-
-    )
-
-    # Artikel erstellen
-    created = ArticleRepository.create_article(art)
-    print("Created:", created)
-
-    # Alle Artikel abrufen
-    all_articles = ArticleRepository.list_articles()
-    print("All:", all_articles)
-
-    # Einzelnen Artikel holen
-    fetched = ArticleRepository.get_article_by_id(art.id)
-    print("Fetched:", fetched)
-
-    # Artikel updaten
-    art.title = "Updated Title"
-    updated = ArticleRepository.update_article(art)
-    print("Updated:", updated)
-"""
-if __name__ == "__main__":
-    test_run_()
