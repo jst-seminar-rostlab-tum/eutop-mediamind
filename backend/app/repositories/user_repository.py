@@ -10,8 +10,8 @@ async_session = async_sessionmaker(engine, expire_on_commit=False)
 async def get_user_by_clerk_id(clerk_id) -> User:
     async with async_session() as session:
         query = select(User).where(User.clerk_id == clerk_id)
-        result = await session.execute(query)
-        return result.scalar_one_or_none()
+        clerk_users = await session.execute(query)
+        return clerk_users.scalar_one_or_none()
 
 
 async def update_user(user: User) -> User:
@@ -41,5 +41,5 @@ async def get_user_list_from_organization(user: User) -> list[User] | User:
                 User.organization_id == user.organization_id
             )
 
-        result = await session.execute(query)
-        return result.scalars().all()
+        users = await session.execute(query)
+        return users.scalars().all()
