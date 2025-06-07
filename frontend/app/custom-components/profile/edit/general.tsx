@@ -35,6 +35,7 @@ export function General({ profile, setProfile }: GeneralProps) {
   const {
     data: userData,
     isLoading,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     error,
   } = useQuery("/api/v1/users", {
     headers: authorizationHeaders,
