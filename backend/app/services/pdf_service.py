@@ -21,6 +21,7 @@ from io import BytesIO
 import textwrap
 from PyPDF2 import PdfReader, PdfWriter
 from dataclasses import dataclass
+from app.core.logger import get_logger
 
 pdfmetrics.registerFont(TTFont("DVS", "assets/fonts/DejaVuSans.ttf"))
 pdfmetrics.registerFont(TTFont("DVS-Bold", "assets/fonts/DejaVuSans-Bold.ttf"))
@@ -74,6 +75,12 @@ class PDFService:
     @staticmethod
     def create_pdf(news_items: List[NewsItem]) -> bytes:
         dimensions = A4
+
+        #Log which articles are being processed
+        logger = get_logger(__name__)
+        logger.info("Articles chosen before PDF Generation:")
+        for news in news_items:
+            logger.info(f"Processing news item: {news.id}")
 
         # Generate cover page to separate PDF
         body = PDFService.__create_articles(news_items, dimensions)
