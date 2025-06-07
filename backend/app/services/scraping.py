@@ -1,14 +1,12 @@
 import asyncio
+
 from crawl4ai import AsyncWebCrawler
 from crawl4ai.async_configs import BrowserConfig, CrawlerRunConfig
 
 
 async def scrape(link):
     browser_config = BrowserConfig(
-        verbose=True,
-        headless=False,
-        viewport_width=1280,
-        viewport_height=720
+        verbose=True, headless=False, viewport_width=1280, viewport_height=720
     )
 
     run_config = CrawlerRunConfig(
@@ -24,14 +22,11 @@ async def scrape(link):
     )
 
     async with AsyncWebCrawler(config=browser_config) as crawler:
-        result = await crawler.arun(
-            url=link,
-            config=run_config
-        )
+        result = await crawler.arun(url=link, config=run_config)
         print(result.html)
 
 
-link = 'https://table.media/en/'
+link = "https://table.media/en/"
 asyncio.run(scrape(link))
 # help(CrawlerRunConfig)
 

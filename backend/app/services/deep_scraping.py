@@ -1,19 +1,18 @@
 import asyncio
+
 from crawl4ai import AsyncWebCrawler, BrowserConfig, CrawlerRunConfig
 from crawl4ai.deep_crawling import BestFirstCrawlingStrategy
+from crawl4ai.deep_crawling.filters import ContentRelevanceFilter, FilterChain
 from crawl4ai.deep_crawling.scorers import KeywordRelevanceScorer
-from crawl4ai.deep_crawling.filters import FilterChain, ContentRelevanceFilter
 
 # Discard
 relevance_filter = ContentRelevanceFilter(
-    query="new laws and regulations in Europe",
-    threshold=0.7
+    query="new laws and regulations in Europe", threshold=0.7
 )
 
 # Prioritize
 scorer = KeywordRelevanceScorer(
-    keywords=["europe", "elections", "parliament", "trading"],
-    weight=0.5
+    keywords=["europe", "elections", "parliament", "trading"], weight=0.5
 )
 
 
@@ -31,7 +30,7 @@ async def scrape_with_deep_crawl(base_url, max_depth, max_pages):
         include_external=False,
         url_scorer=scorer,
         max_pages=max_pages,
-        filter_chain=FilterChain([relevance_filter])
+        filter_chain=FilterChain([relevance_filter]),
     )
 
     run_config = CrawlerRunConfig(
@@ -46,15 +45,12 @@ async def scrape_with_deep_crawl(base_url, max_depth, max_pages):
 
     try:
         async with AsyncWebCrawler(config=browser_config) as crawler:
-            results = await crawler.arun(
-                url=base_url,
-                config=run_config
-            )
+            results = await crawler.arun(url=base_url, config=run_config)
 
             if isinstance(results, list):
                 print("Scraped pages:")
                 for i, result in enumerate(results):
-                    if result.url.rstrip('/') != base_url.rstrip('/'):
+                    if result.url.rstrip("/") != base_url.rstrip("/"):
                         print(f"- {result.url}")
                         article_contents[result.url] = result.markdown
             else:
@@ -67,7 +63,7 @@ async def scrape_with_deep_crawl(base_url, max_depth, max_pages):
     return article_contents
 
 
-link = 'https://table.media/en/'
+link = "https://table.media/en/"
 max_depth = 2
 max_pages = 5
 final_result = asyncio.run(scrape_with_deep_crawl(link, max_depth, max_pages))

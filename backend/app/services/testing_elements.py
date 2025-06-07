@@ -1,10 +1,12 @@
 # import json
 import logging
 import time
-# from selenium import webdriver
-from selenium.webdriver.support.ui import WebDriverWait
+
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
+
+# from selenium import webdriver
+from selenium.webdriver.support.ui import WebDriverWait
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -24,7 +26,8 @@ def change_frame(driver, frame):
 def insert_credential(driver, credential, xpath_input_field):
     try:
         input_field = WebDriverWait(driver, 10).until(
-            EC.presence_of_element_located((By.XPATH, xpath_input_field)))
+            EC.presence_of_element_located((By.XPATH, xpath_input_field))
+        )
         input_field.clear()
         input_field.send_keys(credential)
         time.sleep(1)
@@ -39,12 +42,15 @@ def insert_credential(driver, credential, xpath_input_field):
 def scroll_to_element(driver, element_xpath):
     try:
         element = WebDriverWait(driver, 10).until(
-            EC.visibility_of_element_located((By.XPATH, element_xpath)))
+            EC.visibility_of_element_located((By.XPATH, element_xpath))
+        )
         driver.execute_script(
             "arguments[0].scrollIntoView({"
             "block: 'center', "
             "behavior: 'instant'"
-            "});", element)
+            "});",
+            element,
+        )
         time.sleep(1)
 
         logger.info("Scrolled to element")
@@ -58,7 +64,8 @@ def click_element(driver, element_xpath):
     try:
         time.sleep(1)
         clickable_element = WebDriverWait(driver, 10).until(
-            EC.element_to_be_clickable((By.XPATH, element_xpath)))
+            EC.element_to_be_clickable((By.XPATH, element_xpath))
+        )
         try:
             clickable_element.click()
             logger.info("Element clicked")
@@ -113,47 +120,48 @@ def click_shadow_element(driver, element, shadow):
 
 def login_paywalled_website(driver, username, password, site_data):
     # Change to cookies iframe
-    if (site_data.get("iframe_cookies")):
+    if site_data.get("iframe_cookies"):
         change_frame(driver, site_data["iframe_cookies"])
 
     # Accept cookies
-    if (site_data.get("shadow_cookies") and site_data.get("cookies_button")):
+    if site_data.get("shadow_cookies") and site_data.get("cookies_button"):
         click_shadow_element(
             driver, site_data["cookies_button"], site_data["shadow_cookies"]
         )
-    elif (site_data.get("cookies_button")):
+    elif site_data.get("cookies_button"):
         click_element(driver, site_data["cookies_button"])
     driver.switch_to.default_content()
 
     # Remove notifications window
-    if (site_data.get("refuse_notifications")):
+    if site_data.get("refuse_notifications"):
         click_element(driver, site_data["refuse_notifications"])
 
     # Go to login section
-    if (site_data.get("path_to_login_button")):
+    if site_data.get("path_to_login_button"):
         click_element(driver, site_data["path_to_login_button"])
-    if (site_data.get("login_button")):
+    if site_data.get("login_button"):
         click_element(driver, site_data["login_button"])
 
     # Change to credentials iframe
-    if (site_data.get("iframe_credentials")):
+    if site_data.get("iframe_credentials"):
         change_frame(driver, site_data["iframe_credentials"])
 
     # Insert and submit credentials
-    if (site_data.get("user_input")):
+    if site_data.get("user_input"):
         click_element(driver, site_data["user_input"])
         insert_credential(driver, username, site_data["user_input"])
-    if (site_data.get("second_submit_button")
-            and site_data.get("submit_button")):
+    if site_data.get("second_submit_button") and site_data.get(
+        "submit_button"
+    ):
         scroll_to_element(driver, site_data["submit_button"])
         click_element(driver, site_data["submit_button"])
-    if (site_data.get("password_input")):
+    if site_data.get("password_input"):
         click_element(driver, site_data["password_input"])
         insert_credential(driver, password, site_data["password_input"])
-    if (site_data.get("second_submit_button")):
+    if site_data.get("second_submit_button"):
         scroll_to_element(driver, site_data["second_submit_button"])
         click_element(driver, site_data["second_submit_button"])
-    elif (site_data.get("submit_button")):
+    elif site_data.get("submit_button"):
         scroll_to_element(driver, site_data["submit_button"])
         click_element(driver, site_data["submit_button"])
     driver.switch_to.default_content()
@@ -161,15 +169,15 @@ def login_paywalled_website(driver, username, password, site_data):
 
 def logout_paywalled_website(driver, site_data):
     # Go to profile section
-    if (site_data.get("profile_section")):
+    if site_data.get("profile_section"):
         click_element(driver, site_data["profile_section"])
 
     # Change to logout iframe
-    if (site_data.get("iframe_logout")):
+    if site_data.get("iframe_logout"):
         change_frame(driver, site_data["iframe_logout"])
 
     # Logout
-    if (site_data.get("logout_button")):
+    if site_data.get("logout_button"):
         click_element(driver, site_data["logout_button"])
 
 

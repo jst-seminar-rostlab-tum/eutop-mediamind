@@ -1,22 +1,27 @@
+import asyncio
+import base64
+import json
+import logging
 import os
 import re
-import logging
-import json
-import asyncio
 import time
-import base64
+
 import tiktoken
-from openai import OpenAI
-from dotenv import load_dotenv
 from bs4 import BeautifulSoup, Comment
+from dotenv import load_dotenv
+from openai import OpenAI
 from selenium import webdriver
-from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
-from app.services.hardcoded_login import click_element
-from app.services.hardcoded_login import change_frame, scroll_to_element
-from app.services.hardcoded_login import insert_credential
+from selenium.webdriver.support.ui import WebDriverWait
+
+from app.services.hardcoded_login import (
+    change_frame,
+    click_element,
+    insert_credential,
+    scroll_to_element,
+)
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -26,38 +31,55 @@ load_dotenv()
 instructions_login = (
     "Analyze the website's html and extract login elements. "
     "For each element, provide the selector that would work with Selenium. "
-    "Take into consideration that in this html the content of a Shadow DOM is inside of a '<div data-shadow-host='ID'> </div>' tag, in which the ID references the ID of the shadow host."
+    "Take into consideration that in this html the content of a Shadow DOM is "
+    "inside of a '<div data-shadow-host='ID'> </div>' tag, in which the ID "
+    "references the ID of the shadow host. "
     "Retrieve these elements if they exist in the html:\n"
-    "1. 'shadow_host_cookies' - CSS Selector of the shadow host that contains the shadow DOM content with the accept cookies element (use the id for the CSS Selector)\n"
-    "2. 'iframe_cookies' - Xpath of the iframe that contains the accept cookies element\n"
-    "3. 'cookies_button' - Xpath of the accept cookies element itself (provide CSS Selector instead of Xpath only if this element is inside a shadow DOM)\n"
+    "1. 'shadow_host_cookies' - CSS Selector of the shadow host that contains "
+    "the shadow DOM content with the accept cookies element (use the id for "
+    "the CSS Selector)\n"
+    "2. 'iframe_cookies' - Xpath of the iframe that contains the accept "
+    "cookies element\n"
+    "3. 'cookies_button' - Xpath of the accept cookies element itself "
+    "(provide CSS Selector instead of Xpath only if this element is inside "
+    "a shadow DOM)\n"
     "4. 'refuse_notifications' - Xpath of the refuse notifications element\n"
-    "5. 'path_to_login_button' - Xpath of the element that triggers the login element (for example, xpath of dropdown menu containing login button/link)\n"
+    "5. 'path_to_login_button' - Xpath of the element that triggers the "
+    "login element (for example, xpath of dropdown menu containing login "
+    "button/link)\n"
     "6. 'login_button' - Xpath of login element itself\n"
-    "7. 'iframe_credentials' — XPath of the iframe *that contains the credential input fields*, if any.\n"
-    "8. 'user_input' — XPath of the input field where the username or email is typed.\n"
+    "7. 'iframe_credentials' — XPath of the iframe *that contains the "
+    "credential input fields*, if any.\n"
+    "8. 'user_input' — XPath of the input field where the username or "
+    "email is typed.\n"
     "9. 'password_input' — XPath of the input field for the password.\n"
-    "10. 'submit_button' — XPath of the element (usually a button) that submits the login form.\n"
+    "10. 'submit_button' — XPath of the element (usually a button) that "
+    "submits the login form.\n"
     "Only include elements that actually exist on the page. "
-    "The selectors must be robust and preferably use attributes like 'id', 'name', or 'data-testid'."
-    "If you use text content, classes or other attributes, make them robust (for example, include many classes). "
-    "A screenshot of the website is provided, use it to better identify the elements. "
+    "The selectors must be robust and preferably use attributes like 'id', "
+    "'name', or 'data-testid'. "
+    "If you use text content, classes or other attributes, make them robust "
+    "(for example, include many classes). "
+    "A screenshot of the website is provided, use it to better identify "
+    "the elements. "
 )
 
 # Instructions of the schema the response should be in
 login_schema = """
-Return the output as a valid JSON object, do not include any explanations, Markdown formatting, or text before or after the JSON. Use the following schema:\n
+Return the output as a valid JSON object, do not include any explanations,
+Markdown formatting, or text before or after the JSON.
+Use the following schema:\n
 {
   "shadow_host_cookies": null,
   "iframe_cookies": null,
   "cookies_button": null,
   "refuse_notifications": null,
   "path_to_login_button": null,
-  "login_button": null
+  "login_button": null,
   "iframe_credentials": null,
   "user_input": null,
   "password_input": null,
-  "submit_button": null,
+  "submit_button": null
 }
 """
 
@@ -75,7 +97,9 @@ def take_screenshot(driver):
 
 def llm_response_to_json(raw_response: str) -> str:
     try:
-        cleaned_response = re.sub(r"^```(?:json)?\s*|\s*```$", "", raw_response.strip())
+        cleaned_response = re.sub(
+            r"^```(?:json)?\s*|\s*```$", "", raw_response.strip()
+        )
         json_reponse = json.loads(cleaned_response)
         return json_reponse
     except json.JSONDecodeError:
@@ -86,7 +110,7 @@ def llm_response_to_json(raw_response: str) -> str:
 def add_new_keys_to_newspaper(new_keys, newspaper):
     if new_keys:
         for key, value in new_keys.items():
-            if value is not None and key not in ['name', 'link']:
+            if value is not None and key not in ["name", "link"]:
                 if key in newspaper:
                     if isinstance(newspaper[key], list):
                         newspaper[key].append(value)
@@ -119,7 +143,9 @@ def find_correct_clickable_element(driver, wait, newspaper, key):
     return False
 
 
-def click_shadow_root_element(driver, wait, newspaper, key_shadow, key_cookies):
+def click_shadow_root_element(
+    driver, wait, newspaper, key_shadow, key_cookies
+):
     shadow_selectors = newspaper.get(key_shadow)
     cookies_selectors = newspaper.get(key_cookies)
 
@@ -134,32 +160,52 @@ def click_shadow_root_element(driver, wait, newspaper, key_shadow, key_cookies):
 
     for shadow_xpath in shadow_selectors:
         try:
-            shadow_host = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, shadow_xpath)))
-            shadow_root = driver.execute_script("return arguments[0].shadowRoot", shadow_host)
+            shadow_host = wait.until(
+                EC.presence_of_element_located((By.CSS_SELECTOR, shadow_xpath))
+            )
+            shadow_root = driver.execute_script(
+                "return arguments[0].shadowRoot", shadow_host
+            )
             if not shadow_root:
                 logger.warning(f"No shadow root found for host {shadow_xpath}")
                 continue
 
             for css_selector in cookies_selectors:
                 try:
-                    clickable_element = shadow_root.find_element(By.CSS_SELECTOR, css_selector)
+                    clickable_element = shadow_root.find_element(
+                        By.CSS_SELECTOR, css_selector
+                    )
                     try:
                         clickable_element.click()
-                        logger.info(f"Clicked element {css_selector} inside shadow root {shadow_xpath}")
+                        logger.info(
+                            f"Clicked element {css_selector} inside shadow "
+                            f"root {shadow_xpath}"
+                        )
                         newspaper[key_shadow] = shadow_xpath
                         newspaper[key_cookies] = css_selector
                         return True
                     except Exception:
                         try:
-                            driver.execute_script("arguments[0].click();", clickable_element)
+                            driver.execute_script(
+                                "arguments[0].click();", clickable_element
+                            )
                             newspaper[key_shadow] = shadow_xpath
                             newspaper[key_cookies] = css_selector
-                            logger.info(f"Clicked element {css_selector} inside shadow root {shadow_xpath}")
+                            logger.info(
+                                f"Clicked element {css_selector} inside "
+                                f"shadow root {shadow_xpath}"
+                            )
                             return True
                         except Exception:
-                            logger.debug(f"Could not click element {css_selector} inside shadow root {shadow_xpath}: {e}")
+                            logger.debug(
+                                f"Could not click element {css_selector} "
+                                f"inside shadow root {shadow_xpath}"
+                            )
                 except Exception:
-                    logger.error(f"Element {css_selector} not found in shadow root {shadow_xpath}")
+                    logger.error(
+                        f"Element {css_selector} not found in shadow root "
+                        f"{shadow_xpath}"
+                    )
         except Exception:
             logger.debug(f"Error locating shadow host element {shadow_xpath}")
 
@@ -184,45 +230,50 @@ def find_correct_input_element(driver, wait, newspaper, key, credential):
     if selectors:
         if isinstance(selectors, list):
             for xpath in selectors:
-                if click_element(driver, wait, xpath, key) and insert_credential(driver, wait, xpath, key, credential):
+                if click_element(
+                    driver, wait, xpath, key
+                ) and insert_credential(driver, wait, xpath, key, credential):
                     newspaper[key] = xpath
                     return True
         else:
-            if click_element(driver, wait, selectors, key) and insert_credential(driver, wait, selectors, key, credential):
+            if click_element(
+                driver, wait, selectors, key
+            ) and insert_credential(driver, wait, selectors, key, credential):
                 return True
     return False
 
 
-async def call_LLM(LLM_model: str, html: str, instructions: str, response_schema: str, image_url: str):
+async def call_LLM(
+    LLM_model: str,
+    html: str,
+    instructions: str,
+    response_schema: str,
+    image_url: str,
+):
     def sync_call():
         messages = [
             {
                 "role": "developer",
-                "content": f"{instructions}.\n{response_schema}"
+                "content": f"{instructions}.\n{response_schema}",
             },
             {
                 "role": "user",
                 "content": [
-                    {
-                        "type": "text",
-                        "text": html
-                    },
+                    {"type": "text", "text": html},
                     {
                         "type": "image_url",
                         "image_url": {
                             "url": image_url,
-                        }
-                    }
-                ]
-            }
+                        },
+                    },
+                ],
+            },
         ]
 
         try:
-            client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
+            client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
             completion = client.chat.completions.create(
-                model=LLM_model,
-                messages=messages,
-                temperature=0.1
+                model=LLM_model, messages=messages, temperature=0.1
             )
             return completion.choices[0].message.content
         except Exception as e:
@@ -251,7 +302,8 @@ async def extract_and_merge_dynamic_content(driver, html):
 
     # Extract shadow roots content
     shadow_contents = {}
-    shadow_hosts = driver.execute_script("""
+    shadow_hosts = driver.execute_script(
+        """
         return Array.from(document.querySelectorAll('*'))
             .filter(el => el.shadowRoot)
             .map(el => {
@@ -262,26 +314,29 @@ async def extract_and_merge_dynamic_content(driver, html):
                     shadowHtml: el.shadowRoot.innerHTML
                 };
             });
-    """)
+    """
+    )
     for host in shadow_hosts:
-        identifier = host['id']
-        shadow_contents[identifier] = host['shadowHtml']
+        identifier = host["id"]
+        shadow_contents[identifier] = host["shadowHtml"]
 
     # Insert iframe content in original html
     soup_final = BeautifulSoup(html, "html.parser")
     for iframe in soup_final.find_all("iframe"):
         iframe_id = iframe.get("id")
         if iframe_id and iframe_id in iframe_contents:
-            extracted_html = BeautifulSoup(iframe_contents[iframe_id], "html.parser")
+            extracted_html = BeautifulSoup(
+                iframe_contents[iframe_id], "html.parser"
+            )
             inner_content = extracted_html.find().decode_contents()
             iframe.append(BeautifulSoup(inner_content, "html.parser"))
 
     # Insert shadow roots content in original html
     for element in soup_final.find_all(True):
-        if element.get('id') and element.get('id') in shadow_contents:
-            shadow_html = shadow_contents[element.get('id')]
+        if element.get("id") and element.get("id") in shadow_contents:
+            shadow_html = shadow_contents[element.get("id")]
             shadow_root_tag = soup_final.new_tag("div")
-            shadow_root_tag['data-shadow-host'] = element.get('id')
+            shadow_root_tag["data-shadow-host"] = element.get("id")
             shadow_inner_soup = BeautifulSoup(shadow_html, "html.parser")
             for child in shadow_inner_soup.find_all(recursive=False):
                 shadow_root_tag.append(child)
@@ -293,7 +348,7 @@ async def extract_and_merge_dynamic_content(driver, html):
 def custom_clean_html(raw_html):
     soup = BeautifulSoup(raw_html, "html.parser")
 
-    body = soup.find('body')
+    body = soup.find("body")
 
     if body:
         target = body
@@ -303,7 +358,9 @@ def custom_clean_html(raw_html):
     for tag in target(["script", "style", "noscript"]):
         tag.decompose()
 
-    for comment in target.find_all(string=lambda text: isinstance(text, Comment)):
+    for comment in target.find_all(
+        string=lambda text: isinstance(text, Comment)
+    ):
         comment.decompose()
 
     return str(target)
@@ -320,16 +377,20 @@ def debugging_LLM_response(title, LLM_response):
     logger.info("-----------------------------------------------")
 
 
-async def find_elements_with_LLM(driver, instructions, response_schema, newspaper, LLM_model):
+async def find_elements_with_LLM(
+    driver, instructions, response_schema, newspaper, LLM_model
+):
     html = driver.page_source
     html = await extract_and_merge_dynamic_content(driver, html)
     html = custom_clean_html(html)
-    with open('html.txt', 'w', encoding='utf-8') as file:
+    with open("html.txt", "w", encoding="utf-8") as file:
         file.write(html)
     logger.info(f"Tokens in HTML: {count_tokens(html, LLM_model)}")
     time.sleep(3)
     website_image = take_screenshot(driver)
-    LLM_result_raw = await call_LLM(LLM_model, html, instructions, response_schema, website_image)
+    LLM_result_raw = await call_LLM(
+        LLM_model, html, instructions, response_schema, website_image
+    )
     LLM_result = llm_response_to_json(LLM_result_raw)
     debugging_LLM_response("LLM RESPONSE", LLM_result)
     updated_newspaper = add_new_keys_to_newspaper(LLM_result, newspaper)
@@ -337,43 +398,71 @@ async def find_elements_with_LLM(driver, instructions, response_schema, newspape
     return updated_newspaper
 
 
-async def execute_attempt_login(driver, wait, newspaper, LLM_model, username, password):
+async def execute_attempt_login(
+    driver, wait, newspaper, LLM_model, username, password
+):
     instructions = instructions_login
     response_schema = login_schema
-    updated_neswspaper = await find_elements_with_LLM(driver, instructions, response_schema, newspaper, LLM_model)
+    updated_neswspaper = await find_elements_with_LLM(
+        driver, instructions, response_schema, newspaper, LLM_model
+    )
     logged_in = False
 
     # Accept cookies in shadow root
     cookies_accepted = False
     if updated_neswspaper.get("shadow_host_cookies"):
-        cookies_accepted = click_shadow_root_element(driver, wait, updated_neswspaper, "shadow_host_cookies", "cookies_button")
+        cookies_accepted = click_shadow_root_element(
+            driver,
+            wait,
+            updated_neswspaper,
+            "shadow_host_cookies",
+            "cookies_button",
+        )
 
     # Accept cookies
     if not cookies_accepted:
         # Change to cookies iframe
-        change_to_correct_iframe(driver, wait, updated_neswspaper, "iframe_cookies")
+        change_to_correct_iframe(
+            driver, wait, updated_neswspaper, "iframe_cookies"
+        )
         # Click cookies button
-        find_correct_clickable_element(driver, wait, updated_neswspaper, "cookies_button")
+        find_correct_clickable_element(
+            driver, wait, updated_neswspaper, "cookies_button"
+        )
     driver.switch_to.default_content()
 
     # Remove notifications window
-    find_correct_clickable_element(driver, wait, updated_neswspaper, "refuse_notifications")
+    find_correct_clickable_element(
+        driver, wait, updated_neswspaper, "refuse_notifications"
+    )
 
     # Go to section containing login element
-    find_correct_clickable_element(driver, wait, updated_neswspaper, "path_to_login_button")
+    find_correct_clickable_element(
+        driver, wait, updated_neswspaper, "path_to_login_button"
+    )
 
     # Open login form
-    find_correct_clickable_element(driver, wait, updated_neswspaper, "login_button")
+    find_correct_clickable_element(
+        driver, wait, updated_neswspaper, "login_button"
+    )
 
     # We check if the login form is in this scraped page
     if updated_neswspaper.get("submit_button"):
         # Change to credentials iframe
-        change_to_correct_iframe(driver, wait, updated_neswspaper, "iframe_credentials")
+        change_to_correct_iframe(
+            driver, wait, updated_neswspaper, "iframe_credentials"
+        )
         # Insert credentials
-        user_inserted = find_correct_input_element(driver, wait, updated_neswspaper, "user_input", username)
-        password_inserted = find_correct_input_element(driver, wait, updated_neswspaper, "password_input", password)
+        user_inserted = find_correct_input_element(
+            driver, wait, updated_neswspaper, "user_input", username
+        )
+        password_inserted = find_correct_input_element(
+            driver, wait, updated_neswspaper, "password_input", password
+        )
         # Submit credentials
-        submitted = find_correct_clickable_element(driver, wait, updated_neswspaper, "submit_button")
+        submitted = find_correct_clickable_element(
+            driver, wait, updated_neswspaper, "submit_button"
+        )
         driver.switch_to.default_content()
 
     if user_inserted and password_inserted and submitted:
@@ -385,7 +474,7 @@ async def execute_attempt_login(driver, wait, newspaper, LLM_model, username, pa
 async def add_page(name, url, username, password, LLM_model):
     # Obtain file with current registered newspapers
     try:
-        with open('app/services/newspapers_data.json', 'r') as file:
+        with open("app/services/newspapers_data.json", "r") as file:
             newspapers = json.load(file)
     except FileNotFoundError:
         logger.error("Newspapers data .json not found")
@@ -393,13 +482,13 @@ async def add_page(name, url, username, password, LLM_model):
 
     # Create the new newspaper JSON object
     new_key = f"newspaper{len(newspapers['newspapers'])+1}"
-    newspapers['newspapers'][new_key] = {"name": name, "link": url}
-    new_newspaper = newspapers['newspapers'][new_key]
+    newspapers["newspapers"][new_key] = {"name": name, "link": url}
+    new_newspaper = newspapers["newspapers"][new_key]
 
     # Initialize Selenium
     chrome_options = Options()
     chrome_options.add_argument("--disable-notifications")
-    chrome_options.add_extension('./cookie-blocker.crx')
+    chrome_options.add_extension("./cookie-blocker.crx")
     driver = webdriver.Chrome(options=chrome_options)
     wait = WebDriverWait(driver, 5)
     driver.get(url)
@@ -416,7 +505,9 @@ async def add_page(name, url, username, password, LLM_model):
         attempt += 1
         logger.info(f"Login attempt {attempt}/{max_attempts}")
         try:
-            logged_in = await execute_attempt_login(driver, wait, new_newspaper, LLM_model, username, password)
+            logged_in = await execute_attempt_login(
+                driver, wait, new_newspaper, LLM_model, username, password
+            )
             if logged_in:
                 logger.info(f"Login completed at attempt {attempt}")
         except Exception:
@@ -426,9 +517,11 @@ async def add_page(name, url, username, password, LLM_model):
     # Save the new newspaper in the JSON
     if logged_in:
         try:
-            with open('newspapers_data.json', 'w', encoding='utf-8') as file:
+            with open("newspapers_data.json", "w", encoding="utf-8") as file:
                 json.dump(newspapers, file, indent=4, ensure_ascii=False)
-            logger.info(f"Login elements from newspaper {name} succesfully added")
+            logger.info(
+                f"Login elements from newspaper {name} successfully added"
+            )
         except Exception:
             logger.error(f"Error at adding newspaper {name}")
     else:
@@ -438,9 +531,19 @@ async def add_page(name, url, username, password, LLM_model):
 
     driver.quit()
 
-asyncio.run(add_page("Mace", "https://macemagazine.com/", "presseauswertung@eutop.eu", "PresseTeam@2021", "gpt-4o"))
+
+asyncio.run(
+    add_page(
+        "Mace",
+        "https://macemagazine.com/",
+        "presseauswertung@eutop.eu",
+        "PresseTeam@2021",
+        "gpt-4o",
+    )
+)
 
 # Current Problems
-# Not storing both submit buttons with pages with two step login (first submit username, page realoaded, and then submit password)
+# Not storing both submit buttons with pages with two step login
+# (first submit username, page realoaded, and then submit password)
 # There has to be a most robust and secure way to confirm the login
 # Don't repeat steps already done!
