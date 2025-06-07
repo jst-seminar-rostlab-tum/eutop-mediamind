@@ -1,23 +1,43 @@
+import {
+  SignedOut,
+  SignInButton,
+  SignedIn,
+  UserButton,
+} from "@clerk/react-router";
+import { Link, useSearchParams } from "react-router";
 import { Settings, User } from "lucide-react";
 import { Button } from "~/components/ui/button";
-import { Link } from "react-router";
+import { useAuthorization } from "~/hooks/use-authorization";
 
 export default function Header() {
+  const { isSignedIn, user } = useAuthorization();
+  const [searchParams] = useSearchParams();
+  const redirectUrl = searchParams.get("redirect_url");
+
   return (
-    <div className="p-4 w-full grid grid-cols-13 items-center gap-4">
-      <div className="col-span-3">
-        <img src="/MediaMind_Logo.svg" alt="MediaMind_Logo" width="200" />
-      </div>
+    <div className="p-4 w-full flex justify-between items-center">
+      <Link to="/">
+        <img src="/MediaMind_Logo.svg" alt="MediaMind_Logo" width={"140rem"} />
+      </Link>
       <div className="col-span-10 flex justify-end gap-2">
-        <Button variant="outline">
-          <User className="mr-2" />
-          Login
-        </Button>
-        <Link to="/admin">
-          <Button variant="outline">
-            <Settings />
+        <SignedOut>
+          <Button variant="outline" asChild>
+            <span>
+              <User />
+              <SignInButton forceRedirectUrl={redirectUrl ?? "/dashboard"} />
+            </span>
           </Button>
-        </Link>
+        </SignedOut>
+        <SignedIn>
+          <UserButton />
+        </SignedIn>
+        {isSignedIn && user?.is_superuser && (
+          <Link to="/admin">
+            <Button variant="outline">
+              <Settings />
+            </Button>
+          </Link>
+        )}
       </div>
     </div>
   );
