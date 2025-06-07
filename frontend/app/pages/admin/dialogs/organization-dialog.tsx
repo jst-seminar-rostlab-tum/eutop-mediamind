@@ -9,12 +9,11 @@ import {
 import { Label } from "@radix-ui/react-dropdown-menu";
 import { Input } from "~/components/ui/input";
 import { Button } from "~/components/ui/button";
-import { DataTable } from "~/custom-components/data-table";
 import { getUserColumns } from "../columns";
 import type { User } from "../types";
 import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
 import React from "react";
-import { AlertCircleIcon } from "lucide-react";
+import { AlertCircleIcon, Plus } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogContent,
@@ -25,6 +24,7 @@ import {
   AlertDialogCancel,
   AlertDialogAction,
 } from "~/components/ui/alert-dialog";
+import { DataTableUsers } from "~/custom-components/admin-settings/data-table-users";
 
 type Props = {
   open: boolean;
@@ -149,7 +149,18 @@ export function OrganizationDialog({
             </Alert>
           )}
           <div className="mt-2">
-            <DataTable
+            <div className="flex items-center gap-4 my-2">
+              <Input
+                placeholder="Search user email"
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+              />
+              <Button variant={"outline"} onClick={handleAddNewUser}>
+                Add
+                <Plus className="ml-1 h-4 w-4" />
+              </Button>
+            </div>
+            <DataTableUsers
               columns={getUserColumns(handleRoleChange, handleUserDelete)}
               data={users}
               onSearchChange={setSearchInput}

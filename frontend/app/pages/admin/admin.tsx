@@ -6,7 +6,7 @@ import {
   CardTitle,
 } from "~/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
-import { DataTable } from "~/custom-components/data-table";
+import { DataTable } from "~/custom-components/admin-settings/data-table";
 import Layout from "~/custom-components/layout";
 import Text from "~/custom-components/text";
 import React from "react";
