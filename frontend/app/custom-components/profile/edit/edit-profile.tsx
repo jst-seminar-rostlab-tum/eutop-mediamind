@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { cloneDeep, isMatch } from "lodash-es";
 import {
   Dialog,
@@ -23,10 +23,8 @@ import { client, useMutate } from "../../../../types/api";
 import { useAuthorization } from "~/hooks/use-authorization";
 import type { components } from "../../../../types/api-types-v1";
 
-
-
 interface EditProfileProps {
-  profile: components["schemas"]["SearchProfileDetailResponse"]
+  profile: components["schemas"]["SearchProfileDetailResponse"];
   trigger: React.ReactElement;
 }
 
@@ -35,11 +33,16 @@ export function EditProfile({ profile, trigger }: EditProfileProps) {
   const [profileName, setProfileName] = useState(profile.name);
   const [editedProfile, setEditedProfile] = useState(cloneDeep(profile));
 
-  const [newTopics, setNewTopics] = useState<components["schemas"]["SearchProfileDetailResponse"]>()
+  useEffect(() => {
+    setEditedProfile(cloneDeep(profile));
+    setProfileName(profile.name); // also update this if name was changed
+  }, [profile]);
 
+  const [newTopics, setNewTopics] =
+    useState<components["schemas"]["SearchProfileDetailResponse"]>();
 
   const transformToUpdateRequest = (
-    profile: components["schemas"]["SearchProfileDetailResponse"]
+    profile: components["schemas"]["SearchProfileDetailResponse"],
   ): components["schemas"]["SearchProfileUpdateRequest"] => {
     return {
       name: profile.name,
@@ -63,7 +66,7 @@ export function EditProfile({ profile, trigger }: EditProfileProps) {
 
   const [isSaving, setIsSaving] = useState(false);
   const { authorizationHeaders } = useAuthorization();
-  const mutate  = useMutate();
+  const mutate = useMutate();
 
   const handleSave = async () => {
     setIsSaving(true);
@@ -77,7 +80,7 @@ export function EditProfile({ profile, trigger }: EditProfileProps) {
           params: { path: { search_profile_id: profile.id } },
           body: updateRequest,
           headers: authorizationHeaders,
-        }
+        },
       );
       console.log(response);
       await mutate(["/api/v1/search-profiles"]);
@@ -193,7 +196,11 @@ export function EditProfile({ profile, trigger }: EditProfileProps) {
           </Tabs>
         </ScrollArea>
         <div className="flex justify-end">
-          <Button type="button" disabled={isMatch(profile, editedProfile)} onClick={handleSave}>
+          <Button
+            type="button"
+            disabled={isMatch(profile, editedProfile)}
+            onClick={handleSave}
+          >
             {isSaving ? "Saving..." : "Save changes"}
           </Button>
         </div>

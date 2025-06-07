@@ -24,13 +24,19 @@ import { useAuthorization } from "~/hooks/use-authorization";
 
 export interface GeneralProps {
   profile: components["schemas"]["SearchProfileDetailResponse"];
-  setProfile: (profile: components["schemas"]["SearchProfileDetailResponse"]) => void;
+  setProfile: (
+    profile: components["schemas"]["SearchProfileDetailResponse"],
+  ) => void;
 }
 
 export function General({ profile, setProfile }: GeneralProps) {
   const { authorizationHeaders } = useAuthorization();
 
-  const { data: userData, isLoading, error } = useQuery("/api/v1/users", {
+  const {
+    data: userData,
+    isLoading,
+    error,
+  } = useQuery("/api/v1/users", {
     headers: authorizationHeaders,
   });
 

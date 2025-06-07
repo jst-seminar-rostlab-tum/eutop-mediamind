@@ -21,7 +21,9 @@ import { client, useMutate } from "../../../../types/api";
 
 interface TopicsProps {
   profile: components["schemas"]["SearchProfileDetailResponse"];
-  setProfile: (profile: components["schemas"]["SearchProfileDetailResponse"]) => void;
+  setProfile: (
+    profile: components["schemas"]["SearchProfileDetailResponse"],
+  ) => void;
 }
 
 export function Topics({ profile, setProfile }: TopicsProps) {

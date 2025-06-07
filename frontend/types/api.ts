@@ -13,7 +13,6 @@ export const BASE_URL =
 
 const client = createClient<paths>({
   baseUrl: BASE_URL,
-
 });
 
 export { client };

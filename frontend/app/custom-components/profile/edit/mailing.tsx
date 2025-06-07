@@ -6,7 +6,9 @@ import type { components } from "../../../../types/api-types-v1";
 
 export interface MailingProps {
   profile: components["schemas"]["SearchProfileDetailResponse"];
-  setProfile: (profile: components["schemas"]["SearchProfileDetailResponse"]) => void;
+  setProfile: (
+    profile: components["schemas"]["SearchProfileDetailResponse"],
+  ) => void;
 }
 
 export function Mailing({ profile, setProfile }: MailingProps): JSX.Element {

@@ -10,15 +10,22 @@ import {
 } from "~/components/ui/breadcrumb";
 import { useAuthorization } from "~/hooks/use-authorization";
 import { useQuery } from "types/api";
-import { searchProfilesFactory } from "../../../api-client";
+import { useEffect } from "react";
 
 export function DashboardPage() {
   const { authorizationHeaders } = useAuthorization();
 
-  const { data: profiles, isLoading, error } = useQuery("/api/v1/search-profiles", {
+  const {
+    data: profiles,
+    isLoading,
+    error,
+  } = useQuery("/api/v1/search-profiles", {
     headers: authorizationHeaders,
   });
 
+  useEffect(() => {
+    console.log("profiles from SWR:", profiles);
+  }, [profiles]);
 
   return (
     <div className={" mx-auto w-full max-w-2xl xl:max-w-7xl mt-12"}>
@@ -48,9 +55,7 @@ export function DashboardPage() {
       </div>
       <div className="flex flex-wrap gap-6 mt-4 mb-4">
         {profiles?.map((profile) => (
-          <ProfileCard
-            profile={profile}
-          />
+          <ProfileCard key={profile.id} profile={profile} />
         ))}
       </div>
       <h2 className="text-2xl font-bold mb-4">Trend Analysis</h2>
