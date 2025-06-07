@@ -41,7 +41,7 @@ class AppCreator:
     def _register_exception_handlers(self):
         @self.app.exception_handler(Exception)
         async def global_exception_handler(request: Request, exc: Exception):
-            logger.exception(f"Unhandled Exception: {exc}")
+            logger.exception(f"Unhandled Exception: {exc} {request}")
             return JSONResponse(
                 status_code=500,
                 content={"detail": "Internal server error"},
@@ -51,7 +51,7 @@ class AppCreator:
         async def sqlalchemy_exception_handler(
             request: Request, exc: SQLAlchemyError
         ):
-            logger.error(f"Database error: {exc}")
+            logger.error(f"Database error: {exc} {request}")
             return JSONResponse(
                 status_code=500,
                 content={"detail": "A database error occurred."},
