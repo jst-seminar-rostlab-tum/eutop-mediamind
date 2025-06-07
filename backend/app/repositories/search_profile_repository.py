@@ -25,7 +25,7 @@ async def create_profile_with_request(
         profile = SearchProfile(
             name=create_data.name,
             is_public=create_data.public,
-            organization_id=create_data.organization_id,
+            organization_id=current_user.organization_id,
             created_by_id=current_user.id,
         )
         session.add(profile)

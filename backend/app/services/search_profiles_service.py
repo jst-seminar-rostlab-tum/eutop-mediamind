@@ -143,6 +143,9 @@ class SearchProfileService:
             raise HTTPException(status_code=404, detail="Profile not found")
 
         if (
+            not db_profile.is_public
+            and db_profile.organization_id != current_user.organization_id
+        ) or (
             db_profile.created_by_id != current_user.id
             and not current_user.is_superuser
         ):

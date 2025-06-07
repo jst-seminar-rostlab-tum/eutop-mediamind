@@ -7,8 +7,8 @@ from app.schemas.subscription_schemas import (
     SetSearchProfileSubscriptionsRequest,
     SubscriptionSummary,
 )
-from app.services.llm_service.subscription_service import SubscriptionService
 from app.services.search_profiles_service import SearchProfileService
+from app.services.subscription_service import SubscriptionService
 
 router = APIRouter(
     prefix="/subscriptions",

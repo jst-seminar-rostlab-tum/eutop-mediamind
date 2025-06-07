@@ -24,7 +24,6 @@ class SearchProfileBase(BaseModel):
 
 
 class SearchProfileCreateRequest(SearchProfileBase):
-    organization_id: UUID
     topics: List[TopicCreateOrUpdateRequest]
 
 
