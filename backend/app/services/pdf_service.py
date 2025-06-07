@@ -10,6 +10,8 @@ from reportlab.graphics import renderPDF
 from reportlab.platypus import Paragraph, Spacer, Frame, PageTemplate, Spacer, Image, BaseDocTemplate, HRFlowable
 from reportlab.platypus.flowables import AnchorFlowable
 from reportlab.lib.styles import ParagraphStyle
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
 from app.repositories.article_repository import ArticleRepository
 from svglib.svglib import svg2rlg
 from PIL import Image as PILImage
@@ -19,6 +21,11 @@ from io import BytesIO
 import textwrap
 from PyPDF2 import PdfReader, PdfWriter
 from dataclasses import dataclass
+
+pdfmetrics.registerFont(TTFont("DVS", "assets/fonts/DejaVuSans.ttf"))
+pdfmetrics.registerFont(TTFont("DVS-Bold", "assets/fonts/DejaVuSans-Bold.ttf"))
+pdfmetrics.registerFont(TTFont("DVS-Oblique", "assets/fonts/DejaVuSans-Oblique.ttf"))
+pdfmetrics.registerFont(TTFont("DVS-BoldOblique", "assets/fonts/DejaVuSans-BoldOblique.ttf"))
 
 @dataclass
 class NewsItem:
@@ -165,18 +172,18 @@ class PDFService:
         # Draw start of header
         y_position = height - inch + 5
         x_start = inch
-        canvas.setFont("Helvetica-Bold", 12)
+        canvas.setFont("DVS-Bold", 12)
         canvas.setFillColor(colors.HexColor("#003366"))
         canvas.drawString(x_start, y_position, "Continued News Report")
 
         #Time
-        x_after = x_start + canvas.stringWidth("Continued News Report   –   ", "Helvetica-Bold", 15)
-        canvas.setFont("Helvetica-Oblique", 8)
+        x_after = x_start + canvas.stringWidth("Continued News Report   –   ", "DVS-Bold", 15)
+        canvas.setFont("DVS-Oblique", 8)
         canvas.drawString(x_after, y_position, time_part + " ")
 
         #Date
-        x_after += canvas.stringWidth(time_part + " ", "Helvetica-Oblique", 10)
-        canvas.setFont("Helvetica-Bold", 8)
+        x_after += canvas.stringWidth(time_part + " ", "DVS-Oblique", 10)
+        canvas.setFont("DVS-Bold", 8)
         canvas.drawString(x_after, y_position, date_part)
 
         # Draw end of header
@@ -192,7 +199,7 @@ class PDFService:
             print(f"Could not load logo: {e}")
 
         # Draw footer with Page number
-        canvas.setFont("Helvetica", 10)
+        canvas.setFont("DVS", 10)
         canvas.setFillColor(colors.HexColor("#003366"))
         page_str = f"Page {doc.page}"
         canvas.drawRightString(width - inch, 0.4 * inch, page_str)
@@ -214,29 +221,29 @@ class PDFService:
         styles = getSampleStyleSheet()
 
         keywords_style = styles["Normal"]
-        keywords_style.fontName = "Helvetica-Oblique"
+        keywords_style.fontName = "DVS-Oblique"
         keywords_style.fontSize = 8
         keywords_style.leading = 10
         keywords_style.textColor = colors.HexColor("#003366")
 
         summary_style = styles["Normal"]
-        summary_style.fontName = "Helvetica-Oblique"
+        summary_style.fontName = "DVS-Oblique"
         summary_style.fontSize = 9
         summary_style.leading = 12
         summary_style.textColor = colors.darkgray
 
         content_style = styles["Normal"]
-        content_style.fontName = "Helvetica"
+        content_style.fontName = "DVS"
         content_style.fontSize = 10
         content_style.leading = 12
 
         reading_time_style = styles["Normal"]
-        reading_time_style.fontName = "Helvetica-Oblique"
+        reading_time_style.fontName = "DVS-Oblique"
         reading_time_style.fontSize = 9
         reading_time_style.leading = 12
         reading_time_style.textColor = colors.darkgreen
 
-        para_style = ParagraphStyle('ColumnContent', fontName="Helvetica", fontSize=10, leading=12)
+        para_style = ParagraphStyle('ColumnContent', fontName="DVS", fontSize=10, leading=12)
 
         story = []
 
