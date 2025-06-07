@@ -1,9 +1,11 @@
 from uuid import UUID
+from typing import List
 
-from sqlalchemy.ext.asyncio import async_session
-from sqlalchemy.future import select
+from sqlalchemy import select, desc
+from sqlalchemy.orm.strategy_options import joinedload
 
 from app.models.article import Article
+from app.core.db import async_session
 
 
 class ArticleRepository:
@@ -28,3 +30,11 @@ class ArticleRepository:
                 return existing_article
             else:
                 return None
+
+    @staticmethod
+    async def get_sameple_articles(limit: int) -> List[Article] | None:
+        async with async_session() as session:
+            result = await session.execute(
+                select(Article).order_by(desc(Article.published_at)).limit(limit).options(joinedload('*'))
+            )
+            return result.unique().scalars().all()
