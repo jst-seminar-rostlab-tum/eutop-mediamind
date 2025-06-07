@@ -7,6 +7,9 @@ from sqlmodel import select
 from app.core.db import async_session
 from app.models import Topic, User
 from app.models.search_profile import SearchProfile
+from app.repositories.subscription_repository import (
+    set_subscriptions_for_profile,
+)
 from app.repositories.topics_repository import TopicsRepository
 from app.schemas.search_profile_schemas import (
     SearchProfileCreateRequest,
@@ -15,27 +18,46 @@ from app.schemas.search_profile_schemas import (
 
 
 async def create_profile_with_request(
-    create_data: SearchProfileCreateRequest, current_user: User, session
+    create_data: SearchProfileCreateRequest, current_user: User
 ) -> SearchProfile:
-    # Create and persist base profile
-    profile = SearchProfile(
-        name=create_data.name,
-        is_public=create_data.public,
-        organization_id=create_data.organization_id,
-        created_by_id=current_user.id,
-    )
-    session.add(profile)
-    await session.commit()
-    await session.refresh(profile)
+    async with async_session() as session:
+        # Create and persist base profile
+        profile = SearchProfile(
+            name=create_data.name,
+            is_public=create_data.public,
+            organization_id=create_data.organization_id,
+            created_by_id=current_user.id,
+        )
+        session.add(profile)
+        await session.commit()
+        await session.refresh(profile)
 
-    # Add related data: topics, emails
-    await TopicsRepository.update_topics(profile, create_data.topics, session)
-    # await update_emails(profile, create_data.organization_emails,
-    # create_data.profile_emails, session)
+        # Add related data: topics
+        await TopicsRepository.update_topics(profile, create_data.topics)
 
-    # Reload profile with relationships (just like in update)
-    await session.refresh(profile)
-    return profile
+        # Add subscriptions
+        subscription_ids = [s.id for s in create_data.subscriptions]
+        await set_subscriptions_for_profile(
+            profile_id=profile.id, subscription_ids=subscription_ids
+        )
+
+        # Add emails
+        # await update_emails(profile, update_data.organization_emails,
+        # update_data.profile_emails, session)
+
+        # Refresh with eager-loaded relationships
+        result = await session.execute(
+            select(SearchProfile)
+            .where(SearchProfile.id == profile.id)
+            .options(
+                selectinload(SearchProfile.users),
+                selectinload(SearchProfile.topics).selectinload(
+                    Topic.keywords
+                ),
+            )
+        )
+        profile = result.scalars().one()
+        return profile
 
 
 async def get_accessible_profiles(
@@ -86,16 +108,21 @@ async def get_search_profile_by_id(
 async def update_profile_with_request(
     profile: SearchProfile,
     update_data: SearchProfileUpdateRequest,
-    session,
 ):
-    # Update base fields
-    profile.name = update_data.name
-    profile.is_public = update_data.public
+    async with async_session() as session:
+        # Update base fields
+        profile.name = update_data.name
+        profile.is_public = update_data.public
 
-    await TopicsRepository.update_topics(profile, update_data.topics, session)
-    # await update_emails(profile, update_data.organization_emails,
-    # update_data.profile_emails, session)
+        await set_subscriptions_for_profile(
+            profile_id=profile.id,
+            subscription_ids=[s.id for s in update_data.subscriptions],
+        )
 
-    session.add(profile)
-    await session.commit()
-    await session.refresh(profile)
+        await TopicsRepository.update_topics(profile, update_data.topics)
+        # await update_emails(profile, update_data.organization_emails,
+        # update_data.profile_emails, session)
+
+        session.add(profile)
+        await session.commit()
+        await session.refresh(profile)

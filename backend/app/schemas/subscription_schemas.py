@@ -9,10 +9,6 @@ class SubscriptionSummary(BaseModel):
     is_subscribed: bool
 
 
-class SearchProfileSubscriptionLink(BaseModel):
-    subscription_id: UUID
-
-
 class SetSearchProfileSubscriptionsRequest(BaseModel):
     search_profile_id: UUID
-    subscriptions: list[SearchProfileSubscriptionLink]
+    subscriptions: list[SubscriptionSummary]

@@ -8,22 +8,19 @@ from app.models.article import Article
 from app.models.match import Match
 
 
-async def get_recent_match_counts_by_profile_ids(
-    profile_ids: list[UUID],
+async def get_recent_match_count_by_profile_id(
+    profile_id: UUID,
     since: datetime,
-) -> dict[UUID, int]:
-    if not profile_ids:
-        return {}
-
+) -> int:
     async with async_session() as session:
         stmt = (
-            select(Match.search_profile_id, func.count().label("count"))
+            select(func.count().label("count"))
+            .select_from(Match)
             .join(Article, Match.article_id == Article.id)
             .where(
-                Match.search_profile_id.in_(profile_ids),
+                Match.search_profile_id == profile_id,
                 Article.published_at >= since,
             )
-            .group_by(Match.search_profile_id)
         )
         result = await session.execute(stmt)
-        return {row.search_profile_id: row.count for row in result.all()}
+        return result.scalar_one_or_none() or 0

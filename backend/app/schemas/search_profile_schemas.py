@@ -1,61 +1,57 @@
 from typing import List
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, EmailStr
+from pydantic import BaseModel, EmailStr
 
+from app.schemas.subscription_schemas import SubscriptionSummary
 from app.schemas.topic_schemas import (
-    TopicCreateRequest,
+    TopicCreateOrUpdateRequest,
     TopicResponse,
-    TopicUpdateRequest,
 )
 
-
-class SubscriptionUpdate(BaseModel):
-    id: int
-    name: str
+# --- Shared Base Models ---
 
 
-class SearchProfileUpdateRequest(BaseModel):
+class SearchProfileBase(BaseModel):
     name: str
     public: bool
-    organization_emails: list[EmailStr]
-    profile_emails: list[EmailStr]
-    topics: list[TopicUpdateRequest]
+    organization_emails: List[EmailStr]
+    profile_emails: List[EmailStr]
+    subscriptions: List[SubscriptionSummary]
 
 
-class SearchProfileCreateRequest(BaseModel):
-    name: str
-    public: bool
+class SearchProfileTopicMixin(BaseModel):
+    topics: List[TopicResponse]
+
+
+# --- Request Models ---
+
+
+class SearchProfileCreateRequest(SearchProfileBase):
     organization_id: UUID
-    organization_emails: List[EmailStr]
-    profile_emails: List[EmailStr]
-    topics: List[TopicCreateRequest]
+    topics: List[TopicCreateOrUpdateRequest]
 
 
-class SearchProfileDetailResponseWithNewArticleCount(BaseModel):
+class SearchProfileUpdateRequest(SearchProfileBase):
+    topics: List[TopicCreateOrUpdateRequest]
+
+
+# --- Response Models ---
+
+
+class SearchProfileDetailBase(BaseModel):
     id: UUID
     name: str
+    public: bool
     organization_emails: List[EmailStr]
     profile_emails: List[EmailStr]
-    public: bool
     editable: bool
     is_editable: bool
     owner: UUID
     is_owner: bool
-    topics: list[TopicResponse]
+    topics: List[TopicResponse]
+
+
+class SearchProfileDetailResponse(SearchProfileDetailBase):
+    subscriptions: List[SubscriptionSummary]
     new_articles_count: int
-
-
-class SearchProfileDetailResponse(BaseModel):
-    id: UUID
-    name: str
-    organization_emails: List[EmailStr]
-    profile_emails: List[EmailStr]
-    public: bool
-    editable: bool
-    is_editable: bool
-    owner: UUID
-    is_owner: bool
-    topics: list[TopicResponse]
-
-    model_config = ConfigDict(from_attributes=True)

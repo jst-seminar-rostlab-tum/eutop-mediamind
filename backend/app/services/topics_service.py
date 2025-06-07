@@ -5,7 +5,7 @@ from starlette import status
 
 from app.models import User
 from app.repositories.topics_repository import TopicsRepository
-from app.schemas.topic_schemas import TopicCreateRequest
+from app.schemas.topic_schemas import TopicCreateOrUpdateRequest
 
 
 class TopicsService:
@@ -23,7 +23,9 @@ class TopicsService:
 
     @staticmethod
     async def add_topic(
-        search_profile_id: UUID, request: TopicCreateRequest, user: User
+        search_profile_id: UUID,
+        request: TopicCreateOrUpdateRequest,
+        user: User,
     ):
         topic = await TopicsRepository.add_topic(
             search_profile_id, request, user

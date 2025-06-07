@@ -1,12 +1,11 @@
 from uuid import UUID
 
 from sqlalchemy import delete, select
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.db import async_session
 from app.models import Keyword, SearchProfile, Topic
 from app.models.associations import TopicKeywordLink
-from app.schemas.topic_schemas import TopicCreateRequest, TopicUpdateRequest
+from app.schemas.topic_schemas import TopicCreateOrUpdateRequest
 
 
 class TopicsRepository:
@@ -28,7 +27,7 @@ class TopicsRepository:
 
     @staticmethod
     async def add_topic(
-        search_profile_id: UUID, request: TopicCreateRequest, user
+        search_profile_id: UUID, request: TopicCreateOrUpdateRequest, user
     ) -> Topic:
         async with async_session() as session:
             topic = Topic(
@@ -57,33 +56,35 @@ class TopicsRepository:
     @staticmethod
     async def update_topics(
         profile: SearchProfile,
-        new_topics: list[TopicUpdateRequest],
-        session: AsyncSession,
+        new_topics: list[TopicCreateOrUpdateRequest],
     ):
-        # Delete existing topics and keyword links
-        for topic in profile.topics:
-            await session.execute(
-                delete(TopicKeywordLink).where(
-                    TopicKeywordLink.topic_id == topic.id
+        async with async_session() as session:
+            # Delete existing topics and keyword links
+            for topic in profile.topics:
+                await session.execute(
+                    delete(TopicKeywordLink).where(
+                        TopicKeywordLink.topic_id == topic.id
+                    )
                 )
-            )
-            await session.delete(topic)
-        await session.commit()
+                await session.delete(topic)
+            await session.commit()
 
-        # Create new topics and their keywords
-        for topic_data in new_topics:
-            topic = Topic(name=topic_data.name, search_profile_id=profile.id)
-            session.add(topic)
-            await session.flush()
-
-            for keyword_name in topic_data.keywords:
-                keyword = Keyword(name=keyword_name)
-                session.add(keyword)
+            # Create new topics and their keywords
+            for topic_data in new_topics:
+                topic = Topic(
+                    name=topic_data.name, search_profile_id=profile.id
+                )
+                session.add(topic)
                 await session.flush()
 
-                link = TopicKeywordLink(
-                    topic_id=topic.id, keyword_id=keyword.id
-                )
-                session.add(link)
+                for keyword_name in topic_data.keywords:
+                    keyword = Keyword(name=keyword_name)
+                    session.add(keyword)
+                    await session.flush()
 
-        await session.commit()
+                    link = TopicKeywordLink(
+                        topic_id=topic.id, keyword_id=keyword.id
+                    )
+                    session.add(link)
+
+            await session.commit()

@@ -1,13 +1,12 @@
 from datetime import datetime, timedelta, timezone
+from uuid import UUID
 
 from fastapi import HTTPException
-from sqlalchemy import UUID
 
-from app.core.db import async_session
 from app.models import SearchProfile, Topic, User
 from app.repositories.match_repository import MatchRepository
 from app.repositories.match_repositoy import (
-    get_recent_match_counts_by_profile_ids,
+    get_recent_match_count_by_profile_id,
 )
 from app.repositories.search_profile_repository import (
     create_profile_with_request,
@@ -28,7 +27,6 @@ from app.schemas.match_schemas import MatchFeedbackRequest
 from app.schemas.search_profile_schemas import (
     SearchProfileCreateRequest,
     SearchProfileDetailResponse,
-    SearchProfileDetailResponseWithNewArticleCount,
     SearchProfileUpdateRequest,
 )
 from app.schemas.subscription_schemas import (
@@ -41,22 +39,16 @@ from app.schemas.topic_schemas import TopicResponse
 class SearchProfileService:
     @staticmethod
     async def create_search_profile(
-        data: SearchProfileCreateRequest,
-        current_user: User,
+        data: SearchProfileCreateRequest, current_user: User
     ) -> SearchProfileDetailResponse:
-        async with async_session() as session:
-            profile = await create_profile_with_request(
-                data, current_user, session
-            )
-
-        return SearchProfileService._build_profile_response(
+        profile = await create_profile_with_request(data, current_user)
+        return await SearchProfileService._build_profile_response(
             profile, current_user
         )
 
     @staticmethod
     async def get_search_profile_by_id(
-        search_profile_id: UUID,
-        current_user: User,
+        search_profile_id: UUID, current_user: User
     ) -> SearchProfileDetailResponse | None:
         profiles = await SearchProfileService.get_available_search_profiles(
             current_user
@@ -66,60 +58,20 @@ class SearchProfileService:
     @staticmethod
     async def get_available_search_profiles(
         current_user: User,
-    ) -> list[SearchProfileDetailResponseWithNewArticleCount]:
+    ) -> list[SearchProfileDetailResponse]:
         accessible_profiles = await get_accessible_profiles(
             current_user.id, current_user.organization_id
         )
 
-        profile_ids = [p.id for p in accessible_profiles]
-        time_threshold = datetime.now(timezone.utc) - timedelta(hours=24)
-
-        count_map = await get_recent_match_counts_by_profile_ids(
-            profile_ids, time_threshold
-        )
-
         return [
-            SearchProfileService._build_profile_response_with_count_map(
-                profile, current_user, count_map.get(profile.id, 0)
+            await SearchProfileService._build_profile_response(
+                profile, current_user
             )
             for profile in accessible_profiles
         ]
 
     @staticmethod
-    def _build_profile_response_with_count_map(
-        profile: SearchProfile, current_user: User, new_articles_count: int = 0
-    ) -> SearchProfileDetailResponseWithNewArticleCount:
-        is_owner = profile.created_by_id == current_user.id
-        is_editable = is_owner or current_user.is_superuser
-
-        organization_emails = SearchProfileService._filter_emails_by_org(
-            profile, current_user.organization_id, include=True
-        )
-        profile_emails = SearchProfileService._filter_emails_by_org(
-            profile, current_user.organization_id, include=False
-        )
-
-        topic_responses = [
-            SearchProfileService._build_topic_response(topic)
-            for topic in profile.topics
-        ]
-
-        return SearchProfileDetailResponseWithNewArticleCount(
-            id=profile.id,
-            name=profile.name,
-            organization_emails=organization_emails,
-            profile_emails=profile_emails,
-            public=profile.is_public,
-            editable=is_editable,
-            is_editable=is_editable,
-            owner=profile.created_by_id,
-            is_owner=is_owner,
-            topics=topic_responses,
-            new_articles_count=new_articles_count,
-        )
-
-    @staticmethod
-    def _build_profile_response(
+    async def _build_profile_response(
         profile: SearchProfile, current_user: User
     ) -> SearchProfileDetailResponse:
         is_owner = profile.created_by_id == current_user.id
@@ -131,23 +83,33 @@ class SearchProfileService:
         profile_emails = SearchProfileService._filter_emails_by_org(
             profile, current_user.organization_id, include=False
         )
-
         topic_responses = [
-            SearchProfileService._build_topic_response(topic)
-            for topic in profile.topics
+            SearchProfileService._build_topic_response(t)
+            for t in profile.topics
         ]
+
+        subscriptions = await get_all_subscriptions_with_search_profile(
+            profile.id
+        )
+
+        time_threshold = datetime.now(timezone.utc) - timedelta(hours=24)
+        new_articles_count = await get_recent_match_count_by_profile_id(
+            profile.id, time_threshold
+        )
 
         return SearchProfileDetailResponse(
             id=profile.id,
             name=profile.name,
-            organization_emails=organization_emails,
-            profile_emails=profile_emails,
             public=profile.is_public,
             editable=is_editable,
             is_editable=is_editable,
             owner=profile.created_by_id,
             is_owner=is_owner,
+            organization_emails=organization_emails,
+            profile_emails=profile_emails,
             topics=topic_responses,
+            subscriptions=subscriptions,
+            new_articles_count=new_articles_count,
         )
 
     @staticmethod
@@ -174,25 +136,24 @@ class SearchProfileService:
         update_data: SearchProfileUpdateRequest,
         current_user: User,
     ) -> SearchProfileDetailResponse:
-        profile = await get_search_profile_by_id(
+        db_profile = await get_search_profile_by_id(
             search_profile_id, current_user
         )
-        if profile is None:
+        if not db_profile:
             raise HTTPException(status_code=404, detail="Profile not found")
 
         if (
-            profile.created_by_id != current_user.id
+            db_profile.created_by_id != current_user.id
             and not current_user.is_superuser
         ):
             raise HTTPException(
                 status_code=403, detail="Not allowed to edit this profile"
             )
 
-        async with async_session() as session:
-            await update_profile_with_request(profile, update_data, session)
+        await update_profile_with_request(db_profile, update_data)
 
-        return SearchProfileService._build_profile_response(
-            profile, current_user
+        return await SearchProfileService._build_profile_response(
+            db_profile, current_user
         )
 
     @staticmethod
@@ -206,8 +167,7 @@ class SearchProfileService:
             ArticleOverviewItem.from_entity(m) for m in matches if m.article
         ]
         return ArticleOverviewResponse(
-            search_profile_id=search_profile_id,
-            articles=articles,
+            search_profile_id=search_profile_id, articles=articles
         )
 
     @staticmethod
@@ -219,27 +179,24 @@ class SearchProfileService:
         )
         if not match or not match.article:
             return None
-
-        article = match.article
+        a = match.article
         return MatchDetailResponse(
             match_id=match.id,
             comment=match.comment,
             sorting_order=match.sorting_order,
-            article_id=article.id,
-            title=article.title,
-            url=article.url,
-            author=article.author,
-            published_at=article.published_at,
-            language=article.language,
-            category=article.category,
-            summary=article.summary,
+            article_id=a.id,
+            title=a.title,
+            url=a.url,
+            author=a.author,
+            published_at=a.published_at,
+            language=a.language,
+            category=a.category,
+            summary=a.summary,
         )
 
     @staticmethod
     async def update_match_feedback(
-        search_profile_id: UUID,
-        match_id: UUID,
-        data: MatchFeedbackRequest,
+        search_profile_id: UUID, match_id: UUID, data: MatchFeedbackRequest
     ) -> bool:
         match = await MatchRepository.update_match_feedback(
             search_profile_id,
