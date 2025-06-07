@@ -21,8 +21,11 @@ class KeywordRepository:
         """Retrieve a single Keyword by its UUID."""
         async with async_session() as session:
             statement = select(Keyword).where(Keyword.id == keyword_id)
-            result = await session.execute(statement)
-            return result.scalars().first()
+            keyword: Optional[Keyword] = (
+                await session.execute(statement)
+            ).scalar_one_or_none()
+
+            return keyword
 
     @staticmethod
     async def list_keywords(
@@ -60,60 +63,56 @@ class KeywordRepository:
             await session.commit()
 
     @staticmethod
-    async def get_most_similar_articles(
+    async def get_similar_articles_by_keyword_id(
         keyword_id: UUID, score_threshold: float = 0.3
-    ) -> Sequence[Article]:
+    ) -> List[Article]:
         """Retrieve the most similar articles for a given keyword."""
 
         keyword = await KeywordRepository.get_keyword_by_id(keyword_id)
         if not keyword:
-            return []
-        articles = await article_vector_service.retrieve_by_similarity(
+            raise ValueError(f"Keyword with id {keyword_id} not found.")
+        similarity_results = await article_vector_service.retrieve_by_similarity(
             keyword.name, score_threshold=score_threshold
         )
 
-        result = []
-        for article in articles:
-            doc, score = article
-
-            print(doc.metadata["id"])
-            article_obj = await ArticleRepository.get_article_by_id(
-                doc.metadata["id"]
+        similar_articles: List[Article] = []
+        for doc, score in similarity_results:
+            article_id = doc.metadata["id"]
+            article: Optional[Article] = await ArticleRepository.get_article_by_id(
+                article_id
             )
-            if article_obj:
-                result.append(article_obj)
-
-        return result
-
-    @staticmethod
-    async def assign_articles_to_keywords(page_size: int = 100) -> None:
-        page = 0
-        while True:
-            offset = page * page_size
-
-            keywords = await KeywordRepository.list_keywords(
-                limit=page_size, offset=offset
-            )
-            print(f"Processing page {page} with {len(keywords)} keywords...")
-            if not keywords:
-                break
-
-            for keyword in keywords:
-
-                print(f"Processing keyword: {keyword.name}")
-                similar_articles = (
-                    await article_vector_service.retrieve_by_similarity(
-                        query=keyword.name, score_threshold=0.3
-                    )
+            if article:
+                similar_articles.append(article)
+            else:
+                raise ValueError(
+                    f"Article with id {article_id} not found in the database."
                 )
 
-                for similar_article in similar_articles:
-                    doc, score = similar_article
-                    await KeywordRepository.add_article_to_keyword(
-                        keyword.id, doc.metadata["id"], score
-                    )
-                    print(
-                        f"Assigned article {doc.metadata['id']} to keyword {keyword.name}"
-                    )
+        return similar_articles
+
+    @staticmethod
+    async def assign_articles_to_keywords(page_size: int = 100, score_threshold: float = 0.3) -> None:
+        page = 0
+        keywords: List[Keyword] = await KeywordRepository.list_keywords(
+            limit=page_size, offset=page * page_size
+        )
+
+        while keywords:
+            for keyword in keywords:
+                similar_articles: List[Article] = await article_vector_service.retrieve_by_similarity(
+                    query=keyword.name,
+                    score_threshold=score_threshold
+                )
+
+                for doc, score in similar_articles:
+                await KeywordRepository.add_article_to_keyword(
+                    keyword.id,
+                    doc.metadata["id"],
+                    score
+                )
 
             page += 1
+            keywords = await KeywordRepository.list_keywords(
+                limit=page_size, offset=page * page_size
+            )
+            
