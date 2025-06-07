@@ -75,7 +75,7 @@ class SearchProfileService:
         profile: SearchProfile, current_user: User
     ) -> SearchProfileDetailResponse:
         is_owner = profile.created_by_id == current_user.id
-        is_editable = is_owner or current_user.is_superuser
+        is_editable = is_owner or current_user.is_superuser or (profile.is_public and current_user.organization_id == profile.organization_id)
 
         organization_emails = SearchProfileService._filter_emails_by_org(
             profile, current_user.organization_id, include=True
