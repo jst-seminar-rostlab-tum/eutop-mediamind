@@ -22,13 +22,20 @@ from dataclasses import dataclass
 
 @dataclass
 class NewsItem:
+    id: str
     title: str
-    summary: str
     content: str
-    newspaper: str
-    keywords: list[str]
+    url: str
+    published_at: str
+    summary: str
+    subscription_id: str
+    author: str | None = None
+    language: str | None = None
+    category: str | None = None
+    newspaper: str | None = None
+    keywords: list[str] | None = None
     image_url: str | None = None
-    date_time: str | None = None
+    
 
 class PDFService:
 
@@ -39,13 +46,19 @@ class PDFService:
         for article in articles:
             # Convert Article to NewsItem
             news_item = NewsItem(
+                id=article.id,
                 title=article.title,
-                summary=article.summary or "",
                 content=article.content,
+                url=article.url,
+                author=article.author.name if article.author else None,
+                published_at=article.published_at.isoformat() if article.published_at else None,
+                language=article.language if article.language else None,
+                category=article.category.name if article.category else None,
+                summary=article.summary or "",
+                subscription_id =article.subscription.id,
                 newspaper=article.subscription.name,
                 keywords=[keyword.name for keyword in article.keywords],
-                image_url=None,  # Placeholder, as we don't have images in sample articles
-                date_time=article.published_at.isoformat() if article.published_at else None
+                image_url=None  # Placeholder, as we don't have images in sample articles
             )
             # Replace the article with the news item
             news_items.append(news_item)
@@ -128,7 +141,7 @@ class PDFService:
         story.append(Paragraph("<b><font size=16 color='#003366'>Table of Contents</font></b>", styles['Heading2']))
         story.append(Spacer(1, 0.2 * inch))
         for news in news_items:
-            toc_line = f"{news.title} ({news.newspaper}, {news.date_time})"
+            toc_line = f"{news.title} ({news.newspaper}, {news.published_at})"
             story.append(Paragraph(toc_line, styles['Normal']))
             story.append(Spacer(1, 0.1 * inch))
 
@@ -231,12 +244,12 @@ class PDFService:
             anchor_name = f"dest_{news.title.replace(' ', '_')}"
             story.append(AnchorFlowable(anchor_name))
             story.append(Paragraph(f"<b>{news.title}</b>", styles['Heading3']))
-            if news.date_time:
+            if news.published_at:
                 try:
-                    dt = datetime.strptime(news.date_time.replace("Z", ""), "%Y-%m-%dT%H:%M:%S")
+                    dt = datetime.strptime(news.published_at.replace("Z", ""), "%Y-%m-%dT%H:%M:%S")
                     time_str = f"<b>Time:</b> <b>{dt.strftime('%H:%M')}</b> <i>{dt.strftime('%d/%m/%y')}</i>"
                 except Exception:
-                    time_str = news.date_time
+                    time_str = news.published_at
                 story.append(Paragraph(time_str, reading_time_style))
                 story.append(Spacer(1, 0.1 * inch))
 
