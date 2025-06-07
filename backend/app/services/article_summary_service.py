@@ -65,14 +65,14 @@ class ArticleSummaryService:
             page_size (int): Number of articles to process in each batch.
         """
         page = 0
-        while True:
-            offset = page * page_size
-            articles = await ArticleRepository.list_articles_without_summary(
-                limit=page_size, offset=offset
-            )
-            if not articles:
-                break
+        offset = page * page_size
 
+        articles: List[Article] = await ArticleRepository.list_articles_without_summary(
+            limit=page_size,
+            offset=offset
+        )
+
+        while articles:
             for article in articles:
                 try:
                     # Run the blocking summarize_text in a threadpool to avoid blocking the event loop
@@ -80,8 +80,13 @@ class ArticleSummaryService:
                         ArticleSummaryService.summarize_text, article.content
                     )
                     await ArticleRepository.update_summary(article.id, summary)
-                except Exception:
-                    # Log the exception or handle it as needed, then continue with next article
+                except Exception as e:
                     continue
 
             page += 1
+            offset = page * page_size
+
+            articles = await ArticleRepository.list_articles_without_summary(
+                limit=page_size,
+                offset=offset
+            )
