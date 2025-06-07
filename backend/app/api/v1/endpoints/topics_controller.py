@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 
 from app.core.auth import get_authenticated_user
 from app.schemas.topic_schemas import TopicCreateRequest, TopicResponse
@@ -17,6 +17,7 @@ router = APIRouter(
 async def get_topics(
     search_profile_id: UUID, current_user=Depends(get_authenticated_user)
 ):
+    raise HTTPException(status_code=404, detail="Not implemented")
     return await TopicsService.get_topics(search_profile_id, current_user)
 
 
@@ -26,6 +27,7 @@ async def add_topic(
     request: TopicCreateRequest,
     current_user=Depends(get_authenticated_user),
 ):
+    raise HTTPException(status_code=404, detail="Not implemented")
     return await TopicsService.add_topic(
         search_profile_id, request, current_user
     )
@@ -37,6 +39,7 @@ async def delete_topic(
     topic_id: UUID,
     current_user=Depends(get_authenticated_user),
 ):
+    raise HTTPException(status_code=404, detail="Not implemented")
     return await TopicsService.delete_topic(
         search_profile_id, topic_id, current_user
     )

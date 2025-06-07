@@ -6,6 +6,7 @@ from pydantic import BaseModel
 class SubscriptionSummary(BaseModel):
     id: UUID
     name: str
+    is_subscribed: bool
 
 
 class SearchProfileSubscriptionLink(BaseModel):

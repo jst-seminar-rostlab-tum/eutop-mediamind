@@ -59,6 +59,7 @@ async def get_search_profile_overview(search_profile_id: UUID):
     response_model=MatchDetailResponse,
 )
 async def get_match_detail(search_profile_id: UUID, match_id: UUID):
+    raise HTTPException(status_code=404, detail="Not implemented")
     return await SearchProfileService.get_match_detail(
         search_profile_id, match_id
     )
@@ -96,6 +97,7 @@ async def update_match_feedback(
     match_id: UUID,
     feedback: MatchFeedbackRequest,
 ) -> bool:
+    raise HTTPException(status_code=404, detail="Not implemented")
     updated_match = await SearchProfileService.update_match_feedback(
         search_profile_id, match_id, feedback
     )

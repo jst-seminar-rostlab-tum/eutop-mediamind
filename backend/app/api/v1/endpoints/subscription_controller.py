@@ -20,8 +20,8 @@ router = APIRouter(
     "/{search_profile_id}/subscriptions",
     response_model=list[SubscriptionSummary],
 )
-async def get_subscriptions_for_search_profile(search_profile_id: UUID):
-    return await SearchProfileService.get_available_subscriptions_for_profile(
+async def get_all_subscriptions_with_search_profile(search_profile_id: UUID):
+    return await SearchProfileService.get_all_subscriptions_for_profile(
         search_profile_id
     )
 

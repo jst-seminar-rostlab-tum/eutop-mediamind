@@ -25,5 +25,5 @@ async def get_recent_match_counts_by_profile_ids(
             )
             .group_by(Match.search_profile_id)
         )
-        result = await session.exec(stmt)
+        result = await session.execute(stmt)
         return {row.search_profile_id: row.count for row in result.all()}

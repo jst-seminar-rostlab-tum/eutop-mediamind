@@ -1,9 +1,9 @@
 from uuid import UUID
 
-from sqlalchemy.ext.asyncio import async_session
 from sqlalchemy.future import select
 from sqlalchemy.orm import selectinload
 
+from app.core.db import async_session
 from app.models.match import Match
 
 
@@ -13,13 +13,13 @@ class MatchRepository:
         search_profile_id: UUID,
     ) -> list[Match] | None:
         async with async_session() as session:
-            artciles = await session.execute(
+            articles = await session.execute(
                 select(Match)
                 .options(selectinload(Match.article))
                 .where(Match.search_profile_id == search_profile_id)
                 .order_by(Match.sorting_order.asc())
             )
-            return artciles.scalars().all()
+            return articles.scalars().all()
 
     @staticmethod
     async def get_match_by_id(

@@ -2,9 +2,11 @@ from fastapi import APIRouter
 from fastapi.responses import JSONResponse
 
 from app.api.v1.endpoints.keyword_controller import router as keyword_router
-from app.api.v1.endpoints.subscription_controller import router as subscription_router
 from app.api.v1.endpoints.search_profile_controller import (
     router as search_profile_router,
+)
+from app.api.v1.endpoints.subscription_controller import (
+    router as subscription_router,
 )
 from app.api.v1.endpoints.topics_controller import router as topics_router
 from app.api.v1.endpoints.user_controller import router as user_router

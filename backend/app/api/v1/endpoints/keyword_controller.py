@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 
 from app.core.auth import get_authenticated_user
 from app.schemas.keyword_schemas import KeywordCreateRequest, KeywordResponse
@@ -17,6 +17,7 @@ router = APIRouter(
 async def get_keywords(
     topic_id: UUID, current_user=Depends(get_authenticated_user)
 ):
+    raise HTTPException(status_code=404, detail="Not implemented")
     return await KeywordsService.get_keywords(topic_id, current_user)
 
 
@@ -26,6 +27,7 @@ async def add_keyword(
     request: KeywordCreateRequest,
     current_user=Depends(get_authenticated_user),
 ):
+    raise HTTPException(status_code=404, detail="Not implemented")
     return await KeywordsService.add_keyword(topic_id, request, current_user)
 
 
@@ -35,6 +37,7 @@ async def delete_keyword(
     keyword_id: UUID,
     current_user=Depends(get_authenticated_user),
 ):
+    raise HTTPException(status_code=404, detail="Not implemented")
     return await KeywordsService.delete_keyword(
         topic_id, keyword_id, current_user
     )

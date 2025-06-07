@@ -16,7 +16,7 @@ from app.repositories.search_profile_repository import (
     update_profile_with_request,
 )
 from app.repositories.subscription_repository import (
-    get_available_subscriptions,
+    get_all_subscriptions_with_search_profile,
     set_subscriptions_for_profile,
 )
 from app.schemas.articles_schemas import (
@@ -251,10 +251,12 @@ class SearchProfileService:
         return match is not None
 
     @staticmethod
-    async def get_available_subscriptions_for_profile() -> (
-        list[SubscriptionSummary]
-    ):
-        return await get_available_subscriptions()
+    async def get_all_subscriptions_for_profile(
+        search_profile_id: UUID,
+    ) -> list[SubscriptionSummary]:
+        return await get_all_subscriptions_with_search_profile(
+            search_profile_id
+        )
 
     @staticmethod
     async def set_search_profile_subscriptions(
