@@ -4,7 +4,7 @@ from uuid import UUID
 from sqlalchemy import or_
 from sqlmodel import Session, select
 
-from app.core.db import async_session, engine
+from app.core.db import async_session
 from app.models.article import Article
 
 
@@ -15,11 +15,13 @@ class ArticleRepository:
         Retrieve a single Article by its UUID.
         Returns None if no article is found.
         """
-        # 1) asynchronen Kontext starten
+        
         async with async_session() as session:
             statement = select(Article).where(Article.id == article_id)
-            result = await session.execute(statement)
-            return result.scalars().first()
+            article: Optional[Article] = (
+                await session.execute(statement)
+            ).scalar_one_or_none()
+            return article
 
     async def update_article(article: Article) -> Optional[Article]:
         """
@@ -27,40 +29,40 @@ class ArticleRepository:
         Returns the updated Article, or None if it does not exist.
         """
         async with async_session() as session:
-            existing = await session.get(Article, article.id)
-            if not existing:
+            existing_article = await session.get(Article, article.id)
+            if not existing_article:
                 return None
 
-            # Nur die gesetzten Felder aus new_data extrahieren
-            existing_data = article.model_dump(
+            
+            existing_article_without_id = article.model_dump(
                 exclude_unset=True, exclude={"id"}
             )
-            for key, val in existing_data.items():
-                setattr(existing, key, val)
+            for key, val in existing_article_without_id.items():
+                setattr(existing_article, key, val)
 
-            session.add(existing)
+            session.add(existing_article)
             await session.commit()
-            await session.refresh(existing)
-            return existing
+            await session.refresh(existing_article)
+            return existing_article
 
     @staticmethod
-    async def update_summary(
-        article_id: UUID, summary: str
+    async def update_article_summary(
+        article_id: UUID, article_summary: str
     ) -> Optional[Article]:
         """
         Update only the 'summary' field of an existing Article.
         Returns the updated Article, or None if it does not exist.
         """
         async with async_session() as session:
-            existing = await session.get(Article, article_id)
-            if not existing:
+            existing_article = await session.get(Article, article_id)
+            if not existing_article:
                 return None
 
-            existing.summary = summary
-            session.add(existing)
+            existing_article.summary = article_summary
+            session.add(existing_article)
             await session.commit()
-            await session.refresh(existing)
-            return existing
+            await session.refresh(existing_article)
+            return existing_article
 
     @staticmethod
     async def create_article(article: Article) -> Article:
@@ -84,8 +86,10 @@ class ArticleRepository:
             statement = (
                 select(Article).limit(limit).offset(offset + (set_of * limit))
             )
-            result = await session.execute(statement)
-            return result.scalars().all()
+            articles: list[Article] = (
+                await session.execute(statement)
+            ).scalars().all()
+            return articles
 
     @staticmethod
     async def list_articles_without_summary(
@@ -101,18 +105,18 @@ class ArticleRepository:
                 .limit(limit)
                 .offset(offset)
             )
-            result = await session.execute(statement)
-            articles = result.scalars().all()
-            print(f"Found {len(articles)} articles without summary.")
-            return articles
+            unsummarized_articles: List[Article] = (
+                await session.execute(statement)
+            ).scalars().all()
+            
+            return unsummarized_articles
 
     @staticmethod
     async def list_articles_with_summary(
         limit: int = 100, offset: int = 0
     ) -> Sequence[Article]:
         """
-        Listet Artikel, bei denen das Feld `summary` nicht NULL und nicht leer ist,
-        mit Pagination (limit/offset).
+        List articles that have a summary, with pagination.
         """
         async with async_session() as session:
             statement = (
@@ -121,5 +125,8 @@ class ArticleRepository:
                 .limit(limit)
                 .offset(offset)
             )
-            result = await session.execute(statement)
-            return result.scalars().all()
+            summarized_articles: List[Article] = (
+                await session.execute(statement)
+            ).scalars().all()
+
+            return summarized_articles
