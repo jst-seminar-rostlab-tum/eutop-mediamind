@@ -38,7 +38,8 @@ class ArticleVectorService:
             embedding=self._dense_embeddings,
             sparse_embedding=self._sparse_embeddings,
             retrieval_mode=RetrievalMode.HYBRID,
-            # Use both dense and sparse vectors during search for improved recall and precision
+            # Use both dense and sparse vectors
+            # during search for improved recall and precision
             vector_name="dense",
             # Field name in Qdrant for storing dense vectors
             sparse_vector_name="sparse",
@@ -64,7 +65,7 @@ class ArticleVectorService:
                         )
                     },
                 )
-        except Exception as e:
+        except Exception:
             pass
 
     def create_collection(self, collection_name: str):
@@ -103,7 +104,7 @@ class ArticleVectorService:
         """
         Add a list of articles to the vector store.
         Args:
-            articles(List[Article]): List of Article objects to be added to the vector store.
+            articles(List[Article]): Articles to index.
 
         """
         documents = [
@@ -125,7 +126,7 @@ class ArticleVectorService:
         self, query: str, score_threshold: float = 0.3
     ) -> list[tuple[Document, float]]:
         """
-        Retrieve documents from the vector store based on similarity to the query.
+        Retrieve query-relevant documents from the vector store.
         Args:
             query (str): The query string to search for.
             score_threshold (float): Minimum score threshold for results.
@@ -142,7 +143,8 @@ class ArticleVectorService:
         self, page_size: int = 100
     ) -> None:
         """
-        Run the functionality to read articles from the database and add them to the vector store.
+        Run the functionality to read articles from the database and
+        add them to the vector store.
         """
         page: int = 0
         offset: int = page * page_size
