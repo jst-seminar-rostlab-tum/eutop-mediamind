@@ -17,7 +17,9 @@ export function DashboardPage() {
 
   const {
     data: profiles,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     isLoading,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     error,
   } = useQuery("/api/v1/search-profiles", {
     headers: authorizationHeaders,
