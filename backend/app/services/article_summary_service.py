@@ -53,7 +53,9 @@ class ArticleSummaryService:
             return None
 
         summary = ArticleSummaryService.summarize_text(article.content)
-        return await ArticleRepository.update_article_summary(article_id, summary)
+        return await ArticleRepository.update_article_summary(
+            article_id, summary
+        )
 
     @staticmethod
     async def run(page_size: int = 100) -> None:
@@ -81,7 +83,9 @@ class ArticleSummaryService:
                     summary = await run_in_threadpool(
                         ArticleSummaryService.summarize_text, article.content
                     )
-                    await ArticleRepository.update_article_summary(article.id, summary)
+                    await ArticleRepository.update_article_summary(
+                        article.id, summary
+                    )
                 except Exception:
                     continue
 

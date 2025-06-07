@@ -11,7 +11,6 @@ from qdrant_client.http.models import (
     VectorParams,
 )
 
-
 from app.core.config import configs
 from app.models import Article
 from app.repositories.article_repository import ArticleRepository
