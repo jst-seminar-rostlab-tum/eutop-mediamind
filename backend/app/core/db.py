@@ -1,12 +1,13 @@
+import json
 import os
-import psycopg2
+
+import psycopg
 from psycopg2 import OperationalError
 from psycopg2.extensions import connection as PgConnection
 from qdrant_client import QdrantClient
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 from sqlmodel import Session, SQLModel
 
-import json
 from app.core.config import configs
 from app.core.logger import get_logger
 

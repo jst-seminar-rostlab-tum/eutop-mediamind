@@ -1,12 +1,12 @@
 from uuid import UUID
 
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import async_session
 from sqlalchemy.future import select
 from sqlmodel import Session
 
-from app.models.article import Article
-from sqlalchemy.exc import IntegrityError
 from app.core.logger import get_logger
+from app.models.article import Article
 
 logger = get_logger(__name__)
 
@@ -45,12 +45,21 @@ class ArticleRepository:
             except IntegrityError as e:
                 session.rollback()  # Roll back the failed transaction
 
-                if hasattr(e.orig, 'sqlstate') and e.orig.sqlstate == '23505':
+                if hasattr(e.orig, "sqlstate") and e.orig.sqlstate == "23505":
                     error_detail = str(e.orig)
                     # Check if it's specifically the URL constraint
-                    if 'articles_url_key' in error_detail or 'duplicate key value violates unique constraint "articles_url_key"' in error_detail:
+                    if (
+                        "articles_url_key" in error_detail
+                        or (
+                            "duplicate key value violates unique constraint "
+                            '"articles_url_key"'
+                        )
+                        in error_detail
+                    ):
                         logger.warning(
-                            f"Article with URL {article.url} already exists, skipping.")
+                            f"Article with URL {article.url} already exists, "
+                            "skipping."
+                        )
                         continue
                     else:
                         # Other unique constraint violation
@@ -63,7 +72,9 @@ class ArticleRepository:
         return inserted_articles
 
     @staticmethod
-    def get_articles_by_subscription_with_empty_content(session, subscription_id: str) -> list[Article]:
+    def get_articles_by_subscription_with_empty_content(
+        session, subscription_id: str
+    ) -> list[Article]:
         result = session.execute(
             select(Article)
             .where(Article.subscription_id == subscription_id)

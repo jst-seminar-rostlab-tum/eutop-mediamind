@@ -1,15 +1,15 @@
 from abc import ABC, abstractmethod
+from datetime import date as Date
 from typing import Any, List
+from urllib.parse import urlparse
 
 import requests
+from eventregistry import EventRegistry, QueryArticlesIter
+
+from app.core.config import configs
 from app.core.logger import get_logger
 from app.models.article import Article
 from app.models.subscription import Subscription
-from app.core.config import configs
-from datetime import date as Date
-from eventregistry import EventRegistry, QueryArticlesIter
-from urllib.parse import urlparse
-
 
 logger = get_logger(__name__)
 
@@ -21,28 +21,33 @@ class Crawler(ABC):
         subscription: Subscription,
         date_start: Date | None = None,
         date_end: Date | None = None,
-        limit: int = -1
+        limit: int = -1,
     ) -> List[Article]:
         """
-        Given a Subscription, extract and returns a list of Articles (with the urls and subscription id at minimum).
+        Given a Subscription, extract and returns a list of Articles
+          (with the urls and subscription id at minimum).
 
         :param subscription: A Subscription object containing the URL to crawl.
         :return: A list of URLs pointing to individual news articles.
         """
         raise NotImplementedError(
-            "This method should be implemented by subclasses.")
+            "This method should be implemented by subclasses."
+        )
 
 
 class NewsAPICrawler(Crawler):
     """
-    A crawler that uses the NewsAPI.ai service to extract article URLs based on a subscription.
-    This crawler fetches articles from the NewsAPI.ai database based on the subscription's NewsAPI ID.
+    A crawler that uses the NewsAPI.ai service to extract article URLs
+    based on a subscription.
+    This crawler fetches articles from the NewsAPI.ai database
+    based on the subscription's NewsAPI ID.
     """
 
     def __init__(self):
         if not configs.NEWSAPIAI_API_KEY:
             raise ValueError(
-                "NEWSAPIAI_API_KEY is not set in the configuration.")
+                "NEWSAPIAI_API_KEY is not set in the configuration."
+            )
         self.api_key = configs.NEWSAPIAI_API_KEY
         logger.info("NewsAPICrawler initialized with API key.")
 
@@ -51,7 +56,7 @@ class NewsAPICrawler(Crawler):
         subscription: Subscription,
         date_start: Date | None = None,
         date_end: Date | None = None,
-        limit: int = -1
+        limit: int = -1,
     ) -> List[Article]:
         try:
             er = EventRegistry(apiKey=self.api_key)
@@ -65,29 +70,20 @@ class NewsAPICrawler(Crawler):
             return []
 
         query_conditions = [
-            {"$or": [{"sourceUri": newsapi_id}],
-             "dataType": [
-                "news",
-                "blog"
-            ]},
+            {"$or": [{"sourceUri": newsapi_id}], "dataType": ["news", "blog"]},
         ]
 
         if date_start and date_end:
-            query_conditions.append({
-                "dateStart": date_start.strftime("%Y-%m-%d"),
-                "dateEnd": date_end.strftime("%Y-%m-%d")
-            })
+            query_conditions.append(
+                {
+                    "dateStart": date_start.strftime("%Y-%m-%d"),
+                    "dateEnd": date_end.strftime("%Y-%m-%d"),
+                }
+            )
 
         query = {
-            "$query": {
-                "$and": query_conditions
-            },
-            "$filter": {
-                "dataType": [
-                    "news",
-                    "blog"
-                ]
-            },
+            "$query": {"$and": query_conditions},
+            "$filter": {"dataType": ["news", "blog"]},
             "resultType": "articles",
             "articlesSortBy": "date",
         }
@@ -115,24 +111,23 @@ class NewsAPICrawler(Crawler):
 
     def get_best_matching_source(self, prefix: str) -> Any | None:
         """
-        Checks if a domain is included in the NewsAPI.ai database and returns the best match.
+        Checks if a domain is included in the NewsAPI.ai database
+        and returns the best match.
 
         Parameters:
             prefix (str): The URL to check.
 
         Returns:
-            dict: The source with the highest relevance score, or None if no suitable source is found.
+            dict: The source with the highest relevance score,
+              or None if no suitable source is found.
         """
         # Extract the domain from the URL
         parsed_url = urlparse(prefix)
         domain = parsed_url.netloc
 
         # Define the API endpoint and parameters
-        url = 'https://newsapi.ai/api/v1/suggestSources'
-        params = {
-            'prefix': domain,
-            'apiKey': self.api_key
-        }
+        url = "https://newsapi.ai/api/v1/suggestSources"
+        params = {"prefix": domain, "apiKey": self.api_key}
 
         try:
             # Make the API request
@@ -147,10 +142,10 @@ class NewsAPICrawler(Crawler):
                 return None
 
             # Find the source with the highest score
-            best_source = max(sources, key=lambda x: x.get('score', 0))
+            best_source = max(sources, key=lambda x: x.get("score", 0))
 
             # Check if the score is above the threshold
-            if best_source.get('score', 0) >= 50000:
+            if best_source.get("score", 0) >= 50000:
                 return best_source
             else:
                 logger.info("Found source has a score below 50,000. Ignoring.")

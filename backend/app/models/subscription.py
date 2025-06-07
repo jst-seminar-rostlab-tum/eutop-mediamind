@@ -1,8 +1,8 @@
 import uuid
 from typing import TYPE_CHECKING, List, Optional
 
+from sqlalchemy import JSON, Column
 from sqlmodel import Field, Relationship, SQLModel
-from sqlalchemy import Column, JSON
 
 from app.models.associations import (
     OrganizationSubscriptionLink,
