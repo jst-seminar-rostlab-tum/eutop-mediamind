@@ -10,6 +10,7 @@ from reportlab.graphics import renderPDF
 from reportlab.platypus import Paragraph, Spacer, Frame, PageTemplate, Spacer, Image, BaseDocTemplate, HRFlowable
 from reportlab.platypus.flowables import AnchorFlowable
 from reportlab.lib.styles import ParagraphStyle
+from app.repositories.article_repository import ArticleRepository
 from svglib.svglib import svg2rlg
 from PIL import Image as PILImage
 import pillow_avif  # this automatically registers AVIF Images support with Pillow
@@ -30,6 +31,26 @@ class NewsItem:
     date_time: str | None = None
 
 class PDFService:
+
+    @staticmethod
+    async def create_sample_pdf() -> bytes:
+        articles = await ArticleRepository.get_sameple_articles(10)
+        news_items = []
+        for article in articles:
+            # Convert Article to NewsItem
+            news_item = NewsItem(
+                title=article.title,
+                summary=article.summary or "",
+                content=article.content,
+                newspaper=article.subscription.name,
+                keywords=[keyword.name for keyword in article.keywords],
+                image_url=None,  # Placeholder, as we don't have images in sample articles
+                date_time=article.published_at.isoformat() if article.published_at else None
+            )
+            # Replace the article with the news item
+            news_items.append(news_item)
+        return PDFService.create_pdf(news_items)
+
     @staticmethod
     def create_pdf(news_items: List[NewsItem]) -> bytes:
         dimensions = A4
@@ -54,7 +75,7 @@ class PDFService:
         return max(1, int(round(word_count / words_per_minute)))
 
     @staticmethod
-    def __draw_cover_page(news_items, dimensions: tuple[float, float]) -> bytes:
+    def __draw_cover_page(news_items: List[NewsItem], dimensions: tuple[float, float]) -> bytes:
         buffer = BytesIO()
         doc = BaseDocTemplate(buffer, pagesize=A4, rightMargin=inch, leftMargin=inch, topMargin=inch, bottomMargin=inch)
         width, height = dimensions
@@ -98,7 +119,7 @@ class PDFService:
         story.append(Spacer(1, 0.4 * inch))
 
         # Total reading time
-        total_text = " ".join(news['content'] for news in news_items)
+        total_text = " ".join(news.content for news in news_items)
         total_minutes = PDFService.__calculate_reading_time(total_text, words_per_minute=100)
         story.append(Paragraph(f"<font size=12 color='darkgreen'>Total Estimated Reading Time: {total_minutes} min</font>", styles['Normal']))
         story.append(Spacer(1, 0.5 * inch))
@@ -107,7 +128,7 @@ class PDFService:
         story.append(Paragraph("<b><font size=16 color='#003366'>Table of Contents</font></b>", styles['Heading2']))
         story.append(Spacer(1, 0.2 * inch))
         for news in news_items:
-            toc_line = f"{news['title']} ({news['newspaper']}, {news.get('date_time', '')})"
+            toc_line = f"{news.title} ({news.newspaper}, {news.date_time})"
             story.append(Paragraph(toc_line, styles['Normal']))
             story.append(Spacer(1, 0.1 * inch))
 
@@ -164,7 +185,7 @@ class PDFService:
         canvas.drawRightString(width - inch, 0.4 * inch, page_str)
 
     @staticmethod
-    def __create_articles(news_items, dimensions: tuple[float, float]) -> bytes:
+    def __create_articles(news_items: List[NewsItem], dimensions: tuple[float, float]) -> bytes:
         buffer = BytesIO()
         doc = BaseDocTemplate(buffer, pagesize=A4, rightMargin=inch, leftMargin=inch, topMargin=inch, bottomMargin=inch)
         width, height = dimensions
@@ -207,21 +228,21 @@ class PDFService:
         story = []
 
         for news in news_items:
-            anchor_name = f"dest_{news['title'].replace(' ', '_')}"
+            anchor_name = f"dest_{news.title.replace(' ', '_')}"
             story.append(AnchorFlowable(anchor_name))
-            story.append(Paragraph(f"<b>{news['title']}</b>", styles['Heading3']))
-            if 'date_time' in news and news['date_time']:
+            story.append(Paragraph(f"<b>{news.title}</b>", styles['Heading3']))
+            if news.date_time:
                 try:
-                    dt = datetime.strptime(news['date_time'].replace("Z", ""), "%Y-%m-%dT%H:%M:%S")
+                    dt = datetime.strptime(news.date_time.replace("Z", ""), "%Y-%m-%dT%H:%M:%S")
                     time_str = f"<b>Time:</b> <b>{dt.strftime('%H:%M')}</b> <i>{dt.strftime('%d/%m/%y')}</i>"
                 except Exception:
-                    time_str = news['date_time']
+                    time_str = news.date_time
                 story.append(Paragraph(time_str, reading_time_style))
                 story.append(Spacer(1, 0.1 * inch))
 
-            if 'image_url' in news and news['image_url']:
+            if news.image_url:
                 try:
-                    response = requests.get(news['image_url'])
+                    response = requests.get(news.image_url)
                     img_data = BytesIO(response.content)
                     pil_img = PILImage.open(img_data)
                     aspect = pil_img.height / float(pil_img.width)
@@ -232,21 +253,21 @@ class PDFService:
                 except Exception as e:
                     print(f"Error loading image: {e}")
 
-            story.append(Paragraph(f"<b>Newspaper:</b> {news['newspaper']}", content_style))
+            story.append(Paragraph(f"<b>Newspaper:</b> {news.newspaper}", content_style))
             story.append(Spacer(1, 0.1 * inch))
 
-            keywords_str = ", ".join(news['keywords'])
+            keywords_str = ", ".join(news.keywords)
             story.append(Paragraph(f"<b>Keywords:</b> {keywords_str}", keywords_style))
             story.append(Spacer(1, 0.1 * inch))
 
-            story.append(Paragraph(f"<b>Summary:</b> {news['summary']}", summary_style))
+            story.append(Paragraph(f"<b>Summary:</b> {news.summary}", summary_style))
             story.append(Spacer(1, 0.1 * inch))
 
-            estimated_minutes = PDFService.__calculate_reading_time(news['content'], words_per_minute=180)
+            estimated_minutes = PDFService.__calculate_reading_time(news.content, words_per_minute=180)
             story.append(Paragraph(f"<b>Estimated Reading Time:</b> {estimated_minutes} min", reading_time_style))
             story.append(Spacer(1, 0.1 * inch))
 
-            story.append(Paragraph(news['content'], para_style))
+            story.append(Paragraph(news.content, para_style))
             story.append(Spacer(1, 0.2 * inch))
 
             if news != news_items[-1]:
