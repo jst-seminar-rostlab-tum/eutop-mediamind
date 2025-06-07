@@ -1,11 +1,10 @@
-from typing import Optional, Sequence
+from typing import List, Optional, Sequence
 from uuid import UUID
 
-from sqlalchemy import or_
-from sqlalchemy.orm import selectinload
-from sqlmodel import Session, select
+from langchain_core.documents import Document
+from sqlmodel import select
 
-from app.core.db import async_session, engine
+from app.core.db import async_session
 from app.models import ArticleKeywordLink, Keyword
 from app.models.article import Article
 from app.repositories.article_repository import ArticleRepository
@@ -15,6 +14,7 @@ article_vector_service = ArticleVectorService()
 
 
 class KeywordRepository:
+    """Repository for managing Keyword entities in the database."""
 
     @staticmethod
     async def get_keyword_by_id(keyword_id: UUID) -> Optional[Keyword]:
@@ -52,7 +52,7 @@ class KeywordRepository:
     async def add_article_to_keyword(
         keyword_id: UUID, article_id: UUID, score: float
     ) -> None:
-        """Assign an article to a keyword und speichere dabei den score in der Link-Tabelle."""
+        """Assign an article to a keyword with a similarity score."""
         async with async_session() as session:
 
             link = ArticleKeywordLink(
@@ -71,15 +71,17 @@ class KeywordRepository:
         keyword = await KeywordRepository.get_keyword_by_id(keyword_id)
         if not keyword:
             raise ValueError(f"Keyword with id {keyword_id} not found.")
-        similarity_results = await article_vector_service.retrieve_by_similarity(
-            keyword.name, score_threshold=score_threshold
+        similarity_results = (
+            await article_vector_service.retrieve_by_similarity(
+                keyword.name, score_threshold=score_threshold
+            )
         )
 
         similar_articles: List[Article] = []
         for doc, score in similarity_results:
             article_id = doc.metadata["id"]
-            article: Optional[Article] = await ArticleRepository.get_article_by_id(
-                article_id
+            article: Optional[Article] = (
+                await ArticleRepository.get_article_by_id(article_id)
             )
             if article:
                 similar_articles.append(article)
@@ -91,28 +93,34 @@ class KeywordRepository:
         return similar_articles
 
     @staticmethod
-    async def assign_articles_to_keywords(page_size: int = 100, score_threshold: float = 0.3) -> None:
+    async def assign_articles_to_keywords(
+        page_size: int = 100, score_threshold: float = 0.3
+    ) -> None:
+        """
+        Assign articles to all keywords based on similarity scores.
+        Args:
+            page_size: int = 100: Number of keywords to process in each batch.
+            score_threshold: float: Minimum score threshold for similarity.
+        """
         page = 0
-        keywords: List[Keyword] = await KeywordRepository.list_keywords(
+        keywords: Sequence[Keyword] = await KeywordRepository.list_keywords(
             limit=page_size, offset=page * page_size
         )
 
         while keywords:
             for keyword in keywords:
-                similar_articles: List[Article] = await article_vector_service.retrieve_by_similarity(
-                    query=keyword.name,
-                    score_threshold=score_threshold
+                similar_articles: List[tuple[Document, float]] = (
+                    await article_vector_service.retrieve_by_similarity(
+                        query=keyword.name, score_threshold=score_threshold
+                    )
                 )
 
                 for doc, score in similar_articles:
-                await KeywordRepository.add_article_to_keyword(
-                    keyword.id,
-                    doc.metadata["id"],
-                    score
-                )
+                    await KeywordRepository.add_article_to_keyword(
+                        keyword.id, doc.metadata["id"], score
+                    )
 
             page += 1
             keywords = await KeywordRepository.list_keywords(
                 limit=page_size, offset=page * page_size
             )
-            

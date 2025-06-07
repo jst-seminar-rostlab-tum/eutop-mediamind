@@ -1,8 +1,6 @@
-import asyncio
 import uuid
-from typing import List, Optional
+from typing import List, Optional, Sequence
 
-from langchain.indexes import SQLRecordManager
 from langchain_core.documents import Document
 from langchain_openai import OpenAIEmbeddings
 from langchain_qdrant import FastEmbedSparse, QdrantVectorStore, RetrievalMode
@@ -12,7 +10,7 @@ from qdrant_client.http.models import (
     SparseVectorParams,
     VectorParams,
 )
-from starlette.concurrency import run_in_threadpool
+
 
 from app.core.config import configs
 from app.models import Article
@@ -20,6 +18,7 @@ from app.repositories.article_repository import ArticleRepository
 
 
 class ArticleVectorService:
+    """Service for managing article vectors in Qdrant."""
 
     def __init__(self):
         self._dense_embeddings = OpenAIEmbeddings(
@@ -149,9 +148,10 @@ class ArticleVectorService:
         page: int = 0
         offset: int = page * page_size
 
-        articles: List[Article] = await ArticleRepository.list_articles_with_summary(
-            limit=page_size,
-            offset=offset
+        articles: Sequence[Article] = (
+            await ArticleRepository.list_articles_with_summary(
+                limit=page_size, offset=offset
+            )
         )
 
         while articles:
@@ -171,7 +171,9 @@ class ArticleVectorService:
                 )
                 document_ids.append(article.id)
 
-            self.vector_store.add_documents(documents=documents_to_index, ids=document_ids)
+            self.vector_store.add_documents(
+                documents=documents_to_index, ids=document_ids
+            )
 
             page += 1
             offset = page * page_size
@@ -182,10 +184,19 @@ class ArticleVectorService:
 
 
 async def add_article(self, article_id: uuid.UUID) -> None:
+    """
+    Add an article to the vector store based on its ID.
+    Args:
+        self: Instance of the ArticleVectorService.
+        article_id: UUID of the article to be added to the vector store.
+
+    Returns: None
+
+    """
     article: Optional[Article] = await ArticleRepository.get_article_by_id(
         article_id
     )
-    
+
     if not article or not article.summary or not article.summary.strip():
         return
 
@@ -201,6 +212,3 @@ async def add_article(self, article_id: uuid.UUID) -> None:
     self.vector_store.add_documents(
         documents=[document], ids=[str(article.id)]
     )
-
-
-

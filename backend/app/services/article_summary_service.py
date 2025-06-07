@@ -1,5 +1,5 @@
 import uuid
-from typing import Optional
+from typing import Optional, Sequence
 
 from langchain.chains.summarize import load_summarize_chain
 from langchain.docstore.document import Document
@@ -53,12 +53,13 @@ class ArticleSummaryService:
             return None
 
         summary = ArticleSummaryService.summarize_text(article.content)
-        return await ArticleRepository.update_summary(article_id, summary)
+        return await ArticleRepository.update_article_summary(article_id, summary)
 
     @staticmethod
     async def run(page_size: int = 100) -> None:
         """
-        Fetches all articles without a summary in batches, generates summaries for each,
+        Fetches all articles without a summary in batches,
+        generates summaries for each,
         and updates the `summary` field in the database.
 
         Args:
@@ -67,26 +68,26 @@ class ArticleSummaryService:
         page = 0
         offset = page * page_size
 
-        articles: List[Article] = await ArticleRepository.list_articles_without_summary(
-            limit=page_size,
-            offset=offset
+        articles: Sequence[Article] = (
+            await ArticleRepository.list_articles_without_summary(
+                limit=page_size, offset=offset
+            )
         )
 
         while articles:
             for article in articles:
                 try:
-                    # Run the blocking summarize_text in a threadpool to avoid blocking the event loop
+                    # Run in a threadpool to avoid blocking the event loop
                     summary = await run_in_threadpool(
                         ArticleSummaryService.summarize_text, article.content
                     )
-                    await ArticleRepository.update_summary(article.id, summary)
-                except Exception as e:
+                    await ArticleRepository.update_article_summary(article.id, summary)
+                except Exception:
                     continue
 
             page += 1
             offset = page * page_size
 
             articles = await ArticleRepository.list_articles_without_summary(
-                limit=page_size,
-                offset=offset
+                limit=page_size, offset=offset
             )

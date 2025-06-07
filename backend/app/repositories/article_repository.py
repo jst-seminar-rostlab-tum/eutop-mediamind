@@ -2,20 +2,22 @@ from typing import Optional, Sequence
 from uuid import UUID
 
 from sqlalchemy import or_
-from sqlmodel import Session, select
+from sqlmodel import select
 
 from app.core.db import async_session
 from app.models.article import Article
 
 
 class ArticleRepository:
+    """Repository for managing Article entities in the database."""
+
     @staticmethod
     async def get_article_by_id(article_id: UUID) -> Optional[Article]:
         """
         Retrieve a single Article by its UUID.
         Returns None if no article is found.
         """
-        
+
         async with async_session() as session:
             statement = select(Article).where(Article.id == article_id)
             article: Optional[Article] = (
@@ -23,6 +25,7 @@ class ArticleRepository:
             ).scalar_one_or_none()
             return article
 
+    @staticmethod
     async def update_article(article: Article) -> Optional[Article]:
         """
         Update an existing Article in the database.
@@ -33,7 +36,6 @@ class ArticleRepository:
             if not existing_article:
                 return None
 
-            
             existing_article_without_id = article.model_dump(
                 exclude_unset=True, exclude={"id"}
             )
@@ -87,8 +89,8 @@ class ArticleRepository:
                 select(Article).limit(limit).offset(offset + (set_of * limit))
             )
             articles: list[Article] = (
-                await session.execute(statement)
-            ).scalars().all()
+                (await session.execute(statement)).scalars().all()
+            )
             return articles
 
     @staticmethod
@@ -105,10 +107,10 @@ class ArticleRepository:
                 .limit(limit)
                 .offset(offset)
             )
-            unsummarized_articles: List[Article] = (
-                await session.execute(statement)
-            ).scalars().all()
-            
+            unsummarized_articles: Sequence[Article] = (
+                (await session.execute(statement)).scalars().all()
+            )
+
             return unsummarized_articles
 
     @staticmethod
@@ -125,8 +127,8 @@ class ArticleRepository:
                 .limit(limit)
                 .offset(offset)
             )
-            summarized_articles: List[Article] = (
-                await session.execute(statement)
-            ).scalars().all()
+            summarized_articles: Sequence[Article] = (
+                (await session.execute(statement)).scalars().all()
+            )
 
             return summarized_articles
