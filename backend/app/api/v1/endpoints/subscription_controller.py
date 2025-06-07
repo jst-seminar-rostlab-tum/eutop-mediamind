@@ -16,12 +16,14 @@ router = APIRouter(
     dependencies=[Depends(get_authenticated_user)],
 )
 
+
 @router.get(
     "",
     response_model=list[SubscriptionSummary],
 )
 async def get_all_subscriptions():
     return await SubscriptionService.get_all_subscriptions()
+
 
 @router.get(
     "/{search_profile_id}",
