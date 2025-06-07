@@ -231,7 +231,5 @@ class SearchProfileService:
     ) -> None:
         await set_subscriptions_for_profile(
             profile_id=request.search_profile_id,
-            subscription_ids=[
-                s.subscription_id for s in request.subscriptions
-            ],
+            subscription_ids=request.subscriptions,
         )

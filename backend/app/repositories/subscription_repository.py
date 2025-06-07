@@ -53,7 +53,7 @@ async def get_all_subscriptions() -> list[SubscriptionSummary]:
 
 
 async def set_subscriptions_for_profile(
-    profile_id: UUID, subscription_ids: list[UUID]
+    profile_id: UUID, subscriptions: list[SubscriptionSummary]
 ) -> None:
     async with async_session() as session:
         # Delete existing links
@@ -63,12 +63,15 @@ async def set_subscriptions_for_profile(
             )
         )
 
+        # Only keep subscriptions where is_subscribed = True
+        subscribed = [s for s in subscriptions if s.is_subscribed]
+
         # Add new links
         objects = [
             SearchProfileSubscriptionLink(
-                search_profile_id=profile_id, subscription_id=sub_id
+                search_profile_id=profile_id, subscription_id=s.id
             )
-            for sub_id in subscription_ids
+            for s in subscribed
         ]
         session.add_all(objects)
         await session.commit()

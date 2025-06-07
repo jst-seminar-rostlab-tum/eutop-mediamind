@@ -1,5 +1,7 @@
+from typing import List
 from uuid import UUID
 
+from pydantic import EmailStr
 from sqlalchemy import and_, or_
 from sqlalchemy.orm import selectinload
 from sqlmodel import select
@@ -36,14 +38,16 @@ async def create_profile_with_request(
         await TopicsRepository.update_topics(profile, create_data.topics)
 
         # Add subscriptions
-        subscription_ids = [s.id for s in create_data.subscriptions]
         await set_subscriptions_for_profile(
-            profile_id=profile.id, subscription_ids=subscription_ids
+            profile_id=profile.id, subscriptions=create_data.subscriptions
         )
 
         # Add emails
-        # await update_emails(profile, update_data.organization_emails,
-        # update_data.profile_emails, session)
+        await update_emails(
+            profile,
+            create_data.organization_emails,
+            create_data.profile_emails,
+        )
 
         # Refresh with eager-loaded relationships
         result = await session.execute(
@@ -115,14 +119,26 @@ async def update_profile_with_request(
         profile.is_public = update_data.public
 
         await set_subscriptions_for_profile(
-            profile_id=profile.id,
-            subscription_ids=[s.id for s in update_data.subscriptions],
+            profile_id=profile.id, subscriptions=update_data.subscriptions
         )
 
         await TopicsRepository.update_topics(profile, update_data.topics)
-        # await update_emails(profile, update_data.organization_emails,
-        # update_data.profile_emails, session)
+        await update_emails(
+            profile,
+            update_data.organization_emails,
+            update_data.profile_emails,
+        )
 
         session.add(profile)
         await session.commit()
         await session.refresh(profile)
+
+
+async def update_emails(
+    profile: SearchProfile,
+    organization_emails: List[EmailStr],
+    profile_emails: List[EmailStr],
+) -> None:
+    # Convert EmailStr to plain strings for storage in DB
+    profile.organization_emails = [str(email) for email in organization_emails]
+    profile.profile_emails = [str(email) for email in profile_emails]
