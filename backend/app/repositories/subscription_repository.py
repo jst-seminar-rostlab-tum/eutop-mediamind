@@ -41,6 +41,17 @@ async def get_all_subscriptions_with_search_profile(
         ]
 
 
+async def get_all_subscriptions() -> list[SubscriptionSummary]:
+    async with async_session() as session:
+        stmt = select(Subscription.id, Subscription.name)
+        result = await session.execute(stmt)
+
+        return [
+            SubscriptionSummary(id=row.id, name=row.name, is_subscribed=False)
+            for row in result
+        ]
+
+
 async def set_subscriptions_for_profile(
     profile_id: UUID, subscription_ids: list[UUID]
 ) -> None:

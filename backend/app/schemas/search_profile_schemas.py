@@ -20,10 +20,6 @@ class SearchProfileBase(BaseModel):
     subscriptions: List[SubscriptionSummary]
 
 
-class SearchProfileTopicMixin(BaseModel):
-    topics: List[TopicResponse]
-
-
 # --- Request Models ---
 
 

@@ -1,12 +1,15 @@
 from uuid import UUID
 
 from sqlalchemy import delete, select
+from sqlalchemy.orm import selectinload
 
 from app.core.db import async_session
 from app.models import Keyword, SearchProfile, Topic
 from app.models.associations import TopicKeywordLink
 from app.schemas.topic_schemas import TopicCreateOrUpdateRequest
+from app.core.logger import get_logger
 
+logger = get_logger(__name__)
 
 class TopicsRepository:
     @staticmethod
@@ -55,36 +58,63 @@ class TopicsRepository:
 
     @staticmethod
     async def update_topics(
-        profile: SearchProfile,
-        new_topics: list[TopicCreateOrUpdateRequest],
+            profile: SearchProfile,
+            new_topics: list[TopicCreateOrUpdateRequest],
     ):
         async with async_session() as session:
-            # Delete existing topics and keyword links
-            for topic in profile.topics:
-                await session.execute(
-                    delete(TopicKeywordLink).where(
-                        TopicKeywordLink.topic_id == topic.id
+            # Load profile with topics and their keywords
+            profile = await session.get(
+                SearchProfile,
+                profile.id,
+                options=[selectinload(SearchProfile.topics).selectinload(Topic.keywords)]
+            )
+
+            # Create lookup for existing topics by name
+            existing_topic_map = {topic.name: topic for topic in profile.topics}
+            new_topic_names = {t.name for t in new_topics}
+
+            # Step 1: Delete removed topics
+            for existing_topic in profile.topics:
+                if existing_topic.name not in new_topic_names:
+                    await session.execute(
+                        delete(TopicKeywordLink).where(TopicKeywordLink.topic_id == existing_topic.id)
                     )
-                )
-                await session.delete(topic)
+                    await session.delete(existing_topic)
+
             await session.commit()
 
-            # Create new topics and their keywords
-            for topic_data in new_topics:
-                topic = Topic(
-                    name=topic_data.name, search_profile_id=profile.id
-                )
-                session.add(topic)
-                await session.flush()
+            # Preload all keywords
+            result = await session.execute(select(Keyword))
+            existing_keywords: dict[str, Keyword] = {
+                keyword.name: keyword for keyword in result.scalars().all()
+            }
 
-                for keyword_name in topic_data.keywords:
-                    keyword = Keyword(name=keyword_name)
-                    session.add(keyword)
+            # Step 2: Add or update new topics
+            for topic_data in new_topics:
+                existing_topic = existing_topic_map.get(topic_data.name)
+
+                if existing_topic:
+                    # If topic exists, delete old links
+                    await session.execute(
+                        delete(TopicKeywordLink).where(TopicKeywordLink.topic_id == existing_topic.id)
+                    )
+                    topic = existing_topic
+                else:
+                    # Create new topic
+                    topic = Topic(name=topic_data.name, search_profile_id=profile.id)
+                    session.add(topic)
                     await session.flush()
 
-                    link = TopicKeywordLink(
-                        topic_id=topic.id, keyword_id=keyword.id
-                    )
+                # Add new or reused keywords
+                for keyword_name in topic_data.keywords:
+                    keyword = existing_keywords.get(keyword_name)
+                    if not keyword:
+                        keyword = Keyword(name=keyword_name)
+                        session.add(keyword)
+                        await session.flush()
+                        existing_keywords[keyword_name] = keyword
+
+                    link = TopicKeywordLink(topic_id=topic.id, keyword_id=keyword.id)
                     session.add(link)
 
             await session.commit()

@@ -7,6 +7,7 @@ from app.schemas.subscription_schemas import (
     SetSearchProfileSubscriptionsRequest,
     SubscriptionSummary,
 )
+from app.services.llm_service.subscription_service import SubscriptionService
 from app.services.search_profiles_service import SearchProfileService
 
 router = APIRouter(
@@ -15,9 +16,15 @@ router = APIRouter(
     dependencies=[Depends(get_authenticated_user)],
 )
 
+@router.get(
+    "",
+    response_model=list[SubscriptionSummary],
+)
+async def get_all_subscriptions():
+    return await SubscriptionService.get_all_subscriptions()
 
 @router.get(
-    "/{search_profile_id}/subscriptions",
+    "/{search_profile_id}",
     response_model=list[SubscriptionSummary],
 )
 async def get_all_subscriptions_with_search_profile(search_profile_id: UUID):
@@ -26,7 +33,7 @@ async def get_all_subscriptions_with_search_profile(search_profile_id: UUID):
     )
 
 
-@router.post("/subscriptions")
+@router.post("")
 async def set_subscriptions_for_search_profile(
     request: SetSearchProfileSubscriptionsRequest,
 ):
