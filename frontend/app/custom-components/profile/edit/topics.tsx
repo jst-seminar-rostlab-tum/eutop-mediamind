@@ -1,4 +1,3 @@
-import type { Profile } from "~/types/profile";
 import { useState } from "react";
 import {
   Select,
@@ -16,8 +15,6 @@ import { Input } from "~/components/ui/input";
 import type { components } from "../../../../types/api-types-v1";
 import { Sparkles, Trash2 } from "lucide-react";
 import { AiSuggestionTag } from "~/custom-components/profile/edit/ai-suggestion-tag";
-import { useAuthorization } from "~/hooks/use-authorization";
-import { client, useMutate } from "../../../../types/api";
 
 interface TopicsProps {
   profile: components["schemas"]["SearchProfileDetailResponse"];
@@ -66,7 +63,13 @@ export function Topics({ profile, setProfile }: TopicsProps) {
             <Button
               variant="destructive"
               onClick={() => {
-                //TODO:
+                setProfile({
+                  ...profile,
+                  topics: profile.topics.filter(
+                    (t) => t.name !== selectedTopic,
+                  ),
+                });
+                setSelectedTopic(undefined);
               }}
             >
               <Trash2 />
@@ -83,13 +86,28 @@ export function Topics({ profile, setProfile }: TopicsProps) {
                 e.key === "Enter" &&
                 !profile.topics.map((t) => t.name).includes(newTopicName)
               ) {
-                //TODO:
+                setProfile({
+                  ...profile,
+                  topics: [
+                    ...profile.topics,
+                    { id: "", name: newTopicName, keywords: [] },
+                  ],
+                });
+                setSelectedTopic(newTopicName);
+                setNewTopicName("");
               }
             }}
           />
         </div>
 
-        {selectedTopic && <KeywordField keywords={selectedTopicKeywords} />}
+        {selectedTopic && (
+          <KeywordField
+            keywords={selectedTopicKeywords}
+            setProfile={setProfile}
+            profile={profile}
+            selectedTopic={selectedTopic}
+          />
+        )}
         <div className={"pl-5 pr-5"}>
           <div className="flex gap-2 items-center pb-2">
             <Sparkles className={"w-4 h-4"} />

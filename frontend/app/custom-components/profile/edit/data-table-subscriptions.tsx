@@ -24,17 +24,18 @@ import { Button } from "~/components/ui/button";
 import { ArrowUpDown } from "lucide-react";
 import { Input } from "~/components/ui/input";
 import { Switch } from "~/components/ui/switch";
-import type { Subscription } from "~/types/profile";
+import type { components } from "../../../../types/api-types-v1";
 
 export interface MailingTableProps {
   name: string;
-  allSubscriptions: Subscription[];
-  selectedSubscriptions: Subscription[];
-  setSubscriptions: (subs: Subscription[]) => void;
+  allSubscriptions: components["schemas"]["SubscriptionSummary"][];
+  setSubscriptions: (
+    subscriptions: components["schemas"]["SubscriptionSummary"][],
+  ) => void;
 }
 
 type DataRow = {
-  data: Subscription;
+  data: components["schemas"]["SubscriptionSummary"];
   active: boolean;
 };
 
@@ -50,8 +51,8 @@ declare module "@tanstack/react-table" {
 
 const getColumns = (
   name: string,
-  addSubscription: (s: Subscription) => void,
-  removeSubscription: (s: Subscription) => void,
+  addSubscription: (s: components["schemas"]["SubscriptionSummary"]) => void,
+  removeSubscription: (s: components["schemas"]["SubscriptionSummary"]) => void,
 ): ColumnDef<DataRow>[] => [
   {
     accessorKey: "data",
@@ -67,7 +68,12 @@ const getColumns = (
       );
     },
     cell: ({ row }) => (
-      <div className="lowercase">{row.getValue<Subscription>("data").name}</div>
+      <div className="lowercase">
+        {
+          row.getValue<components["schemas"]["SubscriptionSummary"]>("data")
+            .name
+        }
+      </div>
     ),
   },
   {
@@ -94,7 +100,6 @@ const getColumns = (
 export function DataTableSubscriptions({
   name,
   allSubscriptions,
-  selectedSubscriptions,
   setSubscriptions,
 }: MailingTableProps) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
@@ -108,30 +113,43 @@ export function DataTableSubscriptions({
   const [internalData, setInternalData] = React.useState<DataRow[]>(() =>
     allSubscriptions.map((item) => ({
       data: item,
-      active: selectedSubscriptions.map((s) => s.name).includes(item.name),
+      active: item.is_subscribed,
     })),
   );
 
-  const addSubscription = (sub: Subscription) =>
-    setSubscriptions([...selectedSubscriptions, sub]);
+  const addSubscription = (
+    sub: components["schemas"]["SubscriptionSummary"],
+  ) => {
+    const updatedSub = { ...sub, is_subscribed: true };
+    const updatedSubscriptions = allSubscriptions.map((s) =>
+      s.id === sub.id ? updatedSub : s,
+    );
+    setSubscriptions(updatedSubscriptions);
+  };
 
-  const removeSubscription = (sub: Subscription) =>
-    setSubscriptions(selectedSubscriptions.filter((s) => s.name !== sub.name));
+  const removeSubscription = (
+    sub: components["schemas"]["SubscriptionSummary"],
+  ) => {
+    const updatedSub = { ...sub, is_subscribed: false };
+    const updatedSubscriptions = allSubscriptions.map((s) =>
+      s.id === sub.id ? updatedSub : s,
+    );
+    setSubscriptions(updatedSubscriptions);
+  };
+
   React.useEffect(() => {
     setInternalData((currentInternalData) =>
       allSubscriptions.map((item) => {
         const existingRow = currentInternalData.find(
-          (d) => d.data.name === item.name,
+          (d) => d.data.id === item.id,
         );
         return {
           data: item,
-          active: existingRow
-            ? existingRow.active
-            : selectedSubscriptions.map((s) => s.name).includes(item.name),
+          active: existingRow ? existingRow.active : item.is_subscribed,
         };
       }),
     );
-  }, [allSubscriptions, selectedSubscriptions]);
+  }, [allSubscriptions]);
 
   const columns = React.useMemo(
     () => getColumns(name, addSubscription, removeSubscription),

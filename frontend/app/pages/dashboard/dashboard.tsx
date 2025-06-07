@@ -54,9 +54,7 @@ export function DashboardPage() {
         </Button>
       </div>
       <div className="flex flex-wrap gap-6 mt-4 mb-4">
-        {profiles?.map((profile) => (
-          <ProfileCard key={profile.id} profile={profile} />
-        ))}
+        {profiles?.map((profile) => <ProfileCard profile={profile} />)}
       </div>
       <h2 className="text-2xl font-bold mb-4">Trend Analysis</h2>
     </div>

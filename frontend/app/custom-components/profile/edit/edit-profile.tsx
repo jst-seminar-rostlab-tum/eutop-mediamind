@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { cloneDeep, isMatch } from "lodash-es";
+import { useState } from "react";
+import { cloneDeep, isEqual } from "lodash-es";
 import {
   Dialog,
   DialogTrigger,
@@ -16,7 +16,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { Topics } from "~/custom-components/profile/edit/topics";
 import { Mailing } from "~/custom-components/profile/edit/mailing";
 import { Subscriptions } from "~/custom-components/profile/edit/subscriptions";
-import useProfileSubscriptionsApi from "~/hooks/api/profile-subscriptions-api";
 import { ScrollArea } from "~/components/ui/scroll-area";
 import { General } from "~/custom-components/profile/edit/general";
 import { client, useMutate } from "../../../../types/api";
@@ -32,14 +31,6 @@ export function EditProfile({ profile, trigger }: EditProfileProps) {
   const [isEditingName, setIsEditingName] = useState(false);
   const [profileName, setProfileName] = useState(profile.name);
   const [editedProfile, setEditedProfile] = useState(cloneDeep(profile));
-
-  useEffect(() => {
-    setEditedProfile(cloneDeep(profile));
-    setProfileName(profile.name); // also update this if name was changed
-  }, [profile]);
-
-  const [newTopics, setNewTopics] =
-    useState<components["schemas"]["SearchProfileDetailResponse"]>();
 
   const transformToUpdateRequest = (
     profile: components["schemas"]["SearchProfileDetailResponse"],
@@ -190,7 +181,6 @@ export function EditProfile({ profile, trigger }: EditProfileProps) {
               <Subscriptions
                 profile={editedProfile}
                 setProfile={setEditedProfile}
-                subscriptions={useProfileSubscriptionsApi()}
               />
             </TabsContent>
           </Tabs>
@@ -198,7 +188,7 @@ export function EditProfile({ profile, trigger }: EditProfileProps) {
         <div className="flex justify-end">
           <Button
             type="button"
-            disabled={isMatch(profile, editedProfile)}
+            disabled={isEqual(profile, editedProfile)}
             onClick={handleSave}
           >
             {isSaving ? "Saving..." : "Save changes"}
