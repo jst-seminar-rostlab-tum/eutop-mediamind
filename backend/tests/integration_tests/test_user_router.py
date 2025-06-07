@@ -1,13 +1,7 @@
-import uuid
-from unittest.mock import AsyncMock
-
 import pytest
 from fastapi.testclient import TestClient
-from httpx import AsyncClient
 
-from app.core.auth import get_authenticated_user
 from app.main import app
-from app.models import User
 
 client = TestClient(app)
 
@@ -34,8 +28,6 @@ def mock_user_data():
         "organization_id": None,
         "clerk_id": None,
     }
-
-
 
 
 def test_list_users_unauthorized():

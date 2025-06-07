@@ -1,15 +1,14 @@
-from unittest.mock import Mock, patch, AsyncMock
+from unittest.mock import Mock, patch
 
 import httpx
 import pytest
 from fastapi import HTTPException
-from fastapi.security import HTTPAuthorizationCredentials
 
 from app.core.auth import get_authenticated_user
 
-
 FAKE_JWT = "valid.jwt.token"
 FAKE_USER_ID = "00000000-0000-0000-0000-000000000000"
+
 
 @pytest.mark.asyncio
 async def test_get_current_user_invalid_token():
