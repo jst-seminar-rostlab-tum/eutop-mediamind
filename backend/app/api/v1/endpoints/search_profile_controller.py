@@ -1,6 +1,7 @@
 from uuid import UUID
+from typing import Annotated
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 
 from app.core.auth import get_authenticated_user
 from app.models.user import User
@@ -19,7 +20,7 @@ from app.services.search_profiles_service import SearchProfiles
 router = APIRouter(
     prefix="/search-profiles",
     tags=["search-profiles"],
-    dependencies=[Depends(get_authenticated_user)],
+    # TODO dependencies=[Depends(get_authenticated_user)],
 )
 
 
@@ -80,6 +81,8 @@ async def update_match_feedback(
 
 @router.get("/suggestions", response_model=list[KeywordSugestion])
 async def get_keyword_sugestions(
-    current_user: User=Depends(get_authenticated_user),
+    search_profiles: Annotated[list[str] | None, Query()] = None
+#    current_user: User=Depends(get_authenticated_user),
 ):
-    return await SearchProfiles.get_keyword_sugestions(current_user)
+
+    return await SearchProfiles.get_keyword_sugestions()

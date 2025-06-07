@@ -3,6 +3,8 @@ from fastapi import HTTPException
 from typing import List
 
 from app.models import SearchProfile
+from app.models.keyword import Keyword
+from app.models.topic import Topic
 from app.models.user import User
 from app.repositories.match_repository import MatchRepository
 from app.repositories.search_profile_repository import SearchProfileRepository
@@ -111,14 +113,21 @@ class SearchProfiles:
         return match is not None
 
     @staticmethod
-    async def get_keyword_sugestions(user: User) -> List[KeywordSugestion]:
-        visible_search_profiles = await SearchProfiles.get_available_search_profiles(user) 
-
-        # Avoid useless LLM calls if no profiles are available
-        if len(visible_search_profiles) == 0:
-            return []
-
+    async def get_keyword_sugestions() -> List[KeywordSugestion]:
+        # visible_search_profiles = await SearchProfiles.get_available_search_profiles(user) 
+        #
+        # # Avoid useless LLM calls if no profiles are available
+        # if len(visible_search_profiles) == 0:
+        #     return []
+        #
         lhm_client = LLMClient(LLMModels.openai_4o_mini)
+
+        class test:
+            def __init__(self, topic, keywords: List[str]):
+                kw = list(map(lambda x: Keyword(name=x), keywords))
+                self.topics = [Topic(search_profile_id=UUID(), name=topic, keywords=kw)]
+
+        visible_search_profiles = [test("trains", ["railway", "locomotive", "carriage", "track", "station"])] 
 
         prompt = """
         I will give you a list of topics and, for each topic, a list of relevant
