@@ -24,6 +24,14 @@ import {
   AlertDialogCancel,
   AlertDialogAction,
 } from "~/components/ui/alert-dialog";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "~/components/ui/breadcrumb";
 
 // Fetch Orgas
 async function getOrgaData(): Promise<Organization[]> {
@@ -237,9 +245,19 @@ export function AdminPage() {
   return (
     <>
       <Layout>
-        <Text className="mt-10" hierachy={2}>
-          Admin Settings
-        </Text>
+        <Breadcrumb className="ml-5 mt-8">
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink href="/">Home</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>Admin-Settigns</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
+        <Text hierachy={2}>Admin Settings</Text>
+
         <Tabs defaultValue="organizations" className="m-2">
           <TabsList className="w-full">
             <TabsTrigger value="organizations">Organizations</TabsTrigger>
