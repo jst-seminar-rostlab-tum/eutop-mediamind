@@ -1,16 +1,17 @@
 [
   {
     "name": "FAZ/FASZ - E-Paper",
-    "domain": "https://epaper.faz.net",
+    "domain": "https://faz.net",
     "paywall": true,
     "login_works": null,
     "newsapi_id": "faz.net",
     "config": {
-      "login_button": "//li[contains(@class, 'offcanvas-nav__item') and @class='js-open-snacks-login']",
-      "iframe": "",
-      "user_input": "//input[contains(@class, 'lxM9b')]",
-      "password_input": "//input[contains(@class, 'DZUBU')]",
-      "submit_button": "//button[contains(@class, 'me6VR') and text()]"
+      "cookies_button": "//button[contains(@class, 'sp_choice_type_11')]",
+      "path_to_login_button": "//button[@track-element='Login']",
+      "login_button": "//button[@track-element='Login / Registrieren']",
+      "user_input": "//input[@placeholder='E-Mail / Benutzername']",
+      "password_input": "//input[@autocomplete='current-password']",
+      "submit_button": "//button[normalize-space(.)='Passwort vergessen?']/preceding-sibling::button[1]"
     }
   },
   {
