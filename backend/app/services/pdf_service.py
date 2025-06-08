@@ -7,7 +7,7 @@ from reportlab.lib.units import inch
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib import colors
 from reportlab.graphics import renderPDF
-from reportlab.platypus import Paragraph, Spacer, Frame, PageTemplate, Spacer, Image, BaseDocTemplate, HRFlowable, PageBreak
+from reportlab.platypus import Paragraph, Spacer, Frame, PageTemplate, Spacer, Image, BaseDocTemplate, HRFlowable, PageBreak, NextPageTemplate
 from reportlab.platypus.flowables import AnchorFlowable
 from reportlab.lib.styles import ParagraphStyle
 from reportlab.pdfbase import pdfmetrics
@@ -75,34 +75,79 @@ class PDFService:
     @staticmethod
     def create_pdf(news_items: List[NewsItem]) -> bytes:
         dimensions = A4
-
-        #Log which articles are being processed
         logger = get_logger(__name__)
         logger.info("Articles chosen before PDF Generation:")
         for news in news_items:
             logger.info(f"Processing news item: {news.id}")
             logger.info(f"Title: {news.title} Summary: {news.summary[:50]}...")
 
-        # Generate cover page to separate PDF
-        body = PDFService.__create_articles(news_items, dimensions)
-        # Full Articles Section (one article per page)
-        full_articles = PDFService.__create_full_articles_section(news_items, dimensions)
-        # Summaries Section (3-column layout)
-        summaries = PDFService.__create_summaries_section(news_items, dimensions)
-        #Cover Page
-        cover = PDFService.__draw_cover_page(news_items, dimensions)
+        # Prepare all flowable elements for the PDF
+        cover_elements = PDFService.__draw_cover_elements(news_items, dimensions)
+        summaries_elements = PDFService.__create_summaries_elements(news_items, dimensions)
+        full_articles_elements = PDFService.__create_full_articles_elements(news_items, dimensions)
+        # Combine all elements
+        all_elements = []
+        all_elements.append(NextPageTemplate('Cover'))
+        all_elements.extend(cover_elements)
+        # Add NextPageTemplate to switch to three-column layout for summaries
+        all_elements.append(NextPageTemplate('SummariesThreeCol'))
+        all_elements.append(PageBreak())
+        all_elements.extend(summaries_elements)
+        # Switch back to full-width single-column layout for full articles
+        all_elements.append(NextPageTemplate('FullArticles'))
+        all_elements.append(PageBreak())
+        all_elements.extend(full_articles_elements)
 
-        # Merge cover, summaries, and full articles
-        merged = PDFService.__merge_pdfs_bytes(cover, summaries)
-        merged = PDFService.__merge_pdfs_bytes(merged, full_articles)
-        merged = PDFService.__merge_pdfs_bytes(merged, body)
+        buffer = BytesIO()
+        width, height = dimensions
+        margin = inch
+        # Use a single frame for simplicity, as elements can use PageBreaks
+        frame = Frame(margin, margin, width - 2*margin, height - 2*margin, id='main')
+        # Define a full-width frame for full articles
+        full_article_frame = Frame(margin, margin, width - 2*margin, height - 2*margin, id='full_article')
+        doc = BaseDocTemplate(buffer, pagesize=A4, rightMargin=margin, leftMargin=margin, topMargin=margin, bottomMargin=margin)
+        # Use a PageTemplate with header/footer for all but the first (cover) page
+        def draw_background_and_header_footer(canvas, doc):
+            canvas.setFillColor(colors.HexColor("#e6f0fa"))
+            canvas.rect(0, 0, width, height, fill=1, stroke=0)
+            # Only draw header/footer if not cover page
+            if doc.page > 1:
+                PDFService.draw_header_footer(canvas, doc)
 
+        def draw_cover_background(canvas, doc):
+            canvas.setFillColor(colors.HexColor("#e6f0fa"))
+            canvas.rect(0, 0, width, height, fill=1, stroke=0)
 
-        return merged
+        # Standalone function for summaries header/footer (not a method of PDFService)
+        def draw_summaries_header_footer(canvas, doc):
+            width, height = A4
+            canvas.setFillColor(colors.HexColor("#e6f0fa"))
+            canvas.rect(0, 0, width, height, fill=1, stroke=0)
 
+            now = datetime.now()
+            date_str = now.strftime('%d %B %Y')
+            time_str = now.strftime('%H:%M')
+            canvas.setFont("DVS-Bold", 10)
+            canvas.drawString(inch, height - 0.75 * inch, f"Summaries – {date_str}, {time_str}")
 
-        merged = PDFService.__merge_pdfs_bytes(merged, body)
-        return merged
+            canvas.setFont("DVS", 10)
+            canvas.drawRightString(width - inch, 0.4 * inch, f"Page {doc.page}")
+
+        # Define three vertical frames evenly spaced across the page width for summaries
+        frame_width = (width - 2 * margin) / 3
+        frames = [
+            Frame(margin + i * frame_width, margin, frame_width, height - 2 * margin, id=f'col{i}')
+            for i in range(3)
+        ]
+        doc.addPageTemplates([
+            PageTemplate(id='Cover', frames=[frame], onPage=draw_cover_background),
+            PageTemplate(id='Main', frames=[frame], onPage=draw_background_and_header_footer),
+            PageTemplate(id="SummariesThreeCol", frames=frames, onPage=draw_background_and_header_footer),
+            PageTemplate(id='FullArticles', frames=[full_article_frame], onPage=draw_background_and_header_footer)
+        ])
+        doc.build(all_elements)
+        buffer.seek(0)
+        return buffer.getvalue()
 
 
     # This function wraps text to a specified width, ensuring that it fits within the PDF layout.
@@ -118,27 +163,13 @@ class PDFService:
         return max(1, int(round(word_count / words_per_minute)))
 
     @staticmethod
-    def __draw_cover_page(news_items: List[NewsItem], dimensions: tuple[float, float]) -> bytes:
-        buffer = BytesIO()
-        doc = BaseDocTemplate(buffer, pagesize=A4, rightMargin=inch, leftMargin=inch, topMargin=inch, bottomMargin=inch)
+    def __draw_cover_elements(news_items: List[NewsItem], dimensions: tuple[float, float]) -> List['Flowable']:
         width, height = dimensions
-        frame = Frame(inch, inch, width - 2*inch, height - 2*inch)
-
-        # Draw background using onPage method for consistent background rendering
-        def draw_cover_background(canvas, doc):
-            canvas.saveState()
-            canvas.setFillColor(colors.HexColor("#e6f0fa"))
-            canvas.rect(0, 0, width, height, fill=1, stroke=0)
-            canvas.restoreState()
-
-        doc.addPageTemplates([PageTemplate(id='Cover', frames=frame, onPage=draw_cover_background)])
         styles = getSampleStyleSheet()
-
         story = []
-
         # Logo
         try:
-            drawing = svg2rlg("scripts/eutop_logo.svg")
+            drawing = svg2rlg("assets/eutop_logo.svg")
             scale = 0.7
             drawing.scale(scale, scale)
             drawing.width *= scale
@@ -150,9 +181,7 @@ class PDFService:
             story.append(drawing_wrapper)
         except Exception as e:
             print(f"Error loading SVG logo: {e}")
-
         story.append(Spacer(1, 0.5 * inch))
-
         # Title
         story.append(Paragraph("<b><font size=36 color='#003366'>Daily News Report</font></b>", styles['Title']))
         story.append(Spacer(1, 0.3 * inch))
@@ -160,34 +189,47 @@ class PDFService:
         now_str = datetime.today().strftime("Time %H:%M – %d %B %Y")
         story.append(Paragraph(f"<b><font size=16 color='#003366'>{now_str}</font></b>", styles['Title']))
         story.append(Spacer(1, 0.4 * inch))
-
         # Total reading time
         total_text = " ".join(news.content for news in news_items)
         total_minutes = PDFService.__calculate_reading_time(total_text, words_per_minute=100)
         story.append(Paragraph(f"<font size=12 color='darkgreen'>Total Estimated Reading Time: {total_minutes} min</font>", styles['Normal']))
         story.append(Spacer(1, 0.5 * inch))
-
-        # TOC # Not working
-        story.append(Paragraph("<b><font size=16 color='#003366'>Table of Contents</font></b>", styles['Heading2']))
-        story.append(Spacer(1, 0.2 * inch))
-        for news in news_items:
-            toc_line = f"{news.title} ({news.newspaper}, {news.published_at})"
-            story.append(Paragraph(toc_line, styles['Normal']))
-            story.append(Spacer(1, 0.1 * inch))
-
-        doc.build(story)
-        buffer.seek(0)
-        return buffer.getvalue()
+        # --- Improved Table of Contents Styling ---
+        # Add spacing before TOC
+        story.append(Spacer(1, 12))
+        # Horizontal rule before TOC
+        story.append(HRFlowable(width="100%", thickness=1, color=colors.grey, spaceBefore=6, spaceAfter=6))
+        # TOC Title (bold, styled)
+        story.append(Paragraph("Table of Contents", ParagraphStyle(name="TOCHeader", fontName="DVS-Bold", fontSize=16, spaceAfter=12)))
+        # Add spacing after TOC header
+        story.append(Spacer(1, 4))
+        # TOC entries
+        for i, news in enumerate(news_items):
+            # Add anchor for TOC entry (optional, if needed)
+            story.append(AnchorFlowable(f"toc_entry_{i}"))
+            # Entry: title as link, below it: small gray meta
+            story.append(
+                Paragraph(
+                    f'<a href="#toc_summary_{i}">{news.title}</a><br/><font size="9" color="blue">{news.newspaper}, {news.published_at}</font>',
+                    ParagraphStyle(name="TOCEntry", fontName="DVS", fontSize=10, spaceAfter=6)
+                )
+            )
+        # Horizontal rule after TOC
+        story.append(HRFlowable(width="100%", thickness=1, color=colors.grey, spaceBefore=6, spaceAfter=6))
+        # Add spacing after TOC
+        story.append(Spacer(1, 12))
+        return story
+    
+    # draw_summaries_header_footer is now a standalone function above, not a method
 
     @staticmethod
-    def __draw_header_footer(canvas, doc):
-        width, height = A4
-        #Draw the background
+    def draw_header_footer(canvas, doc):
         canvas.saveState()
-        canvas.setFillColor(colors.HexColor("#e6f0fa"))
-        canvas.rect(0, 0, width, height, fill=1, stroke=0)
-        canvas.restoreState()
-
+        width, height = A4
+        # Draw the background
+        #canvas.setFillColor(colors.HexColor("#e6f0fa"))
+        #canvas.rect(0, 0, width, height, fill=1, stroke=0)
+        
         now = datetime.today()
         time_part = now.strftime("%H:%M")
         date_part = now.strftime("%d %B %Y")
@@ -196,22 +238,21 @@ class PDFService:
         y_position = height - inch + 5
         x_start = inch
         canvas.setFont("DVS-Bold", 12)
-        canvas.setFillColor(colors.HexColor("#003366"))
         canvas.drawString(x_start, y_position, "Continued News Report")
 
-        #Time
+        # Time
         x_after = x_start + canvas.stringWidth("Continued News Report   –   ", "DVS-Bold", 15)
         canvas.setFont("DVS-Oblique", 8)
         canvas.drawString(x_after, y_position, time_part + " ")
 
-        #Date
+        # Date
         x_after += canvas.stringWidth(time_part + " ", "DVS-Oblique", 10)
         canvas.setFont("DVS-Bold", 8)
         canvas.drawString(x_after, y_position, date_part)
 
         # Draw end of header
         try:
-            drawing = svg2rlg("scripts/eutop_logo.svg")
+            drawing = svg2rlg("assets/eutop_logo.svg")
             target_height = 0.17 * inch
             scale = target_height / drawing.height
             drawing.width *= scale
@@ -223,122 +264,15 @@ class PDFService:
 
         # Draw footer with Page number
         canvas.setFont("DVS", 10)
-        canvas.setFillColor(colors.HexColor("#003366"))
         page_str = f"Page {doc.page}"
         canvas.drawRightString(width - inch, 0.4 * inch, page_str)
 
-    @staticmethod
-    def __create_articles(news_items: List[NewsItem], dimensions: tuple[float, float]) -> bytes:
-        buffer = BytesIO()
-        doc = BaseDocTemplate(buffer, pagesize=A4, rightMargin=inch, leftMargin=inch, topMargin=inch, bottomMargin=inch)
-        width, height = dimensions
-        column_width = (width - 2 * inch) / 3
-        gutter = 0.15 * inch
-        # Define top and bottom margins to allow space for header and footer
-        top_margin = 1.25 * inch  # space for header
-        bottom_margin = 1.0 * inch  # space for footer
-        content_height = height - top_margin - bottom_margin
-        col_x = [inch + (column_width + gutter) * i for i in range(3)]
-        frames = [Frame(x, bottom_margin, column_width, content_height, id=f'col{i}', showBoundary=0) for i, x in enumerate(col_x)]
-
-        styles = getSampleStyleSheet()
-
-        keywords_style = styles["Normal"]
-        keywords_style.fontName = "DVS-Oblique"
-        keywords_style.fontSize = 8
-        keywords_style.leading = 10
-        keywords_style.textColor = colors.HexColor("#003366")
-
-        summary_style = styles["Normal"]
-        summary_style.fontName = "DVS-Oblique"
-        summary_style.fontSize = 9
-        summary_style.leading = 12
-        summary_style.textColor = colors.darkgray
-
-        content_style = styles["Normal"]
-        content_style.fontName = "DVS"
-        content_style.fontSize = 10
-        content_style.leading = 12
-
-        reading_time_style = styles["Normal"]
-        reading_time_style.fontName = "DVS-Oblique"
-        reading_time_style.fontSize = 9
-        reading_time_style.leading = 12
-        reading_time_style.textColor = colors.darkgreen
-
-        para_style = ParagraphStyle('ColumnContent', fontName="DVS", fontSize=10, leading=12)
-
-        story = []
-
-        for news in news_items:
-            anchor_name = f"dest_{news.title.replace(' ', '_')}"
-            story.append(AnchorFlowable(anchor_name))
-            story.append(Paragraph(f"<b>{news.title}</b>", styles['Heading3']))
-            if news.published_at:
-                try:
-                    dt = datetime.strptime(news.published_at.replace("Z", ""), "%Y-%m-%dT%H:%M:%S")
-                    time_str = f"<b>Time:</b> <b>{dt.strftime('%H:%M')}</b> <i>{dt.strftime('%d/%m/%y')}</i>"
-                except Exception:
-                    time_str = news.published_at
-                story.append(Paragraph(time_str, reading_time_style))
-                story.append(Spacer(1, 0.1 * inch))
-
-            if news.image_url:
-                try:
-                    response = requests.get(news.image_url)
-                    img_data = BytesIO(response.content)
-                    pil_img = PILImage.open(img_data)
-                    aspect = pil_img.height / float(pil_img.width)
-                    img_data.seek(0)
-                    img = Image(img_data, width=column_width, height=(column_width * aspect))
-                    story.append(img)
-                    story.append(Spacer(1, 0.2 * inch))
-                except Exception as e:
-                    print(f"Error loading image: {e}")
-
-            story.append(Paragraph(f"<b>Newspaper:</b> {news.newspaper}", content_style))
-            story.append(Spacer(1, 0.1 * inch))
-
-            keywords_str = ", ".join(news.keywords)
-            story.append(Paragraph(f"<b>Keywords:</b> {keywords_str}", keywords_style))
-            story.append(Spacer(1, 0.1 * inch))
-
-            story.append(Paragraph(f"<b>Summary:</b> {news.summary}", summary_style))
-            story.append(Spacer(1, 0.1 * inch))
-
-            estimated_minutes = PDFService.__calculate_reading_time(news.content, words_per_minute=180)
-            story.append(Paragraph(f"<b>Estimated Reading Time:</b> {estimated_minutes} min", reading_time_style))
-            story.append(Spacer(1, 0.1 * inch))
-
-            story.append(Paragraph(news.content, para_style))
-            story.append(Spacer(1, 0.2 * inch))
-
-            if news != news_items[-1]:
-                story.append(HRFlowable(width="100%", thickness=1, color=colors.HexColor("#003366")))
-                story.append(Spacer(1, 0.2 * inch))
-
-        doc.addPageTemplates([PageTemplate(id='ThreeCol', frames=frames, onPage=PDFService.__draw_header_footer)])
-        doc.build(story)
-
-        buffer.seek(0)
-        return buffer.getvalue()
+        canvas.restoreState()
 
     @staticmethod
-    def __create_summaries_section(news_items: List[NewsItem], dimensions: tuple[float, float]) -> bytes:
-        buffer = BytesIO()
+    def __create_summaries_elements(news_items: List[NewsItem], dimensions: tuple[float, float]) -> List['Flowable']:
         width, height = dimensions
-        column_width = (width - 2 * inch) / 3
-        gutter = 0.15 * inch
-        top_margin = 1.25 * inch
-        bottom_margin = 1.0 * inch
-        content_height = height - top_margin - bottom_margin
-        col_x = [inch + (column_width + gutter) * i for i in range(3)]
-        frames = [Frame(x, bottom_margin, column_width, content_height, id=f'col{i}', showBoundary=0) for i, x in enumerate(col_x)]
-        doc = BaseDocTemplate(buffer, pagesize=A4, rightMargin=inch, leftMargin=inch, topMargin=top_margin, bottomMargin=bottom_margin)
-        doc.addPageTemplates([PageTemplate(id='SummariesThreeCol', frames=frames, onPage=PDFService.__draw_header_footer)])
-
         styles = getSampleStyleSheet()
-
         newspaper_style = ParagraphStyle('Newspaper', fontName="DVS-Bold", fontSize=9, leading=11, textColor=colors.HexColor("#003366"))
         keywords_style = ParagraphStyle('Keywords', fontName="DVS-Oblique", fontSize=8, leading=10, textColor=colors.HexColor("#003366"))
         date_style = ParagraphStyle('Date', fontName="DVS-Oblique", fontSize=8, leading=10, textColor=colors.gray)
@@ -346,17 +280,12 @@ class PDFService:
         link_style = ParagraphStyle('Link', fontName="DVS-Bold", fontSize=8, leading=10, textColor=colors.blue)
 
         story = []
-
-        for news in news_items:
-            # Newspaper
+        for i, news in enumerate(news_items):
+            # Insert anchor for TOC to jump to this summary
+            story.append(AnchorFlowable(f"toc_summary_{i}"))
             story.append(Paragraph(news.title or "", newspaper_style))
-            # # Keywords if they want to be displayed
-            # keywords_str = ", ".join(news.keywords) if news.keywords else ""
-            # story.append(Paragraph(keywords_str, keywords_style))
-            #Newspaper
             story.append(Spacer(1, 0.05 * inch))
             story.append(Paragraph(f'<link href="{news.url}">{news.newspaper}</link>' or "", keywords_style))
-            # Published date
             pub_date_str = ""
             if news.published_at:
                 try:
@@ -366,50 +295,33 @@ class PDFService:
                     pub_date_str = news.published_at
             story.append(Paragraph(pub_date_str, date_style))
             story.append(Spacer(1, 0.05 * inch))
-            # Summary with line breaks preserved
-            # Replace line breaks with <br/> for Paragraph
-            #We take the first 500 characters of the content since many articles have no summary
             summary_text = news.content[:300].replace('\n', '<br/>')
             story.append(Paragraph(summary_text, summary_style))
             story.append(Spacer(1, 0.05 * inch))
-            # "Read full article" links to the full article section in the PDF
-            #dest_name = f"full_{news.id}"
-            #story.append(Paragraph(f'<a href="#{dest_name}">Read full article</a>', link_style))
+            dest_name = f"full_{news.id}"
+            story.append(Paragraph(f'<a href="#{dest_name}">Read full article</a>', link_style))
             story.append(Spacer(1, 0.15 * inch))
-
-            if news != news_items[-1]:
+            if i != len(news_items) - 1:
                 story.append(HRFlowable(width="100%", thickness=1, color=colors.HexColor("#003366")))
                 story.append(Spacer(1, 0.2 * inch))
-
-        doc.build(story)
-        buffer.seek(0)
-        return buffer.getvalue()
+        return story
     
 
     @staticmethod
-    def __create_full_articles_section(news_items: List[NewsItem], dimensions: tuple[float, float]) -> bytes:
-        buffer = BytesIO()
-        width, height = dimensions
-        doc = BaseDocTemplate(buffer, pagesize=A4, rightMargin=inch, leftMargin=inch, topMargin=inch, bottomMargin=inch)
-        frame = Frame(inch, inch, width - 2*inch, height - 2*inch, id='normal')
-
-        doc.addPageTemplates([PageTemplate(id='FullArticles', frames=[frame], onPage=PDFService.__draw_header_footer)])
-
+    def __create_full_articles_elements(news_items: List[NewsItem], dimensions: tuple[float, float]) -> List['Flowable']:
         styles = getSampleStyleSheet()
         title_style = ParagraphStyle('Title', fontName="DVS-Bold", fontSize=18, leading=22, spaceAfter=12)
         metadata_style = ParagraphStyle('Metadata', fontName="DVS-Oblique", fontSize=9, leading=12, textColor=colors.gray)
         content_style = ParagraphStyle('Content', fontName="DVS", fontSize=11, leading=14)
         link_style = ParagraphStyle('Link', fontName="DVS-Bold", fontSize=9, leading=12, textColor=colors.blue)
-
         story = []
-
         for idx, news in enumerate(news_items):
-            # Add named destination anchor before each full article
-            #dest_name = f"full_{news.id}"
-            #story.append(AnchorFlowable(dest_name))
-            # Title
+            dest_name = f"full_{news.id}"
+            # Anchor for full article
+            story.append(AnchorFlowable(dest_name))
+            # Anchor for TOC jump to this article (optional, e.g. for future TOC to articles)
+            story.append(AnchorFlowable(f"toc_article_{idx}"))
             story.append(Paragraph(news.title, title_style))
-            # Metadata line: word count, author, newspaper, date, keywords
             word_count = len(news.content.split()) if news.content else 0
             author = news.author or "Unknown author"
             newspaper = news.newspaper or "Unknown newspaper"
@@ -421,46 +333,14 @@ class PDFService:
                 except Exception:
                     pub_date_str = news.published_at
             keywords_str = ", ".join(news.keywords) if news.keywords else ""
+            # Link to summary anchor
+            story.append(Paragraph(f'<a href="#toc_summary_{idx}"><u><font color="blue">Read summary</font></u></a>', link_style))
             metadata_text = f"Words: {word_count} | Author: {author} | Newspaper: {newspaper} | Date: {pub_date_str} | Keywords: {keywords_str}"
             story.append(Paragraph(metadata_text, metadata_style))
             story.append(Spacer(1, 0.15 * inch))
-            # Content with line breaks preserved
             content_text = news.content.replace('\n', '<br/>')
             story.append(Paragraph(content_text, content_style))
             story.append(Spacer(1, 0.15 * inch))
-            # Placeholder link "Read summary"
-            story.append(Paragraph('<u><font color="blue">Read summary</font></u>', link_style))
             if idx != len(news_items) - 1:
                 story.append(PageBreak())
-
-        doc.build(story)
-        buffer.seek(0)
-        return buffer.getvalue()
-
-
-    @staticmethod
-    def __merge_pdfs_bytes(pdf_bytes1: bytes, pdf_bytes2: bytes) -> bytes:
-        # Wrap byte strings in BytesIO objects
-        buffer1 = BytesIO(pdf_bytes1)
-        buffer2 = BytesIO(pdf_bytes2)
-
-        # Create PDF readers
-        reader1 = PdfReader(buffer1)
-        reader2 = PdfReader(buffer2)
-
-        # Create a PDF writer
-        writer = PdfWriter()
-
-        # Add pages from both readers
-        for page in reader1.pages:
-            writer.add_page(page)
-        for page in reader2.pages:
-            writer.add_page(page)
-
-        # Write merged output to a BytesIO
-        output_buffer = BytesIO()
-        writer.write(output_buffer)
-        output_buffer.seek(0)
-
-        return output_buffer.getvalue()
-
+        return story
