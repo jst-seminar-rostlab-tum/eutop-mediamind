@@ -48,4 +48,19 @@ class SearchProfileDetailResponse(BaseModel):
 
 class KeywordSugestion(BaseModel):
     topic: str
-    sugeestions: List[str]
+    sugestions: List[str]
+
+    def to_dict(self):
+        return {
+            "keyword": self.topic,
+            "sugestions": self.sugestions
+        }
+
+class KeywordSuggestionResponse(BaseModel):
+    keyword_suggestions: List[KeywordSugestion]
+
+    def to_dict(self):
+        return {
+            "keyword_suggestions": [sug.to_dict() for sug in self.keyword_suggestions]
+        }
+

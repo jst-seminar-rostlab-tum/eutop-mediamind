@@ -11,7 +11,7 @@ from app.schemas.articles_schemas import (
 )
 from app.schemas.match_schemas import MatchFeedbackRequest
 from app.schemas.search_profile_schemas import (
-    KeywordSugestion,
+    KeywordSuggestionResponse,
     SearchProfileDetailResponse,
     SearchProfileUpdateRequest,
 )
@@ -20,7 +20,7 @@ from app.services.search_profiles_service import SearchProfiles
 router = APIRouter(
     prefix="/search-profiles",
     tags=["search-profiles"],
-    # TODO dependencies=[Depends(get_authenticated_user)],
+    dependencies=[Depends(get_authenticated_user)],
 )
 
 
@@ -36,6 +36,13 @@ async def add_search_profile(
     current_user=Depends(get_authenticated_user),
 ):
     return await SearchProfiles.get_available_search_profiles(current_user)
+
+@router.get("/suggestions", response_model=KeywordSuggestionResponse)
+async def get_keyword_sugestions(
+    q: Annotated[list[str] | None, Query()] = None,
+    current_user: User=Depends(get_authenticated_user)
+) -> KeywordSuggestionResponse:
+    return await SearchProfiles.get_keyword_sugestions(current_user)
 
 
 @router.get("/{profile_id}", response_model=SearchProfileDetailResponse)
@@ -79,10 +86,3 @@ async def update_match_feedback(
     )
     return updated_match
 
-@router.get("/suggestions", response_model=list[KeywordSugestion])
-async def get_keyword_sugestions(
-    search_profiles: Annotated[list[str] | None, Query()] = None
-#    current_user: User=Depends(get_authenticated_user),
-):
-
-    return await SearchProfiles.get_keyword_sugestions()

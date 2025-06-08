@@ -1,12 +1,12 @@
-from typing import Type
+from typing import Type, Tuple
 from uuid import UUID
 
-from sqlalchemy.ext.asyncio import async_session
-from sqlalchemy.orm import selectinload
-from sqlmodel import and_, or_, select
+from sqlalchemy.orm import selectinload, joinedload
+from sqlmodel import and_, or_, select, text, bindparam
 
 from app.models.search_profile import SearchProfile
 from app.schemas.search_profile_schemas import SearchProfileUpdateRequest
+from app.core.db import async_session
 
 
 class SearchProfileRepository:
@@ -45,7 +45,7 @@ class SearchProfileRepository:
             # Combine ID and access filters
             stmt = stmt.where(and_(base_condition, or_(*access_conditions)))
 
-            result = await session.exec(stmt)
+            result = await session.execute(stmt)
             return result.one_or_none()
 
     @staticmethod
@@ -68,8 +68,29 @@ class SearchProfileRepository:
             else:
                 stmt = stmt.where(SearchProfile.users.any(id=user_id))
 
-            result = await session.exec(stmt)
-            return result.all()
+            result = await session.execute(stmt.options(joinedload(SearchProfile.topics)))
+            return result.unique().scalars().all()
+
+    @staticmethod
+    async def get_accessible_topics(
+        user_id: UUID, organization_id: UUID | None
+    ) -> Tuple[str, str]:
+        profiles = await SearchProfileRepository.get_accessible_profiles(user_id, organization_id)
+        async with async_session() as session:
+            sql = text("""
+            SELECT t.name, k.name
+            FROM keywords k
+            JOIN topics_keywords tk on tk.keyword_id = k.id
+            JOIN topics t on t.id = tk.topic_id
+            JOIN search_profiles sp on sp.id = t.search_profile_id
+            WHERE sp.id IN :profile_ids
+            """).bindparams(
+                bindparam("profile_ids", expanding=True)
+            )
+
+            return (await session.execute(sql, {"profile_ids": [p.id for p in profiles]})).all()
+
+
 
     @staticmethod
     async def update_by_id(

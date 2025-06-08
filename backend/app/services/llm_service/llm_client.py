@@ -1,5 +1,7 @@
+from os import wait
 from litellm import CustomStreamWrapper, completion
 from typing import TypeVar, Type
+import json
 
 from litellm.files.main import ModelResponse
 
@@ -34,18 +36,21 @@ class LLMClient:
         return self.__prompt(prompt)
         
     T = TypeVar('T')
-    def generate_typed_response(self, prompt: str, resp_schema_type: Type[T]) -> T:
-        return self.__prompt(prompt, resp_schema=resp_schema_type)
+    def generate_typed_response(self, prompt: str, resp_format_type: Type[T]) -> T:
+        output = self.__prompt(prompt, resp_format=resp_format_type)
+        print("output is AAAAAAAAAAAAAAAA,", output)
+        data = json.loads(output)
+        return resp_format_type(**data)
 
 
-    def __prompt(self, prompt: str, resp_schema=None):
+    def __prompt(self, prompt: str, resp_format=None):
         kwargs = {
             "model": self.model,
             "messages": [{"role": "user", "content": prompt}],
         }
 
-        if resp_schema:
-            kwargs["response_format"] = resp_schema
+        if resp_format:
+            kwargs["response_format"] = resp_format
 
         if self.api_key:
             kwargs["api_key"] = self.api_key
