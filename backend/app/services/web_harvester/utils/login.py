@@ -247,7 +247,7 @@ def submit_login_credentials(driver, wait, paper, username, password):
 
 def hardcoded_login(driver, wait, subscription: Subscription):
     # Load newspapers accounts
-    with open('app/services/newspapers_accounts.json', 'r') as f:
+    with open('app/services/web_harvester/utils/newspapers_accounts.json', 'r') as f:
         accounts = json.load(f)
 
     credentials = get_account_credentials(accounts, subscription)
@@ -256,25 +256,24 @@ def hardcoded_login(driver, wait, subscription: Subscription):
     else:
         username, password = credentials
 
-    paper = subscription.config
-    if not paper:
-        logger.error(f"No configuration found for newspaper: {paper['name']}")
+    config = subscription.config
+    if not config:
+        logger.error(
+            f"No configuration found for newspaper: {subscription.name}")
         return False
 
     # Initialize newspaper website
     try:
         driver.get(subscription.domain)
     except Exception:
-        logger.error(f"No link provided for: {paper['name']}")
+        logger.error(f"No link provided for: {subscription.name}")
         return False
 
-    logger.info(f"Processing login to: {paper['name']}")
-    accept_cookies(driver, wait, paper)
-    remove_notifications(driver, wait, paper)
-    open_login_form(driver, wait, paper)
-    submit_login_credentials(driver, wait, paper, username, password)
-
-    return paper
+    logger.info(f"Processing login to: {subscription.name}")
+    accept_cookies(driver, wait, config)
+    remove_notifications(driver, wait, config)
+    open_login_form(driver, wait, config)
+    return submit_login_credentials(driver, wait, config, username, password)
 
 
 def hardcoded_logout(driver, wait, paper):

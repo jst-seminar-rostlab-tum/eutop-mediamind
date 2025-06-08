@@ -65,11 +65,7 @@ class NewsAPICrawler(Crawler):
             return []
 
         query_conditions = [
-            {"$or": [{"sourceUri": newsapi_id}],
-             "dataType": [
-                "news",
-                "blog"
-            ]},
+            {"$or": [{"sourceUri": newsapi_id}]},
         ]
 
         if date_start and date_end:
@@ -100,9 +96,10 @@ class NewsAPICrawler(Crawler):
                 Article(
                     title=article.get("title"),
                     url=article.get("url"),
-                    published_at=article.get("dateTime"),
+                    published_at=article.get("dateTimePub"),
                     author=article.get("author", None),
                     subscription_id=subscription.id,
+                    category_uri=article.get("categoryUri", None),
                 )
             )
 

@@ -19,13 +19,13 @@
       "user_input": "//input[@id='enter-email']",
       "password_input": "//input[@id='enter-password']",
       "submit_button": "//button[@id='enter-email-next']",
-      "submit_button_2": "//button[@id='sign-in-button']"
+      "second_submit_button": "//button[@id='sign-in-button']"
     },
     "newspaper3": {
       "name": "Handelsblatt - ePaper",
-      "link": "https://epaper.handelsblatt.com/",
+      "link": "https://handelsblatt.com/",
       "cookies_button": "//button[@title='Zustimmen und weiter' and contains(@class, 'sp_choice_type_11')]",
-      "login_button": "//a[@class='login-user' and contains(@href, 'handelsblatt.com/login')]",
+      "login_button": "//a[span[text()='Anmelden']]",
       "iframe": "//iframe[contains(@id, 'sp_message_iframe')]",
       "user_input": "//input[@name='login']",
       "password_input": "//input[@name='password']",
@@ -86,12 +86,13 @@
     "newspaper9": {
       "name": "Manager Magazin - Onlinezugang / ePaper",
       "link": "https://www.manager-magazin.de/",
-      "cookies_button": "//button[@title='Alle akzeptieren' and contains(@class, 'sp_choice_type_11')]",
-      "login_button": "//button[contains(@class, 'is-login') and span[contains(text(), 'Anmelden')]]",
+      "cookies_button": "//button[@title='Einwilligen und weiter' and contains(@class, 'sp_choice_type_11')]",
+      "login_button": "//a[@title='Jetzt anmelden']",
       "iframe": "",
-      "user_input": "//input[@id='identifier' and @name='identifier']",
-      "password_input": "//input[@id='password' and @name='password']",
-      "submit_button": "//button[@type='submit' and @name='method' and @value='password']"
+      "user_input": "//input[@id='username']",
+      "password_input": "//input[@name='loginform:password']",
+      "submit_button": "//button[@name='loginform:submit']",
+      "second_submit_button": "//button[@name='loginform:submit']"
     },
     "newspaper10": {
       "name": "Spiegel - ePaper",
@@ -126,11 +127,11 @@
     },
     "newspaper13": {
       "name": "Cicero",
-      "link": "https://epaper.cicero.de/",
+      "link": "https://cicero.de/",
       "cookies_button": "//a[@data-behavior='allow-all-cookies' and contains(text(), 'Alle akzeptieren')]",
-      "login_button": "//a[contains(@href, '/users/sign_in') and contains(text(), 'Login')]",
-      "user_input": "//input[@id='user_email' and @name='user[email]']",
-      "password_input": "//input[@id='user_password' and @name='user[password]']",
+      "login_button": "//a[text()='Anmelden']",
+      "user_input": "//input[@id='username']",
+      "password_input": "//input[@id='password']",
       "submit_button": "//input[@type='submit' and @value='Anmelden']"
     },
     "newspaper14": {

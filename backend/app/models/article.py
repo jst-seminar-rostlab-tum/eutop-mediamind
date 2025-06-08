@@ -1,8 +1,10 @@
 import uuid
 from datetime import datetime
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING, List, Optional
 
 from sqlmodel import Field, Relationship, SQLModel
+from datetime import datetime
+from enum import Enum
 
 from app.models.associations import (
     ArticleKeywordLink,
@@ -12,6 +14,12 @@ if TYPE_CHECKING:
     from app.models.keyword import Keyword
     from app.models.match import Match
     from app.models.subscription import Subscription
+
+
+class ArticleStatus(str, Enum):
+    NEW = "new"
+    SCRAPED = "scraped"
+    ERROR = "error"
 
 
 class Article(SQLModel, table=True):
@@ -27,6 +35,11 @@ class Article(SQLModel, table=True):
     language: str = Field(max_length=255, nullable=True)
     category: str = Field(max_length=255, nullable=True)
     summary: str | None = Field(default=None, max_length=255)
+    status: ArticleStatus = Field(default=ArticleStatus.NEW, nullable=False)
+
+    crawled_at: datetime = Field(default_factory=datetime.now)
+    scraped_at: Optional[datetime] = Field(default=None, nullable=True)
+
     # vector_embedding
     subscription_id: uuid.UUID = Field(
         foreign_key="subscriptions.id", nullable=False, index=True

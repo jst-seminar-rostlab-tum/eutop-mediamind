@@ -16,6 +16,7 @@ services:
     restart: always
     depends_on:
       - qdrant
+      - postgres
     ports:
       - "8000:8000"
     volumes:
@@ -26,8 +27,6 @@ services:
       options:
         max-size: "50m" # maximum size of each log file 50MB
         max-file: "10"
-    depends_on:
-      - postgres
 
   postgres:
     image: postgres:15

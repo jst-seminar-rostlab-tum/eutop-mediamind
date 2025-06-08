@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from datetime import datetime
 from typing import List
 from app.core.logger import get_logger
 from app.models.article import Article
@@ -48,5 +49,12 @@ class TrafilaturaScraper(Scraper):
                 article.author = html_data.get('authors')
             if not article.content:
                 article.content = html_data.get('raw_text')
+            article.scraped_at = datetime.now()
+            article.status = article.status.SCRAPED
+        else:
+            logger.error(
+                f"Failed to extract content for article: {article.url}")
+            article.status = article.status.ERROR
+            article.scraped_at = datetime.now()
 
         return article

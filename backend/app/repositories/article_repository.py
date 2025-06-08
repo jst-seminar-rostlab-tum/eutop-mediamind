@@ -44,7 +44,6 @@ class ArticleRepository:
                 inserted_articles.append(article)
             except IntegrityError as e:
                 session.rollback()  # Roll back the failed transaction
-
                 if hasattr(e.orig, 'sqlstate') and e.orig.sqlstate == '23505':
                     error_detail = str(e.orig)
                     # Check if it's specifically the URL constraint
@@ -60,6 +59,10 @@ class ArticleRepository:
                     # Other integrity error
                     logger.error(f"Failed to insert article: {e}")
                     continue
+            except Exception as e:
+                session.rollback()
+                logger.error(f"Failed to insert article: {e}")
+                continue
         return inserted_articles
 
     @staticmethod

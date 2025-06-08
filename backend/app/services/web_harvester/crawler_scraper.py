@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+import random
 from time import sleep
 
 from app.models.subscription import Subscription
@@ -111,7 +112,6 @@ class SeparateCrawlerScraper(CrawlerScraper):
         chrome_options.add_argument("--headless=new")
         chrome_options.add_argument(
             "--enable-features=NetworkService,NetworkServiceInProcess")
-        # optional but common with headless
         chrome_options.add_argument("--disable-gpu")
         chrome_options.add_argument(f'--user-agent={UserAgent().random}')
 
@@ -132,7 +132,13 @@ class SeparateCrawlerScraper(CrawlerScraper):
         else:
             logger.info(
                 f"Subscription {subscription.name} does not require login.")
-        for article in articles:
+
+        logger.info(
+            f"Starting scraping for {len(articles)} articles from subscription {subscription.name}...")
+        for idx, article in enumerate(articles):
+            if idx % 25 == 0:
+                logger.info(
+                    f"Scraping article {idx + 1}/{len(articles)}")
             driver.get(article.url)
             html = driver.page_source
             scraped_article = self.scraper.extract(
@@ -143,5 +149,5 @@ class SeparateCrawlerScraper(CrawlerScraper):
             logger.info(
                 f"Scraped article: {inserted_article.title} with content {inserted_article.content[:100]}...")
             scraped_articles.append(inserted_article)
-            sleep(5)
+            sleep(random.uniform(1, 3))
         return scraped_articles

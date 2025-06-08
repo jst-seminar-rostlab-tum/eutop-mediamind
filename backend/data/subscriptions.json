@@ -20,22 +20,22 @@
     "login_works": null,
     "newsapi_id": "ft.com",
     "config": {
+      "cookies_button": "//button[@title='Accept Cookies' and contains(@class, 'sp_choice_type_11')]",
       "login_button": "//a[@id='o-header-top-link-signin' and contains(@href, '/login')]",
-      "iframe": "",
       "user_input": "//input[@id='enter-email']",
       "password_input": "//input[@id='enter-password']",
       "submit_button": "//button[@id='enter-email-next']",
-      "submit_button_2": "//button[@id='sign-in-button']"
+      "second_submit_button": "//button[@id='sign-in-button']"
     }
   },
   {
     "name": "Handelsblatt - ePaper",
-    "domain": "https://www.epaper.handelsblatt.com",
+    "domain": "https://id.handelsblatt.com/login",
     "paywall": true,
     "login_works": null,
     "newsapi_id": "handelsblatt.com",
     "config": {
-      "login_button": "//a[@class='login-user' and contains(@href, 'handelsblatt.com/login')]",
+      "cookies_button": "//button[@title='Zustimmen und weiter' and contains(@class, 'sp_choice_type_11')]",
       "iframe": "//iframe[contains(@id, 'sp_message_iframe')]",
       "user_input": "//input[@name='login']",
       "password_input": "//input[@name='password']",
@@ -49,7 +49,9 @@
     "login_works": true,
     "newsapi_id": "sueddeutsche.de",
     "config": {
-      "login_button": "//button[contains(text(), 'Login')]",
+      "cookies_button": "//button[text()='Ich bin einverstanden']",
+      "refuse_notifications": "//button[contains(@class, 'cleverpush-confirm-btn-deny')]",
+      "login_button": "//div[a[text()='Jetzt abonnieren']]/button[text()='Login']",
       "user_input": "//input[@id='login' and @name='email']",
       "password_input": "//input[@id='current-password' and @name='current-password']",
       "submit_button": "//button[@type='submit' and contains(text(), 'Einloggen')]",
@@ -122,11 +124,12 @@
     "login_works": null,
     "newsapi_id": "manager-magazin.de",
     "config": {
-      "login_button": "//button[contains(@class, 'is-login') and span[contains(text(), 'Anmelden')]]",
-      "iframe": "",
-      "user_input": "//input[@id='identifier' and @name='identifier']",
-      "password_input": "//input[@id='password' and @name='password']",
-      "submit_button": "//button[@type='submit' and @name='method' and @value='password']"
+      "cookies_button": "//button[@title='Einwilligen und weiter' and contains(@class, 'sp_choice_type_11')]",
+      "login_button": "//a[@title='Jetzt anmelden']",
+      "user_input": "//input[@id='username']",
+      "password_input": "//input[@name='loginform:password']",
+      "submit_button": "//button[@name='loginform:submit']",
+      "second_submit_button": "//button[@name='loginform:submit']"
     }
   },
   {
@@ -145,17 +148,16 @@
   },
   {
     "name": "WiWo - ePaper",
-    "domain": "https://www.wiwo.de",
+    "domain": "https://id.wiwo.de/login",
     "paywall": true,
     "login_works": null,
     "newsapi_id": "wiwo.de",
     "config": {
-      "login_button": "//a[contains(@href, 'id.wiwo.de/login') and span[contains(text(), 'Anmelden')]]",
+      "cookies_button": "//button[@title='ZUSTIMMEN' and contains(@class, 'sp_choice_type_11')]",
       "iframe": "",
       "user_input": "//input[@name='login' and @type='email']",
       "password_input": "//input[@name='password' and @type='password']",
-      "submit_button": "//button[@type='submit' and contains(text(), 'Anmelden')]",
-      "menu_button": "//button[.//svg[contains(@clip-path, '24-burger-sm-boxed__a')]]"
+      "submit_button": "//button[@type='submit' and contains(text(), 'Anmelden')]"
     }
   },
   {
@@ -174,14 +176,15 @@
   },
   {
     "name": "Cicero",
-    "domain": "https://www.epaper.cicero.de",
+    "domain": "https://www.cicero.de",
     "paywall": true,
     "login_works": null,
     "newsapi_id": "cicero.de",
     "config": {
-      "login_button": "//a[contains(@href, '/users/sign_in') and contains(text(), 'Login')]",
-      "user_input": "//input[@id='user_email' and @name='user[email]']",
-      "password_input": "//input[@id='user_password' and @name='user[password]']",
+      "cookies_button": "//button[text()='Alle akzeptieren']",
+      "login_button": "//a[text()='Anmelden']",
+      "user_input": "//input[@id='username']",
+      "password_input": "//input[@id='password']",
       "submit_button": "//input[@type='submit' and @value='Anmelden']"
     }
   },
@@ -202,7 +205,7 @@
   {
     "name": "Politico",
     "domain": "https://www.politico.eu",
-    "paywall": true,
+    "paywall": false,
     "login_works": null,
     "newsapi_id": "politico.eu",
     "config": {
@@ -333,6 +336,8 @@
     "login_works": true,
     "newsapi_id": "horizont.net",
     "config": {
+      "shadow_cookies": "#usercentrics-cmp-ui",
+      "cookies_button": "button.accept.uc-accept-button",
       "login_button": "//a[contains(@href, 'login')]",
       "user_input": "//input[@name='i_email']",
       "password_input": "//input[@name='i_password']",
