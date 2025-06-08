@@ -1,9 +1,6 @@
-from os import wait
-from litellm import CustomStreamWrapper, completion
+from litellm import completion
 from typing import TypeVar, Type
 import json
-
-from litellm.files.main import ModelResponse
 
 from app.core.config import configs
 from app.core.logger import get_logger
@@ -38,7 +35,6 @@ class LLMClient:
     T = TypeVar('T')
     def generate_typed_response(self, prompt: str, resp_format_type: Type[T]) -> T:
         output = self.__prompt(prompt, resp_format=resp_format_type)
-        print("output is AAAAAAAAAAAAAAAA,", output)
         data = json.loads(output)
         return resp_format_type(**data)
 
@@ -65,6 +61,3 @@ class LLMClient:
                 '{self.model}': {e}"
             )
             raise
-
-
-

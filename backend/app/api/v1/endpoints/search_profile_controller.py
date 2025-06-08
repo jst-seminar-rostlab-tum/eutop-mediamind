@@ -44,7 +44,6 @@ async def get_keyword_sugestions(
 ) -> KeywordSuggestionResponse:
     return await SearchProfiles.get_keyword_sugestions(current_user)
 
-
 @router.get("/{profile_id}", response_model=SearchProfileDetailResponse)
 async def get_search_profile(
     profile_id: UUID, current_user=Depends(get_authenticated_user)
@@ -85,4 +84,3 @@ async def update_match_feedback(
         profile_id, match_id, feedback
     )
     return updated_match
-

@@ -7,6 +7,15 @@ from sqlmodel import and_, or_, select, text, bindparam
 from app.models.search_profile import SearchProfile
 from app.schemas.search_profile_schemas import SearchProfileUpdateRequest
 from app.core.db import async_session
+from typing import Type
+from uuid import UUID
+
+from sqlalchemy.ext.asyncio import async_session
+from sqlalchemy.orm import selectinload
+from sqlmodel import and_, or_, select
+
+from app.models.search_profile import SearchProfile
+from app.schemas.search_profile_schemas import SearchProfileUpdateRequest
 
 
 class SearchProfileRepository:
