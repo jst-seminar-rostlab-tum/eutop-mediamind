@@ -6,9 +6,7 @@ import type { Profile } from "../../../../types/model";
 
 export interface MailingProps {
   profile: Profile;
-  setProfile: (
-    profile: Profile,
-  ) => void;
+  setProfile: (profile: Profile) => void;
 }
 
 export function Mailing({ profile, setProfile }: MailingProps): JSX.Element {

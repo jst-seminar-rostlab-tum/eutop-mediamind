@@ -6,9 +6,7 @@ import type { Profile } from "../../../../types/model";
 
 interface KeywordFieldProps {
   keywords: string[];
-  setProfile: (
-    profile: Profile,
-  ) => void;
+  setProfile: (profile: Profile) => void;
   profile: Profile;
   selectedTopic: string | undefined;
 }

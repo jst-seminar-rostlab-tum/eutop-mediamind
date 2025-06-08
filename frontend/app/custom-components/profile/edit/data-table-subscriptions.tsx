@@ -29,9 +29,7 @@ import type { Subscription } from "../../../../types/model";
 export interface MailingTableProps {
   name: string;
   allSubscriptions: Subscription[];
-  setSubscriptions: (
-    subscriptions: Subscription[],
-  ) => void;
+  setSubscriptions: (subscriptions: Subscription[]) => void;
 }
 
 type DataRow = {
@@ -68,12 +66,7 @@ const getColumns = (
       );
     },
     cell: ({ row }) => (
-      <div className="lowercase">
-        {
-          row.getValue<Subscription>("data")
-            .name
-        }
-      </div>
+      <div className="lowercase">{row.getValue<Subscription>("data").name}</div>
     ),
   },
   {
@@ -117,9 +110,7 @@ export function DataTableSubscriptions({
     })),
   );
 
-  const addSubscription = (
-    sub: Subscription,
-  ) => {
+  const addSubscription = (sub: Subscription) => {
     const updatedSub = { ...sub, is_subscribed: true };
     const updatedSubscriptions = allSubscriptions.map((s) =>
       s.id === sub.id ? updatedSub : s,
@@ -127,9 +118,7 @@ export function DataTableSubscriptions({
     setSubscriptions(updatedSubscriptions);
   };
 
-  const removeSubscription = (
-    sub: Subscription,
-  ) => {
+  const removeSubscription = (sub: Subscription) => {
     const updatedSub = { ...sub, is_subscribed: false };
     const updatedSubscriptions = allSubscriptions.map((s) =>
       s.id === sub.id ? updatedSub : s,

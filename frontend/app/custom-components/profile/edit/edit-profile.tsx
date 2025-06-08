@@ -33,9 +33,7 @@ export function EditProfile({ profile, trigger }: EditProfileProps) {
   const [profileName, setProfileName] = useState(profile.name);
   const [editedProfile, setEditedProfile] = useState(cloneDeep(profile));
 
-  const transformToUpdateRequest = (
-    profile: Profile,
-  ): ProfileUpdate => {
+  const transformToUpdateRequest = (profile: Profile): ProfileUpdate => {
     return {
       name: profile.name,
       public: profile.public,
@@ -67,22 +65,18 @@ export function EditProfile({ profile, trigger }: EditProfileProps) {
       toast.success("Profile updated successfully", {
         description: "Your changes have been saved.",
       });
-      await client.PUT(
-        "/api/v1/search-profiles/{search_profile_id}",
-        {
-          params: { path: { search_profile_id: profile.id } },
-          body: updateRequest,
-          headers: authorizationHeaders,
-        },
-      );
+      await client.PUT("/api/v1/search-profiles/{search_profile_id}", {
+        params: { path: { search_profile_id: profile.id } },
+        body: updateRequest,
+        headers: authorizationHeaders,
+      });
       await mutate(["/api/v1/search-profiles"]);
     } catch (error) {
       console.error(error);
       toast.error("Profile update failed", {
         description: "Your changes have not been saved.",
-      })
+      });
     } finally {
-
       setIsSaving(false);
     }
   };
@@ -93,7 +87,6 @@ export function EditProfile({ profile, trigger }: EditProfileProps) {
 
       <DialogContent className={"min-w-1/2 rounded-3xl max-h-3/4"}>
         <DialogHeader>
-
           <div className={"flex items-center gap-3"}>
             {isEditingName ? (
               <div className="flex items-center gap-2 flex-1">

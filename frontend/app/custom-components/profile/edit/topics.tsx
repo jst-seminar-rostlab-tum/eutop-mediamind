@@ -18,9 +18,7 @@ import type { Profile } from "../../../../types/model";
 
 interface TopicsProps {
   profile: Profile;
-  setProfile: (
-    profile: Profile,
-  ) => void;
+  setProfile: (profile: Profile) => void;
 }
 
 export function Topics({ profile, setProfile }: TopicsProps) {

@@ -4,15 +4,12 @@ import type { Profile, Subscription } from "../../../../types/model";
 
 export interface SubscriptionsProps {
   profile: Profile;
-  setProfile: (
-    profile: Profile,
-  ) => void;
+  setProfile: (profile: Profile) => void;
 }
 
 export function Subscriptions({ profile, setProfile }: SubscriptionsProps) {
-  const setSubscriptions = (
-    subscriptions: Subscription[],
-  ) => setProfile({ ...profile, subscriptions: subscriptions });
+  const setSubscriptions = (subscriptions: Subscription[]) =>
+    setProfile({ ...profile, subscriptions: subscriptions });
 
   return (
     <div>

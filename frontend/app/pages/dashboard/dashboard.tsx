@@ -20,9 +20,13 @@ export function DashboardPage() {
     data: profiles,
     isLoading,
     error,
-  } = useQuery("/api/v1/search-profiles", {
-    headers: authorizationHeaders,
-  }, { refreshInterval: 0, refreshWhenHidden: false, revalidateOnFocus: false },);
+  } = useQuery(
+    "/api/v1/search-profiles",
+    {
+      headers: authorizationHeaders,
+    },
+    { refreshInterval: 0, refreshWhenHidden: false, revalidateOnFocus: false },
+  );
 
   useEffect(() => {
     if (error) {
@@ -60,11 +64,15 @@ export function DashboardPage() {
       {isLoading ? (
         <div className="flex items-center justify-center py-8">
           <Loader2 className="h-8 w-8 animate-spin" />
-          <span className="ml-2 text-muted-foreground">Loading profiles...</span>
+          <span className="ml-2 text-muted-foreground">
+            Loading profiles...
+          </span>
         </div>
       ) : (
         <div className="flex flex-wrap gap-6 mt-4 mb-4">
-          {profiles?.map((profile) => <ProfileCard key={profile.id} profile={profile} />)}
+          {profiles?.map((profile) => (
+            <ProfileCard key={profile.id} profile={profile} />
+          ))}
         </div>
       )}
       <h2 className="text-2xl font-bold mb-4">Trend Analysis</h2>
