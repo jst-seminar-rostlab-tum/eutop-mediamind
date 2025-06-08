@@ -21,12 +21,11 @@ import { cn } from "~/lib/utils";
 import type { components } from "../../../../types/api-types-v1";
 import { useQuery } from "../../../../types/api";
 import { useAuthorization } from "~/hooks/use-authorization";
+import type { Profile } from "../../../../types/model";
 
 export interface GeneralProps {
-  profile: components["schemas"]["SearchProfileDetailResponse"];
-  setProfile: (
-    profile: components["schemas"]["SearchProfileDetailResponse"],
-  ) => void;
+  profile: Profile;
+  setProfile: (profile: Profile) => void;
 }
 
 export function General({ profile, setProfile }: GeneralProps) {
