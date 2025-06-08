@@ -85,11 +85,22 @@ class PDFService:
 
         # Generate cover page to separate PDF
         body = PDFService.__create_articles(news_items, dimensions)
-        cover = PDFService.__draw_cover_page(news_items, dimensions)
+        # Full Articles Section (one article per page)
+        full_articles = PDFService.__create_full_articles_section(news_items, dimensions)
         # Summaries Section (3-column layout)
         summaries = PDFService.__create_summaries_section(news_items, dimensions)
+        #Cover Page
+        cover = PDFService.__draw_cover_page(news_items, dimensions)
 
+        # Merge cover, summaries, and full articles
         merged = PDFService.__merge_pdfs_bytes(cover, summaries)
+        merged = PDFService.__merge_pdfs_bytes(merged, full_articles)
+        merged = PDFService.__merge_pdfs_bytes(merged, body)
+
+
+        return merged
+
+
         merged = PDFService.__merge_pdfs_bytes(merged, body)
         return merged
 
@@ -361,13 +372,66 @@ class PDFService:
             summary_text = news.content[:300].replace('\n', '<br/>')
             story.append(Paragraph(summary_text, summary_style))
             story.append(Spacer(1, 0.05 * inch))
-            # Placeholder link "Read full article"
-            story.append(Paragraph(f'<link href="{news.url}">Read full article</link>', link_style))
+            # "Read full article" links to the full article section in the PDF
+            #dest_name = f"full_{news.id}"
+            #story.append(Paragraph(f'<a href="#{dest_name}">Read full article</a>', link_style))
             story.append(Spacer(1, 0.15 * inch))
 
             if news != news_items[-1]:
                 story.append(HRFlowable(width="100%", thickness=1, color=colors.HexColor("#003366")))
                 story.append(Spacer(1, 0.2 * inch))
+
+        doc.build(story)
+        buffer.seek(0)
+        return buffer.getvalue()
+    
+
+    @staticmethod
+    def __create_full_articles_section(news_items: List[NewsItem], dimensions: tuple[float, float]) -> bytes:
+        buffer = BytesIO()
+        width, height = dimensions
+        doc = BaseDocTemplate(buffer, pagesize=A4, rightMargin=inch, leftMargin=inch, topMargin=inch, bottomMargin=inch)
+        frame = Frame(inch, inch, width - 2*inch, height - 2*inch, id='normal')
+
+        doc.addPageTemplates([PageTemplate(id='FullArticles', frames=[frame], onPage=PDFService.__draw_header_footer)])
+
+        styles = getSampleStyleSheet()
+        title_style = ParagraphStyle('Title', fontName="DVS-Bold", fontSize=18, leading=22, spaceAfter=12)
+        metadata_style = ParagraphStyle('Metadata', fontName="DVS-Oblique", fontSize=9, leading=12, textColor=colors.gray)
+        content_style = ParagraphStyle('Content', fontName="DVS", fontSize=11, leading=14)
+        link_style = ParagraphStyle('Link', fontName="DVS-Bold", fontSize=9, leading=12, textColor=colors.blue)
+
+        story = []
+
+        for idx, news in enumerate(news_items):
+            # Add named destination anchor before each full article
+            #dest_name = f"full_{news.id}"
+            #story.append(AnchorFlowable(dest_name))
+            # Title
+            story.append(Paragraph(news.title, title_style))
+            # Metadata line: word count, author, newspaper, date, keywords
+            word_count = len(news.content.split()) if news.content else 0
+            author = news.author or "Unknown author"
+            newspaper = news.newspaper or "Unknown newspaper"
+            pub_date_str = ""
+            if news.published_at:
+                try:
+                    dt = datetime.strptime(news.published_at.replace("Z", ""), "%Y-%m-%dT%H:%M:%S")
+                    pub_date_str = dt.strftime("%d %B %Y")
+                except Exception:
+                    pub_date_str = news.published_at
+            keywords_str = ", ".join(news.keywords) if news.keywords else ""
+            metadata_text = f"Words: {word_count} | Author: {author} | Newspaper: {newspaper} | Date: {pub_date_str} | Keywords: {keywords_str}"
+            story.append(Paragraph(metadata_text, metadata_style))
+            story.append(Spacer(1, 0.15 * inch))
+            # Content with line breaks preserved
+            content_text = news.content.replace('\n', '<br/>')
+            story.append(Paragraph(content_text, content_style))
+            story.append(Spacer(1, 0.15 * inch))
+            # Placeholder link "Read summary"
+            story.append(Paragraph('<u><font color="blue">Read summary</font></u>', link_style))
+            if idx != len(news_items) - 1:
+                story.append(PageBreak())
 
         doc.build(story)
         buffer.seek(0)
