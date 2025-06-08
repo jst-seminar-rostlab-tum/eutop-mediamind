@@ -10,12 +10,12 @@ from app.core.db import async_session
 from typing import Type
 from uuid import UUID
 
-from sqlalchemy.ext.asyncio import async_session
 from sqlalchemy.orm import selectinload
 from sqlmodel import and_, or_, select
 
 from app.models.search_profile import SearchProfile
 from app.schemas.search_profile_schemas import SearchProfileUpdateRequest
+from app.core.db import async_session
 
 
 class SearchProfileRepository:
@@ -82,9 +82,12 @@ class SearchProfileRepository:
 
     @staticmethod
     async def get_accessible_topics(
-        user_id: UUID, organization_id: UUID | None
+        user_id: UUID, organization_id: UUID | None, search_profile_ids: list[UUID] | None = None
     ) -> Tuple[str, str]:
         profiles = await SearchProfileRepository.get_accessible_profiles(user_id, organization_id)
+        # Filter profiles if specific IDs are provided
+        profiles = profiles if search_profile_ids is None else [p for p in profiles if p.id in search_profile_ids]
+
         async with async_session() as session:
             sql = text("""
             SELECT t.name, k.name
@@ -98,7 +101,6 @@ class SearchProfileRepository:
             )
 
             return (await session.execute(sql, {"profile_ids": [p.id for p in profiles]})).all()
-
 
 
     @staticmethod

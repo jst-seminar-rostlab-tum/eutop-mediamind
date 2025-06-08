@@ -1,5 +1,6 @@
 from uuid import UUID
 from fastapi import HTTPException
+from typing import List
 
 from app.models import SearchProfile
 from app.models.user import User
@@ -110,8 +111,8 @@ class SearchProfiles:
         return match is not None
 
     @staticmethod
-    async def get_keyword_sugestions(user: User) -> KeywordSuggestionResponse:
-        topics_and_keywords = await SearchProfileRepository.get_accessible_topics(user.id, user.organization_id)
+    async def get_keyword_sugestions(user: User, search_profiles: List[str]|None) -> KeywordSuggestionResponse:
+        topics_and_keywords = await SearchProfileRepository.get_accessible_topics(user.id, user.organization_id, search_profiles)
 
         # Avoid useless LLM calls if no topics are available
         if len(topics_and_keywords) == 0:
