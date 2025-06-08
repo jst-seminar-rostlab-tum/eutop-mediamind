@@ -1,12 +1,15 @@
-from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
-import time
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import TimeoutException
 import json
+import logging
+import time
 
+from selenium import webdriver
+from selenium.common.exceptions import TimeoutException
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 # Load credentials from JSON
 with open("app/services/newspapers_accounts.json", "r") as f:
@@ -27,13 +30,19 @@ try:
         EC.element_to_be_clickable((By.CLASS_NAME, "brlbs-cmpnt-w-4"))
     )
     close_svg_btn.click()
-    print("✅ Cookie modal closed via SVG.")
+    logger.info("Cookie modal closed via SVG.")
 except TimeoutException:
-    print("⚠️ SVG close button not found or already closed.")
+    logger.warning("SVG close button not found or already closed.")
 
 # Click login (if needed) Doesnt work
 login_button = WebDriverWait(driver, 2).until(
-    EC.element_to_be_clickable((By.XPATH, "//a[@href='https://www.platow.de/anmeldung/?redirectUrl=https%3A%2F%2Fwww.platow.de%2F']"))
+    EC.element_to_be_clickable(
+        (
+            By.XPATH,
+            "//a[@href='https://www.platow.de/anmeldung/"
+            "?redirectUrl=https%3A%2F%2Fwww.platow.de%2F']",
+        )
+    )
 )
 login_button.click()
 time.sleep(3)
@@ -49,16 +58,18 @@ driver.find_element(By.NAME, "login_form[_password]").send_keys(password)
 # Optional: click "Angemeldet bleiben" checkbox
 try:
     driver.find_element(By.ID, "login_form_rememberMe").click()
-except:
-    pass
+except Exception as e:
+    logger.warning(f"Could not click remember me checkbox: {str(e)}")
 
 # Submit the form via JavaScript to bypass disabled button issue
-driver.execute_script("document.querySelector('form[name=login_form]').submit();")
+driver.execute_script(
+    "document.querySelector('form[name=login_form]').submit();"
+)
 
 # Optional: wait and check login success
 time.sleep(2)
 
-# You’re in – proceed to scrape or navigate as needed
+# You're in – proceed to scrape or navigate as needed
 
 # Close the browser when done
 # driver.quit()
