@@ -13,6 +13,16 @@ import { useQuery } from "types/api";
 import { useEffect } from "react";
 import { toast } from "sonner";
 import { EditProfile } from "~/custom-components/profile/edit/edit-profile";
+import { sortBy } from "lodash-es";
+
+const suppressSWRReloading = {
+  refreshInterval: 0,
+  refreshWhenHidden: false,
+  revalidateOnFocus: false,
+  refreshWhenOffline: false,
+  revalidateIfStale: false,
+  revalidateOnReconnect: false,
+};
 
 export function DashboardPage() {
   const { authorizationHeaders } = useAuthorization();
@@ -21,32 +31,22 @@ export function DashboardPage() {
     data: profiles,
     isLoading,
     error,
+    mutate,
   } = useQuery(
     "/api/v1/search-profiles",
     {
       headers: authorizationHeaders,
     },
-    { refreshInterval: 0, refreshWhenHidden: false, revalidateOnFocus: false },
+    suppressSWRReloading,
   );
 
-  const { data: user, error: userError } = useQuery(
-    "/api/v1/users/me",
-    {
-      headers: authorizationHeaders,
-    },
-    { refreshInterval: 0, refreshWhenHidden: false, revalidateOnFocus: false },
-  );
+  const sortedProfiles = sortBy(profiles, "name");
 
   useEffect(() => {
     if (error) {
-      console.error("Failed to load profiles:", error);
       toast.error("Failed to load profiles.");
     }
-    if (userError) {
-      console.error("Failed to load user:", userError);
-      toast.error("Failed to load user data.");
-    }
-  }, [error, userError]);
+  }, [error]);
 
   return (
     <div className={" mx-auto w-full max-w-2xl xl:max-w-7xl mt-12"}>
@@ -70,17 +70,14 @@ export function DashboardPage() {
       </Button>
       <div className={"flex gap-5"}>
         <h2 className="text-2xl font-bold ">Profiles</h2>
-        {user?.organization_id && (
-          <EditProfile
-            mode="create"
-            organizationId={user.organization_id}
-            trigger={
-              <Button variant="outline" className={"size-8"}>
-                <Plus />
-              </Button>
-            }
-          />
-        )}
+        <EditProfile
+          mutateDashboard={mutate}
+          trigger={
+            <Button variant="outline" className={"size-8"}>
+              <Plus />
+            </Button>
+          }
+        />
       </div>
       {isLoading ? (
         <div className="flex items-center justify-center py-8">
@@ -91,8 +88,12 @@ export function DashboardPage() {
         </div>
       ) : (
         <div className="flex flex-wrap gap-6 mt-4 mb-4">
-          {profiles?.map((profile) => (
-            <ProfileCard key={profile.id} profile={profile} />
+          {sortedProfiles?.map((profile) => (
+            <ProfileCard
+              key={profile.id}
+              profile={profile}
+              mutateDashboard={mutate}
+            />
           ))}
         </div>
       )}

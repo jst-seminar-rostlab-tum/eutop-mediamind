@@ -1,5 +1,6 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo } from "react";
 import { cloneDeep, isEqual } from "lodash-es";
+import type { KeyedMutator } from "swr";
 import {
   Dialog,
   DialogTrigger,
@@ -18,31 +19,27 @@ import { Mailing } from "~/custom-components/profile/edit/mailing";
 import { Subscriptions } from "~/custom-components/profile/edit/subscriptions";
 import { ScrollArea } from "~/components/ui/scroll-area";
 import { General } from "~/custom-components/profile/edit/general";
-import { client, useMutate } from "../../../../types/api";
+import { client } from "../../../../types/api";
 import { useAuthorization } from "~/hooks/use-authorization";
-import type {
-  Profile,
-  ProfileUpdate,
-  ProfileCreate,
-} from "../../../../types/model";
+import type { Profile } from "../../../../types/model";
 import { toast } from "sonner";
 
 interface EditProfileProps {
   profile?: Profile;
   trigger: React.ReactElement;
-  mode?: "create" | "edit";
-  organizationId?: string;
+  mutateDashboard: KeyedMutator<Profile[]>;
 }
 
 export function EditProfile({
   profile,
   trigger,
-  mode,
-  organizationId,
+  mutateDashboard,
 }: EditProfileProps) {
-  const isCreating = !profile || mode === "create";
+  const isCreating = !profile;
 
-  const initialProfile = profile || {
+  const { authorizationHeaders, user } = useAuthorization();
+
+  const initialProfile: Profile = {
     id: "",
     name: "",
     public: false,
@@ -50,43 +47,22 @@ export function EditProfile({
     profile_emails: [],
     subscriptions: [],
     topics: [],
+    owner: user?.id ?? "",
+    editable: true,
+    is_editable: true,
+    is_owner: true,
+    new_articles_count: 0,
   };
 
   const [open, setOpen] = useState(false);
   const [isEditingName, setIsEditingName] = useState(isCreating);
-  const [profileName, setProfileName] = useState(initialProfile.name);
-  const [editedProfile, setEditedProfile] = useState(cloneDeep(initialProfile));
 
-  useEffect(() => {
-    if (!open && isCreating) {
-      setEditedProfile(cloneDeep(initialProfile));
-      setProfileName("");
-      setIsEditingName(true);
-    }
-  }, [open, isCreating]);
+  const [editedProfile, setEditedProfile] = useState<Profile>(
+    cloneDeep(profile ?? initialProfile),
+  );
+  const [profileName, setProfileName] = useState(editedProfile.name || "");
 
-  const transformToUpdateRequest = (profile: Profile): ProfileUpdate => {
-    return {
-      name: profile.name,
-      public: profile.public,
-      organization_emails: profile.organization_emails,
-      profile_emails: profile.profile_emails,
-      subscriptions: profile.subscriptions,
-      topics: profile.topics,
-    };
-  };
-
-  const transformToCreateRequest = (profile: Profile): ProfileCreate => {
-    return {
-      name: profile.name,
-      public: profile.public,
-      organization_emails: profile.organization_emails,
-      profile_emails: profile.profile_emails,
-      subscriptions: profile.subscriptions,
-      topics: profile.topics,
-      organization_id: organizationId!,
-    };
-  };
+  const [isSaving, setIsSaving] = useState(false);
 
   const handleNameSave = () => {
     if (isCreating && !profileName.trim()) {
@@ -102,42 +78,63 @@ export function EditProfile({
     setIsEditingName(false);
   };
 
-  const [isSaving, setIsSaving] = useState(false);
-  const { authorizationHeaders } = useAuthorization();
-  const mutate = useMutate();
-
   const isValid = useMemo(() => {
     if (isCreating) {
-      return profileName.trim().length > 0 && organizationId;
+      return profileName.trim().length > 0;
     }
     return !isEqual(initialProfile, editedProfile);
-  }, [isCreating, profileName, initialProfile, editedProfile, organizationId]);
+  }, [isCreating, profileName, initialProfile, editedProfile]);
 
   const handleSave = async () => {
     setIsSaving(true);
     try {
+      const requestData = {
+        name: editedProfile.name,
+        public: editedProfile.public,
+        organization_emails: editedProfile.organization_emails,
+        profile_emails: editedProfile.profile_emails,
+        subscriptions: editedProfile.subscriptions,
+        topics: editedProfile.topics,
+        owner: editedProfile.owner,
+      };
+
       if (isCreating) {
-        const createRequest = transformToCreateRequest(editedProfile);
-        await client.POST("/api/v1/search-profiles", {
-          body: createRequest,
+        const result = await client.POST("/api/v1/search-profiles", {
+          body: requestData,
           headers: authorizationHeaders,
         });
+        mutateDashboard(
+          (profiles) =>
+            [result.data as Profile, ...(profiles ?? [])].filter(Boolean),
+          { revalidate: false },
+        );
         toast.success("Profile created successfully", {
           description: "Your new profile has been created.",
         });
       } else {
-        const updateRequest = transformToUpdateRequest(editedProfile);
-        await client.PUT("/api/v1/search-profiles/{search_profile_id}", {
-          params: { path: { search_profile_id: profile!.id } },
-          body: updateRequest,
-          headers: authorizationHeaders,
-        });
+        const result = await client.PUT(
+          "/api/v1/search-profiles/{search_profile_id}",
+          {
+            params: { path: { search_profile_id: profile!.id } },
+            body: requestData,
+            headers: authorizationHeaders,
+          },
+        );
+        mutateDashboard(
+          (profiles) => {
+            const filteredProfiles =
+              profiles?.filter((p) => p.id !== profile!.id) ?? [];
+            return [result.data as Profile, ...filteredProfiles].filter(
+              Boolean,
+            );
+          },
+          { revalidate: false },
+        );
         toast.success("Profile updated successfully", {
           description: "Your changes have been saved.",
         });
       }
 
-      await mutate(["/api/v1/search-profiles"]);
       setOpen(false);
     } catch (error) {
       console.error(error);
@@ -146,6 +143,12 @@ export function EditProfile({
       });
     } finally {
       setIsSaving(false);
+      // reset component state
+      if (isCreating) {
+        setEditedProfile(cloneDeep(profile ?? initialProfile));
+        setProfileName("");
+        setIsEditingName(true);
+      }
     }
   };
 

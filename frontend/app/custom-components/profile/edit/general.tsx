@@ -18,10 +18,11 @@ import {
 } from "~/components/ui/command";
 import * as React from "react";
 import { cn } from "~/lib/utils";
-import type { components } from "../../../../types/api-types-v1";
 import { useQuery } from "../../../../types/api";
 import { useAuthorization } from "~/hooks/use-authorization";
-import type { Profile } from "../../../../types/model";
+import type { MediamindUser, Profile } from "../../../../types/model";
+import { useEffect } from "react";
+import { toast } from "sonner";
 
 export interface GeneralProps {
   profile: Profile;
@@ -34,13 +35,18 @@ export function General({ profile, setProfile }: GeneralProps) {
   const {
     data: userData,
     isLoading,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     error,
   } = useQuery("/api/v1/users", {
     headers: authorizationHeaders,
   });
 
-  const users: components["schemas"]["User"][] = React.useMemo(() => {
+  useEffect(() => {
+    if (error) {
+      toast.error("Failed to load users.");
+    }
+  }, [error]);
+
+  const users: MediamindUser[] = React.useMemo(() => {
     if (!userData) {
       return [];
     }
@@ -52,7 +58,7 @@ export function General({ profile, setProfile }: GeneralProps) {
 
   const [open, setOpen] = React.useState(false);
 
-  const selectedUser = users.find((user) => user.clerk_id === profile.owner);
+  const selectedUser = users.find((user) => user.id === profile.owner);
 
   const selectedUserLabel = selectedUser
     ? `${selectedUser.first_name} ${selectedUser.last_name}`
@@ -90,8 +96,8 @@ export function General({ profile, setProfile }: GeneralProps) {
                     <CommandGroup>
                       {users.map((user) => (
                         <CommandItem
-                          key={user.clerk_id}
-                          value={user.clerk_id}
+                          key={user.id}
+                          value={user.id}
                           onSelect={(currentValue) => {
                             setProfile({ ...profile, owner: currentValue });
                             setOpen(false);
@@ -101,7 +107,7 @@ export function General({ profile, setProfile }: GeneralProps) {
                           <Check
                             className={cn(
                               "ml-auto",
-                              profile.owner === user.clerk_id
+                              profile.owner === user.id
                                 ? "opacity-100"
                                 : "opacity-0",
                             )}
