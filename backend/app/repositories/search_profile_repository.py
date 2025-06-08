@@ -15,7 +15,6 @@ from sqlmodel import and_, or_, select
 
 from app.models.search_profile import SearchProfile
 from app.schemas.search_profile_schemas import SearchProfileUpdateRequest
-from app.core.db import async_session
 
 
 class SearchProfileRepository:
