@@ -111,7 +111,7 @@ class SearchProfiles:
         return match is not None
 
     @staticmethod
-    async def get_keyword_sugestions(user: User, search_profiles: List[str]|None) -> KeywordSuggestionResponse:
+    async def get_keyword_sugestions(user: User, search_profiles: List[UUID]|None) -> KeywordSuggestionResponse:
         topics_and_keywords = await SearchProfileRepository.get_accessible_topics(user.id, user.organization_id, search_profiles)
 
         # Avoid useless LLM calls if no topics are available

@@ -39,7 +39,7 @@ async def add_search_profile(
 
 @router.get("/suggestions", response_model=KeywordSuggestionResponse)
 async def get_keyword_sugestions(
-    search_profiles: Annotated[list[str] | None, Query()] = None,
+    search_profiles: Annotated[list[UUID] | None, Query()] = None,
     current_user: User=Depends(get_authenticated_user)
 ) -> KeywordSuggestionResponse:
     return await SearchProfiles.get_keyword_sugestions(current_user, search_profiles)
