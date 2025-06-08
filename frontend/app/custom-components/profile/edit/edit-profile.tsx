@@ -156,7 +156,11 @@ export function EditProfile({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{trigger}</DialogTrigger>
 
-      <DialogContent className={"min-w-1/2 rounded-3xl max-h-3/4"}>
+      <DialogContent
+        className={
+          "grid-rows-[auto_1fr_auto] gap-8 min-w-1/2 rounded-3xl h-3/4"
+        }
+      >
         <DialogHeader>
           <div className={"flex items-center gap-3"}>
             {isEditingName ? (
@@ -211,29 +215,29 @@ export function EditProfile({
           </div>
         </DialogHeader>
 
-        <ScrollArea className="max-h-[60vh] pr-4">
-          <Tabs defaultValue="general" className="w-full">
-            <TabsList className="grid w-full grid-cols-4">
-              <TabsTrigger value="general" className="flex items-center gap-2">
-                <Settings className="h-5 w-5" />
-                <span>General</span>
-              </TabsTrigger>
-              <TabsTrigger value="topics" className="flex items-center gap-2">
-                <Book className="h-5 w-5" />
-                <span>Topics</span>
-              </TabsTrigger>
-              <TabsTrigger value="mailing" className="flex items-center gap-2">
-                <Mail className="h-5 w-5" />
-                <span>Mailing</span>
-              </TabsTrigger>
-              <TabsTrigger
-                value="subscriptions"
-                className="flex items-center gap-2"
-              >
-                <Newspaper className="h-5 w-5" />
-                <span>Subscriptions</span>
-              </TabsTrigger>
-            </TabsList>
+        <Tabs defaultValue="general" className="w-full">
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="general" className="flex items-center gap-2">
+              <Settings className="h-5 w-5" />
+              <span>General</span>
+            </TabsTrigger>
+            <TabsTrigger value="topics" className="flex items-center gap-2">
+              <Book className="h-5 w-5" />
+              <span>Topics</span>
+            </TabsTrigger>
+            <TabsTrigger value="mailing" className="flex items-center gap-2">
+              <Mail className="h-5 w-5" />
+              <span>Mailing</span>
+            </TabsTrigger>
+            <TabsTrigger
+              value="subscriptions"
+              className="flex items-center gap-2"
+            >
+              <Newspaper className="h-5 w-5" />
+              <span>Subscriptions</span>
+            </TabsTrigger>
+          </TabsList>
+          <ScrollArea className="max-h-[60vh] pr-4">
             <TabsContent value="general">
               <General profile={editedProfile} setProfile={setEditedProfile} />
             </TabsContent>
@@ -252,8 +256,9 @@ export function EditProfile({
                 setProfile={setEditedProfile}
               />
             </TabsContent>
-          </Tabs>
-        </ScrollArea>
+          </ScrollArea>
+        </Tabs>
+
         <div className="flex justify-end">
           <Button type="button" disabled={!isValid} onClick={handleSave}>
             {isSaving
