@@ -3,6 +3,7 @@ from uuid import UUID
 
 from fastapi import HTTPException
 
+from app.core.db import async_session
 from app.models import SearchProfile, Topic, User
 from app.repositories.match_repository import MatchRepository
 from app.repositories.match_repositoy import (
@@ -10,8 +11,8 @@ from app.repositories.match_repositoy import (
 )
 from app.repositories.search_profile_repository import (
     create_profile_with_request,
+    get_accessible_profile_by_id,
     get_accessible_profiles,
-    get_search_profile_by_id,
     update_profile_with_request,
 )
 from app.repositories.subscription_repository import (
@@ -50,10 +51,20 @@ class SearchProfileService:
     async def get_search_profile_by_id(
         search_profile_id: UUID, current_user: User
     ) -> SearchProfileDetailResponse | None:
-        profiles = await SearchProfileService.get_available_search_profiles(
-            current_user
-        )
-        return next((p for p in profiles if p.id == search_profile_id), None)
+        async with async_session() as session:
+            profile = await get_accessible_profile_by_id(
+                search_profile_id=search_profile_id,
+                user_id=current_user.id,
+                organization_id=current_user.organization_id,
+                session=session,
+            )
+
+            if profile is None:
+                return None
+
+            return await SearchProfileService._build_profile_response(
+                profile, current_user
+            )
 
     @staticmethod
     async def get_available_search_profiles(
@@ -143,28 +154,39 @@ class SearchProfileService:
         update_data: SearchProfileUpdateRequest,
         current_user: User,
     ) -> SearchProfileDetailResponse:
-        db_profile = await get_search_profile_by_id(
-            search_profile_id, current_user
-        )
-        if not db_profile:
-            raise HTTPException(status_code=404, detail="Profile not found")
-
-        if (
-            not db_profile.is_public
-            and db_profile.organization_id != current_user.organization_id
-        ) or (
-            db_profile.created_by_id != current_user.id
-            and not current_user.is_superuser
-        ):
-            raise HTTPException(
-                status_code=403, detail="Not allowed to edit this profile"
+        async with async_session() as session:
+            db_profile = await get_accessible_profile_by_id(
+                search_profile_id=search_profile_id,
+                user_id=current_user.id,
+                organization_id=current_user.organization_id,
+                session=session,
             )
 
-        await update_profile_with_request(db_profile, update_data)
+            if not db_profile:
+                raise HTTPException(
+                    status_code=404, detail="Profile not found"
+                )
 
-        return await SearchProfileService._build_profile_response(
-            db_profile, current_user
-        )
+            if (
+                not db_profile.is_public
+                and db_profile.organization_id != current_user.organization_id
+            ) or (
+                db_profile.created_by_id != current_user.id
+                and not current_user.is_superuser
+            ):
+                raise HTTPException(
+                    status_code=403, detail="Not allowed to edit this profile"
+                )
+
+            await update_profile_with_request(
+                profile=db_profile,
+                update_data=update_data,
+                session=session,
+            )
+
+            return await SearchProfileService._build_profile_response(
+                db_profile, current_user
+            )
 
     @staticmethod
     async def get_article_overview(

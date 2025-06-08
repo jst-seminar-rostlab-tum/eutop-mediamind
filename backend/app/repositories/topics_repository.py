@@ -59,77 +59,78 @@ class TopicsRepository:
 
     @staticmethod
     async def update_topics(
-        profile: SearchProfile,
-        new_topics: list[TopicCreateOrUpdateRequest],
+            profile: SearchProfile,
+            new_topics: list[TopicCreateOrUpdateRequest],
+            session
     ):
-        async with async_session() as session:
-            # Load profile with topics and their keywords
-            profile = await session.get(
-                SearchProfile,
-                profile.id,
-                options=[
-                    selectinload(SearchProfile.topics).selectinload(
-                        Topic.keywords
+        profile = await session.get(
+            SearchProfile,
+            profile.id,
+            options=[
+                selectinload(SearchProfile.topics).selectinload(Topic.keywords),
+            ],
+        )
+
+        new_topic_names = {t.name for t in new_topics}
+
+        # Step 1: Delete removed topics
+        for existing_topic in profile.topics:
+            if existing_topic.name not in new_topic_names:
+                await session.execute(
+                    delete(TopicKeywordLink).where(
+                        TopicKeywordLink.topic_id == existing_topic.id
                     )
-                ],
-            )
+                )
+                await session.delete(existing_topic)
 
-            # Create lookup for existing topics by name
-            existing_topic_map = {
-                topic.name: topic for topic in profile.topics
-            }
-            new_topic_names = {t.name for t in new_topics}
+        await session.commit()
 
-            # Step 1: Delete removed topics
-            for existing_topic in profile.topics:
-                if existing_topic.name not in new_topic_names:
-                    await session.execute(
-                        delete(TopicKeywordLink).where(
-                            TopicKeywordLink.topic_id == existing_topic.id
-                        )
+        #SAFE: reload profile with topics and keywords
+        profile = await session.get(
+            SearchProfile,
+            profile.id,
+            options=[
+                selectinload(SearchProfile.topics).selectinload(Topic.keywords),
+            ],
+        )
+
+        # Rebuild topic lookup with only the remaining topics
+        existing_topic_map = {topic.name: topic for topic in profile.topics}
+
+        # Preload keywords
+        result = await session.execute(select(Keyword))
+        existing_keywords: dict[str, Keyword] = {
+            keyword.name: keyword for keyword in result.scalars().all()
+        }
+
+        # Step 2: Add or update topics
+        for topic_data in new_topics:
+            existing_topic = existing_topic_map.get(topic_data.name)
+
+            if existing_topic:
+                await session.execute(
+                    delete(TopicKeywordLink).where(
+                        TopicKeywordLink.topic_id == existing_topic.id
                     )
-                    await session.delete(existing_topic)
+                )
+                topic = existing_topic
+            else:
+                topic = Topic(
+                    name=topic_data.name,
+                    search_profile_id=profile.id,
+                )
+                session.add(topic)
+                await session.flush()
 
-            await session.commit()
-
-            # Preload all keywords
-            result = await session.execute(select(Keyword))
-            existing_keywords: dict[str, Keyword] = {
-                keyword.name: keyword for keyword in result.scalars().all()
-            }
-
-            # Step 2: Add or update new topics
-            for topic_data in new_topics:
-                existing_topic = existing_topic_map.get(topic_data.name)
-
-                if existing_topic:
-                    # If topic exists, delete old links
-                    await session.execute(
-                        delete(TopicKeywordLink).where(
-                            TopicKeywordLink.topic_id == existing_topic.id
-                        )
-                    )
-                    topic = existing_topic
-                else:
-                    # Create new topic
-                    topic = Topic(
-                        name=topic_data.name, search_profile_id=profile.id
-                    )
-                    session.add(topic)
+            for keyword_name in topic_data.keywords:
+                keyword = existing_keywords.get(keyword_name)
+                if not keyword:
+                    keyword = Keyword(name=keyword_name)
+                    session.add(keyword)
                     await session.flush()
+                    existing_keywords[keyword_name] = keyword
 
-                # Add new or reused keywords
-                for keyword_name in topic_data.keywords:
-                    keyword = existing_keywords.get(keyword_name)
-                    if not keyword:
-                        keyword = Keyword(name=keyword_name)
-                        session.add(keyword)
-                        await session.flush()
-                        existing_keywords[keyword_name] = keyword
+                session.add(TopicKeywordLink(topic_id=topic.id, keyword_id=keyword.id))
 
-                    link = TopicKeywordLink(
-                        topic_id=topic.id, keyword_id=keyword.id
-                    )
-                    session.add(link)
+        await session.commit()
 
-            await session.commit()

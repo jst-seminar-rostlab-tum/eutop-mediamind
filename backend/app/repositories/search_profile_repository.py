@@ -92,6 +92,33 @@ async def get_accessible_profiles(
         return result.unique().scalars().all()
 
 
+async def get_accessible_profile_by_id(
+    search_profile_id: UUID, user_id: UUID, organization_id: UUID, session
+) -> SearchProfile | None:
+    query = (
+        select(SearchProfile)
+        .options(
+            selectinload(SearchProfile.users),
+            selectinload(SearchProfile.topics).selectinload(
+                SearchProfile.topics.property.mapper.class_.keywords
+            ),
+        )
+        .where(
+            SearchProfile.id == search_profile_id,
+            or_(
+                SearchProfile.created_by_id == user_id,
+                SearchProfile.users.any(User.id == user_id),
+                and_(
+                    SearchProfile.organization_id == organization_id,
+                    SearchProfile.is_public,
+                ),
+            ),
+        )
+    )
+    result = await session.execute(query)
+    return result.scalar_one_or_none()
+
+
 async def get_search_profile_by_id(
     search_profile_id: UUID, current_user: User
 ) -> SearchProfile | None:
@@ -112,26 +139,33 @@ async def get_search_profile_by_id(
 async def update_profile_with_request(
     profile: SearchProfile,
     update_data: SearchProfileUpdateRequest,
+    session,
 ):
-    async with async_session() as session:
-        # Update base fields
-        profile.name = update_data.name
-        profile.is_public = update_data.public
+    # Update base fields
+    profile.name = update_data.name
+    profile.is_public = update_data.public
 
-        await set_subscriptions_for_profile(
-            profile_id=profile.id, subscriptions=update_data.subscriptions
-        )
+    await set_subscriptions_for_profile(
+        profile_id=profile.id,
+        subscriptions=update_data.subscriptions,
+        session=session,
+    )
 
-        await TopicsRepository.update_topics(profile, update_data.topics)
-        await update_emails(
-            profile,
-            update_data.organization_emails,
-            update_data.profile_emails,
-        )
+    await TopicsRepository.update_topics(
+        profile=profile,
+        new_topics=update_data.topics,
+        session=session,
+    )
 
-        session.add(profile)
-        await session.commit()
-        await session.refresh(profile)
+    await update_emails(
+        profile,
+        update_data.organization_emails,
+        update_data.profile_emails,
+    )
+
+    session.add(profile)
+    await session.commit()
+    await session.refresh(profile)
 
 
 async def update_emails(
