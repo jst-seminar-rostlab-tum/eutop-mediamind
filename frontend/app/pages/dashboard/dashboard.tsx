@@ -29,12 +29,24 @@ export function DashboardPage() {
     { refreshInterval: 0, refreshWhenHidden: false, revalidateOnFocus: false },
   );
 
+  const { data: user, error: userError } = useQuery(
+    "/api/v1/users/me",
+    {
+      headers: authorizationHeaders,
+    },
+    { refreshInterval: 0, refreshWhenHidden: false, revalidateOnFocus: false },
+  );
+
   useEffect(() => {
     if (error) {
       console.error("Failed to load profiles:", error);
       toast.error("Failed to load profiles.");
     }
-  }, [error]);
+    if (userError) {
+      console.error("Failed to load user:", userError);
+      toast.error("Failed to load user data.");
+    }
+  }, [error, userError]);
 
   return (
     <div className={" mx-auto w-full max-w-2xl xl:max-w-7xl mt-12"}>
@@ -58,17 +70,17 @@ export function DashboardPage() {
       </Button>
       <div className={"flex gap-5"}>
         <h2 className="text-2xl font-bold ">Profiles</h2>
-        <Button variant="outline" className={"size-8"}>
+        {user?.organization_id && (
           <EditProfile
             mode="create"
-            organizationId="3fa85f64-5717-4562-b3fc-2c963f66afa6" //TODO
+            organizationId={user.organization_id}
             trigger={
               <Button variant="outline" className={"size-8"}>
                 <Plus />
               </Button>
             }
           />
-        </Button>
+        )}
       </div>
       {isLoading ? (
         <div className="flex items-center justify-center py-8">
