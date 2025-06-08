@@ -7,7 +7,7 @@ from reportlab.lib.units import inch
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib import colors
 from reportlab.graphics import renderPDF
-from reportlab.platypus import Paragraph, Spacer, Frame, PageTemplate, Spacer, Image, BaseDocTemplate, HRFlowable
+from reportlab.platypus import Paragraph, Spacer, Frame, PageTemplate, Spacer, Image, BaseDocTemplate, HRFlowable, PageBreak
 from reportlab.platypus.flowables import AnchorFlowable
 from reportlab.lib.styles import ParagraphStyle
 from reportlab.pdfbase import pdfmetrics
@@ -81,12 +81,17 @@ class PDFService:
         logger.info("Articles chosen before PDF Generation:")
         for news in news_items:
             logger.info(f"Processing news item: {news.id}")
+            logger.info(f"Title: {news.title} Summary: {news.summary[:50]}...")
 
         # Generate cover page to separate PDF
         body = PDFService.__create_articles(news_items, dimensions)
         cover = PDFService.__draw_cover_page(news_items, dimensions)
+        # Summaries Section (3-column layout)
+        summaries = PDFService.__create_summaries_section(news_items, dimensions)
 
-        return PDFService.__merge_pdfs_bytes(cover, body)
+        merged = PDFService.__merge_pdfs_bytes(cover, summaries)
+        merged = PDFService.__merge_pdfs_bytes(merged, body)
+        return merged
 
 
     # This function wraps text to a specified width, ensuring that it fits within the PDF layout.
@@ -304,6 +309,67 @@ class PDFService:
         doc.addPageTemplates([PageTemplate(id='ThreeCol', frames=frames, onPage=PDFService.__draw_header_footer)])
         doc.build(story)
 
+        buffer.seek(0)
+        return buffer.getvalue()
+
+    @staticmethod
+    def __create_summaries_section(news_items: List[NewsItem], dimensions: tuple[float, float]) -> bytes:
+        buffer = BytesIO()
+        width, height = dimensions
+        column_width = (width - 2 * inch) / 3
+        gutter = 0.15 * inch
+        top_margin = 1.25 * inch
+        bottom_margin = 1.0 * inch
+        content_height = height - top_margin - bottom_margin
+        col_x = [inch + (column_width + gutter) * i for i in range(3)]
+        frames = [Frame(x, bottom_margin, column_width, content_height, id=f'col{i}', showBoundary=0) for i, x in enumerate(col_x)]
+        doc = BaseDocTemplate(buffer, pagesize=A4, rightMargin=inch, leftMargin=inch, topMargin=top_margin, bottomMargin=bottom_margin)
+        doc.addPageTemplates([PageTemplate(id='SummariesThreeCol', frames=frames, onPage=PDFService.__draw_header_footer)])
+
+        styles = getSampleStyleSheet()
+
+        newspaper_style = ParagraphStyle('Newspaper', fontName="DVS-Bold", fontSize=9, leading=11, textColor=colors.HexColor("#003366"))
+        keywords_style = ParagraphStyle('Keywords', fontName="DVS-Oblique", fontSize=8, leading=10, textColor=colors.HexColor("#003366"))
+        date_style = ParagraphStyle('Date', fontName="DVS-Oblique", fontSize=8, leading=10, textColor=colors.gray)
+        summary_style = ParagraphStyle('Summary', fontName="DVS", fontSize=9, leading=12)
+        link_style = ParagraphStyle('Link', fontName="DVS-Bold", fontSize=8, leading=10, textColor=colors.blue)
+
+        story = []
+
+        for news in news_items:
+            # Newspaper
+            story.append(Paragraph(news.title or "", newspaper_style))
+            # # Keywords if they want to be displayed
+            # keywords_str = ", ".join(news.keywords) if news.keywords else ""
+            # story.append(Paragraph(keywords_str, keywords_style))
+            #Newspaper
+            story.append(Spacer(1, 0.05 * inch))
+            story.append(Paragraph(f'<link href="{news.url}">{news.newspaper}</link>' or "", keywords_style))
+            # Published date
+            pub_date_str = ""
+            if news.published_at:
+                try:
+                    dt = datetime.strptime(news.published_at.replace("Z", ""), "%Y-%m-%dT%H:%M:%S")
+                    pub_date_str = dt.strftime("%d %B %Y at %H:%M")
+                except Exception:
+                    pub_date_str = news.published_at
+            story.append(Paragraph(pub_date_str, date_style))
+            story.append(Spacer(1, 0.05 * inch))
+            # Summary with line breaks preserved
+            # Replace line breaks with <br/> for Paragraph
+            #We take the first 500 characters of the content since many articles have no summary
+            summary_text = news.content[:300].replace('\n', '<br/>')
+            story.append(Paragraph(summary_text, summary_style))
+            story.append(Spacer(1, 0.05 * inch))
+            # Placeholder link "Read full article"
+            story.append(Paragraph(f'<link href="{news.url}">Read full article</link>', link_style))
+            story.append(Spacer(1, 0.15 * inch))
+
+            if news != news_items[-1]:
+                story.append(HRFlowable(width="100%", thickness=1, color=colors.HexColor("#003366")))
+                story.append(Spacer(1, 0.2 * inch))
+
+        doc.build(story)
         buffer.seek(0)
         return buffer.getvalue()
 
