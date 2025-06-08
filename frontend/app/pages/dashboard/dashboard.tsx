@@ -12,6 +12,7 @@ import { useAuthorization } from "~/hooks/use-authorization";
 import { useQuery } from "types/api";
 import { useEffect } from "react";
 import { toast } from "sonner";
+import { EditProfile } from "~/custom-components/profile/edit/edit-profile";
 
 export function DashboardPage() {
   const { authorizationHeaders } = useAuthorization();
@@ -58,7 +59,15 @@ export function DashboardPage() {
       <div className={"flex gap-5"}>
         <h2 className="text-2xl font-bold ">Profiles</h2>
         <Button variant="outline" className={"size-8"}>
-          <Plus />
+          <EditProfile
+            mode="create"
+            organizationId="3fa85f64-5717-4562-b3fc-2c963f66afa6" //TODO
+            trigger={
+              <Button variant="outline" className={"size-8"}>
+                <Plus />
+              </Button>
+            }
+          />
         </Button>
       </div>
       {isLoading ? (

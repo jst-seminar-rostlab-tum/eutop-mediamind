@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { cloneDeep, isEqual } from "lodash-es";
 import {
   Dialog,
@@ -20,18 +20,50 @@ import { ScrollArea } from "~/components/ui/scroll-area";
 import { General } from "~/custom-components/profile/edit/general";
 import { client, useMutate } from "../../../../types/api";
 import { useAuthorization } from "~/hooks/use-authorization";
-import type { Profile, ProfileUpdate } from "../../../../types/model";
+import type {
+  Profile,
+  ProfileUpdate,
+  ProfileCreate,
+} from "../../../../types/model";
 import { toast } from "sonner";
 
 interface EditProfileProps {
-  profile: Profile;
+  profile?: Profile;
   trigger: React.ReactElement;
+  mode?: "create" | "edit";
+  organizationId?: string;
 }
 
-export function EditProfile({ profile, trigger }: EditProfileProps) {
-  const [isEditingName, setIsEditingName] = useState(false);
-  const [profileName, setProfileName] = useState(profile.name);
-  const [editedProfile, setEditedProfile] = useState(cloneDeep(profile));
+export function EditProfile({
+  profile,
+  trigger,
+  mode,
+  organizationId,
+}: EditProfileProps) {
+  const isCreating = !profile || mode === "create";
+
+  const initialProfile = profile || {
+    id: "",
+    name: "",
+    public: false,
+    organization_emails: [],
+    profile_emails: [],
+    subscriptions: [],
+    topics: [],
+  };
+
+  const [open, setOpen] = useState(false);
+  const [isEditingName, setIsEditingName] = useState(isCreating);
+  const [profileName, setProfileName] = useState(initialProfile.name);
+  const [editedProfile, setEditedProfile] = useState(cloneDeep(initialProfile));
+
+  useEffect(() => {
+    if (!open && isCreating) {
+      setEditedProfile(cloneDeep(initialProfile));
+      setProfileName("");
+      setIsEditingName(true);
+    }
+  }, [open, isCreating]);
 
   const transformToUpdateRequest = (profile: Profile): ProfileUpdate => {
     return {
@@ -44,7 +76,23 @@ export function EditProfile({ profile, trigger }: EditProfileProps) {
     };
   };
 
+  const transformToCreateRequest = (profile: Profile): ProfileCreate => {
+    return {
+      name: profile.name,
+      public: profile.public,
+      organization_emails: profile.organization_emails,
+      profile_emails: profile.profile_emails,
+      subscriptions: profile.subscriptions,
+      topics: profile.topics,
+      organization_id: organizationId!,
+    };
+  };
+
   const handleNameSave = () => {
+    if (isCreating && !profileName.trim()) {
+      toast.error("Profile name is required");
+      return;
+    }
     setIsEditingName(false);
     setEditedProfile({ ...editedProfile, name: profileName });
   };
@@ -58,23 +106,43 @@ export function EditProfile({ profile, trigger }: EditProfileProps) {
   const { authorizationHeaders } = useAuthorization();
   const mutate = useMutate();
 
+  const isValid = useMemo(() => {
+    if (isCreating) {
+      return profileName.trim().length > 0 && organizationId;
+    }
+    return !isEqual(initialProfile, editedProfile);
+  }, [isCreating, profileName, initialProfile, editedProfile, organizationId]);
+
   const handleSave = async () => {
     setIsSaving(true);
     try {
-      const updateRequest = transformToUpdateRequest(editedProfile);
-      toast.success("Profile updated successfully", {
-        description: "Your changes have been saved.",
-      });
-      await client.PUT("/api/v1/search-profiles/{search_profile_id}", {
-        params: { path: { search_profile_id: profile.id } },
-        body: updateRequest,
-        headers: authorizationHeaders,
-      });
+      if (isCreating) {
+        const createRequest = transformToCreateRequest(editedProfile);
+        await client.POST("/api/v1/search-profiles", {
+          body: createRequest,
+          headers: authorizationHeaders,
+        });
+        toast.success("Profile created successfully", {
+          description: "Your new profile has been created.",
+        });
+      } else {
+        const updateRequest = transformToUpdateRequest(editedProfile);
+        await client.PUT("/api/v1/search-profiles/{search_profile_id}", {
+          params: { path: { search_profile_id: profile!.id } },
+          body: updateRequest,
+          headers: authorizationHeaders,
+        });
+        toast.success("Profile updated successfully", {
+          description: "Your changes have been saved.",
+        });
+      }
+
       await mutate(["/api/v1/search-profiles"]);
+      setOpen(false);
     } catch (error) {
       console.error(error);
-      toast.error("Profile update failed", {
-        description: "Your changes have not been saved.",
+      toast.error(`Profile ${isCreating ? "creation" : "update"} failed`, {
+        description: `Your ${isCreating ? "new profile has not been created" : "changes have not been saved"}.`,
       });
     } finally {
       setIsSaving(false);
@@ -82,7 +150,7 @@ export function EditProfile({ profile, trigger }: EditProfileProps) {
   };
 
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{trigger}</DialogTrigger>
 
       <DialogContent className={"min-w-1/2 rounded-3xl max-h-3/4"}>
@@ -91,7 +159,7 @@ export function EditProfile({ profile, trigger }: EditProfileProps) {
             {isEditingName ? (
               <div className="flex items-center gap-2 flex-1">
                 <span className="text-xl font-semibold">
-                  {!profile.name ? "Create" : "Edit"} Profile:
+                  {isCreating ? "Create" : "Edit"} Profile:
                 </span>
                 <Input
                   value={profileName ?? ""}
@@ -124,7 +192,8 @@ export function EditProfile({ profile, trigger }: EditProfileProps) {
             ) : (
               <div className="flex items-center gap-2">
                 <DialogTitle className={"text-xl"}>
-                  {!profile.name ? "Create" : "Edit"} Profile: {profileName}
+                  {isCreating ? "Create" : "Edit"} Profile:{" "}
+                  {profileName || "New Profile"}
                 </DialogTitle>
                 <Button
                   size="sm"
@@ -183,12 +252,14 @@ export function EditProfile({ profile, trigger }: EditProfileProps) {
           </Tabs>
         </ScrollArea>
         <div className="flex justify-end">
-          <Button
-            type="button"
-            disabled={isEqual(profile, editedProfile)}
-            onClick={handleSave}
-          >
-            {isSaving ? "Saving..." : "Save changes"}
+          <Button type="button" disabled={!isValid} onClick={handleSave}>
+            {isSaving
+              ? isCreating
+                ? "Creating..."
+                : "Saving..."
+              : isCreating
+                ? "Create Profile"
+                : "Save Changes"}
           </Button>
         </div>
       </DialogContent>
