@@ -59,15 +59,17 @@ class TopicsRepository:
 
     @staticmethod
     async def update_topics(
-            profile: SearchProfile,
-            new_topics: list[TopicCreateOrUpdateRequest],
-            session
+        profile: SearchProfile,
+        new_topics: list[TopicCreateOrUpdateRequest],
+        session,
     ):
         profile = await session.get(
             SearchProfile,
             profile.id,
             options=[
-                selectinload(SearchProfile.topics).selectinload(Topic.keywords),
+                selectinload(SearchProfile.topics).selectinload(
+                    Topic.keywords
+                ),
             ],
         )
 
@@ -85,12 +87,14 @@ class TopicsRepository:
 
         await session.commit()
 
-        #SAFE: reload profile with topics and keywords
+        # SAFE: reload profile with topics and keywords
         profile = await session.get(
             SearchProfile,
             profile.id,
             options=[
-                selectinload(SearchProfile.topics).selectinload(Topic.keywords),
+                selectinload(SearchProfile.topics).selectinload(
+                    Topic.keywords
+                ),
             ],
         )
 
@@ -130,7 +134,8 @@ class TopicsRepository:
                     await session.flush()
                     existing_keywords[keyword_name] = keyword
 
-                session.add(TopicKeywordLink(topic_id=topic.id, keyword_id=keyword.id))
+                session.add(
+                    TopicKeywordLink(topic_id=topic.id, keyword_id=keyword.id)
+                )
 
         await session.commit()
-
