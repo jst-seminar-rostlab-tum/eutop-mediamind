@@ -1,10 +1,9 @@
 import uuid
 from datetime import datetime
+from enum import Enum
 from typing import TYPE_CHECKING, List, Optional
 
 from sqlmodel import Field, Relationship, SQLModel
-from datetime import datetime
-from enum import Enum
 
 from app.models.associations import (
     ArticleKeywordLink,

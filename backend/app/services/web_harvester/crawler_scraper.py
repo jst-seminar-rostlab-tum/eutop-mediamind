@@ -1,19 +1,19 @@
-from abc import ABC, abstractmethod
 import random
+from abc import ABC, abstractmethod
 from time import sleep
 
+from fake_useragent import UserAgent
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.support.ui import WebDriverWait
+from sqlmodel import Session
+
+from app.core.logger import get_logger
 from app.models.subscription import Subscription
+from app.repositories.article_repository import ArticleRepository
 from app.services.web_harvester.crawler import Crawler
 from app.services.web_harvester.scraper import Scraper
-from sqlmodel import Session
-from app.repositories.article_repository import ArticleRepository
-from app.core.logger import get_logger
-from selenium.webdriver.chrome.options import Options
-from selenium import webdriver
-from selenium.webdriver.support.ui import WebDriverWait
 from app.services.web_harvester.utils.login import hardcoded_login
-from fake_useragent import UserAgent
-
 
 logger = get_logger(__name__)
 
@@ -37,7 +37,8 @@ class CrawlerScraper(ABC):
         :return: A dictionary containing the scraped data.
         """
         raise NotImplementedError(
-            "This method should be implemented by subclasses.")
+            "This method should be implemented by subclasses."
+        )
 
     def save_articles(self, articles: list) -> None:
         """
@@ -52,8 +53,11 @@ class CrawlerScraper(ABC):
         :param subscription: A Subscription object to retrieve articles for.
         :return: A list of articles associated with the subscription.
         """
-        return ArticleRepository.get_articles_by_subscription_with_empty_content(
-            self.session, subscription_id)
+        return (
+            ArticleRepository.get_articles_by_subscription_with_empty_content(
+                self.session, subscription_id
+            )
+        )
 
     def update_article(self, article) -> None:
         """
@@ -101,7 +105,8 @@ class SeparateCrawlerScraper(CrawlerScraper):
             articles = self.crawler.crawl_urls(subscription, **crawler_kwargs)
             if not articles:
                 logger.info(
-                    f"No articles found for subscription {subscription.name}")
+                    f"No articles found for subscription {subscription.name}"
+                )
                 return {}
 
             articles = self.save_articles(articles)
@@ -111,43 +116,43 @@ class SeparateCrawlerScraper(CrawlerScraper):
 
         chrome_options.add_argument("--headless=new")
         chrome_options.add_argument(
-            "--enable-features=NetworkService,NetworkServiceInProcess")
+            "--enable-features=NetworkService,NetworkServiceInProcess"
+        )
         chrome_options.add_argument("--disable-gpu")
-        chrome_options.add_argument(f'--user-agent={UserAgent().random}')
+        chrome_options.add_argument(f"--user-agent={UserAgent().random}")
 
         driver = webdriver.Chrome(options=chrome_options)
         driver.set_window_size(1920, 1080)
         wait = WebDriverWait(driver, 5)
         if subscription.paywall:
-            login_success = hardcoded_login(
-                driver, wait, subscription)
+            login_success = hardcoded_login(driver, wait, subscription)
             sleep(5)
             if login_success:
                 logger.info(f"Login successful for {subscription.name}")
             else:
                 logger.error(
-                    f"Login failed for {subscription.name}. Skipping scraping.")
+                    f"Login failed for {subscription.name}. Skipping scraping."
+                )
                 driver.quit()
                 return {}
         else:
             logger.info(
-                f"Subscription {subscription.name} does not require login.")
+                f"Subscription {subscription.name} does not require login."
+            )
 
         logger.info(
-            f"Starting scraping for {len(articles)} articles from subscription {subscription.name}...")
+            f"Starting scraping for {len(articles)} articles from subscription {subscription.name}..."
+        )
         for idx, article in enumerate(articles):
             if idx % 25 == 0:
-                logger.info(
-                    f"Scraping article {idx + 1}/{len(articles)}")
+                logger.info(f"Scraping article {idx + 1}/{len(articles)}")
             driver.get(article.url)
             html = driver.page_source
-            scraped_article = self.scraper.extract(
-                html=html,
-                article=article
-            )
+            scraped_article = self.scraper.extract(html=html, article=article)
             inserted_article = self.update_article(scraped_article)
             logger.info(
-                f"Scraped article: {inserted_article.title} with content {inserted_article.content[:100]}...")
+                f"Scraped article: {inserted_article.title} with content {inserted_article.content[:100]}..."
+            )
             scraped_articles.append(inserted_article)
             sleep(random.uniform(1, 3))
         return scraped_articles
