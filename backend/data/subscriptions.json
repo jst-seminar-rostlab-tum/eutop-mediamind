@@ -44,29 +44,28 @@
   },
   {
     "name": "SZ - ePaper + Onlinezugang",
-    "domain": "https://www.sueddeutsche.de",
+    "domain": "https://www.sueddeutsche.de/?piano-screen=login&logout=",
     "paywall": true,
     "login_works": true,
     "newsapi_id": "sueddeutsche.de",
     "config": {
-      "cookies_button": "//button[text()='Ich bin einverstanden']",
-      "refuse_notifications": "//button[contains(@class, 'cleverpush-confirm-btn-deny')]",
-      "login_button": "//div[a[text()='Jetzt abonnieren']]/button[text()='Login']",
-      "user_input": "//input[@id='login' and @name='email']",
-      "password_input": "//input[@id='current-password' and @name='current-password']",
-      "submit_button": "//button[@type='submit' and contains(text(), 'Einloggen')]",
-      "logout_button": "//button[contains(text(), 'Logout')]"
+      "iframe_credentials": "//iframe[starts-with(@id, 'piano-id-')]",
+      "user_input": "//input[@id='login']",
+      "password_input": "//input[@id='current-password']",
+      "submit_button": "//button[@type='submit' and text()='Einloggen']"
     }
   },
   {
     "name": "Börsen-Zeitung E-Paper",
-    "domain": "https://www.boersen-zeitung.de/epaper",
+    "domain": "https://www.boersen-zeitung.de/",
     "paywall": true,
     "login_works": null,
     "newsapi_id": "boersen-zeitung.de",
     "config": {
-      "login_button": "//button[contains(@class, 'button-login') and contains(span/text(), 'Einloggen')]",
-      "iframe": "",
+      "shadow_cookies": "#cmp-root-container",
+      "cookies_button": "button-accept-all",
+      "login_button": "//button[contains(@class, 'login')]",
+      "iframe_credentials": "//iframe[@id='plenigoFramecheckout']",
       "user_input": "//input[@id='login_form__username']",
       "password_input": "//input[@id='login_form__password']",
       "submit_button": "//button[@type='submit' and contains(text(), 'Anmelden')]"
@@ -76,9 +75,10 @@
     "name": "Bild & Bild+",
     "domain": "https://www.bild.de/bild-plus/bildplus-startseite/bildplus/home-30723544.bild.html",
     "paywall": true,
-    "login_works": null,
+    "login_works": true,
     "newsapi_id": "bild.de",
     "config": {
+      "cookies_button": "//button[@title='Alle akzeptieren']",
       "login_button": "//button[contains(@class, 'nav_btn') and span[contains(text(), 'Anmelden')]]",
       "iframe": "",
       "user_input": "//input[@id='identifier' and @name='identifier']",

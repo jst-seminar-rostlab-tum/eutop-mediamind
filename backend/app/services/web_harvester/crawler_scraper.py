@@ -23,7 +23,8 @@ class CrawlerScraper(ABC):
     Abstract base class for web crawler scrapers.
 
     This class defines the interface for an end to end web crawler scraper.
-    It combines the functionality of a crawler and a scraper to extract data from web pages.
+    It combines the functionality of a crawler
+      and a scraper to extract data from web pages.
     """
 
     def __init__(self, session: Session):
@@ -69,9 +70,11 @@ class CrawlerScraper(ABC):
 
 class SeparateCrawlerScraper(CrawlerScraper):
     """
-    A specific implementation of CrawlerScraper that can be used to crawl and scrape data.
+    A specific implementation of CrawlerScraper that can be used to crawl and
+    scrape data.
 
-    This class can be extended to implement specific crawling and scraping logic.
+    This class can be extended to
+    implement specific crawling and scraping logic.
     """
 
     def __init__(self, session: Session, crawler: Crawler, scraper: Scraper):
@@ -81,10 +84,14 @@ class SeparateCrawlerScraper(CrawlerScraper):
 
     def crawl_and_scrape(self, subscription: Subscription, **kwargs) -> dict:
         """
-        Overrides the base method to provide specific crawling and scraping logic.
-        :param subscription: A Subscription object containing the URL to crawl and scrape.
-        :param skip_crawling: If True, skips the crawling step and retrieves articles directly.
-        :param kwargs: Additional keyword arguments that can be used to customize the crawling and scraping process.
+        Overrides the base method to provide specific crawling
+        and scraping logic.
+        :param subscription: A Subscription object containing the URL
+        to crawl and scrape.
+        :param skip_crawling: If True, skips the crawling step
+        and retrieves articles directly.
+        :param kwargs: Additional keyword arguments that can be used to
+        customize the crawling and scraping process.
         :return: A dictionary containing the scraped data.
         """
 
@@ -144,15 +151,23 @@ class SeparateCrawlerScraper(CrawlerScraper):
             f"Starting scraping for {len(articles)} articles from subscription {subscription.name}..."
         )
         for idx, article in enumerate(articles):
-            if idx % 25 == 0:
-                logger.info(f"Scraping article {idx + 1}/{len(articles)}")
-            driver.get(article.url)
-            html = driver.page_source
-            scraped_article = self.scraper.extract(html=html, article=article)
-            inserted_article = self.update_article(scraped_article)
-            logger.info(
-                f"Scraped article: {inserted_article.title} with content {inserted_article.content[:100]}..."
-            )
-            scraped_articles.append(inserted_article)
-            sleep(random.uniform(1, 3))
+            try:
+                if idx % 25 == 0:
+                    logger.info(f"Scraping article {idx + 1}/{len(articles)}")
+                driver.get(article.url)
+                html = driver.page_source
+                scraped_article = self.scraper.extract(
+                    html=html, article=article)
+                inserted_article = self.update_article(scraped_article)
+                logger.info(
+                    f"Scraped article: {inserted_article.title} with content {inserted_article.content[:100]}..."
+                )
+                scraped_articles.append(inserted_article)
+                sleep(random.uniform(1, 3))
+            except Exception as e:
+                logger.error(
+                    f"Error scraping article {article.url}: {e}",
+                    exc_info=True,
+                )
+                continue
         return scraped_articles

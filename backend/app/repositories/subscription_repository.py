@@ -67,7 +67,7 @@ class SubscriptionRepository:
                 Subscription.domain,
             )
             .join(Subscription, Article.subscription_id == Subscription.id)
-            .where(Article.content == None, Article.url.isnot(None))
+            .where(Article.content.is_(None), Article.url.isnot(None))
         )
         result = await session.execute(stmt)
         rows = result.all()
@@ -127,7 +127,7 @@ class SubscriptionRepository:
             )
             .join(Subscription, Article.subscription_id == Subscription.id)
             .where(
-                Article.content == None,
+                Article.content.is_(None),
                 Article.url.isnot(None),
                 Subscription.id == subscription_id,
             )

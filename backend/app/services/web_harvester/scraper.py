@@ -19,9 +19,11 @@ class Scraper(ABC):
         article: Article,
     ) -> Article:
         """
-        Given an Article, extract and return the full content of the article (and metadata).
+        Given an Article, extract and return the full content
+        of the article (and metadata).
         :param article: An Article object containing the URL to scrape.
-        :return: An Article object with the full content and metadata extracted.
+        :return: An Article object with the full content
+        and metadata extracted.
         """
         raise NotImplementedError(
             "This method should be implemented by subclasses."
@@ -37,7 +39,8 @@ class TrafilaturaScraper(Scraper):
         """
         Extracts the full content of an html using Trafilatura.
         :param article: An Article object containing the URL to scrape.
-        :return: An Article object with the full content and metadata extracted.
+        :return: An Article object with the full content
+        and metadata extracted.
         """
         html_data = trafilatura.extract(
             html, output_format="json", with_metadata=True

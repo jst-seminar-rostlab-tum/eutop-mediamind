@@ -24,7 +24,8 @@ class Crawler(ABC):
         limit: int = -1,
     ) -> List[Article]:
         """
-        Given a Subscription, extract and returns a list of Articles (with the urls and subscription id at minimum).
+        Given a Subscription, extract and returns a list of Articles
+          (with the urls and subscription id at minimum).
 
         :param subscription: A Subscription object containing the URL to crawl.
         :return: A list of URLs pointing to individual news articles.
@@ -36,8 +37,10 @@ class Crawler(ABC):
 
 class NewsAPICrawler(Crawler):
     """
-    A crawler that uses the NewsAPI.ai service to extract article URLs based on a subscription.
-    This crawler fetches articles from the NewsAPI.ai database based on the subscription's NewsAPI ID.
+    A crawler that uses the NewsAPI.ai service to extract article URLs
+    based on a subscription.
+    This crawler fetches articles from the NewsAPI.ai database
+    based on the subscription's NewsAPI ID.
     """
 
     def __init__(self):
@@ -67,7 +70,7 @@ class NewsAPICrawler(Crawler):
             return []
 
         query_conditions = [
-            {"$or": [{"sourceUri": newsapi_id}]},
+            {"sourceUri": newsapi_id},
         ]
 
         if date_start and date_end:
@@ -77,6 +80,31 @@ class NewsAPICrawler(Crawler):
                     "dateEnd": date_end.strftime("%Y-%m-%d"),
                 }
             )
+
+        query_conditions.append(
+            {
+                "$or": [
+                    {
+                        "categoryUri": "news/Business"
+                    },
+                    {
+                        "categoryUri": "news/Environment"
+                    },
+                    {
+                        "categoryUri": "news/Health"
+                    },
+                    {
+                        "categoryUri": "news/Politics"
+                    },
+                    {
+                        "categoryUri": "news/Science"
+                    },
+                    {
+                        "categoryUri": "news/Technology"
+                    }
+                ]
+            },
+        )
 
         query = {
             "$query": {"$and": query_conditions},
@@ -109,13 +137,15 @@ class NewsAPICrawler(Crawler):
 
     def get_best_matching_source(self, prefix: str) -> Any | None:
         """
-        Checks if a domain is included in the NewsAPI.ai database and returns the best match.
+        Checks if a domain is included in the NewsAPI.ai database
+        and returns the best match.
 
         Parameters:
             prefix (str): The URL to check.
 
         Returns:
-            dict: The source with the highest relevance score, or None if no suitable source is found.
+            dict: The source with the highest relevance score,
+              or None if no suitable source is found.
         """
         # Extract the domain from the URL
         parsed_url = urlparse(prefix)
