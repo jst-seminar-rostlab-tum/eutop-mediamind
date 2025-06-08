@@ -12,14 +12,14 @@ import { Button } from "~/components/ui/button";
 import { KeywordField } from "~/custom-components/profile/edit/keyword-field";
 import { Label } from "~/components/ui/label";
 import { Input } from "~/components/ui/input";
-import type { components } from "../../../../types/api-types-v1";
 import { Sparkles, Trash2 } from "lucide-react";
 import { AiSuggestionTag } from "~/custom-components/profile/edit/ai-suggestion-tag";
+import type { Profile } from "../../../../types/model";
 
 interface TopicsProps {
-  profile: components["schemas"]["SearchProfileDetailResponse"];
+  profile: Profile;
   setProfile: (
-    profile: components["schemas"]["SearchProfileDetailResponse"],
+    profile: Profile,
   ) => void;
 }
 

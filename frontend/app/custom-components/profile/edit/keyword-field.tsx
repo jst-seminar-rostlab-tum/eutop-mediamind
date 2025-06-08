@@ -1,15 +1,15 @@
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Input } from "~/components/ui/input";
-import type { components } from "../../../../types/api-types-v1";
 import { useState } from "react";
 import { KeywordTag } from "~/custom-components/profile/edit/keyword-tag";
+import type { Profile } from "../../../../types/model";
 
 interface KeywordFieldProps {
   keywords: string[];
   setProfile: (
-    profile: components["schemas"]["SearchProfileDetailResponse"],
+    profile: Profile,
   ) => void;
-  profile: components["schemas"]["SearchProfileDetailResponse"];
+  profile: Profile;
   selectedTopic: string | undefined;
 }
 
@@ -22,7 +22,6 @@ export function KeywordField({
   const [newKeyword, setNewKeyword] = useState("");
 
   const handleAddKeyword = () => {
-    console.log("handleAddKeyword");
     if (newKeyword && selectedTopic && !keywords.includes(newKeyword)) {
       const updatedTopics = profile.topics.map((topic) => {
         if (topic.name === selectedTopic) {

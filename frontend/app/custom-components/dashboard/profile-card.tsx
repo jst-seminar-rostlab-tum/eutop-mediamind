@@ -3,10 +3,10 @@ import { Rocket, Settings } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Button } from "~/components/ui/button";
 import { EditProfile } from "~/custom-components/profile/edit/edit-profile";
-import type { components } from "../../../types/api-types-v1";
+import type { Profile } from "../../../types/model";
 
 interface ProfileCardProps {
-  profile: components["schemas"]["SearchProfileDetailResponse"];
+  profile: Profile;
 }
 
 export function ProfileCard({ profile }: ProfileCardProps) {

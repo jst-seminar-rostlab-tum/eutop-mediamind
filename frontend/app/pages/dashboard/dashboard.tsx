@@ -1,6 +1,6 @@
 import { ProfileCard } from "~/custom-components/dashboard/profile-card";
 import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
-import { Newspaper, Plus, Rocket } from "lucide-react";
+import { Loader2, Newspaper, Plus, Rocket } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import {
   Breadcrumb,
@@ -11,23 +11,25 @@ import {
 import { useAuthorization } from "~/hooks/use-authorization";
 import { useQuery } from "types/api";
 import { useEffect } from "react";
+import { toast } from "sonner";
 
 export function DashboardPage() {
   const { authorizationHeaders } = useAuthorization();
 
   const {
     data: profiles,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     isLoading,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     error,
   } = useQuery("/api/v1/search-profiles", {
     headers: authorizationHeaders,
-  });
+  }, { refreshInterval: 0, refreshWhenHidden: false, revalidateOnFocus: false },);
 
   useEffect(() => {
-    console.log("profiles from SWR:", profiles);
-  }, [profiles]);
+    if (error) {
+      console.error("Failed to load profiles:", error);
+      toast.error("Failed to load profiles.");
+    }
+  }, [error]);
 
   return (
     <div className={" mx-auto w-full max-w-2xl xl:max-w-7xl mt-12"}>
@@ -55,9 +57,16 @@ export function DashboardPage() {
           <Plus />
         </Button>
       </div>
-      <div className="flex flex-wrap gap-6 mt-4 mb-4">
-        {profiles?.map((profile) => <ProfileCard profile={profile} />)}
-      </div>
+      {isLoading ? (
+        <div className="flex items-center justify-center py-8">
+          <Loader2 className="h-8 w-8 animate-spin" />
+          <span className="ml-2 text-muted-foreground">Loading profiles...</span>
+        </div>
+      ) : (
+        <div className="flex flex-wrap gap-6 mt-4 mb-4">
+          {profiles?.map((profile) => <ProfileCard key={profile.id} profile={profile} />)}
+        </div>
+      )}
       <h2 className="text-2xl font-bold mb-4">Trend Analysis</h2>
     </div>
   );

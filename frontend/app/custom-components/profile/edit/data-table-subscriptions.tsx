@@ -24,18 +24,18 @@ import { Button } from "~/components/ui/button";
 import { ArrowUpDown } from "lucide-react";
 import { Input } from "~/components/ui/input";
 import { Switch } from "~/components/ui/switch";
-import type { components } from "../../../../types/api-types-v1";
+import type { Subscription } from "../../../../types/model";
 
 export interface MailingTableProps {
   name: string;
-  allSubscriptions: components["schemas"]["SubscriptionSummary"][];
+  allSubscriptions: Subscription[];
   setSubscriptions: (
-    subscriptions: components["schemas"]["SubscriptionSummary"][],
+    subscriptions: Subscription[],
   ) => void;
 }
 
 type DataRow = {
-  data: components["schemas"]["SubscriptionSummary"];
+  data: Subscription;
   active: boolean;
 };
 
@@ -51,8 +51,8 @@ declare module "@tanstack/react-table" {
 
 const getColumns = (
   name: string,
-  addSubscription: (s: components["schemas"]["SubscriptionSummary"]) => void,
-  removeSubscription: (s: components["schemas"]["SubscriptionSummary"]) => void,
+  addSubscription: (s: Subscription) => void,
+  removeSubscription: (s: Subscription) => void,
 ): ColumnDef<DataRow>[] => [
   {
     accessorKey: "data",
@@ -70,7 +70,7 @@ const getColumns = (
     cell: ({ row }) => (
       <div className="lowercase">
         {
-          row.getValue<components["schemas"]["SubscriptionSummary"]>("data")
+          row.getValue<Subscription>("data")
             .name
         }
       </div>
@@ -118,7 +118,7 @@ export function DataTableSubscriptions({
   );
 
   const addSubscription = (
-    sub: components["schemas"]["SubscriptionSummary"],
+    sub: Subscription,
   ) => {
     const updatedSub = { ...sub, is_subscribed: true };
     const updatedSubscriptions = allSubscriptions.map((s) =>
@@ -128,7 +128,7 @@ export function DataTableSubscriptions({
   };
 
   const removeSubscription = (
-    sub: components["schemas"]["SubscriptionSummary"],
+    sub: Subscription,
   ) => {
     const updatedSub = { ...sub, is_subscribed: false };
     const updatedSubscriptions = allSubscriptions.map((s) =>

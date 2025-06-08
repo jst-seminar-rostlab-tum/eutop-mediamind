@@ -2,12 +2,12 @@ import type { JSX } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { DataTableMailing } from "~/custom-components/profile/edit/data-table-mailing";
 import { Label } from "~/components/ui/label";
-import type { components } from "../../../../types/api-types-v1";
+import type { Profile } from "../../../../types/model";
 
 export interface MailingProps {
-  profile: components["schemas"]["SearchProfileDetailResponse"];
+  profile: Profile;
   setProfile: (
-    profile: components["schemas"]["SearchProfileDetailResponse"],
+    profile: Profile,
   ) => void;
 }
 

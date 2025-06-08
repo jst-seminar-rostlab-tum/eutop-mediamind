@@ -1,17 +1,17 @@
 import { Label } from "~/components/ui/label";
 import { DataTableSubscriptions } from "~/custom-components/profile/edit/data-table-subscriptions";
-import type { components } from "../../../../types/api-types-v1";
+import type { Profile, Subscription } from "../../../../types/model";
 
 export interface SubscriptionsProps {
-  profile: components["schemas"]["SearchProfileDetailResponse"];
+  profile: Profile;
   setProfile: (
-    profile: components["schemas"]["SearchProfileDetailResponse"],
+    profile: Profile,
   ) => void;
 }
 
 export function Subscriptions({ profile, setProfile }: SubscriptionsProps) {
   const setSubscriptions = (
-    subscriptions: components["schemas"]["SubscriptionSummary"][],
+    subscriptions: Subscription[],
   ) => setProfile({ ...profile, subscriptions: subscriptions });
 
   return (

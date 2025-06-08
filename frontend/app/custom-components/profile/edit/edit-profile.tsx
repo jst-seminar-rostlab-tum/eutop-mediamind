@@ -20,10 +20,11 @@ import { ScrollArea } from "~/components/ui/scroll-area";
 import { General } from "~/custom-components/profile/edit/general";
 import { client, useMutate } from "../../../../types/api";
 import { useAuthorization } from "~/hooks/use-authorization";
-import type { components } from "../../../../types/api-types-v1";
+import type { Profile, ProfileUpdate } from "../../../../types/model";
+import { toast } from "sonner";
 
 interface EditProfileProps {
-  profile: components["schemas"]["SearchProfileDetailResponse"];
+  profile: Profile;
   trigger: React.ReactElement;
 }
 
@@ -33,8 +34,8 @@ export function EditProfile({ profile, trigger }: EditProfileProps) {
   const [editedProfile, setEditedProfile] = useState(cloneDeep(profile));
 
   const transformToUpdateRequest = (
-    profile: components["schemas"]["SearchProfileDetailResponse"],
-  ): components["schemas"]["SearchProfileUpdateRequest"] => {
+    profile: Profile,
+  ): ProfileUpdate => {
     return {
       name: profile.name,
       public: profile.public,
@@ -63,9 +64,10 @@ export function EditProfile({ profile, trigger }: EditProfileProps) {
     setIsSaving(true);
     try {
       const updateRequest = transformToUpdateRequest(editedProfile);
-      console.log(updateRequest);
-
-      const response = await client.PUT(
+      toast.success("Profile updated successfully", {
+        description: "Your changes have been saved.",
+      });
+      await client.PUT(
         "/api/v1/search-profiles/{search_profile_id}",
         {
           params: { path: { search_profile_id: profile.id } },
@@ -73,13 +75,14 @@ export function EditProfile({ profile, trigger }: EditProfileProps) {
           headers: authorizationHeaders,
         },
       );
-      console.log(response);
       await mutate(["/api/v1/search-profiles"]);
-
-      console.log("Profile updated successfully!");
     } catch (error) {
-      console.error("Failed to update profile:", error);
+      console.error(error);
+      toast.error("Profile update failed", {
+        description: "Your changes have not been saved.",
+      })
     } finally {
+
       setIsSaving(false);
     }
   };
@@ -90,6 +93,7 @@ export function EditProfile({ profile, trigger }: EditProfileProps) {
 
       <DialogContent className={"min-w-1/2 rounded-3xl max-h-3/4"}>
         <DialogHeader>
+
           <div className={"flex items-center gap-3"}>
             {isEditingName ? (
               <div className="flex items-center gap-2 flex-1">
