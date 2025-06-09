@@ -43,3 +43,4 @@ psycopg_binary==3.2.9
 langchain-qdrant
 langchain_openai
 fastembed
+alembic==1.16.1
