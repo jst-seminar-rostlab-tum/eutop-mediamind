@@ -6,7 +6,7 @@ import {
   CardTitle,
 } from "~/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
-import { DataTable } from "~/custom-components/data-table";
+import { DataTable } from "~/custom-components/admin-settings/data-table";
 import Layout from "~/custom-components/layout";
 import Text from "~/custom-components/text";
 import React from "react";
@@ -14,6 +14,24 @@ import type { Organization, Subscription, User } from "./types";
 import { getOrgaColumns, getSubsColumns } from "./columns";
 import { OrganizationDialog } from "./dialogs/organization-dialog";
 import { SubscriptionDialog } from "./dialogs/subscription-dialog";
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogFooter,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogCancel,
+  AlertDialogAction,
+} from "~/components/ui/alert-dialog";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "~/components/ui/breadcrumb";
 
 // Fetch Orgas
 async function getOrgaData(): Promise<Organization[]> {
@@ -66,15 +84,18 @@ export function AdminPage() {
   const [orgaData, setOrgaData] = React.useState<Organization[]>([]);
   const [showOrgaDialog, setShowOrgaDialog] = React.useState(false);
   const [newOrgaName, setNewOrgaName] = React.useState("");
+  const [initialOrgaName, setInitialOrgaName] = React.useState("");
   const [isEditOrgaMode, setIsEditOrgaMode] = React.useState(false);
   const [editingOrgIndex, setEditingOrgIndex] = React.useState<number | null>(
     null,
   );
   const [editingUserData, setEditingUserData] = React.useState<User[]>([]);
-  const [searchInputForAdd, setSearchInputForAdd] = React.useState("");
+  const [showOrgaNameAlert, setShowOrgaNameAlert] = React.useState(false);
+  const [showAlert, setShowAlert] = React.useState(false);
 
   // Subscriptions
   const [subsData, setSubsData] = React.useState<Subscription[]>([]);
+  const [initialSub, setInitialSub] = React.useState<Subscription>();
   const [showSubsDialog, setShowSubsDialog] = React.useState(false);
   const [newSubsName, setNewSubsName] = React.useState("");
   const [newURL, setNewURL] = React.useState("");
@@ -84,6 +105,13 @@ export function AdminPage() {
   const [editingSubsIndex, setEditingSubsIndex] = React.useState<number | null>(
     null,
   );
+
+  const [unsavedEdits, setUnsavedEdits] = React.useState(false);
+  const [openDeleteDialog, setOpenDeleteDialog] = React.useState(false);
+  const [deleteTarget, setDeleteTarget] = React.useState<{
+    type: "organization" | "subscription";
+    identifier: string | number; // name for org, index for sub
+  } | null>(null);
 
   React.useEffect(() => {
     async function fetchData() {
@@ -106,8 +134,14 @@ export function AdminPage() {
   }
 
   function handleEditOrganization(name: string) {
+    // reset from possible previous dialog
+    setShowAlert(false);
+    setShowOrgaNameAlert(false);
+    // set false on open for safety
+    setUnsavedEdits(false);
     const index = orgaData.findIndex((org) => org.name === name);
     if (index !== -1) {
+      setInitialOrgaName(orgaData[index].name); // to catch edge case if you edit back to initial name as no changes
       setNewOrgaName(orgaData[index].name);
       setEditingOrgIndex(index);
       setIsEditOrgaMode(true);
@@ -121,7 +155,10 @@ export function AdminPage() {
   }
 
   function handleSaveOrganization() {
-    if (!newOrgaName.trim()) return;
+    if (!newOrgaName.trim()) {
+      setShowOrgaNameAlert(true);
+      return;
+    }
 
     const trimmedName = newOrgaName.trim();
 
@@ -144,6 +181,7 @@ export function AdminPage() {
     setShowOrgaDialog(false);
     setIsEditOrgaMode(false);
     setEditingOrgIndex(null);
+    setUnsavedEdits(false);
   }
 
   // Subscriptions Functions
@@ -182,10 +220,14 @@ export function AdminPage() {
     setIsEditSubsMode(false);
     setEditingSubsIndex(null);
     setShowSubsDialog(false);
+
+    setUnsavedEdits(false);
   }
 
   function handleEditSubscription(index: number) {
     const sub = subsData[index];
+    setInitialSub(sub);
+
     setNewSubsName(sub.name);
     setNewURL(sub.url);
     setNewUsername(sub.username);
@@ -199,15 +241,23 @@ export function AdminPage() {
     setSubsData((prev) => prev.filter((_, i) => i !== index));
   }
 
-  const [showAlert, setShowAlert] = React.useState(false);
-
   return (
     <>
       <Layout>
-        <Text className="mt-10" hierachy={1}>
-          Admin Settings
-        </Text>
-        <Tabs defaultValue="organizations" className="m-6">
+        <Breadcrumb className="ml-5 mt-8">
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink href="/">Home</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>Admin-Settigns</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
+        <Text hierachy={2}>Admin Settings</Text>
+
+        <Tabs defaultValue="organizations" className="m-2">
           <TabsList className="w-full">
             <TabsTrigger value="organizations">Organizations</TabsTrigger>
             <TabsTrigger value="subscriptions">Subscriptions</TabsTrigger>
@@ -226,7 +276,8 @@ export function AdminPage() {
                 <DataTable
                   columns={getOrgaColumns(
                     handleEditOrganization,
-                    handleDeleteOrganization,
+                    setDeleteTarget,
+                    setOpenDeleteDialog,
                   )}
                   data={orgaData}
                   onAdd={() => {
@@ -254,7 +305,8 @@ export function AdminPage() {
                 <DataTable
                   columns={getSubsColumns(
                     handleEditSubscription,
-                    handleDeleteSubscription,
+                    setDeleteTarget,
+                    setOpenDeleteDialog,
                   )}
                   data={subsData}
                   onAdd={() => {
@@ -280,9 +332,13 @@ export function AdminPage() {
           onNameChange={setNewOrgaName}
           users={editingUserData}
           setUsers={setEditingUserData}
-          searchInput={searchInputForAdd}
-          setSearchInput={setSearchInputForAdd}
           onSave={handleSaveOrganization}
+          unsavedEdits={unsavedEdits}
+          setUnsavedEdits={setUnsavedEdits}
+          initialOrgaName={initialOrgaName}
+          showAlert={showAlert}
+          setShowAlert={setShowAlert}
+          showOrgaNameAlert={showOrgaNameAlert}
         />
 
         <SubscriptionDialog
@@ -299,7 +355,43 @@ export function AdminPage() {
           setPassword={setNewPassword}
           onSave={handleSaveSubscription}
           showAlert={showAlert}
+          initialSub={initialSub}
         />
+
+        <AlertDialog open={openDeleteDialog} onOpenChange={setOpenDeleteDialog}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+              <AlertDialogDescription>
+                This will permanently delete this entity
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                className="bg-destructive text-white shadow-xs hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60"
+                onClick={() => {
+                  if (deleteTarget) {
+                    if (deleteTarget.type === "organization") {
+                      handleDeleteOrganization(
+                        deleteTarget.identifier as string,
+                      );
+                    } else if (deleteTarget.type === "subscription") {
+                      handleDeleteSubscription(
+                        deleteTarget.identifier as number,
+                      );
+                    }
+                  }
+
+                  setOpenDeleteDialog(false);
+                  setDeleteTarget(null); // clear after use
+                }}
+              >
+                Delete
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </Layout>
     </>
   );
