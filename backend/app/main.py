@@ -1,3 +1,5 @@
+import asyncio
+
 import sentry_sdk
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
@@ -42,7 +44,7 @@ class AppCreator:
             )
 
         self.app.include_router(v1_routers, prefix="/api/v1")
-        main()
+        asyncio.create_task(main())
         self.logger.info("FastAPI app initialized successfully.")
 
 
