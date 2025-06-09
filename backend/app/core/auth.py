@@ -1,7 +1,6 @@
 from clerk_backend_api import Clerk
 from clerk_backend_api.jwks_helpers import VerifyTokenOptions, verify_token
-from fastapi import Depends, HTTPException, status
-from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from fastapi import Request, HTTPException, status
 
 from app.core.config import configs
 from app.core.logger import get_logger
@@ -12,18 +11,21 @@ from app.repositories.user_repository import (
     update_user,
 )
 
-security = HTTPBearer()
 logger = get_logger(__name__)
 
 
 async def get_authenticated_user(
-    auth_credentials: HTTPAuthorizationCredentials = Depends(security),
+    request: Request,
 ) -> User:
     try:
         if configs.DISABLE_AUTH:
             user_clerk_id = "user_2xd0q4SUzIlYIZZnUZ2UmNmHz8n"
         else:
-            token = auth_credentials.credentials
+            token = request.cookies.get("__session")
+            if not token:
+                raise HTTPException(
+                    status_code=401, detail="Missing authentication token in cookies"
+                )
 
             # Step 1: Verify token
             user_claim = verify_token(
@@ -56,13 +58,17 @@ async def get_authenticated_user(
 
 
 async def get_sync_user(
-    auth_credentials: HTTPAuthorizationCredentials = Depends(security),
+    request: Request,
 ) -> User:
     try:
         if configs.DISABLE_AUTH:
             user_clerk_id = "user_2xd0q4SUzIlYIZZnUZ2UmNmHz8n"
         else:
-            token = auth_credentials.credentials
+            token = request.cookies.get("__session")
+            if not token:
+                raise HTTPException(
+                    status_code=401, detail="Missing authentication token in cookies"
+                )
 
             # Step 1: Verify the token and extract the Clerk user ID (sub)
             user_claim = verify_token(
