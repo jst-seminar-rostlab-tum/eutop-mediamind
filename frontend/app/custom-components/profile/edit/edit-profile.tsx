@@ -54,7 +54,6 @@ export function EditProfile({
     new_articles_count: 0,
   };
 
-  const [open, setOpen] = useState(false);
   const [isEditingName, setIsEditingName] = useState(isCreating);
 
   const [editedProfile, setEditedProfile] = useState<Profile>(
@@ -134,8 +133,6 @@ export function EditProfile({
           description: "Your changes have been saved.",
         });
       }
-
-      setOpen(false);
     } catch (error) {
       console.error(error);
       toast.error(`Profile ${isCreating ? "creation" : "update"} failed`, {
@@ -145,15 +142,25 @@ export function EditProfile({
       setIsSaving(false);
       // reset component state
       if (isCreating) {
-        setEditedProfile(cloneDeep(profile ?? initialProfile));
-        setProfileName("");
-        setIsEditingName(true);
+        handleCancel();
       }
     }
   };
 
+  const handleCancel = () => {
+    setEditedProfile(cloneDeep(profile ?? initialProfile));
+    setProfileName(profile?.name || "");
+    setIsEditingName(isSaving);
+  };
+
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog
+      onOpenChange={(open) => {
+        if (!open) {
+          handleCancel();
+        }
+      }}
+    >
       <DialogTrigger asChild>{trigger}</DialogTrigger>
 
       <DialogContent
