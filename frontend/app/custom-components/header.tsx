@@ -21,12 +21,13 @@ export default function Header() {
       </Link>
       <div className="col-span-10 flex justify-end gap-2">
         <SignedOut>
-          <Button variant="outline" asChild>
-            <span>
-              <User />
-              <SignInButton forceRedirectUrl={redirectUrl ?? "/dashboard"} />
-            </span>
-          </Button>
+          <SignInButton forceRedirectUrl={redirectUrl ?? "/dashboard"}>
+            <Button asChild variant="outline">
+              <span>
+                <User /> Login
+              </span>
+            </Button>
+          </SignInButton>
         </SignedOut>
         <SignedIn>
           <UserButton />
