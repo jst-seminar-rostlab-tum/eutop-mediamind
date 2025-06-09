@@ -1,3 +1,5 @@
+import asyncio
+
 import sentry_sdk
 from fastapi import FastAPI, Request
 from sqlalchemy.exc import SQLAlchemyError
@@ -7,16 +9,17 @@ from starlette.responses import JSONResponse
 from app.api.v1.routes import routers as v1_routers
 from app.core.config import configs
 from app.core.logger import get_logger
-from app.initial_data import main as load_initial_data
+from app.initial_data import main
 
 logger = get_logger(__name__)
 
 
 class AppCreator:
     def __init__(self):
+        # see https://docs.sentry.io/platforms/python/data-management/data-collected/ for more info  # noqa: E501
         if configs.SENTRY_DSN and configs.ENVIRONMENT != "local":
             sentry_sdk.init(
-                dsn=configs.SENTRY_DSN,
+                dsn=configs.SENTRY_DSN,  # noqa: E501
                 send_default_pii=True,
                 traces_sample_rate=1.0,
                 environment=configs.ENV,
@@ -35,7 +38,7 @@ class AppCreator:
         self._configure_cors()
         self._include_routes()
 
-        load_initial_data()
+        main()
         logger.info("FastAPI app initialized successfully.")
 
     def _register_exception_handlers(self):
@@ -69,6 +72,8 @@ class AppCreator:
 
     def _include_routes(self):
         self.app.include_router(v1_routers, prefix="/api/v1")
+        asyncio.create_task(main())
+        logger.info("FastAPI app initialized successfully.")
 
 
 # Instantiate and expose app for uvicorn
