@@ -3,6 +3,7 @@ from datetime import datetime
 from enum import Enum
 from typing import TYPE_CHECKING, List, Optional
 
+from sqlalchemy import Column, Text
 from sqlmodel import Field, Relationship, SQLModel
 
 from app.models.associations import (
@@ -33,7 +34,7 @@ class Article(SQLModel, table=True):
     published_at: datetime = Field()
     language: str = Field(max_length=255, nullable=True)
     category: str = Field(max_length=255, nullable=True)
-    summary: str | None = Field(default=None, max_length=255)
+    summary: str | None = Field(default=None, sa_column=Column(Text))
     status: ArticleStatus = Field(default=ArticleStatus.NEW, nullable=False)
 
     crawled_at: datetime = Field(default_factory=datetime.now)
