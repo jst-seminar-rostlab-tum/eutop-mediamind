@@ -18,6 +18,7 @@ class SearchProfileBase(BaseModel):
     organization_emails: List[EmailStr]
     profile_emails: List[EmailStr]
     subscriptions: List[SubscriptionSummary]
+    owner_id: UUID
 
 
 # --- Request Models ---
@@ -28,7 +29,6 @@ class SearchProfileCreateRequest(SearchProfileBase):
 
 
 class SearchProfileUpdateRequest(SearchProfileBase):
-    owner: UUID
     topics: List[TopicCreateOrUpdateRequest]
 
 
@@ -43,7 +43,7 @@ class SearchProfileDetailBase(BaseModel):
     profile_emails: List[EmailStr]
     editable: bool
     is_editable: bool
-    owner: UUID
+    owner_id: UUID
     is_owner: bool
     topics: List[TopicResponse]
 

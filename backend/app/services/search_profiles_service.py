@@ -121,7 +121,7 @@ class SearchProfileService:
             public=profile.is_public,
             editable=is_editable,
             is_editable=is_editable,
-            owner=profile.created_by_id,
+            owner_id=profile.created_by_id,
             is_owner=is_owner,
             organization_emails=organization_emails,
             profile_emails=profile_emails,
