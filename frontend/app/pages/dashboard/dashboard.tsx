@@ -24,18 +24,12 @@ const suppressSWRReloading = {
 };
 
 export function DashboardPage() {
-  const { authorizationHeaders } = useAuthorization();
-
   const {
     data: profiles,
     isLoading,
     error,
     mutate,
-  } = useQuery(
-    "/api/v1/search-profiles",
-    undefined,
-    suppressSWRReloading,
-  );
+  } = useQuery("/api/v1/search-profiles", undefined, suppressSWRReloading);
 
   const sortedProfiles = sortBy(profiles, "name");
 

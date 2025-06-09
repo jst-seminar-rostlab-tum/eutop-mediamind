@@ -16,8 +16,6 @@ export const client = createClient<paths>({
   credentials: "include",
 });
 
-export { client };
-
 const API_PREFIX = "api";
 
 export const useQuery = createQueryHook(client, API_PREFIX);

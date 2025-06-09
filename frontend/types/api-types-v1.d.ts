@@ -4,677 +4,736 @@
  */
 
 export interface paths {
-    "/api/v1/healthcheck": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Healthcheck */
-        get: operations["healthcheck_api_v1_healthcheck_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+  "/api/v1/healthcheck": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/api/v1/users": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List Users */
-        get: operations["list_users_api_v1_users_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    /** Healthcheck */
+    get: operations["healthcheck_api_v1_healthcheck_get"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/users": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/api/v1/users/me": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get Current User Info */
-        get: operations["get_current_user_info_api_v1_users_me_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    /** List Users */
+    get: operations["list_users_api_v1_users_get"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/users/me": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/api/v1/users/sync": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Sync User With Clerk */
-        post: operations["sync_user_with_clerk_api_v1_users_sync_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    /** Get Current User Info */
+    get: operations["get_current_user_info_api_v1_users_me_get"];
+    put?: never;
+    post?: never;
+    /** Delete Current User */
+    delete: operations["delete_current_user_api_v1_users_me_delete"];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/users/sync": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/api/v1/search-profiles": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get Available Search Profiles */
-        get: operations["get_available_search_profiles_api_v1_search_profiles_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    get?: never;
+    put?: never;
+    /** Sync User With Clerk */
+    post: operations["sync_user_with_clerk_api_v1_users_sync_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/search-profiles": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/api/v1/search-profiles/add": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        /** Add Search Profile */
-        put: operations["add_search_profile_api_v1_search_profiles_add_put"];
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    /** Get Available Search Profiles */
+    get: operations["get_available_search_profiles_api_v1_search_profiles_get"];
+    put?: never;
+    /** Create Search Profile */
+    post: operations["create_search_profile_api_v1_search_profiles_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/search-profiles/{search_profile_id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/api/v1/search-profiles/{profile_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get Search Profile */
-        get: operations["get_search_profile_api_v1_search_profiles__profile_id__get"];
-        /** Update Search Profile */
-        put: operations["update_search_profile_api_v1_search_profiles__profile_id__put"];
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    /** Get Search Profile */
+    get: operations["get_search_profile_api_v1_search_profiles__search_profile_id__get"];
+    /** Update Search Profile */
+    put: operations["update_search_profile_api_v1_search_profiles__search_profile_id__put"];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/search-profiles/{search_profile_id}/overview": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/api/v1/search-profiles/{profile_id}/overview": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get Search Profile Overview */
-        get: operations["get_search_profile_overview_api_v1_search_profiles__profile_id__overview_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    /** Get Search Profile Overview */
+    get: operations["get_search_profile_overview_api_v1_search_profiles__search_profile_id__overview_get"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/search-profiles/{search_profile_id}/article/{match_id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/api/v1/search-profiles/{profile_id}/article/{match_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get Match Detail */
-        get: operations["get_match_detail_api_v1_search_profiles__profile_id__article__match_id__get"];
-        /** Update Match Feedback */
-        put: operations["update_match_feedback_api_v1_search_profiles__profile_id__article__match_id__put"];
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    /** Get Match Detail */
+    get: operations["get_match_detail_api_v1_search_profiles__search_profile_id__article__match_id__get"];
+    /** Update Match Feedback */
+    put: operations["update_match_feedback_api_v1_search_profiles__search_profile_id__article__match_id__put"];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/subscriptions": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
+    /** Get All Subscriptions */
+    get: operations["get_all_subscriptions_api_v1_subscriptions_get"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
 }
 export type webhooks = Record<string, never>;
 export interface components {
-    schemas: {
-        /** ArticleOverviewItem */
-        ArticleOverviewItem: {
-            /**
-             * Id
-             * Format: uuid
-             */
-            id: string;
-            /** Title */
-            title: string;
-            /** Url */
-            url: string;
-            /** Author */
-            author: string;
-            /**
-             * Published At
-             * Format: date-time
-             */
-            published_at: string;
-            /** Language */
-            language: string;
-            /** Category */
-            category: string;
-            /** Summary */
-            summary: string | null;
-            /** Sorting Order */
-            sorting_order: number;
-        };
-        /** ArticleOverviewResponse */
-        ArticleOverviewResponse: {
-            /**
-             * Search Profile Id
-             * Format: uuid
-             */
-            search_profile_id: string;
-            /** Articles */
-            articles: components["schemas"]["ArticleOverviewItem"][];
-        };
-        /** HTTPValidationError */
-        HTTPValidationError: {
-            /** Detail */
-            detail?: components["schemas"]["ValidationError"][];
-        };
-        /** MatchDetailResponse */
-        MatchDetailResponse: {
-            /**
-             * Match Id
-             * Format: uuid
-             */
-            match_id: string;
-            /** Comment */
-            comment: string | null;
-            /** Sorting Order */
-            sorting_order: number;
-            /**
-             * Article Id
-             * Format: uuid
-             */
-            article_id: string;
-            /** Title */
-            title: string;
-            /** Url */
-            url: string;
-            /** Author */
-            author: string;
-            /**
-             * Published At
-             * Format: date-time
-             */
-            published_at: string;
-            /** Language */
-            language: string;
-            /** Category */
-            category: string;
-            /** Summary */
-            summary: string | null;
-        };
-        /** MatchFeedbackRequest */
-        MatchFeedbackRequest: {
-            /** Comment */
-            comment: string;
-            /**
-             * Reason
-             * @enum {string}
-             */
-            reason: "bad source" | "false" | "no good matching" | "other";
-            /** Ranking */
-            ranking: number;
-        };
-        /** SearchProfileDetailResponse */
-        SearchProfileDetailResponse: {
-            /**
-             * Id
-             * Format: uuid
-             */
-            id: string;
-            /** Name */
-            name: string;
-            /** Organization Emails */
-            organization_emails: string[];
-            /** Profile Emails */
-            profile_emails: string[];
-            /** Public */
-            public: boolean;
-            /** Editable */
-            editable: boolean;
-            /** Is Editable */
-            is_editable: boolean;
-            /**
-             * Owner
-             * Format: uuid
-             */
-            owner: string;
-            /** Is Owner */
-            is_owner: boolean;
-            /** Topics */
-            topics: components["schemas"]["TopicOut"][];
-        };
-        /** SearchProfileUpdateRequest */
-        SearchProfileUpdateRequest: {
-            /**
-             * Id
-             * Format: uuid
-             */
-            id: string;
-            /** Name */
-            name: string;
-            /**
-             * Organization Emails
-             * @default []
-             */
-            organization_emails: string[] | null;
-            /**
-             * Profile Emails
-             * @default []
-             */
-            profile_emails: string[] | null;
-            /** Public */
-            public: boolean;
-            /**
-             * Is Editable
-             * @default true
-             */
-            is_editable: boolean | null;
-            /**
-             * Owner
-             * Format: uuid
-             */
-            owner: string;
-            /**
-             * Is Owner
-             * @default false
-             */
-            is_owner: boolean | null;
-            /**
-             * Subscriptions
-             * @default []
-             */
-            subscriptions: components["schemas"]["SubscriptionUpdate"][] | null;
-            /**
-             * Topics
-             * @default []
-             */
-            topics: components["schemas"]["TopicUpdate"][] | null;
-        };
-        /** SubscriptionUpdate */
-        SubscriptionUpdate: {
-            /** Id */
-            id: number;
-            /** Name */
-            name: string;
-        };
-        /** TopicOut */
-        TopicOut: {
-            /** Name */
-            name: string;
-            /** Keywords */
-            keywords: string[];
-        };
-        /** TopicUpdate */
-        TopicUpdate: {
-            /** Name */
-            name: string;
-            /** Keywords */
-            keywords: string[];
-        };
-        /** User */
-        User: {
-            /** Clerk Id */
-            clerk_id: string;
-            /**
-             * Email
-             * Format: email
-             */
-            email: string;
-            /** First Name */
-            first_name: string;
-            /** Last Name */
-            last_name: string;
-            /**
-             * Is Superuser
-             * @default false
-             */
-            is_superuser: boolean;
-            /** Organization Id */
-            organization_id?: string | null;
-            /**
-             * Id
-             * Format: uuid
-             */
-            id?: string;
-        };
-        /** ValidationError */
-        ValidationError: {
-            /** Location */
-            loc: (string | number)[];
-            /** Message */
-            msg: string;
-            /** Error Type */
-            type: string;
-        };
+  schemas: {
+    /** ArticleOverviewItem */
+    ArticleOverviewItem: {
+      /**
+       * Id
+       * Format: uuid
+       */
+      id: string;
+      /** Title */
+      title: string;
+      /** Url */
+      url: string;
+      /** Author */
+      author: string;
+      /**
+       * Published At
+       * Format: date-time
+       */
+      published_at: string;
+      /** Language */
+      language: string;
+      /** Category */
+      category: string;
+      /** Summary */
+      summary: string | null;
+      /** Sorting Order */
+      sorting_order: number;
     };
-    responses: never;
-    parameters: never;
-    requestBodies: never;
-    headers: never;
-    pathItems: never;
+    /** ArticleOverviewResponse */
+    ArticleOverviewResponse: {
+      /**
+       * Search Profile Id
+       * Format: uuid
+       */
+      search_profile_id: string;
+      /** Articles */
+      articles: components["schemas"]["ArticleOverviewItem"][];
+    };
+    /** FeedbackResponse */
+    FeedbackResponse: {
+      /** Status */
+      status: string;
+    };
+    /** HTTPValidationError */
+    HTTPValidationError: {
+      /** Detail */
+      detail?: components["schemas"]["ValidationError"][];
+    };
+    /** MatchDetailResponse */
+    MatchDetailResponse: {
+      /**
+       * Match Id
+       * Format: uuid
+       */
+      match_id: string;
+      /** Comment */
+      comment: string | null;
+      /** Sorting Order */
+      sorting_order: number;
+      /**
+       * Article Id
+       * Format: uuid
+       */
+      article_id: string;
+      /** Title */
+      title: string;
+      /** Url */
+      url: string;
+      /** Author */
+      author: string;
+      /**
+       * Published At
+       * Format: date-time
+       */
+      published_at: string;
+      /** Language */
+      language: string;
+      /** Category */
+      category: string;
+      /** Summary */
+      summary: string | null;
+    };
+    /** MatchFeedbackRequest */
+    MatchFeedbackRequest: {
+      /** Comment */
+      comment: string;
+      /**
+       * Reason
+       * @enum {string}
+       */
+      reason: "bad source" | "false" | "no good matching" | "other";
+      /** Ranking */
+      ranking: number;
+    };
+    /** SearchProfileCreateRequest */
+    SearchProfileCreateRequest: {
+      /** Name */
+      name: string;
+      /** Public */
+      public: boolean;
+      /** Organization Emails */
+      organization_emails: string[];
+      /** Profile Emails */
+      profile_emails: string[];
+      /** Subscriptions */
+      subscriptions: components["schemas"]["SubscriptionSummary"][];
+      /** Topics */
+      topics: components["schemas"]["TopicCreateOrUpdateRequest"][];
+    };
+    /** SearchProfileDetailResponse */
+    SearchProfileDetailResponse: {
+      /**
+       * Id
+       * Format: uuid
+       */
+      id: string;
+      /** Name */
+      name: string;
+      /** Public */
+      public: boolean;
+      /** Organization Emails */
+      organization_emails: string[];
+      /** Profile Emails */
+      profile_emails: string[];
+      /** Editable */
+      editable: boolean;
+      /** Is Editable */
+      is_editable: boolean;
+      /**
+       * Owner
+       * Format: uuid
+       */
+      owner: string;
+      /** Is Owner */
+      is_owner: boolean;
+      /** Topics */
+      topics: components["schemas"]["TopicResponse"][];
+      /** Subscriptions */
+      subscriptions: components["schemas"]["SubscriptionSummary"][];
+      /** New Articles Count */
+      new_articles_count: number;
+    };
+    /** SearchProfileUpdateRequest */
+    SearchProfileUpdateRequest: {
+      /** Name */
+      name: string;
+      /** Public */
+      public: boolean;
+      /** Organization Emails */
+      organization_emails: string[];
+      /** Profile Emails */
+      profile_emails: string[];
+      /** Subscriptions */
+      subscriptions: components["schemas"]["SubscriptionSummary"][];
+      /** Topics */
+      topics: components["schemas"]["TopicCreateOrUpdateRequest"][];
+    };
+    /** SubscriptionSummary */
+    SubscriptionSummary: {
+      /**
+       * Id
+       * Format: uuid
+       */
+      id: string;
+      /** Name */
+      name: string;
+      /** Is Subscribed */
+      is_subscribed: boolean;
+    };
+    /** TopicCreateOrUpdateRequest */
+    TopicCreateOrUpdateRequest: {
+      /** Name */
+      name: string;
+      /** Keywords */
+      keywords: string[];
+    };
+    /** TopicResponse */
+    TopicResponse: {
+      /**
+       * Id
+       * Format: uuid
+       */
+      id: string;
+      /** Name */
+      name: string;
+      /** Keywords */
+      keywords: string[];
+    };
+    /** User */
+    User: {
+      /** Clerk Id */
+      clerk_id: string;
+      /**
+       * Email
+       * Format: email
+       */
+      email: string;
+      /** First Name */
+      first_name: string;
+      /** Last Name */
+      last_name: string;
+      /**
+       * Is Superuser
+       * @default false
+       */
+      is_superuser: boolean;
+      /** Organization Id */
+      organization_id?: string | null;
+      /**
+       * Id
+       * Format: uuid
+       */
+      id?: string;
+    };
+    /** ValidationError */
+    ValidationError: {
+      /** Location */
+      loc: (string | number)[];
+      /** Message */
+      msg: string;
+      /** Error Type */
+      type: string;
+    };
+  };
+  responses: never;
+  parameters: never;
+  requestBodies: never;
+  headers: never;
+  pathItems: never;
 }
 export type $defs = Record<string, never>;
 export interface operations {
-    healthcheck_api_v1_healthcheck_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": unknown;
-                };
-            };
-        };
+  healthcheck_api_v1_healthcheck_get: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    list_users_api_v1_users_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
         };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["User"][] | components["schemas"]["User"];
-                };
-            };
+        content: {
+          "application/json": unknown;
         };
+      };
     };
-    get_current_user_info_api_v1_users_me_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["User"];
-                };
-            };
-        };
+  };
+  list_users_api_v1_users_get: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    sync_user_with_clerk_api_v1_users_sync_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
         };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["User"];
-                };
-            };
+        content: {
+          "application/json":
+            | components["schemas"]["User"][]
+            | components["schemas"]["User"];
         };
+      };
     };
-    get_available_search_profiles_api_v1_search_profiles_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["SearchProfileDetailResponse"][];
-                };
-            };
-        };
+  };
+  get_current_user_info_api_v1_users_me_get: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    add_search_profile_api_v1_search_profiles_add_put: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
         };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["SearchProfileDetailResponse"];
-                };
-            };
+        content: {
+          "application/json": components["schemas"]["User"];
         };
+      };
     };
-    get_search_profile_api_v1_search_profiles__profile_id__get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                profile_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["SearchProfileDetailResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
+  };
+  delete_current_user_api_v1_users_me_delete: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    update_search_profile_api_v1_search_profiles__profile_id__put: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                profile_id: string;
-            };
-            cookie?: never;
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
         };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["SearchProfileUpdateRequest"];
-            };
+        content: {
+          "application/json": components["schemas"]["FeedbackResponse"];
         };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["SearchProfileDetailResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
+      };
     };
-    get_search_profile_overview_api_v1_search_profiles__profile_id__overview_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                profile_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ArticleOverviewResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
+  };
+  sync_user_with_clerk_api_v1_users_sync_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    get_match_detail_api_v1_search_profiles__profile_id__article__match_id__get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                profile_id: string;
-                match_id: string;
-            };
-            cookie?: never;
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
         };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["MatchDetailResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
+        content: {
+          "application/json": components["schemas"]["User"];
         };
+      };
     };
-    update_match_feedback_api_v1_search_profiles__profile_id__article__match_id__put: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                profile_id: string;
-                match_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["MatchFeedbackRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["MatchDetailResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
+  };
+  get_available_search_profiles_api_v1_search_profiles_get: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["SearchProfileDetailResponse"][];
+        };
+      };
+    };
+  };
+  create_search_profile_api_v1_search_profiles_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["SearchProfileCreateRequest"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["SearchProfileDetailResponse"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  get_search_profile_api_v1_search_profiles__search_profile_id__get: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        search_profile_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["SearchProfileDetailResponse"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  update_search_profile_api_v1_search_profiles__search_profile_id__put: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        search_profile_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["SearchProfileUpdateRequest"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["SearchProfileDetailResponse"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  get_search_profile_overview_api_v1_search_profiles__search_profile_id__overview_get: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        search_profile_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ArticleOverviewResponse"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  get_match_detail_api_v1_search_profiles__search_profile_id__article__match_id__get: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        search_profile_id: string;
+        match_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["MatchDetailResponse"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  update_match_feedback_api_v1_search_profiles__search_profile_id__article__match_id__put: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        search_profile_id: string;
+        match_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["MatchFeedbackRequest"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["FeedbackResponse"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  get_all_subscriptions_api_v1_subscriptions_get: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["SubscriptionSummary"][];
+        };
+      };
+    };
+  };
 }
