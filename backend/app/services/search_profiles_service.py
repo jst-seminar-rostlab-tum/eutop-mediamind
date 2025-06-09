@@ -180,6 +180,7 @@ class SearchProfileService:
 
             await update_profile_with_request(
                 profile=db_profile,
+                user=current_user,
                 update_data=update_data,
                 session=session,
             )

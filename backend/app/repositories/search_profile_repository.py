@@ -139,11 +139,16 @@ async def get_search_profile_by_id(
 async def update_profile_with_request(
     profile: SearchProfile,
     update_data: SearchProfileUpdateRequest,
+    user: User,
     session,
 ):
     # Update base fields
     profile.name = update_data.name
     profile.is_public = update_data.public
+
+    # update owner of
+    if user.id == profile.owner or user.is_superuser:
+        profile.owner = update_data.owner
 
     await set_subscriptions_for_profile(
         profile_id=profile.id,

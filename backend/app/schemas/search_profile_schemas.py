@@ -28,6 +28,7 @@ class SearchProfileCreateRequest(SearchProfileBase):
 
 
 class SearchProfileUpdateRequest(SearchProfileBase):
+    owner: UUID
     topics: List[TopicCreateOrUpdateRequest]
 
 
