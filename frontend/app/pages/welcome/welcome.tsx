@@ -11,11 +11,11 @@ export function Welcome() {
   const { isSignedIn } = useAuthorization();
   const navigate = useNavigate();
 
-useEffect(() => {
-  if (isSignedIn) {
-    navigate("/dashboard");
-  }
-}, [isSignedIn, navigate])
+  useEffect(() => {
+    if (isSignedIn) {
+      navigate("/dashboard");
+    }
+  }, [isSignedIn, navigate]);
   return (
     <>
       <img
