@@ -13,7 +13,7 @@ import { getUserColumns } from "../columns";
 import type { User } from "../types";
 import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
 import React from "react";
-import { AlertCircleIcon, Plus } from "lucide-react";
+import { AlertCircleIcon } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogContent,
@@ -34,8 +34,6 @@ type Props = {
   onNameChange: (value: string) => void;
   users: User[];
   setUsers: (users: User[]) => void;
-  searchInput: string;
-  setSearchInput: (value: string) => void;
   onSave: () => void;
   unsavedEdits: boolean;
   setUnsavedEdits: (val: boolean) => void;
@@ -53,8 +51,6 @@ export function OrganizationDialog({
   onNameChange,
   users,
   setUsers,
-  searchInput,
-  setSearchInput,
   onSave,
   unsavedEdits,
   setUnsavedEdits,
@@ -75,8 +71,7 @@ export function OrganizationDialog({
     setUnsavedEdits(true);
   };
 
-  const handleAddNewUser = () => {
-    const email = searchInput.trim().toLowerCase();
+  const handleAddNewUser = (email: string) => {
     // check if email matches "something@something.something" format and does not already exist
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (
@@ -89,7 +84,6 @@ export function OrganizationDialog({
     // add user
     setShowAlert(false);
     setUsers([...users, { name: email, role: "user" }]);
-    setSearchInput("");
     setUnsavedEdits(true);
   };
 
@@ -107,7 +101,7 @@ export function OrganizationDialog({
           }
         }}
       >
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className="min-w-[700px]">
           <DialogHeader>
             <DialogTitle>
               {isEdit ? "Edit Organization" : "Add Organization"}
@@ -127,8 +121,8 @@ export function OrganizationDialog({
               </AlertDescription>
             </Alert>
           )}
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label className="text-right">Name</Label>
+          <div className="flex justyfiy-left items-center my-4">
+            <Label className="mr-4 ml-2">Name</Label>
             <Input
               id="name"
               value={name}
@@ -136,7 +130,7 @@ export function OrganizationDialog({
                 onNameChange(e.target.value);
               }}
               placeholder="New Organization"
-              className="col-span-3"
+              className="max-w-1/2"
             />
           </div>
           {showAlert && (
@@ -148,22 +142,10 @@ export function OrganizationDialog({
               </AlertDescription>
             </Alert>
           )}
-          <div className="mt-2">
-            <div className="flex items-center gap-4 my-2">
-              <Input
-                placeholder="Search user email"
-                value={searchInput}
-                onChange={(e) => setSearchInput(e.target.value)}
-              />
-              <Button variant={"outline"} onClick={handleAddNewUser}>
-                Add
-                <Plus className="ml-1 h-4 w-4" />
-              </Button>
-            </div>
+          <div>
             <DataTableUsers
               columns={getUserColumns(handleRoleChange, handleUserDelete)}
               data={users}
-              onSearchChange={setSearchInput}
               onAdd={handleAddNewUser}
             />
           </div>

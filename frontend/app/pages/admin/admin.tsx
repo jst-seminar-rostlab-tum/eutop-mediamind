@@ -90,7 +90,6 @@ export function AdminPage() {
     null,
   );
   const [editingUserData, setEditingUserData] = React.useState<User[]>([]);
-  const [searchInputForAdd, setSearchInputForAdd] = React.useState("");
   const [showOrgaNameAlert, setShowOrgaNameAlert] = React.useState(false);
   const [showAlert, setShowAlert] = React.useState(false);
 
@@ -333,8 +332,6 @@ export function AdminPage() {
           onNameChange={setNewOrgaName}
           users={editingUserData}
           setUsers={setEditingUserData}
-          searchInput={searchInputForAdd}
-          setSearchInput={setSearchInputForAdd}
           onSave={handleSaveOrganization}
           unsavedEdits={unsavedEdits}
           setUnsavedEdits={setUnsavedEdits}
