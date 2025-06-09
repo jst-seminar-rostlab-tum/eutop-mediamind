@@ -20,9 +20,9 @@ async def trigger_email_sending(recipient_email: str):
 
     email_schedule = EmailSchedule(
         recipient=recipient_email,
-        subject="[MEDIAMIND] Your PDF Report",
+        subject="[MEDIAMIND] Your daily report",
         content_type="text/plain",
-        content="Please find your PDF report attached.",
+        content="Dear user,\nPlease find your daily news report attached.\nBest regards,\nMediaMind Team",
         attachment=base64.b64encode(pdf_bytes).decode('utf-8')
     )
 
