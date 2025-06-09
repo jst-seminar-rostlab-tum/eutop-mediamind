@@ -1,4 +1,3 @@
-import type { Profile } from "~/types/profile";
 import { Label } from "~/components/ui/label";
 import { Switch } from "~/components/ui/switch";
 import { Separator } from "~/components/ui/separator";
@@ -19,33 +18,51 @@ import {
 } from "~/components/ui/command";
 import * as React from "react";
 import { cn } from "~/lib/utils";
+import { useQuery } from "../../../../types/api";
+import { useAuthorization } from "~/hooks/use-authorization";
+import type { MediamindUser, Profile } from "../../../../types/model";
+import { useEffect } from "react";
+import { toast } from "sonner";
 
 export interface GeneralProps {
   profile: Profile;
   setProfile: (profile: Profile) => void;
 }
 
-const users = [
-  {
-    value: "john.doe@example.com",
-    label: "John Doe",
-  },
-  {
-    value: "jane.smith@example.com",
-    label: "Jane Smith",
-  },
-  {
-    value: "contact@anotherdomain.org",
-    label: "Contact Us",
-  },
-  {
-    value: "alex.wilson@email.net",
-    label: "Alex Wilson",
-  },
-];
-
 export function General({ profile, setProfile }: GeneralProps) {
+  const { authorizationHeaders } = useAuthorization();
+
+  const {
+    data: userData,
+    isLoading,
+    error,
+  } = useQuery("/api/v1/users", {
+    headers: authorizationHeaders,
+  });
+
+  useEffect(() => {
+    if (error) {
+      toast.error("Failed to load users.");
+    }
+  }, [error]);
+
+  const users: MediamindUser[] = React.useMemo(() => {
+    if (!userData) {
+      return [];
+    }
+    if (Array.isArray(userData)) {
+      return userData;
+    }
+    return [userData];
+  }, [userData]);
+
   const [open, setOpen] = React.useState(false);
+
+  const selectedUser = users.find((user) => user.id === profile.owner);
+
+  const selectedUserLabel = selectedUser
+    ? `${selectedUser.first_name} ${selectedUser.last_name}`
+    : "Select user...";
 
   return (
     <div>
@@ -61,10 +78,9 @@ export function General({ profile, setProfile }: GeneralProps) {
               role="combobox"
               aria-expanded={open}
               className="w-[200px] justify-between"
+              disabled={isLoading}
             >
-              {profile.owner
-                ? users.find((user) => user.value === profile.owner)?.label
-                : "Select user..."}
+              {selectedUserLabel}
               <ChevronsUpDown className="opacity-50" />
             </Button>
           </PopoverTrigger>
@@ -72,29 +88,35 @@ export function General({ profile, setProfile }: GeneralProps) {
             <Command>
               <CommandInput placeholder="Search user..." className="h-9" />
               <CommandList>
-                <CommandEmpty>No user found.</CommandEmpty>
-                <CommandGroup>
-                  {users.map((user) => (
-                    <CommandItem
-                      key={user.value}
-                      value={user.value}
-                      onSelect={(currentValue) => {
-                        setProfile({ ...profile, owner: currentValue });
-                        setOpen(false);
-                      }}
-                    >
-                      {user.label}
-                      <Check
-                        className={cn(
-                          "ml-auto",
-                          profile.owner === user.value
-                            ? "opacity-100"
-                            : "opacity-0",
-                        )}
-                      />
-                    </CommandItem>
-                  ))}
-                </CommandGroup>
+                {isLoading ? (
+                  <div className="p-4 text-sm text-center">Loading...</div>
+                ) : (
+                  <>
+                    <CommandEmpty>No user found.</CommandEmpty>
+                    <CommandGroup>
+                      {users.map((user) => (
+                        <CommandItem
+                          key={user.id}
+                          value={user.id}
+                          onSelect={(currentValue) => {
+                            setProfile({ ...profile, owner: currentValue });
+                            setOpen(false);
+                          }}
+                        >
+                          {`${user.first_name} ${user.last_name}`}
+                          <Check
+                            className={cn(
+                              "ml-auto",
+                              profile.owner === user.id
+                                ? "opacity-100"
+                                : "opacity-0",
+                            )}
+                          />
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  </>
+                )}
               </CommandList>
             </Command>
           </PopoverContent>
@@ -117,21 +139,6 @@ export function General({ profile, setProfile }: GeneralProps) {
       </Label>
 
       <Separator />
-
-      {profile.public && (
-        <div>
-          <h2 className={"font-bold pt-3 pb-3"}>Editability</h2>
-          <div className={"flex gap-3"}>
-            <Label className={"text-gray-400 font-normal pb-3"}>
-              Profile can be edited by anyone
-            </Label>
-            <Switch
-              checked={profile.editable}
-              onCheckedChange={(e) => setProfile({ ...profile, editable: e })}
-            />
-          </div>
-        </div>
-      )}
     </div>
   );
 }

@@ -1,6 +1,12 @@
 import createClient from "openapi-fetch";
-import { createQueryHook } from "swr-openapi";
+import {
+  createImmutableHook,
+  createInfiniteHook,
+  createMutateHook,
+  createQueryHook,
+} from "swr-openapi";
 import type { paths } from "./api-types-v1";
+import { isMatch } from "lodash-es";
 
 export const BASE_URL =
   import.meta.env.VITE_BACKEND_URL ?? "http://localhost:8000";
@@ -10,4 +16,11 @@ export const client = createClient<paths>({
   credentials: "include",
 });
 
-export const useQuery = createQueryHook(client, "my-api");
+export { client };
+
+const API_PREFIX = "api";
+
+export const useQuery = createQueryHook(client, API_PREFIX);
+export const useImmutable = createImmutableHook(client, API_PREFIX);
+export const useInfinite = createInfiniteHook(client, API_PREFIX);
+export const useMutate = createMutateHook(client, API_PREFIX, isMatch);
