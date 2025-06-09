@@ -11,6 +11,7 @@ from app.main import app_creator
 async def startup_event():
     asyncio.create_task(init_session())
 
+
 async def init_session():
     with Session(engine) as session:
         await init_db(session)
