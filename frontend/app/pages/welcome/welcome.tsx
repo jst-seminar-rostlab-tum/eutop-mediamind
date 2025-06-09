@@ -15,7 +15,7 @@ export function Welcome() {
     if (isSignedIn) {
       navigate("/dashboard");
     }
-  });
+  }, [isSignedIn, navigate]);
   return (
     <>
       <img
