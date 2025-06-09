@@ -1,4 +1,3 @@
-import type { Profile } from "~/types/profile";
 import { useState } from "react";
 import {
   Select,
@@ -15,6 +14,8 @@ import { Label } from "~/components/ui/label";
 import { Input } from "~/components/ui/input";
 import { Sparkles, Trash2 } from "lucide-react";
 import { AiSuggestionTag } from "~/custom-components/profile/edit/ai-suggestion-tag";
+import type { Profile } from "../../../../types/model";
+
 
 interface TopicsProps {
   profile: Profile;
@@ -88,28 +89,37 @@ export function Topics({ profile, setProfile }: TopicsProps) {
                   ...profile,
                   topics: [
                     ...profile.topics,
-                    { name: newTopicName, keywords: [] },
+                    { id: "", name: newTopicName, keywords: [] },
                   ],
                 });
+                setSelectedTopic(newTopicName);
                 setNewTopicName("");
               }
             }}
           />
         </div>
+        {selectedTopic && (
+          <>
+            <KeywordField
+              keywords={selectedTopicKeywords}
+              setProfile={setProfile}
+              profile={profile}
+              selectedTopic={selectedTopic}
+            />
+            <div className={"pl-5 pr-5"}>
+              <div className="flex gap-2 items-center pb-2">
+                <Sparkles className={"w-4 h-4"} />
+                <h2>AI Keyword Suggestions</h2>
+              </div>
 
-        {selectedTopic && <KeywordField keywords={selectedTopicKeywords} />}
-        <div className={"pl-5 pr-5"}>
-          <div className="flex gap-2 items-center pb-2">
-            <Sparkles className={"w-4 h-4"} />
-            <h2>AI Keyword Suggestions</h2>
-          </div>
-
-          <div className={"flex flex-wrap gap-2 pb-2"}>
-            {selectedTopicKeywords.map((keyword) => (
-              <AiSuggestionTag keyword={keyword} />
-            ))}
-          </div>
-        </div>
+              <div className={"flex flex-wrap gap-2 pb-2"}>
+                {selectedTopicKeywords.map((keyword) => (
+                  <AiSuggestionTag keyword={keyword} />
+                ))}
+              </div>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );
