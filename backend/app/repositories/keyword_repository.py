@@ -61,7 +61,6 @@ class KeywordRepository:
                 select(Keyword)
                 .join(Topic)
                 .where(
-                    Keyword.topic_id == topic_id,
                     Topic.search_profile.has(user_id=user.id),
                 )
             )

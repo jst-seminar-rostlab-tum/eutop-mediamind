@@ -14,7 +14,7 @@ from app.schemas.topic_schemas import (
 
 class SearchProfileBase(BaseModel):
     name: str
-    public: bool
+    is_public: bool
     organization_emails: List[EmailStr]
     profile_emails: List[EmailStr]
     subscriptions: List[SubscriptionSummary]

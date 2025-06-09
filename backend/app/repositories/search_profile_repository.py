@@ -26,7 +26,7 @@ async def create_profile_with_request(
         # Create and persist base profile
         profile = SearchProfile(
             name=create_data.name,
-            is_public=create_data.public,
+            is_public=create_data.is_public,
             organization_id=current_user.organization_id,
             created_by_id=current_user.id,
         )
@@ -148,7 +148,7 @@ async def update_profile_with_request(
 
     # update owner of
     if user.id == profile.owner or user.is_superuser:
-        profile.owner = update_data.owner
+        profile.created_by_id = update_data.owner
 
     await set_subscriptions_for_profile(
         profile_id=profile.id,
