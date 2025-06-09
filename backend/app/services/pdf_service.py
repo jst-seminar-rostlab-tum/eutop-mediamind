@@ -49,12 +49,15 @@ class PDFService:
 
     @staticmethod
     async def create_sample_pdf() -> bytes:
+        """
+        This is a placeholder implementation that retrieves sample articles from the database.
+        """
         articles = await ArticleRepository.get_sameple_articles(10)
         news_items = []
         for article in articles:
             # Convert Article to NewsItem
             news_item = NewsItem(
-                id=article.id,
+                id=str(article.id),
                 title=article.title,
                 content=article.content,
                 url=article.url,
