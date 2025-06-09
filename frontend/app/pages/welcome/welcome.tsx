@@ -8,11 +8,11 @@ import Text from "~/custom-components/text";
 import { useAuthorization } from "~/hooks/use-authorization";
 
 export function Welcome() {
-  const { isSignedIn } = useAuthorization();
+  const { isSignedIn, user } = useAuthorization();
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (isSignedIn) {
+    if (isSignedIn && user?.organization_id) {
       navigate("/dashboard");
     }
   }, [isSignedIn, navigate]);
