@@ -1,6 +1,6 @@
 from clerk_backend_api import Clerk
 from clerk_backend_api.jwks_helpers import VerifyTokenOptions, verify_token
-from fastapi import Request, HTTPException, status
+from fastapi import HTTPException, Request, status
 
 from app.core.config import configs
 from app.core.logger import get_logger
