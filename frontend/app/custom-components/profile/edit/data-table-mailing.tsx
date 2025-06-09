@@ -158,6 +158,17 @@ export function DataTableMailing({
     // TODO: delete logic
   };
 
+  const handleAddEmail = () => {
+    if (!email) return; // prevent empty
+    if (dataArray.includes(email)) return; //prevent duplicates
+
+    const updatedArray = [...dataArray, email];
+    setDataArray(updatedArray);
+    setEmail(""); // clear input
+  };
+
+  const [email, setEmail] = React.useState("");
+
   return (
     <div className="w-full">
       <div className="flex items-center py-4 justify-between">
@@ -175,8 +186,14 @@ export function DataTableMailing({
               placeholder="Email"
               name="email"
               className={"rounded-r-none"}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
             />
-            <Button className={"rounded-l-none"} variant={"secondary"}>
+            <Button
+              className={"rounded-l-none"}
+              variant={"secondary"}
+              onClick={() => handleAddEmail()}
+            >
               <Plus className={"h-4 w-4"} />
               Add
             </Button>
