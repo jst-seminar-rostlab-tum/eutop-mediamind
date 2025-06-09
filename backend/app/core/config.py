@@ -52,6 +52,7 @@ class Configs(BaseSettings):
         ] + [self.FRONTEND_HOST]
 
     PROJECT_NAME: str = "mediamind"
+    FERNET_KEY: str = "nNjpIl9Ax2LRtm-p6ryCRZ8lRsL0DtuY0f9JeAe2wG0="
     SENTRY_DSN: HttpUrl | None = None
     POSTGRES_SERVER: str = "localhost"
     POSTGRES_PORT: int = 5432
@@ -62,11 +63,13 @@ class Configs(BaseSettings):
     @computed_field  # type: ignore[prop-decorator]
     @property
     def SQLALCHEMY_DATABASE_URI(self) -> PostgresDsn:
+        # Remove port from host if present
+        host = self.POSTGRES_SERVER.split(":")[0]
         return MultiHostUrl.build(
             scheme="postgresql+psycopg",
             username=self.POSTGRES_USER,
             password=self.POSTGRES_PASSWORD,
-            host=self.POSTGRES_SERVER,
+            host=host,
             port=self.POSTGRES_PORT,
             path=self.POSTGRES_DB,
         )
@@ -112,6 +115,7 @@ class Configs(BaseSettings):
     def _enforce_non_default_secrets(self) -> Self:
         self._check_default_secret("SECRET_KEY", self.SECRET_KEY)
         self._check_default_secret("POSTGRES_PASSWORD", self.POSTGRES_PASSWORD)
+        self._check_default_secret("FERNET_KEY", self.FERNET_KEY)
         self._check_default_secret(
             "FIRST_SUPERUSER_PASSWORD", self.FIRST_SUPERUSER_PASSWORD
         )
@@ -120,6 +124,9 @@ class Configs(BaseSettings):
 
     # Qdrant
     QDRANT_URL: str | None = None
+    QDRANT_API_KEY: str | None = None
+    QDRANT_HOST: str | None = None
+    ARTICLE_VECTORS_COLLECTION: str | None = None
 
     # OpenAI
     OPENAI_API_KEY: str | None = None

@@ -4,4 +4,5 @@ export default [
   index("routes/home.tsx"),
   route("admin", "routes/admin.tsx"),
   route("dashboard", "routes/dashboard.tsx"),
+  route("error/:code", "routes/error.tsx"),
 ] satisfies RouteConfig;

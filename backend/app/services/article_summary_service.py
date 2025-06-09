@@ -1,62 +1,97 @@
 import uuid
-from typing import Optional
+from typing import Optional, Sequence
 
+from langchain.chains.summarize import load_summarize_chain
+from langchain.docstore.document import Document
 from langchain.text_splitter import CharacterTextSplitter
+from langchain_openai import ChatOpenAI
+from starlette.concurrency import run_in_threadpool
 
+from app.core.config import configs
 from app.models.article import Article
 from app.repositories.article_repository import ArticleRepository
-from app.services.llm_service.llm_client import LLMClient
-from app.services.llm_service.llm_models import LLMModels
 
 
-def summarize_text(text: str) -> str:
-    """
-    Summarizes the given text using LLMClient.
+class ArticleSummaryService:
+    @staticmethod
+    def summarize_text(text: str) -> str:
+        """
+        Summarizes the given text using a language model.
 
-    Args:
-        text (str): The text to summarize.
+        Args:
+            text (str): The text to summarize.
 
-    Returns:
-        str: The summarized text.
-    """
-    llm_client = LLMClient(model=LLMModels.openai_4o_mini)
-
-    text_splitter = CharacterTextSplitter(chunk_size=1000, chunk_overlap=0)
-    chunks = text_splitter.split_text(text)
-
-    # Summarize each chunk
-    partial_summaries = []
-    for chunk in chunks:
-        summary = llm_client.generate_response(
-            f"Summarize the following:\n\n{chunk}"
+        Returns:
+            str: The summarized text.
+        """
+        llm = ChatOpenAI(
+            model="gpt-4o-mini",
+            temperature=0,
+            api_key=configs.OPENAI_API_KEY,
         )
-        partial_summaries.append(summary)
 
-    # Combine partial summaries into a final summary
-    combined_text = "\n".join(partial_summaries)
-    final_summary = llm_client.generate_response(
-        f"Summarize the following:\n\n{combined_text}"
-    )
+        text_splitter = CharacterTextSplitter(chunk_size=1000, chunk_overlap=0)
+        texts = text_splitter.split_text(text)
+        docs = [Document(page_content=t) for t in texts]
 
-    return final_summary
+        chain = load_summarize_chain(llm, chain_type="map_reduce")
+        summary = chain.invoke(docs)
+        return summary["output_text"]
 
+    @staticmethod
+    async def summarize_and_store(article_id: uuid.UUID) -> Optional[Article]:
+        """
+        Fetches an Article by ID, generates a summary for its content,
+        and updates only the `summary` field in the database.
 
-def summarize_and_store(article_id: uuid.UUID) -> Optional[Article]:
-    """
-    Summarizes an article's content and stores the result.
+        Returns:
+            The updated Article if it exists, otherwise None.
+        """
+        article = await ArticleRepository.get_article_by_id(article_id)
 
-    Args:
-        article_id (uuid.UUID): ID of the article to summarize.
+        if not article:
+            return None
 
-    Returns:
-        Optional[Article]: The updated article or None if not found.
-    """
-    article = ArticleRepository.get_article_by_id(article_id)
+        summary = ArticleSummaryService.summarize_text(article.content)
+        return await ArticleRepository.update_article_summary(
+            article_id, summary
+        )
 
-    if not article:
-        return None
+    @staticmethod
+    async def run(page_size: int = 100) -> None:
+        """
+        Fetches all articles without a summary in batches,
+        generates summaries for each,
+        and updates the `summary` field in the database.
 
-    summary = summarize_text(article.__getattribute__("content"))
-    article.summary = summary
+        Args:
+            page_size (int): Number of articles to process in each batch.
+        """
+        page = 0
+        offset = page * page_size
 
-    return ArticleRepository.update_article(article)
+        articles: Sequence[Article] = (
+            await ArticleRepository.list_articles_without_summary(
+                limit=page_size, offset=offset
+            )
+        )
+
+        while articles:
+            for article in articles:
+                try:
+                    # Run in a threadpool to avoid blocking the event loop
+                    summary = await run_in_threadpool(
+                        ArticleSummaryService.summarize_text, article.content
+                    )
+                    await ArticleRepository.update_article_summary(
+                        article.id, summary
+                    )
+                except Exception:
+                    continue
+
+            page += 1
+            offset = page * page_size
+
+            articles = await ArticleRepository.list_articles_without_summary(
+                limit=page_size, offset=offset
+            )

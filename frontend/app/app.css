@@ -95,3 +95,9 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+/* Remove Clerk UserProfile Watermark */
+.cl-navbar > :first-child,
+.cl-navbar > :nth-child(3) {
+  display: none;
+}
