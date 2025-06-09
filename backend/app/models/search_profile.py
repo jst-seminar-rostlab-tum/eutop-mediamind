@@ -21,7 +21,6 @@ class SearchProfile(SQLModel, table=True):
     name: str = Field(max_length=255)
     is_public: bool = Field(default=False)
     created_by_id: uuid.UUID = Field(foreign_key="users.id")
-    owner_id: uuid.UUID = Field(foreign_key="users.id")
     organization_id: uuid.UUID = Field(foreign_key="organizations.id")
     organization: Organization = Relationship(back_populates="search_profiles")
     organization_emails: List[str] = Field(sa_column=Column(ARRAY(String)))

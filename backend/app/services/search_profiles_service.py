@@ -85,7 +85,7 @@ class SearchProfileService:
     async def _build_profile_response(
         profile: SearchProfile, current_user: User
     ) -> SearchProfileDetailResponse:
-        is_owner = profile.owner_id == current_user.id
+        is_owner = profile.created_by_id == current_user.id
         is_editable = (
             is_owner
             or current_user.is_superuser
@@ -121,8 +121,7 @@ class SearchProfileService:
             public=profile.is_public,
             editable=is_editable,
             is_editable=is_editable,
-            created_by_id=profile.created_by_id,
-            owner_id=profile.owner_id,
+            owner=profile.created_by_id,
             is_owner=is_owner,
             organization_emails=organization_emails,
             profile_emails=profile_emails,

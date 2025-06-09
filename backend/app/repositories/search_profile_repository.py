@@ -28,7 +28,6 @@ async def create_profile_with_request(
             name=create_data.name,
             is_public=create_data.is_public,
             organization_id=current_user.organization_id,
-            owner_id=SearchProfileCreateRequest.owner_id,
             created_by_id=current_user.id,
         )
         session.add(profile)
@@ -148,8 +147,8 @@ async def update_profile_with_request(
     profile.is_public = update_data.public
 
     # update owner of
-    if user.id == profile.owner_id or user.is_superuser:
-        profile.owner_id = update_data.owner_id
+    if user.id == profile.owner or user.is_superuser:
+        profile.created_by_id = update_data.owner
 
     await set_subscriptions_for_profile(
         profile_id=profile.id,
