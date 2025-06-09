@@ -1,19 +1,20 @@
 import asyncio
 
 import sentry_sdk
-from fastapi import FastAPI
-from sqlmodel import Session
+from fastapi import FastAPI, Request
+from sqlalchemy.exc import SQLAlchemyError
 from starlette.middleware.cors import CORSMiddleware
+from starlette.responses import JSONResponse
 
 from app.api.v1.routes import routers as v1_routers
 from app.core.config import configs
-from app.core.db import engine, init_db
 from app.core.logger import get_logger
+from app.initial_data import main
+
+logger = get_logger(__name__)
 
 
 class AppCreator:
-    logger = get_logger(__name__)
-
     def __init__(self):
         # see https://docs.sentry.io/platforms/python/data-management/data-collected/ for more info  # noqa: E501
         if configs.SENTRY_DSN and configs.ENVIRONMENT != "local":
@@ -24,8 +25,7 @@ class AppCreator:
                 environment=configs.ENV,
             )
 
-        self.logger.info("Starting FastAPI app initialization.")
-        # set app default
+        logger.info("Starting FastAPI app initialization.")
 
         self.app = FastAPI(
             title=configs.PROJECT_NAME,
@@ -34,7 +34,33 @@ class AppCreator:
             version="0.0.1",
         )
 
-        # set cors
+        self._register_exception_handlers()
+        self._configure_cors()
+        self._include_routes()
+
+        main()
+        logger.info("FastAPI app initialized successfully.")
+
+    def _register_exception_handlers(self):
+        @self.app.exception_handler(Exception)
+        async def global_exception_handler(request: Request, exc: Exception):
+            logger.exception(f"Unhandled Exception: {exc} {request}")
+            return JSONResponse(
+                status_code=500,
+                content={"detail": "Internal server error"},
+            )
+
+        @self.app.exception_handler(SQLAlchemyError)
+        async def sqlalchemy_exception_handler(
+            request: Request, exc: SQLAlchemyError
+        ):
+            logger.error(f"Database error: {exc} {request}")
+            return JSONResponse(
+                status_code=500,
+                content={"detail": "A database error occurred."},
+            )
+
+    def _configure_cors(self):
         if configs.BACKEND_CORS_ORIGINS:
             self.app.add_middleware(
                 CORSMiddleware,
@@ -44,13 +70,12 @@ class AppCreator:
                 allow_headers=["*"],
             )
 
+    def _include_routes(self):
         self.app.include_router(v1_routers, prefix="/api/v1")
-        asyncio.create_task(init_db_session())
-        self.logger.info("FastAPI app initialized successfully.")
+        asyncio.create_task(main())
+        logger.info("FastAPI app initialized successfully.")
 
-async def init_db_session() -> None:
-    with Session(engine) as session:
-        await init_db(session)
 
+# Instantiate and expose app for uvicorn
 app_creator = AppCreator()
 app = app_creator.app
