@@ -22,7 +22,8 @@ async def get_authenticated_user(request: Request) -> User:
             token = request.cookies.get("__session")
             if not token:
                 raise HTTPException(
-                    status_code=401, detail="Missing authentication token in cookies"
+                    status_code=401,
+                    detail="Missing authentication token in cookies",
                 )
 
             # Step 1: Verify token
@@ -63,7 +64,8 @@ async def get_sync_user(request: Request) -> User:
             token = request.cookies.get("__session")
             if not token:
                 raise HTTPException(
-                    status_code=401, detail="Missing authentication token in cookies"
+                    status_code=401,
+                    detail="Missing authentication token in cookies",
                 )
 
             # Step 1: Verify the token and extract the Clerk user ID (sub)
