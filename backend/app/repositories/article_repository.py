@@ -134,7 +134,7 @@ class ArticleRepository:
             return summarized_articles
 
     @staticmethod
-    async def get_sameple_articles(limit: int) -> List[Article] | None:
+    async def get_sameple_articles(limit: int) -> List[Article]:
         async with async_session() as session:
             result = await session.execute(
                 select(Article)
