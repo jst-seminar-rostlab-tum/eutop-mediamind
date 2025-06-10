@@ -230,6 +230,7 @@ class PDFService:
             bulletIndent=0,
             leftIndent=0,
             leading=14,
+            alignment=TA_JUSTIFY,
         )
 
         metadata_style = ParagraphStyle(
@@ -525,7 +526,6 @@ class PDFService:
 
         story = []
         for i, news in enumerate(news_items):
-            # Insert anchor for TOC to jump to this summary
             story.append(AnchorFlowable(f"toc_summary_{i}"))
             story.append(
                 Paragraph(
@@ -548,7 +548,7 @@ class PDFService:
                     pub_date_str = dt.strftime("%d %B %Y at %H:%M")
                 except Exception:
                     pub_date_str = news.published_at
-            story.append(Paragraph(pub_date_str, date_style))
+            story.append(Paragraph(pub_date_str, PDFService.date_style))
             story.append(Spacer(1, 0.05 * inch))
             summary_text = news.content[:300].replace("\n", "<br/>")
             story.append(Paragraph(summary_text, summary_style))
@@ -603,9 +603,7 @@ class PDFService:
         story = []
         for i, news in enumerate(news_items):
             dest_name = f"full_{news.id}"
-            # Anchor for full article
             story.append(AnchorFlowable(dest_name))
-            # Anchor for TOC jump to this article (optional, e.g. for future TOC to articles)
             story.append(AnchorFlowable(f"toc_article_{i}"))
             story.append(
                 Paragraph(str(i + 1) + ". " + news.title, title_style)
@@ -637,7 +635,7 @@ class PDFService:
                 Paragraph(
                     f"""
                                     <para alignment="right">
-                                   <a href="#toc_summary_{i}"><u><font color="{blueColor}">Read summary</font></u></a>
+                                   <a href="#toc_summary_{i}"><u><font>Read summary</font></u></a>
                                     </para>
                                    """,
                     link_style,
@@ -648,6 +646,100 @@ class PDFService:
             story.append(Paragraph(content_text, content_style))
             story.append(Spacer(1, 0.15 * inch))
 
+            # Content
+            content_text = news.content.replace("\n", "<br/>")
+            story.append(Paragraph(content_text, PDFService.content_style))
+            story.append(Spacer(1, 0.3 * inch))
+
+            # TODO: Content Extracted Data from DB and added to NewsItem
+            people_str = "None"
+            if (
+                hasattr(news, "politicians")
+                and isinstance(news.politicians, list)
+                and news.politicians
+            ):
+                people_str = ", ".join(
+                    f"{p.name}" for p in news.politicians if hasattr(p, "name")
+                )
+            story.append(
+                Paragraph(
+                    f"<b>Mentioned People: </b> {people_str}",
+                    PDFService.metadata_style,
+                )
+            )
+
+            pol_str = "None"
+            if (
+                hasattr(news, "people")
+                and isinstance(news.people, list)
+                and news.people
+            ):
+                pol_str = ", ".join(
+                    f"{p.name} ({getattr(p, 'party', 'N/A')})"
+                    for p in news.people
+                    if hasattr(p, "name")
+                )
+            story.append(
+                Paragraph(
+                    f"<b>Mentioned Politicians: </b> {pol_str}",
+                    PDFService.metadata_style,
+                )
+            )
+
+            companies_str = "None"
+            if (
+                hasattr(news, "companies")
+                and isinstance(news.companies, list)
+                and news.companies
+            ):
+                companies_str = ", ".join(
+                    f"{comp.name}"
+                    for comp in news.companies
+                    if hasattr(comp, "name")
+                )
+            story.append(
+                Paragraph(
+                    f"<b>Mentioned Companies: </b> {companies_str}",
+                    PDFService.metadata_style,
+                )
+            )
+
+            industries_str = "None"
+            if (
+                hasattr(news, "industries")
+                and isinstance(news.industries, list)
+                and news.industries
+            ):
+                industries_str = ", ".join(
+                    f"{ind.name}"
+                    for ind in news.industries
+                    if hasattr(ind, "name")
+                )
+            story.append(
+                Paragraph(
+                    f"<b>Mentioned Industries: </b> {industries_str}",
+                    PDFService.metadata_style,
+                )
+            )
+
+            legislations_str = "None"
+            if (
+                hasattr(news, "legislations")
+                and isinstance(news.legislations, list)
+                and news.legislations
+            ):
+                legislations_str = ", ".join(
+                    f"{getattr(leg, 'number', 'N/A')} ({getattr(leg, 'name', 'N/A')})"
+                    for leg in news.legislations
+                )
+            story.append(
+                Paragraph(
+                    f"<b>Mentioned Legislations: </b> {legislations_str}",
+                    PDFService.metadata_style,
+                )
+            )
+
+            # URL Link Button
             link_img = Image("assets/link_icon.png", width=16, height=16)
             button = Table(
                 [
