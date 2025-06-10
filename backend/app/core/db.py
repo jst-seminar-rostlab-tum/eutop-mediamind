@@ -9,8 +9,7 @@ from .config import Configs
 
 logger = get_logger(__name__)
 
-engine: AsyncEngine = create_async_engine(str(configs.SQLALCHEMY_DATABASE_URI))
-
+engine: AsyncEngine = create_async_engine(str(configs.SQLALCHEMY_DATABASE_URI), echo=True)
 async_session = async_sessionmaker(engine, expire_on_commit=False)
 
 async def init_db():

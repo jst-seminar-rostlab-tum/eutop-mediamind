@@ -5,7 +5,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from "~/components/ui/select";
-import type { Organization, Subscription, User, DeleteTarget } from "./types";
+import {
+  AlertDialog,
+  AlertDialogTrigger,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogFooter,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogCancel,
+  AlertDialogAction,
+} from "~/components/ui/alert-dialog";
+import type { Organization, Subscription, User } from "./types";
 import type { ColumnDef } from "@tanstack/react-table";
 import {
   DropdownMenu,
@@ -15,12 +26,10 @@ import {
 } from "~/components/ui/dropdown-menu";
 import { MoreHorizontal, Trash } from "lucide-react";
 import { Button } from "~/components/ui/button";
-import { Checkbox } from "~/components/ui/checkbox";
 
 export function getOrgaColumns(
   handleEdit: (name: string) => void,
-  setDeleteTarget: (target: DeleteTarget) => void,
-  setOpenDeleteDialog: React.Dispatch<React.SetStateAction<boolean>>,
+  handleDelete: (name: string) => void,
 ): ColumnDef<Organization>[] {
   return [
     {
@@ -41,19 +50,13 @@ export function getOrgaColumns(
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem onClick={() => handleEdit(orgName)}>
-                Edit
+                Edit Organization
               </DropdownMenuItem>
               <DropdownMenuItem
-                onClick={() => {
-                  setDeleteTarget({
-                    type: "organization",
-                    identifier: orgName,
-                  });
-                  setOpenDeleteDialog(true);
-                }}
+                onClick={() => handleDelete(orgName)}
                 className="text-red-500"
               >
-                Delete
+                Delete Organization
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -65,8 +68,7 @@ export function getOrgaColumns(
 
 export function getSubsColumns(
   onEdit: (index: number) => void,
-  setDeleteTarget: (target: DeleteTarget) => void,
-  setOpenDeleteDialog: React.Dispatch<React.SetStateAction<boolean>>,
+  onDelete: (index: number) => void,
 ): ColumnDef<Subscription>[] {
   return [
     { accessorKey: "name", header: "Subscriptions" },
@@ -85,16 +87,13 @@ export function getSubsColumns(
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem onClick={() => onEdit(index)}>
-                Edit
+                Edit Subscription
               </DropdownMenuItem>
               <DropdownMenuItem
-                onClick={() => {
-                  setDeleteTarget({ type: "subscription", identifier: index });
-                  setOpenDeleteDialog(true);
-                }}
+                onClick={() => onDelete(index)}
                 className="text-red-500"
               >
-                Delete
+                Delete Subscription
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -110,28 +109,6 @@ export function getUserColumns(
 ): ColumnDef<User>[] {
   return [
     {
-      id: "select",
-      header: ({ table }) => (
-        <Checkbox
-          checked={
-            table.getIsAllPageRowsSelected() ||
-            (table.getIsSomePageRowsSelected() && "indeterminate")
-          }
-          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-          aria-label="Select all"
-        />
-      ),
-      cell: ({ row }) => (
-        <Checkbox
-          checked={row.getIsSelected()}
-          onCheckedChange={(value) => row.toggleSelected(!!value)}
-          aria-label="Select row"
-        />
-      ),
-      enableSorting: false,
-      enableHiding: false,
-    },
-    {
       accessorKey: "name",
       header: "User",
     },
@@ -145,9 +122,9 @@ export function getUserColumns(
         return (
           <Select
             value={role}
-            onValueChange={(newRole) => {
-              onRoleChange(index, newRole as "admin" | "user");
-            }}
+            onValueChange={(newRole) =>
+              onRoleChange(index, newRole as "admin" | "user")
+            }
           >
             <SelectTrigger className="w-[120px]">
               <SelectValue placeholder="Select role" />
@@ -165,9 +142,27 @@ export function getUserColumns(
       cell: ({ row }) => {
         const index = row.index;
         return (
-          <Button variant={"ghost"} onClick={() => onDelete(index)}>
-            <Trash className="text-red-500" />
-          </Button>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button variant={"ghost"}>
+                <Trash className="text-red-500" />
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This will permanently remove the user from this organization.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction onClick={() => onDelete(index)}>
+                  Delete
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         );
       },
     },

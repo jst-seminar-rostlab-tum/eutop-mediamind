@@ -24,12 +24,13 @@ import { Button } from "~/components/ui/button";
 import { ArrowUpDown } from "lucide-react";
 import { Input } from "~/components/ui/input";
 import { Switch } from "~/components/ui/switch";
-import type { Subscription } from "../../../../types/model";
+import type { Subscription } from "~/types/profile";
 
 export interface MailingTableProps {
   name: string;
   allSubscriptions: Subscription[];
-  setSubscriptions: (subscriptions: Subscription[]) => void;
+  selectedSubscriptions: Subscription[];
+  setSubscriptions: (subs: Subscription[]) => void;
 }
 
 type DataRow = {
@@ -93,6 +94,7 @@ const getColumns = (
 export function DataTableSubscriptions({
   name,
   allSubscriptions,
+  selectedSubscriptions,
   setSubscriptions,
 }: MailingTableProps) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
@@ -106,39 +108,30 @@ export function DataTableSubscriptions({
   const [internalData, setInternalData] = React.useState<DataRow[]>(() =>
     allSubscriptions.map((item) => ({
       data: item,
-      active: item.is_subscribed,
+      active: selectedSubscriptions.map((s) => s.name).includes(item.name),
     })),
   );
 
-  const addSubscription = (sub: Subscription) => {
-    const updatedSub = { ...sub, is_subscribed: true };
-    const updatedSubscriptions = allSubscriptions.map((s) =>
-      s.id === sub.id ? updatedSub : s,
-    );
-    setSubscriptions(updatedSubscriptions);
-  };
+  const addSubscription = (sub: Subscription) =>
+    setSubscriptions([...selectedSubscriptions, sub]);
 
-  const removeSubscription = (sub: Subscription) => {
-    const updatedSub = { ...sub, is_subscribed: false };
-    const updatedSubscriptions = allSubscriptions.map((s) =>
-      s.id === sub.id ? updatedSub : s,
-    );
-    setSubscriptions(updatedSubscriptions);
-  };
-
+  const removeSubscription = (sub: Subscription) =>
+    setSubscriptions(selectedSubscriptions.filter((s) => s.name !== sub.name));
   React.useEffect(() => {
     setInternalData((currentInternalData) =>
       allSubscriptions.map((item) => {
         const existingRow = currentInternalData.find(
-          (d) => d.data.id === item.id,
+          (d) => d.data.name === item.name,
         );
         return {
           data: item,
-          active: existingRow ? existingRow.active : item.is_subscribed,
+          active: existingRow
+            ? existingRow.active
+            : selectedSubscriptions.map((s) => s.name).includes(item.name),
         };
       }),
     );
-  }, [allSubscriptions]);
+  }, [allSubscriptions, selectedSubscriptions]);
 
   const columns = React.useMemo(
     () => getColumns(name, addSubscription, removeSubscription),

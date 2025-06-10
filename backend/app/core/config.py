@@ -106,9 +106,6 @@ class Configs(BaseSettings):
 
     # Qdrant
     QDRANT_URL: str | None = None
-    QDRANT_API_KEY: str | None = None
-    QDRANT_HOST: str | None = None
-    ARTICLE_VECTORS_COLLECTION: str | None = None
 
     # OpenAI
     OPENAI_API_KEY: str | None = None

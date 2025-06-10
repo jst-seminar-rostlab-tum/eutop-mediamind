@@ -33,21 +33,9 @@ export default function Text({
     );
   }
 
-  if (hierachy == 2) {
-    // For second level headlines
-    const Tag = tag || "h2";
-    return (
-      <Tag
-        className={`${className} text-3xl font-extrabold tracking-tight lg:text-4xl p-4`}
-      >
-        {children}
-      </Tag>
-    );
-  }
-
   // Normal Text
   return (
-    <p className={`${className} leading-7 [&:not(:first-child)]:mt-4`}>
+    <p className={`${className} leading-7 [&:not(:first-child)]:mt-6`}>
       {children}
     </p>
   );

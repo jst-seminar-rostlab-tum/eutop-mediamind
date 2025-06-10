@@ -20,7 +20,6 @@ import {
   AuthorizationContextProvider,
   useAuthorization,
 } from "./hooks/use-authorization";
-import { Toaster } from "~/components/ui/sonner";
 
 export async function loader(args: Route.LoaderArgs) {
   return rootAuthLoader(args);
@@ -77,7 +76,6 @@ export function Layout({ children }: { children: React.ReactNode }) {
         {children}
         <ScrollRestoration />
         <Scripts />
-        <Toaster />
       </body>
     </html>
   );
