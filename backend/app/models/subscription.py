@@ -28,9 +28,9 @@ class Subscription(SQLModel, table=True):
     domain: str = Field(max_length=255)
     config: str = Field(max_length=255)
     scraper_type: str = Field(max_length=255)
-    # encrypted_secrets: Optional[bytes] = Field(
-    #     default=None, sa_column_kwargs={"nullable": True}
-    # )
+    encrypted_secrets: Optional[bytes] = Field(
+        default=None, sa_column_kwargs={"nullable": True}
+    )
 
     # Relationships
     organizations: List["Organization"] = Relationship(

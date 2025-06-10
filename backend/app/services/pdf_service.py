@@ -65,7 +65,7 @@ class PDFService:
         for article in articles:
             # Convert Article to NewsItem
             news_item = NewsItem(
-                id=article.id,
+                id=str(article.id),
                 title=article.title,
                 content=article.content,
                 url=article.url,
