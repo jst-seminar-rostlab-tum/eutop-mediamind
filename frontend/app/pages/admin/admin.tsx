@@ -204,10 +204,20 @@ export function AdminPage() {
   return (
     <>
       <Layout>
-        <Text className="mt-10" hierachy={1}>
-          Admin Settings
-        </Text>
-        <Tabs defaultValue="organizations" className="m-6">
+        <Breadcrumb className="mt-8">
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink href="/dashboard">Home</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>Admin-Settigns</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
+        <Text hierachy={2}>Admin Settings</Text>
+
+        <Tabs defaultValue="organizations" className="my-2">
           <TabsList className="w-full">
             <TabsTrigger value="organizations">Organizations</TabsTrigger>
             <TabsTrigger value="subscriptions">Subscriptions</TabsTrigger>

@@ -11,6 +11,21 @@ import {
 } from "~/components/ui/breadcrumb";
 import { useAuthorization } from "~/hooks/use-authorization";
 import { useQuery } from "types/api";
+import { useEffect } from "react";
+import { toast } from "sonner";
+import { EditProfile } from "~/custom-components/profile/edit/edit-profile";
+import { sortBy } from "lodash-es";
+import Layout from "~/custom-components/layout";
+import Text from "~/custom-components/text";
+
+const suppressSWRReloading = {
+  refreshInterval: 0,
+  refreshWhenHidden: false,
+  revalidateOnFocus: false,
+  refreshWhenOffline: false,
+  revalidateIfStale: false,
+  revalidateOnReconnect: false,
+};
 
 export function DashboardPage() {
   const { authorizationHeaders } = useAuthorization();
@@ -23,15 +38,15 @@ export function DashboardPage() {
   const { data: profiles } = useSearchProfiles();
 
   return (
-    <div className={" mx-auto w-full max-w-2xl xl:max-w-7xl mt-12"}>
-      <Breadcrumb>
+    <Layout>
+      <Breadcrumb className="mt-8">
         <BreadcrumbList>
           <BreadcrumbItem>
             <BreadcrumbLink href="/dashboard">Home</BreadcrumbLink>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
-      <h1 className="text-3xl font-bold mb-4">Dashboard</h1>
+      <Text hierachy={2}>Dashboard</Text>
       <Alert className="bg-blue-100 mb-3">
         <Rocket className="h-4 w-4" color="#113264" />
         <AlertTitle className="text-[#113264]">Heads up!</AlertTitle>
@@ -59,6 +74,6 @@ export function DashboardPage() {
         ))}
       </div>
       <h2 className="text-2xl font-bold mb-4">Trend Analysis</h2>
-    </div>
+    </Layout>
   );
 }
