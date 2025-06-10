@@ -1,21 +1,28 @@
 from uuid import UUID
 from typing import List
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 
 from app.core.auth import get_authenticated_user
+from app.core.logger import get_logger
 from app.models.user import User
 from app.schemas.articles_schemas import (
     ArticleOverviewResponse,
     MatchDetailResponse,
 )
 from app.schemas.match_schemas import MatchFeedbackRequest
+from app.schemas.request_response import FeedbackResponse
+from app.schemas.search_profile_schemas import (
+    SearchProfileCreateRequest,
+    SearchProfileDetailResponse,
+    SearchProfileUpdateRequest,
+)
 from app.schemas.search_profile_schemas import (
     KeywordSuggestionResponse,
     SearchProfileDetailResponse,
     SearchProfileUpdateRequest,
 )
-from app.services.search_profiles_service import SearchProfiles
+from app.services.search_profiles_service import SearchProfileService
 
 router = APIRouter(
     prefix="/search-profiles",
@@ -23,19 +30,17 @@ router = APIRouter(
     dependencies=[Depends(get_authenticated_user)],
 )
 
+logger = get_logger(__name__)
+
 
 @router.get("", response_model=list[SearchProfileDetailResponse])
 async def get_available_search_profiles(
-    current_user=Depends(get_authenticated_user),
+    current_user: User = Depends(get_authenticated_user),
 ):
-    return await SearchProfiles.get_available_search_profiles(current_user)
+    return await SearchProfileService.get_available_search_profiles(
+        current_user
+    )
 
-
-@router.put("/add", response_model=SearchProfileDetailResponse)
-async def add_search_profile(
-    current_user=Depends(get_authenticated_user),
-):
-    return await SearchProfiles.get_available_search_profiles(current_user)
 
 @router.post("/keywords/suggestions", response_model=KeywordSuggestionResponse)
 async def get_keyword_suggestions(
@@ -44,42 +49,72 @@ async def get_keyword_suggestions(
 ) -> KeywordSuggestionResponse:
     return await SearchProfiles.get_keyword_suggestions(current_user, keyword_suggestion_request)
 
-@router.get("/{profile_id}", response_model=SearchProfileDetailResponse)
+@router.get("/{search_profile_id}", response_model=SearchProfileDetailResponse)
 async def get_search_profile(
-    profile_id: UUID, current_user=Depends(get_authenticated_user)
+    search_profile_id: UUID,
+    current_user: User = Depends(get_authenticated_user),
 ):
-    return SearchProfiles.get_search_profile(profile_id, current_user)
-
-
-@router.put("/{profile_id}", response_model=SearchProfileDetailResponse)
-async def update_search_profile(
-    profile_id: UUID,
-    request: SearchProfileUpdateRequest,
-    current_user=Depends(get_authenticated_user),
-):
-    return await SearchProfiles.update_search_profile(
-        profile_id, request, current_user
+    profile = await SearchProfileService.get_search_profile_by_id(
+        search_profile_id, current_user
     )
+    if profile is None:
+        raise HTTPException(status_code=404, detail="Search profile not found")
+    return profile
 
-
-@router.get("/{profile_id}/overview", response_model=ArticleOverviewResponse)
-async def get_search_profile_overview(profile_id: UUID):
-    return await SearchProfiles.get_article_overview(profile_id)
 
 @router.get(
-    "/{profile_id}/article/{match_id}", response_model=MatchDetailResponse
+    "/{search_profile_id}/overview", response_model=ArticleOverviewResponse
 )
-async def get_match_detail(profile_id: UUID, match_id: UUID):
-    return await SearchProfiles.get_match_detail(profile_id, match_id)
+async def get_search_profile_overview(search_profile_id: UUID):
+    return await SearchProfileService.get_article_overview(search_profile_id)
 
 
-@router.put("/{profile_id}/article/{match_id}")
+@router.get(
+    "/{search_profile_id}/article/{match_id}",
+    response_model=MatchDetailResponse,
+)
+async def get_match_detail(search_profile_id: UUID, match_id: UUID):
+    detail = await SearchProfileService.get_match_detail(
+        search_profile_id, match_id
+    )
+    if detail is None:
+        raise HTTPException(status_code=404, detail="Match not found")
+    return detail
+
+
+@router.post("", response_model=SearchProfileDetailResponse)
+async def create_search_profile(
+    profile_data: SearchProfileCreateRequest,
+    current_user: User = Depends(get_authenticated_user),
+):
+    return await SearchProfileService.create_search_profile(
+        profile_data, current_user
+    )
+
+
+@router.put("/{search_profile_id}", response_model=SearchProfileDetailResponse)
+async def update_search_profile(
+    search_profile_id: UUID,
+    update_data: SearchProfileUpdateRequest,
+    current_user: User = Depends(get_authenticated_user),
+):
+    # Now always raises 404 if not found, so no need for `if updated is None`
+    return await SearchProfileService.update_search_profile(
+        search_profile_id, update_data, current_user
+    )
+
+
+@router.put("/{search_profile_id}/article/{match_id}")
 async def update_match_feedback(
-    profile_id: UUID,
+    search_profile_id: UUID,
     match_id: UUID,
     feedback: MatchFeedbackRequest,
-) -> MatchDetailResponse:
-    updated_match = await SearchProfiles.update_match_feedback(
-        profile_id, match_id, feedback
+) -> FeedbackResponse:
+    success = await SearchProfileService.update_match_feedback(
+        search_profile_id, match_id, feedback
     )
-    return updated_match
+    if not success:
+        raise HTTPException(
+            status_code=404, detail="Match not found or feedback update failed"
+        )
+    return FeedbackResponse(status="success")

@@ -12,7 +12,7 @@ from .config import Configs
 
 logger = get_logger(__name__)
 
-engine = create_async_engine(str(configs.SQLALCHEMY_DATABASE_URI), echo=True)
+engine = create_async_engine(str(configs.SQLALCHEMY_DATABASE_URI))
 
 async_session = async_sessionmaker(engine, expire_on_commit=False)
 
