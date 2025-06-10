@@ -111,6 +111,7 @@ class PDFService:
         dimensions = A4
         logger = get_logger(__name__)
         logger.info("Articles chosen before PDF Generation:")
+        # Logging which articles, if they have summaries and keywords
         for news in news_items:
             logger.info(
                 f"Processing News item: {news.id}, Summary: {True if news.summary else False}, Keywords: {True if news.keywords else 'False'}"
@@ -142,6 +143,7 @@ class PDFService:
         buffer = BytesIO()
         width, height = dimensions
         margin = inch
+
         # Use a single frame for simplicity, as elements can use PageBreaks
         frame = Frame(
             margin, margin, width - 2 * margin, height - 2 * margin, id="main"
@@ -198,10 +200,10 @@ class PDFService:
         return buffer.getvalue()
 
     # This function wraps text to a specified width, ensuring that it fits within the PDF layout.
-    @staticmethod
-    def __wrap_text(text, width):
-        wrapper = textwrap.TextWrapper(width=width)
-        return "\n".join(wrapper.wrap(text))
+    # @staticmethod
+    # def __wrap_text(text, width):
+    #     wrapper = textwrap.TextWrapper(width=width)
+    #     return "\n".join(wrapper.wrap(text))
 
     # This function calculates the estimated reading time based on the word count and a specified reading speed.
     @staticmethod
@@ -303,6 +305,15 @@ class PDFService:
             )
         )
         story.append(Spacer(1, 0.4 * inch))
+        # Subtitle with current date and time
+        now_str = datetime.today().strftime("%d %B %Y – %I:%M%p")
+        story.append(
+            Paragraph(
+                f"<b><font size=16 color='#003366'>{now_str}</font></b>",
+                styles["Title"],
+            )
+        )
+        story.append(Spacer(1, 0.3 * inch))
         # Total reading time
         total_text = " ".join(news.content for news in news_items)
         total_minutes = PDFService.__calculate_reading_time(
@@ -348,7 +359,6 @@ class PDFService:
         for i, news in enumerate(news_items):
             # Add anchor for TOC entry (optional, if needed)
             story.append(AnchorFlowable(f"toc_entry_{i}"))
-            # Entry: title as link, below it: small gray meta
             story.append(
                 Paragraph(
                     f'<a href="#toc_summary_{i}">{news.title}</a><br/>',
@@ -429,12 +439,7 @@ class PDFService:
         canvas.setFont("DVS-Oblique", 8)
         canvas.drawString(x_after, y_position, time_part + " ")
 
-        # Date
-        x_after += canvas.stringWidth(time_part + " ", "DVS-Oblique", 10)
-        canvas.setFont("DVS-Bold", 8)
-        canvas.drawString(x_after, y_position, date_part)
-
-        # Draw end of header
+        # Load and scale SVG logo
         try:
             drawing = svg2rlg("assets/eutop_logo.svg")
             target_height = 0.17 * inch
@@ -450,6 +455,7 @@ class PDFService:
             )
         except Exception as e:
             print(f"Could not load logo: {e}")
+            wrapped_drawing = ""
 
         # Construct table with Header,Time,SVG
         data = [
@@ -473,6 +479,7 @@ class PDFService:
 
         # --- Draw page number in footer ---
         canvas.setFont("DVS", 10)
+        canvas.setFillColor(colors.HexColor("#003366"))
         page_str = f"Page {doc.page}"
         canvas.drawRightString(width - inch, 0.4 * inch, page_str)
 
