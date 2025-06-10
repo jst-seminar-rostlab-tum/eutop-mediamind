@@ -47,7 +47,7 @@ async def get_keyword_suggestions(
     keyword_suggestion_request: List[str],
     current_user: User=Depends(get_authenticated_user)
 ) -> KeywordSuggestionResponse:
-    return await SearchProfiles.get_keyword_suggestions(current_user, keyword_suggestion_request)
+    return await SearchProfileService.get_keyword_suggestions(current_user, keyword_suggestion_request)
 
 @router.get("/{search_profile_id}", response_model=SearchProfileDetailResponse)
 async def get_search_profile(
