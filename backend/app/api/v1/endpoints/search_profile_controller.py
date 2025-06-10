@@ -1,7 +1,7 @@
 from uuid import UUID
-from typing import Annotated
+from typing import List
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends
 
 from app.core.auth import get_authenticated_user
 from app.models.user import User
@@ -37,12 +37,12 @@ async def add_search_profile(
 ):
     return await SearchProfiles.get_available_search_profiles(current_user)
 
-@router.get("/suggestions", response_model=KeywordSuggestionResponse)
-async def get_keyword_sugestions(
-    search_profiles: Annotated[list[UUID] | None, Query()] = None,
+@router.post("/keywords/suggestions", response_model=KeywordSuggestionResponse)
+async def get_keyword_suggestions(
+    keyword_suggestion_request: List[str],
     current_user: User=Depends(get_authenticated_user)
 ) -> KeywordSuggestionResponse:
-    return await SearchProfiles.get_keyword_sugestions(current_user, search_profiles)
+    return await SearchProfiles.get_keyword_suggestions(current_user, keyword_suggestion_request)
 
 @router.get("/{profile_id}", response_model=SearchProfileDetailResponse)
 async def get_search_profile(
@@ -65,7 +65,6 @@ async def update_search_profile(
 @router.get("/{profile_id}/overview", response_model=ArticleOverviewResponse)
 async def get_search_profile_overview(profile_id: UUID):
     return await SearchProfiles.get_article_overview(profile_id)
-
 
 @router.get(
     "/{profile_id}/article/{match_id}", response_model=MatchDetailResponse

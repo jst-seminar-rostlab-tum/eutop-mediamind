@@ -80,29 +80,6 @@ class SearchProfileRepository:
             return result.unique().scalars().all()
 
     @staticmethod
-    async def get_accessible_topics(
-        user_id: UUID, organization_id: UUID | None, search_profile_ids: list[UUID] | None = None
-    ) -> Tuple[str, str]:
-        profiles = await SearchProfileRepository.get_accessible_profiles(user_id, organization_id)
-        # Filter profiles if specific IDs are provided
-        profiles = profiles if search_profile_ids is None else [p for p in profiles if p.id in search_profile_ids]
-
-        async with async_session() as session:
-            sql = text("""
-            SELECT t.name, k.name
-            FROM keywords k
-            JOIN topics_keywords tk on tk.keyword_id = k.id
-            JOIN topics t on t.id = tk.topic_id
-            JOIN search_profiles sp on sp.id = t.search_profile_id
-            WHERE sp.id IN :profile_ids
-            """).bindparams(
-                bindparam("profile_ids", expanding=True)
-            )
-
-            return (await session.execute(sql, {"profile_ids": [p.id for p in profiles]})).all()
-
-
-    @staticmethod
     async def update_by_id(
         profile_id: UUID, data: SearchProfileUpdateRequest
     ) -> Type[SearchProfile] | None:

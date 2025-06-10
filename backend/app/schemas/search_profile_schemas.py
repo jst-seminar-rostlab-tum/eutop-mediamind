@@ -31,7 +31,6 @@ class TopicOut(BaseModel):
     name: str
     keywords: List[str]
 
-
 class SearchProfileDetailResponse(BaseModel):
     id: UUID
     name: str
@@ -44,23 +43,11 @@ class SearchProfileDetailResponse(BaseModel):
     is_owner: bool
     topics: List[TopicOut]
 
-    model_config = ConfigDict(from_attributes=True)
-
-class KeywordSugestion(BaseModel):
-    topic: str
-    sugestions: List[str]
-
-    def to_dict(self):
-        return {
-            "keyword": self.topic,
-            "sugestions": self.sugestions
-        }
-
 class KeywordSuggestionResponse(BaseModel):
-    keyword_suggestions: List[KeywordSugestion]
+    suggestions: List[str]
 
     def to_dict(self):
         return {
-            "keyword_suggestions": [sug.to_dict() for sug in self.keyword_suggestions]
+            "keyword_suggestions": self.suggestions
         }
 

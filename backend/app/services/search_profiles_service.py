@@ -111,27 +111,17 @@ class SearchProfiles:
         return match is not None
 
     @staticmethod
-    async def get_keyword_sugestions(user: User, search_profiles: List[UUID]|None) -> KeywordSuggestionResponse:
-        topics_and_keywords = await SearchProfileRepository.get_accessible_topics(user.id, user.organization_id, search_profiles)
-
+    async def get_keyword_suggestions(user: User, suggestions: List[str]) -> KeywordSuggestionResponse:
         # Avoid useless LLM calls if no topics are available
-        if len(topics_and_keywords) == 0:
-            return KeywordSuggestionResponse(keyword_suggestions=[])
+        if len(suggestions) == 0:
+            return KeywordSuggestionResponse(suggestions=[])
 
         prompt = """
-        I will give you a list of topics and, for each topic, a list of relevant
-        keywords. Please add 5 new relevant keyword for each topic.\n
+        I will give you a list related keywords. Please add 5 new relevant keywords.\n
         """
 
-        topic_map = {}
-        for topic, keyword in topics_and_keywords:
-            if topic not in topic_map:
-                topic_map[topic] = []
-            topic_map[topic].append(keyword)
+        prompt += "Keywords: " + ", ".join(suggestions) + "\n\n"
 
-        for topic, keywords in topic_map.items():
-            prompt += f"Topic: {topic}\n"
-            prompt += f"Keywords: {', '.join(keywords)}\n\n"
 
         lhm_client = LLMClient(LLMModels.openai_4o)
 
