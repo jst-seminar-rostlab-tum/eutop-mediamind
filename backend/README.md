@@ -129,12 +129,11 @@ Decrypted secret: password123
 
 # Database Migration
 
-### Creating new models
-
-Ensure to import newly created models in the following file: alembic/env.py
-
 Alembic is a lightweight database migration tool for use with SQLAlchemy. It allows you to manage changes to your database schema over time, tracking changes via migration scripts.
 
+## Creating new models
+
+Ensure to import newly created models in the following file: alembic/env.py
 ## Basic Commands
 
 ### Create a new migration script
