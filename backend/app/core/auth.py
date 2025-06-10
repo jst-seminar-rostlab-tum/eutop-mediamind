@@ -11,6 +11,7 @@ from app.repositories.user_repository import (
     get_user_by_clerk_id,
     update_user,
 )
+from app.schemas.user_schema import UserPublic
 
 security = HTTPBearer()
 logger = get_logger(__name__)
@@ -18,7 +19,7 @@ logger = get_logger(__name__)
 
 async def get_authenticated_user(
     auth_credentials: HTTPAuthorizationCredentials = Depends(security),
-) -> User:
+) -> UserPublic:
     try:
         if configs.DISABLE_AUTH:
             user_clerk_id = "user_2xd0q4SUzIlYIZZnUZ2UmNmHz8n"
@@ -57,7 +58,7 @@ async def get_authenticated_user(
 
 async def get_sync_user(
     auth_credentials: HTTPAuthorizationCredentials = Depends(security),
-) -> User:
+) -> UserPublic:
     try:
         if configs.DISABLE_AUTH:
             user_clerk_id = "user_2xd0q4SUzIlYIZZnUZ2UmNmHz8n"
