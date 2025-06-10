@@ -3,9 +3,11 @@ from typing import TYPE_CHECKING
 
 from sqlmodel import Field, Relationship, SQLModel
 
+
 if TYPE_CHECKING:
     from app.models.article import Article
     from app.models.search_profile import SearchProfile
+    from app.models.topic import Topic
 
 
 class Match(SQLModel, table=True):
@@ -18,9 +20,14 @@ class Match(SQLModel, table=True):
     search_profile_id: uuid.UUID = Field(
         foreign_key="search_profiles.id", nullable=False, index=True
     )
+    topic_id: uuid.UUID | None = Field(
+        default=None, foreign_key="topics.id", index=True
+    )
+
     sorting_order: int = Field(default=0)
     comment: str | None = Field(default=None, max_length=255)
 
     # Relationships
     article: "Article" = Relationship(back_populates="matches")
     search_profile: "SearchProfile" = Relationship(back_populates="matches")
+    topic: "Topic" = Relationship(back_populates="matches")
