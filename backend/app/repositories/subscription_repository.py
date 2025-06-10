@@ -155,9 +155,10 @@ class SubscriptionRepository:
         return [group]
 
     @staticmethod
-    def get_subscription_by_id(
+    async def get_subscription_by_id(
         session, subscription_id: str
     ) -> Optional[Subscription]:
-        stmt = select(Subscription).where(Subscription.id == subscription_id)
-        result = session.execute(stmt)
-        return result.scalars().first()
+        stmt = select(Subscription.id).where(Subscription.id == subscription_id)
+        result = await session.execute(stmt)
+        row = result.first()
+        return row[0] if row else None

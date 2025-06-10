@@ -5,6 +5,8 @@ from qdrant_client import QdrantClient
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 from sqlmodel import Session, SQLModel
 from sqlalchemy import create_engine
+from sqlalchemy import select
+from sqlmodel.ext.asyncio.session import AsyncSession
 
 from app.core.config import configs
 from app.core.logger import get_logger
@@ -14,6 +16,7 @@ from .config import Configs
 logger = get_logger(__name__)
 
 engine = create_async_engine(str(configs.SQLALCHEMY_DATABASE_URI))
+AsyncSessionLocal = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 
 sync_engine = create_engine(
     str(configs.SQLALCHEMY_DATABASE_URI))
@@ -27,22 +30,25 @@ def load_json_data(file_path: str) -> list[dict]:
         return json.load(f)
 
 
-async def init_db(session: Session):
+
+async def init_db():
     async with engine.begin() as conn:
         await conn.run_sync(SQLModel.metadata.create_all)
-        seed_subscriptions(session)
+
+    async with AsyncSessionLocal() as session:
+        await seed_subscriptions(session)
 
 
-def seed_subscriptions(session: Session) -> None:
+async def seed_subscriptions(session: AsyncSession) -> None:
     """Seed initial subscriptions data if table is empty"""
     from app.models.subscription import Subscription
 
-    # Check if table is empty
-    if session.query(Subscription).first():
+    result = await session.exec(select(Subscription).limit(1))
+    existing = result.scalar_one_or_none()
+    if existing:
         logger.info("Subscriptions table already seeded. Skipping seeding.")
         return
 
-    # Load seed data from JSON file
     seed_file_path = os.path.abspath("./data/subscriptions.json")
     seed_data = load_json_data(seed_file_path)
 
@@ -50,7 +56,7 @@ def seed_subscriptions(session: Session) -> None:
         subscription = Subscription(**item)
         session.add(subscription)
 
-    session.commit()
+    await session.commit()
     logger.info("Initial subscriptions data seeded successfully.")
 
 
