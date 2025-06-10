@@ -7,6 +7,7 @@ from starlette.middleware.cors import CORSMiddleware
 from app.api.v1.routes import routers as v1_routers
 from app.core.config import configs
 from app.core.logger import get_logger
+from app.initial_data import main
 
 
 class AppCreator:
