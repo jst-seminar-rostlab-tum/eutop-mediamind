@@ -15,7 +15,6 @@ services:
       dockerfile: Dockerfile
     restart: always
     depends_on:
-      - postgres
       - qdrant
     ports:
       - "8000:8000"
@@ -28,20 +27,7 @@ services:
         max-size: "50m" # maximum size of each log file 50MB
         max-file: "10"
 
-  postgres:
-    image: postgres:15
-    container_name: postgres
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: mediamind
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-
 volumes:
   qdrant_data:
   backend_logs_volumes:
     driver: local
-  postgres_data:

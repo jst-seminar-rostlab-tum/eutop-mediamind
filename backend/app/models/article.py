@@ -2,7 +2,6 @@ import uuid
 from datetime import datetime
 from typing import TYPE_CHECKING, List
 
-from sqlalchemy import Column, Text
 from sqlmodel import Field, Relationship, SQLModel
 
 from app.models.associations import (
@@ -27,7 +26,7 @@ class Article(SQLModel, table=True):
     published_at: datetime
     language: str
     category: str
-    summary: str | None = Field(default=None, sa_column=Column(Text))
+    summary: str | None = Field(default=None, max_length=255)
     # vector_embedding
     subscription_id: uuid.UUID = Field(
         foreign_key="subscriptions.id", nullable=False, index=True

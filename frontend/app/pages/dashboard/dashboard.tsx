@@ -1,6 +1,7 @@
 import { ProfileCard } from "~/custom-components/dashboard/profile-card";
 import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
-import { Loader2, Newspaper, Plus, Rocket } from "lucide-react";
+import { Newspaper, Plus, Rocket } from "lucide-react";
+import { useSearchProfiles } from "~/hooks/api/search-profiles-api";
 import { Button } from "~/components/ui/button";
 import {
   Breadcrumb,
@@ -10,43 +11,16 @@ import {
 } from "~/components/ui/breadcrumb";
 import { useAuthorization } from "~/hooks/use-authorization";
 import { useQuery } from "types/api";
-import { useEffect } from "react";
-import { toast } from "sonner";
-import { EditProfile } from "~/custom-components/profile/edit/edit-profile";
-import { sortBy } from "lodash-es";
-
-const suppressSWRReloading = {
-  refreshInterval: 0,
-  refreshWhenHidden: false,
-  revalidateOnFocus: false,
-  refreshWhenOffline: false,
-  revalidateIfStale: false,
-  revalidateOnReconnect: false,
-};
 
 export function DashboardPage() {
   const { authorizationHeaders } = useAuthorization();
 
-  const {
-    data: profiles,
-    isLoading,
-    error,
-    mutate,
-  } = useQuery(
-    "/api/v1/search-profiles",
-    {
-      headers: authorizationHeaders,
-    },
-    suppressSWRReloading,
-  );
-
-  const sortedProfiles = sortBy(profiles, "name");
-
-  useEffect(() => {
-    if (error) {
-      toast.error("Failed to load profiles.");
-    }
-  }, [error]);
+  // Todo: example
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { data, isLoading } = useQuery("/api/v1/search-profiles", {
+    headers: authorizationHeaders,
+  });
+  const { data: profiles } = useSearchProfiles();
 
   return (
     <div className={" mx-auto w-full max-w-2xl xl:max-w-7xl mt-12"}>
@@ -70,33 +44,20 @@ export function DashboardPage() {
       </Button>
       <div className={"flex gap-5"}>
         <h2 className="text-2xl font-bold ">Profiles</h2>
-        <EditProfile
-          mutateDashboard={mutate}
-          trigger={
-            <Button variant="outline" className={"size-8"}>
-              <Plus />
-            </Button>
-          }
-        />
+        <Button variant="outline" className={"size-8"}>
+          <Plus />
+        </Button>
       </div>
-      {isLoading ? (
-        <div className="flex items-center justify-center py-8">
-          <Loader2 className="h-8 w-8 animate-spin" />
-          <span className="ml-2 text-muted-foreground">
-            Loading profiles...
-          </span>
-        </div>
-      ) : (
-        <div className="flex flex-wrap gap-6 mt-4 mb-4">
-          {sortedProfiles?.map((profile) => (
-            <ProfileCard
-              key={profile.id}
-              profile={profile}
-              mutateDashboard={mutate}
-            />
-          ))}
-        </div>
-      )}
+      <div className="flex flex-wrap gap-6 mt-4 mb-4">
+        {profiles?.map((profile) => (
+          <ProfileCard
+            key={profile.id}
+            title={profile.name}
+            newArticles={profile.newArticles}
+            imageUrl={profile.imageUrl}
+          />
+        ))}
+      </div>
       <h2 className="text-2xl font-bold mb-4">Trend Analysis</h2>
     </div>
   );
