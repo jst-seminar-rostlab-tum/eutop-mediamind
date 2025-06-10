@@ -6,7 +6,7 @@ from io import BytesIO
 from reportlab.lib.units import inch
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib import colors
-from reportlab.platypus import Paragraph, Spacer, Frame, PageTemplate, Spacer, BaseDocTemplate, HRFlowable, PageBreak, NextPageTemplate, Table, TableStyle
+from reportlab.platypus import Paragraph, Spacer, Frame, PageTemplate, Spacer, BaseDocTemplate, HRFlowable, PageBreak, NextPageTemplate, Table, TableStyle, Image
 from reportlab.platypus.flowables import AnchorFlowable
 from reportlab.lib.styles import ParagraphStyle
 from reportlab.pdfbase import pdfmetrics
@@ -239,7 +239,7 @@ class PDFService:
             story.append(AnchorFlowable(f"toc_entry_{i}"))
             story.append(
                 Paragraph(
-                    f'<a href="#toc_summary_{i}">{news.title}</a><br/>',
+                    f'<a href="#toc_summary_{i}">{i+1}. {news.title}</a><br/>',
                     toc_entry_style
                 )
             )
@@ -347,7 +347,7 @@ class PDFService:
         for i, news in enumerate(news_items):
             # Insert anchor for TOC to jump to this summary
             story.append(AnchorFlowable(f"toc_summary_{i}"))
-            story.append(Paragraph(news.title or "", newspaper_style))
+            story.append(Paragraph(str(i+1) + '. '+ news.title or "", newspaper_style))
             story.append(Spacer(1, 0.05 * inch))
             story.append(Paragraph(f'<link href="{news.url}">{news.newspaper}</link>' or "", keywords_style))
             pub_date_str = ""
@@ -374,21 +374,21 @@ class PDFService:
     @staticmethod
     def __create_full_articles_elements(news_items: List[NewsItem], dimensions: tuple[float, float]) -> List['Flowable']:
         styles = getSampleStyleSheet()
-        title_style = ParagraphStyle('Title', fontName="DVS-Bold", fontSize=18, leading=22, spaceAfter=12)
+        title_style = ParagraphStyle('Title', fontName="DVS-Bold", fontSize=16, leading=18, spaceAfter=12)
         metadata_style = ParagraphStyle('Metadata', fontName="DVS-Oblique", fontSize=9, leading=12, textColor=colors.gray)
         content_style = ParagraphStyle('Content', fontName="DVS", fontSize=11, leading=14)
         link_style = ParagraphStyle('Link', fontName="DVS-Bold", fontSize=9, leading=12, textColor=colors.blue)
         story = []
-        for idx, news in enumerate(news_items):
+        for i, news in enumerate(news_items):
             dest_name = f"full_{news.id}"
             # Anchor for full article
             story.append(AnchorFlowable(dest_name))
             # Anchor for TOC jump to this article (optional, e.g. for future TOC to articles)
-            story.append(AnchorFlowable(f"toc_article_{idx}"))
-            story.append(Paragraph(news.title, title_style))
+            story.append(AnchorFlowable(f"toc_article_{i}"))
+            story.append(Paragraph(str(i+1) + '. ' + news.title, title_style))
             word_count = len(news.content.split()) if news.content else 0
-            author = news.author or "Unknown author"
-            newspaper = news.newspaper or "Unknown newspaper"
+            newspaper = news.newspaper or "Unknown"
+            author = news.author or "Unknown"
             pub_date_str = ""
             if news.published_at:
                 try:
@@ -396,15 +396,47 @@ class PDFService:
                     pub_date_str = dt.strftime("%d %B %Y")
                 except Exception:
                     pub_date_str = news.published_at
-            keywords_str = ", ".join(news.keywords) if news.keywords else ""
-            # Link to summary anchor
-            story.append(Paragraph(f'<a href="#toc_summary_{idx}"><u><font color="blue">Read summary</font></u></a>', link_style))
-            metadata_text = f"Words: {word_count} | Author: {author} | Newspaper: {newspaper} | Date: {pub_date_str} | Keywords: {keywords_str}"
+            metadata_text = f"Words: <b>{word_count}</b> | Newspaper: {newspaper} | Date: {pub_date_str} | Author: {author}"
             story.append(Paragraph(metadata_text, metadata_style))
+            # Link to summary anchor
+            story.append(Paragraph(f'''
+                                    <para alignment="right">
+                                   <a href="#toc_summary_{i}"><u><font color="{blueColor}">Read summary</font></u></a>
+                                    </para>
+                                   '''
+                                   , link_style))
             story.append(Spacer(1, 0.15 * inch))
             content_text = news.content.replace('\n', '<br/>')
             story.append(Paragraph(content_text, content_style))
             story.append(Spacer(1, 0.15 * inch))
-            if idx != len(news_items) - 1:
+
+            link_img = Image("assets/link_icon.png", width=16, height=16)
+            button = Table(
+                [[
+                    link_img,
+                    Paragraph(f'<a href="{news.url}"><b>Read Article at Newspaper</b></a>', link_style)
+                ]],
+                colWidths=[0.2 * inch, 2.1 * inch],
+                hAlign='RIGHT'
+            )
+
+            button.setStyle(TableStyle([
+                ("BACKGROUND", (0, 0), (-1, -1), colors.white),
+                ("TEXTCOLOR", (0, 0), (-1, -1), blueColor),
+                ("ALIGN", (0, 0), (-1, -1), "CENTER"),
+                ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+                ("FONTSIZE", (0, 0), (-1, -1), 10),
+                ("INNERGRID", (0, 0), (-1, -1), 0, colors.white),
+                ("BOX", (0, 0), (-1, -1), 1, blueColor),
+                ("TOPPADDING", (0, 0), (-1, -1), 4),
+                ("BOTTOMPADDING", (0, 0), (-1, -1), 4),
+                ("LEFTPADDING", (0, 0), (-1, -1), 8),
+                ("RIGHTPADDING", (0, 0), (-1, -1), 8),
+                ("ALIGN", (0, 0), (-1, -1), "CENTER"),
+            ]))
+
+            story.append(button)        
+
+            if i != len(news_items) - 1:
                 story.append(PageBreak())
         return story
