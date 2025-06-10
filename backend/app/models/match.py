@@ -3,7 +3,6 @@ from typing import TYPE_CHECKING
 
 from sqlmodel import Field, Relationship, SQLModel
 
-
 if TYPE_CHECKING:
     from app.models.article import Article
     from app.models.search_profile import SearchProfile

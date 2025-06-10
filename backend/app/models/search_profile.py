@@ -1,5 +1,5 @@
 import uuid
-from typing import TYPE_CHECKING, List, Optional
+from typing import TYPE_CHECKING, List
 
 from sqlalchemy import ARRAY, Column, String
 from sqlmodel import Field, Relationship, SQLModel
