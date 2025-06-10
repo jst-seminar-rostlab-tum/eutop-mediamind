@@ -15,7 +15,7 @@ export function Welcome() {
     if (isSignedIn && user?.organization_id) {
       navigate("/dashboard");
     }
-  }, [isSignedIn, navigate]);
+  }, [isSignedIn, user?.organization_id, navigate]);
   return (
     <>
       <img
