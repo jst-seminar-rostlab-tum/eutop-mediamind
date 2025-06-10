@@ -62,8 +62,6 @@ export const ErrorPage = ({
   const usedMessage = message ?? defaultMessages[code ?? "fallback"].message;
   const usedIcon = icons[code ?? "fallback"];
 
-  console.log(code);
-
   return (
     <>
       <Layout className="flex justify-center">
