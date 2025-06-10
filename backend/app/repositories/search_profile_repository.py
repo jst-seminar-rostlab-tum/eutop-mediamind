@@ -181,3 +181,17 @@ async def update_emails(
     # Convert EmailStr to plain strings for storage in DB
     profile.organization_emails = [str(email) for email in organization_emails]
     profile.profile_emails = [str(email) for email in profile_emails]
+
+
+class SearchProfileRepository:
+    @staticmethod
+    async def fetch_all_search_profiles(self, limit: int, offset: int):
+        """
+        Fetch all search profiles with pagination.
+        """
+        async with async_session() as session:
+            query = select(SearchProfile).offset(offset).limit(limit)
+            search_profiles = (
+                await session.execute(query)
+            ).scalars().all())
+            return search_profiles
