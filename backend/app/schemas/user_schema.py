@@ -9,7 +9,7 @@ class UserUpdate(BaseModel):
     last_name: Optional[str] = None
 
 
-class UserPublic(BaseModel):
+class UserEntity(BaseModel):
     id: uuid.UUID
     clerk_id: str
     email: EmailStr

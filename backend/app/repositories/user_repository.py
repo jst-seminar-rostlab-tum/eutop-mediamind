@@ -6,11 +6,11 @@ from sqlalchemy.orm import selectinload
 
 from app.core.db import async_session
 from app.models import User
-from app.schemas.user_schema import UserPublic
+from app.schemas.user_schema import UserEntity
 
 
-def _to_user_public(user: User) -> UserPublic:
-    return UserPublic(
+def _to_user_public(user: User) -> UserEntity:
+    return UserEntity(
         id=user.id,
         clerk_id=user.clerk_id,
         email=user.email,
@@ -24,9 +24,9 @@ def _to_user_public(user: User) -> UserPublic:
     )
 
 
-async def get_user_by_clerk_id(clerk_id: str) -> Optional[UserPublic]:
+async def get_user_by_clerk_id(clerk_id: str) -> Optional[UserEntity]:
     """
-    Fetch a user by clerk ID and return as UserPublic
+    Fetch a user by clerk ID and return as UserEntity
     including organization name.
     """
     async with async_session() as session:
@@ -41,10 +41,10 @@ async def get_user_by_clerk_id(clerk_id: str) -> Optional[UserPublic]:
         return _to_user_public(user) if user else None
 
 
-async def update_user(user_public: UserPublic) -> UserPublic:
+async def update_user(user_public: UserEntity) -> UserEntity:
     """
-    Update a user in the database using a UserPublic object and
-    return the updated UserPublic.
+    Update a user in the database using a UserEntity object and
+    return the updated UserEntity.
     """
     async with async_session() as session:
         try:
@@ -71,9 +71,9 @@ async def update_user(user_public: UserPublic) -> UserPublic:
         return _to_user_public(user)
 
 
-async def create_user(user: User) -> UserPublic:
+async def create_user(user: User) -> UserEntity:
     """
-    Create a new user in the database and return as UserPublic.
+    Create a new user in the database and return as UserEntity.
     """
     async with async_session() as session:
         session.add(user)
