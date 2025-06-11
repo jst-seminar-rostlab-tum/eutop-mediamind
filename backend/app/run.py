@@ -11,7 +11,7 @@ from app.main import app_creator
 # Start background tasks here if needed
 @app_creator.app.on_event("startup")
 async def startup_event():
-    run_migrations()
+    # run_migrations() should we do auto migrations?
     asyncio.create_task(init_session())
 
 
