@@ -8,9 +8,11 @@ from langchain_openai import ChatOpenAI
 from starlette.concurrency import run_in_threadpool
 
 from app.core.config import configs
+from app.core.logger import get_logger
 from app.models.article import Article
 from app.repositories.article_repository import ArticleRepository
 
+logger = get_logger(__name__)
 
 class ArticleSummaryService:
     @staticmethod
@@ -86,6 +88,8 @@ class ArticleSummaryService:
                     await ArticleRepository.update_article_summary(
                         article.id, summary
                     )
+                    logger.info(f"Updated summary for article {article.id}")
+
                 except Exception:
                     continue
 
