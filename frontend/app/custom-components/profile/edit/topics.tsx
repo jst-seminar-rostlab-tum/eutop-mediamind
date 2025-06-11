@@ -15,6 +15,7 @@ import { Input } from "~/components/ui/input";
 import { Sparkles, Trash2 } from "lucide-react";
 import { AiSuggestionTag } from "~/custom-components/profile/edit/ai-suggestion-tag";
 import type { Profile } from "../../../../types/model";
+import { toast } from "sonner";
 
 interface TopicsProps {
   profile: Profile;
@@ -29,6 +30,24 @@ export function Topics({ profile, setProfile }: TopicsProps) {
   const selectedTopicKeywords =
     profile.topics.find((topic) => topic.name === selectedTopic)?.keywords ||
     [];
+
+  const handleAddTopic = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key !== "Enter") return;
+
+    if (!profile.topics.map((t) => t.name).includes(newTopicName)) {
+      setProfile({
+        ...profile,
+        topics: [
+          ...profile.topics,
+          { id: "", name: newTopicName, keywords: [] },
+        ],
+      });
+      setSelectedTopic(newTopicName);
+      setNewTopicName("");
+    } else {
+      toast.error("Can't add the same topic twice");
+    }
+  };
 
   return (
     <div>
@@ -79,22 +98,7 @@ export function Topics({ profile, setProfile }: TopicsProps) {
             placeholder={"+ Add topic"}
             className={"w-[180px] shadow-none ml-auto"}
             onChange={(e) => setNewTopicName(e.target.value)}
-            onKeyDown={(e) => {
-              if (
-                e.key === "Enter" &&
-                !profile.topics.map((t) => t.name).includes(newTopicName)
-              ) {
-                setProfile({
-                  ...profile,
-                  topics: [
-                    ...profile.topics,
-                    { id: "", name: newTopicName, keywords: [] },
-                  ],
-                });
-                setSelectedTopic(newTopicName);
-                setNewTopicName("");
-              }
-            }}
+            onKeyDown={handleAddTopic}
           />
         </div>
 
