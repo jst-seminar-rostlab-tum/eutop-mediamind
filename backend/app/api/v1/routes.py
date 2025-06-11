@@ -10,6 +10,7 @@ from app.api.v1.endpoints.subscription_controller import (
 from app.api.v1.endpoints.user_controller import router as user_router
 from app.api.v1.endpoints.vector_store_controller import router as vector_store_router
 from app.api.v1.endpoints.article_controller import router as article_router
+from app.api.v1.endpoints.topic_controller import router as topic_router
 from app.api.v1.endpoints.keyword_controller import router as keyword_router
 routers = APIRouter()
 router_list = [
@@ -18,6 +19,7 @@ router_list = [
     subscription_router,
     vector_store_router,
     article_router,
+    topic_router,
     keyword_router,
 ]
 

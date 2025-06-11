@@ -79,6 +79,7 @@ class ArticleSummaryService:
         )
 
         while articles:
+            logger.info(f"Processing page {page + 1} with {len(articles)} articles")
             for article in articles:
                 try:
                     # Run in a threadpool to avoid blocking the event loop
