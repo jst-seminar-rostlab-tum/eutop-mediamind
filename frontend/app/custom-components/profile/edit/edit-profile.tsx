@@ -329,8 +329,8 @@ export function EditProfile({
                 setShowCancelDialog(false);
               }}
             >
-              Leave
               <LogOut className="text-white" />
+              Leave
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

@@ -69,8 +69,8 @@ export function ProfileCard({
               </DropdownMenuTrigger>
               <DropdownMenuContent align="center">
                 <DropdownMenuItem onClick={() => setDialogOpen(true)}>
-                  Edit
                   <SquarePen className="text-primary" />
+                  Edit
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={() => {
@@ -78,8 +78,8 @@ export function ProfileCard({
                   }}
                   className="text-red-500 focus:text-red-500"
                 >
-                  Delete
                   <Trash2 className="text-red-500" />
+                  Delete
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -123,8 +123,8 @@ export function ProfileCard({
                 //call delete endpoint here
               }}
             >
-              Delete
               <Trash2 />
+              Delete
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
