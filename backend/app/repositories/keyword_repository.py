@@ -183,7 +183,8 @@ class KeywordRepository:
 
         while keywords:
             logger.info(
-                f"Processing keywords from {page * page_size} to {(page + 1) * page_size}"
+                f"Processing keywords "
+                f"from {page * page_size} to {(page + 1) * page_size}"
             )
             for keyword in keywords:
                 similar_articles = (
@@ -197,7 +198,8 @@ class KeywordRepository:
                         keyword.id, doc.metadata["id"], score
                     )
                     logger.info(
-                        f"Assigned article {doc.metadata['id']} to keyword {keyword.name} with score {score}"
+                        f"Assigned article {doc.metadata['id']} to "
+                        f"keyword {keyword.name} with score {score}"
                     )
 
             page += 1
