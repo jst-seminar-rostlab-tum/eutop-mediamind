@@ -12,8 +12,9 @@ from app.repositories.search_profile_repository import SearchProfileRepository
 class ArticleMatchingService:
     """Service for matching articles"""
 
+    @staticmethod
     async def match_article_to_search_profile(
-        self, search_profile: SearchProfile
+        search_profile: SearchProfile
     ) -> None:
         """Match articles to a given search profile."""
         async with async_session() as session:
@@ -71,6 +72,8 @@ class ArticleMatchingService:
 
             await session.commit()
 
+
+    @staticmethod
     async def run(self, page_size: int = 100) -> None:
         """Run the article matching process."""
 
@@ -86,7 +89,7 @@ class ArticleMatchingService:
         while search_profiles:
             for search_profile in search_profiles:
                 try:
-                    await self.match_article_to_search_profile(search_profile)
+                    await ArticleMatchingService.match_article_to_search_profile(search_profile)
                 except Exception as e:
                     raise e
 
