@@ -10,7 +10,17 @@ import {
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 
-import { Book, Mail, Newspaper, Settings, Edit2, Check, X } from "lucide-react";
+import {
+  Book,
+  Mail,
+  Newspaper,
+  Settings,
+  Edit2,
+  Check,
+  X,
+  OctagonAlert,
+  LogOut,
+} from "lucide-react";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { Topics } from "~/custom-components/profile/edit/topics";
@@ -302,7 +312,10 @@ export function EditProfile({
       <AlertDialog open={showCancelDialog} onOpenChange={setShowCancelDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogTitle className="flex items-center">
+              <OctagonAlert size={20} className="text-red-500 mr-2" />
+              Are you sure?
+            </AlertDialogTitle>
             <AlertDialogDescription>
               Unsaved changes will be permanently lost
             </AlertDialogDescription>
@@ -316,7 +329,8 @@ export function EditProfile({
                 setShowCancelDialog(false);
               }}
             >
-              Cancel
+              Leave
+              <LogOut className="text-white" />
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

@@ -1,4 +1,10 @@
-import { Rocket, MoreHorizontal } from "lucide-react";
+import {
+  Rocket,
+  MoreHorizontal,
+  Trash2,
+  SquarePen,
+  OctagonAlert,
+} from "lucide-react";
 import type { KeyedMutator } from "swr";
 
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
@@ -64,14 +70,16 @@ export function ProfileCard({
               <DropdownMenuContent align="center">
                 <DropdownMenuItem onClick={() => setDialogOpen(true)}>
                   Edit
+                  <SquarePen className="text-primary" />
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={() => {
                     setShowDeleteDialog(true);
                   }}
-                  className="text-red-500"
+                  className="text-red-500 focus:text-red-500"
                 >
                   Delete
+                  <Trash2 className="text-red-500" />
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -97,7 +105,10 @@ export function ProfileCard({
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogTitle className="flex items-center">
+              <OctagonAlert size={20} className="text-red-500 mr-2" />
+              Are you sure?
+            </AlertDialogTitle>
             <AlertDialogDescription>
               This will permanently delete this search profile
             </AlertDialogDescription>
@@ -113,6 +124,7 @@ export function ProfileCard({
               }}
             >
               Delete
+              <Trash2 />
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

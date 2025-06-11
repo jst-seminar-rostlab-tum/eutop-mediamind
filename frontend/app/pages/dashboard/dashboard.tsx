@@ -35,25 +35,6 @@ export function DashboardPage() {
 
   const sortedProfiles = sortBy(profiles, "name");
 
-  /*
-  const sortedProfiles = [
-    {
-      id: "1",
-      name: "BMW",
-      public: false,
-      organization_emails: ["leo@test.de"],
-      profile_emails: [],
-      editable: true,
-      is_editable: true,
-      owner_id: "user-1",
-      is_owner: true,
-      topics: [],
-      subscriptions: [],
-      new_articles_count: 0,
-    },
-  ];
-  */
-
   useEffect(() => {
     if (error) {
       toast.error("Failed to load profiles.");
