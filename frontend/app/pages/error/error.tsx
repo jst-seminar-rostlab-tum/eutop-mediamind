@@ -51,12 +51,16 @@ export const ErrorPage = ({
   title,
   message,
   stack,
+  code: passedCode,
 }: {
   title?: string;
   message?: string;
   stack?: string;
+  code?: number;
 }) => {
-  const { code } = useParams();
+  const { code: paramCode } = useParams();
+
+  const code = passedCode ?? paramCode;
 
   const usedTitle = title ?? defaultMessages[code ?? "fallback"].title;
   const usedMessage = message ?? defaultMessages[code ?? "fallback"].message;
