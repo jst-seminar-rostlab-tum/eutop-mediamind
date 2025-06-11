@@ -511,26 +511,6 @@ export interface operations {
             };
         };
     };
-    delete_current_user_api_v1_users_me_delete: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["FeedbackResponse"];
-                };
-            };
-        };
-    };
     sync_user_with_clerk_api_v1_users_sync_post: {
         parameters: {
             query?: never;
