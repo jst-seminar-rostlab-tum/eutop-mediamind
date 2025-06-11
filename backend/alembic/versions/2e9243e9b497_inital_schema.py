@@ -94,8 +94,6 @@ def upgrade() -> None:
     sa.Column('is_public', sa.Boolean(), nullable=False),
     sa.Column('created_by_id', sa.Uuid(), nullable=False),
     sa.Column('organization_id', sa.Uuid(), nullable=False),
-    sa.Column('organization_emails', sa.ARRAY(sa.String()), nullable=True),
-    sa.Column('profile_emails', sa.ARRAY(sa.String()), nullable=True),
     sa.ForeignKeyConstraint(['created_by_id'], ['users.id'], ),
     sa.ForeignKeyConstraint(['organization_id'], ['organizations.id'], ),
     sa.PrimaryKeyConstraint('id')
