@@ -164,13 +164,13 @@ class ArticleVectorService:
                     Document(
                         page_content=article.summary,
                         metadata={
-                            "id": article.id,
+                            "id": str(article.id),
                             "subscription_id": str(article.subscription_id),
                             "title": article.title,
                         },
                     )
                 )
-                document_ids.append(article.id)
+                document_ids.append(str(article.id))
 
             self.vector_store.add_documents(
                 documents=documents_to_index, ids=document_ids
