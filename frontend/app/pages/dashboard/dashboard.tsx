@@ -33,8 +33,9 @@ export function DashboardPage() {
     mutate,
   } = useQuery("/api/v1/search-profiles", undefined, suppressSWRReloading);
 
-  //const sortedProfiles = sortBy(profiles, "name");
+  const sortedProfiles = sortBy(profiles, "name");
 
+  /*
   const sortedProfiles = [
     {
       id: "1",
@@ -51,6 +52,7 @@ export function DashboardPage() {
       new_articles_count: 0,
     },
   ];
+  */
 
   useEffect(() => {
     if (error) {
