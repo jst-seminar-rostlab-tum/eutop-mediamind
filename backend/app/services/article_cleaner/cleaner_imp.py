@@ -19,7 +19,7 @@ async_session = sessionmaker(engine, expire_on_commit=False, class_=AsyncSession
 
 
 class ArticleCleaner:
-    def __init__(self, max_concurrency: int = 5):
+    def __init__(self, max_concurrency: int = 100):
         self.client = OpenAI(api_key=configs.OPENAI_API_KEY)
         self.semaphore = Semaphore(max_concurrency)
 
@@ -32,13 +32,18 @@ class ArticleCleaner:
         text = re.sub(r'\s{2,}', ' ', text)           # remove extra spaces
         return text.strip()
     
-    async def rewrite_with_llm(self, text: str) -> str:
+    async def rewrite_with_llm(self, text, title: str) -> str:
         prompt = (
-            "The following news article contains formatting artifacts such as markdown symbols (**bold**, *italic*, footnotes), "
-            "author lines, inline references, and other structural noise. Please rewrite the text into a clean, well-structured, "
-            "readable article. Keep the factual content, but remove all formatting marks, links, metadata, and stylistic clutter. "
-            "The result should look like a professional news article with proper paragraphing and flow.\n\n"
-            f"{text}"
+            "The following news article contains unwanted formatting artifacts such as markdown symbols (**bold**, *italic*, footnotes), "
+            "author lines, inline references, and other structural noise.\n"
+            "Your task is to remove noise, for example:\n"
+            "Formatting marks, links, metadata, stylistic clutter and duplicated content.\n"
+            "Remove duplicate title inside the body. If the first sentence is semantically very similar to the title, even with minor rewordings, remove it.\n"
+            "Do not paraphrase or add any new content. Only remove noise.\n"
+            "Don't change the language of the article, it should remain the same as the original.\n"
+            "Return only the cleaned body text, properly structured in paragraphs.\n\n"
+            f"Title: {title}\n"
+            f"Body: {text}"
         )
         async with self.semaphore:
             return await asyncio.to_thread(self._call_openai_sync, prompt)
@@ -55,7 +60,7 @@ class ArticleCleaner:
     async def clean_one(self, article: Article) -> tuple[Article, str] | None:
         try:
             pre_processed = self.remove_formatting_marks(article.content)
-            rewritten = await self.rewrite_with_llm(pre_processed)
+            rewritten = await self.rewrite_with_llm(pre_processed, article.title)
             if rewritten and rewritten != article.content:
                 return article, rewritten
             return None
@@ -67,7 +72,7 @@ class ArticleCleaner:
     async def clean_articles_after_date(
         self,
         session: AsyncSession,
-        since_date: date = date(2025, 5, 20)
+        since_date: date = date(2025, 6, 5)
     ) -> int:
         stmt = select(Article).where(
             Article.content.isnot(None),
@@ -79,19 +84,19 @@ class ArticleCleaner:
         print(f"Found {len(articles)} articles to clean since {since_date}.")
         if not articles:
             return 0
-        # 并发处理所有文章
+       
         cleaned_results = await asyncio.gather(
             *[self.clean_one(article) for article in articles]
         )
 
-        # 过滤掉未改变或失败的
+        
         cleaned_articles = [r for r in cleaned_results if r]
 
-        # 逐篇写入数据库
+        
         updated = 0
         for article, new_content in cleaned_articles:
             article.content = new_content
-            article.status = ArticleStatus.CLEANED
+            # article.status = ArticleStatus.CLEANED
             await SubscriptionRepository.update_article(session, article)
             updated += 1
 
