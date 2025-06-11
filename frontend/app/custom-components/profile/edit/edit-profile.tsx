@@ -302,9 +302,7 @@ export function EditProfile({
       <AlertDialog open={showCancelDialog} onOpenChange={setShowCancelDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>
-              Are you sure you want to cancle?
-            </AlertDialogTitle>
+            <AlertDialogTitle>Are you sure you?</AlertDialogTitle>
             <AlertDialogDescription>
               Unsaved changes will be permanently lost
             </AlertDialogDescription>

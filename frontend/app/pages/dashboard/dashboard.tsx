@@ -33,7 +33,24 @@ export function DashboardPage() {
     mutate,
   } = useQuery("/api/v1/search-profiles", undefined, suppressSWRReloading);
 
-  const sortedProfiles = sortBy(profiles, "name");
+  //const sortedProfiles = sortBy(profiles, "name");
+
+  const sortedProfiles = [
+    {
+      id: "1",
+      name: "BMW",
+      public: false,
+      organization_emails: ["leo@test.de"],
+      profile_emails: [],
+      editable: true,
+      is_editable: true,
+      owner_id: "user-1",
+      is_owner: true,
+      topics: [],
+      subscriptions: [],
+      new_articles_count: 0,
+    },
+  ];
 
   useEffect(() => {
     if (error) {
@@ -91,6 +108,8 @@ export function DashboardPage() {
             <ProfileCard
               key={profile.id}
               profile={profile}
+              dialogOpen={dialogOpen}
+              setDialogOpen={setDialogOpen}
               mutateDashboard={mutate}
             />
           ))}
