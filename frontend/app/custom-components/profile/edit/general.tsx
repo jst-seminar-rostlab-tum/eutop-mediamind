@@ -19,7 +19,6 @@ import {
 import * as React from "react";
 import { cn } from "~/lib/utils";
 import { useQuery } from "../../../../types/api";
-import { useAuthorization } from "~/hooks/use-authorization";
 import type { MediamindUser, Profile } from "../../../../types/model";
 import { useEffect } from "react";
 import { toast } from "sonner";
@@ -30,15 +29,7 @@ export interface GeneralProps {
 }
 
 export function General({ profile, setProfile }: GeneralProps) {
-  const { authorizationHeaders } = useAuthorization();
-
-  const {
-    data: userData,
-    isLoading,
-    error,
-  } = useQuery("/api/v1/users", {
-    headers: authorizationHeaders,
-  });
+  const { data: userData, isLoading, error } = useQuery("/api/v1/users");
 
   useEffect(() => {
     if (error) {

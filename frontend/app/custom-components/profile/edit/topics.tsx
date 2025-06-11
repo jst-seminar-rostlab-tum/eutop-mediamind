@@ -95,6 +95,24 @@ export function Topics({ profile, setProfile }: TopicsProps) {
     }
   };
 
+  const handleAddTopic = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key !== "Enter") return;
+
+    if (!profile.topics.map((t) => t.name).includes(newTopicName)) {
+      setProfile({
+        ...profile,
+        topics: [
+          ...profile.topics,
+          { id: "", name: newTopicName, keywords: [] },
+        ],
+      });
+      setSelectedTopic(newTopicName);
+      setNewTopicName("");
+    } else {
+      toast.error("Can't add the same topic twice");
+    }
+  };
+
   return (
     <div>
       <h2 className={"font-bold pt-3 pb-3"}>Topics and Keywords</h2>
@@ -145,22 +163,7 @@ export function Topics({ profile, setProfile }: TopicsProps) {
             placeholder={"+ Add topic"}
             className={"w-[180px] shadow-none ml-auto"}
             onChange={(e) => setNewTopicName(e.target.value)}
-            onKeyDown={(e) => {
-              if (
-                e.key === "Enter" &&
-                !profile.topics.map((t) => t.name).includes(newTopicName)
-              ) {
-                setProfile({
-                  ...profile,
-                  topics: [
-                    ...profile.topics,
-                    { id: "", name: newTopicName, keywords: [] },
-                  ],
-                });
-                setSelectedTopic(newTopicName);
-                setNewTopicName("");
-              }
-            }}
+            onKeyDown={handleAddTopic}
           />
         </div>
         {selectedTopic && (
