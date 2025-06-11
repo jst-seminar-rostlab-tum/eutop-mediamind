@@ -1,5 +1,5 @@
-import uuid
 import logging
+import uuid
 from typing import Sequence
 
 from sqlalchemy import delete, select
@@ -28,8 +28,9 @@ class ArticleMatchingService:
             result = await session.execute(
                 select(SearchProfile)
                 .options(
-                    selectinload(SearchProfile.topics)
-                    .selectinload(Topic.keywords),
+                    selectinload(SearchProfile.topics).selectinload(
+                        Topic.keywords
+                    ),
                 )
                 .filter_by(id=profile_id)
             )
@@ -37,9 +38,7 @@ class ArticleMatchingService:
 
             # 2) Collect all keyword IDs to match on
             keyword_ids = [
-                kw.id
-                for topic in sp.topics
-                for kw in topic.keywords
+                kw.id for topic in sp.topics for kw in topic.keywords
             ]
             if not keyword_ids:
                 return
@@ -49,8 +48,7 @@ class ArticleMatchingService:
                 select(
                     ArticleKeywordLink.article_id,
                     ArticleKeywordLink.score,
-                )
-                .where(ArticleKeywordLink.keyword_id.in_(keyword_ids))
+                ).where(ArticleKeywordLink.keyword_id.in_(keyword_ids))
             )
 
             # 4) Aggregate a score per article
@@ -71,7 +69,9 @@ class ArticleMatchingService:
 
             # 6) Insert fresh matches in descending score order
             for order, (article_id, _) in enumerate(
-                sorted(article_scores.items(), key=lambda kv: kv[1], reverse=True)
+                sorted(
+                    article_scores.items(), key=lambda kv: kv[1], reverse=True
+                )
             ):
                 session.add(
                     Match(
@@ -94,15 +94,21 @@ class ArticleMatchingService:
                     limit=page_size, offset=page * page_size
                 )
             )
-            logger.info(f"Processing profiles {page * page_size}–{(page + 1) * page_size}, count={len(profiles)}")
+            logger.info(
+                f"Processing profiles {page * page_size}–{(page + 1) * page_size}, count={len(profiles)}"
+            )
 
             if not profiles:
                 break
 
             for sp in profiles:
-                logger.info(f"Processing SearchProfile {sp.id} ({getattr(sp, 'name', '')})")
+                logger.info(
+                    f"Processing SearchProfile {sp.id} ({getattr(sp, 'name', '')})"
+                )
                 try:
-                    await ArticleMatchingService.match_article_to_search_profile(sp.id)
+                    await ArticleMatchingService.match_article_to_search_profile(
+                        sp.id
+                    )
                 except Exception:
                     logger.exception(
                         "Error matching articles for SearchProfile %s", sp.id
