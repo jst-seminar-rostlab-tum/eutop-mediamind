@@ -1,5 +1,5 @@
-from uuid import UUID
 from typing import List
+from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException
 
@@ -13,12 +13,8 @@ from app.schemas.articles_schemas import (
 from app.schemas.match_schemas import MatchFeedbackRequest
 from app.schemas.request_response import FeedbackResponse
 from app.schemas.search_profile_schemas import (
-    SearchProfileCreateRequest,
-    SearchProfileDetailResponse,
-    SearchProfileUpdateRequest,
-)
-from app.schemas.search_profile_schemas import (
     KeywordSuggestionResponse,
+    SearchProfileCreateRequest,
     SearchProfileDetailResponse,
     SearchProfileUpdateRequest,
 )

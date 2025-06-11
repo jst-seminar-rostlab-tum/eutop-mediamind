@@ -1,14 +1,12 @@
 from datetime import datetime, timedelta, timezone
-from uuid import UUID
-from fastapi import HTTPException
 from typing import List
+from uuid import UUID
 
-from app.models import SearchProfile
-from app.models.user import User
 from fastapi import HTTPException
 
 from app.core.db import async_session
 from app.models import SearchProfile, Topic, User
+from app.models.user import User
 from app.repositories.match_repository import MatchRepository
 from app.repositories.match_repositoy import (
     get_recent_match_count_by_profile_id,
@@ -31,11 +29,6 @@ from app.schemas.articles_schemas import (
 from app.schemas.match_schemas import MatchFeedbackRequest
 from app.schemas.search_profile_schemas import (
     KeywordSuggestionResponse,
-    SearchProfileUpdateRequest,
-)
-from app.services.llm_service.llm_client import LLMClient
-from app.services.llm_service.llm_models import LLMModels
-from app.schemas.search_profile_schemas import (
     SearchProfileCreateRequest,
     SearchProfileDetailResponse,
     SearchProfileUpdateRequest,
@@ -45,6 +38,8 @@ from app.schemas.subscription_schemas import (
     SubscriptionSummary,
 )
 from app.schemas.topic_schemas import TopicResponse
+from app.services.llm_service.llm_client import LLMClient
+from app.services.llm_service.llm_models import LLMModels
 
 
 class SearchProfileService:

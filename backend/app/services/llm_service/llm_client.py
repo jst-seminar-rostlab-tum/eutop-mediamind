@@ -1,6 +1,7 @@
-from litellm import completion
-from typing import TypeVar, Type
 import json
+from typing import Type, TypeVar
+
+from litellm import completion
 
 from app.core.config import configs
 from app.core.logger import get_logger
