@@ -37,7 +37,7 @@ export function EditProfile({
 }: EditProfileProps) {
   const isCreating = !profile;
 
-  const { authorizationHeaders, user } = useAuthorization();
+  const { user } = useAuthorization();
 
   const initialProfile: Profile = {
     id: "",
@@ -100,7 +100,6 @@ export function EditProfile({
       if (isCreating) {
         const result = await client.POST("/api/v1/search-profiles", {
           body: requestData,
-          headers: authorizationHeaders,
         });
         mutateDashboard(
           (profiles) =>
@@ -116,7 +115,6 @@ export function EditProfile({
           {
             params: { path: { search_profile_id: profile!.id } },
             body: requestData,
-            headers: authorizationHeaders,
           },
         );
         mutateDashboard(
