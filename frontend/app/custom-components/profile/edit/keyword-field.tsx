@@ -21,17 +21,19 @@ export function KeywordField({
   const [newKeyword, setNewKeyword] = useState("");
 
   const handleAddKeyword = () => {
-    if (newKeyword && selectedTopic && !keywords.includes(newKeyword)) {
-      const updatedTopics = profile.topics.map((topic) => {
-        if (topic.name === selectedTopic) {
-          return { ...topic, keywords: [...topic.keywords, newKeyword] };
-        }
-        return topic;
-      });
-      setProfile({ ...profile, topics: updatedTopics });
-      setNewKeyword("");
-    } else if (newKeyword && keywords.includes(newKeyword)) {
-      toast.error("Can't add the same keyword twice");
+    if (newKeyword && selectedTopic) {
+      if (!keywords.includes(newKeyword)) {
+        const updatedTopics = profile.topics.map((topic) => {
+          if (topic.name === selectedTopic) {
+            return { ...topic, keywords: [...topic.keywords, newKeyword] };
+          }
+          return topic;
+        });
+        setProfile({ ...profile, topics: updatedTopics });
+        setNewKeyword("");
+      } else {
+        toast.error("Can't add the same keyword twice");
+      }
     }
   };
 
