@@ -2,14 +2,19 @@ from typing import List, Optional, Sequence
 from uuid import UUID
 
 from fastapi import HTTPException
-from sqlalchemy import delete, select, insert
+from sqlalchemy import delete, insert, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload, selectinload
-from sqlmodel import and_
 
 from app.core.db import async_session
 from app.core.logger import get_logger
-from app.models import Article, ArticleKeywordLink, Keyword, Topic, User, SearchProfile
+from app.models import (
+    Article,
+    ArticleKeywordLink,
+    Keyword,
+    Topic,
+    User,
+)
 from app.models.associations import TopicKeywordLink
 from app.repositories.article_repository import ArticleRepository
 from app.schemas.keyword_schemas import KeywordCreateRequest
@@ -18,6 +23,7 @@ from app.services.article_vector_service import ArticleVectorService
 article_vector_service = ArticleVectorService()
 
 logger = get_logger(__name__)
+
 
 class KeywordRepository:
     """Unified repository for managing Keyword entities and relations."""
@@ -82,9 +88,7 @@ class KeywordRepository:
         """
 
         async with async_session() as session:
-            topic = await session.get(
-                Topic, topic_id
-            )
+            topic = await session.get(Topic, topic_id)
             if topic is None:
                 raise HTTPException(status_code=404, detail="Topic not found")
 
@@ -92,15 +96,12 @@ class KeywordRepository:
             session.add(keyword)
             await session.flush()
             link_stmt = insert(TopicKeywordLink).values(
-                topic_id=topic_id,
-                keyword_id=keyword.id
+                topic_id=topic_id, keyword_id=keyword.id
             )
             await session.execute(link_stmt)
             await session.commit()
             await session.refresh(keyword)
             return keyword
-
-
 
     @staticmethod
     async def add_keyword(
@@ -180,7 +181,6 @@ class KeywordRepository:
             limit=page_size, offset=page * page_size
         )
 
-
         while keywords:
             logger.info(
                 f"Processing keywords from {page * page_size} to {(page + 1) * page_size}"
@@ -196,9 +196,9 @@ class KeywordRepository:
                     await KeywordRepository.add_article_to_keyword(
                         keyword.id, doc.metadata["id"], score
                     )
-                    logger.info(f"Assigned article {doc.metadata['id']} to keyword {keyword.name} with score {score}")
-
-
+                    logger.info(
+                        f"Assigned article {doc.metadata['id']} to keyword {keyword.name} with score {score}"
+                    )
 
             page += 1
             keywords = await KeywordRepository.list_keywords(

@@ -13,7 +13,7 @@ class MatchRepository:
     @staticmethod
     async def get_articles_by_profile(
         search_profile_id: UUID,
-    ) -> list[Match] | None:
+    ) -> List[Match] | None:
         async with async_session() as session:
             articles = await session.execute(
                 select(Match)
@@ -25,15 +25,11 @@ class MatchRepository:
 
     @staticmethod
     async def get_matches_by_search_profile(
-            search_profile_id: UUID,
-            user: User
+        search_profile_id: UUID, user: User
     ) -> List[Match]:
         async with async_session() as session:
-            query = (
-                select(Match)
-                .where(
-                    Match.search_profile_id == search_profile_id
-                )
+            query = select(Match).where(
+                Match.search_profile_id == search_profile_id
             )
             matches = (await session.execute(query)).scalars().all()
 

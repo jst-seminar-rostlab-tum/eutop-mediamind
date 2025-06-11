@@ -75,9 +75,7 @@ class TopicsRepository:
             return topic
 
     @staticmethod
-    async def delete_topic_by_id(
-        topic_id: UUID, user: User
-    ) -> bool:
+    async def delete_topic_by_id(topic_id: UUID, user: User) -> bool:
         """
         Delete a topic by ID, ensuring the user has permission
         (endpoint for demo day).
@@ -85,9 +83,7 @@ class TopicsRepository:
         logger.info(f"Deleting topic {topic_id} for user {user.id}")
         async with async_session() as session:
             result = await session.execute(
-                delete(Topic).where(
-                    Topic.id == topic_id
-                )
+                delete(Topic).where(Topic.id == topic_id)
             )
             await session.commit()
             print(result)

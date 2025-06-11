@@ -16,7 +16,6 @@ from app.models import Article
 from app.repositories.article_repository import ArticleRepository
 
 
-
 class ArticleVectorService:
     """Service for managing article vectors in Qdrant."""
 

@@ -14,6 +14,7 @@ from app.repositories.article_repository import ArticleRepository
 
 logger = get_logger(__name__)
 
+
 class ArticleSummaryService:
     @staticmethod
     def summarize_text(text: str) -> str:
@@ -79,7 +80,9 @@ class ArticleSummaryService:
         )
 
         while articles:
-            logger.info(f"Processing page {page + 1} with {len(articles)} articles")
+            logger.info(
+                f"Processing page {page + 1} with {len(articles)} articles"
+            )
             for article in articles:
                 try:
                     # Run in a threadpool to avoid blocking the event loop
