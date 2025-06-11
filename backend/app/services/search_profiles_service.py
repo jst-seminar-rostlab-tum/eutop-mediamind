@@ -6,7 +6,6 @@ from fastapi import HTTPException
 
 from app.core.db import async_session
 from app.models import SearchProfile, Topic, User
-from app.models.user import User
 from app.repositories.match_repository import MatchRepository
 from app.repositories.match_repositoy import (
     get_recent_match_count_by_profile_id,
@@ -271,7 +270,10 @@ class SearchProfileService:
             return KeywordSuggestionResponse(suggestions=[])
 
         prompt = """
-        I will give you a list related keywords. Please add 5 new relevant keywords. Don't include synonyms, but suggest words to pin down the topic more exactly with your added relevant keywords. \n
+        I will give you a list related keywords. Please add 5
+        new relevant keywords. Don't include synonyms, but suggest
+        words to pin down the topic more exactly with your added
+        relevant keywords.\n
         """
 
         prompt += "Keywords: " + ", ".join(suggestions) + "\n\n"
