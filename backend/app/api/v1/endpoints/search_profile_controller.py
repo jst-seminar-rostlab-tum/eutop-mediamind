@@ -1,10 +1,11 @@
+from typing import List
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException
 
 from app.core.auth import get_authenticated_user
 from app.core.logger import get_logger
-from app.models import User
+from app.models.user import User
 from app.schemas.articles_schemas import (
     ArticleOverviewResponse,
     MatchDetailResponse,
@@ -12,6 +13,7 @@ from app.schemas.articles_schemas import (
 from app.schemas.match_schemas import MatchFeedbackRequest
 from app.schemas.request_response import FeedbackResponse
 from app.schemas.search_profile_schemas import (
+    KeywordSuggestionResponse,
     SearchProfileCreateRequest,
     SearchProfileDetailResponse,
     SearchProfileUpdateRequest,
@@ -33,6 +35,16 @@ async def get_available_search_profiles(
 ):
     return await SearchProfileService.get_available_search_profiles(
         current_user
+    )
+
+
+@router.post("/keywords/suggestions", response_model=KeywordSuggestionResponse)
+async def get_keyword_suggestions(
+    keyword_suggestion_request: List[str],
+    current_user: User = Depends(get_authenticated_user),
+) -> KeywordSuggestionResponse:
+    return await SearchProfileService.get_keyword_suggestions(
+        current_user, keyword_suggestion_request
     )
 
 

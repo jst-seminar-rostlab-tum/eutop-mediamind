@@ -3,7 +3,6 @@ import { cloneDeep, isEqual } from "lodash-es";
 import type { KeyedMutator } from "swr";
 import {
   Dialog,
-  DialogTrigger,
   DialogContent,
   DialogHeader,
   DialogTitle,
@@ -11,7 +10,17 @@ import {
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 
-import { Book, Mail, Newspaper, Settings, Edit2, Check, X } from "lucide-react";
+import {
+  Book,
+  Mail,
+  Newspaper,
+  Settings,
+  Edit2,
+  Check,
+  X,
+  OctagonAlert,
+  LogOut,
+} from "lucide-react";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { Topics } from "~/custom-components/profile/edit/topics";
@@ -23,16 +32,28 @@ import { client } from "../../../../types/api";
 import { useAuthorization } from "~/hooks/use-authorization";
 import type { Profile } from "../../../../types/model";
 import { toast } from "sonner";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "~/components/ui/alert-dialog";
 
 interface EditProfileProps {
   profile?: Profile;
-  trigger: React.ReactElement;
+  dialogOpen: boolean;
+  setDialogOpen: (value: boolean) => void;
   mutateDashboard: KeyedMutator<Profile[]>;
 }
 
 export function EditProfile({
   profile,
-  trigger,
+  dialogOpen,
+  setDialogOpen,
   mutateDashboard,
 }: EditProfileProps) {
   const isCreating = !profile;
@@ -53,6 +74,8 @@ export function EditProfile({
     is_owner: true,
     new_articles_count: 0,
   };
+
+  const [showCancelDialog, setShowCancelDialog] = useState(false);
 
   const [isEditingName, setIsEditingName] = useState(isCreating);
 
@@ -149,133 +172,169 @@ export function EditProfile({
     setEditedProfile(cloneDeep(profile ?? initialProfile));
     setProfileName(profile?.name || "");
     setIsEditingName(isSaving);
+    setDialogOpen(false);
   };
 
   return (
-    <Dialog
-      onOpenChange={(open) => {
-        if (!open) {
-          handleCancel();
-        }
-      }}
-    >
-      <DialogTrigger asChild>{trigger}</DialogTrigger>
-
-      <DialogContent
-        className={
-          "grid-rows-[auto_1fr_auto] gap-8 min-w-1/2 rounded-3xl h-3/4"
-        }
+    <>
+      <Dialog
+        open={dialogOpen}
+        onOpenChange={(open) => {
+          if (!open) {
+            // prevent closing and show confirmation
+            setShowCancelDialog(true);
+          }
+        }}
       >
-        <DialogHeader>
-          <div className={"flex items-center gap-3"}>
-            {isEditingName ? (
-              <div className="flex items-center gap-2 flex-1">
-                <span className="text-xl font-semibold">
-                  {isCreating ? "Create" : "Edit"} Profile:
-                </span>
-                <Input
-                  value={profileName ?? ""}
-                  placeholder="Profile name"
-                  onChange={(e) => setProfileName(e.target.value)}
-                  className="flex-1 max-w-xs"
-                  autoFocus
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") handleNameSave();
-                    if (e.key === "Escape") handleNameCancel();
-                  }}
+        <DialogContent
+          className={
+            "grid-rows-[auto_1fr_auto] gap-8 min-w-1/2 rounded-3xl h-3/4"
+          }
+        >
+          <DialogHeader>
+            <div className={"flex items-center gap-3"}>
+              {isEditingName ? (
+                <div className="flex items-center gap-2 flex-1">
+                  <span className="text-xl font-semibold">
+                    {isCreating ? "Create" : "Edit"} Profile:
+                  </span>
+                  <Input
+                    value={profileName ?? ""}
+                    placeholder="Profile name"
+                    onChange={(e) => setProfileName(e.target.value)}
+                    className="flex-1 max-w-xs"
+                    autoFocus
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") handleNameSave();
+                      if (e.key === "Escape") handleNameCancel();
+                    }}
+                  />
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={handleNameSave}
+                    className="h-8 w-8 p-0"
+                  >
+                    <Check className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={handleNameCancel}
+                    className="h-8 w-8 p-0"
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <DialogTitle className={"text-xl"}>
+                    {isCreating ? "Create" : "Edit"} Profile:{" "}
+                    {profileName || "New Profile"}
+                  </DialogTitle>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => setIsEditingName(true)}
+                    className="h-8 w-8 p-0"
+                  >
+                    <Edit2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              )}
+            </div>
+          </DialogHeader>
+
+          <Tabs defaultValue="general" className="w-full">
+            <TabsList className="grid w-full grid-cols-4">
+              <TabsTrigger value="general" className="flex items-center gap-2">
+                <Settings className="h-5 w-5" />
+                <span>General</span>
+              </TabsTrigger>
+              <TabsTrigger value="topics" className="flex items-center gap-2">
+                <Book className="h-5 w-5" />
+                <span>Topics</span>
+              </TabsTrigger>
+              <TabsTrigger value="mailing" className="flex items-center gap-2">
+                <Mail className="h-5 w-5" />
+                <span>Mailing</span>
+              </TabsTrigger>
+              <TabsTrigger
+                value="subscriptions"
+                className="flex items-center gap-2"
+              >
+                <Newspaper className="h-5 w-5" />
+                <span>Subscriptions</span>
+              </TabsTrigger>
+            </TabsList>
+            <ScrollArea className="max-h-[60vh] pr-4">
+              <TabsContent value="general">
+                <General
+                  profile={editedProfile}
+                  setProfile={setEditedProfile}
                 />
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  onClick={handleNameSave}
-                  className="h-8 w-8 p-0"
-                >
-                  <Check className="h-4 w-4" />
-                </Button>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  onClick={handleNameCancel}
-                  className="h-8 w-8 p-0"
-                >
-                  <X className="h-4 w-4" />
-                </Button>
-              </div>
-            ) : (
-              <div className="flex items-center gap-2">
-                <DialogTitle className={"text-xl"}>
-                  {isCreating ? "Create" : "Edit"} Profile:{" "}
-                  {profileName || "New Profile"}
-                </DialogTitle>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  onClick={() => setIsEditingName(true)}
-                  className="h-8 w-8 p-0"
-                >
-                  <Edit2 className="h-4 w-4" />
-                </Button>
-              </div>
-            )}
+              </TabsContent>
+
+              <TabsContent value="topics">
+                <Topics profile={editedProfile} setProfile={setEditedProfile} />
+              </TabsContent>
+
+              <TabsContent value="mailing">
+                <Mailing
+                  profile={editedProfile}
+                  setProfile={setEditedProfile}
+                />
+              </TabsContent>
+
+              <TabsContent value="subscriptions">
+                <Subscriptions
+                  profile={editedProfile}
+                  setProfile={setEditedProfile}
+                />
+              </TabsContent>
+            </ScrollArea>
+          </Tabs>
+
+          <div className="flex justify-end">
+            <Button type="button" disabled={!isValid} onClick={handleSave}>
+              {isSaving
+                ? isCreating
+                  ? "Creating..."
+                  : "Saving..."
+                : isCreating
+                  ? "Create Profile"
+                  : "Save Changes"}
+            </Button>
           </div>
-        </DialogHeader>
+        </DialogContent>
+      </Dialog>
 
-        <Tabs defaultValue="general" className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="general" className="flex items-center gap-2">
-              <Settings className="h-5 w-5" />
-              <span>General</span>
-            </TabsTrigger>
-            <TabsTrigger value="topics" className="flex items-center gap-2">
-              <Book className="h-5 w-5" />
-              <span>Topics</span>
-            </TabsTrigger>
-            <TabsTrigger value="mailing" className="flex items-center gap-2">
-              <Mail className="h-5 w-5" />
-              <span>Mailing</span>
-            </TabsTrigger>
-            <TabsTrigger
-              value="subscriptions"
-              className="flex items-center gap-2"
+      <AlertDialog open={showCancelDialog} onOpenChange={setShowCancelDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center">
+              <OctagonAlert size={20} className="text-red-500 mr-2" />
+              Are you sure?
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              Unsaved changes will be permanently lost
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Back</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-white shadow-xs hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60"
+              onClick={() => {
+                handleCancel();
+                setShowCancelDialog(false);
+              }}
             >
-              <Newspaper className="h-5 w-5" />
-              <span>Subscriptions</span>
-            </TabsTrigger>
-          </TabsList>
-          <ScrollArea className="max-h-[60vh] pr-4">
-            <TabsContent value="general">
-              <General profile={editedProfile} setProfile={setEditedProfile} />
-            </TabsContent>
-
-            <TabsContent value="topics">
-              <Topics profile={editedProfile} setProfile={setEditedProfile} />
-            </TabsContent>
-
-            <TabsContent value="mailing">
-              <Mailing profile={editedProfile} setProfile={setEditedProfile} />
-            </TabsContent>
-
-            <TabsContent value="subscriptions">
-              <Subscriptions
-                profile={editedProfile}
-                setProfile={setEditedProfile}
-              />
-            </TabsContent>
-          </ScrollArea>
-        </Tabs>
-
-        <div className="flex justify-end">
-          <Button type="button" disabled={!isValid} onClick={handleSave}>
-            {isSaving
-              ? isCreating
-                ? "Creating..."
-                : "Saving..."
-              : isCreating
-                ? "Create Profile"
-                : "Save Changes"}
-          </Button>
-        </div>
-      </DialogContent>
-    </Dialog>
+              <LogOut className="text-white" />
+              Leave
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 }

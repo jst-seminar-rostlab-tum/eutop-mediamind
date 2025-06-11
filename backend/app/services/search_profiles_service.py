@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta, timezone
+from typing import List
 from uuid import UUID
 
 from fastapi import HTTPException
@@ -26,6 +27,7 @@ from app.schemas.articles_schemas import (
 )
 from app.schemas.match_schemas import MatchFeedbackRequest
 from app.schemas.search_profile_schemas import (
+    KeywordSuggestionResponse,
     SearchProfileCreateRequest,
     SearchProfileDetailResponse,
     SearchProfileUpdateRequest,
@@ -35,6 +37,8 @@ from app.schemas.subscription_schemas import (
     SubscriptionSummary,
 )
 from app.schemas.topic_schemas import TopicResponse
+from app.services.llm_service.llm_client import LLMClient
+from app.services.llm_service.llm_models import LLMModels
 
 
 class SearchProfileService:
@@ -256,3 +260,33 @@ class SearchProfileService:
             profile_id=request.search_profile_id,
             subscription_ids=request.subscriptions,
         )
+
+    @staticmethod
+    async def get_keyword_suggestions(
+        user: User, suggestions: List[str]
+    ) -> KeywordSuggestionResponse:
+        # Avoid useless LLM calls if no topics are available
+        if len(suggestions) == 0:
+            return KeywordSuggestionResponse(suggestions=[])
+
+        prompt = """
+        I will give you a list related keywords. Please add 5
+        new relevant keywords. Don't include synonyms, but suggest
+        words to pin down the topic more exactly with your added
+        relevant keywords.\n
+        """
+
+        prompt += "Keywords: " + ", ".join(suggestions) + "\n\n"
+
+        lhm_client = LLMClient(LLMModels.openai_4o)
+
+        response = lhm_client.generate_typed_response(
+            prompt, KeywordSuggestionResponse
+        )
+        if not response:
+            raise HTTPException(
+                status_code=500,
+                detail="Failed to generate keyword suggestions from LLM",
+            )
+
+        return response
