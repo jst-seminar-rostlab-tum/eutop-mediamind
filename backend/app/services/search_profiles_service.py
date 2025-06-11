@@ -122,7 +122,7 @@ class SearchProfileService:
         return SearchProfileDetailResponse(
             id=profile.id,
             name=profile.name,
-            public=profile.is_public,
+            is_public=profile.is_public,
             editable=is_editable,
             is_editable=is_editable,
             owner_id=profile.created_by_id,
@@ -171,12 +171,14 @@ class SearchProfileService:
                     status_code=404, detail="Profile not found"
                 )
 
-            if (
-                not db_profile.is_public
-                and db_profile.organization_id != current_user.organization_id
-            ) or (
-                db_profile.created_by_id != current_user.id
-                and not current_user.is_superuser
+            if not (
+                current_user.is_superuser
+                or db_profile.created_by_id == current_user.id
+                or (
+                    db_profile.is_public
+                    and db_profile.organization_id
+                    == current_user.organization_id
+                )
             ):
                 raise HTTPException(
                     status_code=403, detail="Not allowed to edit this profile"

@@ -49,7 +49,7 @@ export function General({ profile, setProfile }: GeneralProps) {
 
   const [open, setOpen] = React.useState(false);
 
-  const selectedUser = users.find((user) => user.id === profile.owner);
+  const selectedUser = users.find((user) => user.id === profile.owner_id);
 
   const selectedUserLabel = selectedUser
     ? `${selectedUser.first_name} ${selectedUser.last_name}`
@@ -90,7 +90,7 @@ export function General({ profile, setProfile }: GeneralProps) {
                           key={user.id}
                           value={user.id}
                           onSelect={(currentValue) => {
-                            setProfile({ ...profile, owner: currentValue });
+                            setProfile({ ...profile, owner_id: currentValue });
                             setOpen(false);
                           }}
                         >
@@ -98,7 +98,7 @@ export function General({ profile, setProfile }: GeneralProps) {
                           <Check
                             className={cn(
                               "ml-auto",
-                              profile.owner === user.id
+                              profile.owner_id === user.id
                                 ? "opacity-100"
                                 : "opacity-0",
                             )}
@@ -120,8 +120,8 @@ export function General({ profile, setProfile }: GeneralProps) {
       <div className={"flex gap-3 items-center pb-3"}>
         <Label className={"text-gray-400 font-normal"}>Public</Label>
         <Switch
-          checked={profile.public}
-          onCheckedChange={(e) => setProfile({ ...profile, public: e })}
+          checked={profile.is_public}
+          onCheckedChange={(e) => setProfile({ ...profile, is_public: e })}
         />
       </div>
       <Label className={"text-gray-400 font-light pb-3"}>
