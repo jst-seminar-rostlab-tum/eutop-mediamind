@@ -1,9 +1,11 @@
 from datetime import datetime
+from typing import List
 from uuid import UUID
 
 from sqlmodel import func, select
 
 from app.core.db import async_session
+from app.models import User
 from app.models.article import Article
 from app.models.match import Match
 
