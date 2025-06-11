@@ -63,6 +63,7 @@ class TopicsRepository:
         new_topics: list[TopicCreateOrUpdateRequest],
         session,
     ):
+        print("T1")
         profile = await session.get(
             SearchProfile,
             profile.id,
@@ -72,6 +73,8 @@ class TopicsRepository:
                 ),
             ],
         )
+
+        print("T2")
 
         new_topic_names = {t.name for t in new_topics}
 
@@ -84,6 +87,8 @@ class TopicsRepository:
                     )
                 )
                 await session.delete(existing_topic)
+
+        print("T3")
 
         await session.commit()
 
@@ -98,6 +103,8 @@ class TopicsRepository:
             ],
         )
 
+        print("T4")
+
         # Rebuild topic lookup with only the remaining topics
         existing_topic_map = {topic.name: topic for topic in profile.topics}
 
@@ -106,6 +113,8 @@ class TopicsRepository:
         existing_keywords: dict[str, Keyword] = {
             keyword.name: keyword for keyword in result.scalars().all()
         }
+
+        print("T5")
 
         # Step 2: Add or update topics
         for topic_data in new_topics:
@@ -125,7 +134,7 @@ class TopicsRepository:
                 )
                 session.add(topic)
                 await session.flush()
-
+            print("T6")
             for keyword_name in topic_data.keywords:
                 keyword = existing_keywords.get(keyword_name)
                 if not keyword:
@@ -137,5 +146,5 @@ class TopicsRepository:
                 session.add(
                     TopicKeywordLink(topic_id=topic.id, keyword_id=keyword.id)
                 )
-
+            print("T7")
         await session.commit()

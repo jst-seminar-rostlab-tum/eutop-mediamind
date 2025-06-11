@@ -38,22 +38,28 @@ async def create_profile_with_request(
 
     # 3) flush to assign profile.id without committing
     await session.flush()
+    print("1")
+    await session.commit()
 
     # 4) do all related updates on the same session
     await TopicsRepository.update_topics(profile=profile, new_topics=create_data.topics, session=session)
+    print("2")
     await set_subscriptions_for_profile(
         session=session,
         subscriptions=create_data.subscriptions,
         profile_id=profile.id
     )
+    print("3")
     await update_emails(
         profile,
         create_data.organization_emails,
         create_data.profile_emails,
     )
+    print("4")
 
     # 5) commit once
     await session.commit()
+    print("5")
 
     # 6) reload profile with all needed relationships
     result = await session.execute(
