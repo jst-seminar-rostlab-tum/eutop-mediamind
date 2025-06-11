@@ -29,7 +29,10 @@ from app.schemas.articles_schemas import (
     MatchDetailResponse,
 )
 from app.schemas.match_schemas import MatchFeedbackRequest
-from app.schemas.search_profile_schemas import KeywordSuggestionResponse, SearchProfileUpdateRequest
+from app.schemas.search_profile_schemas import (
+    KeywordSuggestionResponse,
+    SearchProfileUpdateRequest,
+)
 from app.services.llm_service.llm_client import LLMClient
 from app.services.llm_service.llm_models import LLMModels
 from app.schemas.search_profile_schemas import (
@@ -265,7 +268,9 @@ class SearchProfileService:
         )
 
     @staticmethod
-    async def get_keyword_suggestions(user: User, suggestions: List[str]) -> KeywordSuggestionResponse:
+    async def get_keyword_suggestions(
+        user: User, suggestions: List[str]
+    ) -> KeywordSuggestionResponse:
         # Avoid useless LLM calls if no topics are available
         if len(suggestions) == 0:
             return KeywordSuggestionResponse(suggestions=[])
@@ -276,10 +281,11 @@ class SearchProfileService:
 
         prompt += "Keywords: " + ", ".join(suggestions) + "\n\n"
 
-
         lhm_client = LLMClient(LLMModels.openai_4o)
 
-        response = lhm_client.generate_typed_response(prompt, KeywordSuggestionResponse)
+        response = lhm_client.generate_typed_response(
+            prompt, KeywordSuggestionResponse
+        )
         if not response:
             raise HTTPException(
                 status_code=500,

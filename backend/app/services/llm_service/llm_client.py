@@ -31,13 +31,15 @@ class LLMClient:
 
     def generate_response(self, prompt: str) -> str:
         return self.__prompt(prompt)
-        
-    T = TypeVar('T')
-    def generate_typed_response(self, prompt: str, resp_format_type: Type[T]) -> T:
+
+    T = TypeVar("T")
+
+    def generate_typed_response(
+        self, prompt: str, resp_format_type: Type[T]
+    ) -> T:
         output = self.__prompt(prompt, resp_format=resp_format_type)
         data = json.loads(output)
         return resp_format_type(**data)
-
 
     def __prompt(self, prompt: str, resp_format=None):
         kwargs = {

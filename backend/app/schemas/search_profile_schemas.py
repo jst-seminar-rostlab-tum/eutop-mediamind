@@ -47,15 +47,14 @@ class SearchProfileDetailBase(BaseModel):
     is_owner: bool
     topics: List[TopicResponse]
 
+
 class SearchProfileDetailResponse(SearchProfileDetailBase):
     subscriptions: List[SubscriptionSummary]
     new_articles_count: int
+
 
 class KeywordSuggestionResponse(BaseModel):
     suggestions: List[str]
 
     def to_dict(self):
-        return {
-            "keyword_suggestions": self.suggestions
-        }
-
+        return {"keyword_suggestions": self.suggestions}
