@@ -1,5 +1,8 @@
 {
   "rewrites": [
-    { "source": "/api/(.*)", "destination": "https://api.mediamind.csee.tech/api/$1" }
+    {
+      "source": "/api/(.*)",
+      "destination": "https://api.mediamind.csee.tech/api/$1"
+    }
   ]
 }
