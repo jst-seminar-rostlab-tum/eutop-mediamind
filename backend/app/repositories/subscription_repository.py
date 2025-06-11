@@ -39,9 +39,9 @@ class SubscriptionRepository:
 
     @staticmethod
     async def save_article(
-        session: AsyncSession, subscription: Subscription, article: Article
+        session: AsyncSession, subscription_id: UUID, article: Article
     ) -> None:
-        article.subscription_id = subscription.id
+        article.subscription_id = subscription_id
         session.add(article)
         try:
             await session.commit()
@@ -157,8 +157,5 @@ class SubscriptionRepository:
     @staticmethod
     async def get_subscription_by_id(
         session, subscription_id: str
-    ) -> Optional[Subscription]:
-        stmt = select(Subscription.id).where(Subscription.id == subscription_id)
-        result = await session.execute(stmt)
-        row = result.first()
-        return row[0] if row else None
+    ):
+        return await session.get(Subscription, subscription_id)

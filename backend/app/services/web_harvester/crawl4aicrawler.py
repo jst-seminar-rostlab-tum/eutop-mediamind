@@ -3,13 +3,10 @@ import asyncio
 
 import asyncio
 import sys
-
-if sys.platform == 'win32':
-    asyncio.set_event_loop_policy(asyncio.WindowsProactorEventLoopPolicy())
-
+from uuid import UUID
 
 from datetime import date
-
+from app.models.article import ArticleStatus
 from app.models.subscription import Subscription
 from app.repositories.subscription_repository import SubscriptionRepository
 from app.services.web_harvester.crawl4ai_scraper import process_urls
@@ -18,6 +15,8 @@ from app.services.web_harvester.crawler import NewsAPICrawler
 from app.core.config import configs
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy import select
+from datetime import datetime
 
 # 初始化 async engine 和 session factory
 async_engine = create_async_engine(str(configs.SQLALCHEMY_DATABASE_URI), echo=True)
@@ -28,30 +27,41 @@ async def main():
 
     crawler = NewsAPICrawler()
 
-    start_date = date(2025, 6, 1)
-    end_date = date(2025, 6, 9)
+    start_date = date(2025, 5, 15)
+    end_date = date(2025, 5, 31)
 
-    subscription_id_ft = "b40dc507-537d-4a9f-b423-b8b4fea85740"
+    subscription_id = UUID("b316d770-455d-4d90-80e4-4911b1850c0e")
 
     async with AsyncSessionLocal() as session:
+        stmt = select(Subscription).where(Subscription.newsapi_id.isnot(None)).limit(1)
+        result = await session.execute(stmt)
+        subscription = result.scalars().first()
         subscription = await SubscriptionRepository.get_subscription_by_id(
-            session=session, subscription_id=subscription_id_ft
+            session, subscription_id
         )
+
+        # Add this check
+        if not subscription:
+            print(f"Error: Subscription with ID {subscription_id} not found")
+            return
+
 
         articles = crawler.crawl_urls(
             subscription=subscription,
             date_start=start_date,
             date_end=end_date,
-            limit=100,
+            limit=1000,
         )
         urls = [article.url for article in articles]
         scraped_results = await process_urls(urls)
 
-        # 更新 content 字段
+        
         for article, result in zip(articles, scraped_results):
             if result.success:
                 article.content = result.markdown.fit_markdown
-                await SubscriptionRepository.save_article(session, subscription, article)
+                article.status = ArticleStatus.SCRAPED
+                article.scraped_at = datetime.now()
+                await SubscriptionRepository.save_article(session, subscription_id, article)
                 print(f"Added: {article.title}")
 
 if __name__ == "__main__":

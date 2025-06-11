@@ -20,7 +20,7 @@ class AppCreator:
                 dsn=configs.SENTRY_DSN,  # noqa: E501
                 send_default_pii=True,
                 traces_sample_rate=1.0,
-                environment=configs.ENV,
+                environment=configs.ENVIRONMENT,
             )
 
         self.logger.info("Starting FastAPI app initialization.")

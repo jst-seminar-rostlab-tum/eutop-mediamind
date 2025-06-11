@@ -26,8 +26,14 @@ from crawl4ai.markdown_generation_strategy import DefaultMarkdownGenerator
 urls = [
     "https://www.ft.com/content/c779b3b6-e989-4277-91fd-d724682918be",
     "https://www.ft.com/content/03c86b1c-5563-4879-a9ab-78a576f9f474",
+    "https://www.ft.com/content/26c6d46a-8412-4fe9-8a30-7ac76194b9ab",
     # "https://www.handelsblatt.com/politik/international/kriegsschiff-nordkoreas-werftarbeiter-richten-gekenterten-zerstoerer-wieder-auf/100133717.html",
     # "https://www.handelsblatt.com/finanzen/banken-versicherungen/trade-republic-was-sollten-sie-als-kunde-des-neobrokers-beachten/100070689.html",
+    # "https://www.heise.de/tests/Switch-2-im-Test-Nintendos-Antwort-auf-Steam-Deck-und-PC-Handhelds-10387966.html",
+    # "https://www.heise.de/ratgeber/Weniger-am-Handy-sein-so-gelingt-es-vielleicht-10389458.html",
+    # "https://www.politico.eu/article/eu-parliament-president-roberta-metsola-malta-politics/",
+    # "https://www.politico.eu/article/missions-impossible-can-starmers-cabinet-get-behind-his-plan/"
+
 ]
 # strategy = CosineStrategy(
 #     semantic_filter="main article content",
@@ -56,7 +62,7 @@ dispatcher = MemoryAdaptiveDispatcher(
 # Create a pruning filter
 prune_filter = PruningContentFilter(
     # Lower → more content retained, higher → more content pruned
-    threshold=0.4,
+    threshold=0.8,
     # "fixed" or "dynamic"
     threshold_type="dynamic",
     # Ignore nodes with <10 words
@@ -70,7 +76,7 @@ md_generator = DefaultMarkdownGenerator(content_filter=prune_filter)
 # Use the login identity
 browser_config = BrowserConfig(
     use_managed_browser=True,
-    user_data_dir="~/ChromeCache/",
+    user_data_dir=os.path.expanduser("~/ChromeCache/"),
     browser_type="chromium",
     headless=True,
     verbose=True,
@@ -79,12 +85,15 @@ browser_config = BrowserConfig(
 
 
 crawl_config = CrawlerRunConfig(
-    scan_full_page=True,
+    # scan_full_page=True,
     page_timeout=60000,
     markdown_generator=md_generator,
     cache_mode=CacheMode.BYPASS,
     stream=False,
-    log_console=True,
+    log_console=False,
+    exclude_external_links= True,
+    exclude_internal_links= True,
+
 )
 
 
@@ -96,14 +105,12 @@ async def process_urls(urls: List[str]) -> List[Any]:
     crawler = AsyncWebCrawler(config=browser_config)
     await crawler.start()
     
-    # crawl_config.session_id = str(uuid.uuid4())
-    async for result in await crawler.arun_many(urls, config=crawl_config):
-        if result.success:
-            final_results.append(result)
-            print(f"✅ Extracted {result.url} with {len(result.extracted_content)} characters")
-        else:
-            final_results.append({"url": result.url, "error": result.error_message})
-            print(f"❌ Failed to extract {result.url}: {result.error_message}")
+
+    for url in urls:
+        crawl_config.session_id = str(uuid.uuid4())
+        result = await crawler.arun(url, config=crawl_config)
+        final_results.append(result)
+
     # if result.success and result.extracted_content:
     #     try:
     #         data = json.loads(result.extracted_content)
