@@ -62,7 +62,7 @@ async def get_sync_user(request: Request) -> UserEntity:
         if configs.DISABLE_AUTH:
             user_clerk_id = "user_2xd0q4SUzIlYIZZnUZ2UmNmHz8n"
         else:
-            token = request.cookies.get("__session")
+            token = request.cookies.get(configs.CLERK_COOKIE_NAME)
             if not token:
                 raise HTTPException(
                     status_code=401,
