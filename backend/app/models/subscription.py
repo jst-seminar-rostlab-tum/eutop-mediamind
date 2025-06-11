@@ -1,6 +1,7 @@
 import uuid
 from typing import TYPE_CHECKING, List, Optional
 
+from sqlalchemy import JSON, Column
 from sqlmodel import Field, Relationship, SQLModel
 
 from app.models.associations import (
@@ -24,10 +25,14 @@ class Subscription(SQLModel, table=True):
     __tablename__ = "subscriptions"
     # Attributes
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
-    name: str = Field(max_length=255)
+    name: str = Field(max_length=255, unique=True)
     domain: str = Field(max_length=255)
-    config: str = Field(max_length=255)
-    scraper_type: str = Field(max_length=255)
+    paywall: bool = Field(default=False)
+    login_works: bool = Field(default=False)
+    newsapi_id: str = Field(default=None, max_length=255, nullable=True)
+    vault_path: str = Field(max_length=255, nullable=True)
+    config: dict = Field(default=None, sa_column=Column(JSON, nullable=True))
+    scraper_type: str = Field(max_length=255, nullable=True)
     encrypted_secrets: Optional[bytes] = Field(
         default=None, sa_column_kwargs={"nullable": True}
     )
