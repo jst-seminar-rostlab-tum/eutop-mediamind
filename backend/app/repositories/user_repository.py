@@ -9,7 +9,7 @@ from app.models import User
 from app.schemas.user_schema import UserEntity
 
 
-def _to_user_public(user: User) -> UserEntity:
+def _to_user_entity(user: User) -> UserEntity:
     return UserEntity(
         id=user.id,
         clerk_id=user.clerk_id,
@@ -38,7 +38,7 @@ async def get_user_by_clerk_id(clerk_id: str) -> Optional[UserEntity]:
         result = await session.execute(query)
         user = result.scalar_one_or_none()
 
-        return _to_user_public(user) if user else None
+        return _to_user_entity(user) if user else None
 
 
 async def update_user(user_public: UserEntity) -> UserEntity:
@@ -68,7 +68,7 @@ async def update_user(user_public: UserEntity) -> UserEntity:
         await session.commit()
         await session.refresh(user)
 
-        return _to_user_public(user)
+        return _to_user_entity(user)
 
 
 async def create_user(user: User) -> UserEntity:
@@ -79,7 +79,7 @@ async def create_user(user: User) -> UserEntity:
         session.add(user)
         await session.commit()
         await session.refresh(user)
-        return _to_user_public(user)
+        return _to_user_entity(user)
 
 
 async def get_user_list_from_organization(
