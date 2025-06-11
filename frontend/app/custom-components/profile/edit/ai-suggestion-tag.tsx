@@ -3,12 +3,18 @@ import { Plus } from "lucide-react";
 
 interface AiSuggestionTagProps {
   keyword: string;
+  onAdd: (keyword: string) => void;
 }
 
-export function AiSuggestionTag({ keyword }: AiSuggestionTagProps) {
+export function AiSuggestionTag({ keyword, onAdd }: AiSuggestionTagProps) {
+  const handlePlusClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onAdd(keyword);
+  };
+
   return (
     <div
-      className={"inline-flex p-1.5 rounded-md items-center gap-1 bg-gray-100 "}
+      className={"inline-flex p-1.5 rounded-md items-center gap-1 bg-gray-100"}
     >
       <Label
         className={
@@ -19,8 +25,9 @@ export function AiSuggestionTag({ keyword }: AiSuggestionTagProps) {
       </Label>
       <div
         className={
-          "hover:bg-gray-200 transition-colors duration-200 rounded-xs p-0.5"
+          "hover:bg-gray-200 transition-colors duration-200 rounded-xs p-0.5 cursor-pointer"
         }
+        onClick={handlePlusClick}
       >
         <Plus strokeWidth={"3"} className={"h-3.5 w-3.5 text-gray-400"} />
       </div>
