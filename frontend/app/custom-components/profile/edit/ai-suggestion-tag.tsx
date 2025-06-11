@@ -1,5 +1,6 @@
 import { Label } from "~/components/ui/label";
 import { Plus } from "lucide-react";
+import { Button } from "~/components/ui/button";
 
 interface AiSuggestionTagProps {
   keyword: string;
@@ -23,14 +24,15 @@ export function AiSuggestionTag({ keyword, onAdd }: AiSuggestionTagProps) {
       >
         {keyword}
       </Label>
-      <div
-        className={
-          "hover:bg-gray-200 transition-colors duration-200 rounded-xs p-0.5 cursor-pointer"
-        }
+      <Button
+        type="button"
+        variant="ghost"
+        size="icon"
+        className="p-1 h-6 w-6 hover:bg-gray-200 active:bg-gray-300"
         onClick={handlePlusClick}
       >
-        <Plus strokeWidth={"3"} className={"h-3.5 w-3.5 text-gray-400"} />
-      </div>
+        <Plus strokeWidth={3} className="h-3.5 w-3.5 text-gray-400" />
+      </Button>
     </div>
   );
 }
