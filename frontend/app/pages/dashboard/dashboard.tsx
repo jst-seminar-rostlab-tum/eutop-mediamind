@@ -16,6 +16,7 @@ import { EditProfile } from "~/custom-components/profile/edit/edit-profile";
 import { sortBy } from "lodash-es";
 import Layout from "~/custom-components/layout";
 import Text from "~/custom-components/text";
+import "./dashboard.css";
 
 const suppressSWRReloading = {
   refreshInterval: 0,
