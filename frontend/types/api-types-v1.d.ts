@@ -91,6 +91,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/search-profiles/keywords/suggestions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Get Keyword Suggestions */
+        post: operations["get_keyword_suggestions_api_v1_search_profiles_keywords_suggestions_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/search-profiles/{search_profile_id}": {
         parameters: {
             query?: never;
@@ -211,6 +228,11 @@ export interface components {
         HTTPValidationError: {
             /** Detail */
             detail?: components["schemas"]["ValidationError"][];
+        };
+        /** KeywordSuggestionResponse */
+        KeywordSuggestionResponse: {
+            /** Suggestions */
+            suggestions: string[];
         };
         /** MatchDetailResponse */
         MatchDetailResponse: {
@@ -388,6 +410,31 @@ export interface components {
              */
             id?: string;
         };
+        /** UserEntity */
+        UserEntity: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Clerk Id */
+            clerk_id: string;
+            /**
+             * Email
+             * Format: email
+             */
+            email: string;
+            /** First Name */
+            first_name: string;
+            /** Last Name */
+            last_name: string;
+            /** Is Superuser */
+            is_superuser: boolean;
+            /** Organization Id */
+            organization_id?: string | null;
+            /** Organization Name */
+            organization_name?: string | null;
+        };
         /** ValidationError */
         ValidationError: {
             /** Location */
@@ -461,7 +508,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["User"];
+                    "application/json": components["schemas"]["UserEntity"];
                 };
             };
         };
@@ -501,7 +548,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["User"];
+                    "application/json": components["schemas"]["UserEntity"];
                 };
             };
         };
@@ -546,6 +593,39 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["SearchProfileDetailResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_keyword_suggestions_api_v1_search_profiles_keywords_suggestions_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": string[];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["KeywordSuggestionResponse"];
                 };
             };
             /** @description Validation Error */
