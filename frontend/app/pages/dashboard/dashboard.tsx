@@ -92,7 +92,7 @@ export function DashboardPage() {
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
-      <h1 className="text-3xl font-bold mb-4">Dashboard</h1>
+      <h1 className="text-3xl font-bold mb-2">Dashboard</h1>
       <BreakingNews breakingNews={breakingNews} />
       <div className={"flex gap-5"}>
         <h2 className="text-2xl font-bold ">Profiles</h2>
