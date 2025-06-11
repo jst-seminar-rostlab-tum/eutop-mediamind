@@ -89,7 +89,7 @@ export function DashboardPage() {
           </span>
         </div>
       ) : (
-        <div className="flex flex-wrap gap-6 mt-4 mb-4">
+        <div className="grid-profile-cards mt-4 mb-4">
           {sortedProfiles?.map((profile) => (
             <ProfileCard
               key={profile.id}
