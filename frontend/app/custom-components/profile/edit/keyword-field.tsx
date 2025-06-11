@@ -3,6 +3,7 @@ import { Input } from "~/components/ui/input";
 import { useState } from "react";
 import { KeywordTag } from "~/custom-components/profile/edit/keyword-tag";
 import type { Profile } from "../../../../types/model";
+import { toast } from "sonner";
 
 interface KeywordFieldProps {
   keywords: string[];
@@ -29,6 +30,8 @@ export function KeywordField({
       });
       setProfile({ ...profile, topics: updatedTopics });
       setNewKeyword("");
+    } else if (newKeyword && keywords.includes(newKeyword)) {
+      toast.error("Can't add the same keyword twice");
     }
   };
 

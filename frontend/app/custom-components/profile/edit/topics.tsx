@@ -15,6 +15,7 @@ import { Input } from "~/components/ui/input";
 import { Sparkles, Trash2 } from "lucide-react";
 import { AiSuggestionTag } from "~/custom-components/profile/edit/ai-suggestion-tag";
 import type { Profile } from "../../../../types/model";
+import { toast } from "sonner";
 
 interface TopicsProps {
   profile: Profile;
@@ -93,6 +94,11 @@ export function Topics({ profile, setProfile }: TopicsProps) {
                 });
                 setSelectedTopic(newTopicName);
                 setNewTopicName("");
+              } else if (
+                e.key === "Enter" &&
+                profile.topics.map((t) => t.name).includes(newTopicName)
+              ) {
+                toast.error("Can't add the same topic twice");
               }
             }}
           />
