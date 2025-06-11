@@ -15,6 +15,7 @@ import { EditProfile } from "~/custom-components/profile/edit/edit-profile";
 import { sortBy } from "lodash-es";
 import Layout from "~/custom-components/layout";
 import Text from "~/custom-components/text";
+import "./dashboard.css";
 
 const suppressSWRReloading = {
   refreshInterval: 0,
@@ -80,7 +81,7 @@ export function DashboardPage() {
           </span>
         </div>
       ) : (
-        <div className="flex flex-wrap gap-6 mt-4 mb-4">
+        <div className="grid-profile-cards mt-4 mb-4">
           {sortedProfiles?.map((profile) => (
             <ProfileCard
               key={profile.id}
