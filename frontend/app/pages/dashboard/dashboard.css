@@ -1,6 +1,6 @@
 .grid-profile-cards {
   display: grid;
-  grid-template-columns: repeat(auto-fill, 260px);
+  grid-template-columns: repeat(auto-fill, 240px);
   grid-gap: 1rem;
   justify-content: space-between;
 }
