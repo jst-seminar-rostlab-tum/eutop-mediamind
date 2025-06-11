@@ -8,7 +8,6 @@ import {
   BreadcrumbLink,
   BreadcrumbList,
 } from "~/components/ui/breadcrumb";
-import { useAuthorization } from "~/hooks/use-authorization";
 import { useQuery } from "types/api";
 import { useEffect } from "react";
 import { toast } from "sonner";
@@ -27,20 +26,12 @@ const suppressSWRReloading = {
 };
 
 export function DashboardPage() {
-  const { authorizationHeaders } = useAuthorization();
-
   const {
     data: profiles,
     isLoading,
     error,
     mutate,
-  } = useQuery(
-    "/api/v1/search-profiles",
-    {
-      headers: authorizationHeaders,
-    },
-    suppressSWRReloading,
-  );
+  } = useQuery("/api/v1/search-profiles", undefined, suppressSWRReloading);
 
   const sortedProfiles = sortBy(profiles, "name");
 
