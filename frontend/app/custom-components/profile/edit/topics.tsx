@@ -53,7 +53,6 @@ export function Topics({ profile, setProfile }: TopicsProps) {
         "/api/v1/search-profiles/keywords/suggestions",
         {
           body: keywords,
-          headers: authorizationHeaders,
         },
       );
 
@@ -75,15 +74,13 @@ export function Topics({ profile, setProfile }: TopicsProps) {
     }
   };
 
-  const keywordsString = selectedTopicKeywords.join(",");
-
   useEffect(() => {
     if (selectedTopic && selectedTopicKeywords.length > 0) {
       getSuggestions(selectedTopicKeywords);
     } else {
       setAiSuggestions([]);
     }
-  }, [selectedTopic, keywordsString]);
+  }, [selectedTopic, selectedTopicKeywords]);
 
   const handleAddSuggestionAsKeyword = (suggestion: string) => {
     if (selectedTopic && !selectedTopicKeywords.includes(suggestion)) {
