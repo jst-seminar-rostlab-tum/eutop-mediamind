@@ -271,7 +271,7 @@ class SearchProfileService:
             return KeywordSuggestionResponse(suggestions=[])
 
         prompt = """
-        I will give you a list related keywords. Please add 5 new relevant keywords.\n
+        I will give you a list related keywords. Please add 5 new relevant keywords. Don't include synonyms, but suggest words to pin down the topic more exactly with your added relevant keywords. \n
         """
 
         prompt += "Keywords: " + ", ".join(suggestions) + "\n\n"
