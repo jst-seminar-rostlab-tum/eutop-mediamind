@@ -1,6 +1,5 @@
 import { ProfileCard } from "~/custom-components/dashboard/profile-card";
-import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
-import { Loader2, Newspaper, Plus, Rocket } from "lucide-react";
+import { Loader2, Plus } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import {
   Breadcrumb,
@@ -14,6 +13,7 @@ import { useEffect } from "react";
 import { toast } from "sonner";
 import { EditProfile } from "~/custom-components/profile/edit/edit-profile";
 import { sortBy } from "lodash-es";
+import { BreakingNews } from "./breaking-news";
 
 const suppressSWRReloading = {
   refreshInterval: 0,
@@ -48,6 +48,41 @@ export function DashboardPage() {
     }
   }, [error]);
 
+  const breakingNews = [
+    {
+      title:
+        "World Bank sharply cuts global growth outlook on trade turbulence",
+      description:
+        "This would mark the slowest rate of global growth since 2008, aside from outright global recessions. It now expects the global economy to expand by 2.3% in 2025, down from an earlier forecast of 2.7%",
+    },
+    {
+      title: "Uber brings forward trialling driverless taxis in UK",
+      description:
+        "The ride-hailing app will work with the UK artificial intelligence (AI) firm Wayve, which has been testing out the technology on the city's streets with human oversight, in line with current legislation.",
+    },
+    {
+      title: "US and China meet for trade talks in London",
+      description:
+        "A senior US delegation including Commerce Secretary Howard Lutnick met Chinese representatives such as Vice Premier He Lifeng at Lancaster House to resolve tension",
+    },
+    {
+      title: "Europe heaps harsh sanctions on Russia",
+      description:
+        "he European Union announced a new package of sanctions against Russia on Tuesday",
+    },
+    {
+      title: "Massive Russian drone attack slams Kyiv",
+      description:
+        "ussia launched 315 drones at Ukraine overnight into Tuesday, in what Ukrainian President Volodymyr Zelensky said was “one of the largest” attacks on the capital Kyiv so far.",
+    },
+    {
+      title:
+        "Greta Thunberg departs Israel on flight to Paris after detention aboard aid ship",
+      description:
+        "Swedish climate and human rights activist Greta Thunberg departed Israel on a flight to France on Tuesday after being detained by Israeli forces",
+    },
+  ];
+
   return (
     <div className={" mx-auto w-full max-w-2xl xl:max-w-7xl mt-12"}>
       <Breadcrumb>
@@ -58,16 +93,7 @@ export function DashboardPage() {
         </BreadcrumbList>
       </Breadcrumb>
       <h1 className="text-3xl font-bold mb-4">Dashboard</h1>
-      <Alert className="bg-blue-100 mb-3">
-        <Rocket className="h-4 w-4" color="#113264" />
-        <AlertTitle className="text-[#113264]">Heads up!</AlertTitle>
-        <AlertDescription className="text-[#113264]">
-          New press reviews available!
-        </AlertDescription>
-      </Alert>
-      <Button className={"mb-4"}>
-        <Newspaper /> Press Reviews
-      </Button>
+      <BreakingNews breakingNews={breakingNews} />
       <div className={"flex gap-5"}>
         <h2 className="text-2xl font-bold ">Profiles</h2>
         <EditProfile
