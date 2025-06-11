@@ -16,7 +16,6 @@ import { Sparkles, Trash2 } from "lucide-react";
 import { AiSuggestionTag } from "~/custom-components/profile/edit/ai-suggestion-tag";
 import type { Profile } from "../../../../types/model";
 import { client } from "../../../../types/api";
-import { useAuthorization } from "~/hooks/use-authorization";
 import { toast } from "sonner";
 
 interface TopicsProps {
@@ -38,8 +37,6 @@ export function Topics({ profile, setProfile }: TopicsProps) {
       []
     );
   }, [profile.topics, selectedTopic]);
-
-  const { authorizationHeaders } = useAuthorization();
 
   const getSuggestions = async (keywords: string[]) => {
     if (keywords.length === 0) {
