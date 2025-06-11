@@ -1,47 +1,60 @@
-from typing import List, Optional
+from typing import List
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, EmailStr
+
+from app.schemas.subscription_schemas import SubscriptionSummary
+from app.schemas.topic_schemas import (
+    TopicCreateOrUpdateRequest,
+    TopicResponse,
+)
+
+# --- Shared Base Models ---
 
 
-class TopicUpdate(BaseModel):
+class SearchProfileBase(BaseModel):
     name: str
-    keywords: List[str]
+    is_public: bool
+    organization_emails: List[EmailStr]
+    profile_emails: List[EmailStr]
+    subscriptions: List[SubscriptionSummary]
+    owner_id: UUID
 
 
-class SubscriptionUpdate(BaseModel):
-    id: int
-    name: str
+# --- Request Models ---
 
 
-class SearchProfileUpdateRequest(BaseModel):
+class SearchProfileCreateRequest(SearchProfileBase):
+    topics: List[TopicCreateOrUpdateRequest]
+
+
+class SearchProfileUpdateRequest(SearchProfileBase):
+    topics: List[TopicCreateOrUpdateRequest]
+
+
+# --- Response Models ---
+
+
+class SearchProfileDetailBase(BaseModel):
     id: UUID
     name: str
-    organization_emails: Optional[List[str]] = []
-    profile_emails: Optional[List[str]] = []
     public: bool
-    is_editable: Optional[bool] = True
-    owner: UUID
-    is_owner: Optional[bool] = False
-    subscriptions: Optional[List[SubscriptionUpdate]] = []
-    topics: Optional[List[TopicUpdate]] = []
-
-
-class TopicOut(BaseModel):
-    name: str
-    keywords: List[str]
-
-
-class SearchProfileDetailResponse(BaseModel):
-    id: UUID
-    name: str
-    organization_emails: List[str]
-    profile_emails: List[str]
-    public: bool
+    organization_emails: List[EmailStr]
+    profile_emails: List[EmailStr]
     editable: bool
     is_editable: bool
-    owner: UUID
+    owner_id: UUID
     is_owner: bool
-    topics: List[TopicOut]
+    topics: List[TopicResponse]
 
-    model_config = ConfigDict(from_attributes=True)
+
+class SearchProfileDetailResponse(SearchProfileDetailBase):
+    subscriptions: List[SubscriptionSummary]
+    new_articles_count: int
+
+
+class KeywordSuggestionResponse(BaseModel):
+    suggestions: List[str]
+
+    def to_dict(self):
+        return {"keyword_suggestions": self.suggestions}

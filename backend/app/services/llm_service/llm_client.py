@@ -1,3 +1,6 @@
+import json
+from typing import Type, TypeVar
+
 from litellm import completion
 
 from app.core.config import configs
@@ -28,10 +31,25 @@ class LLMClient:
         self.api_key = configs.OPENAI_API_KEY
 
     def generate_response(self, prompt: str) -> str:
+        return self.__prompt(prompt)
+
+    T = TypeVar("T")
+
+    def generate_typed_response(
+        self, prompt: str, resp_format_type: Type[T]
+    ) -> T:
+        output = self.__prompt(prompt, resp_format=resp_format_type)
+        data = json.loads(output)
+        return resp_format_type(**data)
+
+    def __prompt(self, prompt: str, resp_format=None):
         kwargs = {
             "model": self.model,
             "messages": [{"role": "user", "content": prompt}],
         }
+
+        if resp_format:
+            kwargs["response_format"] = resp_format
 
         if self.api_key:
             kwargs["api_key"] = self.api_key
@@ -39,6 +57,7 @@ class LLMClient:
         try:
             response = completion(**kwargs)
             return response.choices[0].message.content
+
         except Exception as e:
             logger.exception(
                 f"Error occurred while generating response with model \
