@@ -388,6 +388,31 @@ export interface components {
              */
             id?: string;
         };
+        /** UserEntity */
+        UserEntity: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Clerk Id */
+            clerk_id: string;
+            /**
+             * Email
+             * Format: email
+             */
+            email: string;
+            /** First Name */
+            first_name: string;
+            /** Last Name */
+            last_name: string;
+            /** Is Superuser */
+            is_superuser: boolean;
+            /** Organization Id */
+            organization_id?: string | null;
+            /** Organization Name */
+            organization_name?: string | null;
+        };
         /** ValidationError */
         ValidationError: {
             /** Location */
@@ -461,7 +486,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["User"];
+                    "application/json": components["schemas"]["UserEntity"];
                 };
             };
         };
@@ -501,7 +526,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["User"];
+                    "application/json": components["schemas"]["UserEntity"];
                 };
             };
         };
