@@ -11,11 +11,10 @@ import { isMatch } from "lodash-es";
 export const BASE_URL =
   import.meta.env.VITE_BACKEND_URL ?? "http://localhost:8000";
 
-const client = createClient<paths>({
+export const client = createClient<paths>({
   baseUrl: BASE_URL,
+  credentials: "include",
 });
-
-export { client };
 
 const API_PREFIX = "api";
 
