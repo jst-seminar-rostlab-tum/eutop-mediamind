@@ -38,7 +38,7 @@ class SearchProfileUpdateRequest(SearchProfileBase):
 class SearchProfileDetailBase(BaseModel):
     id: UUID
     name: str
-    public: bool
+    is_public: bool
     organization_emails: List[EmailStr]
     profile_emails: List[EmailStr]
     editable: bool

@@ -309,8 +309,8 @@ export interface components {
             id: string;
             /** Name */
             name: string;
-            /** Public */
-            public: boolean;
+            /** Is Public */
+            is_public: boolean;
             /** Organization Emails */
             organization_emails: string[];
             /** Profile Emails */

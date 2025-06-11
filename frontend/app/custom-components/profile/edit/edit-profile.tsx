@@ -63,12 +63,12 @@ export function EditProfile({
   const initialProfile: Profile = {
     id: "",
     name: "",
-    public: false,
+    is_public: false,
     organization_emails: [],
     profile_emails: [],
     subscriptions: [],
     topics: [],
-    owner: user?.id ?? "",
+    owner_id: user?.id ?? "",
     editable: true,
     is_editable: true,
     is_owner: true,
@@ -100,30 +100,34 @@ export function EditProfile({
     setIsEditingName(false);
   };
 
-  const isValid = useMemo(() => {
-    if (isCreating) {
-      return profileName.trim().length > 0;
-    }
-    return !isEqual(initialProfile, editedProfile);
-  }, [isCreating, profileName, initialProfile, editedProfile]);
+  const isValid = useMemo(
+    () =>
+      !isEqual(initialProfile, editedProfile) &&
+      editedProfile.name.trim().length > 0 &&
+      !isEditingName,
+    [isCreating, profileName, initialProfile, editedProfile],
+  );
 
   const handleSave = async () => {
     setIsSaving(true);
     try {
       const requestData = {
         name: editedProfile.name,
-        public: editedProfile.public,
+        is_public: editedProfile.is_public,
         organization_emails: editedProfile.organization_emails,
         profile_emails: editedProfile.profile_emails,
         subscriptions: editedProfile.subscriptions,
         topics: editedProfile.topics,
-        owner: editedProfile.owner,
+        owner_id: editedProfile.owner_id,
       };
 
       if (isCreating) {
         const result = await client.POST("/api/v1/search-profiles", {
           body: requestData,
         });
+        if (result.error) {
+          throw new Error(result.error as string);
+        }
         mutateDashboard(
           (profiles) =>
             [result.data as Profile, ...(profiles ?? [])].filter(Boolean),
@@ -140,6 +144,9 @@ export function EditProfile({
             body: requestData,
           },
         );
+        if (result.error) {
+          throw new Error(result.error as string);
+        }
         mutateDashboard(
           (profiles) => {
             const filteredProfiles =
