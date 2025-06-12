@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Select,
   SelectContent,
@@ -15,6 +15,8 @@ import { Input } from "~/components/ui/input";
 import { Sparkles, Trash2 } from "lucide-react";
 import { AiSuggestionTag } from "~/custom-components/profile/edit/ai-suggestion-tag";
 import type { Profile } from "../../../../types/model";
+import { client } from "../../../../types/api";
+import { toast } from "sonner";
 
 interface TopicsProps {
   profile: Profile;
@@ -26,9 +28,87 @@ export function Topics({ profile, setProfile }: TopicsProps) {
     profile.topics.length > 0 ? profile.topics[0].name : undefined,
   );
   const [newTopicName, setNewTopicName] = useState("");
-  const selectedTopicKeywords =
-    profile.topics.find((topic) => topic.name === selectedTopic)?.keywords ||
-    [];
+  const [aiSuggestions, setAiSuggestions] = useState<string[]>([]);
+  const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
+
+  const selectedTopicKeywords = useMemo(() => {
+    return (
+      profile.topics.find((topic) => topic.name === selectedTopic)?.keywords ||
+      []
+    );
+  }, [profile.topics, selectedTopic]);
+
+  const getSuggestions = async (keywords: string[]) => {
+    if (keywords.length === 0) {
+      setAiSuggestions([]);
+      return;
+    }
+
+    setIsLoadingSuggestions(true);
+    try {
+      const result = await client.POST(
+        "/api/v1/search-profiles/keywords/suggestions",
+        {
+          body: keywords,
+        },
+      );
+
+      if (result.data?.suggestions) {
+        const filteredSuggestions = result.data.suggestions.filter(
+          (suggestion: string) =>
+            !keywords.some(
+              (keyword) => keyword.toLowerCase() === suggestion.toLowerCase(),
+            ),
+        );
+        setAiSuggestions(filteredSuggestions);
+      }
+    } catch (error) {
+      console.error("Failed to fetch AI suggestions:", error);
+      toast.error("Failed to get AI suggestions.");
+      setAiSuggestions([]);
+    } finally {
+      setIsLoadingSuggestions(false);
+    }
+  };
+
+  useEffect(() => {
+    if (selectedTopic && selectedTopicKeywords.length > 0) {
+      getSuggestions(selectedTopicKeywords);
+    } else {
+      setAiSuggestions([]);
+    }
+  }, [selectedTopic, selectedTopicKeywords]);
+
+  const handleAddSuggestionAsKeyword = (suggestion: string) => {
+    if (selectedTopic && !selectedTopicKeywords.includes(suggestion)) {
+      const updatedTopics = profile.topics.map((topic) => {
+        if (topic.name === selectedTopic) {
+          return { ...topic, keywords: [...topic.keywords, suggestion] };
+        }
+        return topic;
+      });
+      setProfile({ ...profile, topics: updatedTopics });
+      setAiSuggestions((prev) => prev.filter((s) => s !== suggestion));
+    }
+  };
+
+  const handleAddTopic = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key !== "Enter") return;
+
+    if (!profile.topics.map((t) => t.name).includes(newTopicName)) {
+      setProfile({
+        ...profile,
+        topics: [
+          ...profile.topics,
+          { id: "", name: newTopicName, keywords: [] },
+        ],
+      });
+      setSelectedTopic(newTopicName);
+      setNewTopicName("");
+    } else {
+      toast.error("Can't add the same topic twice");
+    }
+  };
 
   return (
     <div>
@@ -68,6 +148,7 @@ export function Topics({ profile, setProfile }: TopicsProps) {
                   ),
                 });
                 setSelectedTopic(undefined);
+                setAiSuggestions([]);
               }}
             >
               <Trash2 />
@@ -79,25 +160,9 @@ export function Topics({ profile, setProfile }: TopicsProps) {
             placeholder={"+ Add topic"}
             className={"w-[180px] shadow-none ml-auto"}
             onChange={(e) => setNewTopicName(e.target.value)}
-            onKeyDown={(e) => {
-              if (
-                e.key === "Enter" &&
-                !profile.topics.map((t) => t.name).includes(newTopicName)
-              ) {
-                setProfile({
-                  ...profile,
-                  topics: [
-                    ...profile.topics,
-                    { id: "", name: newTopicName, keywords: [] },
-                  ],
-                });
-                setSelectedTopic(newTopicName);
-                setNewTopicName("");
-              }
-            }}
+            onKeyDown={handleAddTopic}
           />
         </div>
-
         {selectedTopic && (
           <>
             <KeywordField
@@ -110,12 +175,26 @@ export function Topics({ profile, setProfile }: TopicsProps) {
               <div className="flex gap-2 items-center pb-2">
                 <Sparkles className={"w-4 h-4"} />
                 <h2>AI Keyword Suggestions</h2>
+                {isLoadingSuggestions && (
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+                )}
               </div>
 
               <div className={"flex flex-wrap gap-2 pb-2"}>
-                {selectedTopicKeywords.map((keyword) => (
-                  <AiSuggestionTag keyword={keyword} />
+                {aiSuggestions.map((suggestion) => (
+                  <AiSuggestionTag
+                    key={suggestion}
+                    keyword={suggestion}
+                    onAdd={handleAddSuggestionAsKeyword}
+                  />
                 ))}
+                {aiSuggestions.length === 0 &&
+                  selectedTopicKeywords.length > 0 &&
+                  !isLoadingSuggestions && (
+                    <Label className="text-gray-500 italic">
+                      No new suggestions available
+                    </Label>
+                  )}
               </div>
             </div>
           </>

@@ -21,7 +21,7 @@ def async_return(result):
 
 def test_get_current_user_info_unauthorized():
     response = client.get("/api/v1/users/me")
-    assert response.status_code == 403
+    assert response.status_code == 401
 
 
 @pytest.fixture
@@ -40,4 +40,4 @@ def mock_user_data():
 
 def test_list_users_unauthorized():
     response = client.get("/api/v1/users")
-    assert response.status_code == 403
+    assert response.status_code == 401

@@ -49,7 +49,8 @@ export interface paths {
         get: operations["get_current_user_info_api_v1_users_me_get"];
         put?: never;
         post?: never;
-        delete?: never;
+        /** Delete Current User */
+        delete: operations["delete_current_user_api_v1_users_me_delete"];
         options?: never;
         head?: never;
         patch?: never;
@@ -82,14 +83,15 @@ export interface paths {
         /** Get Available Search Profiles */
         get: operations["get_available_search_profiles_api_v1_search_profiles_get"];
         put?: never;
-        post?: never;
+        /** Create Search Profile */
+        post: operations["create_search_profile_api_v1_search_profiles_post"];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/api/v1/search-profiles/add": {
+    "/api/v1/search-profiles/keywords/suggestions": {
         parameters: {
             query?: never;
             header?: never;
@@ -97,16 +99,16 @@ export interface paths {
             cookie?: never;
         };
         get?: never;
-        /** Add Search Profile */
-        put: operations["add_search_profile_api_v1_search_profiles_add_put"];
-        post?: never;
+        put?: never;
+        /** Get Keyword Suggestions */
+        post: operations["get_keyword_suggestions_api_v1_search_profiles_keywords_suggestions_post"];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/api/v1/search-profiles/{profile_id}": {
+    "/api/v1/search-profiles/{search_profile_id}": {
         parameters: {
             query?: never;
             header?: never;
@@ -114,9 +116,9 @@ export interface paths {
             cookie?: never;
         };
         /** Get Search Profile */
-        get: operations["get_search_profile_api_v1_search_profiles__profile_id__get"];
+        get: operations["get_search_profile_api_v1_search_profiles__search_profile_id__get"];
         /** Update Search Profile */
-        put: operations["update_search_profile_api_v1_search_profiles__profile_id__put"];
+        put: operations["update_search_profile_api_v1_search_profiles__search_profile_id__put"];
         post?: never;
         delete?: never;
         options?: never;
@@ -124,7 +126,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/search-profiles/{profile_id}/overview": {
+    "/api/v1/search-profiles/{search_profile_id}/overview": {
         parameters: {
             query?: never;
             header?: never;
@@ -132,7 +134,7 @@ export interface paths {
             cookie?: never;
         };
         /** Get Search Profile Overview */
-        get: operations["get_search_profile_overview_api_v1_search_profiles__profile_id__overview_get"];
+        get: operations["get_search_profile_overview_api_v1_search_profiles__search_profile_id__overview_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -141,7 +143,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/search-profiles/{profile_id}/article/{match_id}": {
+    "/api/v1/search-profiles/{search_profile_id}/article/{match_id}": {
         parameters: {
             query?: never;
             header?: never;
@@ -149,9 +151,26 @@ export interface paths {
             cookie?: never;
         };
         /** Get Match Detail */
-        get: operations["get_match_detail_api_v1_search_profiles__profile_id__article__match_id__get"];
+        get: operations["get_match_detail_api_v1_search_profiles__search_profile_id__article__match_id__get"];
         /** Update Match Feedback */
-        put: operations["update_match_feedback_api_v1_search_profiles__profile_id__article__match_id__put"];
+        put: operations["update_match_feedback_api_v1_search_profiles__search_profile_id__article__match_id__put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/subscriptions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get All Subscriptions */
+        get: operations["get_all_subscriptions_api_v1_subscriptions_get"];
+        put?: never;
         post?: never;
         delete?: never;
         options?: never;
@@ -200,10 +219,20 @@ export interface components {
             /** Articles */
             articles: components["schemas"]["ArticleOverviewItem"][];
         };
+        /** FeedbackResponse */
+        FeedbackResponse: {
+            /** Status */
+            status: string;
+        };
         /** HTTPValidationError */
         HTTPValidationError: {
             /** Detail */
             detail?: components["schemas"]["ValidationError"][];
+        };
+        /** KeywordSuggestionResponse */
+        KeywordSuggestionResponse: {
+            /** Suggestions */
+            suggestions: string[];
         };
         /** MatchDetailResponse */
         MatchDetailResponse: {
@@ -251,6 +280,26 @@ export interface components {
             /** Ranking */
             ranking: number;
         };
+        /** SearchProfileCreateRequest */
+        SearchProfileCreateRequest: {
+            /** Name */
+            name: string;
+            /** Is Public */
+            is_public: boolean;
+            /** Organization Emails */
+            organization_emails: string[];
+            /** Profile Emails */
+            profile_emails: string[];
+            /** Subscriptions */
+            subscriptions: components["schemas"]["SubscriptionSummary"][];
+            /**
+             * Owner Id
+             * Format: uuid
+             */
+            owner_id: string;
+            /** Topics */
+            topics: components["schemas"]["TopicCreateOrUpdateRequest"][];
+        };
         /** SearchProfileDetailResponse */
         SearchProfileDetailResponse: {
             /**
@@ -260,28 +309,52 @@ export interface components {
             id: string;
             /** Name */
             name: string;
+            /** Is Public */
+            is_public: boolean;
             /** Organization Emails */
             organization_emails: string[];
             /** Profile Emails */
             profile_emails: string[];
-            /** Public */
-            public: boolean;
             /** Editable */
             editable: boolean;
             /** Is Editable */
             is_editable: boolean;
             /**
-             * Owner
+             * Owner Id
              * Format: uuid
              */
-            owner: string;
+            owner_id: string;
             /** Is Owner */
             is_owner: boolean;
             /** Topics */
-            topics: components["schemas"]["TopicOut"][];
+            topics: components["schemas"]["TopicResponse"][];
+            /** Subscriptions */
+            subscriptions: components["schemas"]["SubscriptionSummary"][];
+            /** New Articles Count */
+            new_articles_count: number;
         };
         /** SearchProfileUpdateRequest */
         SearchProfileUpdateRequest: {
+            /** Name */
+            name: string;
+            /** Is Public */
+            is_public: boolean;
+            /** Organization Emails */
+            organization_emails: string[];
+            /** Profile Emails */
+            profile_emails: string[];
+            /** Subscriptions */
+            subscriptions: components["schemas"]["SubscriptionSummary"][];
+            /**
+             * Owner Id
+             * Format: uuid
+             */
+            owner_id: string;
+            /** Topics */
+            topics: components["schemas"]["TopicCreateOrUpdateRequest"][];
+        };
+        /** SubscriptionSummary */
+        SubscriptionSummary: {
             /**
              * Id
              * Format: uuid
@@ -289,60 +362,23 @@ export interface components {
             id: string;
             /** Name */
             name: string;
-            /**
-             * Organization Emails
-             * @default []
-             */
-            organization_emails: string[] | null;
-            /**
-             * Profile Emails
-             * @default []
-             */
-            profile_emails: string[] | null;
-            /** Public */
-            public: boolean;
-            /**
-             * Is Editable
-             * @default true
-             */
-            is_editable: boolean | null;
-            /**
-             * Owner
-             * Format: uuid
-             */
-            owner: string;
-            /**
-             * Is Owner
-             * @default false
-             */
-            is_owner: boolean | null;
-            /**
-             * Subscriptions
-             * @default []
-             */
-            subscriptions: components["schemas"]["SubscriptionUpdate"][] | null;
-            /**
-             * Topics
-             * @default []
-             */
-            topics: components["schemas"]["TopicUpdate"][] | null;
+            /** Is Subscribed */
+            is_subscribed: boolean;
         };
-        /** SubscriptionUpdate */
-        SubscriptionUpdate: {
-            /** Id */
-            id: number;
-            /** Name */
-            name: string;
-        };
-        /** TopicOut */
-        TopicOut: {
+        /** TopicCreateOrUpdateRequest */
+        TopicCreateOrUpdateRequest: {
             /** Name */
             name: string;
             /** Keywords */
             keywords: string[];
         };
-        /** TopicUpdate */
-        TopicUpdate: {
+        /** TopicResponse */
+        TopicResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
             /** Name */
             name: string;
             /** Keywords */
@@ -373,6 +409,31 @@ export interface components {
              * Format: uuid
              */
             id?: string;
+        };
+        /** UserEntity */
+        UserEntity: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Clerk Id */
+            clerk_id: string;
+            /**
+             * Email
+             * Format: email
+             */
+            email: string;
+            /** First Name */
+            first_name: string;
+            /** Last Name */
+            last_name: string;
+            /** Is Superuser */
+            is_superuser: boolean;
+            /** Organization Id */
+            organization_id?: string | null;
+            /** Organization Name */
+            organization_name?: string | null;
         };
         /** ValidationError */
         ValidationError: {
@@ -447,7 +508,27 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["User"];
+                    "application/json": components["schemas"]["UserEntity"];
+                };
+            };
+        };
+    };
+    delete_current_user_api_v1_users_me_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FeedbackResponse"];
                 };
             };
         };
@@ -467,7 +548,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["User"];
+                    "application/json": components["schemas"]["UserEntity"];
                 };
             };
         };
@@ -492,14 +573,18 @@ export interface operations {
             };
         };
     };
-    add_search_profile_api_v1_search_profiles_add_put: {
+    create_search_profile_api_v1_search_profiles_post: {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SearchProfileCreateRequest"];
+            };
+        };
         responses: {
             /** @description Successful Response */
             200: {
@@ -510,14 +595,56 @@ export interface operations {
                     "application/json": components["schemas"]["SearchProfileDetailResponse"];
                 };
             };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
         };
     };
-    get_search_profile_api_v1_search_profiles__profile_id__get: {
+    get_keyword_suggestions_api_v1_search_profiles_keywords_suggestions_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": string[];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["KeywordSuggestionResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_search_profile_api_v1_search_profiles__search_profile_id__get: {
         parameters: {
             query?: never;
             header?: never;
             path: {
-                profile_id: string;
+                search_profile_id: string;
             };
             cookie?: never;
         };
@@ -543,12 +670,12 @@ export interface operations {
             };
         };
     };
-    update_search_profile_api_v1_search_profiles__profile_id__put: {
+    update_search_profile_api_v1_search_profiles__search_profile_id__put: {
         parameters: {
             query?: never;
             header?: never;
             path: {
-                profile_id: string;
+                search_profile_id: string;
             };
             cookie?: never;
         };
@@ -578,12 +705,12 @@ export interface operations {
             };
         };
     };
-    get_search_profile_overview_api_v1_search_profiles__profile_id__overview_get: {
+    get_search_profile_overview_api_v1_search_profiles__search_profile_id__overview_get: {
         parameters: {
             query?: never;
             header?: never;
             path: {
-                profile_id: string;
+                search_profile_id: string;
             };
             cookie?: never;
         };
@@ -609,12 +736,12 @@ export interface operations {
             };
         };
     };
-    get_match_detail_api_v1_search_profiles__profile_id__article__match_id__get: {
+    get_match_detail_api_v1_search_profiles__search_profile_id__article__match_id__get: {
         parameters: {
             query?: never;
             header?: never;
             path: {
-                profile_id: string;
+                search_profile_id: string;
                 match_id: string;
             };
             cookie?: never;
@@ -641,12 +768,12 @@ export interface operations {
             };
         };
     };
-    update_match_feedback_api_v1_search_profiles__profile_id__article__match_id__put: {
+    update_match_feedback_api_v1_search_profiles__search_profile_id__article__match_id__put: {
         parameters: {
             query?: never;
             header?: never;
             path: {
-                profile_id: string;
+                search_profile_id: string;
                 match_id: string;
             };
             cookie?: never;
@@ -663,7 +790,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["MatchDetailResponse"];
+                    "application/json": components["schemas"]["FeedbackResponse"];
                 };
             };
             /** @description Validation Error */
@@ -673,6 +800,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_all_subscriptions_api_v1_subscriptions_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SubscriptionSummary"][];
                 };
             };
         };

@@ -244,10 +244,10 @@ export function AdminPage() {
   return (
     <>
       <Layout>
-        <Breadcrumb className="ml-5 mt-8">
+        <Breadcrumb className="mt-8">
           <BreadcrumbList>
             <BreadcrumbItem>
-              <BreadcrumbLink href="/">Home</BreadcrumbLink>
+              <BreadcrumbLink href="/dashboard">Home</BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
@@ -257,7 +257,7 @@ export function AdminPage() {
         </Breadcrumb>
         <Text hierachy={2}>Admin Settings</Text>
 
-        <Tabs defaultValue="organizations" className="m-2">
+        <Tabs defaultValue="organizations" className="my-2">
           <TabsList className="w-full">
             <TabsTrigger value="organizations">Organizations</TabsTrigger>
             <TabsTrigger value="subscriptions">Subscriptions</TabsTrigger>

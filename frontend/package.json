@@ -11,7 +11,7 @@
     "format": "prettier . --ignore-path .prettierignore",
     "format:check": "prettier --check . --ignore-path .prettierignore",
     "test": "jest --pass-with-no-tests",
-    "generate:api": "openapi-typescript http://localhost:8000/api/openapi.json -o ./api/api-types-v1.ts"
+    "generate:api": "openapi-typescript http://localhost:8000/api/openapi.json -o ./types/api-types-v1.d.ts"
   },
   "dependencies": {
     "@clerk/react-router": "1.4.6",
@@ -37,18 +37,23 @@
     "@tanstack/react-table": "8.21.3",
     "class-variance-authority": "0.7.1",
     "clsx": "2.1.1",
+<<<<<<< feat/mock-breaking-news
     "cmdk": "^1.1.1",
     "embla-carousel-react": "8.6.0",
     "esbuild": "^0.25.5",
+=======
+    "cmdk": "1.1.1",
+    "esbuild": "0.25.5",
+>>>>>>> master
     "isbot": "5.1.27",
-    "lodash-es": "^4.17.21",
+    "lodash-es": "4.17.21",
     "lucide-react": "0.510.0",
-    "next-themes": "^0.4.6",
+    "next-themes": "0.4.6",
     "openapi-fetch": "0.14.0",
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "react-router": "7.5.3",
-    "sonner": "^2.0.5",
+    "sonner": "2.0.5",
     "swr-openapi": "5.3.0",
     "tailwind-merge": "3.3.0"
   },
