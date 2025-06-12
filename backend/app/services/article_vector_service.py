@@ -26,11 +26,8 @@ class ArticleVectorService:
         )
         self._sparse_embeddings = FastEmbedSparse(model_name="Qdrant/bm25")
         self.collection_name = configs.ARTICLE_VECTORS_COLLECTION
-
         self._qdrant_client = get_qdrant_connection()
-
-        self._ensure_collection(self.collection_name)
-
+        self.create_collection_safe(self.collection_name)
         self.vector_store: QdrantVectorStore = QdrantVectorStore(
             client=self._qdrant_client,
             collection_name=self.collection_name,
@@ -45,7 +42,7 @@ class ArticleVectorService:
             # Field name in Qdrant for storing sparse vectors
         )
 
-    def _ensure_collection(self, collection_name: str) -> None:
+    def create_collection_safe(self, collection_name: str) -> None:
         try:
             if not self._qdrant_client.collection_exists(
                 collection_name=collection_name

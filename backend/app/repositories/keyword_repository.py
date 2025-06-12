@@ -14,15 +14,13 @@ from app.repositories.article_repository import ArticleRepository
 from app.schemas.keyword_schemas import KeywordCreateRequest
 from app.services.article_vector_service import ArticleVectorService
 
-article_vector_service = ArticleVectorService()
-
 logger = get_logger(__name__)
 
 
 class KeywordRepository:
     """Unified repository for managing Keyword entities and relations."""
 
-    # --- Basic Operations ---
+    __article_vector_service = ArticleVectorService()
 
     @staticmethod
     async def get_keyword_by_id(keyword_id: UUID) -> Optional[Keyword]:
@@ -149,7 +147,8 @@ class KeywordRepository:
             raise ValueError(f"Keyword with id {keyword_id} not found.")
 
         similarity_results = (
-            await article_vector_service.retrieve_by_similarity(
+            await KeywordRepository.__article_vector_service
+            .retrieve_by_similarity(
                 keyword.name, score_threshold=score_threshold
             )
         )
@@ -181,7 +180,8 @@ class KeywordRepository:
             )
             for keyword in keywords:
                 similar_articles = (
-                    await article_vector_service.retrieve_by_similarity(
+                    await KeywordRepository.__article_vector_service
+                    .retrieve_by_similarity(
                         query=keyword.name, score_threshold=score_threshold
                     )
                 )
