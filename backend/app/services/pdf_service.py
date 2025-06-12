@@ -337,7 +337,7 @@ class PDFService:
             spaceAfter=6,
             bulletIndent=0,
             leftIndent=6,
-            leading=6,
+            leading=10,
             alignment=TA_JUSTIFY,
         )
 
@@ -437,9 +437,21 @@ class PDFService:
                 )
             )
             meta_para = Paragraph(
-                f'<font size="9">{news.newspaper}, {news.published_at}</font>',
+                f'''
+                <para>
+                <font size="9">{news.newspaper}</font><br/>
+                <font size="9">{news.published_at}</font>
+                </para>
+                ''',
                 metadata_style,
             )
+            
+            # meta_para = Paragraph(
+            #     f'''
+            #     <font size="9">{news.newspaper}, {news.published_at}</font>
+            #     ''',
+            #     metadata_style,
+            # )
             button_para = Paragraph(
                 f"""
                 <font backColor="{yellowColor}" size="9">
@@ -455,7 +467,7 @@ class PDFService:
 
             row = [[meta_para, button_para]]
             table = Table(
-                row, colWidths=[3.5 * inch, 2.5 * inch]
+                row, colWidths=[4 * inch, 2 * inch]
             )  # Adjust as needed
             table.setStyle(
                 TableStyle(
