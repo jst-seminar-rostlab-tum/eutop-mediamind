@@ -116,10 +116,10 @@ class PDFService:
     def create_pdf(news_items: List[NewsItem]) -> bytes:
         dimensions = A4
         logger = get_logger(__name__)
-        logger.info("Articles chosen before PDF Generation:")
+        logger.debug("Articles chosen before PDF Generation:")
         # Logging which articles, if they have summaries and keywords
         for news in news_items:
-            logger.info(f"Processing News item: {news.id}, Summary: {True if news.summary else False}, Keywords: {True if news.keywords else 'False'}")
+            logger.debug(f"Processing News item: {news.id}, Summary: {True if news.summary else False}, Keywords: {True if news.keywords else 'False'}")
 
         # Prepare all flowable elements for the PDF
         cover_elements = PDFService.__draw_cover_elements(news_items, dimensions)
