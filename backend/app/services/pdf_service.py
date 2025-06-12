@@ -581,7 +581,8 @@ class PDFService:
                     pub_date_str = news.published_at
             story.append(Paragraph(pub_date_str, PDFService.date_style))
             story.append(Spacer(1, 0.05 * inch))
-            summary_text = news.content[:300].replace("\n", "<br/>")
+            #Change when Summary populated in DB
+            summary_text = news.content[:250].replace("\n", "<br/>")
             story.append(Paragraph(summary_text, PDFService.summary_style))
             story.append(Spacer(1, 0.05 * inch))
             dest_name = f"full_{news.id}"
@@ -765,7 +766,7 @@ class PDFService:
                         ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
                         ("FONTSIZE", (0, 0), (-1, -1), 10),
                         ("INNERGRID", (0, 0), (-1, -1), 0, colors.white),
-                        ("BOX", (0, 0), (-1, -1), 1, blueColor),
+                        ("BOX", (0, 0), (-1, -1), 1, colors.white),
                         ("TOPPADDING", (0, 0), (-1, -1), 4),
                         ("BOTTOMPADDING", (0, 0), (-1, -1), 4),
                         ("LEFTPADDING", (0, 0), (-1, -1), 8),
