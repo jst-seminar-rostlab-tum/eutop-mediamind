@@ -13,8 +13,11 @@ from qdrant_client.http.models import (
 
 from app.core.config import configs
 from app.core.db import get_qdrant_connection
+from app.core.logger import get_logger
 from app.models import Article
 from app.repositories.article_repository import ArticleRepository
+
+logger = get_logger(__name__)
 
 
 class ArticleVectorService:
@@ -194,6 +197,9 @@ async def add_article(self, article_id: uuid.UUID) -> None:
     )
 
     if not article or not article.summary or not article.summary.strip():
+        logger.error(
+            f"Article with ID {article_id} not found or has no summary."
+        )
         return
 
     document = Document(
