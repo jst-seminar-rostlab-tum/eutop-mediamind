@@ -1,6 +1,6 @@
 import type { Profile, Subscription } from "~/types/profile";
 import { Label } from "~/components/ui/label";
-import { DataTableSubscriptions } from "~/custom-components/profile/edit/data-table-subscriptions";
+import { DataTableSubsciptions } from "~/custom-components/profile/edit/data-table-subscriptions";
 
 export interface SubscriptionsProps {
   subscriptions: Subscription[];
@@ -22,12 +22,12 @@ export function Subscriptions({
       <Label className={"text-gray-400 font-normal pb-4"}>
         Configure web scraping sources used for the external mailing list.
       </Label>
-      <DataTableSubscriptions
+      <DataTableSubsciptions
         name={"Source"}
         allSubscriptions={subscriptions}
         selectedSubscriptions={profile.subscriptions}
         setSubscriptions={setSubscriptions}
-      ></DataTableSubscriptions>
+      ></DataTableSubsciptions>
     </div>
   );
 }

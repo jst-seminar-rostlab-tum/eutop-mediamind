@@ -87,7 +87,7 @@ export const AuthorizationContextProvider = ({
       !pathname.includes("error") &&
       pathname !== "/"
     ) {
-      navigate("error/no-org");
+      navigate("error/no-org" + pathname);
     }
   }, [mediamindUser]);
 

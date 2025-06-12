@@ -125,10 +125,7 @@ export function General({ profile, setProfile }: GeneralProps) {
             <Label className={"text-gray-400 font-normal pb-3"}>
               Profile can be edited by anyone
             </Label>
-            <Switch
-              checked={profile.editable}
-              onCheckedChange={(e) => setProfile({ ...profile, editable: e })}
-            />
+            <Switch />
           </div>
         </div>
       )}

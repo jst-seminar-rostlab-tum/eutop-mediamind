@@ -1,21 +1,10 @@
 import { SquareArrowOutUpRight } from "lucide-react";
-import { useEffect } from "react";
-import { useNavigate } from "react-router";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import Layout from "~/custom-components/layout";
 import Text from "~/custom-components/text";
-import { useAuthorization } from "~/hooks/use-authorization";
 
 export function Welcome() {
-  const { isSignedIn, user } = useAuthorization();
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    if (isSignedIn && user?.organization_id) {
-      navigate("/dashboard");
-    }
-  }, [isSignedIn, user?.organization_id, navigate]);
   return (
     <>
       <img

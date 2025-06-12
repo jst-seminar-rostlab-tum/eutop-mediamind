@@ -10,7 +10,7 @@ import { Button } from "~/components/ui/button";
 import { useAuthorization } from "~/hooks/use-authorization";
 
 export default function Header() {
-  const { isSignedIn, user } = useAuthorization();
+  const { isSignedIn } = useAuthorization();
   const [searchParams] = useSearchParams();
   const redirectUrl = searchParams.get("redirect_url");
 
@@ -21,18 +21,17 @@ export default function Header() {
       </Link>
       <div className="col-span-10 flex justify-end gap-2">
         <SignedOut>
-          <SignInButton forceRedirectUrl={redirectUrl ?? "/dashboard"}>
-            <Button asChild variant="outline">
-              <span>
-                <User /> Login
-              </span>
-            </Button>
-          </SignInButton>
+          <Button variant="outline" asChild>
+            <span>
+              <User />
+              <SignInButton forceRedirectUrl={redirectUrl ?? "/dashboard"} />
+            </span>
+          </Button>
         </SignedOut>
         <SignedIn>
           <UserButton />
         </SignedIn>
-        {isSignedIn && user?.is_superuser && (
+        {isSignedIn && (
           <Link to="/admin">
             <Button variant="outline">
               <Settings />

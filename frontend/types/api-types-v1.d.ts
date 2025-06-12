@@ -49,8 +49,7 @@ export interface paths {
         get: operations["get_current_user_info_api_v1_users_me_get"];
         put?: never;
         post?: never;
-        /** Delete Current User */
-        delete: operations["delete_current_user_api_v1_users_me_delete"];
+        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -83,15 +82,31 @@ export interface paths {
         /** Get Available Search Profiles */
         get: operations["get_available_search_profiles_api_v1_search_profiles_get"];
         put?: never;
-        /** Create Search Profile */
-        post: operations["create_search_profile_api_v1_search_profiles_post"];
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/api/v1/search-profiles/{search_profile_id}": {
+    "/api/v1/search-profiles/add": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Add Search Profile */
+        put: operations["add_search_profile_api_v1_search_profiles_add_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/search-profiles/{profile_id}": {
         parameters: {
             query?: never;
             header?: never;
@@ -99,9 +114,9 @@ export interface paths {
             cookie?: never;
         };
         /** Get Search Profile */
-        get: operations["get_search_profile_api_v1_search_profiles__search_profile_id__get"];
+        get: operations["get_search_profile_api_v1_search_profiles__profile_id__get"];
         /** Update Search Profile */
-        put: operations["update_search_profile_api_v1_search_profiles__search_profile_id__put"];
+        put: operations["update_search_profile_api_v1_search_profiles__profile_id__put"];
         post?: never;
         delete?: never;
         options?: never;
@@ -109,7 +124,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/search-profiles/{search_profile_id}/overview": {
+    "/api/v1/search-profiles/{profile_id}/overview": {
         parameters: {
             query?: never;
             header?: never;
@@ -117,7 +132,7 @@ export interface paths {
             cookie?: never;
         };
         /** Get Search Profile Overview */
-        get: operations["get_search_profile_overview_api_v1_search_profiles__search_profile_id__overview_get"];
+        get: operations["get_search_profile_overview_api_v1_search_profiles__profile_id__overview_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -126,7 +141,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/search-profiles/{search_profile_id}/article/{match_id}": {
+    "/api/v1/search-profiles/{profile_id}/article/{match_id}": {
         parameters: {
             query?: never;
             header?: never;
@@ -134,26 +149,9 @@ export interface paths {
             cookie?: never;
         };
         /** Get Match Detail */
-        get: operations["get_match_detail_api_v1_search_profiles__search_profile_id__article__match_id__get"];
+        get: operations["get_match_detail_api_v1_search_profiles__profile_id__article__match_id__get"];
         /** Update Match Feedback */
-        put: operations["update_match_feedback_api_v1_search_profiles__search_profile_id__article__match_id__put"];
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/subscriptions": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get All Subscriptions */
-        get: operations["get_all_subscriptions_api_v1_subscriptions_get"];
-        put?: never;
+        put: operations["update_match_feedback_api_v1_search_profiles__profile_id__article__match_id__put"];
         post?: never;
         delete?: never;
         options?: never;
@@ -201,11 +199,6 @@ export interface components {
             search_profile_id: string;
             /** Articles */
             articles: components["schemas"]["ArticleOverviewItem"][];
-        };
-        /** FeedbackResponse */
-        FeedbackResponse: {
-            /** Status */
-            status: string;
         };
         /** HTTPValidationError */
         HTTPValidationError: {
@@ -258,26 +251,6 @@ export interface components {
             /** Ranking */
             ranking: number;
         };
-        /** SearchProfileCreateRequest */
-        SearchProfileCreateRequest: {
-            /** Name */
-            name: string;
-            /** Is Public */
-            is_public: boolean;
-            /** Organization Emails */
-            organization_emails: string[];
-            /** Profile Emails */
-            profile_emails: string[];
-            /** Subscriptions */
-            subscriptions: components["schemas"]["SubscriptionSummary"][];
-            /**
-             * Owner Id
-             * Format: uuid
-             */
-            owner_id: string;
-            /** Topics */
-            topics: components["schemas"]["TopicCreateOrUpdateRequest"][];
-        };
         /** SearchProfileDetailResponse */
         SearchProfileDetailResponse: {
             /**
@@ -287,52 +260,28 @@ export interface components {
             id: string;
             /** Name */
             name: string;
-            /** Public */
-            public: boolean;
             /** Organization Emails */
             organization_emails: string[];
             /** Profile Emails */
             profile_emails: string[];
+            /** Public */
+            public: boolean;
             /** Editable */
             editable: boolean;
             /** Is Editable */
             is_editable: boolean;
             /**
-             * Owner Id
+             * Owner
              * Format: uuid
              */
-            owner_id: string;
+            owner: string;
             /** Is Owner */
             is_owner: boolean;
             /** Topics */
-            topics: components["schemas"]["TopicResponse"][];
-            /** Subscriptions */
-            subscriptions: components["schemas"]["SubscriptionSummary"][];
-            /** New Articles Count */
-            new_articles_count: number;
+            topics: components["schemas"]["TopicOut"][];
         };
         /** SearchProfileUpdateRequest */
         SearchProfileUpdateRequest: {
-            /** Name */
-            name: string;
-            /** Is Public */
-            is_public: boolean;
-            /** Organization Emails */
-            organization_emails: string[];
-            /** Profile Emails */
-            profile_emails: string[];
-            /** Subscriptions */
-            subscriptions: components["schemas"]["SubscriptionSummary"][];
-            /**
-             * Owner Id
-             * Format: uuid
-             */
-            owner_id: string;
-            /** Topics */
-            topics: components["schemas"]["TopicCreateOrUpdateRequest"][];
-        };
-        /** SubscriptionSummary */
-        SubscriptionSummary: {
             /**
              * Id
              * Format: uuid
@@ -340,23 +289,60 @@ export interface components {
             id: string;
             /** Name */
             name: string;
-            /** Is Subscribed */
-            is_subscribed: boolean;
+            /**
+             * Organization Emails
+             * @default []
+             */
+            organization_emails: string[] | null;
+            /**
+             * Profile Emails
+             * @default []
+             */
+            profile_emails: string[] | null;
+            /** Public */
+            public: boolean;
+            /**
+             * Is Editable
+             * @default true
+             */
+            is_editable: boolean | null;
+            /**
+             * Owner
+             * Format: uuid
+             */
+            owner: string;
+            /**
+             * Is Owner
+             * @default false
+             */
+            is_owner: boolean | null;
+            /**
+             * Subscriptions
+             * @default []
+             */
+            subscriptions: components["schemas"]["SubscriptionUpdate"][] | null;
+            /**
+             * Topics
+             * @default []
+             */
+            topics: components["schemas"]["TopicUpdate"][] | null;
         };
-        /** TopicCreateOrUpdateRequest */
-        TopicCreateOrUpdateRequest: {
+        /** SubscriptionUpdate */
+        SubscriptionUpdate: {
+            /** Id */
+            id: number;
+            /** Name */
+            name: string;
+        };
+        /** TopicOut */
+        TopicOut: {
             /** Name */
             name: string;
             /** Keywords */
             keywords: string[];
         };
-        /** TopicResponse */
-        TopicResponse: {
-            /**
-             * Id
-             * Format: uuid
-             */
-            id: string;
+        /** TopicUpdate */
+        TopicUpdate: {
             /** Name */
             name: string;
             /** Keywords */
@@ -466,26 +452,6 @@ export interface operations {
             };
         };
     };
-    delete_current_user_api_v1_users_me_delete: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["FeedbackResponse"];
-                };
-            };
-        };
-    };
     sync_user_with_clerk_api_v1_users_sync_post: {
         parameters: {
             query?: never;
@@ -526,18 +492,14 @@ export interface operations {
             };
         };
     };
-    create_search_profile_api_v1_search_profiles_post: {
+    add_search_profile_api_v1_search_profiles_add_put: {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["SearchProfileCreateRequest"];
-            };
-        };
+        requestBody?: never;
         responses: {
             /** @description Successful Response */
             200: {
@@ -548,23 +510,14 @@ export interface operations {
                     "application/json": components["schemas"]["SearchProfileDetailResponse"];
                 };
             };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
         };
     };
-    get_search_profile_api_v1_search_profiles__search_profile_id__get: {
+    get_search_profile_api_v1_search_profiles__profile_id__get: {
         parameters: {
             query?: never;
             header?: never;
             path: {
-                search_profile_id: string;
+                profile_id: string;
             };
             cookie?: never;
         };
@@ -590,12 +543,12 @@ export interface operations {
             };
         };
     };
-    update_search_profile_api_v1_search_profiles__search_profile_id__put: {
+    update_search_profile_api_v1_search_profiles__profile_id__put: {
         parameters: {
             query?: never;
             header?: never;
             path: {
-                search_profile_id: string;
+                profile_id: string;
             };
             cookie?: never;
         };
@@ -625,12 +578,12 @@ export interface operations {
             };
         };
     };
-    get_search_profile_overview_api_v1_search_profiles__search_profile_id__overview_get: {
+    get_search_profile_overview_api_v1_search_profiles__profile_id__overview_get: {
         parameters: {
             query?: never;
             header?: never;
             path: {
-                search_profile_id: string;
+                profile_id: string;
             };
             cookie?: never;
         };
@@ -656,12 +609,12 @@ export interface operations {
             };
         };
     };
-    get_match_detail_api_v1_search_profiles__search_profile_id__article__match_id__get: {
+    get_match_detail_api_v1_search_profiles__profile_id__article__match_id__get: {
         parameters: {
             query?: never;
             header?: never;
             path: {
-                search_profile_id: string;
+                profile_id: string;
                 match_id: string;
             };
             cookie?: never;
@@ -688,12 +641,12 @@ export interface operations {
             };
         };
     };
-    update_match_feedback_api_v1_search_profiles__search_profile_id__article__match_id__put: {
+    update_match_feedback_api_v1_search_profiles__profile_id__article__match_id__put: {
         parameters: {
             query?: never;
             header?: never;
             path: {
-                search_profile_id: string;
+                profile_id: string;
                 match_id: string;
             };
             cookie?: never;
@@ -710,7 +663,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["FeedbackResponse"];
+                    "application/json": components["schemas"]["MatchDetailResponse"];
                 };
             };
             /** @description Validation Error */
@@ -720,26 +673,6 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    get_all_subscriptions_api_v1_subscriptions_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["SubscriptionSummary"][];
                 };
             };
         };

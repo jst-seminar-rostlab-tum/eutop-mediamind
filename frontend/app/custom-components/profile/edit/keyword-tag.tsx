@@ -11,13 +11,13 @@ export function KeywordTag({ name }: KeywordTagProps) {
       className={"inline-flex p-1.5 rounded-md items-center gap-1 bg-gray-100"}
     >
       <Label>{name}</Label>
-      <button
+      <div
         className={
-          "cursor-pointer hover:bg-gray-200 transition-colors duration-200 rounded-xs p-0.5"
+          "hover:bg-gray-200 transition-colors duration-200 rounded-xs p-0.5"
         }
       >
         <X strokeWidth={"3"} className={"h-3.5 w-3.5 text-gray-400"} />
-      </button>
+      </div>
     </div>
   );
 }
