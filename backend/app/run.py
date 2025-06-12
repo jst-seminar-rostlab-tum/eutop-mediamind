@@ -1,7 +1,5 @@
 import asyncio
 
-from sqlmodel import Session
-
 from app.core.db import init_db
 from app.main import app_creator
 
