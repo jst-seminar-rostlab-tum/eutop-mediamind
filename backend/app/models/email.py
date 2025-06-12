@@ -1,15 +1,17 @@
 import uuid
 from datetime import datetime, timezone
-from typing import Dict
 from enum import Enum
+from typing import Dict
 
-from sqlmodel import Field, SQLModel, JSON, Column
+from sqlmodel import JSON, Column, Field, SQLModel
+
 
 class EmailState(Enum):
     PENDING = "pending"
     SENT = "sent"
     RETRY = "retrying"
     FAILED = "failed"
+
 
 class Email(SQLModel, table=True):
     __tablename__ = "emails"
@@ -25,11 +27,12 @@ class Email(SQLModel, table=True):
     attachment: str | None = Field(default=None)
     attachment_name: str | None = Field(default=None)
     attempts: int = Field(default=0, nullable=False)
-    state : EmailState = Field(default=EmailState.PENDING, nullable=False)
-    errors: Dict[str, str] | None = Field(default_factory=dict, sa_column=Column(JSON))
+    state: EmailState = Field(default=EmailState.PENDING, nullable=False)
+    errors: Dict[str, str] | None = Field(
+        default_factory=dict, sa_column=Column(JSON)
+    )
     created_at: datetime = Field(default_factory=datetime.now, nullable=False)
     updated_at: datetime = Field(default_factory=datetime.now, nullable=False)
-
 
     def add_error(self, error: str):
         """

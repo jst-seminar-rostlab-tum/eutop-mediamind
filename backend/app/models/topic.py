@@ -11,7 +11,6 @@ if TYPE_CHECKING:
     from app.models.keyword import Keyword
     from app.models.match import Match
     from app.models.search_profile import SearchProfile
-    from app.models.match import Match
 
 
 class Topic(SQLModel, table=True):
