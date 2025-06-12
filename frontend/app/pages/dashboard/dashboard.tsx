@@ -12,13 +12,9 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { EditProfile } from "~/custom-components/profile/edit/edit-profile";
 import { sortBy } from "lodash-es";
-<<<<<<< feat/mock-breaking-news
 import { BreakingNews } from "./breaking-news";
-=======
 import Layout from "~/custom-components/layout";
-import Text from "~/custom-components/text";
 import "./dashboard.css";
->>>>>>> master
 
 const suppressSWRReloading = {
   refreshInterval: 0,
@@ -45,7 +41,6 @@ export function DashboardPage() {
     }
   }, [error]);
 
-<<<<<<< feat/mock-breaking-news
   const breakingNews = [
     {
       title:
@@ -80,9 +75,7 @@ export function DashboardPage() {
         "Swedish climate and human rights activist Greta Thunberg departed Israel on a flight to France on Tuesday after being detained by Israeli forces",
     },
   ];
-=======
   const [dialogOpen, setDialogOpen] = useState(false);
->>>>>>> master
 
   return (
     <Layout>
@@ -93,22 +86,8 @@ export function DashboardPage() {
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
-<<<<<<< feat/mock-breaking-news
       <h1 className="text-3xl font-bold mb-2">Dashboard</h1>
       <BreakingNews breakingNews={breakingNews} />
-=======
-      <Text hierachy={2}>Dashboard</Text>
-      <Alert className="bg-blue-100 mb-3">
-        <Rocket className="h-4 w-4" color="#113264" />
-        <AlertTitle className="text-[#113264]">Heads up!</AlertTitle>
-        <AlertDescription className="text-[#113264]">
-          New press reviews available!
-        </AlertDescription>
-      </Alert>
-      <Button className={"mb-4"}>
-        <Newspaper /> Press Reviews
-      </Button>
->>>>>>> master
       <div className={"flex gap-5"}>
         <h2 className="text-2xl font-bold ">Profiles</h2>
         <EditProfile
