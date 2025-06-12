@@ -337,7 +337,9 @@ class PDFService:
         story.append(Spacer(1, 0.1 * inch))
         story.append(
             Paragraph(
-                "<b><font size=36 color='#003366'>Daily News Report</font></b>",
+                f"<b> \
+                   <font size=36 color='{blueColor}'>Daily News Report</font>\
+                </b>",
                 styles["Title"],
             )
         )
