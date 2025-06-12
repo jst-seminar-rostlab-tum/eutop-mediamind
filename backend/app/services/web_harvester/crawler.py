@@ -81,7 +81,7 @@ class NewsAPICrawler(Crawler):
                 }
             )
 
-        query_conditions.append(
+        """         query_conditions.append(
             {
                 "$or": [
                     {
@@ -104,7 +104,7 @@ class NewsAPICrawler(Crawler):
                     }
                 ]
             },
-        )
+        ) """
 
         query = {
             "$query": {"$and": query_conditions},

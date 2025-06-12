@@ -3,7 +3,7 @@
     "name": "FAZ/FASZ - E-Paper",
     "domain": "https://faz.net",
     "paywall": true,
-    "login_works": null,
+    "is_active": true,
     "newsapi_id": "faz.net",
     "config": {
       "cookies_button": "//button[contains(@class, 'sp_choice_type_11')]",
@@ -18,7 +18,7 @@
     "name": "Financial Times - Onlinezugang / ePaper",
     "domain": "https://www.ft.com/todaysnewspaper",
     "paywall": true,
-    "login_works": null,
+    "is_active": false,
     "newsapi_id": "ft.com",
     "config": {
       "cookies_button": "//button[@title='Accept Cookies' and contains(@class, 'sp_choice_type_11')]",
@@ -33,7 +33,7 @@
     "name": "Handelsblatt - ePaper",
     "domain": "https://id.handelsblatt.com/login",
     "paywall": true,
-    "login_works": null,
+    "is_active": false,
     "newsapi_id": "handelsblatt.com",
     "config": {
       "cookies_button": "//button[@title='Zustimmen und weiter' and contains(@class, 'sp_choice_type_11')]",
@@ -47,7 +47,7 @@
     "name": "SZ - ePaper + Onlinezugang",
     "domain": "https://www.sueddeutsche.de/?piano-screen=login&logout=",
     "paywall": true,
-    "login_works": true,
+    "is_active": true,
     "newsapi_id": "sueddeutsche.de",
     "config": {
       "iframe_credentials": "//iframe[starts-with(@id, 'piano-id-')]",
@@ -60,11 +60,11 @@
     "name": "Börsen-Zeitung E-Paper",
     "domain": "https://www.boersen-zeitung.de/",
     "paywall": true,
-    "login_works": null,
+    "is_active": true,
     "newsapi_id": "boersen-zeitung.de",
     "config": {
-      "shadow_cookies": "#cmp-root-container",
-      "cookies_button": "button-accept-all",
+      "shadow_host_cookies": ".cmp-root-container",
+      "cookies_button": "div.cmp-button-accept-all",
       "login_button": "//button[contains(@class, 'login')]",
       "iframe_credentials": "//iframe[@id='plenigoFramecheckout']",
       "user_input": "//input[@id='login_form__username']",
@@ -76,7 +76,7 @@
     "name": "Bild & Bild+",
     "domain": "https://www.bild.de/bild-plus/bildplus-startseite/bildplus/home-30723544.bild.html",
     "paywall": true,
-    "login_works": true,
+    "is_active": true,
     "newsapi_id": "bild.de",
     "config": {
       "cookies_button": "//button[@title='Alle akzeptieren']",
@@ -91,7 +91,7 @@
     "name": "Die Welt",
     "domain": "https://www.epaper.welt.de",
     "paywall": true,
-    "login_works": true,
+    "is_active": true,
     "newsapi_id": "welt.de",
     "config": {
       "iframe_cookies": "//iframe[@id='sp_message_iframe_1304391']",
@@ -108,7 +108,7 @@
     "name": "FOCUS ePaper",
     "domain": "https://www.focus-epaper.de",
     "paywall": true,
-    "login_works": null,
+    "is_active": false,
     "newsapi_id": "focus.de",
     "config": {
       "login_button": "",
@@ -122,7 +122,7 @@
     "name": "Manager Magazin - Onlinezugang / ePaper",
     "domain": "https://www.manager-magazin.de",
     "paywall": true,
-    "login_works": null,
+    "is_active": true,
     "newsapi_id": "manager-magazin.de",
     "config": {
       "cookies_button": "//button[@title='Einwilligen und weiter' and contains(@class, 'sp_choice_type_11')]",
@@ -136,22 +136,26 @@
   {
     "name": "Spiegel - ePaper",
     "domain": "https://www.spiegel.de/international/",
-    "paywall": true,
-    "login_works": null,
+    "paywall": false,
+    "is_active": false,
     "newsapi_id": "spiegel.de",
     "config": {
+      "cookies_button": "//button[@title='Consent and continue' and contains(@class, 'sp_choice_type_11')]",
       "login_button": "//a[contains(@href, 'gruppenkonto.spiegel.de/authenticate') and span[contains(text(), 'Anmelden')]]",
       "iframe": "",
       "user_input": "//input[@id='username' and @name='loginform:username']",
-      "password_input": "//input[@id='hidden-password' and @name='password']",
-      "submit_button": "//button[@id='submit' and @name='loginform:submit']"
+      "password_input": "//input[@id='password' and @name='loginform:password']",
+      "submit_button": "//button[@id='submit' and @name='loginform:submit']",
+      "second_submit_button": "//button[@id='submit' and @name='loginform:submit']",
+      "profile_section": "//a[@href='https://www.spiegel.de/fuermich/']",
+      "logout_button": "//a[normalize-space(text())='Abmelden']"
     }
   },
   {
     "name": "WiWo - ePaper",
     "domain": "https://id.wiwo.de/login",
     "paywall": true,
-    "login_works": null,
+    "is_active": false,
     "newsapi_id": "wiwo.de",
     "config": {
       "cookies_button": "//button[@title='ZUSTIMMEN' and contains(@class, 'sp_choice_type_11')]",
@@ -165,7 +169,7 @@
     "name": "The Economist Digitalpass",
     "domain": "https://www.economist.com",
     "paywall": true,
-    "login_works": null,
+    "is_active": false,
     "newsapi_id": "economist.com",
     "config": {
       "login_button": "//a[@data-test-id='masthead-login-link' and contains(text(), 'Log in')]",
@@ -179,7 +183,7 @@
     "name": "Cicero",
     "domain": "https://www.cicero.de",
     "paywall": true,
-    "login_works": null,
+    "is_active": true,
     "newsapi_id": "cicero.de",
     "config": {
       "cookies_button": "//button[text()='Alle akzeptieren']",
@@ -193,7 +197,7 @@
     "name": "Chemical Watch - Onlinezugang",
     "domain": "https://www.product.enhesa.com",
     "paywall": true,
-    "login_works": true,
+    "is_active": false,
     "newsapi_id": "enhesa.com",
     "config": {
       "user_input": "//input[@name='email' and @type='text']",
@@ -207,7 +211,7 @@
     "name": "Politico",
     "domain": "https://www.politico.eu",
     "paywall": false,
-    "login_works": null,
+    "is_active": false,
     "newsapi_id": "politico.eu",
     "config": {
       "login_button": "//a[contains(@href, '/login/') and span[contains(text(), 'Log In')]]",
@@ -221,30 +225,38 @@
   },
   {
     "name": "EUobserver",
-    "domain": "https://www.euobserver.com",
+    "domain": "https://euobserver.com/auth",
     "paywall": true,
-    "login_works": null,
-    "newsapi_id": "euobserver.com"
+    "is_active": true,
+    "newsapi_id": "euobserver.com",
+    "config": {
+      "user_input": "//input[@placeholder='example@gmail.com']",
+      "password_input": "//input[@type='password']",
+      "submit_button": "//button[.//span[text()='Continue']]",
+      "second_submit_button": "//button[contains(.//span/text(), 'Log in')]",
+      "profile_section": "//button[.//span[text()='Account']]",
+      "logout_button": "//button[.//span[text()='Log out']]"
+    }
   },
   {
     "name": "Tagesspiegel",
     "domain": "https://www.tagesspiegel.de/",
     "paywall": true,
-    "login_works": null,
+    "is_active": false,
     "newsapi_id": "tagesspiegel.de"
   },
   {
     "name": "Background_Tagesspiegel",
     "domain": "https://www.background.tagesspiegel.de",
     "paywall": true,
-    "login_works": null,
+    "is_active": false,
     "newsapi_id": null
   },
   {
     "name": "Contexte",
     "domain": "https://www.contexte.com",
     "paywall": true,
-    "login_works": true,
+    "is_active": true,
     "newsapi_id": "contexte.com",
     "config": {
       "login_button": "//a[contains(@href, 'login')]",
@@ -259,7 +271,7 @@
     "name": "The Pioneer",
     "domain": "https://www.thepioneer.de",
     "paywall": true,
-    "login_works": true,
+    "is_active": true,
     "newsapi_id": "thepioneer.de",
     "config": {
       "iframe_cookies": "//iframe[@id='sp_message_iframe_1251936']",
@@ -278,14 +290,14 @@
     "name": "Berlin.Table",
     "domain": "https://www.berlin.table.media",
     "paywall": true,
-    "login_works": null,
+    "is_active": false,
     "newsapi_id": null
   },
   {
     "name": "Bulletin Quotidien Europe",
     "domain": "https://agenceurope.eu/",
     "paywall": true,
-    "login_works": true,
+    "is_active": false,
     "newsapi_id": "agenceurope.eu",
     "config": {
       "login_button": "//a[@href='javascript:void(0)']",
@@ -300,7 +312,7 @@
     "name": "Business Insider",
     "domain": "https://www.businessinsider.de",
     "paywall": true,
-    "login_works": true,
+    "is_active": true,
     "newsapi_id": "businessinsider.de",
     "config": {
       "iframe_cookies": "//iframe[@id='sp_message_iframe_1253152']",
@@ -320,21 +332,21 @@
     "name": "Genios",
     "domain": "https://www.genios.de",
     "paywall": true,
-    "login_works": null,
+    "is_active": false,
     "newsapi_id": null
   },
   {
     "name": "Heise.de",
     "domain": "https://www.heise.de",
     "paywall": true,
-    "login_works": null,
+    "is_active": false,
     "newsapi_id": "heise.de"
   },
   {
     "name": "HORIZONT+",
     "domain": "https://www.horizont.net",
     "paywall": true,
-    "login_works": true,
+    "is_active": false,
     "newsapi_id": "horizont.net",
     "config": {
       "shadow_cookies": "#usercentrics-cmp-ui",
@@ -351,7 +363,7 @@
     "name": "Le Soir",
     "domain": "https://www.lesoir.be",
     "paywall": true,
-    "login_works": true,
+    "is_active": false,
     "newsapi_id": "lesoir.be",
     "config": {
       "login_button": "//span[contains(text(), 'identifier')]",
@@ -367,7 +379,7 @@
     "name": "Lebensmittelzeitung",
     "domain": "https://www.lebensmittelzeitung.net",
     "paywall": true,
-    "login_works": true,
+    "is_active": true,
     "newsapi_id": "lebensmittelzeitung.net",
     "config": {
       "shadow_cookies": "#usercentrics-cmp-ui",
@@ -384,7 +396,7 @@
     "name": "Mace Magazine",
     "domain": "https://www.macemagazine.com",
     "paywall": true,
-    "login_works": null,
+    "is_active": false,
     "newsapi_id": null,
     "config": {
       "login_button": "//a[contains(text(), 'Login')]",
@@ -399,14 +411,14 @@
     "name": "Medien Insider",
     "domain": "https://www.medieninsider.de",
     "paywall": true,
-    "login_works": null,
+    "is_active": false,
     "newsapi_id": null
   },
   {
     "name": "MEEDIA",
     "domain": "https://www.meedia.de",
     "paywall": true,
-    "login_works": true,
+    "is_active": true,
     "newsapi_id": "meedia.de",
     "config": {
       "cookies_button": "//a[contains(text(), 'Alle Cookies erlauben')]",
@@ -422,7 +434,7 @@
     "name": "Platow Brief",
     "domain": "https://www.platow.de",
     "paywall": true,
-    "login_works": true,
+    "is_active": false,
     "newsapi_id": null,
     "config": {
       "login_button": "//a[contains(text(), 'Login')]",
@@ -439,35 +451,35 @@
     "name": "Das Parlament",
     "domain": "https://www.das-parlament.de",
     "paywall": false,
-    "login_works": null,
+    "is_active": true,
     "newsapi_id": "das-parlament.de"
   },
   {
     "name": "EU Matrix",
     "domain": "https://www.eumatrix.eu",
     "paywall": false,
-    "login_works": null,
+    "is_active": false,
     "newsapi_id": null
   },
   {
     "name": "Euro am Sonntag",
     "domain": "https://www.eurams.de",
     "paywall": false,
-    "login_works": null,
+    "is_active": false,
     "newsapi_id": null
   },
   {
-    "name": "MÃ¼nchner Merkur",
+    "name": "Münchner Merkur",
     "domain": "https://www.merkur.de",
     "paywall": false,
-    "login_works": null,
+    "is_active": true,
     "newsapi_id": "merkur.de"
   },
   {
     "name": "Top Agrar",
     "domain": "https://www.topagrar.com",
     "paywall": true,
-    "login_works": null,
+    "is_active": false,
     "newsapi_id": "topagrar.com"
   }
 ]

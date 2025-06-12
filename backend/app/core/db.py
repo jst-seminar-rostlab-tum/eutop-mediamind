@@ -2,9 +2,11 @@ import json
 import os
 
 from qdrant_client import QdrantClient
-from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
+from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine, AsyncSession
 from sqlmodel import Session, SQLModel
 from sqlalchemy import create_engine
+from sqlalchemy.future import select
+from app.models.subscription import Subscription
 
 from app.core.config import configs
 from app.core.logger import get_logger
@@ -27,18 +29,18 @@ def load_json_data(file_path: str) -> list[dict]:
         return json.load(f)
 
 
-async def init_db(session: Session):
+async def init_db(session: AsyncSession):
     async with engine.begin() as conn:
         await conn.run_sync(SQLModel.metadata.create_all)
-        seed_subscriptions(session)
+        await seed_subscriptions(session)
 
 
-def seed_subscriptions(session: Session) -> None:
+async def seed_subscriptions(session: AsyncSession) -> None:
     """Seed initial subscriptions data if table is empty"""
-    from app.models.subscription import Subscription
 
     # Check if table is empty
-    if session.query(Subscription).first():
+    result = await session.execute(select(Subscription).limit(1))
+    if result.scalars().first():
         logger.info("Subscriptions table already seeded. Skipping seeding.")
         return
 
@@ -50,7 +52,7 @@ def seed_subscriptions(session: Session) -> None:
         subscription = Subscription(**item)
         session.add(subscription)
 
-    session.commit()
+    await session.commit()
     logger.info("Initial subscriptions data seeded successfully.")
 
 
