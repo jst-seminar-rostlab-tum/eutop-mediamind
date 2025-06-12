@@ -234,6 +234,11 @@ email_content = """
           <h1 class="organization-name">MediaMind</h1>
           <div class="date">June 12, 2025</div>
         </div>
+        <img
+          width="200"
+          class="logo"
+          src="https://mediamind.csee.tech/EUTOP_Logo.png"
+        />
       </div>
 
       <div class="content">
