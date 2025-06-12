@@ -12,9 +12,9 @@ from qdrant_client.http.models import (
 )
 
 from app.core.config import configs
+from app.core.db import get_qdrant_connection
 from app.models import Article
 from app.repositories.article_repository import ArticleRepository
-from backend.app.core.db import get_qdrant_connection
 
 
 class ArticleVectorService:
