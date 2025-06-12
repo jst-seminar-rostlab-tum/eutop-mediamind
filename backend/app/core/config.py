@@ -135,6 +135,7 @@ class Configs(BaseSettings):
     CLERK_SECRET_KEY: str | None = None
     CLERK_PUBLISHABLE_KEY: str | None = None
     CLERK_JWT_KEY: str | None = None
+    CLERK_COOKIE_NAME: str = "__session"
 
     # Disable Authentication (local testing only!)
     DISABLE_AUTH: bool = False
