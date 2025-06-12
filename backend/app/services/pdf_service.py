@@ -446,12 +446,6 @@ class PDFService:
                 metadata_style,
             )
             
-            # meta_para = Paragraph(
-            #     f'''
-            #     <font size="9">{news.newspaper}, {news.published_at}</font>
-            #     ''',
-            #     metadata_style,
-            # )
             button_para = Paragraph(
                 f"""
                 <font backColor="{yellowColor}" size="9">
