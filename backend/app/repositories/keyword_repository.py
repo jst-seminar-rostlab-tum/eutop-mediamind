@@ -20,7 +20,14 @@ logger = get_logger(__name__)
 class KeywordRepository:
     """Unified repository for managing Keyword entities and relations."""
 
-    __article_vector_service = ArticleVectorService()
+    __article_vector_service: ArticleVectorService| None = None
+
+    @staticmethod
+    def __get_article_vector_service() -> ArticleVectorService:
+        """Get the instance of ArticleVectorService."""
+        if KeywordRepository.__article_vector_service is None:
+            KeywordRepository.__article_vector_service = ArticleVectorService()
+        return KeywordRepository.__article_vector_service
 
     @staticmethod
     async def get_keyword_by_id(keyword_id: UUID) -> Optional[Keyword]:
@@ -147,7 +154,7 @@ class KeywordRepository:
             raise ValueError(f"Keyword with id {keyword_id} not found.")
 
         similarity_results = (
-            await KeywordRepository.__article_vector_service
+            await KeywordRepository.__get_article_vector_service()
             .retrieve_by_similarity(
                 keyword.name, score_threshold=score_threshold
             )
@@ -180,7 +187,7 @@ class KeywordRepository:
             )
             for keyword in keywords:
                 similar_articles = (
-                    await KeywordRepository.__article_vector_service
+                    await KeywordRepository.__get_article_vector_service()
                     .retrieve_by_similarity(
                         query=keyword.name, score_threshold=score_threshold
                     )
