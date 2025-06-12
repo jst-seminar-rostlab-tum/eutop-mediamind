@@ -437,15 +437,15 @@ class PDFService:
                 )
             )
             meta_para = Paragraph(
-                f'''
+                f"""
                 <para>
                 <font size="9">{news.newspaper}</font><br/>
                 <font size="9">{news.published_at}</font>
                 </para>
-                ''',
+                """,
                 metadata_style,
             )
-            
+
             button_para = Paragraph(
                 f"""
                 <font backColor="{yellowColor}" size="9">
@@ -587,7 +587,7 @@ class PDFService:
                     pub_date_str = news.published_at
             story.append(Paragraph(pub_date_str, PDFService.date_style))
             story.append(Spacer(1, 0.05 * inch))
-            #Change when Summary populated in DB
+            # Change when Summary populated in DB
             summary_text = news.content[:250].replace("\n", "<br/>")
             story.append(Paragraph(summary_text, PDFService.summary_style))
             story.append(Spacer(1, 0.05 * inch))
@@ -636,10 +636,10 @@ class PDFService:
                     pub_date_str = dt.strftime("%d %B %Y")
                 except Exception:
                     pub_date_str = news.published_at
-            metadata_text = f'''
+            metadata_text = f"""
             Words: {word_count} | Newspaper: {newspaper} <br/>
             Date: {pub_date_str} | Author: {author}
-                    '''
+                    """
             story.append(Paragraph(metadata_text, PDFService.metadata_style))
 
             # Calculate reading time
