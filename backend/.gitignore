@@ -180,3 +180,5 @@ cython_debug/
 
 # For Testing Scrapers:
 newspapers_accounts.json
+output.pdf
+

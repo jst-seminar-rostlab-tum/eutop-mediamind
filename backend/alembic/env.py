@@ -13,7 +13,7 @@ from sqlmodel import SQLModel
 # Needs to be imported for Alembic to recognize the models
 from app.models import (
     User, Topic, Subscription, SearchProfile, Organization,
-    Match, Keyword, ArticleKeywordLink, Article
+    Match, Keyword, ArticleKeywordLink, Article, Email
 )
 
 

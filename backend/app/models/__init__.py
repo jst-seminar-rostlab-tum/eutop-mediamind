@@ -2,6 +2,7 @@
 from .article import Article
 from .associations import ArticleKeywordLink
 from .auth import Message, NewPassword, Token, TokenPayload
+from .email import Email
 from .keyword import Keyword
 from .match import Match
 from .organization import Organization
@@ -13,8 +14,8 @@ from .user import User, UserPublic, UserUpdate, UserUpdateMe
 __all__ = [
     "Article",
     "ArticleKeywordLink",
+    "Email",
     "Message",
-    "UserUpdateMe",
     "Keyword",
     "Match",
     "Organization",
@@ -27,4 +28,5 @@ __all__ = [
     "TokenPayload",
     "UserPublic",
     "UserUpdate",
+    "UserUpdateMe",
 ]

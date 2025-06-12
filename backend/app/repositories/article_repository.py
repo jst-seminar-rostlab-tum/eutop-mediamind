@@ -1,8 +1,8 @@
-from typing import Optional, Sequence
+from typing import List, Optional, Sequence
 from uuid import UUID
 
-from sqlalchemy import or_
-from sqlmodel import select
+from sqlalchemy import desc, or_, select
+from sqlalchemy.orm.strategy_options import joinedload
 
 from app.core.db import async_session
 from app.models.article import Article
@@ -132,3 +132,14 @@ class ArticleRepository:
             )
 
             return summarized_articles
+
+    @staticmethod
+    async def get_sameple_articles(limit: int) -> List[Article]:
+        async with async_session() as session:
+            result = await session.execute(
+                select(Article)
+                .order_by(desc(Article.published_at))
+                .limit(limit)
+                .options(joinedload("*"))
+            )
+            return result.unique().scalars().all()
