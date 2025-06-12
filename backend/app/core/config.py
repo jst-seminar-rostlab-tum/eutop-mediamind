@@ -140,5 +140,8 @@ class Configs(BaseSettings):
     # Disable Authentication (local testing only!)
     DISABLE_AUTH: bool = False
 
+    # NewsAPI.ai
+    NEWSAPIAI_API_KEY: str = "changethis"
+
 
 configs = Configs()  # type: ignore
