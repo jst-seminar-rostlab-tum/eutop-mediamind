@@ -642,9 +642,17 @@ class PDFService:
                     pub_date_str = dt.strftime("%d %B %Y")
                 except Exception:
                     pub_date_str = news.published_at
-            metadata_text = f"Words: {word_count} | Newspaper: {newspaper} | \
-            Date: {pub_date_str} | Author: {author}"
+            metadata_text = f'''
+            Words: {word_count} | Newspaper: {newspaper} <br/>
+            Date: {pub_date_str} | Author: {author}
+                    '''
             story.append(Paragraph(metadata_text, PDFService.metadata_style))
+
+            # Calculate reading time
+            reading_time = PDFService.__calculate_reading_time(news.content)
+            reading_time_text = f"Estimated Reading Time: {reading_time} min"
+            story.append(Paragraph(reading_time_text, PDFService.link_style))
+
             story.append(
                 Paragraph(
                     f"""
