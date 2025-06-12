@@ -31,7 +31,6 @@ from svglib.svglib import svg2rlg
 from app.core.logger import get_logger
 from app.repositories.article_repository import ArticleRepository
 
-
 # TODO: Move colors to a separate module, Move only the needed styles to a
 # Stylesheet, sample works with matching
 
