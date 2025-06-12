@@ -146,11 +146,8 @@ class KeywordRepository:
         if not keyword:
             raise ValueError(f"Keyword with id {keyword_id} not found.")
 
-        similarity_results = (
-            await KeywordRepository.__article_vector_service
-            .retrieve_by_similarity(
-                keyword.name, score_threshold=score_threshold
-            )
+        similarity_results = await KeywordRepository.__article_vector_service.retrieve_by_similarity(  # noqa: E501
+            keyword.name, score_threshold=score_threshold
         )
 
         similar_articles: List[Article] = []
@@ -179,11 +176,8 @@ class KeywordRepository:
                 f"from {page * page_size} to {(page + 1) * page_size}"
             )
             for keyword in keywords:
-                similar_articles = (
-                    await KeywordRepository.__article_vector_service
-                    .retrieve_by_similarity(
-                        query=keyword.name, score_threshold=score_threshold
-                    )
+                similar_articles = await KeywordRepository.__article_vector_service.retrieve_by_similarity(  # noqa: E501
+                    query=keyword.name, score_threshold=score_threshold
                 )
 
                 for doc, score in similar_articles:
