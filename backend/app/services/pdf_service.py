@@ -264,7 +264,6 @@ class PDFService:
         buffer.seek(0)
         return buffer.getvalue()
 
-
     # This function calculates the estimated reading time based on the word
     # count and a specified reading speed.
     @staticmethod
