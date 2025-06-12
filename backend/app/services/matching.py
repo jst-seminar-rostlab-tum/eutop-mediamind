@@ -1,13 +1,13 @@
-from qdrant_client import QdrantClient
 from sentence_transformers import SentenceTransformer
 
+from backend.app.core.db import get_qdrant_connection
 from backend.app.core.logger import get_logger
 
 logger = get_logger(__name__)
 
 
 def index_and_query_articles():
-    client = QdrantClient("localhost", port=6333)
+    client = get_qdrant_connection()
     model = SentenceTransformer("all-MiniLM-L6-v2")
 
     keywords = ["climate change", "artificial intelligence"]

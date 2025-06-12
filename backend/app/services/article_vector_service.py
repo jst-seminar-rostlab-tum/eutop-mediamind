@@ -4,7 +4,7 @@ from typing import List, Optional, Sequence
 from langchain_core.documents import Document
 from langchain_openai import OpenAIEmbeddings
 from langchain_qdrant import FastEmbedSparse, QdrantVectorStore, RetrievalMode
-from qdrant_client import QdrantClient, models
+from qdrant_client import models
 from qdrant_client.http.models import (
     Distance,
     SparseVectorParams,
@@ -14,6 +14,7 @@ from qdrant_client.http.models import (
 from app.core.config import configs
 from app.models import Article
 from app.repositories.article_repository import ArticleRepository
+from backend.app.core.db import get_qdrant_connection
 
 
 class ArticleVectorService:
@@ -26,9 +27,7 @@ class ArticleVectorService:
         self._sparse_embeddings = FastEmbedSparse(model_name="Qdrant/bm25")
         self.collection_name = configs.ARTICLE_VECTORS_COLLECTION
 
-        self._qdrant_client = QdrantClient(
-            url=configs.QDRANT_HOST, api_key=configs.QDRANT_API_KEY
-        )
+        self._qdrant_client = get_qdrant_connection()
 
         self._ensure_collection(self.collection_name)
 
@@ -47,7 +46,6 @@ class ArticleVectorService:
         )
 
     def _ensure_collection(self, collection_name: str) -> None:
-
         try:
             if not self._qdrant_client.collection_exists(
                 collection_name=collection_name
