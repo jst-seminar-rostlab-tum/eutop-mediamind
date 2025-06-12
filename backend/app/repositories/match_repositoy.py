@@ -19,7 +19,7 @@ async def get_recent_match_count_by_profile_id(
             .join(Article, Match.article_id == Article.id)
             .where(
                 Match.search_profile_id == profile_id,
-                Article.published_at >= since,
+            #    Article.published_at >= since,
             )
         )
         result = await session.execute(stmt)

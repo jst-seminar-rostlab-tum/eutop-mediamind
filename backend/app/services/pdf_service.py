@@ -13,6 +13,7 @@ from reportlab.platypus.flowables import AnchorFlowable
 from reportlab.lib.styles import ParagraphStyle
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
+from app.models.article import Article
 from app.repositories.article_repository import ArticleRepository
 from svglib.svglib import svg2rlg
 from reportlab.graphics.shapes import Drawing
@@ -23,9 +24,12 @@ from io import BytesIO
 import textwrap
 from dataclasses import dataclass
 from app.core.logger import get_logger
+from app.models.user import User
+from app.core.db import async_session
+
+from app.services.search_profiles_service import SearchProfileService
 
 # TODO: Move colors to a separate module, Move only the needed styles to a Stylesheet, sample works with matching
-
 
 #EUTOP colors #FFED00 #164194
 mainColor=colors.HexColor("#003366")
@@ -83,12 +87,37 @@ class PDFService:
     content_style = ParagraphStyle('Content', fontName="DVS", fontSize=11, leading=14, alignment=TA_JUSTIFY)
 
     @staticmethod
+    async def create_pdf_for_user(user: User) -> bytes:
+        async with async_session() as session:
+            search_profiles = await SearchProfileService.get_available_search_profiles(user)
+            if len(search_profiles) == 0:
+                raise ValueError("No search profiles available for user.")
+
+            i = 0
+            articles = []
+            while i < len(search_profiles) :
+                search_profile = search_profiles[i]
+                print("checking search profile:", search_profile.id)
+                articles = await ArticleRepository.get_matched_articles_by_search_profile(session, search_profile.id, limit=15)
+                i += 1
+                if articles != None and len(articles) != 0:
+                    break
+            if not articles:
+                articles = []
+
+            news_items = list(map(PDFService.__article_to_news_item, articles))
+            return PDFService.create_pdf(news_items)
+
+
+    @staticmethod
     async def create_sample_pdf() -> bytes:
         articles = await ArticleRepository.get_sameple_articles(15)
-        news_items = []
-        for article in articles:
-            # Convert Article to NewsItem
-            news_item = NewsItem(
+        news_items = list(map(PDFService.__article_to_news_item, articles))
+        return PDFService.create_pdf(news_items)
+
+    @staticmethod
+    def __article_to_news_item(article: Article) -> NewsItem:
+        return NewsItem(
                 id=article.id,
                 title=article.title,
                 content=article.content,
@@ -108,9 +137,6 @@ class PDFService:
                 industries=None,  # Placeholder, as we don't have industries in sample articles
                 legislations=None  # Placeholder, as we don't have legislations in sample articles
             )
-            # Replace the article with the news item
-            news_items.append(news_item)
-        return PDFService.create_pdf(news_items)
 
     @staticmethod
     def create_pdf(news_items: List[NewsItem]) -> bytes:

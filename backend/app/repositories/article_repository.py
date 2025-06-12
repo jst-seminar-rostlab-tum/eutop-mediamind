@@ -3,9 +3,11 @@ from uuid import UUID
 
 from sqlalchemy import desc, or_, select
 from sqlalchemy.orm.strategy_options import joinedload
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.db import async_session
 from app.models.article import Article
+from app.models.match import Match
 
 
 class ArticleRepository:
@@ -143,3 +145,22 @@ class ArticleRepository:
                 .options(joinedload("*"))
             )
             return result.unique().scalars().all()
+
+    @staticmethod
+    async def get_matched_articles_by_search_profile(
+            session: AsyncSession,
+            search_profile_id: UUID,
+            limit: int = 100, 
+    ) -> List[Article]:
+            statement = (
+                select(Article)
+                .join(Match)
+                .where(Match.search_profile_id == search_profile_id)
+                .order_by(Match.sorting_order.asc())
+                .limit(limit)
+            )
+            result = await session.execute(statement)
+            ret = result.unique().scalars().all()
+            print(f"Found {len(ret)} matched articles for search profile {search_profile_id}")
+            return ret
+
