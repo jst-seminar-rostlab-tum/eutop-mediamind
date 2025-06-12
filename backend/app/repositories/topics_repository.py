@@ -80,13 +80,12 @@ class TopicsRepository:
         Delete a topic by ID, ensuring the user has permission
         (endpoint for demo day).
         """
-        logger.info(f"Deleting topic {topic_id} for user {user.id}")
+
         async with async_session() as session:
             result = await session.execute(
                 delete(Topic).where(Topic.id == topic_id)
             )
             await session.commit()
-            print(result)
             return result.rowcount > 0
 
     @staticmethod

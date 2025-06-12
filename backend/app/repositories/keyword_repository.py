@@ -8,13 +8,7 @@ from sqlalchemy.orm import joinedload, selectinload
 
 from app.core.db import async_session
 from app.core.logger import get_logger
-from app.models import (
-    Article,
-    ArticleKeywordLink,
-    Keyword,
-    Topic,
-    User,
-)
+from app.models import Article, ArticleKeywordLink, Keyword, Topic, User
 from app.models.associations import TopicKeywordLink
 from app.repositories.article_repository import ArticleRepository
 from app.schemas.keyword_schemas import KeywordCreateRequest
@@ -75,7 +69,6 @@ class KeywordRepository:
             topic = (await session.execute(query)).scalar_one_or_none()
             if topic is None:
                 raise HTTPException(status_code=404, detail="Topic not found")
-            print(topic)
             return topic.keywords
 
     @staticmethod
