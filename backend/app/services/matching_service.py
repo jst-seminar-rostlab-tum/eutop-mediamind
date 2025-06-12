@@ -6,23 +6,25 @@ from sqlalchemy import delete, select
 from sqlalchemy.orm import selectinload
 
 from app.core.db import async_session
-from app.models import (
-    ArticleKeywordLink,
-    Match,
-    SearchProfile,
-    Topic,
-)
+from app.models import ArticleKeywordLink, Match, SearchProfile, Topic
 from app.repositories.search_profile_repository import SearchProfileRepository
 
 logger = logging.getLogger(__name__)
 
 
 class ArticleMatchingService:
-    """Service for matching articles to search profiles without subscription filtering."""
+    """S
+    ervice for matching articles to search
+    profiles without subscription filtering.
+    """
 
     @staticmethod
     async def match_article_to_search_profile(profile_id: uuid.UUID) -> None:
-        """Load a profile (with topics→keywords), score its articles, and upsert Matches."""
+        """
+        Load a profile (with topics→keywords), score its articles,
+        and upsert Matches.
+        :"""
+
         async with async_session() as session:
             # 1) Fetch the profile with topics→keywords all at once
             result = await session.execute(
@@ -86,7 +88,10 @@ class ArticleMatchingService:
 
     @staticmethod
     async def run(page_size: int = 100) -> None:
-        """Page through all search profiles and run the matcher, logging but not re-raising errors."""
+        """
+        Page through all search profiles and run the matcher,
+        logging but not re-raising errors.
+        """
         page = 0
         while True:
             profiles: Sequence[SearchProfile] = (
@@ -95,7 +100,8 @@ class ArticleMatchingService:
                 )
             )
             logger.info(
-                f"Processing profiles {page * page_size}–{(page + 1) * page_size}, count={len(profiles)}"
+                f"Processing profiles {page * page_size}–"
+                f"{(page + 1) * page_size}, count={len(profiles)}"
             )
 
             if not profiles:
@@ -103,10 +109,11 @@ class ArticleMatchingService:
 
             for sp in profiles:
                 logger.info(
-                    f"Processing SearchProfile {sp.id} ({getattr(sp, 'name', '')})"
+                    f"Processing SearchProfile {sp.id} "
+                    f"({getattr(sp, 'name', '')})"
                 )
                 try:
-                    await ArticleMatchingService.match_article_to_search_profile(
+                    await ArticleMatchingService.match_article_to_search_profile(  # noqa: E501
                         sp.id
                     )
                 except Exception:
