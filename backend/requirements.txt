@@ -28,6 +28,7 @@ propcache==0.3.1
 protobuf==6.31.1
 psycopg==3.2.9
 psycopg-c==3.2.9
+psycopg2==2.9.10
 pydantic==2.11.4
 pydantic[email]==2.11.4
 pydantic_core==2.33.2
