@@ -52,6 +52,7 @@ async def delete_topic(
     result = await TopicsRepository.delete_topic_by_id(topic_id, current_user)
     if not result:
         return {
-            "message": "Topic not found or you do not have permission to delete it."
+            "message": "Topic not found or you do not have permission "
+            "to delete it."
         }
     return {"message": "Topic deleted successfully."}
