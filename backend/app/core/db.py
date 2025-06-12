@@ -1,3 +1,6 @@
+import psycopg
+from psycopg import OperationalError
+from psycopg import connection as PgConnection
 from qdrant_client import QdrantClient
 from sqlalchemy.ext.asyncio import (
     AsyncEngine,
@@ -9,8 +12,6 @@ from sqlmodel import SQLModel
 
 from app.core.config import configs
 from app.core.logger import get_logger
-
-from .config import Configs
 
 logger = get_logger(__name__)
 
@@ -25,12 +26,28 @@ async def init_db():
         await conn.run_sync(SQLModel.metadata.create_all)
 
 
-def get_qdrant_connection(cfg: Configs) -> QdrantClient:
-    if not cfg.QDRANT_URL:
+def get_postgresql_connection() -> PgConnection:
+    if not configs.DATABASE_URL:
+        logger.error("DATABASE_URL not set in config.")
+        raise ValueError("DATABASE_URL not set in config.")
+    try:
+        return psycopg.connect(dsn=configs.DATABASE_URL)
+    except OperationalError as e:
+        logger.error(f"Failed to connect to PostgreSQL database: {str(e)}")
+        raise Exception(f"Failed to connect to PostgreSQL database: {str(e)}")
+    except Exception as e:
+        logger.error(f"Failed to initialize PostgreSQL client: {str(e)}")
+        raise Exception(f"Failed to initialize PostgreSQL client: {str(e)}")
+
+
+def get_qdrant_connection() -> QdrantClient:
+    if not configs.QDRANT_URL:
         logger.error("QDRANT_URL not set in config.")
         raise ValueError("QDRANT_URL not set in config.")
     try:
-        return QdrantClient(url=cfg.QDRANT_URL)
+        return QdrantClient(
+            url=configs.QDRANT_URL, api_key=configs.QDRANT_API_KEY
+        )
     except Exception as e:
         logger.error(f"Failed to initialize Qdrant client: {str(e)}")
         raise Exception(f"Failed to initialize Qdrant client: {str(e)}")
