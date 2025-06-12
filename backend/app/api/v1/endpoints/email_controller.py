@@ -41,6 +41,7 @@ async def trigger_pdf_creation():
     with open("output.pdf", "wb") as f:
         f.write(pdf_bytes)
 
+
 email_content = """
 <html lang="en">
   <head>
