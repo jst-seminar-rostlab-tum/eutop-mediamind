@@ -337,7 +337,7 @@ class PDFService:
             spaceAfter=6,
             bulletIndent=0,
             leftIndent=6,
-            leading=6,
+            leading=10,
             alignment=TA_JUSTIFY,
         )
 
@@ -437,9 +437,15 @@ class PDFService:
                 )
             )
             meta_para = Paragraph(
-                f'<font size="9">{news.newspaper}, {news.published_at}</font>',
+                f"""
+                <para>
+                <font size="9">{news.newspaper}</font><br/>
+                <font size="9">{news.published_at}</font>
+                </para>
+                """,
                 metadata_style,
             )
+
             button_para = Paragraph(
                 f"""
                 <font backColor="{yellowColor}" size="9">
@@ -455,7 +461,7 @@ class PDFService:
 
             row = [[meta_para, button_para]]
             table = Table(
-                row, colWidths=[3.5 * inch, 2.5 * inch]
+                row, colWidths=[4 * inch, 2 * inch]
             )  # Adjust as needed
             table.setStyle(
                 TableStyle(
@@ -581,7 +587,8 @@ class PDFService:
                     pub_date_str = news.published_at
             story.append(Paragraph(pub_date_str, PDFService.date_style))
             story.append(Spacer(1, 0.05 * inch))
-            summary_text = news.content[:300].replace("\n", "<br/>")
+            # Change when Summary populated in DB
+            summary_text = news.content[:250].replace("\n", "<br/>")
             story.append(Paragraph(summary_text, PDFService.summary_style))
             story.append(Spacer(1, 0.05 * inch))
             dest_name = f"full_{news.id}"
@@ -629,9 +636,17 @@ class PDFService:
                     pub_date_str = dt.strftime("%d %B %Y")
                 except Exception:
                     pub_date_str = news.published_at
-            metadata_text = f"Words: {word_count} | Newspaper: {newspaper} | \
-            Date: {pub_date_str} | Author: {author}"
+            metadata_text = f"""
+            Words: {word_count} | Newspaper: {newspaper} <br/>
+            Date: {pub_date_str} | Author: {author}
+                    """
             story.append(Paragraph(metadata_text, PDFService.metadata_style))
+
+            # Calculate reading time
+            reading_time = PDFService.__calculate_reading_time(news.content)
+            reading_time_text = f"Estimated Reading Time: {reading_time} min"
+            story.append(Paragraph(reading_time_text, PDFService.link_style))
+
             story.append(
                 Paragraph(
                     f"""
@@ -765,7 +780,7 @@ class PDFService:
                         ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
                         ("FONTSIZE", (0, 0), (-1, -1), 10),
                         ("INNERGRID", (0, 0), (-1, -1), 0, colors.white),
-                        ("BOX", (0, 0), (-1, -1), 1, blueColor),
+                        ("BOX", (0, 0), (-1, -1), 1, colors.white),
                         ("TOPPADDING", (0, 0), (-1, -1), 4),
                         ("BOTTOMPADDING", (0, 0), (-1, -1), 4),
                         ("LEFTPADDING", (0, 0), (-1, -1), 8),
