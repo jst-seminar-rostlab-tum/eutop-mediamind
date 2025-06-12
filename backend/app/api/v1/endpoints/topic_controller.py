@@ -20,7 +20,7 @@ async def get_topics_by_search_profile(
     """
     Get topics by search profile ID.
     """
-    topics = await TopicsRepository.get_topics_by_search_profile(
+    topics: List[Topic] = await TopicsRepository.get_topics_by_search_profile(
         search_profile_id, current_user
     )
     return topics
