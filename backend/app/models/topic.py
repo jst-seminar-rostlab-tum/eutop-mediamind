@@ -29,4 +29,5 @@ class Topic(SQLModel, table=True):
         back_populates="topics",
         link_model=TopicKeywordLink,
     )
+
     matches: List["Match"] = Relationship(back_populates="topic")

@@ -66,7 +66,7 @@ class Configs(BaseSettings):
         # Remove port from host if present
         host = self.POSTGRES_SERVER.split(":")[0]
         return MultiHostUrl.build(
-            scheme="postgresql+psycopg",
+            scheme="postgresql+asyncpg",
             username=self.POSTGRES_USER,
             password=self.POSTGRES_PASSWORD,
             host=host,
@@ -74,27 +74,9 @@ class Configs(BaseSettings):
             path=self.POSTGRES_DB,
         )
 
-    SMTP_TLS: bool = True
-    SMTP_SSL: bool = False
-    SMTP_PORT: int = 587
-    SMTP_HOST: str | None = None
-    SMTP_USER: str | None = None
-    SMTP_PASSWORD: str | None = None
-    EMAILS_FROM_EMAIL: EmailStr | None = None
-    EMAILS_FROM_NAME: EmailStr | None = None
-
-    @model_validator(mode="after")
-    def _set_default_emails_from(self) -> Self:
-        if not self.EMAILS_FROM_NAME:
-            self.EMAILS_FROM_NAME = self.PROJECT_NAME
-        return self
-
-    EMAIL_RESET_TOKEN_EXPIRE_HOURS: int = 48
-
-    @computed_field  # type: ignore[prop-decorator]
-    @property
-    def emails_enabled(self) -> bool:
-        return bool(self.SMTP_HOST and self.EMAILS_FROM_EMAIL)
+    SENDGRID_KEY: str = ""
+    SENDER_EMAIL: EmailStr = ""
+    MAX_EMAIL_ATTEMPTS: int = 2
 
     EMAIL_TEST_USER: EmailStr = "test@example.com"
     FIRST_SUPERUSER: EmailStr = "test@example.com"
