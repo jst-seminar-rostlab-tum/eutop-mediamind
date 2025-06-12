@@ -65,7 +65,7 @@ export default function Header() {
           </div>
         )}
       </div>
-      <div className="col-span-10 flex justify-end gap-4">
+      <div className="flex justify-end items-center gap-4">
         <SignedOut>
           <Popover
             open={openLogin}

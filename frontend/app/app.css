@@ -109,7 +109,3 @@ body {
 .cl-userButtonPopoverFooter {
   display: none;
 }
-
-.cl-userButtonTrigger {
-  aspect-ratio: 1;
-}
