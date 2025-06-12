@@ -1,12 +1,8 @@
-import textwrap
 from dataclasses import dataclass
 from datetime import datetime
 from io import BytesIO
 from typing import List
 
-import pillow_avif  # this automatically registers AVIF Images support with Pillow For downloading newspaper images
-import requests  # For feature downloading newspaper images
-from PIL import Image as PILImage
 from reportlab.graphics.shapes import Drawing
 from reportlab.lib import colors
 from reportlab.lib.enums import TA_JUSTIFY
@@ -35,7 +31,9 @@ from svglib.svglib import svg2rlg
 from app.core.logger import get_logger
 from app.repositories.article_repository import ArticleRepository
 
-# TODO: Move colors to a separate module, Move only the needed styles to a Stylesheet, sample works with matching
+
+# TODO: Move colors to a separate module, Move only the needed styles to a
+# Stylesheet, sample works with matching
 
 
 # EUTOP colors #FFED00 #164194
@@ -159,12 +157,12 @@ class PDFService:
                 subscription_id=article.subscription.id,
                 newspaper=article.subscription.name,
                 keywords=[keyword.name for keyword in article.keywords],
-                image_url=None,  # Placeholder, as we don't have images in sample articles
-                people=None,  # Placeholder, as we don't have people in sample articles
-                companies=None,  # Placeholder, as we don't have companies in sample articles
-                politicians=None,  # Placeholder, as we don't have politicians in sample articles
-                industries=None,  # Placeholder, as we don't have industries in sample articles
-                legislations=None,  # Placeholder, as we don't have legislations in sample articles
+                image_url=None,  # Placeholder
+                people=None,  # Placeholder
+                companies=None,  # Placeholder
+                politicians=None,  # Placeholder
+                industries=None,  # Placeholder
+                legislations=None,  # Placeholder
             )
             # Replace the article with the news item
             news_items.append(news_item)
@@ -178,7 +176,9 @@ class PDFService:
         # Logging which articles, if they have summaries and keywords
         for news in news_items:
             logger.debug(
-                f"Processing News item: {news.id}, Summary: {True if news.summary else False}, Keywords: {True if news.keywords else 'False'}"
+                f"Processing News item: {news.id}, Summary:  \
+                {True if news.summary else False}, Keywords:  \
+                {True if news.keywords else 'False'}"
             )
 
         # Prepare all flowable elements for the PDF
@@ -222,7 +222,8 @@ class PDFService:
             id="full_article",
         )
 
-        # Define three vertical frames evenly spaced across the page width for summaries
+        # Define three vertical frames evenly spaced across the page width for
+        # summaries
         frame_width = (width - 2 * margin) / 3
         frames = [
             Frame(
@@ -263,13 +264,9 @@ class PDFService:
         buffer.seek(0)
         return buffer.getvalue()
 
-    # This function wraps text to a specified width, ensuring that it fits within the PDF layout.
-    # @staticmethod
-    # def __wrap_text(text, width):
-    #     wrapper = textwrap.TextWrapper(width=width)
-    #     return "\n".join(wrapper.wrap(text))
 
-    # This function calculates the estimated reading time based on the word count and a specified reading speed.
+    # This function calculates the estimated reading time based on the word
+    # count and a specified reading speed.
     @staticmethod
     def __calculate_reading_time(text, words_per_minute=180):
         word_count = len(text.split())
@@ -363,7 +360,8 @@ class PDFService:
         )
         story.append(
             Paragraph(
-                f"<font size=12 color='darkgreen'>Estimated Reading Time: {total_minutes} min</font>",
+                f"<font size=12 color='darkgreen'>Estimated Reading Time:  \
+                {total_minutes} min</font>",
                 style,
             )
         )
@@ -600,15 +598,18 @@ class PDFService:
                     pub_date_str = dt.strftime("%d %B %Y")
                 except Exception:
                     pub_date_str = news.published_at
-            metadata_text = f"Words: {word_count} | Newspaper: {newspaper} | Date: {pub_date_str} | Author: {author}"
+            metadata_text = f"Words: {word_count} | Newspaper: {newspaper} | \
+            Date: {pub_date_str} | Author: {author}"
             story.append(Paragraph(metadata_text, PDFService.metadata_style))
             story.append(
                 Paragraph(
                     f"""
-                                    <para alignment="right">
-                                   <a href="#toc_summary_{i}"><u><font>Read summary</font></u></a>
-                                    </para>
-                                   """,
+                    <para alignment="right">
+                        <a href="#toc_summary_{i}">
+                            <u><font>Read summary</font></u>
+                        </a>
+                    </para>
+                    """,
                     PDFService.link_style,
                 )
             )
@@ -697,7 +698,8 @@ class PDFService:
                 and news.legislations
             ):
                 legislations_str = ", ".join(
-                    f"{getattr(leg, 'number', 'N/A')} ({getattr(leg, 'name', 'N/A')})"
+                    f"{getattr(leg, 'number', 'N/A')} \
+                    ({getattr(leg, 'name', 'N/A')})"
                     for leg in news.legislations
                 )
             story.append(
@@ -714,7 +716,8 @@ class PDFService:
                     [
                         link_img,
                         Paragraph(
-                            f'<a href="{news.url}"><b>Read Article at Newspaper</b></a>',
+                            f'<a href="{news.url}"><b>Read Article at \
+                            Newspaper</b></a>',
                             PDFService.link_style,
                         ),
                     ]

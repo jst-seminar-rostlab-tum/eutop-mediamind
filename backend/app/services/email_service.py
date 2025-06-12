@@ -87,5 +87,6 @@ class EmailService:
 
         if response.status_code >= 300:
             raise Exception(
-                f"Failed to send email: {response.status_code} - {response.body.decode('utf-8')}"
+                f"Failed to send email: {response.status_code} -  \
+                    {response.body.decode('utf-8')}"
             )
