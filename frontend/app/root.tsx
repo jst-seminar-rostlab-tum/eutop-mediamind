@@ -129,16 +129,13 @@ export default function App({ loaderData }: Route.ComponentProps) {
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
-  let message = "Oops!";
-  let details = "An unexpected error occurred.";
+  let message: string | undefined;
+  let details: string | undefined;
   let stack: string | undefined;
+  let code: number | undefined;
 
   if (isRouteErrorResponse(error)) {
-    message = error.status === 404 ? "404" : "Error";
-    details =
-      error.status === 404
-        ? "The requested page could not be found."
-        : error.statusText || details;
+    code = error.status;
   } else if (import.meta.env.DEV && error && error instanceof Error) {
     details = error.message;
     stack = error.stack;
@@ -151,7 +148,7 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
           <img src="/MediaMind_Logo.svg" alt="MediaMind_Logo" width={"180px"} />
         </Link>
       </div>
-      <ErrorPage title={message} message={details} stack={stack} />
+      <ErrorPage code={code} title={message} message={details} stack={stack} />
     </>
   );
 }

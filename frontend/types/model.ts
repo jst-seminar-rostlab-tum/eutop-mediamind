@@ -1,6 +1,6 @@
 import type { components } from "./api-types-v1";
 
-export type MediamindUser = components["schemas"]["User"];
+export type MediamindUser = components["schemas"]["UserEntity"];
 
 export type Profile = components["schemas"]["SearchProfileDetailResponse"];
 

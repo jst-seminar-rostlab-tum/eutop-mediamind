@@ -1,23 +1,24 @@
 import Layout from "~/custom-components/layout";
-import { AlertTriangle, Ban, Building2, CircleX, Lock } from "lucide-react";
-import { useParams } from "react-router";
+import {
+  AlertTriangle,
+  Ban,
+  Building2,
+  Frown,
+  House,
+  Lock,
+  MoveRight,
+} from "lucide-react";
+import { Link, useParams } from "react-router";
 import Text from "~/custom-components/text";
 import type { ReactElement } from "react";
-import {
-  Breadcrumb,
-  BreadcrumbList,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbSeparator,
-  BreadcrumbPage,
-} from "~/components/ui/breadcrumb";
+import { Button } from "~/components/ui/button";
 
 const icons: Record<string, ReactElement> = {
   "401": <Lock className="h-12 w-12" />,
   "403": <Ban className="h-12 w-12" />,
   "404": <AlertTriangle className="h-12 w-12" />,
   "no-org": <Building2 className="h-12 w-12" />,
-  fallback: <CircleX className="h-12 w-12" />,
+  fallback: <Frown className="h-12 w-12" />,
 };
 
 const defaultMessages: Record<string, { title: string; message: string }> = {
@@ -50,12 +51,16 @@ export const ErrorPage = ({
   title,
   message,
   stack,
+  code: passedCode,
 }: {
   title?: string;
   message?: string;
   stack?: string;
+  code?: number;
 }) => {
-  const { code } = useParams();
+  const { code: paramCode } = useParams();
+
+  const code = passedCode ?? paramCode;
 
   const usedTitle = title ?? defaultMessages[code ?? "fallback"].title;
   const usedMessage = message ?? defaultMessages[code ?? "fallback"].message;
@@ -64,24 +69,23 @@ export const ErrorPage = ({
   return (
     <>
       <Layout className="flex justify-center">
-        <Breadcrumb>
-          <BreadcrumbList>
-            <BreadcrumbItem>
-              <BreadcrumbLink href="/dashboard">Home</BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
-              <BreadcrumbPage>Error</BreadcrumbPage>
-            </BreadcrumbItem>
-          </BreadcrumbList>
-        </Breadcrumb>
-        <div className="flex justify-center my-10">{usedIcon}</div>
+        <div className="flex justify-center mt-24 mb-4">{usedIcon}</div>
 
         <Text className="mb-2 flex justify-center" hierachy={1}>
           {usedTitle}
         </Text>
 
         <Text className="flex justify-center text-center">{usedMessage}</Text>
+
+        <div className="flex justify-center m-4">
+          <Link to="/">
+            <Button variant="outline">
+              <MoveRight />
+              Back to Home
+              <House />
+            </Button>
+          </Link>
+        </div>
 
         {stack && (
           <pre className="w-full p-4 overflow-x-auto">

@@ -38,7 +38,7 @@ export default function Text({
     const Tag = tag || "h2";
     return (
       <Tag
-        className={`${className} text-3xl font-extrabold tracking-tight lg:text-4xl p-4`}
+        className={`${className} text-3xl font-bold tracking-tight lg:text-4xl py-4`}
       >
         {children}
       </Tag>

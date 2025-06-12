@@ -3,6 +3,7 @@ import { Input } from "~/components/ui/input";
 import { useState } from "react";
 import { KeywordTag } from "~/custom-components/profile/edit/keyword-tag";
 import type { Profile } from "../../../../types/model";
+import { toast } from "sonner";
 
 interface KeywordFieldProps {
   keywords: string[];
@@ -20,15 +21,19 @@ export function KeywordField({
   const [newKeyword, setNewKeyword] = useState("");
 
   const handleAddKeyword = () => {
-    if (newKeyword && selectedTopic && !keywords.includes(newKeyword)) {
-      const updatedTopics = profile.topics.map((topic) => {
-        if (topic.name === selectedTopic) {
-          return { ...topic, keywords: [...topic.keywords, newKeyword] };
-        }
-        return topic;
-      });
-      setProfile({ ...profile, topics: updatedTopics });
-      setNewKeyword("");
+    if (newKeyword && selectedTopic) {
+      if (!keywords.includes(newKeyword)) {
+        const updatedTopics = profile.topics.map((topic) => {
+          if (topic.name === selectedTopic) {
+            return { ...topic, keywords: [...topic.keywords, newKeyword] };
+          }
+          return topic;
+        });
+        setProfile({ ...profile, topics: updatedTopics });
+        setNewKeyword("");
+      } else {
+        toast.error("Can't add the same keyword twice");
+      }
     }
   };
 
