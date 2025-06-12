@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Sequence
 from uuid import UUID
 
 from pydantic import EmailStr
@@ -181,3 +181,17 @@ async def update_emails(
     # Convert EmailStr to plain strings for storage in DB
     profile.organization_emails = [str(email) for email in organization_emails]
     profile.profile_emails = [str(email) for email in profile_emails]
+
+
+class SearchProfileRepository:
+    @staticmethod
+    async def fetch_all_search_profiles(limit: int, offset: int):
+        """
+        Fetch all search profiles with pagination.
+        """
+        async with async_session() as session:
+            query = select(SearchProfile).offset(offset).limit(limit)
+            search_profiles: Sequence[SearchProfile] = (
+                (await session.execute(query)).scalars().all()
+            )
+            return search_profiles

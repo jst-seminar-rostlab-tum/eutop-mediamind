@@ -4,7 +4,7 @@ from typing import List, Optional, Sequence
 from langchain_core.documents import Document
 from langchain_openai import OpenAIEmbeddings
 from langchain_qdrant import FastEmbedSparse, QdrantVectorStore, RetrievalMode
-from qdrant_client import QdrantClient, models
+from qdrant_client import models
 from qdrant_client.http.models import (
     Distance,
     SparseVectorParams,
@@ -14,6 +14,7 @@ from qdrant_client.http.models import (
 from app.core.config import configs
 from app.models import Article
 from app.repositories.article_repository import ArticleRepository
+from backend.app.core.db import get_qdrant_connection
 
 
 class ArticleVectorService:
@@ -25,13 +26,8 @@ class ArticleVectorService:
         )
         self._sparse_embeddings = FastEmbedSparse(model_name="Qdrant/bm25")
         self.collection_name = configs.ARTICLE_VECTORS_COLLECTION
-
-        self._qdrant_client = QdrantClient(
-            url=configs.QDRANT_HOST, api_key=configs.QDRANT_API_KEY
-        )
-
-        self._ensure_collection(self.collection_name)
-
+        self._qdrant_client = get_qdrant_connection()
+        self.create_collection_safe(self.collection_name)
         self.vector_store: QdrantVectorStore = QdrantVectorStore(
             client=self._qdrant_client,
             collection_name=self.collection_name,
@@ -46,8 +42,7 @@ class ArticleVectorService:
             # Field name in Qdrant for storing sparse vectors
         )
 
-    def _ensure_collection(self, collection_name: str) -> None:
-
+    def create_collection_safe(self, collection_name: str) -> None:
         try:
             if not self._qdrant_client.collection_exists(
                 collection_name=collection_name
@@ -164,13 +159,13 @@ class ArticleVectorService:
                     Document(
                         page_content=article.summary,
                         metadata={
-                            "id": article.id,
+                            "id": str(article.id),
                             "subscription_id": str(article.subscription_id),
                             "title": article.title,
                         },
                     )
                 )
-                document_ids.append(article.id)
+                document_ids.append(str(article.id))
 
             self.vector_store.add_documents(
                 documents=documents_to_index, ids=document_ids
