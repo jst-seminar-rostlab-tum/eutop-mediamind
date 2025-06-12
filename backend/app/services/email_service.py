@@ -90,3 +90,4 @@ class EmailService:
                 f"Failed to send email: {response.status_code} -  \
                     {response.body.decode('utf-8')}"
             )
+
