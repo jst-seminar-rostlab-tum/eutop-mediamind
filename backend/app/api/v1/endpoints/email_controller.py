@@ -107,7 +107,7 @@ email_content = """
                           color: rgba(255, 255, 255, 0.85);
                         "
                       >
-                        June 12, 2025
+                        June 13, 2025
                       </p>
                     </td>
                     <td align="right" style="vertical-align: top">
@@ -164,7 +164,7 @@ email_content = """
                       margin: 0;
                     "
                   >
-                    Technology & Innovation Trends
+                    BMW EX
                   </p>
                 </div>
 
@@ -185,7 +185,7 @@ email_content = """
                   search criteria. Our monitoring system has identified the most
                   relevant developments in your field, ensuring you stay
                   informed with
-                  <span style="color: #ffd700; font-weight: 600"
+                  <span style="color: #1e5091; font-weight: 600"
                     >actionable insights</span
                   >
                   that matter to your business.<br /><br />
