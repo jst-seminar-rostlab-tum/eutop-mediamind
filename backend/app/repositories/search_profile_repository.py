@@ -144,7 +144,7 @@ async def update_profile_with_request(
 ):
     # Update base fields
     profile.name = update_data.name
-    profile.is_public = update_data.public
+    profile.is_public = update_data.is_public
 
     # update owner of
     if user.id == profile.created_by_id or user.is_superuser:
