@@ -46,10 +46,11 @@ class SearchProfileService:
     async def create_search_profile(
         data: SearchProfileCreateRequest, current_user: User
     ) -> SearchProfileDetailResponse:
-        profile = await create_profile_with_request(data, current_user)
-        return await SearchProfileService._build_profile_response(
-            profile, current_user
-        )
+        async with async_session() as session:
+            profile = await create_profile_with_request(data, current_user, session)
+            return await SearchProfileService._build_profile_response(
+                profile, current_user
+            )
 
     @staticmethod
     async def get_search_profile_by_id(
