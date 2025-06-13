@@ -136,10 +136,10 @@ class ArticleRepository:
     @staticmethod
     async def get_sameple_articles(limit: int) -> List[Article]:
         async with async_session() as session:
-            result = await session.execute(
-                select(Article)
-                .order_by(desc(Article.published_at))
-                .limit(limit)
-                .options(joinedload("*"))
-            )
-            return result.unique().scalars().all()
+            result = await session.execute(select(Article)
+                                           .where(Article.id.in_(["a7eaf2b9-d641-4f52-85cd-38bfd103a96e", "c8fd455e-9ed5-4e87-ae8f-6d1b77a86998", "64c7b5c9-9c14-4da5-a94a-16ba6cd18660", "5357cf1a-d1af-463a-aeac-9c5c23e31d4d", "a1bbda90-1905-42aa-a687-46628d50bae6", "c5e71a59-17d5-41ad-89cc-dc5798a71505", "12eb9b5b-2a92-4dce-9253-7c45b91fbea5", "a924a02b-7581-469d-87a2-550ce43e5f49", "5e004a9e-7416-4bf0-9575-d58d381c9734", "ea7d9eeb-c4f3-4c08-a3f1-37134e5610c8"]))
+                                           .order_by(desc(Article.published_at))
+                                           .limit(limit)
+                                           .options(joinedload("*")))
+            a = result.unique().scalars().all()
+            return a

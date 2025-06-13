@@ -17,13 +17,21 @@ router = APIRouter(
 )
 
 
+@router.get("/pdf")
+async def trigger_pdf_creation():
+    pdf_bytes = await PDFService.create_sample_pdf()
+    print(len(pdf_bytes))
+    with open("output.pdf", "wb") as f:
+        f.write(pdf_bytes)
+
+
 @router.get("/{recipient_email}")
 async def trigger_email_sending(recipient_email: str):
     pdf_bytes = await PDFService.create_sample_pdf()
 
     email_schedule = EmailSchedule(
         recipient=recipient_email,
-        subject="[MEDIAMIND] Your daily report",
+        subject="[MEDIAMIND] Your daily report for BMW EX",
         content_type="text/HTML",
         content=email_content,
         attachment=base64.b64encode(pdf_bytes).decode("utf-8"),
@@ -32,14 +40,6 @@ async def trigger_email_sending(recipient_email: str):
     await EmailService.schedule_email(email_schedule)
     await EmailService.send_scheduled_emails()
     return {"message": "Email scheduled and sent successfully."}
-
-
-@router.get("/pdf")
-async def trigger_pdf_creation():
-    pdf_bytes = await PDFService.create_sample_pdf()
-
-    with open("output.pdf", "wb") as f:
-        f.write(pdf_bytes)
 
 
 email_content = """

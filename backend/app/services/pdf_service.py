@@ -171,6 +171,7 @@ class PDFService:
         articles = await ArticleRepository.get_sameple_articles(15)
         news_items = []
         for article in articles:
+            print(article.title)
             # Convert Article to NewsItem
             news_item = NewsItem(
                 id=article.id,
@@ -588,7 +589,7 @@ class PDFService:
             story.append(Paragraph(pub_date_str, PDFService.date_style))
             story.append(Spacer(1, 0.05 * inch))
             # Change when Summary populated in DB
-            summary_text = news.content[:250].replace("\n", "<br/>")
+            summary_text = news.summary.replace("\n", "<br/>")
             story.append(Paragraph(summary_text, PDFService.summary_style))
             story.append(Spacer(1, 0.05 * inch))
             dest_name = f"full_{news.id}"
