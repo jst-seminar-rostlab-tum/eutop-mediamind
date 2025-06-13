@@ -29,6 +29,7 @@ async def create_profile_with_request(
             is_public=create_data.is_public,
             organization_id=current_user.organization_id,
             created_by_id=current_user.id,
+            owner_id=create_data.owner_id,
         )
         session.add(profile)
         await session.commit()
