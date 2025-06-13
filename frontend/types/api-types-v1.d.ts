@@ -559,9 +559,15 @@ export interface components {
             name: string;
             /** Is Public */
             is_public: boolean;
-            /** Organization Emails */
+            /**
+             * Organization Emails
+             * @default []
+             */
             organization_emails: string[];
-            /** Profile Emails */
+            /**
+             * Profile Emails
+             * @default []
+             */
             profile_emails: string[];
             /** Subscriptions */
             subscriptions: components["schemas"]["SubscriptionSummary"][];
@@ -612,9 +618,15 @@ export interface components {
             name: string;
             /** Is Public */
             is_public: boolean;
-            /** Organization Emails */
+            /**
+             * Organization Emails
+             * @default []
+             */
             organization_emails: string[];
-            /** Profile Emails */
+            /**
+             * Profile Emails
+             * @default []
+             */
             profile_emails: string[];
             /** Subscriptions */
             subscriptions: components["schemas"]["SubscriptionSummary"][];
