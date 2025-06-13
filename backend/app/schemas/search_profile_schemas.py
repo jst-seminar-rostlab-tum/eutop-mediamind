@@ -4,10 +4,7 @@ from uuid import UUID
 from pydantic import BaseModel, EmailStr
 
 from app.schemas.subscription_schemas import SubscriptionSummary
-from app.schemas.topic_schemas import (
-    TopicCreateOrUpdateRequest,
-    TopicResponse,
-)
+from app.schemas.topic_schemas import TopicCreateOrUpdateRequest, TopicResponse
 
 # --- Shared Base Models ---
 
@@ -15,8 +12,8 @@ from app.schemas.topic_schemas import (
 class SearchProfileBase(BaseModel):
     name: str
     is_public: bool
-    organization_emails: List[EmailStr]
-    profile_emails: List[EmailStr]
+    organization_emails: List[EmailStr] = []
+    profile_emails: List[EmailStr] = []
     subscriptions: List[SubscriptionSummary]
     owner_id: UUID
 

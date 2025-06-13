@@ -179,8 +179,16 @@ async def update_emails(
     profile_emails: List[EmailStr],
 ) -> None:
     # Convert EmailStr to plain strings for storage in DB
-    profile.organization_emails = [str(email) for email in organization_emails]
-    profile.profile_emails = [str(email) for email in profile_emails]
+    profile.organization_emails = (
+        [str(email) for email in organization_emails]
+        if organization_emails is not None
+        else []
+    )
+    profile.profile_emails = (
+        [str(email) for email in profile_emails]
+        if profile_emails is not None
+        else []
+    )
 
 
 class SearchProfileRepository:

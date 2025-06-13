@@ -102,8 +102,16 @@ class SearchProfileService:
             )
         )
 
-        organization_emails = profile.organization_emails
-        profile_emails = profile.profile_emails
+        organization_emails = (
+            profile.organization_emails
+            if profile.organization_emails is not None
+            else []
+        )
+        profile_emails = (
+            profile.profile_emails
+            if profile.profile_emails is not None
+            else []
+        )
         topic_responses = [
             SearchProfileService._build_topic_response(t)
             for t in profile.topics
