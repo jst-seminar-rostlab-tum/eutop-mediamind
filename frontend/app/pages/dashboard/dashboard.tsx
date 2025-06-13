@@ -121,7 +121,6 @@ export function DashboardPage() {
           ))}
         </div>
       )}
-      <h2 className="text-2xl font-bold mb-4">Trend Analysis</h2>
     </Layout>
   );
 }
