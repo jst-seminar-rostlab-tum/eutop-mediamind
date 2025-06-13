@@ -35,12 +35,6 @@ interface ProfileCardProps {
 }
 
 export function ProfileCard({ profile, mutateDashboard }: ProfileCardProps) {
-  // TODO: get rid of this sht!
-  const seed = 42; // Pick any number as the seed
-  const random = Math.abs(Math.sin(seed)) % 1;
-  const articleCount = Math.floor(random * 10) + 1; // Range: 1 to 10
-  // TODO: get rid of this sht!
-
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
   return (
@@ -85,7 +79,7 @@ export function ProfileCard({ profile, mutateDashboard }: ProfileCardProps) {
           </div>
           <div className="flex items-center gap-2">
             <Rocket className={"h-4 w-4"} />
-            <span className="font-semibold text-sm">{articleCount} new articles!</span>
+            <span className="font-semibold text-sm">{11} new articles!</span>
           </div>
         </CardHeader>
         <CardContent className="-mt-4">
