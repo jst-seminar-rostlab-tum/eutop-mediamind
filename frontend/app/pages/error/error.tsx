@@ -68,7 +68,7 @@ export const ErrorPage = ({
 
   return (
     <>
-      <Layout className="flex justify-center">
+      <Layout className="flex flex-col justify-center">
         <div className="flex justify-center mt-24 mb-4">{usedIcon}</div>
 
         <Text className="mb-2 flex justify-center" hierachy={1}>

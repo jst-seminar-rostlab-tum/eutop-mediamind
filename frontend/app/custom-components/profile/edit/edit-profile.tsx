@@ -174,6 +174,8 @@ export function EditProfile({
       // reset component state
       if (isCreating) {
         handleCancel();
+      } else {
+        setDialogOpen(false);
       }
     }
   };
