@@ -35,14 +35,13 @@ async def create_profile_with_request(
     await session.refresh(profile)
 
     # Add related data: topics
-    await TopicsRepository.update_topics(
-        profile, create_data.topics, session
-    )
+    await TopicsRepository.update_topics(profile, create_data.topics, session)
 
     # Add subscriptions
     await set_subscriptions_for_profile(
-        profile_id=profile.id, subscriptions=create_data.subscriptions,
-        session=session
+        profile_id=profile.id,
+        subscriptions=create_data.subscriptions,
+        session=session,
     )
 
     # Add emails
@@ -58,9 +57,7 @@ async def create_profile_with_request(
         .where(SearchProfile.id == profile.id)
         .options(
             selectinload(SearchProfile.users),
-            selectinload(SearchProfile.topics).selectinload(
-                Topic.keywords
-            ),
+            selectinload(SearchProfile.topics).selectinload(Topic.keywords),
         )
     )
     profile = result.scalars().one()

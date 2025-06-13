@@ -47,7 +47,9 @@ class SearchProfileService:
         data: SearchProfileCreateRequest, current_user: User
     ) -> SearchProfileDetailResponse:
         async with async_session() as session:
-            profile = await create_profile_with_request(data, current_user, session)
+            profile = await create_profile_with_request(
+                data, current_user, session
+            )
             return await SearchProfileService._build_profile_response(
                 profile, current_user
             )
