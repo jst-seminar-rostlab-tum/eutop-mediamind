@@ -79,7 +79,7 @@ export function ProfileCard({ profile, mutateDashboard }: ProfileCardProps) {
           </div>
           <div className="flex items-center gap-2">
             <Rocket className={"h-4 w-4"} />
-            <span className="font-semibold text-sm">{11} new articles!</span>
+            <span className="font-semibold text-sm">{Math.floor(Math.random() * 20)} new articles!</span>
           </div>
         </CardHeader>
         <CardContent className="-mt-4">
