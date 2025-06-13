@@ -1,9 +1,9 @@
 import {
   Rocket,
-  MoreHorizontal,
   Trash2,
   SquarePen,
   OctagonAlert,
+  MoreVertical,
 } from "lucide-react";
 import type { KeyedMutator } from "swr";
 
@@ -31,19 +31,12 @@ import {
 
 interface ProfileCardProps {
   profile: Profile;
-  dialogOpen: boolean;
-  setDialogOpen: (value: boolean) => void;
   mutateDashboard: KeyedMutator<Profile[]>;
 }
 
-export function ProfileCard({
-  profile,
-  dialogOpen,
-  setDialogOpen,
-  mutateDashboard,
-}: ProfileCardProps) {
+export function ProfileCard({ profile, mutateDashboard }: ProfileCardProps) {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-
+  const [showEditDialog, setShowEditDialog] = useState(false);
   return (
     <>
       <Card className="w-[15rem] h-[14rem] rounded-3xl shadow-[2px_2px_15px_rgba(0,0,0,0.1)] hover:shadow-none transition-shadow duration-300 ease-in-out">
@@ -56,19 +49,19 @@ export function ProfileCard({
             </div>
             <EditProfile
               profile={profile}
-              dialogOpen={dialogOpen}
-              setDialogOpen={setDialogOpen}
+              dialogOpen={showEditDialog}
+              setDialogOpen={setShowEditDialog}
               mutateDashboard={mutateDashboard}
             />
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="h-8 w-8 p-0">
                   <span className="sr-only">Open menu</span>
-                  <MoreHorizontal className="h-4 w-4" />
+                  <MoreVertical className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="center">
-                <DropdownMenuItem onClick={() => setDialogOpen(true)}>
+                <DropdownMenuItem onClick={() => setShowEditDialog(true)}>
                   <SquarePen className="text-primary" />
                   Edit
                 </DropdownMenuItem>

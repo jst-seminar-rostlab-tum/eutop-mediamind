@@ -57,6 +57,7 @@ export function EditProfile({
   mutateDashboard,
 }: EditProfileProps) {
   const isCreating = !profile;
+  console.log(profile);
 
   const { user } = useAuthorization();
 
@@ -102,10 +103,12 @@ export function EditProfile({
 
   const isValid = useMemo(
     () =>
-      !isEqual(initialProfile, editedProfile) &&
+      (isCreating
+        ? !isEqual(initialProfile, editedProfile)
+        : !isEqual(profile, editedProfile)) &&
       editedProfile.name.trim().length > 0 &&
       !isEditingName,
-    [isCreating, profileName, initialProfile, editedProfile],
+    [isCreating, profileName, initialProfile, profile, editedProfile],
   );
 
   const handleSave = async () => {
@@ -178,7 +181,7 @@ export function EditProfile({
   const handleCancel = () => {
     setEditedProfile(cloneDeep(profile ?? initialProfile));
     setProfileName(profile?.name || "");
-    setIsEditingName(isSaving);
+    setIsEditingName(isCreating);
     setDialogOpen(false);
   };
 
@@ -187,24 +190,24 @@ export function EditProfile({
       <Dialog
         open={dialogOpen}
         onOpenChange={(open) => {
-          if (!open) {
+          if (!open && isValid) {
             // prevent closing and show confirmation
             setShowCancelDialog(true);
+          } else {
+            handleCancel();
           }
         }}
       >
         <DialogContent
-          className={
-            "grid-rows-[auto_1fr_auto] gap-8 min-w-1/2 rounded-3xl h-3/4"
-          }
+          className={"flex flex-col gap-8 min-w-1/2 rounded-3xl h-3/4"}
         >
-          <DialogHeader>
+          <DialogHeader className="flex-none">
             <div className={"flex items-center gap-3"}>
               {isEditingName ? (
                 <div className="flex items-center gap-2 flex-1">
-                  <span className="text-xl font-semibold">
+                  <DialogTitle className="text-xl font-semibold">
                     {isCreating ? "Create" : "Edit"} Profile:
-                  </span>
+                  </DialogTitle>
                   <Input
                     value={profileName ?? ""}
                     placeholder="Profile name"
@@ -252,7 +255,10 @@ export function EditProfile({
             </div>
           </DialogHeader>
 
-          <Tabs defaultValue="general" className="w-full">
+          <Tabs
+            defaultValue="general"
+            className="flex flex-col overflow-hidden w-full grow"
+          >
             <TabsList className="grid w-full grid-cols-4">
               <TabsTrigger value="general" className="flex items-center gap-2">
                 <Settings className="h-5 w-5" />
@@ -274,35 +280,40 @@ export function EditProfile({
                 <span>Subscriptions</span>
               </TabsTrigger>
             </TabsList>
-            <ScrollArea className="max-h-[60vh] pr-4">
-              <TabsContent value="general">
-                <General
-                  profile={editedProfile}
-                  setProfile={setEditedProfile}
-                />
-              </TabsContent>
+            <div className="grow overflow-hidden">
+              <ScrollArea className="h-full pr-4">
+                <TabsContent value="general">
+                  <General
+                    profile={editedProfile}
+                    setProfile={setEditedProfile}
+                  />
+                </TabsContent>
 
-              <TabsContent value="topics">
-                <Topics profile={editedProfile} setProfile={setEditedProfile} />
-              </TabsContent>
+                <TabsContent value="topics">
+                  <Topics
+                    profile={editedProfile}
+                    setProfile={setEditedProfile}
+                  />
+                </TabsContent>
 
-              <TabsContent value="mailing">
-                <Mailing
-                  profile={editedProfile}
-                  setProfile={setEditedProfile}
-                />
-              </TabsContent>
+                <TabsContent value="mailing">
+                  <Mailing
+                    profile={editedProfile}
+                    setProfile={setEditedProfile}
+                  />
+                </TabsContent>
 
-              <TabsContent value="subscriptions">
-                <Subscriptions
-                  profile={editedProfile}
-                  setProfile={setEditedProfile}
-                />
-              </TabsContent>
-            </ScrollArea>
+                <TabsContent value="subscriptions">
+                  <Subscriptions
+                    profile={editedProfile}
+                    setProfile={setEditedProfile}
+                  />
+                </TabsContent>
+              </ScrollArea>
+            </div>
           </Tabs>
 
-          <div className="flex justify-end">
+          <div className="flex flex-none justify-end">
             <Button type="button" disabled={!isValid} onClick={handleSave}>
               {isSaving
                 ? isCreating

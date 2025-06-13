@@ -75,7 +75,7 @@ export function DashboardPage() {
         "Swedish climate and human rights activist Greta Thunberg departed Israel on a flight to France on Tuesday after being detained by Israeli forces",
     },
   ];
-  const [dialogOpen, setDialogOpen] = useState(false);
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
 
   return (
     <Layout>
@@ -92,13 +92,13 @@ export function DashboardPage() {
         <h2 className="text-2xl font-bold ">Profiles</h2>
         <EditProfile
           mutateDashboard={mutate}
-          dialogOpen={dialogOpen}
-          setDialogOpen={setDialogOpen}
+          dialogOpen={createDialogOpen}
+          setDialogOpen={setCreateDialogOpen}
         />
         <Button
           variant="outline"
           className={"size-8"}
-          onClick={() => setDialogOpen(true)}
+          onClick={() => setCreateDialogOpen(true)}
         >
           <Plus />
         </Button>
@@ -112,12 +112,10 @@ export function DashboardPage() {
         </div>
       ) : (
         <div className="grid-profile-cards mt-4 mb-4">
-          {sortedProfiles?.map((profile) => (
+          {sortedProfiles?.map((profile, idx) => (
             <ProfileCard
-              key={profile.id}
+              key={profile.id + idx}
               profile={profile}
-              dialogOpen={dialogOpen}
-              setDialogOpen={setDialogOpen}
               mutateDashboard={mutate}
             />
           ))}
