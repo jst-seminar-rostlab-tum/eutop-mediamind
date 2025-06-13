@@ -1,10 +1,13 @@
-from qdrant_client import QdrantClient
 from sentence_transformers import SentenceTransformer
+
+from backend.app.core.db import get_qdrant_connection
+from backend.app.core.logger import get_logger
+
+logger = get_logger(__name__)
 
 
 def index_and_query_articles():
-
-    client = QdrantClient("localhost", port=6333)
+    client = get_qdrant_connection()
     model = SentenceTransformer("all-MiniLM-L6-v2")
 
     keywords = ["climate change", "artificial intelligence"]
@@ -32,7 +35,7 @@ def index_and_query_articles():
             limit=5,
         )
         for match in matches:
-            print(
+            logger.info(
                 f"Keyword: {keyword} matched Article ID {match.id} "
                 f"with score {match.score}"
             )

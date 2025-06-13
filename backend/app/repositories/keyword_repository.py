@@ -2,23 +2,32 @@ from typing import List, Optional, Sequence
 from uuid import UUID
 
 from fastapi import HTTPException
-from sqlalchemy import delete, select
+from sqlalchemy import delete, insert, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import joinedload
+from sqlalchemy.orm import joinedload, selectinload
 
 from app.core.db import async_session
+from app.core.logger import get_logger
 from app.models import Article, ArticleKeywordLink, Keyword, Topic, User
+from app.models.associations import TopicKeywordLink
 from app.repositories.article_repository import ArticleRepository
 from app.schemas.keyword_schemas import KeywordCreateRequest
 from app.services.article_vector_service import ArticleVectorService
 
-article_vector_service = ArticleVectorService()
+logger = get_logger(__name__)
 
 
 class KeywordRepository:
     """Unified repository for managing Keyword entities and relations."""
 
-    # --- Basic Operations ---
+    __article_vector_service: ArticleVectorService | None = None
+
+    @staticmethod
+    def __get_article_vector_service() -> ArticleVectorService:
+        """Get the instance of ArticleVectorService."""
+        if KeywordRepository.__article_vector_service is None:
+            KeywordRepository.__article_vector_service = ArticleVectorService()
+        return KeywordRepository.__article_vector_service
 
     @staticmethod
     async def get_keyword_by_id(keyword_id: UUID) -> Optional[Keyword]:
@@ -58,14 +67,39 @@ class KeywordRepository:
     ) -> list[Keyword]:
         async with async_session() as session:
             query = (
-                select(Keyword)
-                .join(Topic)
-                .where(
-                    Topic.search_profile.has(user_id=user.id),
-                )
+                select(Topic)
+                .where(Topic.id == topic_id)
+                .options(selectinload(Topic.keywords))
             )
-            keywords = await session.execute(query)
-            return keywords.scalars().all()
+            topic = (await session.execute(query)).scalar_one_or_none()
+            if topic is None:
+                raise HTTPException(status_code=404, detail="Topic not found")
+            return topic.keywords
+
+    @staticmethod
+    async def create_keyword_by_topic(
+        topic_id: UUID, keyword_name: str, user: User
+    ):
+        """
+        Create a keyword by topic ID.
+        (endpoint for demo day)
+        """
+
+        async with async_session() as session:
+            topic = await session.get(Topic, topic_id)
+            if topic is None:
+                raise HTTPException(status_code=404, detail="Topic not found")
+
+            keyword = Keyword(name=keyword_name)
+            session.add(keyword)
+            await session.flush()
+            link_stmt = insert(TopicKeywordLink).values(
+                topic_id=topic_id, keyword_id=keyword.id
+            )
+            await session.execute(link_stmt)
+            await session.commit()
+            await session.refresh(keyword)
+            return keyword
 
     @staticmethod
     async def add_keyword(
@@ -119,10 +153,8 @@ class KeywordRepository:
         if not keyword:
             raise ValueError(f"Keyword with id {keyword_id} not found.")
 
-        similarity_results = (
-            await article_vector_service.retrieve_by_similarity(
-                keyword.name, score_threshold=score_threshold
-            )
+        similarity_results = await KeywordRepository.__get_article_vector_service().retrieve_by_similarity(  # noqa: E501
+            keyword.name, score_threshold=score_threshold
         )
 
         similar_articles: List[Article] = []
@@ -146,16 +178,22 @@ class KeywordRepository:
         )
 
         while keywords:
+            logger.info(
+                f"Processing keywords "
+                f"from {page * page_size} to {(page + 1) * page_size}"
+            )
             for keyword in keywords:
-                similar_articles = (
-                    await article_vector_service.retrieve_by_similarity(
-                        query=keyword.name, score_threshold=score_threshold
-                    )
+                similar_articles = await KeywordRepository.__get_article_vector_service().retrieve_by_similarity(  # noqa: E501
+                    query=keyword.name, score_threshold=score_threshold
                 )
 
                 for doc, score in similar_articles:
                     await KeywordRepository.add_article_to_keyword(
                         keyword.id, doc.metadata["id"], score
+                    )
+                    logger.info(
+                        f"Assigned article {doc.metadata['id']} to "
+                        f"keyword {keyword.name} with score {score}"
                     )
 
             page += 1

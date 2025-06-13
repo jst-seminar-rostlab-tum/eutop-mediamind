@@ -5,7 +5,7 @@ from sqlalchemy.orm import selectinload
 
 from app.core.db import async_session
 from app.core.logger import get_logger
-from app.models import Keyword, SearchProfile, Topic
+from app.models import Keyword, SearchProfile, Topic, User
 from app.models.associations import TopicKeywordLink
 from app.schemas.topic_schemas import TopicCreateOrUpdateRequest
 
@@ -26,8 +26,9 @@ class TopicsRepository:
                     SearchProfile.created_by_id == user.id,
                 )
             )
-            result = await session.execute(query)
-            return result.scalars().all()
+            topics = (await session.execute(query)).scalars().all()
+
+            return topics
 
     @staticmethod
     async def add_topic(
@@ -41,6 +42,51 @@ class TopicsRepository:
             await session.commit()
             await session.refresh(topic)
             return topic
+
+    @staticmethod
+    async def create_topic_by_search_profile(
+        search_profile_id: UUID, topic_name: str, user
+    ) -> Topic:
+        """
+        Create a topic by search profile ID.
+        (endpoint for demo day)
+        """
+        async with async_session() as session:
+            """
+            # Verify that the SearchProfile exists and
+            # the user has access to it
+            query = (
+                select(SearchProfile)
+                .where(SearchProfile.id == search_profile_id)
+                .join(SearchProfile.users)
+                .where(User.id == user.id)
+            )
+
+            search_profile = (await session.execute(query)).one_or_none()
+
+            if not search_profile:
+                raise ValueError("Search profile not found or access denied.")
+            """
+
+            topic = Topic(name=topic_name, search_profile_id=search_profile_id)
+            session.add(topic)
+            await session.commit()
+            await session.refresh(topic)
+            return topic
+
+    @staticmethod
+    async def delete_topic_by_id(topic_id: UUID, user: User) -> bool:
+        """
+        Delete a topic by ID, ensuring the user has permission
+        (endpoint for demo day).
+        """
+
+        async with async_session() as session:
+            result = await session.execute(
+                delete(Topic).where(Topic.id == topic_id)
+            )
+            await session.commit()
+            return result.rowcount > 0
 
     @staticmethod
     async def delete_topic(

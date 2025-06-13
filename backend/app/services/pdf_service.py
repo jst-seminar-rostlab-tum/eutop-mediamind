@@ -1,7 +1,9 @@
+import os
 from dataclasses import dataclass
 from datetime import datetime
 from io import BytesIO
 from typing import List
+from uuid import UUID
 
 from reportlab.graphics.shapes import Drawing
 from reportlab.lib import colors
@@ -43,9 +45,12 @@ yellowColor = colors.HexColor("#FFED00")
 darkGrey = colors.HexColor("#525252")
 
 
+logger = get_logger(__name__)
+
+
 @dataclass
 class NewsItem:
-    id: str
+    id: UUID
     title: str
     content: str
     url: str
@@ -67,22 +72,50 @@ class NewsItem:
 
 
 class PDFService:
-    # Custom Fonts
-    pdfmetrics.registerFont(TTFont("DVS", "assets/fonts/DejaVuSans.ttf"))
-    pdfmetrics.registerFont(
-        TTFont("DVS-Bold", "assets/fonts/DejaVuSans-Bold.ttf")
-    )
-    pdfmetrics.registerFont(
-        TTFont("DVS-Oblique", "assets/fonts/DejaVuSans-Oblique.ttf")
-    )
-    pdfmetrics.registerFont(
-        TTFont("DVS-BoldOblique", "assets/fonts/DejaVuSans-BoldOblique.ttf")
-    )
+    # Font registration with OS-level checks
+    @staticmethod
+    def _register_fonts() -> bool:
+        """Register fonts if available, otherwise log a warning"""
+
+        font_dir = "assets/fonts"
+
+        # Check if font directory exists
+        if not os.path.exists(font_dir):
+            logger.warning(
+                f"Font directory '{font_dir}' not found. "
+                "Using default fonts."
+            )
+            return False
+
+        # Check if individual font files exist and register them
+        fonts = {
+            "DVS": "DejaVuSans.ttf",
+            "DVS-Bold": "DejaVuSans-Bold.ttf",
+            "DVS-Oblique": "DejaVuSans-Oblique.ttf",
+            "DVS-BoldOblique": "DejaVuSans-BoldOblique.ttf",
+        }
+
+        for font_name, file_name in fonts.items():
+            font_path = os.path.join(font_dir, file_name)
+            if os.path.exists(font_path):
+                pdfmetrics.registerFont(TTFont(font_name, font_path))
+            else:
+                logger.warning(
+                    f"Font file '{font_path}' not found. "
+                    "Some styles may not display correctly."
+                )
+
+        return True
+
+    # Run font registration during class initialization
+    _fonts_registered = _register_fonts()
 
     # Define commonly used styles as class variables
     link_style = ParagraphStyle(
         "Link",
-        fontName="DVS-BoldOblique",
+        fontName=(
+            "DVS-BoldOblique" if _fonts_registered else "Helvetica-BoldOblique"
+        ),
         fontSize=8,
         textColor=electricBlue,
         spaceAfter=6,
@@ -93,21 +126,21 @@ class PDFService:
     )
     newspaper_style = ParagraphStyle(
         "Newspaper",
-        fontName="DVS-Bold",
+        fontName="DVS-Bold" if _fonts_registered else "Helvetica-Bold",
         fontSize=9,
         leading=11,
         textColor=blueColor,
     )
     keywords_style = ParagraphStyle(
         "Keywords",
-        fontName="DVS-Oblique",
+        fontName="DVS-Oblique" if _fonts_registered else "Helvetica-Oblique",
         fontSize=8,
         leading=10,
         textColor=blueColor,
     )
     date_style = ParagraphStyle(
         "Date",
-        fontName="DVS-Oblique",
+        fontName="DVS-Oblique" if _fonts_registered else "Helvetica-Oblique",
         fontSize=8,
         leading=10,
         textColor=colors.gray,
@@ -120,7 +153,7 @@ class PDFService:
     )
     metadata_style = ParagraphStyle(
         "Metadata",
-        fontName="DVS-Oblique",
+        fontName="DVS-Oblique" if _fonts_registered else "Helvetica-Oblique",
         fontSize=9,
         leading=12,
         textColor=colors.gray,
@@ -170,7 +203,6 @@ class PDFService:
     @staticmethod
     def create_pdf(news_items: List[NewsItem]) -> bytes:
         dimensions = A4
-        logger = get_logger(__name__)
         logger.debug("Articles chosen before PDF Generation:")
         # Logging which articles, if they have summaries and keywords
         for news in news_items:
@@ -305,7 +337,7 @@ class PDFService:
             spaceAfter=6,
             bulletIndent=0,
             leftIndent=6,
-            leading=6,
+            leading=10,
             alignment=TA_JUSTIFY,
         )
 
@@ -317,14 +349,13 @@ class PDFService:
             drawing.scale(scale, scale)
             drawing.width *= scale
             drawing.height *= scale
-            from reportlab.graphics.shapes import Drawing
 
             drawing_wrapper = Drawing(width, drawing.height)
             drawing_wrapper.add(drawing, name="logo")
             drawing_wrapper.translate((width - drawing.width) / 4, 0)
             story.append(drawing_wrapper)
         except Exception as e:
-            print(f"Error loading SVG logo: {e}")
+            logger.error(f"Error loading SVG logo: {e}")
         story.append(Spacer(1, 0.5 * inch))
         # Title
         # TODO: Read from DB the Search Profile Name to indivualize Report
@@ -406,9 +437,15 @@ class PDFService:
                 )
             )
             meta_para = Paragraph(
-                f'<font size="9">{news.newspaper}, {news.published_at}</font>',
+                f"""
+                <para>
+                <font size="9">{news.newspaper}</font><br/>
+                <font size="9">{news.published_at}</font>
+                </para>
+                """,
                 metadata_style,
             )
+
             button_para = Paragraph(
                 f"""
                 <font backColor="{yellowColor}" size="9">
@@ -424,7 +461,7 @@ class PDFService:
 
             row = [[meta_para, button_para]]
             table = Table(
-                row, colWidths=[3.5 * inch, 2.5 * inch]
+                row, colWidths=[4 * inch, 2 * inch]
             )  # Adjust as needed
             table.setStyle(
                 TableStyle(
@@ -487,7 +524,7 @@ class PDFService:
             wrapped_drawing = Drawing(drawing.width, drawing.height)
             wrapped_drawing.add(drawing)
         except Exception as e:
-            print(f"Could not load logo: {e}")
+            logger.error(f"Could not load logo: {e}")
             wrapped_drawing = ""
 
         # Construct table with Header,Time,SVG
@@ -550,7 +587,8 @@ class PDFService:
                     pub_date_str = news.published_at
             story.append(Paragraph(pub_date_str, PDFService.date_style))
             story.append(Spacer(1, 0.05 * inch))
-            summary_text = news.content[:300].replace("\n", "<br/>")
+            # Change when Summary populated in DB
+            summary_text = news.content[:250].replace("\n", "<br/>")
             story.append(Paragraph(summary_text, PDFService.summary_style))
             story.append(Spacer(1, 0.05 * inch))
             dest_name = f"full_{news.id}"
@@ -598,9 +636,17 @@ class PDFService:
                     pub_date_str = dt.strftime("%d %B %Y")
                 except Exception:
                     pub_date_str = news.published_at
-            metadata_text = f"Words: {word_count} | Newspaper: {newspaper} | \
-            Date: {pub_date_str} | Author: {author}"
+            metadata_text = f"""
+            Words: {word_count} | Newspaper: {newspaper} <br/>
+            Date: {pub_date_str} | Author: {author}
+                    """
             story.append(Paragraph(metadata_text, PDFService.metadata_style))
+
+            # Calculate reading time
+            reading_time = PDFService.__calculate_reading_time(news.content)
+            reading_time_text = f"Estimated Reading Time: {reading_time} min"
+            story.append(Paragraph(reading_time_text, PDFService.link_style))
+
             story.append(
                 Paragraph(
                     f"""
@@ -734,7 +780,7 @@ class PDFService:
                         ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
                         ("FONTSIZE", (0, 0), (-1, -1), 10),
                         ("INNERGRID", (0, 0), (-1, -1), 0, colors.white),
-                        ("BOX", (0, 0), (-1, -1), 1, blueColor),
+                        ("BOX", (0, 0), (-1, -1), 1, colors.white),
                         ("TOPPADDING", (0, 0), (-1, -1), 4),
                         ("BOTTOMPADDING", (0, 0), (-1, -1), 4),
                         ("LEFTPADDING", (0, 0), (-1, -1), 8),
