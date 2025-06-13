@@ -183,8 +183,8 @@ email_content = """
                   <span style="color: #1e5091; font-weight: 600"
                     >daily news report</span
                   >, carefully curated to match your specific interests and
-                  search criteria. Our monitoring system has identified the most
-                  relevant developments in your field, ensuring you stay
+                  search criteria. Our monitoring system has identified the
+                  most relevant developments in your field, ensuring you stay
                   informed with
                   <span style="color: #1e5091; font-weight: 600"
                     >actionable insights</span
