@@ -21,6 +21,7 @@ import {
   useAuthorization,
 } from "./hooks/use-authorization";
 import { Toaster } from "~/components/ui/sonner";
+import { Loader2 } from "lucide-react";
 
 export async function loader(args: Route.LoaderArgs) {
   return rootAuthLoader(args);
@@ -90,7 +91,14 @@ const OutletWrapper = () => {
   const isProtectedPath = pathname !== "/" && !pathname.includes("error");
 
   // ensure that no requests are sent before the authentication with clerk is completed (only for protected paths)
-  return (user || !isProtectedPath) && <Outlet />;
+  return user || !isProtectedPath ? (
+    <Outlet />
+  ) : (
+    <div className="flex items-center justify-center py-8">
+      <Loader2 className="h-8 w-8 animate-spin" />
+      <span className="ml-2 text-muted-foreground">Loading user...</span>
+    </div>
+  );
 };
 
 export default function App({ loaderData }: Route.ComponentProps) {
