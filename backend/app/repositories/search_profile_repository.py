@@ -28,18 +28,21 @@ async def create_profile_with_request(
             name=create_data.name,
             is_public=create_data.is_public,
             organization_id=current_user.organization_id,
-            created_by_id=create_data.owner_id,
+            created_by_id=current_user.id,
         )
         session.add(profile)
         await session.commit()
         await session.refresh(profile)
 
         # Add related data: topics
-        await TopicsRepository.update_topics(profile, create_data.topics)
+        await TopicsRepository.update_topics(
+            profile, create_data.topics, session
+        )
 
         # Add subscriptions
         await set_subscriptions_for_profile(
-            profile_id=profile.id, subscriptions=create_data.subscriptions
+            profile_id=profile.id, subscriptions=create_data.subscriptions,
+            session=session
         )
 
         # Add emails
