@@ -20,48 +20,48 @@ from app.schemas.search_profile_schemas import (
 
 
 async def create_profile_with_request(
-    create_data: SearchProfileCreateRequest, current_user: User
+    create_data: SearchProfileCreateRequest, current_user: User, session
 ) -> SearchProfile:
-    async with async_session() as session:
-        # Create and persist base profile
-        profile = SearchProfile(
-            name=create_data.name,
-            is_public=create_data.is_public,
-            organization_id=current_user.organization_id,
-            created_by_id=create_data.owner_id,
-        )
-        session.add(profile)
-        await session.commit()
-        await session.refresh(profile)
+    # Create and persist base profile
+    profile = SearchProfile(
+        name=create_data.name,
+        is_public=create_data.is_public,
+        organization_id=current_user.organization_id,
+        created_by_id=current_user.id,
+        owner_id=create_data.owner_id,
+    )
+    session.add(profile)
+    await session.commit()
+    await session.refresh(profile)
 
-        # Add related data: topics
-        await TopicsRepository.update_topics(profile, create_data.topics)
+    # Add related data: topics
+    await TopicsRepository.update_topics(profile, create_data.topics, session)
 
-        # Add subscriptions
-        await set_subscriptions_for_profile(
-            profile_id=profile.id, subscriptions=create_data.subscriptions
-        )
+    # Add subscriptions
+    await set_subscriptions_for_profile(
+        profile_id=profile.id,
+        subscriptions=create_data.subscriptions,
+        session=session,
+    )
 
-        # Add emails
-        await update_emails(
-            profile,
-            create_data.organization_emails,
-            create_data.profile_emails,
-        )
+    # Add emails
+    await update_emails(
+        profile,
+        create_data.organization_emails,
+        create_data.profile_emails,
+    )
 
-        # Refresh with eager-loaded relationships
-        result = await session.execute(
-            select(SearchProfile)
-            .where(SearchProfile.id == profile.id)
-            .options(
-                selectinload(SearchProfile.users),
-                selectinload(SearchProfile.topics).selectinload(
-                    Topic.keywords
-                ),
-            )
+    # Refresh with eager-loaded relationships
+    result = await session.execute(
+        select(SearchProfile)
+        .where(SearchProfile.id == profile.id)
+        .options(
+            selectinload(SearchProfile.users),
+            selectinload(SearchProfile.topics).selectinload(Topic.keywords),
         )
-        profile = result.scalars().one()
-        return profile
+    )
+    profile = result.scalars().one()
+    return profile
 
 
 async def get_accessible_profiles(

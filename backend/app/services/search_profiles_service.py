@@ -46,10 +46,13 @@ class SearchProfileService:
     async def create_search_profile(
         data: SearchProfileCreateRequest, current_user: User
     ) -> SearchProfileDetailResponse:
-        profile = await create_profile_with_request(data, current_user)
-        return await SearchProfileService._build_profile_response(
-            profile, current_user
-        )
+        async with async_session() as session:
+            profile = await create_profile_with_request(
+                data, current_user, session
+            )
+            return await SearchProfileService._build_profile_response(
+                profile, current_user
+            )
 
     @staticmethod
     async def get_search_profile_by_id(
@@ -99,12 +102,8 @@ class SearchProfileService:
             )
         )
 
-        organization_emails = SearchProfileService._filter_emails_by_org(
-            profile, current_user.organization_id, include=True
-        )
-        profile_emails = SearchProfileService._filter_emails_by_org(
-            profile, current_user.organization_id, include=False
-        )
+        organization_emails = profile.organization_emails
+        profile_emails = profile.profile_emails
         topic_responses = [
             SearchProfileService._build_topic_response(t)
             for t in profile.topics
