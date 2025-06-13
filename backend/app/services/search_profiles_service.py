@@ -100,12 +100,8 @@ class SearchProfileService:
             )
         )
 
-        organization_emails = SearchProfileService._filter_emails_by_org(
-            profile, current_user.organization_id, include=True
-        )
-        profile_emails = SearchProfileService._filter_emails_by_org(
-            profile, current_user.organization_id, include=False
-        )
+        organization_emails = profile.organization_emails
+        profile_emails = profile.profile_emails
         topic_responses = [
             SearchProfileService._build_topic_response(t)
             for t in profile.topics
