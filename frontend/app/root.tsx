@@ -109,7 +109,7 @@ const OutletWrapper = () => {
 
 export default function App({ loaderData }: Route.ComponentProps) {
   useEffect(() => {
-    if (!window.__sentryInitialized) {
+    if (window.__sentryInitialized) {
       return;
     }
     // see https://docs.sentry.io/platforms/javascript/guides/react-router/data-management/data-collected/ for more info
