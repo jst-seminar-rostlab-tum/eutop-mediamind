@@ -8,10 +8,11 @@ import {
   Lock,
   MoveRight,
 } from "lucide-react";
-import { Link, useParams } from "react-router";
+import { Link, useNavigate, useParams } from "react-router";
 import Text from "~/custom-components/text";
-import type { ReactElement } from "react";
+import { useEffect, type ReactElement } from "react";
 import { Button } from "~/components/ui/button";
+import { useAuthorization } from "~/hooks/use-authorization";
 
 const icons: Record<string, ReactElement> = {
   "401": <Lock className="h-12 w-12" />,
@@ -58,13 +59,21 @@ export const ErrorPage = ({
   stack?: string;
   code?: number;
 }) => {
+  const { user } = useAuthorization();
   const { code: paramCode } = useParams();
+  const navigate = useNavigate();
 
   const code = passedCode ?? paramCode;
 
   const usedTitle = title ?? defaultMessages[code ?? "fallback"].title;
   const usedMessage = message ?? defaultMessages[code ?? "fallback"].message;
   const usedIcon = icons[code ?? "fallback"];
+
+  useEffect(() => {
+    if (paramCode === "no-org" && user?.organization_id) {
+      navigate("/dashboard");
+    }
+  }, [paramCode, user?.organization_id, navigate]);
 
   return (
     <>
