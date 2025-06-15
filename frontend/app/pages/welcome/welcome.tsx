@@ -24,7 +24,7 @@ export function Welcome() {
         className="w-full object-cover"
       />
 
-      <Layout className="place-items-center">
+      <Layout className="flex flex-col items-center">
         <Text className="mt-6" hierachy={1}>
           Welcome to MediaMind!
         </Text>
@@ -109,7 +109,7 @@ export function Welcome() {
         </Card>
       </div>
 
-      <Layout className="grid-cols-3 place-items-center mt-16 mb-6">
+      <Layout className="grid grid-cols-3 place-items-center mt-16 mb-6">
         <img src="/EUTOP_Logo.png" alt="EUTOP_Logo" width={"200px"} />
         <img src="/TUM_Logo.svg" alt="TUM_Logo" />
         <img src="/csee-logo.webp" alt="CSEE Logo" className="h-20" />
@@ -122,7 +122,7 @@ export function Welcome() {
         </Text>
       </div>
 
-      <Layout className="m-6">
+      <Layout className="m-6 flex justify-center">
         <Button asChild variant="link">
           <span>
             <SquareArrowOutUpRight />
