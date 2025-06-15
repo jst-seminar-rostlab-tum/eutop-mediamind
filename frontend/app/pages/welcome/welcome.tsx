@@ -24,7 +24,7 @@ export function Welcome() {
         className="w-full object-cover"
       />
 
-      <Layout className="place-items-center">
+      <Layout className="flex flex-col items-center">
         <Text className="mt-6" hierachy={1}>
           Welcome to MediaMind!
         </Text>
@@ -122,7 +122,7 @@ export function Welcome() {
         </Text>
       </div>
 
-      <Layout className="m-6">
+      <Layout className="m-6 flex justify-center">
         <Button asChild variant="link">
           <span>
             <SquareArrowOutUpRight />
