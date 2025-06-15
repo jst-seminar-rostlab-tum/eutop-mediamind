@@ -43,7 +43,7 @@ const defaultMessages: Record<string, { title: string; message: string }> = {
       "You are not assigned to an organization. You need to be part of an organization to access Mediamind. Please contact your admin.",
   },
   fallback: {
-    title: "Oohps!",
+    title: "Ohps!",
     message: "Something went wrong! Please contact your admin.",
   },
 };
