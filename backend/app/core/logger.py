@@ -1,5 +1,6 @@
 import logging
 import os
+from typing import List, Tuple
 from logging.handlers import RotatingFileHandler
 from multiprocessing.util import get_logger
 
@@ -29,3 +30,34 @@ def get_logger(name: str) -> logging.Logger:
         logger.addHandler(file_handler)
 
     return logger
+
+
+class BufferedLogger:
+    """
+    A logger that buffers log messages in memory and flushes them.
+    """
+
+    def __init__(self, name: str):
+        self.name = name
+        self.logger = get_logger(name)
+        self._buffer: List[Tuple[int, str]] = []
+
+    def log(self, level: int, msg: str):
+        self._buffer.append((level, msg))
+
+    def info(self, msg: str):
+        self.log(logging.INFO, msg)
+
+    def debug(self, msg: str):
+        self.log(logging.DEBUG, msg)
+
+    def warning(self, msg: str):
+        self.log(logging.WARNING, msg)
+
+    def error(self, msg: str):
+        self.log(logging.ERROR, msg)
+
+    def flush(self):
+        for level, msg in self._buffer:
+            self.logger.log(level, msg)
+        self._buffer.clear()

@@ -5,7 +5,7 @@
     "paywall": true,
     "is_active": true,
     "newsapi_id": "faz.net",
-    "config": {
+    "login_config": {
       "cookies_button": "//button[contains(@class, 'sp_choice_type_11')]",
       "path_to_login_button": "//button[@track-element='Login']",
       "login_button": "//button[@track-element='Login / Registrieren']",
@@ -20,7 +20,7 @@
     "paywall": true,
     "is_active": false,
     "newsapi_id": "ft.com",
-    "config": {
+    "login_config": {
       "cookies_button": "//button[@title='Accept Cookies' and contains(@class, 'sp_choice_type_11')]",
       "login_button": "//a[@id='o-header-top-link-signin' and contains(@href, '/login')]",
       "user_input": "//input[@id='enter-email']",
@@ -35,7 +35,7 @@
     "paywall": true,
     "is_active": false,
     "newsapi_id": "handelsblatt.com",
-    "config": {
+    "login_config": {
       "cookies_button": "//button[@title='Zustimmen und weiter' and contains(@class, 'sp_choice_type_11')]",
       "iframe": "//iframe[contains(@id, 'sp_message_iframe')]",
       "user_input": "//input[@name='login']",
@@ -49,7 +49,7 @@
     "paywall": true,
     "is_active": true,
     "newsapi_id": "sueddeutsche.de",
-    "config": {
+    "login_config": {
       "iframe_credentials": "//iframe[starts-with(@id, 'piano-id-')]",
       "user_input": "//input[@id='login']",
       "password_input": "//input[@id='current-password']",
@@ -62,7 +62,7 @@
     "paywall": true,
     "is_active": true,
     "newsapi_id": "boersen-zeitung.de",
-    "config": {
+    "login_config": {
       "shadow_host_cookies": ".cmp-root-container",
       "cookies_button": "div.cmp-button-accept-all",
       "login_button": "//button[contains(@class, 'login')]",
@@ -78,7 +78,7 @@
     "paywall": true,
     "is_active": true,
     "newsapi_id": "bild.de",
-    "config": {
+    "login_config": {
       "cookies_button": "//button[@title='Alle akzeptieren']",
       "login_button": "//button[contains(@class, 'nav_btn') and span[contains(text(), 'Anmelden')]]",
       "iframe": "",
@@ -93,7 +93,7 @@
     "paywall": true,
     "is_active": true,
     "newsapi_id": "welt.de",
-    "config": {
+    "login_config": {
       "iframe_cookies": "//iframe[@id='sp_message_iframe_1304391']",
       "cookies_button": "//button[@title='ALLE AKZEPTIEREN' and contains(@class, 'sp_choice_type_11')]",
       "login_button": "//button[contains(@class, 'is-login') and span[contains(text(), 'Anmelden')]]",
@@ -110,7 +110,7 @@
     "paywall": true,
     "is_active": false,
     "newsapi_id": "focus.de",
-    "config": {
+    "login_config": {
       "login_button": "",
       "iframe": "",
       "user_input": "//input[@id='hbm_basics_form_profile_login_group_default_email']",
@@ -124,7 +124,7 @@
     "paywall": true,
     "is_active": true,
     "newsapi_id": "manager-magazin.de",
-    "config": {
+    "login_config": {
       "cookies_button": "//button[@title='Einwilligen und weiter' and contains(@class, 'sp_choice_type_11')]",
       "login_button": "//a[@title='Jetzt anmelden']",
       "user_input": "//input[@id='username']",
@@ -139,7 +139,7 @@
     "paywall": false,
     "is_active": false,
     "newsapi_id": "spiegel.de",
-    "config": {
+    "login_config": {
       "cookies_button": "//button[@title='Consent and continue' and contains(@class, 'sp_choice_type_11')]",
       "login_button": "//a[contains(@href, 'gruppenkonto.spiegel.de/authenticate') and span[contains(text(), 'Anmelden')]]",
       "iframe": "",
@@ -157,7 +157,7 @@
     "paywall": true,
     "is_active": false,
     "newsapi_id": "wiwo.de",
-    "config": {
+    "login_config": {
       "cookies_button": "//button[@title='ZUSTIMMEN' and contains(@class, 'sp_choice_type_11')]",
       "iframe": "",
       "user_input": "//input[@name='login' and @type='email']",
@@ -171,7 +171,7 @@
     "paywall": true,
     "is_active": false,
     "newsapi_id": "economist.com",
-    "config": {
+    "login_config": {
       "login_button": "//a[@data-test-id='masthead-login-link' and contains(text(), 'Log in')]",
       "iframe": "",
       "user_input": "//input[@name='username' and @type='text']",
@@ -185,7 +185,7 @@
     "paywall": true,
     "is_active": true,
     "newsapi_id": "cicero.de",
-    "config": {
+    "login_config": {
       "cookies_button": "//button[text()='Alle akzeptieren']",
       "login_button": "//a[text()='Anmelden']",
       "user_input": "//input[@id='username']",
@@ -199,7 +199,7 @@
     "paywall": true,
     "is_active": false,
     "newsapi_id": "enhesa.com",
-    "config": {
+    "login_config": {
       "user_input": "//input[@name='email' and @type='text']",
       "password_input": "//input[@name='password' and @type='password']",
       "submit_button": "//button[@type='submit' and @data-testid='login-button']",
@@ -213,7 +213,7 @@
     "paywall": false,
     "is_active": false,
     "newsapi_id": "politico.eu",
-    "config": {
+    "login_config": {
       "login_button": "//a[contains(@href, '/login/') and span[contains(text(), 'Log In')]]",
       "iframe": "",
       "user_input": "//input[@id='fm-inline_login-0-login-0' and @name='inline_login[login]']",
@@ -229,7 +229,7 @@
     "paywall": true,
     "is_active": true,
     "newsapi_id": "euobserver.com",
-    "config": {
+    "login_config": {
       "user_input": "//input[@placeholder='example@gmail.com']",
       "password_input": "//input[@type='password']",
       "submit_button": "//button[.//span[text()='Continue']]",
@@ -258,7 +258,7 @@
     "paywall": true,
     "is_active": true,
     "newsapi_id": "contexte.com",
-    "config": {
+    "login_config": {
       "login_button": "//a[contains(@href, 'login')]",
       "user_input": "//input[@name='username']",
       "password_input": "//input[@name='password']",
@@ -273,7 +273,7 @@
     "paywall": true,
     "is_active": true,
     "newsapi_id": "thepioneer.de",
-    "config": {
+    "login_config": {
       "iframe_cookies": "//iframe[@id='sp_message_iframe_1251936']",
       "cookies_button": "//button[contains(text(), 'Alle akzeptieren')]",
       "login_button": "//button[contains(text(), 'Log In')]",
@@ -299,7 +299,7 @@
     "paywall": true,
     "is_active": false,
     "newsapi_id": "agenceurope.eu",
-    "config": {
+    "login_config": {
       "login_button": "//a[@href='javascript:void(0)']",
       "user_input": "//input[@id='Login']",
       "password_input": "//input[@id='password']",
@@ -314,7 +314,7 @@
     "paywall": true,
     "is_active": true,
     "newsapi_id": "businessinsider.de",
-    "config": {
+    "login_config": {
       "iframe_cookies": "//iframe[@id='sp_message_iframe_1253152']",
       "cookies_button": "//button[normalize-space()='Zustimmen']",
       "refuse_notifications": "//button[contains(@class, 'cleverpush-confirm-btn-deny')]",
@@ -348,7 +348,7 @@
     "paywall": true,
     "is_active": false,
     "newsapi_id": "horizont.net",
-    "config": {
+    "login_config": {
       "shadow_cookies": "#usercentrics-cmp-ui",
       "cookies_button": "button.accept.uc-accept-button",
       "login_button": "//a[contains(@href, 'login')]",
@@ -365,7 +365,7 @@
     "paywall": true,
     "is_active": false,
     "newsapi_id": "lesoir.be",
-    "config": {
+    "login_config": {
       "login_button": "//span[contains(text(), 'identifier')]",
       "user_input": "//input[@name='email']",
       "password_input": "//input[@name='password']",
@@ -381,7 +381,7 @@
     "paywall": true,
     "is_active": true,
     "newsapi_id": "lebensmittelzeitung.net",
-    "config": {
+    "login_config": {
       "shadow_cookies": "#usercentrics-cmp-ui",
       "cookies_button": "button.accept.uc-accept-button",
       "login_button": "//a[contains(@href, 'login')]",
@@ -398,7 +398,7 @@
     "paywall": true,
     "is_active": false,
     "newsapi_id": null,
-    "config": {
+    "login_config": {
       "login_button": "//a[contains(text(), 'Login')]",
       "user_input": "//input[@id='user_login']",
       "password_input": "//input[@id='user_pass']",
@@ -420,7 +420,7 @@
     "paywall": true,
     "is_active": true,
     "newsapi_id": "meedia.de",
-    "config": {
+    "login_config": {
       "cookies_button": "//a[contains(text(), 'Alle Cookies erlauben')]",
       "login_button": "//a[contains(@href, 'login')]",
       "user_input": "//input[@id='inputEmail']",
@@ -436,7 +436,7 @@
     "paywall": true,
     "is_active": false,
     "newsapi_id": null,
-    "config": {
+    "login_config": {
       "login_button": "//a[contains(text(), 'Login')]",
       "iframe_credentials": "//iframe[@id='plenigoFramecheckout']",
       "user_input": "//input[@id='login_form__username']",
@@ -473,7 +473,13 @@
     "domain": "https://www.merkur.de",
     "paywall": false,
     "is_active": true,
-    "newsapi_id": "merkur.de"
+    "newsapi_id": "merkur.de",
+    "crawlers": {
+      "NewsAPICrawler": {
+        "filter_category": true,
+        "sourceUri": "merkur.de"
+      }
+    }
   },
   {
     "name": "Top Agrar",

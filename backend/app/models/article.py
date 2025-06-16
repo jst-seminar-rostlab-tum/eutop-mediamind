@@ -1,10 +1,10 @@
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from typing import TYPE_CHECKING, List, Optional
 
 from sqlalchemy import Column, Text
-from sqlmodel import Field, Relationship, SQLModel
+from sqlmodel import JSON, Field, Relationship, SQLModel
 
 from app.models.associations import (
     ArticleKeywordLink,
@@ -30,12 +30,33 @@ class Article(SQLModel, table=True):
     title: str = Field(max_length=255)
     content: str = Field(nullable=True)
     url: str = Field(max_length=255, unique=True)
-    author: str = Field(max_length=255, nullable=True)
+    image_url: Optional[str] = Field(
+        default=None,
+        sa_column=Column(
+            Text, nullable=True, comment="URL of " "the article's image"
+        ),
+    )
+    authors: List[str] = Field(
+        sa_column=Column(
+            JSON,
+            nullable=True,
+            default=None,
+            comment="List of authors for the article",
+        ),
+    )
     published_at: datetime = Field()
     language: str = Field(max_length=255, nullable=True)
-    category: str = Field(max_length=255, nullable=True)
+    categories: List[str] = Field(
+        sa_column=Column(
+            JSON,
+            nullable=True,
+            default=None,
+            comment="List of categories for the article",
+        ),
+    )
     summary: str | None = Field(default=None, sa_column=Column(Text))
     status: ArticleStatus = Field(default=ArticleStatus.NEW, nullable=False)
+    relevance: int = Field(default=0, nullable=False)
 
     crawled_at: datetime = Field(default_factory=datetime.now)
     scraped_at: Optional[datetime] = Field(default=None, nullable=True)

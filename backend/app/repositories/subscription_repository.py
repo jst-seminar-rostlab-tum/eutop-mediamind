@@ -9,6 +9,7 @@ from app.models.associations import SearchProfileSubscriptionLink
 from app.schemas.subscription_schemas import (
     SubscriptionSummary,
 )
+from app.services.web_harvester.crawler import get_crawlers
 
 
 async def get_all_subscriptions_with_search_profile(
@@ -72,3 +73,15 @@ async def set_subscriptions_for_profile(
     ]
 
     session.add_all(new_links)
+
+
+async def get_subscriptions_with_crawlers() -> list[Subscription]:
+    async with async_session() as session:
+        stmt = select(Subscription).where(
+            Subscription.crawlers.isnot(None)
+        )
+        result = await session.execute(stmt)
+        result = result.scalars().all()
+        for subscription in result:
+            subscription.crawlers = get_crawlers(subscription)
+        return result

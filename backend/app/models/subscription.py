@@ -1,8 +1,8 @@
 import uuid
-from typing import TYPE_CHECKING, List, Optional
+from typing import TYPE_CHECKING, Any, List, Optional
 
 from sqlalchemy import JSON, Column
-from sqlmodel import Field, Relationship, SQLModel
+from sqlmodel import Boolean, Field, Relationship, SQLModel
 
 from app.models.associations import (
     OrganizationSubscriptionLink,
@@ -28,13 +28,35 @@ class Subscription(SQLModel, table=True):
     name: str = Field(max_length=255, unique=True)
     domain: str = Field(max_length=255)
     paywall: bool = Field(default=False)
-    login_works: bool = Field(default=False)
-    newsapi_id: str = Field(default=None, max_length=255, nullable=True)
-    vault_path: str = Field(max_length=255, nullable=True)
-    config: dict = Field(default=None, sa_column=Column(JSON, nullable=True))
-    scraper_type: str = Field(max_length=255, nullable=True)
+
+    # Attributes for Webcrawling/Scraping
+    is_active: bool = Field(
+        default=False,
+        sa_column=Column(Boolean, default=False, nullable=False,
+                         comment="Indicates if this is included in the "
+                         "webcrawling pipeline")
+    )
+    crawlers: Optional[dict[str, dict[str, Any]]] = Field(
+        sa_column=Column(JSON, nullable=True, default=None,
+                         comment="List of Crawlers used"
+                         "for this subscription. Contains the Class and the "
+                         "config to initializer the Crawler")
+    )
+    login_config: Optional[dict] = Field(
+        sa_column=Column(JSON, default=None, nullable=True,
+                         comment="Contains "
+                         "the xpath for the scraping of "
+                         "paywalled newspapers"))
+
     encrypted_secrets: Optional[bytes] = Field(
         default=None, sa_column_kwargs={"nullable": True}
+    )
+
+    scrapers: Optional[dict[str, dict[str, Any]]] = Field(
+        sa_column=Column(JSON, nullable=True, default=None, comment="List of "
+                         "Scrapers used "
+                         "for this subscription. Contains the Class and the "
+                         "config to initialize the Scraper"),
     )
 
     # Relationships

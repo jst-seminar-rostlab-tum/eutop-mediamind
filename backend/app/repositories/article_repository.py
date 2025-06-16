@@ -4,8 +4,12 @@ from uuid import UUID
 from sqlalchemy import desc, or_, select
 from sqlalchemy.orm.strategy_options import joinedload
 
+from sqlalchemy.exc import IntegrityError
 from app.core.db import async_session
+from app.core.logger import get_logger
 from app.models.article import Article
+
+logger = get_logger(__name__)
 
 
 class ArticleRepository:
@@ -72,10 +76,64 @@ class ArticleRepository:
         Add a new Article to the database.
         """
         async with async_session() as session:
-            session.add(article)
-            await session.commit()
-            await session.refresh(article)
-            return article
+            try:
+                session.add(article)
+                await session.commit()
+                await session.refresh(article)
+                return article
+            except Exception as e:
+                print(e)
+                return
+
+    @staticmethod
+    async def create_articles_batch(
+        articles: list[Article], batch_size: int = 50
+    ):
+        successful = []
+        async with async_session() as session:
+            for i in range(0, len(articles), batch_size):
+                batch = articles[i : i + batch_size]
+                try:
+                    session.add_all(batch)
+                    await session.commit()
+                    successful.extend(batch)
+                except Exception:
+                    await session.rollback()
+                    logger.warning("Batch failed, inserting individual now")
+
+                    # Try inserting articles one-by-one
+                    for article in batch:
+                        try:
+                            session.add(article)
+                            await session.commit()
+                            successful.append(article)
+                        except IntegrityError as e:
+                            await session.rollback()
+                            if (
+                                hasattr(e.orig, "sqlstate")
+                                and e.orig.sqlstate == "23505"
+                            ):
+                                error_detail = str(e.orig)
+                                # Check if it's specifically the URL constraint
+                                if (
+                                    "duplicate key value violates unique "
+                                    'constraint "articles_url_key"'
+                                    in error_detail
+                                ):
+                                    logger.warning(
+                                        f"Article with URL {article.url} "
+                                        "already exists, skipping."
+                                    )
+                                    continue
+                            logger.error(f"Failed to insert article: {e}")
+                            continue
+                        except Exception as e:
+                            logger.error(
+                                f"Failed to insert article {article.url}: {e}"
+                            )
+                            await session.rollback()
+
+        return successful
 
     @staticmethod
     async def list_articles(
