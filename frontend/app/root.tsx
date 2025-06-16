@@ -23,6 +23,12 @@ import {
 import { Toaster } from "~/components/ui/sonner";
 import { Loader2 } from "lucide-react";
 
+declare global {
+  interface Window {
+    __sentryInitialized?: boolean;
+  }
+}
+
 export async function loader(args: Route.LoaderArgs) {
   return rootAuthLoader(args);
 }
@@ -103,6 +109,9 @@ const OutletWrapper = () => {
 
 export default function App({ loaderData }: Route.ComponentProps) {
   useEffect(() => {
+    if (window.__sentryInitialized) {
+      return;
+    }
     // see https://docs.sentry.io/platforms/javascript/guides/react-router/data-management/data-collected/ for more info
     Sentry.init({
       dsn: "https://852023ec5d9fe86c64eed907e04346e4@o4509334816489472.ingest.de.sentry.io/4509334885564496",
@@ -124,6 +133,7 @@ export default function App({ loaderData }: Route.ComponentProps) {
       replaysOnErrorSampleRate: 1.0,
       environment: import.meta.env.MODE,
     });
+    window.__sentryInitialized = true;
   }, []);
 
   return (
