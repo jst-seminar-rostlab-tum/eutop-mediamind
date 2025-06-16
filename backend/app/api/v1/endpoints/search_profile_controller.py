@@ -32,7 +32,7 @@ logger = get_logger(__name__)
 
 @router.get("", response_model=List[SearchProfileDetailResponse])
 async def get_available_search_profiles(
-    current_user: User = Depends(get_authenticated_user),
+    current_user: UserEntity = Depends(get_authenticated_user),
 ) -> List[SearchProfileDetailResponse]:
     """
     Retrieve all search profiles available to the current user.
@@ -64,7 +64,7 @@ async def get_keyword_suggestions(
 )
 async def get_search_profile(
     search_profile_id: UUID,
-    current_user: User = Depends(get_authenticated_user),
+    current_user: UserEntity = Depends(get_authenticated_user),
 ) -> SearchProfileDetailResponse:
     """
     Retrieve a specific search profile by its UUID.
@@ -126,7 +126,7 @@ async def get_match_detail(
 @router.post("", response_model=SearchProfileDetailResponse)
 async def create_search_profile(
     profile_data: SearchProfileCreateRequest,
-    current_user: User = Depends(get_authenticated_user),
+    current_user: UserEntity = Depends(get_authenticated_user),
 ) -> SearchProfileDetailResponse:
     """
     Create a new search profile for the current user.

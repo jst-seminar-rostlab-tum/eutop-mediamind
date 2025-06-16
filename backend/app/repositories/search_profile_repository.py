@@ -1,4 +1,4 @@
-from typing import List, Optional, Sequence
+from typing import List, Optional
 from uuid import UUID
 
 from pydantic import EmailStr
@@ -11,6 +11,8 @@ from app.models import SearchProfile, Topic, User
 from app.repositories.subscription_repository import SubscriptionsRepository
 from app.repositories.topics_repository import TopicsRepository
 from app.schemas.search_profile_schemas import SearchProfileUpdateRequest
+from app.schemas.subscription_schemas import SubscriptionSummary
+from app.schemas.topic_schemas import TopicCreateOrUpdateRequest
 from app.schemas.user_schema import UserEntity
 
 
@@ -35,7 +37,7 @@ def _base_load_options():
 def _apply_base_fields(
     profile: SearchProfile,
     data: SearchProfileUpdateRequest,
-    user: User,
+    user: UserEntity,
 ):
     profile.name = data.name
     profile.is_public = data.is_public
@@ -45,7 +47,7 @@ def _apply_base_fields(
 
 async def _apply_subscriptions(
     profile_id: UUID,
-    subscriptions: List[UUID],
+    subscriptions: List[SubscriptionSummary],
     session,
 ):
     await SubscriptionsRepository.set_subscriptions_for_profile(
@@ -57,7 +59,7 @@ async def _apply_subscriptions(
 
 async def _apply_topics(
     profile: SearchProfile,
-    topics: Sequence[UUID],
+    topics: list[TopicCreateOrUpdateRequest],
     session,
 ):
     await TopicsRepository.update_topics(
