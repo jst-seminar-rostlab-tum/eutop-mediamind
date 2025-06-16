@@ -1,9 +1,9 @@
-from typing import Optional, Sequence
+from typing import List, Optional, Sequence
 from uuid import UUID
 
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy import or_
-from sqlmodel import select
+from sqlalchemy import desc, or_, select
+from sqlalchemy.orm.strategy_options import joinedload
 from sqlmodel import Session
 
 from app.core.logger import get_logger
@@ -137,6 +137,17 @@ class ArticleRepository:
             )
 
             return summarized_articles
+
+    @staticmethod
+    async def get_sameple_articles(limit: int) -> List[Article]:
+        async with async_session() as session:
+            result = await session.execute(
+                select(Article)
+                .order_by(desc(Article.published_at))
+                .limit(limit)
+                .options(joinedload("*"))
+            )
+            return result.unique().scalars().all()
 
     def update_article(session: Session, article: Article) -> Article:
         existing_article = session.get(Article, article.id)

@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Sequence
 from uuid import UUID
 
 from pydantic import EmailStr
@@ -20,48 +20,48 @@ from app.schemas.search_profile_schemas import (
 
 
 async def create_profile_with_request(
-    create_data: SearchProfileCreateRequest, current_user: User
+    create_data: SearchProfileCreateRequest, current_user: User, session
 ) -> SearchProfile:
-    async with async_session() as session:
-        # Create and persist base profile
-        profile = SearchProfile(
-            name=create_data.name,
-            is_public=create_data.is_public,
-            organization_id=current_user.organization_id,
-            created_by_id=create_data.owner_id,
-        )
-        session.add(profile)
-        await session.commit()
-        await session.refresh(profile)
+    # Create and persist base profile
+    profile = SearchProfile(
+        name=create_data.name,
+        is_public=create_data.is_public,
+        organization_id=current_user.organization_id,
+        created_by_id=current_user.id,
+        owner_id=create_data.owner_id,
+    )
+    session.add(profile)
+    await session.commit()
+    await session.refresh(profile)
 
-        # Add related data: topics
-        await TopicsRepository.update_topics(profile, create_data.topics)
+    # Add related data: topics
+    await TopicsRepository.update_topics(profile, create_data.topics, session)
 
-        # Add subscriptions
-        await set_subscriptions_for_profile(
-            profile_id=profile.id, subscriptions=create_data.subscriptions
-        )
+    # Add subscriptions
+    await set_subscriptions_for_profile(
+        profile_id=profile.id,
+        subscriptions=create_data.subscriptions,
+        session=session,
+    )
 
-        # Add emails
-        await update_emails(
-            profile,
-            create_data.organization_emails,
-            create_data.profile_emails,
-        )
+    # Add emails
+    await update_emails(
+        profile,
+        create_data.organization_emails,
+        create_data.profile_emails,
+    )
 
-        # Refresh with eager-loaded relationships
-        result = await session.execute(
-            select(SearchProfile)
-            .where(SearchProfile.id == profile.id)
-            .options(
-                selectinload(SearchProfile.users),
-                selectinload(SearchProfile.topics).selectinload(
-                    Topic.keywords
-                ),
-            )
+    # Refresh with eager-loaded relationships
+    result = await session.execute(
+        select(SearchProfile)
+        .where(SearchProfile.id == profile.id)
+        .options(
+            selectinload(SearchProfile.users),
+            selectinload(SearchProfile.topics).selectinload(Topic.keywords),
         )
-        profile = result.scalars().one()
-        return profile
+    )
+    profile = result.scalars().one()
+    return profile
 
 
 async def get_accessible_profiles(
@@ -144,7 +144,7 @@ async def update_profile_with_request(
 ):
     # Update base fields
     profile.name = update_data.name
-    profile.is_public = update_data.public
+    profile.is_public = update_data.is_public
 
     # update owner of
     if user.id == profile.created_by_id or user.is_superuser:
@@ -179,5 +179,27 @@ async def update_emails(
     profile_emails: List[EmailStr],
 ) -> None:
     # Convert EmailStr to plain strings for storage in DB
-    profile.organization_emails = [str(email) for email in organization_emails]
-    profile.profile_emails = [str(email) for email in profile_emails]
+    profile.organization_emails = (
+        [str(email) for email in organization_emails]
+        if organization_emails is not None
+        else []
+    )
+    profile.profile_emails = (
+        [str(email) for email in profile_emails]
+        if profile_emails is not None
+        else []
+    )
+
+
+class SearchProfileRepository:
+    @staticmethod
+    async def fetch_all_search_profiles(limit: int, offset: int):
+        """
+        Fetch all search profiles with pagination.
+        """
+        async with async_session() as session:
+            query = select(SearchProfile).offset(offset).limit(limit)
+            search_profiles: Sequence[SearchProfile] = (
+                (await session.execute(query)).scalars().all()
+            )
+            return search_profiles

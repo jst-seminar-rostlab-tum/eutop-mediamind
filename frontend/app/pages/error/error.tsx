@@ -8,10 +8,11 @@ import {
   Lock,
   MoveRight,
 } from "lucide-react";
-import { Link, useParams } from "react-router";
+import { Link, useNavigate, useParams } from "react-router";
 import Text from "~/custom-components/text";
-import type { ReactElement } from "react";
+import { useEffect, type ReactElement } from "react";
 import { Button } from "~/components/ui/button";
+import { useAuthorization } from "~/hooks/use-authorization";
 
 const icons: Record<string, ReactElement> = {
   "401": <Lock className="h-12 w-12" />,
@@ -42,7 +43,7 @@ const defaultMessages: Record<string, { title: string; message: string }> = {
       "You are not assigned to an organization. You need to be part of an organization to access Mediamind. Please contact your admin.",
   },
   fallback: {
-    title: "Oohps!",
+    title: "Ohps!",
     message: "Something went wrong! Please contact your admin.",
   },
 };
@@ -58,7 +59,9 @@ export const ErrorPage = ({
   stack?: string;
   code?: number;
 }) => {
+  const { user } = useAuthorization();
   const { code: paramCode } = useParams();
+  const navigate = useNavigate();
 
   const code = passedCode ?? paramCode;
 
@@ -66,9 +69,15 @@ export const ErrorPage = ({
   const usedMessage = message ?? defaultMessages[code ?? "fallback"].message;
   const usedIcon = icons[code ?? "fallback"];
 
+  useEffect(() => {
+    if (paramCode === "no-org" && user?.organization_id) {
+      navigate("/dashboard");
+    }
+  }, [paramCode, user?.organization_id, navigate]);
+
   return (
     <>
-      <Layout className="flex justify-center">
+      <Layout className="flex flex-col justify-center">
         <div className="flex justify-center mt-24 mb-4">{usedIcon}</div>
 
         <Text className="mb-2 flex justify-center" hierachy={1}>

@@ -8,6 +8,7 @@ from app.main import AppCreator
 def client():
     app_creator = AppCreator()
     app = app_creator.app
+
     with TestClient(app) as client:
         yield client
 
