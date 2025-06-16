@@ -28,9 +28,7 @@ class ArticleVectorService:
             model="text-embedding-3-large", api_key=configs.OPENAI_API_KEY
         )
         self._sparse_embeddings = FastEmbedSparse(model_name="Qdrant/bm25")
-        self.collection_name = (
-            "article_vectors"  # TODO: configs.ARTICLE_VECTORS_COLLECTION
-        )
+        self.collection_name = configs.ARTICLE_VECTORS_COLLECTION
         self._qdrant_client = get_qdrant_connection()
         self.create_collection_safe(self.collection_name)
         self.vector_store: QdrantVectorStore = QdrantVectorStore(
