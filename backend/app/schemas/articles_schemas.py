@@ -53,5 +53,6 @@ class MatchDetailResponse(BaseModel):
     language: str
     category: str
     summary: str | None
+    content: str | None
 
     model_config = ConfigDict(from_attributes=True)

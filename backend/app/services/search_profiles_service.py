@@ -238,6 +238,7 @@ class SearchProfileService:
             language=a.language,
             category=a.category,
             summary=a.summary,
+            content=a.content
         )
 
     @staticmethod
