@@ -1,8 +1,11 @@
+from typing import List
 from uuid import UUID
 
-from sqlalchemy import select
+from sqlalchemy import select, update
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.db import async_session
+from app.models import SearchProfile
 from app.models.email import Email, EmailState
 
 
@@ -31,15 +34,19 @@ class EmailRepository:
             return result.scalars().all()
 
     @staticmethod
-    async def update_email(email: Email) -> Email | None:
-        async with async_session() as session:
-            existing_email = await session.get(Email, email.id)
-            if existing_email:
-                for attr, value in vars(email).items():
-                    if attr != "_sa_instance_state":
-                        setattr(existing_email, attr, value)
-                await session.commit()
-                await session.refresh(existing_email)
-                return existing_email
-            else:
-                return None
+    async def update_emails(
+        profile_id: UUID,
+        organization_emails: List[str],
+        profile_emails: List[str],
+        session: AsyncSession,
+    ) -> None:
+        # bulk‐update the two list-columns in one go
+        await session.execute(
+            update(SearchProfile)
+            .where(SearchProfile.id == profile_id)
+            .values(
+                organization_emails=organization_emails,
+                profile_emails=profile_emails,
+            )
+        )
+        await session.flush()
