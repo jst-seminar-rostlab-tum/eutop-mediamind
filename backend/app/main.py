@@ -1,4 +1,5 @@
 import contextlib
+
 import sentry_sdk
 from fastapi import FastAPI, Request
 from sqlalchemy.exc import SQLAlchemyError
