@@ -42,14 +42,15 @@ class SearchProfileService:
     @staticmethod
     async def create_search_profile(
         data: SearchProfileCreateRequest,
-        current_user: User,
+        current_user: UserEntity,
     ) -> SearchProfileDetailResponse:
         """
         Create a new SearchProfile plus its topics, subscriptions and emails,
         then reload it with all relationships and return a detail response.
         """
         async with async_session() as session:
-            # 1) In a single transaction, insert the profile and its sub‐entities
+            # 1) In a single transaction, insert the profile
+            # and its sub‐entities
             async with session.begin():
                 profile = SearchProfile(
                     name=data.name,
@@ -79,7 +80,8 @@ class SearchProfileService:
                     session=session,
                 )
 
-            # 2) After commit, re‐fetch with eager‐loads so no lazy‐loads remain
+            # 2) After commit, re‐fetch with eager‐loads so no lazy‐loads
+            # remain
             result = await session.execute(
                 select(SearchProfile)
                 .where(SearchProfile.id == profile.id)
@@ -101,7 +103,7 @@ class SearchProfileService:
 
     @staticmethod
     async def get_search_profile_by_id(
-        search_profile_id: UUID, current_user: User
+        search_profile_id: UUID, current_user: UserEntity
     ) -> SearchProfileDetailResponse | None:
         async with async_session() as session:
             profile = (
@@ -122,7 +124,7 @@ class SearchProfileService:
 
     @staticmethod
     async def get_available_search_profiles(
-        current_user: User,
+        current_user: UserEntity,
     ) -> list[SearchProfileDetailResponse]:
         accessible_profiles = (
             await SearchProfileRepository.get_accessible_profiles(
@@ -316,10 +318,12 @@ class SearchProfileService:
     async def set_search_profile_subscriptions(
         request: SetSearchProfileSubscriptionsRequest,
     ) -> None:
-        await SubscriptionsRepository.set_subscriptions_for_profile(
-            profile_id=request.search_profile_id,
-            subscription_ids=request.subscriptions,
-        )
+        async with async_session as session:
+            await SubscriptionsRepository.set_subscriptions_for_profile(
+                profile_id=request.search_profile_id,
+                subscriptions=request.subscriptions,
+                session=session,
+            )
 
     @staticmethod
     async def get_keyword_suggestions(
