@@ -3,23 +3,19 @@ from typing import List
 from uuid import UUID
 
 from fastapi import HTTPException
+from sqlalchemy import select
+from sqlalchemy.orm import selectinload
 
 from app.core.db import async_session
 from app.models import SearchProfile, Topic, User
+from app.repositories.email_repository import EmailRepository
 from app.repositories.match_repository import MatchRepository
 from app.repositories.match_repositoy import (
     get_recent_match_count_by_profile_id,
 )
-from app.repositories.search_profile_repository import (
-    create_profile_with_request,
-    get_accessible_profile_by_id,
-    get_accessible_profiles,
-    update_profile_with_request,
-)
-from app.repositories.subscription_repository import (
-    get_all_subscriptions_with_search_profile,
-    set_subscriptions_for_profile,
-)
+from app.repositories.search_profile_repository import SearchProfileRepository
+from app.repositories.subscription_repository import SubscriptionsRepository
+from app.repositories.topics_repository import TopicsRepository
 from app.schemas.articles_schemas import (
     ArticleOverviewItem,
     ArticleOverviewResponse,
@@ -37,6 +33,7 @@ from app.schemas.subscription_schemas import (
     SubscriptionSummary,
 )
 from app.schemas.topic_schemas import TopicResponse
+from app.schemas.user_schema import UserEntity
 from app.services.llm_service.llm_client import LLMClient
 from app.services.llm_service.llm_models import LLMModels
 
@@ -44,26 +41,76 @@ from app.services.llm_service.llm_models import LLMModels
 class SearchProfileService:
     @staticmethod
     async def create_search_profile(
-        data: SearchProfileCreateRequest, current_user: User
+        data: SearchProfileCreateRequest,
+        current_user: User,
     ) -> SearchProfileDetailResponse:
+        """
+        Create a new SearchProfile plus its topics, subscriptions and emails,
+        then reload it with all relationships and return a detail response.
+        """
         async with async_session() as session:
-            profile = await create_profile_with_request(
-                data, current_user, session
+            # 1) In a single transaction, insert the profile and its sub‐entities
+            async with session.begin():
+                profile = SearchProfile(
+                    name=data.name,
+                    is_public=data.is_public,
+                    organization_id=current_user.organization_id,
+                    created_by_id=current_user.id,
+                    owner_id=data.owner_id,
+                )
+                session.add(profile)
+                await session.flush()  # ← now profile.id is assigned
+
+                # sync the many‐to‐many/mapping tables
+                await TopicsRepository.update_topics(
+                    profile=profile,
+                    new_topics=data.topics,
+                    session=session,
+                )
+                await SubscriptionsRepository.set_subscriptions_for_profile(
+                    profile_id=profile.id,
+                    subscriptions=data.subscriptions,
+                    session=session,
+                )
+                await EmailRepository.update_emails(
+                    profile_id=profile.id,
+                    organization_emails=data.organization_emails or [],
+                    profile_emails=data.profile_emails or [],
+                    session=session,
+                )
+
+            # 2) After commit, re‐fetch with eager‐loads so no lazy‐loads remain
+            result = await session.execute(
+                select(SearchProfile)
+                .where(SearchProfile.id == profile.id)
+                .options(
+                    # load related users if your detail schema includes them
+                    selectinload(SearchProfile.users),
+                    # load topics and, for each, its keywords
+                    selectinload(SearchProfile.topics).selectinload(
+                        Topic.keywords
+                    ),
+                )
             )
-            return await SearchProfileService._build_profile_response(
-                profile, current_user
-            )
+            fresh = result.scalar_one()
+
+        # 3) Build and return your response DTO with everything populated
+        return await SearchProfileService._build_profile_response(
+            fresh, current_user
+        )
 
     @staticmethod
     async def get_search_profile_by_id(
         search_profile_id: UUID, current_user: User
     ) -> SearchProfileDetailResponse | None:
         async with async_session() as session:
-            profile = await get_accessible_profile_by_id(
-                search_profile_id=search_profile_id,
-                user_id=current_user.id,
-                organization_id=current_user.organization_id,
-                session=session,
+            profile = (
+                await SearchProfileRepository.get_accessible_profile_by_id(
+                    search_profile_id=search_profile_id,
+                    user_id=current_user.id,
+                    organization_id=current_user.organization_id,
+                    session=session,
+                )
             )
 
             if profile is None:
@@ -77,8 +124,10 @@ class SearchProfileService:
     async def get_available_search_profiles(
         current_user: User,
     ) -> list[SearchProfileDetailResponse]:
-        accessible_profiles = await get_accessible_profiles(
-            current_user.id, current_user.organization_id
+        accessible_profiles = (
+            await SearchProfileRepository.get_accessible_profiles(
+                current_user.id, current_user.organization_id
+            )
         )
 
         return [
@@ -90,7 +139,7 @@ class SearchProfileService:
 
     @staticmethod
     async def _build_profile_response(
-        profile: SearchProfile, current_user: User
+        profile: SearchProfile, current_user: UserEntity
     ) -> SearchProfileDetailResponse:
         is_owner = profile.created_by_id == current_user.id
         is_editable = (
@@ -117,7 +166,7 @@ class SearchProfileService:
             for t in profile.topics
         ]
 
-        subscriptions = await get_all_subscriptions_with_search_profile(
+        subscriptions = await SubscriptionsRepository.get_all_subscriptions_with_search_profile(
             profile.id
         )
 
@@ -163,14 +212,16 @@ class SearchProfileService:
     async def update_search_profile(
         search_profile_id: UUID,
         update_data: SearchProfileUpdateRequest,
-        current_user: User,
+        current_user: UserEntity,
     ) -> SearchProfileDetailResponse:
         async with async_session() as session:
-            db_profile = await get_accessible_profile_by_id(
-                search_profile_id=search_profile_id,
-                user_id=current_user.id,
-                organization_id=current_user.organization_id,
-                session=session,
+            db_profile = (
+                await SearchProfileRepository.get_accessible_profile_by_id(
+                    search_profile_id=search_profile_id,
+                    user_id=current_user.id,
+                    organization_id=current_user.organization_id,
+                    session=session,
+                )
             )
 
             if not db_profile:
@@ -191,11 +242,11 @@ class SearchProfileService:
                     status_code=403, detail="Not allowed to edit this profile"
                 )
 
-            await update_profile_with_request(
+            await SearchProfileRepository.update_profile(
                 profile=db_profile,
-                user=current_user,
-                update_data=update_data,
+                data=update_data,
                 session=session,
+                current_user=current_user,
             )
 
             return await SearchProfileService._build_profile_response(
@@ -257,7 +308,7 @@ class SearchProfileService:
     async def get_all_subscriptions_for_profile(
         search_profile_id: UUID,
     ) -> list[SubscriptionSummary]:
-        return await get_all_subscriptions_with_search_profile(
+        return await SubscriptionsRepository.get_all_subscriptions_with_search_profile(
             search_profile_id
         )
 
@@ -265,7 +316,7 @@ class SearchProfileService:
     async def set_search_profile_subscriptions(
         request: SetSearchProfileSubscriptionsRequest,
     ) -> None:
-        await set_subscriptions_for_profile(
+        await SubscriptionsRepository.set_subscriptions_for_profile(
             profile_id=request.search_profile_id,
             subscription_ids=request.subscriptions,
         )
