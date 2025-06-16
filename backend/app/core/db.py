@@ -1,3 +1,6 @@
+import json
+import os
+
 import psycopg
 from psycopg import OperationalError
 from psycopg import connection as PgConnection
@@ -8,10 +11,12 @@ from sqlalchemy.ext.asyncio import (
     async_sessionmaker,
     create_async_engine,
 )
+from sqlalchemy.future import select
 from sqlmodel import SQLModel
 
 from app.core.config import configs
 from app.core.logger import get_logger
+from app.models import Subscription
 
 logger = get_logger(__name__)
 
@@ -21,9 +26,38 @@ async_session: AsyncSession = async_sessionmaker(
 )
 
 
+def load_json_data(file_path: str) -> list[dict]:
+    """Utility to load JSON seed data"""
+    with open(file_path, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+
 async def init_db():
     async with engine.begin() as conn:
         await conn.run_sync(SQLModel.metadata.create_all)
+        async with AsyncSession(bind=conn) as session:
+            await seed_subscriptions(session)
+
+
+async def seed_subscriptions(session: AsyncSession) -> None:
+    """Seed initial subscriptions data if table is empty"""
+
+    # Check if table is empty
+    result = await session.execute(select(Subscription).limit(1))
+    if result.scalars().first():
+        logger.info("Subscriptions table already seeded. Skipping seeding.")
+        return
+
+    # Load seed data from JSON file
+    seed_file_path = os.path.abspath("./data/subscriptions.json")
+    seed_data = load_json_data(seed_file_path)
+
+    for item in seed_data:
+        subscription = Subscription(**item)
+        session.add(subscription)
+
+    await session.commit()
+    logger.info("Initial subscriptions data seeded successfully.")
 
 
 def get_postgresql_connection() -> PgConnection:
