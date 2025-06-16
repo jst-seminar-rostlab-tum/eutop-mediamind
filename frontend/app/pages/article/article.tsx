@@ -25,6 +25,7 @@ export function ArticlePage({ searchProfileId, article }: ArticleProps) {
         month: "long",
         day: "numeric",
       });
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       return "Invalid Date";
     }
@@ -35,15 +36,16 @@ export function ArticlePage({ searchProfileId, article }: ArticleProps) {
   return (
     <Layout>
       <div className="flex gap-15">
-        <div className="w-3/4 space-y-6">
+        <div className="w-2/3 space-y-8">
           <ArticleBreadcrumb searchProfileId={searchProfileId} />
           <ArticleBody
             title={article.title}
             content={article.content}
             published_at={publishDateString}
+            author={article.author}
           />
         </div>
-        <div className="w-1/4">
+        <div className="w-1/3">
           <ArticleSidebar article={article} />
         </div>
       </div>

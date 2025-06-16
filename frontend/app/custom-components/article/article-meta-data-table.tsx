@@ -32,29 +32,33 @@ export function ArticleMetaDataTable({ article }: ArticleMetaDataTableProps) {
   };
 
   return (
-    <div className="border border-gray-200 rounded-2xl p-4">
+    <div className="border border-gray-200 rounded-3xl p-3">
       <Table>
         <TableHead>Meta Data</TableHead>
         <TableBody>
           <TableRow>
             <TableCell>Published</TableCell>
-            <TableCell>{formatDate(article.published_at)}</TableCell>
+            <TableCell className="text-right">
+              {formatDate(article.published_at)}
+            </TableCell>
           </TableRow>
           <TableRow>
             <TableCell>Crawled</TableCell>
-            <TableCell>{formatDate(article.crawled_at)}</TableCell>
+            <TableCell className="text-right">
+              {formatDate(article.crawled_at)}
+            </TableCell>
           </TableRow>
           <TableRow>
             <TableCell>Language</TableCell>
-            <TableCell>{article.language}</TableCell>
+            <TableCell className="text-right">{article.language}</TableCell>
           </TableRow>
           <TableRow>
             <TableCell>Status</TableCell>
-            <TableCell>{article.status}</TableCell>
+            <TableCell className="text-right">{article.status}</TableCell>
           </TableRow>
           <TableRow>
             <TableCell>Category</TableCell>
-            <TableCell>{article.category}</TableCell>
+            <TableCell className="text-right">{article.category}</TableCell>
           </TableRow>
         </TableBody>
       </Table>

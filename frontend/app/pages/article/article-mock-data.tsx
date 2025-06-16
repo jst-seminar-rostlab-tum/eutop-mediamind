@@ -1,5 +1,11 @@
+interface topicMatch {
+  id: string;
+  keywords: string[];
+}
+
 export interface NewsArticle {
   id: string;
+  topic: topicMatch;
   title: string;
   content: string;
   url: string;
@@ -17,6 +23,17 @@ export interface NewsArticle {
 export const getArticle = (): NewsArticle => {
   return {
     id: "a7a02941-0fee-4865-9ff6-d03fc0bc9a4b",
+    topic: {
+      id: "health-nutrition-deficiency",
+      keywords: [
+        "jodmangel",
+        "schilddrüse",
+        "gesundheit",
+        "ernährung",
+        "who",
+        "deutschland",
+      ],
+    },
     title:
       "Deutschland erneut Jodmangelgebiet: Warum das für die Gesundheit gefährlich ist",
     content:
