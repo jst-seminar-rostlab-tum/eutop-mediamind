@@ -1,38 +1,54 @@
 import asyncio
 from datetime import date
 import re
+import logging
 from asyncio import Semaphore
+from typing import Optional, Tuple
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 
 from openai import OpenAI
+import tenacity
 
 from app.core.config import configs
 from app.models.article import Article, ArticleStatus
-from app.repositories.subscription_repository import SubscriptionRepository
+from app.repositories.article_repository import ArticleRepository
 
-# DB setup
+# Setup logging
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO)
+
+# SQLAlchemy async session setup
 engine = create_async_engine(str(configs.SQLALCHEMY_DATABASE_URI), echo=True)
 async_session = sessionmaker(engine, expire_on_commit=False, class_=AsyncSession)
 
+def remove_formatting_marks(self, text: str) -> str:
+        text = re.sub(r'\*\*(.*?)\*\*', r'\1', text)  # bold
+        text = re.sub(r'\*(.*?)\*', r'\1', text)      # italics
+        text = re.sub(r'#+\s+', '', text)             # markdown headers
+        text = re.sub(r'^-{3,}$', '', text, flags=re.MULTILINE)  # horizontal lines
+        text = re.sub(r'\[.*?\]\(.*?\)', '', text)    # markdown links
+        text = re.sub(r'\s{2,}', ' ', text)           # extra spaces
+        return text.strip()
 
 class ArticleCleaner:
-    def __init__(self, max_concurrency: int = 100):
+    def __init__(self, max_concurrency: int = 50):
+        assert configs.OPENAI_API_KEY, "Missing OPENAI_API_KEY"
         self.client = OpenAI(api_key=configs.OPENAI_API_KEY)
         self.semaphore = Semaphore(max_concurrency)
-
-    def remove_formatting_marks(self, text: str) -> str:
-        text = re.sub(r'\*\*(.*?)\*\*', r'\1', text)  # remove bold
-        text = re.sub(r'\*(.*?)\*', r'\1', text)      # remove italics
-        text = re.sub(r'#+\s+', '', text)             # remove markdown headers
-        text = re.sub(r'^-{3,}$', '', text, flags=re.MULTILINE)  # remove horizontal lines
-        text = re.sub(r'\[.*?\]\(.*?\)', '', text)    # remove markdown links
-        text = re.sub(r'\s{2,}', ' ', text)           # remove extra spaces
-        return text.strip()
+        
+    @tenacity.retry(stop=tenacity.stop_after_attempt(3), wait=tenacity.wait_fixed(2))
+    def _call_openai_sync(self, prompt: str) -> str:
+        response = self.client.chat.completions.create(
+            model="gpt-4.1",
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.3,
+        )
+        return response.choices[0].message.content.strip()
     
-    async def rewrite_with_llm(self, text, title: str) -> str:
+    async def clean_with_llm_removal_only(self, text, title: str) -> str:
         prompt = (
             "The following news article contains unwanted formatting artifacts such as markdown symbols (**bold**, *italic*, footnotes), "
             "author lines, inline references, and other structural noise.\n"
@@ -48,31 +64,26 @@ class ArticleCleaner:
         async with self.semaphore:
             return await asyncio.to_thread(self._call_openai_sync, prompt)
 
-    def _call_openai_sync(self, prompt: str) -> str:
-        response = self.client.chat.completions.create(
-            model="gpt-4.1",
-            messages=[{"role": "user", "content": prompt}],
-            temperature=0.3,
-        )
-        return response.choices[0].message.content.strip()
-    
 
-    async def clean_one(self, article: Article) -> tuple[Article, str] | None:
+    async def clean_one(self, article: Article) -> Optional[Tuple[Article, str]]:
+        if not article.content or not article.title:
+            return None
+
         try:
-            pre_processed = self.remove_formatting_marks(article.content)
-            rewritten = await self.rewrite_with_llm(pre_processed, article.title)
+            pre_processed = remove_formatting_marks(article.content)
+            rewritten = await self.clean_with_llm_removal_only(pre_processed, article.title)
             if rewritten and rewritten != article.content:
                 return article, rewritten
             return None
         except Exception as e:
-            print(f"[ERROR] Failed to clean article '{article.title}': {e}")
+            logger.error(f"Failed to clean article '{article.title}': {e}")
             return None
         
 
     async def clean_articles_after_date(
         self,
         session: AsyncSession,
-        since_date: date = date(2025, 6, 5)
+        since_date: date
     ) -> int:
         stmt = select(Article).where(
             Article.content.isnot(None),
@@ -81,7 +92,7 @@ class ArticleCleaner:
         result = await session.execute(stmt)
         articles = result.scalars().all()
 
-        print(f"Found {len(articles)} articles to clean since {since_date}.")
+        logger.info(f"Found {len(articles)} articles to clean since {since_date}.")
         if not articles:
             return 0
        
@@ -92,20 +103,20 @@ class ArticleCleaner:
         
         cleaned_articles = [r for r in cleaned_results if r]
 
-        
         updated = 0
         for article, new_content in cleaned_articles:
             article.content = new_content
-            # article.status = ArticleStatus.CLEANED
-            await SubscriptionRepository.update_article(session, article)
+            await ArticleRepository.update_article(session, article)
             updated += 1
 
         return updated
 
-    async def run(self):
+    async def run(self, since_date: Optional[date] = None):
+        if since_date is None:
+            since_date = date.today()
         async with async_session() as session:
-            count = await self.clean_articles_after_date(session)
-            print(f"{count} articles cleaned.")
+            count = await self.clean_articles_after_date(session, since_date)
+            logger.info(f"{count} articles cleaned since {since_date}.")
 
 
 if __name__ == "__main__":
