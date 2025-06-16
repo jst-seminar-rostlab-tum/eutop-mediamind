@@ -10,7 +10,7 @@ from app.models.associations import TopicKeywordLink
 if TYPE_CHECKING:
     from app.models.keyword import Keyword
     from app.models.search_profile import SearchProfile
-
+    from app.models.match import Match
 
 class Topic(SQLModel, table=True):
     __tablename__ = "topics"
@@ -28,3 +28,4 @@ class Topic(SQLModel, table=True):
         back_populates="topics",
         link_model=TopicKeywordLink,
     )
+    matches: List["Match"] = Relationship(back_populates="topic")
