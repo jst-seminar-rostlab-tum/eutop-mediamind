@@ -5,14 +5,9 @@ from fastapi import APIRouter, Depends, HTTPException
 from app.core.auth import get_authenticated_user
 from app.core.logger import get_logger
 from app.models.user import User
-from app.schemas.report_schemas import (
-    ReportDetailResponse,
-    ReportListResponse,
-    ReportRead,
-)
+from app.schemas.report_schemas import ReportDetailResponse
 from app.services.report_service import ReportService
 from app.services.s3_service import S3Service
-from app.services.search_profiles_service import SearchProfileService
 
 router = APIRouter(
     prefix="/reports",
@@ -21,31 +16,6 @@ router = APIRouter(
 )
 
 logger = get_logger(__name__)
-
-
-@router.get("/{search_profile_id}/reports", response_model=ReportListResponse)
-async def get_reports(
-    search_profile_id: UUID,
-    current_user: User = Depends(get_authenticated_user),
-):
-    profile = await SearchProfileService.get_search_profile_by_id(
-        search_profile_id, current_user
-    )
-    if profile is None:
-        raise HTTPException(status_code=404, detail="Search profile not found")
-
-    reports = await ReportService.get_reports_by_search_profile(
-        search_profile_id
-    )
-    if not reports:
-        raise HTTPException(
-            status_code=404, detail="No reports found for this profile"
-        )
-
-    reports_pydantic = [
-        ReportRead.model_validate(r, from_attributes=True) for r in reports
-    ]
-    return ReportListResponse(reports=reports_pydantic)
 
 
 @router.get("/{report_id}", response_model=ReportDetailResponse)
