@@ -27,7 +27,7 @@ class ReportCreate(ReportBase):
 
 
 class ReportDetailResponse(ReportRead):
-    pass
+    s3_url: Optional[str] = None
 
 
 class ReportListResponse(BaseModel):

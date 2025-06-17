@@ -365,7 +365,8 @@ class PDFService:
         # Title
         story.append(
             Paragraph(
-                f"<b><font size=36 color='{electricBlue}'>{search_profile.name}</font></b>",
+                f"<b><font size=36 color='{electricBlue}'>"
+                f"{search_profile.name}</font></b>",
                 styles["Title"],
             )
         )

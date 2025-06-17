@@ -1,4 +1,3 @@
-from typing import List
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -9,7 +8,7 @@ from app.models.user import User
 from app.services.report_service import ReportService
 from app.services.s3_service import S3Service
 from app.services.search_profiles_service import SearchProfileService
-from backend.app.schemas.report_schemas import (
+from app.schemas.report_schemas import (
     ReportDetailResponse,
     ReportListResponse,
 )
@@ -59,7 +58,7 @@ async def get_report_by_id(report_id: UUID):
     else:
         presigned_url = None
 
-    # Make sure ReportDetailResponse has a s3_url: Optional[str] = None field
-    response = report
+    # Convert to Pydantic model and add s3_url
+    response = ReportDetailResponse.model_validate(report)
     response.s3_url = presigned_url
     return response

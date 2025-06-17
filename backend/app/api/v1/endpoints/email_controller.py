@@ -1,3 +1,5 @@
+# flake8: noqa: E501
+
 """
 NOTE:
 This is just a testing controller for sending emails and creating PDFs.
