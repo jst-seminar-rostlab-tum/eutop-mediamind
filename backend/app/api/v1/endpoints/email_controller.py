@@ -6,7 +6,7 @@ Once we have a proper scheduler, we can remove this controller.
 
 import uuid
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Query
 
 from app.repositories.user_repository import get_user_by_clerk_id
 from app.services.email_service import EmailSchedule, EmailService
@@ -20,14 +20,28 @@ router = APIRouter(
 )
 
 
-@router.get("/?user_id={user_id}&search_profile_id={search_profile_id}")
-async def send_report_email(user_id: str, search_profile_id: str):
-    # TODO: Replace with actual user id from scheduler or request context
-    search_profile_id = uuid.UUID(search_profile_id)
+@router.get("/test")
+async def send_report_email(
+    clerk_user_id: str = Query(..., description="Clerk User ID"),
+    search_profile_id: str = Query(..., description="Search Profile UUID"),
+):
+    print(
+        f"Sending report email for user {clerk_user_id} and search profile {search_profile_id}"
+    )
+
+    try:
+        search_profile_id = uuid.UUID(search_profile_id)
+    except ValueError:
+        raise HTTPException(
+            status_code=400, detail="Invalid search_profile_id UUID format"
+        )
     timeslot = "morning"
 
-    # Get user and check if he's allowed to access the search profile
-    user = await get_user_by_clerk_id(user_id)
+    # Get user and check if found
+    user = await get_user_by_clerk_id(clerk_user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
     search_profile = await SearchProfileService.get_search_profile_by_id(
         search_profile_id, current_user=user
     )
