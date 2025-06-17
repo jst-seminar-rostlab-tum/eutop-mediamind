@@ -9,6 +9,7 @@ from .organization import Organization
 from .search_profile import SearchProfile
 from .subscription import Subscription
 from .topic import Topic
+from .report import Report
 from .user import User, UserPublic, UserUpdate, UserUpdateMe
 
 __all__ = [
@@ -29,4 +30,5 @@ __all__ = [
     "UserPublic",
     "UserUpdate",
     "UserUpdateMe",
+    "Report",
 ]
