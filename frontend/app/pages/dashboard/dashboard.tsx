@@ -15,6 +15,7 @@ import { sortBy } from "lodash-es";
 import { BreakingNews } from "./breaking-news";
 import Layout from "~/custom-components/layout";
 import "./dashboard.css";
+import { Link } from "react-router";
 
 const suppressSWRReloading = {
   refreshInterval: 0,
@@ -113,11 +114,13 @@ export function DashboardPage() {
       ) : (
         <div className="grid-profile-cards mt-4 mb-4">
           {sortedProfiles?.map((profile, idx) => (
-            <ProfileCard
-              key={profile.id + idx}
-              profile={profile}
-              mutateDashboard={mutate}
-            />
+            <Link to={`/search-profile/${profile.id}`}>
+              <ProfileCard
+                key={profile.id + idx}
+                profile={profile}
+                mutateDashboard={mutate}
+              />
+            </Link>
           ))}
         </div>
       )}
