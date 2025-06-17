@@ -5,6 +5,7 @@ from starlette.middleware.cors import CORSMiddleware
 from starlette.responses import JSONResponse
 
 from app.api.v1.routes import routers as v1_routers
+from app.core import db
 from app.core.config import configs
 from app.core.logger import get_logger
 
@@ -13,6 +14,7 @@ logger = get_logger(__name__)
 
 class AppCreator:
     def __init__(self):
+        # Initialize Sentry for production
         if configs.SENTRY_DSN and configs.ENVIRONMENT != "local":
             sentry_sdk.init(
                 dsn=configs.SENTRY_DSN,
@@ -29,6 +31,10 @@ class AppCreator:
             docs_url="/api/docs",
             version="0.0.1",
         )
+
+        # Register database lifecycle hooks (stubbed in tests)
+        self.app.add_event_handler("startup", db.connect)
+        self.app.add_event_handler("shutdown", db.disconnect)
 
         self._register_exception_handlers()
         self._configure_cors()
