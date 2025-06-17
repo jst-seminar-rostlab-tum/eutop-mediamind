@@ -2,6 +2,7 @@ import os
 import pytest
 from fastapi.testclient import TestClient
 
+from app.core.config import configs
 from app.main import AppCreator
 import app.core.db as db_module
 
@@ -38,3 +39,11 @@ def test_name(request):
 def use_sqlite_in_tests(monkeypatch):
     # Before AppCreator is instantiated, force a sqlite URL
     monkeypatch.setenv("DATABASE_URL", "sqlite:///:memory:")
+
+@pytest.fixture(autouse=True)
+def disable_auth(monkeypatch):
+    """
+    Force the real token-checking branch (so _extract_clerk_id runs verify_token).
+    Otherwise the pytest won't run locally without changing it.
+    """
+    monkeypatch.setattr(configs, "DISABLE_AUTH", False)
