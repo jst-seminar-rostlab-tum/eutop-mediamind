@@ -2,13 +2,33 @@ import json
 import logging
 import time
 
+from fake_useragent import UserAgent
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
 
 from app.models.subscription import Subscription
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+
+def create_driver(headless: bool = True):
+    chrome_options = Options()
+    if headless:
+        chrome_options.add_argument("--headless=new")
+    chrome_options.add_argument(
+        "--enable-features=NetworkService,NetworkServiceInProcess"
+    )
+    chrome_options.add_argument("--disable-gpu")
+    chrome_options.add_argument(f"--user-agent={UserAgent().random}")
+
+    driver = webdriver.Chrome(options=chrome_options)
+    driver.set_window_size(1920, 1080)
+    wait = WebDriverWait(driver, 5)
+    return driver, wait
 
 
 def click_element(driver, wait, selector_xpath, selector_name):
@@ -272,7 +292,7 @@ def hardcoded_login(driver, wait, subscription: Subscription):
     else:
         username, password = credentials
 
-    config = subscription.config
+    config = subscription.login_config
     if not config:
         logger.error(
             f"No configuration found for newspaper: {subscription.name}"
@@ -293,7 +313,9 @@ def hardcoded_login(driver, wait, subscription: Subscription):
     return submit_login_credentials(driver, wait, config, username, password)
 
 
-def hardcoded_logout(driver, wait, paper):
+def hardcoded_logout(driver, wait, subscription: Subscription):
+    paper = subscription.login_config
+
     # Go to profile section
     profile_key = "profile_section"
     if paper.get(profile_key):

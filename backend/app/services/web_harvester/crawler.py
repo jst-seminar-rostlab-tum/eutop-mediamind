@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from datetime import date as Date
 from datetime import datetime
+from enum import Enum
 from typing import Any, List
 from urllib.parse import urlparse
 
@@ -269,13 +270,24 @@ class NewsAPICrawler(Crawler):
         )
 
 
-CRAWLER_CLASS_REGISTRY = {"NewsAPICrawler": NewsAPICrawler}
+class CrawlerType(Enum):
+    NewsAPICrawler = "NewsAPICrawler"
+
+
+CRAWLER_CLASS_REGISTRY = {
+    CrawlerType.NewsAPICrawler: NewsAPICrawler,
+}
 
 
 def get_crawlers(subscription: Subscription):
     crawlers = {}
     for class_name, config in subscription.crawlers.items():
-        cls = CRAWLER_CLASS_REGISTRY.get(class_name)
+        try:
+            crawler_type = CrawlerType(class_name)
+        except ValueError:
+            logger.error(f"Unknown crawler: {class_name}")
+            raise ValueError(f"Unknown crawler: {class_name}")
+        cls = CRAWLER_CLASS_REGISTRY.get(crawler_type)
         if cls:
             crawlers[class_name] = cls(subscription=subscription, **config)
         else:

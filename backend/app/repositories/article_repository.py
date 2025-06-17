@@ -2,9 +2,9 @@ from typing import List, Optional, Sequence
 from uuid import UUID
 
 from sqlalchemy import desc, or_, select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm.strategy_options import joinedload
 
-from sqlalchemy.exc import IntegrityError
 from app.core.db import async_session
 from app.core.logger import get_logger
 from app.models.article import Article
@@ -71,7 +71,7 @@ class ArticleRepository:
             return existing_article
 
     @staticmethod
-    async def create_article(article: Article) -> Article:
+    async def create_article(article: Article, logger=logger) -> Article:
         """
         Add a new Article to the database.
         """
@@ -81,13 +81,30 @@ class ArticleRepository:
                 await session.commit()
                 await session.refresh(article)
                 return article
+            except IntegrityError as e:
+                await session.rollback()
+                if hasattr(e.orig, "sqlstate") and e.orig.sqlstate == "23505":
+                    error_detail = str(e.orig)
+                    # Check if it's specifically the URL constraint
+                    if (
+                        "duplicate key value violates unique "
+                        'constraint "articles_url_key"' in error_detail
+                    ):
+                        logger.warning(
+                            f"Article with URL {article.url} "
+                            "already exists, skipping."
+                        )
+                        return
+                logger.error(f"Failed to insert article: {e}")
+                return
             except Exception as e:
-                print(e)
+                logger.error(f"Failed to insert article {article.url}: {e}")
+                await session.rollback()
                 return
 
     @staticmethod
     async def create_articles_batch(
-        articles: list[Article], batch_size: int = 50
+        articles: list[Article], batch_size: int = 50, logger=logger
     ):
         successful = []
         async with async_session() as session:
@@ -103,36 +120,14 @@ class ArticleRepository:
 
                     # Try inserting articles one-by-one
                     for article in batch:
-                        try:
-                            session.add(article)
-                            await session.commit()
-                            successful.append(article)
-                        except IntegrityError as e:
-                            await session.rollback()
-                            if (
-                                hasattr(e.orig, "sqlstate")
-                                and e.orig.sqlstate == "23505"
-                            ):
-                                error_detail = str(e.orig)
-                                # Check if it's specifically the URL constraint
-                                if (
-                                    "duplicate key value violates unique "
-                                    'constraint "articles_url_key"'
-                                    in error_detail
-                                ):
-                                    logger.warning(
-                                        f"Article with URL {article.url} "
-                                        "already exists, skipping."
-                                    )
-                                    continue
-                            logger.error(f"Failed to insert article: {e}")
-                            continue
-                        except Exception as e:
-                            logger.error(
-                                f"Failed to insert article {article.url}: {e}"
+                        created_article = (
+                            await ArticleRepository.create_article(
+                                article, logger=logger
                             )
-                            await session.rollback()
-
+                        )
+                        if created_article:
+                            successful.append(created_article)
+            logger.info(f"Inserted {len(successful)} articles successfully.")
         return successful
 
     @staticmethod
@@ -201,3 +196,20 @@ class ArticleRepository:
                 .options(joinedload("*"))
             )
             return result.unique().scalars().all()
+
+    @staticmethod
+    async def list_new_articles_by_subscription(
+        subscription_id: UUID,
+    ) -> List[Article]:
+        """
+        List all articles with status 'NEW' and the given subscription_id.
+        """
+        async with async_session() as session:
+            statement = select(Article).where(
+                Article.status == "NEW",
+                Article.subscription_id == subscription_id,
+            )
+            articles: Sequence[Article] = (
+                (await session.execute(statement)).scalars().all()
+            )
+            return articles
