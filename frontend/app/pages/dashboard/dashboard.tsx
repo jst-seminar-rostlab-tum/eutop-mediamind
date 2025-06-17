@@ -12,7 +12,6 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { EditProfile } from "~/custom-components/profile/edit/edit-profile";
 import { sortBy } from "lodash-es";
-import { BreakingNews } from "./breaking-news";
 import Layout from "~/custom-components/layout";
 import "./dashboard.css";
 import { useTranslation } from "react-i18next";
