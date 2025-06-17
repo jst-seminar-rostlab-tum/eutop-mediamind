@@ -35,7 +35,7 @@ export function BreakingNewsCard({ news }: NewsCardProps) {
           {shouldTruncate && (
             <button
               onClick={() => setIsExpanded(!isExpanded)}
-              className="text-gray-600 hover:text-gray-800 font-medium transition-colors flex gap-2 items-center"
+              className="text-gray-600 hover:text-gray-800 font-medium transition-colors flex gap-2 items-center hover:cursor-pointer"
             >
               {isExpanded ? "Show less" : "Read more"}
               {isExpanded ? (
