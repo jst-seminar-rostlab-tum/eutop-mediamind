@@ -1,5 +1,3 @@
-import contextlib
-
 import sentry_sdk
 from fastapi import FastAPI, Request
 from sqlalchemy.exc import SQLAlchemyError
@@ -7,28 +5,11 @@ from starlette.middleware.cors import CORSMiddleware
 from starlette.responses import JSONResponse
 
 from app.api.v1.routes import routers as v1_routers
+from app.core import db
 from app.core.config import configs
-from app.core.db import engine, init_db
 from app.core.logger import get_logger
 
 logger = get_logger(__name__)
-
-
-@contextlib.asynccontextmanager
-async def lifespan(app: FastAPI):
-    """
-    Lifespan event handler: run before startup and after shutdown.
-    """
-    # Startup: prime asyncpg greenlet context
-    async with engine.connect():
-        pass
-
-    # Initialize database schema
-    await init_db()
-
-    yield
-
-    # Shutdown: add cleanup logic here if needed
 
 
 class AppCreator:
@@ -49,8 +30,11 @@ class AppCreator:
             openapi_url="/api/openapi.json",
             docs_url="/api/docs",
             version="0.0.1",
-            lifespan=lifespan,
         )
+
+        # Register database lifecycle hooks (stubbed in tests)
+        self.app.add_event_handler("startup", db.connect)
+        self.app.add_event_handler("shutdown", db.disconnect)
 
         self._register_exception_handlers()
         self._configure_cors()

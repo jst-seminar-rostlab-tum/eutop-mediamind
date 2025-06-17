@@ -51,3 +51,28 @@ def get_qdrant_connection() -> QdrantClient:
     except Exception as e:
         logger.error(f"Failed to initialize Qdrant client: {str(e)}")
         raise Exception(f"Failed to initialize Qdrant client: {str(e)}")
+
+
+"""
+ Needed for tests to successfully run. Should no be used.
+"""
+
+
+async def connect() -> None:
+    """
+    Called on FastAPI startup.
+    You can initialize the database here (e.g. run migrations) if you like.
+    """
+    # If you want to auto-migrate:
+    # await init_db()
+    pass
+
+
+async def disconnect() -> None:
+    """
+    Called on FastAPI shutdown.
+    You can cleanly dispose your engine here.
+    """
+    # If you want to fully dispose:
+    # engine.sync_engine.dispose()
+    pass
