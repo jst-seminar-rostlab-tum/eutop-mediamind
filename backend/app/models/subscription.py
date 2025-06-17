@@ -32,31 +32,49 @@ class Subscription(SQLModel, table=True):
     # Attributes for Webcrawling/Scraping
     is_active: bool = Field(
         default=False,
-        sa_column=Column(Boolean, default=False, nullable=False,
-                         comment="Indicates if this is included in the "
-                         "webcrawling pipeline")
+        sa_column=Column(
+            Boolean,
+            default=False,
+            nullable=False,
+            comment="Indicates if this is included in the "
+            "webcrawling pipeline",
+        ),
     )
     crawlers: Optional[dict[str, dict[str, Any]]] = Field(
-        sa_column=Column(JSON, nullable=True, default=None,
-                         comment="List of Crawlers used"
-                         "for this subscription. Contains the Class and the "
-                         "config to initializer the Crawler")
+        sa_column=Column(
+            JSON,
+            nullable=True,
+            default=None,
+            comment="List of Crawlers used"
+            "for this subscription. Contains the Class and the "
+            "config to initializer the Crawler",
+        )
     )
     login_config: Optional[dict] = Field(
-        sa_column=Column(JSON, default=None, nullable=True,
-                         comment="Contains "
-                         "the xpath for the scraping of "
-                         "paywalled newspapers"))
+        sa_column=Column(
+            JSON,
+            default=None,
+            nullable=True,
+            comment="Contains "
+            "the xpath for the scraping of "
+            "paywalled newspapers",
+        )
+    )
 
     encrypted_secrets: Optional[bytes] = Field(
         default=None, sa_column_kwargs={"nullable": True}
     )
 
     scrapers: Optional[dict[str, dict[str, Any]]] = Field(
-        sa_column=Column(JSON, nullable=True, default=None, comment="List of "
-                         "Scrapers used "
-                         "for this subscription. Contains the Class and the "
-                         "config to initialize the Scraper"),
+        sa_column=Column(
+            JSON,
+            nullable=True,
+            default=None,
+            comment="List of "
+            "Scrapers used "
+            "for this subscription. Contains the Class and the "
+            "config to initialize the Scraper",
+        ),
     )
 
     # Relationships

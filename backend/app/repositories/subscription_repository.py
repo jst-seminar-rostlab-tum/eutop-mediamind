@@ -77,9 +77,7 @@ async def set_subscriptions_for_profile(
 
 async def get_subscriptions_with_crawlers() -> list[Subscription]:
     async with async_session() as session:
-        stmt = select(Subscription).where(
-            Subscription.crawlers.isnot(None)
-        )
+        stmt = select(Subscription).where(Subscription.crawlers.isnot(None))
         result = await session.execute(stmt)
         result = result.scalars().all()
         for subscription in result:
