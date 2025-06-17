@@ -6,6 +6,7 @@ This is just a testing controller for sending emails and creating PDFs.
 Once we have a proper scheduler, we can remove this controller.
 """
 
+from datetime import datetime
 import uuid
 
 from fastapi import APIRouter, HTTPException, Query
@@ -84,6 +85,8 @@ async def send_report_email(
 def build_email_content(
     s3_link: str, dashboard_link: str, profile_name: str
 ) -> str:
+    today = datetime.now().strftime("%B %d, %Y")
+
     return f"""
 <!DOCTYPE html>
 <html lang="en">
@@ -131,7 +134,7 @@ def build_email_content(
                 <tr>
                   <td align="left" style="color:#fff;">
                     <h1 style="margin:0; font-size:2.1em; font-weight:300; letter-spacing:-0.5px; line-height:1.2;">MediaMind</h1>
-                    <p style="margin:12px 0 0; font-size:0.9em; text-transform:uppercase; letter-spacing:0.5px; color:rgba(255,255,255,0.85);">June 13, 2025</p>
+                    <p style="margin:12px 0 0; font-size:0.9em; text-transform:uppercase; letter-spacing:0.5px; color:rgba(255,255,255,0.85);">{today}</p>
                   </td>
                   <td align="right" style="vertical-align:top;">
                     <img src="https://mediamind.csee.tech/EUTOP_Logo.png" alt="Logo" width="120" style="display:block;max-width:120px;width:100%;" />

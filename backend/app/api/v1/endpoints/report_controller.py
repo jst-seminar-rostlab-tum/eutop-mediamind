@@ -6,6 +6,7 @@ from app.core.auth import get_authenticated_user
 from app.core.logger import get_logger
 from app.models.user import User
 from app.schemas.report_schemas import (
+    ReportRead,
     ReportDetailResponse,
     ReportListResponse,
 )
@@ -41,7 +42,10 @@ async def get_reports(
             status_code=404, detail="No reports found for this profile"
         )
 
-    return ReportListResponse(reports=reports)
+    reports_pydantic = [
+        ReportRead.model_validate(r, from_attributes=True) for r in reports
+    ]
+    return ReportListResponse(reports=reports_pydantic)
 
 
 @router.get("/{report_id}", response_model=ReportDetailResponse)
@@ -50,15 +54,14 @@ async def get_report_by_id(report_id: UUID):
     if report is None:
         raise HTTPException(status_code=404, detail="Report not found")
 
-    # Generate a new presigned S3 URL for the report file
-    if report.s3_key:
-        presigned_url = S3Service.generate_presigned_url(
-            key=report.s3_key, expires_in=604800  # 7 days
-        )
-    else:
-        presigned_url = None
+    presigned_url = (
+        S3Service.generate_presigned_url(key=report.s3_key, expires_in=604800)
+        if report.s3_key
+        else None
+    )
 
-    # Convert to Pydantic model and add s3_url
-    response = ReportDetailResponse.model_validate(report)
+    response = ReportDetailResponse.model_validate(
+        report, from_attributes=True
+    )
     response.s3_url = presigned_url
     return response

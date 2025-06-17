@@ -18,8 +18,7 @@ class ReportBase(BaseModel):
 class ReportRead(ReportBase):
     id: uuid.UUID
 
-    class Config:
-        orm_mode = True
+    model_config = {"from_attributes": True}
 
 
 class ReportCreate(ReportBase):
