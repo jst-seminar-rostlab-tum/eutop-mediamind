@@ -57,7 +57,6 @@ export function EditProfile({
   mutateDashboard,
 }: EditProfileProps) {
   const isCreating = !profile;
-  console.log(profile);
 
   const { user } = useAuthorization();
 
