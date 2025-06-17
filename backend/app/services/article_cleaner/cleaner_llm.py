@@ -94,7 +94,7 @@ class ArticleCleaner:
             logger.error(f"Failed to clean article '{article.title}': {e}")
             return None
 
-    async def clean_articles_after_date(
+    async def clean_articles_since_date(
         self, session: AsyncSession, since_date: date
     ) -> int:
         stmt = select(Article).where(
@@ -125,13 +125,13 @@ class ArticleCleaner:
 
         return updated
 
-    async def run(self, since_date: Optional[date] = None):
+    async def clean_articles_after(self, since_date: Optional[date] = None):
         if since_date is None:
             since_date = date.today()
         async with async_session() as session:
-            count = await self.clean_articles_after_date(session, since_date)
+            count = await self.clean_articles_since_date(session, since_date)
             logger.info(f"{count} articles cleaned since {since_date}.")
 
 
 if __name__ == "__main__":
-    asyncio.run(ArticleCleaner().run(date(2025, 6, 10)))
+    asyncio.run(ArticleCleaner().clean_articles_after(date(2025, 6, 10)))
