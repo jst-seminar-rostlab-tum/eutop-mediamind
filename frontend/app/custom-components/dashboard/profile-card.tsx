@@ -43,7 +43,7 @@ export function ProfileCard({ profile, mutateDashboard }: ProfileCardProps) {
 
   return (
     <>
-      <Card className="w-[15rem] h-[14rem] rounded-3xl shadow-[2px_2px_15px_rgba(0,0,0,0.1)] hover:shadow-none transition-shadow duration-300 ease-in-out">
+      <Card className="w-[15rem] h-[14rem] rounded-3xl shadow-[2px_2px_15px_rgba(0,0,0,0.1)] hover:shadow-none transition-shadow duration-300 ease-in-out hover:cursor-pointer">
         <CardHeader className="-mt-2">
           <div className={"flex justify-between"}>
             <div>
