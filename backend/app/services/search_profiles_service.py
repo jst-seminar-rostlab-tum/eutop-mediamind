@@ -28,10 +28,6 @@ from app.schemas.search_profile_schemas import (
     SearchProfileDetailResponse,
     SearchProfileUpdateRequest,
 )
-from app.schemas.subscription_schemas import (
-    SetSearchProfileSubscriptionsRequest,
-    SubscriptionSummary,
-)
 from app.schemas.topic_schemas import TopicResponse
 from app.schemas.user_schema import UserEntity
 from app.services.llm_service.llm_client import LLMClient
@@ -49,8 +45,6 @@ class SearchProfileService:
         then reload it with all relationships and return a detail response.
         """
         async with async_session() as session:
-            # 1) In a single transaction, insert the profile
-            # and its sub‐entities
             async with session.begin():
                 profile = SearchProfile(
                     name=data.name,
@@ -80,8 +74,6 @@ class SearchProfileService:
                     session=session,
                 )
 
-            # 2) After commit, re‐fetch with eager‐loads so no lazy‐loads
-            # remain
             result = await session.execute(
                 select(SearchProfile)
                 .where(SearchProfile.id == profile.id)
@@ -96,7 +88,6 @@ class SearchProfileService:
             )
             fresh = result.scalar_one()
 
-        # 3) Build and return your response DTO with everything populated
         return await SearchProfileService._build_profile_response(
             fresh, current_user
         )
@@ -168,8 +159,10 @@ class SearchProfileService:
             for t in profile.topics
         ]
 
-        subscriptions = await SubscriptionsRepository.get_all_subscriptions_with_search_profile(
-            profile.id
+        subscriptions = await (
+            SubscriptionsRepository.get_all_subscriptions_with_search_profile(
+                profile.id
+            )
         )
 
         time_threshold = datetime.now(timezone.utc) - timedelta(hours=24)
@@ -191,16 +184,6 @@ class SearchProfileService:
             subscriptions=subscriptions,
             new_articles_count=new_articles_count,
         )
-
-    @staticmethod
-    def _filter_emails_by_org(
-        profile: SearchProfile, org_id: UUID, include: bool
-    ) -> list[str]:
-        return [
-            user.email
-            for user in profile.users
-            if (user.organization_id == org_id) is include
-        ]
 
     @staticmethod
     def _build_topic_response(topic: Topic) -> TopicResponse:
@@ -305,25 +288,6 @@ class SearchProfileService:
             ranking=data.ranking,
         )
         return match is not None
-
-    @staticmethod
-    async def get_all_subscriptions_for_profile(
-        search_profile_id: UUID,
-    ) -> list[SubscriptionSummary]:
-        return await SubscriptionsRepository.get_all_subscriptions_with_search_profile(
-            search_profile_id
-        )
-
-    @staticmethod
-    async def set_search_profile_subscriptions(
-        request: SetSearchProfileSubscriptionsRequest,
-    ) -> None:
-        async with async_session as session:
-            await SubscriptionsRepository.set_subscriptions_for_profile(
-                profile_id=request.search_profile_id,
-                subscriptions=request.subscriptions,
-                session=session,
-            )
 
     @staticmethod
     async def get_keyword_suggestions(

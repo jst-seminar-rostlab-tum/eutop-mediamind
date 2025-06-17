@@ -90,17 +90,61 @@ class TopicsRepository:
         """
         Sync DB topics & keyword links to match `new_topics` list.
         """
-        profile_with_topics = await _load_profile_with_topics(
-            session, profile.id
-        )
-        old_topics = {t.name: t for t in profile_with_topics.topics}
+        # 1) load the profile WITH its topics collection
+        profile = await _load_profile_with_topics(session, profile.id)
+
+        # 2) build a name→Topic map of the existing (pre-edit) topics
+        old_topics = {t.name: t for t in profile.topics}
         new_names = {t.name for t in new_topics}
 
-        await _delete_removed_topics(session, old_topics, new_names)
+        # 3) delete (and remove) any orphaned topics
+        for name in list(old_topics.keys()):
+            if name not in new_names:
+                topic = old_topics.pop(name)
+                # mark it for deletion in the DB
+                await session.delete(topic)
+                # *also* remove it from the in-memory relationship
+                profile.topics.remove(topic)
+
+        # 4) make sure we have every keyword in memory
         all_keywords = await _preload_all_keywords(session)
-        await _upsert_topics_and_links(
-            session, profile.id, old_topics, new_topics, all_keywords
-        )
+
+        # 5) insert or update the remaining topics & their links
+        for tdata in new_topics:
+            topic = old_topics.get(tdata.name)
+            if not topic:
+                # brand-new Topic
+                topic = Topic(name=tdata.name, search_profile_id=profile.id)
+                session.add(topic)
+                await session.flush()
+                # and attach it to the profile
+                profile.topics.append(topic)
+
+            # clear all the old links for this topic
+            await session.execute(
+                delete(TopicKeywordLink).where(
+                    TopicKeywordLink.topic_id == topic.id
+                )
+            )
+
+            # re-add links for the new keyword set
+            for kw_name in tdata.keywords:
+                kw = all_keywords.get(kw_name)
+                if not kw:
+                    kw = Keyword(name=kw_name)
+                    session.add(kw)
+                    await session.flush()
+                    all_keywords[kw_name] = kw
+
+                session.add(
+                    TopicKeywordLink(
+                        topic_id=topic.id,
+                        keyword_id=kw.id,
+                    )
+                )
+
+        await session.flush()
+        await session.refresh(profile, ["topics"])
 
 
 # -- Helper functions (module-level) --

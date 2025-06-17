@@ -128,22 +128,6 @@ class SearchProfileRepository:
         return result.scalar_one_or_none()
 
     @staticmethod
-    async def get_search_profile_by_id(
-        search_profile_id: UUID,
-    ) -> Optional[SearchProfile]:
-        """
-        Fetch any profile by ID, ignoring access controls.
-        """
-        async with async_session() as session:
-            query = (
-                select(SearchProfile)
-                .where(SearchProfile.id == search_profile_id)
-                .options(*_base_load_options())
-            )
-            result = await session.execute(query)
-            return result.scalars().one_or_none()
-
-    @staticmethod
     async def update_profile(
         profile: SearchProfile,
         data: SearchProfileUpdateRequest,
