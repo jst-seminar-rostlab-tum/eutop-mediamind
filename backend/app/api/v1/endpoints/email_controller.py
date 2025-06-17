@@ -5,12 +5,15 @@ Once we have a proper scheduler, we can remove this controller.
 """
 
 from datetime import datetime
+import uuid
 
 from fastapi import APIRouter
 
 from app.services.email_service import EmailSchedule, EmailService
 from app.services.pdf_service import PDFService
 from app.services.s3_service import S3Service
+from app.services.search_profiles_service import SearchProfileService
+from app.repositories.user_repository import get_user_by_clerk_id
 
 router = APIRouter(
     prefix="/emails",
@@ -20,9 +23,26 @@ router = APIRouter(
 
 @router.get("/{recipient_email}")
 async def trigger_email_sending(recipient_email: str):
-    pdf_bytes = await PDFService.create_sample_pdf()
+    # TODO: Replace with actual user and search profile based on scheduler event
+    search_profile_id = uuid.UUID("e8ee904c-52b1-40b8-9f1f-5acddafba4b7")
+    user = await get_user_by_clerk_id(
+        "user_2yRftSI1ia4lKO8feVyDOaPdUi0"
+    )
 
-    s3_key = f"reports/{recipient_email}/daily_report_{datetime.now().strftime("%Y-%m-%d_%H-%M-%S")}.pdf"
+    ##############################################################################
+    ################### Email sending logic begins here ##########################
+    ##############################################################################
+
+    search_profile = await SearchProfileService.get_search_profile_by_id(
+        search_profile_id, user
+    )
+
+    # TODO: Uncomment the following line when using actual user email
+    # recipient_email = user.email
+
+    pdf_bytes = await PDFService.create_sample_pdf(search_profile)
+
+    s3_key = f"reports/{search_profile.id}/daily_report_{datetime.now().strftime("%Y-%m-%d_%H-%M-%S")}.pdf"
 
     try:
         await S3Service.upload_fileobj(pdf_bytes, "eutop-mediamind", s3_key)
@@ -30,6 +50,7 @@ async def trigger_email_sending(recipient_email: str):
             key=s3_key,
             expires_in=604800,  # 1 week
         )
+        dashboard_url = f"https://mediamind.csee.tech/dashboard/{s3_key}"
     except Exception as e:
         return {
             "error": f"Failed to upload PDF or generate presigned URL: {str(e)}"
@@ -39,7 +60,7 @@ async def trigger_email_sending(recipient_email: str):
         recipient=recipient_email,
         subject="[MEDIAMIND] Your daily report",
         content_type="text/HTML",
-        content=build_email_content(presigned_url),
+        content=build_email_content(presigned_url, dashboard_url),
         attachment=None,
     )
 
@@ -48,15 +69,7 @@ async def trigger_email_sending(recipient_email: str):
     return {"message": "Email scheduled and sent successfully."}
 
 
-@router.get("/pdf")
-async def trigger_pdf_creation():
-    pdf_bytes = await PDFService.create_sample_pdf()
-
-    with open("output.pdf", "wb") as f:
-        f.write(pdf_bytes)
-
-
-def build_email_content(link: str) -> str:
+def build_email_content(s3_link: str, dashboard_link: str) -> str:
     return f"""
 <!DOCTYPE html>
 <html lang="en">
@@ -150,16 +163,16 @@ def build_email_content(link: str) -> str:
                     font-size: 1.08em;
                     transition: background 0.2s;
                     word-break:break-word;
-                  " href="{link}" target="_blank">
+                  " href="{s3_link}" target="_blank">
                     Download here
                   </a>
                 </div>
                 <div style="margin-bottom:25px; padding-bottom:25px; border-bottom:1px solid #e9ecef;">
-                  <b>Note:</b> The download link expires after 7 days. After that, you can still access your report anytime via your dashboard.
+                  <b>Note:</b> The download link expires after 7 days. After that, you can still access your report anytime via your dashboard. (<a style="font-weight:600; color:#1e5091" href="{dashboard_link}">click here</a>).
                 </div>
                 <div style="color:#888; font-size:0.9em;">
                   If the link above does not work, copy and paste this URL into your browser:<br />
-                  <span style="font-size:0.7em; word-break:break-all; display:inline-block; margin-top:4px;"><u><a href="{link}" style="color:#888;">{link}</a></u></span>
+                  <span style="font-size:0.7em; word-break:break-all; display:inline-block; margin-top:4px;"><u><a href="{s3_link}" style="color:#888;">{s3_link}</a></u></span>
                 </div>
               </div>
             </td>

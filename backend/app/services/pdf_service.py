@@ -32,6 +32,7 @@ from svglib.svglib import svg2rlg
 
 from app.core.logger import get_logger
 from app.repositories.article_repository import ArticleRepository
+from app.models.search_profile import SearchProfile
 
 # TODO: Move colors to a separate module, Move only the needed styles to a
 # Stylesheet, sample works with matching
@@ -167,7 +168,7 @@ class PDFService:
     )
 
     @staticmethod
-    async def create_sample_pdf() -> bytes:
+    async def create_sample_pdf(search_profile) -> bytes:
         articles = await ArticleRepository.get_sameple_articles(15)
         news_items = []
         for article in articles:
@@ -198,10 +199,12 @@ class PDFService:
             )
             # Replace the article with the news item
             news_items.append(news_item)
-        return PDFService.create_pdf(news_items)
+        return PDFService.create_pdf(search_profile, news_items)
 
     @staticmethod
-    def create_pdf(news_items: List[NewsItem]) -> bytes:
+    def create_pdf(
+        search_profile: SearchProfile, news_items: List[NewsItem]
+    ) -> bytes:
         dimensions = A4
         logger.debug("Articles chosen before PDF Generation:")
         # Logging which articles, if they have summaries and keywords
@@ -214,7 +217,7 @@ class PDFService:
 
         # Prepare all flowable elements for the PDF
         cover_elements = PDFService.__draw_cover_elements(
-            news_items, dimensions
+            search_profile, news_items, dimensions
         )
         summaries_elements = PDFService.__create_summaries_elements(
             news_items, dimensions
@@ -304,7 +307,9 @@ class PDFService:
 
     @staticmethod
     def __draw_cover_elements(
-        news_items: List[NewsItem], dimensions: tuple[float, float]
+        search_profile: SearchProfile,
+        news_items: List[NewsItem],
+        dimensions: tuple[float, float],
     ) -> List["Flowable"]:
         width, height = dimensions
         styles = getSampleStyleSheet()
@@ -358,10 +363,9 @@ class PDFService:
             logger.error(f"Error loading SVG logo: {e}")
         story.append(Spacer(1, 0.5 * inch))
         # Title
-        # TODO: Read from DB the Search Profile Name to indivualize Report
         story.append(
             Paragraph(
-                f"<b><font size=36 color='{electricBlue}'>BMW EX</font></b>",
+                f"<b><font size=36 color='{electricBlue}'>{search_profile.name}</font></b>",
                 styles["Title"],
             )
         )
