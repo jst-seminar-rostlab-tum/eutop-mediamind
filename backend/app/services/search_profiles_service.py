@@ -159,10 +159,8 @@ class SearchProfileService:
             for t in profile.topics
         ]
 
-        subscriptions = await (
-            SubscriptionsRepository.get_all_subscriptions_with_search_profile(
-                profile.id
-            )
+        subscriptions = await SubscriptionsRepository.get_all_subscriptions_with_search_profile(  # noqa: E501
+            profile.id
         )
 
         time_threshold = datetime.now(timezone.utc) - timedelta(hours=24)
