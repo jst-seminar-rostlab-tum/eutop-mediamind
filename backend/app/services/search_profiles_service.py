@@ -83,7 +83,7 @@ class SearchProfileService:
                 )
             )
             return result.scalars().one_or_none()
-        
+
     @staticmethod
     async def get_available_search_profiles(
         current_user: User,
