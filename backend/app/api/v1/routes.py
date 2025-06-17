@@ -5,6 +5,7 @@ from app.api.v1.endpoints.article_controller import router as article_router
 from app.api.v1.endpoints.email_controller import router as email_router
 from app.api.v1.endpoints.keyword_controller import router as keyword_router
 from app.api.v1.endpoints.match_controller import router as match_router
+from app.api.v1.endpoints.report_controller import router as report_router
 from app.api.v1.endpoints.search_profile_controller import (
     router as search_profile_router,
 )
@@ -16,7 +17,6 @@ from app.api.v1.endpoints.user_controller import router as user_router
 from app.api.v1.endpoints.vector_store_controller import (
     router as vector_store_router,
 )
-from app.api.v1.endpoints.report_controller import router as report_router
 
 routers = APIRouter()
 router_list = [

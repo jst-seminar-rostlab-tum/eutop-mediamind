@@ -5,13 +5,13 @@ from fastapi import APIRouter, Depends, HTTPException
 from app.core.auth import get_authenticated_user
 from app.core.logger import get_logger
 from app.models.user import User
-from app.services.report_service import ReportService
-from app.services.s3_service import S3Service
-from app.services.search_profiles_service import SearchProfileService
 from app.schemas.report_schemas import (
     ReportDetailResponse,
     ReportListResponse,
 )
+from app.services.report_service import ReportService
+from app.services.s3_service import S3Service
+from app.services.search_profiles_service import SearchProfileService
 
 router = APIRouter(
     prefix="/reports",
