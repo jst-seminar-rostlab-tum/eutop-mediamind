@@ -1,5 +1,5 @@
 import { ProfileCard } from "~/custom-components/dashboard/profile-card";
-import { Loader2, Plus } from "lucide-react";
+import { Loader2, Megaphone, Plus } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import {
   Breadcrumb,
@@ -14,6 +14,8 @@ import { EditProfile } from "~/custom-components/profile/edit/edit-profile";
 import { sortBy } from "lodash-es";
 import Layout from "~/custom-components/layout";
 import "./dashboard.css";
+import { Alert, AlertTitle } from "~/components/ui/alert";
+import { useNavigate } from "react-router";
 
 const suppressSWRReloading = {
   refreshInterval: 0,
@@ -41,6 +43,7 @@ export function DashboardPage() {
   }, [error]);
 
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const navigate = useNavigate();
 
   return (
     <Layout>
@@ -52,7 +55,13 @@ export function DashboardPage() {
         </BreadcrumbList>
       </Breadcrumb>
       <h1 className="text-3xl font-bold mb-2">Dashboard</h1>
-      add breaking news entry
+      <Alert
+        onClick={() => navigate("/dashboard/breaking")}
+        className="hover:bg-gray-100 hover:cursor-pointer mb-2"
+      >
+        <Megaphone />
+        <AlertTitle>Click here to view the latest breaking news!</AlertTitle>
+      </Alert>
       <div className={"flex gap-5"}>
         <h2 className="text-2xl font-bold ">Profiles</h2>
         <EditProfile
