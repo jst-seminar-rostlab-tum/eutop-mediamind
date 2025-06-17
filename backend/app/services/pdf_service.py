@@ -168,7 +168,7 @@ class PDFService:
     )
 
     @staticmethod
-    async def create_sample_pdf(search_profile) -> bytes:
+    async def create_sample_pdf(search_profile: SearchProfile) -> bytes:
         articles = await ArticleRepository.get_sameple_articles(15)
         news_items = []
         for article in articles:

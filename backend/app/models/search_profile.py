@@ -12,6 +12,7 @@ if TYPE_CHECKING:
     from .subscription import Subscription
     from .topic import Topic
     from .user import User
+    from .report import Report
 
 
 class SearchProfile(SQLModel, table=True):
@@ -43,6 +44,10 @@ class SearchProfile(SQLModel, table=True):
     subscriptions: list["Subscription"] = Relationship(
         back_populates="search_profiles",
         link_model=SearchProfileSubscriptionLink,
+    )
+    reports: List["Report"] = Relationship(
+        back_populates="search_profile",
+        sa_relationship_kwargs={"cascade": "all, delete-orphan"},
     )
 
 

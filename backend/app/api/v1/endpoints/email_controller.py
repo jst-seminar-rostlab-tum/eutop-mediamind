@@ -4,16 +4,15 @@ This is just a testing controller for sending emails and creating PDFs.
 Once we have a proper scheduler, we can remove this controller.
 """
 
-from datetime import datetime
 import uuid
 
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 
 from app.services.email_service import EmailSchedule, EmailService
-from app.services.pdf_service import PDFService
 from app.services.s3_service import S3Service
 from app.services.search_profiles_service import SearchProfileService
 from app.repositories.user_repository import get_user_by_clerk_id
+from app.services.report_service import ReportService
 
 router = APIRouter(
     prefix="/emails",
@@ -21,46 +20,43 @@ router = APIRouter(
 )
 
 
-@router.get("/{recipient_email}")
-async def trigger_email_sending(recipient_email: str):
-    # TODO: Replace with actual user and search profile based on scheduler event
-    search_profile_id = uuid.UUID("e8ee904c-52b1-40b8-9f1f-5acddafba4b7")
-    user = await get_user_by_clerk_id(
-        "user_2yRftSI1ia4lKO8feVyDOaPdUi0"
-    )
+@router.get("/?user_id={user_id}&search_profile_id={search_profile_id}")
+async def send_report_email(user_id: str, search_profile_id: str):
+    # TODO: Replace with actual user id from scheduler or request context
+    search_profile_id = uuid.UUID(search_profile_id)
+    timeslot = "morning"
 
-    ##############################################################################
-    ################### Email sending logic begins here ##########################
-    ##############################################################################
-
+    # Get user and check if he's allowed to access the search profile
+    user = await get_user_by_clerk_id(user_id)
     search_profile = await SearchProfileService.get_search_profile_by_id(
-        search_profile_id, user
+        search_profile_id, current_user=user
     )
+    if not search_profile:
+        raise HTTPException(status_code=404, detail="SearchProfile not found")
 
-    # TODO: Uncomment the following line when using actual user email
-    # recipient_email = user.email
-
-    pdf_bytes = await PDFService.create_sample_pdf(search_profile)
-
-    s3_key = f"reports/{search_profile.id}/daily_report_{datetime.now().strftime("%Y-%m-%d_%H-%M-%S")}.pdf"
-
-    try:
-        await S3Service.upload_fileobj(pdf_bytes, "eutop-mediamind", s3_key)
-        presigned_url = S3Service.generate_presigned_url(
-            key=s3_key,
-            expires_in=604800,  # 1 week
+    # Get or create report
+    report = await ReportService.get_or_create_report(
+        search_profile_id, timeslot
+    )
+    if not report:
+        raise HTTPException(
+            status_code=500, detail="Could not create or retrieve report"
         )
-        dashboard_url = f"https://mediamind.csee.tech/dashboard/{s3_key}"
-    except Exception as e:
-        return {
-            "error": f"Failed to upload PDF or generate presigned URL: {str(e)}"
-        }
 
+    # Prepare email
+    presigned_url = S3Service.generate_presigned_url(
+        key=report.s3_key, expires_in=604800  # 7 days
+    )
+    dashboard_url = f"https://mediamind.csee.tech/dashboard/{report.s3_key}"
+
+    # Use the actual search profile name in the email content
     email_schedule = EmailSchedule(
-        recipient=recipient_email,
-        subject="[MEDIAMIND] Your daily report",
+        recipient=user.email,
+        subject=f"[MEDIAMIND] Your {report.time_slot.capitalize()} Report",
         content_type="text/HTML",
-        content=build_email_content(presigned_url, dashboard_url),
+        content=build_email_content(
+            presigned_url, dashboard_url, search_profile.name
+        ),
         attachment=None,
     )
 
@@ -69,7 +65,9 @@ async def trigger_email_sending(recipient_email: str):
     return {"message": "Email scheduled and sent successfully."}
 
 
-def build_email_content(s3_link: str, dashboard_link: str) -> str:
+def build_email_content(
+    s3_link: str, dashboard_link: str, profile_name: str
+) -> str:
     return f"""
 <!DOCTYPE html>
 <html lang="en">
@@ -136,7 +134,7 @@ def build_email_content(s3_link: str, dashboard_link: str) -> str:
               <!-- Profile section -->
               <div class="profile-section" style="margin-bottom:25px; padding-bottom:25px; border-bottom:1px solid #e9ecef;">
                 <p style="color:#6c757d; font-size:0.95em; text-transform:uppercase; letter-spacing:1px; margin-bottom:8px; font-weight:500;">Search Profile</p>
-                <p style="color:#1e5091; font-size:1.2em; font-weight:600; margin:0;">BMW EX</p>
+                <p style="color:#1e5091; font-size:1.2em; font-weight:600; margin:0;">{profile_name}</p>
               </div>
               <!-- Message -->
               <div style="font-size:1.05em; line-height:1.65; color:#495057; font-weight:400;">
