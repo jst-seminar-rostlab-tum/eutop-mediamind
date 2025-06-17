@@ -13,6 +13,7 @@ logger = get_logger(__name__)
 
 class AppCreator:
     def __init__(self):
+        # Initialize Sentry for production
         if configs.SENTRY_DSN and configs.ENVIRONMENT != "local":
             sentry_sdk.init(
                 dsn=configs.SENTRY_DSN,
