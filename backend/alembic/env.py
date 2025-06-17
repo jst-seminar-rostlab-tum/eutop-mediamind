@@ -1,21 +1,26 @@
+import os
 from logging.config import fileConfig
 
-from sqlalchemy import engine_from_config
-from sqlalchemy import pool
+from dotenv import load_dotenv
+from sqlalchemy import engine_from_config, pool
+from sqlmodel import SQLModel
 
 from alembic import context
 
-import os
-from dotenv import load_dotenv
-
-from sqlmodel import SQLModel
-
 # Needs to be imported for Alembic to recognize the models
 from app.models import (
-    User, Topic, Subscription, SearchProfile, Organization,
-    Match, Keyword, ArticleKeywordLink, Article, Email, Report,
+    Article,
+    ArticleKeywordLink,
+    Email,
+    Keyword,
+    Match,
+    Organization,
+    Report,
+    SearchProfile,
+    Subscription,
+    Topic,
+    User,
 )
-
 
 load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), '..', '.env'))
 

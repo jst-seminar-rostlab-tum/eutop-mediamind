@@ -9,10 +9,10 @@ from .organization import Organization
 
 if TYPE_CHECKING:
     from .match import Match
+    from .report import Report
     from .subscription import Subscription
     from .topic import Topic
     from .user import User
-    from .report import Report
 
 
 class SearchProfile(SQLModel, table=True):

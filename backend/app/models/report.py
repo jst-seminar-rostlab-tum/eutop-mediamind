@@ -1,9 +1,9 @@
 import uuid
-from typing import TYPE_CHECKING, Optional
 from datetime import datetime
 from enum import Enum
+from typing import TYPE_CHECKING, Optional
 
-from sqlmodel import Field, SQLModel, Relationship
+from sqlmodel import Field, Relationship, SQLModel
 
 if TYPE_CHECKING:
     from .search_profile import SearchProfile

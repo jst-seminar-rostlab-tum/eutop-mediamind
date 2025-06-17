@@ -8,11 +8,11 @@ import uuid
 
 from fastapi import APIRouter, HTTPException
 
+from app.repositories.user_repository import get_user_by_clerk_id
 from app.services.email_service import EmailSchedule, EmailService
+from app.services.report_service import ReportService
 from app.services.s3_service import S3Service
 from app.services.search_profiles_service import SearchProfileService
-from app.repositories.user_repository import get_user_by_clerk_id
-from app.services.report_service import ReportService
 
 router = APIRouter(
     prefix="/emails",
