@@ -52,7 +52,7 @@ async def send_report_email(user_id: str, search_profile_id: str):
     # Use the actual search profile name in the email content
     email_schedule = EmailSchedule(
         recipient=user.email,
-        subject=f"[MEDIAMIND] Your {report.time_slot.capitalize()} Report",
+        subject=f"[MEDIAMIND] Your {report.time_slot.capitalize()} Report for {search_profile.name}",
         content_type="text/HTML",
         content=build_email_content(
             presigned_url, dashboard_url, search_profile.name
