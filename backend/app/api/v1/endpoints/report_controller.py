@@ -6,9 +6,9 @@ from app.core.auth import get_authenticated_user
 from app.core.logger import get_logger
 from app.models.user import User
 from app.schemas.report_schemas import (
-    ReportRead,
     ReportDetailResponse,
     ReportListResponse,
+    ReportRead,
 )
 from app.services.report_service import ReportService
 from app.services.s3_service import S3Service

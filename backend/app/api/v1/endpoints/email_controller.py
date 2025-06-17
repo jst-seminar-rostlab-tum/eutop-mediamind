@@ -6,8 +6,8 @@ This is just a testing controller for sending emails and creating PDFs.
 Once we have a proper scheduler, we can remove this controller.
 """
 
-from datetime import datetime
 import uuid
+from datetime import datetime
 
 from fastapi import APIRouter, HTTPException, Query
 
