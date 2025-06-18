@@ -146,35 +146,35 @@ class ArticleVectorService:
             )
 
 
-async def add_article(self, article_id: uuid.UUID) -> None:
-    """
-    Add an article to the vector store based on its ID.
-    Args:
-        self: Instance of the ArticleVectorService.
-        article_id: UUID of the article to be added to the vector store.
+    async def add_article(self, article_id: uuid.UUID) -> None:
+        """
+        Add an article to the vector store based on its ID.
+        Args:
+            self: Instance of the ArticleVectorService.
+            article_id: UUID of the article to be added to the vector store.
 
-    Returns: None
+        Returns: None
 
-    """
-    article: Optional[Article] = await ArticleRepository.get_article_by_id(
-        article_id
-    )
-
-    if not article or not article.summary or not article.summary.strip():
-        logger.error(
-            f"Article with ID {article_id} not found or has no summary."
+        """
+        article: Optional[Article] = await ArticleRepository.get_article_by_id(
+            article_id
         )
-        return
 
-    document = Document(
-        page_content=article.summary,
-        metadata={
-            "id": str(article.id),
-            "subscription_id": str(article.subscription_id),
-            "title": article.title,
-        },
-    )
+        if not article or not article.summary or not article.summary.strip():
+            logger.error(
+                f"Article with ID {article_id} not found or has no summary."
+            )
+            return
 
-    self.vector_store.add_documents(
-        documents=[document], ids=[str(article.id)]
-    )
+        document = Document(
+            page_content=article.summary,
+            metadata={
+                "id": str(article.id),
+                "subscription_id": str(article.subscription_id),
+                "title": article.title,
+            },
+        )
+
+        self.vector_store.add_documents(
+            documents=[document], ids=[str(article.id)]
+        )
