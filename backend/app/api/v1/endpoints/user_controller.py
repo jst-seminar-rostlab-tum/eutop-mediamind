@@ -27,6 +27,11 @@ async def sync_user_with_clerk(user=Depends(get_sync_user)):
     return user
 
 
+@router.put("/me/update", response_model=UserEntity)
+async def update_language(language: str, user=Depends(get_sync_user)):
+    return UserService.update_user_language(language, user)
+
+
 @router.delete("/me", response_model=FeedbackResponse)
 async def delete_current_user(current_user=Depends(get_authenticated_user)):
     raise HTTPException(status_code=403, detail="Not Implemented jet")

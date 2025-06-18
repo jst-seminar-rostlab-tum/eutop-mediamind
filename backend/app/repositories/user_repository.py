@@ -9,13 +9,14 @@ from app.models import User
 from app.schemas.user_schema import UserEntity
 
 
-def _to_user_entity(user: User) -> UserEntity:
+def _to_user_entity(user: User | UserEntity) -> UserEntity:
     return UserEntity(
         id=user.id,
         clerk_id=user.clerk_id,
         email=user.email,
         first_name=user.first_name,
         last_name=user.last_name,
+        language=user.language,
         is_superuser=user.is_superuser,
         organization_id=user.organization_id,
         organization_name=(
@@ -102,3 +103,12 @@ async def get_user_list_from_organization(
 
         users = await session.execute(query)
         return users.scalars().all()
+
+
+async def update_language(user: UserEntity, language: str) -> UserEntity:
+    async with async_session() as session:
+        user.language = language
+        session.add(user)
+        session.commit()
+        session.refresh(user)
+        return _to_user_entity(user)

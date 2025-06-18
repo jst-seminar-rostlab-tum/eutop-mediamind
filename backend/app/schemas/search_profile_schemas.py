@@ -16,6 +16,7 @@ class SearchProfileBase(BaseModel):
     profile_emails: List[EmailStr] = []
     subscriptions: List[SubscriptionSummary]
     owner_id: UUID
+    language: str = "en"
 
 
 # --- Request Models ---
@@ -43,6 +44,7 @@ class SearchProfileDetailBase(BaseModel):
     owner_id: UUID
     is_owner: bool
     topics: List[TopicResponse]
+    language: str = "en"
 
 
 class SearchProfileDetailResponse(SearchProfileDetailBase):

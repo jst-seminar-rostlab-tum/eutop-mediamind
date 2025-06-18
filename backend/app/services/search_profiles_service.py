@@ -133,6 +133,7 @@ class SearchProfileService:
             editable=is_editable,
             is_editable=is_editable,
             owner_id=profile.created_by_id,
+            lanuage=profile.language,
             is_owner=is_owner,
             organization_emails=organization_emails,
             profile_emails=profile_emails,

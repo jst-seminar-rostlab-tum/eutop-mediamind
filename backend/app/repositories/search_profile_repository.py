@@ -29,6 +29,7 @@ async def create_profile_with_request(
         organization_id=current_user.organization_id,
         created_by_id=current_user.id,
         owner_id=create_data.owner_id,
+        language=create_data.language,
     )
     session.add(profile)
     await session.commit()
@@ -145,6 +146,7 @@ async def update_profile_with_request(
     # Update base fields
     profile.name = update_data.name
     profile.is_public = update_data.is_public
+    profile.language = update_data.language
 
     # update owner of
     if user.id == profile.created_by_id or user.is_superuser:
