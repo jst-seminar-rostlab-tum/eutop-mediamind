@@ -46,29 +46,8 @@ class ArticleVectorService:
         )
 
     def create_collection_safe(self, collection_name: str) -> None:
-        try:
-            if not self._qdrant_client.collection_exists(
-                collection_name=collection_name
-            ):
-                self._qdrant_client.create_collection(
-                    collection_name=collection_name,
-                    vectors_config={
-                        "dense": VectorParams(
-                            size=3072, distance=Distance.COSINE
-                        )
-                    },
-                    sparse_vectors_config={
-                        "sparse": SparseVectorParams(
-                            index=models.SparseIndexParams(on_disk=False)
-                        )
-                    },
-                )
-        except Exception:
-            pass
-
-    def create_collection(self, collection_name: str):
         """
-        Create a Qdrant collection for storing article vectors.
+        Create a Qdrant collection for storing vectors.
         """
         if not self._qdrant_client.collection_exists(collection_name):
             self._qdrant_client.create_collection(
@@ -109,8 +88,9 @@ class ArticleVectorService:
             Document(
                 page_content=article.summary,
                 metadata={
-                    "id": article.id,
-                    "subscription_id": article.subscription_id,
+                    "id": str(article.id),
+                    "subscription_id": str(article.subscription_id),
+                    "title": article.title,
                 },
             )
             for article in articles
@@ -147,32 +127,16 @@ class ArticleVectorService:
         page: int = 0
         offset: int = page * page_size
 
-        articles: Sequence[Article] = (
+        articles: List[Article] = (
             await ArticleRepository.list_articles_with_summary(
                 limit=page_size, offset=offset
             )
         )
 
         while articles:
-            documents_to_index = []
-            document_ids = []
 
-            for article in articles:
-                documents_to_index.append(
-                    Document(
-                        page_content=article.summary,
-                        metadata={
-                            "id": str(article.id),
-                            "subscription_id": str(article.subscription_id),
-                            "title": article.title,
-                        },
-                    )
-                )
-                document_ids.append(str(article.id))
 
-            self.vector_store.add_documents(
-                documents=documents_to_index, ids=document_ids
-            )
+            self.add_articles(articles)
 
             page += 1
             offset = page * page_size
