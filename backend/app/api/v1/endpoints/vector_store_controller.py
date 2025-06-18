@@ -1,10 +1,10 @@
 from fastapi import APIRouter, BackgroundTasks, Depends
 
 from app.core.auth import get_authenticated_user
+from app.core.db import get_vector_service
 from app.core.logger import get_logger
 from app.models import User
 from app.services.article_vector_service import ArticleVectorService
-from app.core.db import get_vector_service
 
 router = APIRouter(prefix="/vector-store", tags=["vector-store"])
 
