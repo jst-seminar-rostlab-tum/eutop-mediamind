@@ -3,10 +3,8 @@ from datetime import datetime
 from typing import List, Optional
 from uuid import UUID
 
-from sqlmodel import select
-
-from app.core.db import async_session
 from app.models.report import Report, ReportStatus
+from app.repositories.report_repository import ReportRepository
 from app.schemas.report_schemas import ReportCreate
 from app.services.pdf_service import PDFService
 from app.services.s3_service import S3Service
@@ -18,10 +16,12 @@ class ReportService:
     @staticmethod
     async def get_or_create_report(
         search_profile_id: uuid.UUID, timeslot: str
-    ) -> Report:
+    ) -> Optional[Report]:
         # Try to find existing report
-        report = await ReportService.get_report_by_search_profile_and_timeslot(
-            search_profile_id, timeslot
+        report = (
+            await ReportRepository.get_report_by_search_profile_and_timeslot(
+                search_profile_id, timeslot
+            )
         )
         if report:
             return report
@@ -33,7 +33,7 @@ class ReportService:
     @staticmethod
     async def _generate_and_store_report(
         search_profile_id: uuid.UUID, timeslot: str
-    ) -> Report:
+    ) -> Optional[Report]:
         # Fetch search profile
         search_profile = await SearchProfileService.get_by_id(
             search_profile_id
@@ -50,7 +50,8 @@ class ReportService:
             time_slot=timeslot,
             s3_key="",  # set after upload
         )
-        report = await ReportService._create_report(temp_report_data)
+        report = Report.model_validate(temp_report_data, from_attributes=True)
+        report = await ReportRepository.create_report(report)
 
         # TODO: Replace with actual PDF generation logic
         pdf_bytes = await PDFService.create_sample_pdf(search_profile)
@@ -62,7 +63,7 @@ class ReportService:
         # Update the report with the correct s3_key and mark as uploaded
         report.s3_key = s3_key
         report.status = ReportStatus.UPLOADED
-        await ReportService._update_report(report)
+        report = await ReportRepository.update_report(report)
 
         return report
 
@@ -70,56 +71,20 @@ class ReportService:
     async def get_reports_by_search_profile(
         search_profile_id: UUID,
     ) -> List[Report]:
-        async with async_session() as session:
-            result = await session.execute(
-                select(Report).where(
-                    Report.search_profile_id == search_profile_id
-                )
-            )
-            return result.scalars().all()
+        return await ReportRepository.get_reports_by_search_profile(
+            search_profile_id
+        )
 
     @staticmethod
     async def get_report_by_id(report_id: UUID) -> Optional[Report]:
-        async with async_session() as session:
-            result = await session.execute(
-                select(Report).where(Report.id == report_id)
-            )
-            return result.scalars().first()
+        return await ReportRepository.get_report_by_id(report_id)
 
     @staticmethod
     async def get_report_by_search_profile_and_timeslot(
         search_profile_id: UUID, timeslot: str
     ) -> Optional[Report]:
-        async with async_session() as session:
-            result = await session.execute(
-                select(Report).where(
-                    Report.search_profile_id == search_profile_id,
-                    Report.time_slot == timeslot,
-                    Report.status == ReportStatus.UPLOADED,
-                )
+        return (
+            await ReportRepository.get_report_by_search_profile_and_timeslot(
+                search_profile_id, timeslot
             )
-            return result.scalars().first()
-
-    @staticmethod
-    async def _create_report(
-        report_data: ReportCreate,
-    ) -> Report:
-        async with async_session() as session:
-            report = Report.from_orm(report_data)
-            session.add(report)
-            await session.commit()
-            await session.refresh(report)
-            return report
-
-    @staticmethod
-    async def _update_report(report: Report) -> Report:
-        async with async_session() as session:
-            db_report = await session.get(Report, report.id)
-            if not db_report:
-                raise ValueError("Report not found")
-            for field, value in report.model_dump().items():
-                setattr(db_report, field, value)
-            session.add(db_report)
-            await session.commit()
-            await session.refresh(db_report)
-            return db_report
+        )
