@@ -10,6 +10,8 @@ from app.services.pdf_service import PDFService
 from app.services.s3_service import S3Service
 from app.services.search_profiles_service import SearchProfileService
 
+logger = get_logger(__name__)
+
 
 class ReportService:
 
@@ -26,6 +28,10 @@ class ReportService:
         if report:
             return report
         # Otherwise, create it
+
+        logger.info(
+            f"Generating new report for search profile {search_profile_id} for timeslot {timeslot}"
+        )
         return await ReportService._generate_and_store_report(
             search_profile_id, timeslot
         )
