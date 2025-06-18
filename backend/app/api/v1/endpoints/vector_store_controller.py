@@ -1,8 +1,8 @@
 from fastapi import APIRouter, BackgroundTasks, Depends
 
 from app.core.auth import get_authenticated_user
-from app.core.db import get_vector_service
 from app.core.logger import get_logger
+from app.core.service import get_article_vector_service
 from app.models import User
 from app.services.article_vector_service import ArticleVectorService
 
@@ -16,7 +16,7 @@ async def add_articles_to_vector_store(
     background_tasks: BackgroundTasks,
     page_size: int = 100,
     current_user: User = Depends(get_authenticated_user),
-    vector_service: ArticleVectorService = Depends(get_vector_service),
+    vector_service: ArticleVectorService = Depends(get_article_vector_service),
 ):
     """
     Add a list of articles to the vector store.

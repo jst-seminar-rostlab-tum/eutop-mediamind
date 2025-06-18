@@ -96,7 +96,7 @@ class ArticleVectorService:
             for article in articles
         ]
 
-        uuids = [article.id for article in articles]
+        uuids = [str(article.id) for article in articles]
 
         self.vector_store.add_documents(documents=documents, ids=uuids)
 

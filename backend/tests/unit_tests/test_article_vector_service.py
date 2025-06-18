@@ -94,8 +94,8 @@ def test_add_articles_calls_vector_store(patch_qdrant_and_store):
     for art, doc, id_ in zip(articles, docs, ids):
         assert isinstance(doc, Document)
         assert doc.page_content == art.summary
-        assert doc.metadata["id"] == str(art.id)
-        assert id_ == art.id
+        assert str(doc.metadata["id"]) == str(art.id)
+        assert str(id_) == str(art.id)
 
 
 @pytest.mark.asyncio
