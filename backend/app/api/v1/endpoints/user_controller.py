@@ -28,7 +28,9 @@ async def get_users(
     try:
         return await UserService.list_users(current_user)
     except Exception as e:
-        logger.error("Error listing users for %s: %s", current_user.id, e)
+        logger.error(
+            "Error listing users for user with id=%s: %s", current_user.id, e
+        )
         raise HTTPException(
             status_code=500,
             detail="Failed to list users",
@@ -47,12 +49,12 @@ async def get_current_user_info(
 
 @router.post("/sync", response_model=UserEntity)
 async def sync_user(
-    sync_user: UserEntity = Depends(get_sync_user),
+    synced_user: UserEntity = Depends(get_sync_user),
 ) -> UserEntity:
     """
     Synchronize the current user with the external Clerk service.
     """
-    return sync_user
+    return synced_user
 
 
 @router.delete("/me", response_model=FeedbackResponse)

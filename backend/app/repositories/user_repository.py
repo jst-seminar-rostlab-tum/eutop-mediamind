@@ -82,7 +82,7 @@ async def update_user(
     existing: UserEntity,
     email: Optional[str],
     data: Dict[str, Any],
-) -> UserEntity:
+) -> UserEntity | None:
     """
     Update a user’s fields if they differ from Clerk data,
     and return the updated UserEntity.
@@ -96,7 +96,7 @@ async def update_user(
         result = await session.execute(stmt)
         user = result.scalar_one()
     except NoResultFound:
-        raise ValueError(f"User with id {existing.id} not found")
+        return None
 
     updated = False
 

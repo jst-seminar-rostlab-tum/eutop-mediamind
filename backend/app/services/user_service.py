@@ -51,7 +51,7 @@ class UserService:
         existing: UserEntity,
         email: Optional[str],
         data: Dict[str, Any],
-    ) -> UserEntity:
+    ) -> UserEntity | None:
         """
         Update local User fields if they differ from Clerk data.
         """
