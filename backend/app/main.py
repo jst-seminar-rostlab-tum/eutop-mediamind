@@ -13,12 +13,13 @@ logger = get_logger(__name__)
 
 class AppCreator:
     def __init__(self):
+        # Initialize Sentry for production
         if configs.SENTRY_DSN and configs.ENVIRONMENT != "local":
             sentry_sdk.init(
                 dsn=configs.SENTRY_DSN,
                 send_default_pii=True,
                 traces_sample_rate=1.0,
-                environment=configs.ENV,
+                environment=configs.ENVIRONMENT,
             )
 
         logger.info("Starting FastAPI app initialization.")
