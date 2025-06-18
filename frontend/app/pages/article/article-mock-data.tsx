@@ -1,11 +1,19 @@
 interface topicMatch {
   id: string;
+  name: string;
   keywords: string[];
+  score: number;
+}
+
+interface profile {
+  id: string;
+  name: string;
 }
 
 export interface NewsArticle {
   id: string;
-  topic: topicMatch;
+  topics: topicMatch[];
+  profile: profile;
   title: string;
   content: string;
   url: string;
@@ -23,21 +31,40 @@ export interface NewsArticle {
 export const getArticle = (): NewsArticle => {
   return {
     id: "a7a02941-0fee-4865-9ff6-d03fc0bc9a4b",
-    topic: {
-      id: "health-nutrition-deficiency",
-      keywords: [
-        "jodmangel",
-        "schilddrüse",
-        "gesundheit",
-        "ernährung",
-        "who",
-        "deutschland",
-      ],
+    topics: [
+      {
+        name: "Jodmangel",
+        id: "health-nutrition-deficiency",
+        keywords: [
+          "jodmangel",
+          "schilddrüse",
+          "gesundheit",
+          "ernährung",
+          "who",
+          "deutschland",
+        ],
+        score: 0.7,
+      },
+      {
+        name: "Ernährung",
+        id: "health-nutrition-deficiency",
+        keywords: ["ernährung", "schilddrüse", "gesundheit", "ernährung"],
+        score: 0.2,
+      },
+    ],
+    profile: {
+      id: "a7a02941-0fee-4865-9ff6-d03fc0bc9a4b",
+      name: "Böhringer Ingelheim",
     },
     title:
       "Deutschland erneut Jodmangelgebiet: Warum das für die Gesundheit gefährlich ist",
     content:
-      "Jodmangel ist in Deutschland zurück – laut WHO mit ernsten Folgen. Besonders betroffen: die Schilddrüse und das Hormonsystem. Viele heutige Schilddrüsenprobleme gehen auf starken Jodmangel vor den 1980er Jahren zurück, bevor die Jodmangel-Prophylaxe eingeführt wurde. Die Jodversorgung verbesserte sich damals deutlich durch jodiertes Speisesalz und jodiertes Tierfutter. Anfang der 2000er Jahre galt das Problem weitgehend als gelöst. Doch die WHO weist darauf hin, dass der Trend zu einer Ernährung ohne tierische Produkte und der steigende Anteil an Bioprodukten, die meist weniger Jod enthalten als konventionelle Lebensmittel, zu einem erneuten Anstieg des Jodmangels beitragen. Das kann gesundheitliche Folgen haben. Studien des Robert-Koch-Instituts zeigen, dass 32 Prozent der Erwachsenen und 44 Prozent der Kinder und Jugendlichen in Deutschland ein erhöhtes Risiko für Jodmangel haben. Die Weltgesundheitsorganisation WHO stuft Deutschland inzwischen wieder als Jodmangelgebiet ein. Dies kann erhebliche gesundheitliche Folgen haben. Jodmangel in Deutschland: Unterversorgung kann Schilddrüse schaden Da der Körper Jod nicht selbst herstellen kann, ist das Spurenelement lebenswichtig, wie ARD Gesund betont. Es wird benötigt, um Schilddrüsenhormone zu produzieren. Die T3- und T4-Hormone steuern viele wichtige Körperfunktionen: Sie beeinflussen Herz und Kreislauf, regulieren den Blutdruck, fördern das Gewebewachstum und die Zellteilung. Zudem sind sie für die gesunde Funktion von Gehirn und Nervensystem unerlässlich und spielen eine Rolle bei der Regulierung des Körpergewichts. Ein Jodmangel kann langfristig zu einer Vergrößerung der Schilddrüse führen. Im schlimmsten Fall entstehen Knoten, die selten bösartig sind, aber auf Schilddrüsenkrebs hinweisen können. Häufig zeigt sich eine sichtbare Vergrößerung der Schilddrüse, der sogenannte Kropf oder Struma. Außerdem kann Jodmangel depressive Verstimmungen, Konzentrationsschwäche, Lernprobleme sowie Symptome wie Schwitzen, Schlafstörungen, Durchfall und Gewichtsverlust verursachen. Besonders kritisch ist ein Jodmangel während Schwangerschaft und Stillzeit, da er bei Kindern dauerhafte Entwicklungs- und Funktionsstörungen hervorrufen kann. Gesundheitliche Folgen: Jodmangel kann bei Frauen besonders gefährlich sein Eine verbesserte Jodversorgung wäre vor allem für Frauen wichtig. Laut ARD Gesund sind Frauen deutlich häufiger von Schilddrüsenerkrankungen betroffen als Männer. Die genauen Ursachen sind noch nicht abschließend erforscht, doch hormonelle Veränderungen – etwa durch Schwangerschaft, hormonelle Verhütung oder die Wechseljahre – können die empfindliche Schilddrüsenfunktion stören. Zudem ist das Immunsystem von Frauen in der Regel stärker aktiv, was sie zwar besser vor Infektionen schützt, sie aber gleichzeitig anfälliger für Autoimmunerkrankungen macht. Dazu gehören Schilddrüsenerkrankungen wie Hashimoto-Thyreoiditis oder Morbus Basedow. Vorschläge gegen Jodmangel: Jodsalz in Lebensmittelindustrie kann Jodmangel Bekämpfen In den letzten zehn Jahren haben sich die Ernährungsgewohnheiten der Deutschen deutlich gewandelt. Immer mehr Menschen greifen vermehrt zu pflanzlichen Lebensmitteln. Eine Ernährung mit weniger Fleisch und Milchprodukten sowie der verstärkte Konsum von Bioprodukten hat viele Vorteile – deswegen müsse sich die Industrie anpassen. Die Jodierung von Speisesalz bleibt weiterhin die wichtigste Maßnahme zur Sicherstellung einer ausreichenden Jodversorgung. Gauden Galea, strategischer Berater des Regionaldirektors im Rahmen der WHO-Sonderinitiative für nichtübertragbare Krankheiten und Innovation (SNI), erklärt in einer Mitteilung der WHO: „In Anbetracht der veränderten Ernährungsgewohnheiten muss auch eine angemessene Anreicherung von alternativen Milch- und Molkereiprodukten mit Jod sichergestellt werden. Zudem seien verbindliche Vorgaben zur Verwendung von jodiertem Speisesalz in verarbeiteten Lebensmitteln nötig, um den Jodmangel europaweit zu bekämpfen.",
+      "Jodmangel ist in Deutschland zurück – laut WHO mit ernsten Folgen. Besonders betroffen: die Schilddrüse und das Hormonsystem. Viele heutige Schilddrüsenprobleme gehen auf starken Jodmangel vor den 1980er Jahren zurück, bevor die Jodmangel-Prophylaxe eingeführt wurde. Die Jodversorgung verbesserte sich damals deutlich durch jodiertes Speisesalz und jodiertes Tierfutter. Anfang der 2000er Jahre galt das Problem weitgehend als gelöst.\n\n" +
+      "Doch die WHO weist darauf hin, dass der Trend zu einer Ernährung ohne tierische Produkte und der steigende Anteil an Bioprodukten, die meist weniger Jod enthalten als konventionelle Lebensmittel, zu einem erneuten Anstieg des Jodmangels beitragen. Das kann gesundheitliche Folgen haben. Studien des Robert-Koch-Instituts zeigen, dass 32 Prozent der Erwachsenen und 44 Prozent der Kinder und Jugendlichen in Deutschland ein erhöhtes Risiko für Jodmangel haben. Die Weltgesundheitsorganisation WHO stuft Deutschland inzwischen wieder als Jodmangelgebiet ein.\n\n" +
+      "Da der Körper Jod nicht selbst herstellen kann, ist das Spurenelement lebenswichtig, wie ARD Gesund betont. Es wird benötigt, um Schilddrüsenhormone zu produzieren. Die T3- und T4-Hormone steuern viele wichtige Körperfunktionen: Sie beeinflussen Herz und Kreislauf, regulieren den Blutdruck, fördern das Gewebewachstum und die Zellteilung. Zudem sind sie für die gesunde Funktion von Gehirn und Nervensystem unerlässlich und spielen eine Rolle bei der Regulierung des Körpergewichts.\n\n" +
+      "Ein Jodmangel kann langfristig zu einer Vergrößerung der Schilddrüse führen. Im schlimmsten Fall entstehen Knoten, die selten bösartig sind, aber auf Schilddrüsenkrebs hinweisen können. Häufig zeigt sich eine sichtbare Vergrößerung der Schilddrüse, der sogenannte Kropf oder Struma. Außerdem kann Jodmangel depressive Verstimmungen, Konzentrationsschwäche, Lernprobleme sowie Symptome wie Schwitzen, Schlafstörungen, Durchfall und Gewichtsverlust verursachen.\n\n" +
+      "Eine verbesserte Jodversorgung wäre vor allem für Frauen wichtig. Laut ARD Gesund sind Frauen deutlich häufiger von Schilddrüsenerkrankungen betroffen als Männer. Die genauen Ursachen sind noch nicht abschließend erforscht, doch hormonelle Veränderungen – etwa durch Schwangerschaft, hormonelle Verhütung oder die Wechseljahre – können die empfindliche Schilddrüsenfunktion stören. Zudem ist das Immunsystem von Frauen in der Regel stärker aktiv, was sie zwar besser vor Infektionen schützt, sie aber gleichzeitig anfälliger für Autoimmunerkrankungen macht.\n\n" +
+      "In den letzten zehn Jahren haben sich die Ernährungsgewohnheiten der Deutschen deutlich gewandelt. Immer mehr Menschen greifen vermehrt zu pflanzlichen Lebensmitteln. Eine Ernährung mit weniger Fleisch und Milchprodukten sowie der verstärkte Konsum von Bioprodukten hat viele Vorteile – deswegen müsse sich die Industrie anpassen. Die Jodierung von Speisesalz bleibt weiterhin die wichtigste Maßnahme zur Sicherstellung einer ausreichenden Jodversorgung. Gauden Galea, strategischer Berater des Regionaldirektors im Rahmen der WHO-Sonderinitiative für nichtübertragbare Krankheiten und Innovation (SNI), erklärt in einer Mitteilung der WHO: „In Anbetracht der veränderten Ernährungsgewohnheiten muss auch eine angemessene Anreicherung von alternativen Milch- und Molkereiprodukten mit Jod sichergestellt werden. Zudem seien verbindliche Vorgaben zur Verwendung von jodiertem Speisesalz in verarbeiteten Lebensmitteln nötig, um den Jodmangel europaweit zu bekämpfen.",
     url: "https://www.merkur.de/welt/deutschland-erneut-jodmangelgebiet-warum-das-fuer-die-gesundheit-gefaehrlich-ist-zr-93774187.html",
     author: "John Doe",
     published_at: "2025-06-06 18:06:41.000000",

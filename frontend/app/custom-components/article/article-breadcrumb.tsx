@@ -7,13 +7,19 @@ import {
   BreadcrumbSeparator,
 } from "~/components/ui/breadcrumb";
 import React from "react";
+import { truncateAtWord } from "~/lib/utils";
 
 interface ArticleBreadcrumbProps {
   searchProfileId: string;
+  searchProfileName: string;
+  articleName: string;
 }
 
-// TODO: Show profile and article name in breadcrumb
-export function ArticleBreadcrumb({ searchProfileId }: ArticleBreadcrumbProps) {
+export function ArticleBreadcrumb({
+  searchProfileId,
+  searchProfileName,
+  articleName,
+}: ArticleBreadcrumbProps) {
   return (
     <Breadcrumb>
       <BreadcrumbList>
@@ -23,12 +29,12 @@ export function ArticleBreadcrumb({ searchProfileId }: ArticleBreadcrumbProps) {
         <BreadcrumbSeparator />
         <BreadcrumbItem>
           <BreadcrumbLink href={`/dashboard/${searchProfileId}`}>
-            Profile
+            {searchProfileName}
           </BreadcrumbLink>
         </BreadcrumbItem>
         <BreadcrumbSeparator />
         <BreadcrumbItem>
-          <BreadcrumbPage>Article</BreadcrumbPage>
+          <BreadcrumbPage>{truncateAtWord(articleName, 40)}</BreadcrumbPage>
         </BreadcrumbItem>
       </BreadcrumbList>
     </Breadcrumb>
