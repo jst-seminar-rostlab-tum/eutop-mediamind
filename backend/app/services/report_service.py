@@ -3,6 +3,7 @@ from datetime import datetime
 from typing import List, Optional
 from uuid import UUID
 
+from app.core.logger import get_logger
 from app.models.report import Report, ReportStatus
 from app.repositories.report_repository import ReportRepository
 from app.schemas.report_schemas import ReportCreate
@@ -30,7 +31,7 @@ class ReportService:
         # Otherwise, create it
 
         logger.info(
-            f"Generating new report for search profile {search_profile_id} for timeslot {timeslot}"
+            f"Generating {timeslot} new report for profile {search_profile_id}"
         )
         return await ReportService._generate_and_store_report(
             search_profile_id, timeslot
