@@ -29,7 +29,7 @@ async def sync_user_with_clerk(user=Depends(get_sync_user)):
 
 @router.put("/me/update", response_model=UserEntity)
 async def update_language(language: str, user=Depends(get_sync_user)):
-    return UserService.update_user_language(language, user)
+    return await UserService.update_user_language(language, user)
 
 
 @router.delete("/me", response_model=FeedbackResponse)

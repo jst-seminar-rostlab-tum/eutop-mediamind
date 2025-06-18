@@ -19,7 +19,6 @@ class SearchProfile(SQLModel, table=True):
     # Attributes
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     name: str = Field(max_length=255)
-    description: str | None = Field(default=None, max_length=255)
     is_public: bool = Field(default=False)
     created_by_id: uuid.UUID = Field(foreign_key="users.id")
     owner_id: uuid.UUID = Field(default=None, foreign_key="users.id")

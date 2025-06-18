@@ -26,4 +26,4 @@ class UserService:
         user = await get_user_by_clerk_id(user.clerk_id)
 
         # 2) update
-        return update_language(user, language)
+        return await update_language(user, language)
