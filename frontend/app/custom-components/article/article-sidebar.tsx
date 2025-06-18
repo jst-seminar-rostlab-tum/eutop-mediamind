@@ -40,13 +40,32 @@ export function ArticleSidebar({ article }: ArticleSidebarProps) {
           </AccordionItem>
         </Accordion>
       </div>
-      <div className={"rounded-3xl border p-4"}>
-        <span>Keywords</span>
-        <div className={"flex flex-wrap gap-1 pt-1"}>
-          {article.topic.keywords.map((keyword) => (
-            <Badge className={"p-1.5 rounded-lg"}>{keyword}</Badge>
-          ))}
-        </div>
+      <div className={"rounded-3xl border p-4 space-y-2"}>
+        <span className={"font-bold"}>Keywords</span>
+        <p className={"text-sm text-gray-400"}>
+          Displays matched profile topics with keywords, and a score indicating
+          topic relevance to the article.
+        </p>
+        {article.topics.map((topic) => (
+          <div className={"space-y-1 bg-gray-100 p-2 rounded-2xl"}>
+            <div className={"flex items-center gap-2"}>
+              <p className={"font-bold text-gray-800"}>{topic.name}</p>
+              <Badge
+                className={"p-1.5 rounded-lg"}
+                style={{
+                  backgroundColor: `rgb(${Math.round(200 * (1 - topic.score)) + 55}, ${Math.round(200 * topic.score) + 55}, 100)`,
+                }}
+              >
+                {topic.score}
+              </Badge>
+            </div>
+            <div className={"flex flex-wrap gap-1 pt-1"}>
+              {topic.keywords.map((keyword) => (
+                <Badge className={"p-1.5 rounded-lg"}>{keyword}</Badge>
+              ))}
+            </div>
+          </div>
+        ))}
       </div>
       <ArticleMetaDataTable article={article} />
     </div>

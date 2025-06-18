@@ -16,6 +16,7 @@ export default function Article() {
       searchProfileId={searchProfileId}
       matchId={matchId}
       article={article}
+      searchProfileName={article.profile.name}
     />
   );
 }

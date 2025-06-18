@@ -7,24 +7,24 @@ interface ArticleBodyProps {
   author: string;
 }
 
+const calculateReadingTime = (text: string): string => {
+  const averageWordsPerMinute = 225;
+  const averageCharactersPerWord = 5;
+
+  const estimatedWords = text.length / averageCharactersPerWord;
+  const readingTimeMinutes = estimatedWords / averageWordsPerMinute;
+
+  const roundedMinutes = Math.max(1, Math.round(readingTimeMinutes));
+
+  return `${roundedMinutes} min`;
+};
+
 export function ArticleBody({
   title,
   content,
   published_at,
   author,
 }: ArticleBodyProps) {
-  const calculateReadingTime = (text: string): string => {
-    const averageWordsPerMinute = 225;
-    const averageCharactersPerWord = 5;
-
-    const estimatedWords = text.length / averageCharactersPerWord;
-    const readingTimeMinutes = estimatedWords / averageWordsPerMinute;
-
-    const roundedMinutes = Math.max(1, Math.round(readingTimeMinutes));
-
-    return `${roundedMinutes} min`;
-  };
-
   const readingTime = calculateReadingTime(content);
 
   return (
@@ -44,7 +44,9 @@ export function ArticleBody({
           {readingTime}
         </div>
       </div>
-      <p className={"text-gray-800"}>{content}</p>
+      <article className={"text-gray-800 whitespace-pre-wrap"}>
+        {content}
+      </article>
     </div>
   );
 }

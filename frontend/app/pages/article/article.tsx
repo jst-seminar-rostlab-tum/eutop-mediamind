@@ -4,40 +4,31 @@ import { ArticleSidebar } from "~/custom-components/article/article-sidebar";
 import type { Article } from "../../../types/model";
 import { ArticleBody } from "~/custom-components/article/article-body";
 import Layout from "~/custom-components/layout";
+import { formatDate } from "~/lib/utils";
 
 interface ArticleProps {
   searchProfileId: string;
   matchId: string;
   article: Article;
+  searchProfileName: string;
 }
 
-export function ArticlePage({ searchProfileId, article }: ArticleProps) {
-  const formatDate = (dateString: string): string => {
-    try {
-      const date = new Date(dateString);
-
-      if (isNaN(date.getTime())) {
-        return "Invalid Date";
-      }
-
-      return date.toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-      });
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (error) {
-      return "Invalid Date";
-    }
-  };
-
+export function ArticlePage({
+  searchProfileId,
+  article,
+  searchProfileName,
+}: ArticleProps) {
   const publishDateString = formatDate(article.published_at);
 
   return (
     <Layout>
       <div className="flex gap-15">
         <div className="w-2/3 space-y-8">
-          <ArticleBreadcrumb searchProfileId={searchProfileId} />
+          <ArticleBreadcrumb
+            searchProfileId={searchProfileId}
+            searchProfileName={searchProfileName}
+            articleName={article.title}
+          />
           <ArticleBody
             title={article.title}
             content={article.content}

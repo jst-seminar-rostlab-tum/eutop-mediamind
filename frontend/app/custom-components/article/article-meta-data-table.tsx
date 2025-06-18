@@ -6,31 +6,13 @@ import {
   TableRow,
 } from "~/components/ui/table";
 import type { Article } from "../../../types/model";
+import { formatDate } from "~/lib/utils";
 
 interface ArticleMetaDataTableProps {
   article: Article;
 }
 
 export function ArticleMetaDataTable({ article }: ArticleMetaDataTableProps) {
-  const formatDate = (dateString: string): string => {
-    try {
-      const date = new Date(dateString);
-
-      if (isNaN(date.getTime())) {
-        return "Invalid Date";
-      }
-
-      return date.toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-      });
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (error) {
-      return "Invalid Date";
-    }
-  };
-
   return (
     <div className="border border-gray-200 rounded-3xl p-3">
       <Table>
