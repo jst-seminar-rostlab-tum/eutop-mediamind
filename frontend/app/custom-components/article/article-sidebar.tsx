@@ -34,7 +34,9 @@ export function ArticleSidebar({ article }: ArticleSidebarProps) {
             <AccordionTrigger className={"text-md font-semibold text-gray-900"}>
               Summary
             </AccordionTrigger>
-            <AccordionContent className={"text-gray-800 pb-4"}>
+            <AccordionContent
+              className={"text-gray-800 pb-4 whitespace-pre-wrap"}
+            >
               <p>{article.summary}</p>
             </AccordionContent>
           </AccordionItem>
