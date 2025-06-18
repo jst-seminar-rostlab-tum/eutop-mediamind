@@ -31,7 +31,9 @@ export function ArticleSidebar({ article }: ArticleSidebarProps) {
           defaultValue="summary"
         >
           <AccordionItem value={"summary"}>
-            <AccordionTrigger className={"text-md font-semibold text-gray-900 cursor-pointer"}>
+            <AccordionTrigger
+              className={"text-md font-semibold text-gray-900 cursor-pointer"}
+            >
               Summary
             </AccordionTrigger>
             <AccordionContent
