@@ -1,16 +1,5 @@
-import { ScrollArea } from "~/components/ui/scroll-area";
-import {
-  ArrowDownNarrowWide,
-  Award,
-  Book,
-  CalendarFold,
-  ChevronDownIcon,
-  Mail,
-  Search,
-  StickyNote,
-  Tag,
-} from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { Book, Mail, Search } from "lucide-react";
+import { /*useEffect,*/ useMemo, useState } from "react";
 import { useParams } from "react-router";
 import { useQuery } from "types/api";
 import {
@@ -22,26 +11,13 @@ import {
   BreadcrumbSeparator,
 } from "~/components/ui/breadcrumb";
 import { Card, CardTitle } from "~/components/ui/card";
-import { Checkbox } from "~/components/ui/checkbox";
 import { Input } from "~/components/ui/input";
-import { Label } from "~/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "~/components/ui/select";
+
 import Layout from "~/custom-components/layout";
 import Text from "~/custom-components/text";
 import { truncateAtWord } from "~/lib/utils";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "~/components/ui/popover";
-import { Button } from "~/components/ui/button";
-import { Calendar } from "~/components/ui/calendar";
+
+import { SidebarFilter } from "./sidebar-filter";
 
 const suppressSWRReloading = {
   refreshInterval: 0,
@@ -68,6 +44,7 @@ export function SearchProfileOverview() {
     suppressSWRReloading,
   );
 
+  // add skeletton or no matches later when Endpoints work
   /*
     if (isLoading) return <Skeleton />;
     if (error) return <p>Error loading matches</p>;
@@ -148,10 +125,8 @@ export function SearchProfileOverview() {
   const [searchTopics, setSearchTopics] = useState("");
   const [selectedTopics, setSelectedTopics] = useState<string[]>([]);
 
-  const [openFromDate, setOpenFromDate] = useState(false);
   const [fromDate, setFromDate] = useState<Date | undefined>(undefined);
 
-  const [openToDate, setOpenToDate] = useState(false);
   const [toDate, setToDate] = useState<Date | undefined>(undefined);
 
   const filteredArticles = useMemo(() => {
@@ -199,25 +174,11 @@ export function SearchProfileOverview() {
     return Array.from(new Set(urls));
   }, [articles]);
 
-  // for sources searchbar
-  const filteredSources = useMemo(() => {
-    return uniqueSources.filter((source) =>
-      source.toLowerCase().includes(searchSources.toLowerCase()),
-    );
-  }, [uniqueSources, searchSources]);
-
   // Extract unique topics from articles
   const uniqueTopics = useMemo(() => {
     const allTopics = articles.flatMap((a) => a.topics); // flattens the nested arrays
     return Array.from(new Set(allTopics));
   }, [articles]);
-
-  // for sources searchbar
-  const filteredTopics = useMemo(() => {
-    return uniqueTopics.filter((topic) =>
-      topic.toLowerCase().includes(searchTopics.toLowerCase()),
-    );
-  }, [uniqueTopics, searchTopics]);
 
   // maybe when unique sources available, check them all; causes infinit rerenders with mocked data, only needed when Endpoint ready
   /*
@@ -258,173 +219,24 @@ export function SearchProfileOverview() {
 
       <div className="w-full grid grid-cols-6 mt-10 gap-8">
         <div className="col-span-2">
-          <Card className="p-5 gap-4">
-            <CardTitle className="mt-2 flex items-center gap-2">
-              <ArrowDownNarrowWide />
-              Sorting
-            </CardTitle>
-            <div className="flex items-center">
-              <Select
-                value={sortBy}
-                onValueChange={(value) =>
-                  setSortBy(value as "relevance" | "date")
-                }
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="relevance">
-                    <Award />
-                    Relevance
-                  </SelectItem>
-                  <SelectItem value="date">
-                    <CalendarFold />
-                    Date
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <CardTitle className="mt-4 flex items-center gap-2">
-              <StickyNote />
-              Sources
-            </CardTitle>
-
-            <div className="relative w-full flex">
-              <Input
-                placeholder="Search sources"
-                value={searchSources}
-                onChange={(e) => setSearchSources(e.target.value)}
-              />
-              <Search
-                size={20}
-                className="absolute right-3 top-2 text-muted-foreground"
-              />
-            </div>
-            <ScrollArea className="h-40 rounded-md border p-2">
-              {filteredSources.map((source) => (
-                <div key={source} className="flex items-center gap-2 p-2">
-                  <Checkbox
-                    id={source}
-                    checked={selectedSources.includes(source)}
-                    onCheckedChange={(checked) => {
-                      setSelectedSources((prev) =>
-                        checked
-                          ? [...prev, source]
-                          : prev.filter((s) => s !== source),
-                      );
-                    }}
-                  />
-                  <Label>{source}</Label>
-                </div>
-              ))}
-            </ScrollArea>
-
-            <CardTitle className="mt-4 flex items-center gap-2">
-              <Tag />
-              Topics
-            </CardTitle>
-            <div className="relative w-full flex">
-              <Input
-                placeholder="Search topics"
-                value={searchTopics}
-                onChange={(e) => setSearchTopics(e.target.value)}
-              />
-              <Search
-                size={20}
-                className="absolute right-3 top-2 text-muted-foreground"
-              />
-            </div>
-            <ScrollArea className="h-40 rounded-md border p-2">
-              {filteredTopics.map((topic) => (
-                <div key={topic} className="flex items-center gap-2 p-2">
-                  <Checkbox
-                    id={topic}
-                    checked={selectedTopics.includes(topic)}
-                    onCheckedChange={(checked) => {
-                      setSelectedTopics((prev) =>
-                        checked
-                          ? [...prev, topic]
-                          : prev.filter((t) => t !== topic),
-                      );
-                    }}
-                  />
-                  <Label>{topic}</Label>
-                </div>
-              ))}
-            </ScrollArea>
-
-            <CardTitle className="mt-4 flex items-center gap-2">
-              <CalendarFold />
-              Date
-            </CardTitle>
-            <div className="flex gap-4 mx-2">
-              <div className="flex">
-                <Label htmlFor="date" className="pr-2">
-                  From
-                </Label>
-                <Popover open={openFromDate} onOpenChange={setOpenFromDate}>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      id="date"
-                      className="justify-between font-normal"
-                    >
-                      {fromDate ? fromDate.toLocaleDateString() : "Select date"}
-                      <ChevronDownIcon />
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent
-                    className="w-auto overflow-hidden p-0"
-                    align="start"
-                  >
-                    <Calendar
-                      mode="single"
-                      selected={fromDate}
-                      captionLayout="dropdown"
-                      onSelect={(fromDate) => {
-                        setFromDate(fromDate);
-                        setOpenFromDate(false);
-                      }}
-                    />
-                  </PopoverContent>
-                </Popover>
-              </div>
-
-              <div className="flex">
-                <Label htmlFor="date" className="pr-2">
-                  To
-                </Label>
-                <Popover open={openToDate} onOpenChange={setOpenToDate}>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      id="date"
-                      className="justify-between font-normal"
-                    >
-                      {toDate ? toDate.toLocaleDateString() : "Select date"}
-                      <ChevronDownIcon />
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent
-                    className="w-auto overflow-hidden p-0"
-                    align="start"
-                  >
-                    <Calendar
-                      mode="single"
-                      selected={toDate}
-                      captionLayout="dropdown"
-                      onSelect={(toDate) => {
-                        setToDate(toDate);
-                        setOpenToDate(false);
-                      }}
-                    />
-                  </PopoverContent>
-                </Popover>
-              </div>
-            </div>
-          </Card>
+          <SidebarFilter
+            sortBy={sortBy}
+            setSortBy={setSortBy}
+            selectedSources={selectedSources}
+            setSelectedSources={setSelectedSources}
+            searchSources={searchSources}
+            setSearchSources={setSearchSources}
+            uniqueSources={uniqueSources}
+            selectedTopics={selectedTopics}
+            setSelectedTopics={setSelectedTopics}
+            searchTopics={searchTopics}
+            setSearchTopics={setSearchTopics}
+            uniqueTopics={uniqueTopics}
+            fromDate={fromDate}
+            setFromDate={setFromDate}
+            toDate={toDate}
+            setToDate={setToDate}
+          />
         </div>
         <div className="col-span-4">
           <div className="relative mb-4 w-full flex">
