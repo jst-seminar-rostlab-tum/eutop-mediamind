@@ -1,5 +1,5 @@
-import { Book, Mail, Search } from "lucide-react";
-import { /*useEffect,*/ useMemo, useState } from "react";
+import { Book, Search } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router";
 import { useQuery } from "types/api";
 import {
@@ -12,11 +12,10 @@ import {
 } from "~/components/ui/breadcrumb";
 import { Card, CardTitle } from "~/components/ui/card";
 import { Input } from "~/components/ui/input";
-
 import Layout from "~/custom-components/layout";
 import Text from "~/custom-components/text";
 import { truncateAtWord } from "~/lib/utils";
-
+import { useNavigate } from "react-router";
 import { SidebarFilter } from "./sidebar-filter";
 
 const suppressSWRReloading = {
@@ -30,19 +29,32 @@ const suppressSWRReloading = {
 
 export function SearchProfileOverview() {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
 
-  if (!id) return null;
+  useEffect(() => {
+    if (!id) {
+      navigate("/Error/404");
+    }
+  }, [id, navigate]);
 
   const {
     data: profile,
     //isLoading: isProfileLoading,
-    //error: profileError,
+    error: profileError,
     //mutate: mutateProfile,
   } = useQuery(
     "/api/v1/search-profiles/{search_profile_id}",
-    { params: { path: { search_profile_id: id } } },
+    { params: { path: { search_profile_id: id! } } },
     suppressSWRReloading,
   );
+
+  useEffect(() => {
+    if (profileError) {
+      navigate("/Error/404");
+    }
+  }, [profileError, navigate]);
+
+  if (!id || profileError) return null; //Don't render anything while redirecting
 
   // add skeletton or no matches later when Endpoints work
   /*
@@ -187,8 +199,6 @@ export function SearchProfileOverview() {
   }, [uniqueSources]);
   */
 
-  console.log(uniqueSources);
-
   return (
     <Layout>
       <Breadcrumb className="mt-8">
@@ -211,10 +221,6 @@ export function SearchProfileOverview() {
             {topic.name}
           </div>
         ))}
-      </div>
-      <div className="flex gap-3 items-center mt-2">
-        <Mail />
-        <p>Press releases: Date missing!</p>
       </div>
 
       <div className="w-full grid grid-cols-6 mt-10 gap-8">
