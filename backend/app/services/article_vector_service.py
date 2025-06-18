@@ -1,5 +1,5 @@
 import uuid
-from typing import List, Optional, Sequence
+from typing import List, Optional
 
 from langchain_core.documents import Document
 from langchain_openai import OpenAIEmbeddings
@@ -135,7 +135,6 @@ class ArticleVectorService:
 
         while articles:
 
-
             self.add_articles(articles)
 
             page += 1
@@ -144,7 +143,6 @@ class ArticleVectorService:
             articles = await ArticleRepository.list_articles_with_summary(
                 limit=page_size, offset=offset
             )
-
 
     async def add_article(self, article_id: uuid.UUID) -> None:
         """

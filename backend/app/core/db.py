@@ -1,5 +1,4 @@
 import psycopg
-from langchain_qdrant import QdrantVectorStore
 from psycopg import OperationalError
 from psycopg import connection as PgConnection
 from qdrant_client import QdrantClient
@@ -64,5 +63,3 @@ def get_qdrant_connection() -> QdrantClient:
         msg = f"Failed to initialize Qdrant client: {err}"
         logger.error(msg)
         raise RuntimeError(msg) from err
-
-

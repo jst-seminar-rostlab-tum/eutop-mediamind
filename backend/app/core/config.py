@@ -111,10 +111,12 @@ class Configs(BaseSettings):
 
     @model_validator(mode="after")
     def _check_qdrant_config(self) -> Self:
-        if not self.ENVIRONMENT=="local" and not self.QDRANT_URL:
+        if not self.ENVIRONMENT == "local" and not self.QDRANT_URL:
             raise ValueError("QDRANT_URL must be set in the configuration.")
-        if not self.ENVIRONMENT=="local" and not self.QDRANT_API_KEY:
-            raise ValueError("QDRANT_API_KEY must be set in the configuration.")
+        if not self.ENVIRONMENT == "local" and not self.QDRANT_API_KEY:
+            raise ValueError(
+                "QDRANT_API_KEY must be set in the configuration."
+            )
 
         return self
 
