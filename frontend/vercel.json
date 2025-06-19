@@ -3,6 +3,10 @@
     {
       "source": "/api/(.*)",
       "destination": "https://api.mediamind.csee.tech/api/$1"
+    },
+    {
+      "source": "/dev/api/(.*)",
+      "destination": "https://dev.api.mediamind.csee.tech/api/$1"
     }
   ]
 }
