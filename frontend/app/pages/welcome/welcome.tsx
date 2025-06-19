@@ -28,9 +28,9 @@ export function Welcome() {
 
       <Layout className="flex flex-col items-center">
         <Text className="mt-6" hierachy={1}>
-          {t("welcome")}
+          {t("landing_page.welcome")}
         </Text>
-        <Text className="text-center">{t("welcome_text")}</Text>
+        <Text className="text-center">{t("landing_page.welcome_text")}</Text>
       </Layout>
 
       <div className="grid grid-cols-3 mx-auto max-w-7xl gap-6 my-16">
@@ -109,7 +109,7 @@ export function Welcome() {
         <img src="/csee-logo.webp" alt="CSEE Logo" className="h-20" />
       </Layout>
       <div>
-        <Text className="text-center">{t("credits")}</Text>
+        <Text className="text-center">{t("landing_page.credits")}</Text>
       </div>
 
       <Layout className="m-6 flex justify-center">

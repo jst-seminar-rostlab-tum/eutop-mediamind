@@ -33,7 +33,7 @@ export function BreakingNews({ breakingNews }: Props) {
               <CardHeader>
                 <CardDescription className="flex gap-2 items-center mb-2 text-orange-600">
                   <BellRing size={18} />
-                  {t("breaking_news")}
+                  {t("dashboard.breaking_news")}
                 </CardDescription>
                 <CardTitle className="mb-3">{item.title}</CardTitle>
               </CardHeader>
@@ -47,7 +47,7 @@ export function BreakingNews({ breakingNews }: Props) {
                     className="ml-1 text-primary items-center"
                   >
                     <Newspaper />
-                    {t("read_more")}
+                    {t("dashboard.read_more")}
                     <ChevronRight />
                   </Button>
                 </Link>

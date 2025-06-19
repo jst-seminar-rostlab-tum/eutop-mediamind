@@ -1,14 +1,51 @@
 {
   "login": "Login",
-  "welcome": "Welcome to MediaMind",
-  "welcome_text": "Stay ahead in the fast-changing world of media with our Automated Press Analysis Tool. Keep your client teams informed and prepared with daily press reviews, personalized to your needs. Our platform extracts and compiles the most relevant news articles into concise, anonymized reports – delivered directly to your inbox each morning. Save time, stay informed, and focus on what matters most – delivering value to your clients.",
-  "credits": "MediaMind was build in cooperation between EUTOP, the Technical University of Munich and CSEE during the Javascript Technology Practicum.",
-  "dashboard_header": "Dashbaord",
-  "profiles_header": "Profiles",
-  "new_articles": "new articles",
-  "profiles_loading": "Load profiles ...",
-  "breaking_news": "Breaking News",
-  "read_more": "Read more",
   "edit": "edit",
-  "delete": "delete"
+  "delete": "delete",
+  "back": "back",
+  "leave": "leave",
+
+  "landing_page": {
+    "welcome": "Welcome to MediaMind",
+    "welcome_text": "Stay ahead in the fast-changing world of media with our Automated Press Analysis Tool. Keep your client teams informed and prepared with daily press reviews, personalized to your needs. Our platform extracts and compiles the most relevant news articles into concise, anonymized reports – delivered directly to your inbox each morning. Save time, stay informed, and focus on what matters most – delivering value to your clients.",
+    "credits": "MediaMind was build in cooperation between EUTOP, the Technical University of Munich and CSEE during the Javascript Technology Practicum."
+  },
+
+  "dashboard": {
+    "dashboard": "Dashbaord",
+    "profile": "Profiles",
+    "new_articles": "new articles",
+    "profiles_loading": "Load profiles ...",
+    "breaking_news": "Breaking News",
+    "read_more": "Read more"
+  },
+
+  "confirmation_dialog": {
+    "title": "Are you sure?",
+    "delete_text": "This will permanently delete this entity",
+    "leave_text": "Unsaved changes will be permanently lost"
+  },
+
+  "edit_profile": {
+    "create": "Create Profile: ",
+    "edit": "Edit Profile: ",
+    "profile_name": "Profile name",
+    "new_profile": "New Profile",
+    "general": "General",
+    "topics": "Topics",
+    "mailing": "Mailing",
+    "subscriptions": "Subscriptions",
+    "ownership": "Ownership",
+    "ownership_text": "Transfer ownership of the profile",
+    "search_user": "Search user...",
+    "loading": "Loading...",
+    "no_user": "No user found.",
+    "visibility": "Visibility",
+    "public": "Public",
+    "public_text": "A public profile can be viewed by anyone in your organization, while a private profile is only visible to you.",
+    "creating": "Creating...",
+    "saving": "Saving...",
+    "save_create": "Create Profile",
+    "save_changes": "Save Changes"
+  }
 }

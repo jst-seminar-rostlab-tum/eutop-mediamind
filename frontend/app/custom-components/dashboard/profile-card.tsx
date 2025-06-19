@@ -107,14 +107,14 @@ export function ProfileCard({ profile, mutateDashboard }: ProfileCardProps) {
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center">
               <OctagonAlert size={20} className="text-red-500 mr-2" />
-              Are you sure?
+              {t("confirmation_dialog.title")}
             </AlertDialogTitle>
             <AlertDialogDescription>
-              This will permanently delete this search profile
+              {t("confirmation_dialog.delete_text")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Back</AlertDialogCancel>
+            <AlertDialogCancel>{t("back")}</AlertDialogCancel>
             <AlertDialogAction
               className="bg-destructive text-white shadow-xs hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60"
               onClick={() => {
@@ -124,7 +124,7 @@ export function ProfileCard({ profile, mutateDashboard }: ProfileCardProps) {
               }}
             >
               <Trash2 />
-              Delete
+              {t("delete")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

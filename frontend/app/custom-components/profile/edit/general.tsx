@@ -22,6 +22,7 @@ import { useQuery } from "../../../../types/api";
 import type { MediamindUser, Profile } from "../../../../types/model";
 import { useEffect } from "react";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 
 export interface GeneralProps {
   profile: Profile;
@@ -30,6 +31,7 @@ export interface GeneralProps {
 
 export function General({ profile, setProfile }: GeneralProps) {
   const { data: userData, isLoading, error } = useQuery("/api/v1/users");
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (error) {
@@ -57,9 +59,9 @@ export function General({ profile, setProfile }: GeneralProps) {
 
   return (
     <div>
-      <h2 className={"font-bold pt-3 pb-3"}>Ownership</h2>
+      <h2 className={"font-bold pt-3 pb-3"}>{t("edit_profile.ownership")}</h2>
       <Label className={"text-gray-400 font-normal pb-3"}>
-        Transfer ownership of the profile
+        {t("edit_profile.ownership_text")}
       </Label>
       <div className="pb-3">
         <Popover open={open} onOpenChange={setOpen}>
@@ -77,13 +79,18 @@ export function General({ profile, setProfile }: GeneralProps) {
           </PopoverTrigger>
           <PopoverContent className="w-[200px] p-0">
             <Command>
-              <CommandInput placeholder="Search user..." className="h-9" />
+              <CommandInput
+                placeholder={t("edit_profile.search_user")}
+                className="h-9"
+              />
               <CommandList>
                 {isLoading ? (
-                  <div className="p-4 text-sm text-center">Loading...</div>
+                  <div className="p-4 text-sm text-center">
+                    {t("edit_profile.loading")}
+                  </div>
                 ) : (
                   <>
-                    <CommandEmpty>No user found.</CommandEmpty>
+                    <CommandEmpty>{t("edit_profile.no_user")}</CommandEmpty>
                     <CommandGroup>
                       {users.map((user) => (
                         <CommandItem
@@ -116,17 +123,18 @@ export function General({ profile, setProfile }: GeneralProps) {
 
       <Separator />
 
-      <h2 className={"font-bold pt-3 pb-3"}>Visibility</h2>
+      <h2 className={"font-bold pt-3 pb-3"}>{t("edit_profile.visibility")}</h2>
       <div className={"flex gap-3 items-center pb-3"}>
-        <Label className={"text-gray-400 font-normal"}>Public</Label>
+        <Label className={"text-gray-400 font-normal"}>
+          {t("edit_profile.public")}
+        </Label>
         <Switch
           checked={profile.is_public}
           onCheckedChange={(e) => setProfile({ ...profile, is_public: e })}
         />
       </div>
       <Label className={"text-gray-400 font-light pb-3"}>
-        A public profile can be viewed by anyone in your organization, while a
-        private profile is only visible to you.
+        {t("edit_profile.public_text")}
       </Label>
 
       <Separator />
