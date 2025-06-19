@@ -20,8 +20,23 @@ def _to_user_entity(user: User | UserEntity) -> UserEntity:
         is_superuser=user.is_superuser,
         organization_id=user.organization_id,
         organization_name=(
-            user.organization.name if user.organization else None
+            user.organization_name  # already present if it's a UserEntity
+            if isinstance(user, UserEntity)
+            else user.organization.name if user.organization else None
         ),
+    )
+
+
+def _to_user_base(user: User | UserEntity) -> User:
+    return User(
+        id=user.id,
+        clerk_id=user.clerk_id,
+        email=user.email,
+        first_name=user.first_name,
+        last_name=user.last_name,
+        language=user.language,
+        is_superuser=user.is_superuser,
+        organization_id=user.organization_id,
     )
 
 
@@ -107,8 +122,16 @@ async def get_user_list_from_organization(
 
 async def update_language(user: UserEntity, language: str) -> UserEntity:
     async with async_session() as session:
-        user.language = language
-        session.add(user)
-        session.commit()
-        session.refresh(user)
-        return _to_user_entity(user)
+        result = await session.execute(
+            select(User)
+            .options(selectinload(User.organization))
+            .where(User.id == user.id)
+        )
+        db_user = result.scalar_one_or_none()
+
+        db_user.language = language
+        session.add(db_user)
+        await session.commit()
+        await session.refresh(db_user)
+
+        return _to_user_entity(db_user)
