@@ -31,7 +31,7 @@ class ReportService:
         # Otherwise, create it
 
         logger.info(
-            f"Generating {timeslot} new report for profile {search_profile_id}"
+            f"Generating {timeslot} report for profile {search_profile_id}"
         )
         return await ReportService._generate_and_store_report(
             search_profile_id, timeslot
