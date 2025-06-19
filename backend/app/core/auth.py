@@ -16,7 +16,7 @@ def _extract_clerk_id(request: Request, cookie_name: str) -> str:
     """
     token = request.cookies.get(cookie_name)
     if not token:
-        logger.warning("Failed Authentication Process. Cookie missing", request.client)
+        logger.warning("Failed Authentication Process. Cookie missing")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Unauthorized",
