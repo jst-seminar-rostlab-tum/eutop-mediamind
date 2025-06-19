@@ -126,6 +126,7 @@ class Configs(BaseSettings):
         self._check_default_secret(
             "CLERK_PUBLISHABLE_KEY", self.CLERK_PUBLISHABLE_KEY
         )
+        self._check_default_secret("CLERK_COOKIE_NAME", self.CLERK_COOKIE_NAME)
         self._check_default_secret("QDRANT_URL", self.QDRANT_URL)
         self._check_default_secret("QDRANT_API_KEY", self.QDRANT_API_KEY)
         self._check_default_secret(
