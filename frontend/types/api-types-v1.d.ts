@@ -28,8 +28,12 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** List Users */
-        get: operations["list_users_api_v1_users_get"];
+        /**
+         * Get Users
+         * @description List all users visible to the current user or
+         *     return the single user if restricted.
+         */
+        get: operations["get_users_api_v1_users_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -45,11 +49,17 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get Current User Info */
+        /**
+         * Get Current User Info
+         * @description Retrieve the authenticated user's profile information.
+         */
         get: operations["get_current_user_info_api_v1_users_me_get"];
         put?: never;
         post?: never;
-        /** Delete Current User */
+        /**
+         * Delete Current User
+         * @description Delete the authenticated user's account.
+         */
         delete: operations["delete_current_user_api_v1_users_me_delete"];
         options?: never;
         head?: never;
@@ -65,8 +75,11 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Sync User With Clerk */
-        post: operations["sync_user_with_clerk_api_v1_users_sync_post"];
+        /**
+         * Sync User
+         * @description Synchronize the current user with the external Clerk service.
+         */
+        post: operations["sync_user_api_v1_users_sync_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -686,32 +699,6 @@ export interface components {
             /** Keywords */
             keywords: string[];
         };
-        /** User */
-        User: {
-            /** Clerk Id */
-            clerk_id: string;
-            /**
-             * Email
-             * Format: email
-             */
-            email: string;
-            /** First Name */
-            first_name: string;
-            /** Last Name */
-            last_name: string;
-            /**
-             * Is Superuser
-             * @default false
-             */
-            is_superuser: boolean;
-            /** Organization Id */
-            organization_id?: string | null;
-            /**
-             * Id
-             * Format: uuid
-             */
-            id?: string;
-        };
         /** UserEntity */
         UserEntity: {
             /**
@@ -775,7 +762,7 @@ export interface operations {
             };
         };
     };
-    list_users_api_v1_users_get: {
+    get_users_api_v1_users_get: {
         parameters: {
             query?: never;
             header?: never;
@@ -790,7 +777,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["User"][] | components["schemas"]["User"];
+                    "application/json": components["schemas"]["UserEntity"][] | components["schemas"]["UserEntity"];
                 };
             };
         };
@@ -835,7 +822,7 @@ export interface operations {
             };
         };
     };
-    sync_user_with_clerk_api_v1_users_sync_post: {
+    sync_user_api_v1_users_sync_post: {
         parameters: {
             query?: never;
             header?: never;
