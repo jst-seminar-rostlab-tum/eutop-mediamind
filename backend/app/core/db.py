@@ -50,7 +50,7 @@ def get_qdrant_connection() -> QdrantClient:
     """
 
     try:
-        if configs.ENVIRONMENT.lower() == "local":
+        if configs.ENVIRONMENT == "local":
             client = QdrantClient(host="localhost", port=6333)
         else:
             client = QdrantClient(

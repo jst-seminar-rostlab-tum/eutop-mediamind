@@ -30,7 +30,7 @@ class ArticleVectorService:
         self._sparse_embeddings = FastEmbedSparse(model_name="Qdrant/bm25")
         self.collection_name = configs.ARTICLE_VECTORS_COLLECTION
         self._qdrant_client = get_qdrant_connection()
-        self.create_collection_safe(self.collection_name)
+        self.create_collection(self.collection_name)
         self.vector_store: QdrantVectorStore = QdrantVectorStore(
             client=self._qdrant_client,
             collection_name=self.collection_name,
@@ -45,7 +45,7 @@ class ArticleVectorService:
             # Field name in Qdrant for storing sparse vectors
         )
 
-    def create_collection_safe(self, collection_name: str) -> None:
+    def create_collection(self, collection_name: str) -> None:
         """
         Create a Qdrant collection for storing vectors.
         """
@@ -84,19 +84,22 @@ class ArticleVectorService:
             articles(List[Article]): Articles to index.
 
         """
-        documents = [
-            Document(
-                page_content=article.summary,
-                metadata={
-                    "id": str(article.id),
-                    "subscription_id": str(article.subscription_id),
-                    "title": article.title,
-                },
-            )
-            for article in articles
-        ]
 
-        uuids = [str(article.id) for article in articles]
+        documents = []
+        uuids = []
+
+        for article in articles:
+            documents.append(
+                Document(
+                    page_content=article.summary,
+                    metadata={
+                        "id": str(article.id),
+                        "subscription_id": str(article.subscription_id),
+                        "title": article.title,
+                    },
+                )
+            )
+            uuids.append(str(article.id))
 
         self.vector_store.add_documents(documents=documents, ids=uuids)
 
@@ -133,7 +136,7 @@ class ArticleVectorService:
             )
         )
 
-        while articles:
+        while len(articles) > 0:
 
             self.add_articles(articles)
 
