@@ -31,7 +31,7 @@ class Configs(BaseSettings):
         extra="ignore",
     )
 
-    ENVIRONMENT: Literal["local", "staging", "production"]
+    ENVIRONMENT: Literal["local", "staging", "production", "ci"]
     PROJECT_NAME: str
 
     # Backend
@@ -70,7 +70,13 @@ class Configs(BaseSettings):
 
     DISABLE_AUTH: bool = False
 
-    @computed_field  # type: ignore[prop-decorator]
+    # Fill in dummy values for all fields in config.py
+    # when executing in CI so that the pipeline can run
+    @model_validator(mode="before")
+    def handle_ci_environment(cls, values):
+        return create_ci_dummy_values(cls, values)
+
+    @computed_field
     @property
     def SQLALCHEMY_DATABASE_URI(self) -> PostgresDsn:
         # Remove port from host if present
@@ -84,7 +90,7 @@ class Configs(BaseSettings):
             path=self.POSTGRES_DB,
         )
 
-    @computed_field  # type: ignore[prop-decorator]
+    @computed_field
     @property
     def all_cors_origins(self) -> list[str]:
         if self.ENVIRONMENT == "local":
@@ -149,4 +155,28 @@ class Configs(BaseSettings):
     NEWSAPIAI_API_KEY: str | None = None
 
 
-configs = Configs()  # type: ignore
+def create_ci_dummy_values(cls, values):
+    if values.get("ENVIRONMENT") == "ci":
+        required_fields = {
+            name
+            for name, field in cls.model_fields.items()
+            if field.is_required()
+        }
+
+        for field_name in required_fields:
+            if field_name not in values or values[field_name] is None:
+                field_info = cls.model_fields[field_name]
+                field_type = field_info.annotation
+
+                if field_type == int:
+                    values[field_name] = 0
+                elif field_type == bool:
+                    values[field_name] = False
+                elif field_type == list:
+                    values[field_name] = []
+                else:
+                    values[field_name] = f"ci-dummy-{field_name}"
+    return values
+
+
+configs = Configs()
