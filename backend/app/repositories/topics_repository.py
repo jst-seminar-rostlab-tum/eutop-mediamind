@@ -1,8 +1,6 @@
-from typing import List
 from uuid import UUID
 
 from sqlalchemy import delete, select
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.core.db import async_session
@@ -107,147 +105,83 @@ class TopicsRepository:
 
     @staticmethod
     async def update_topics(
-        profile_id: UUID,
+        profile: SearchProfile,
         new_topics: list[TopicCreateOrUpdateRequest],
-        session: AsyncSession,
-    ) -> None:
-        # a) Profil mit Topics+Keywords laden
+        session,
+    ):
         profile = await session.get(
             SearchProfile,
-            profile_id,
+            profile.id,
             options=[
-                selectinload(SearchProfile.topics).selectinload(Topic.keywords)
+                selectinload(SearchProfile.topics).selectinload(
+                    Topic.keywords
+                ),
             ],
         )
 
-        new_names = {t.name for t in new_topics}
+        new_topic_names = {t.name for t in new_topics}
 
-        # b) Entfernte Topics+Links löschen
-        for old in profile.topics:
-            if old.name not in new_names:
+        # Step 1: Delete removed topics
+        for existing_topic in profile.topics:
+            if existing_topic.name not in new_topic_names:
                 await session.execute(
                     delete(TopicKeywordLink).where(
-                        TopicKeywordLink.topic_id == old.id
+                        TopicKeywordLink.topic_id == existing_topic.id
                     )
                 )
-                session.delete(old)
-        await session.flush()
+                await session.delete(existing_topic)
 
-        # c) Aktuelle Topics map
+        await session.commit()
+
+        # SAFE: reload profile with topics and keywords
         profile = await session.get(
             SearchProfile,
-            profile_id,
+            profile.id,
             options=[
-                selectinload(SearchProfile.topics).selectinload(Topic.keywords)
+                selectinload(SearchProfile.topics).selectinload(
+                    Topic.keywords
+                ),
             ],
         )
-        existing = {t.name: t for t in profile.topics}
 
-        # d) Alle Keywords vorladen
-        rows = await session.execute(select(Keyword))
-        kw_map = {k.name: k for k in rows.scalars().all()}
+        # Rebuild topic lookup with only the remaining topics
+        existing_topic_map = {topic.name: topic for topic in profile.topics}
 
-        # e) Neue/Update Topics + Keywords + Links
-        for td in new_topics:
-            topic = existing.get(td.name)
-            if topic:
-                # alte Links löschen
+        # Preload keywords
+        result = await session.execute(select(Keyword))
+        existing_keywords: dict[str, Keyword] = {
+            keyword.name: keyword for keyword in result.scalars().all()
+        }
+
+        # Step 2: Add or update topics
+        for topic_data in new_topics:
+            existing_topic = existing_topic_map.get(topic_data.name)
+
+            if existing_topic:
                 await session.execute(
                     delete(TopicKeywordLink).where(
-                        TopicKeywordLink.topic_id == topic.id
+                        TopicKeywordLink.topic_id == existing_topic.id
                     )
                 )
+                topic = existing_topic
             else:
-                topic = Topic(name=td.name, search_profile_id=profile_id)
+                topic = Topic(
+                    name=topic_data.name,
+                    search_profile_id=profile.id,
+                )
                 session.add(topic)
                 await session.flush()
 
-            for name in td.keywords:
-                kw = kw_map.get(name)
-                if not kw:
-                    kw = Keyword(name=name)
-                    session.add(kw)
+            for keyword_name in topic_data.keywords:
+                keyword = existing_keywords.get(keyword_name)
+                if not keyword:
+                    keyword = Keyword(name=keyword_name)
+                    session.add(keyword)
                     await session.flush()
-                    kw_map[name] = kw
+                    existing_keywords[keyword_name] = keyword
 
                 session.add(
-                    TopicKeywordLink(topic_id=topic.id, keyword_id=kw.id)
+                    TopicKeywordLink(topic_id=topic.id, keyword_id=keyword.id)
                 )
 
-        await session.flush()
-
-
-async def _load_profile_with_topics(
-    profile_id: str,
-    session: AsyncSession,
-) -> SearchProfile:
-    result = await session.execute(
-        select(SearchProfile)
-        .where(SearchProfile.id == profile_id)
-        .options(
-            selectinload(SearchProfile.topics).selectinload(Topic.keywords)
-        )
-    )
-    return result.scalar_one()
-
-
-async def _delete_removed_topics(
-    profile: SearchProfile,
-    new_names: set[str],
-    session: AsyncSession,
-) -> None:
-    for topic in profile.topics:
-        if topic.name not in new_names:
-            # remove links then topic
-            await session.execute(
-                delete(TopicKeywordLink).where(
-                    TopicKeywordLink.topic_id == topic.id
-                )
-            )
-            session.delete(topic)
-    await session.flush()
-
-
-async def _load_keywords_map(
-    session: AsyncSession,
-) -> dict[str, Keyword]:
-    result = await session.execute(select(Keyword))
-    return {k.name: k for k in result.scalars().all()}
-
-
-async def _upsert_topics_and_keywords(
-    profile_id: str,
-    new_topics: List[TopicCreateOrUpdateRequest],
-    keywords_map: dict[str, Keyword],
-    session: AsyncSession,
-) -> None:
-    # reload profile to get fresh topics list
-    profile = await _load_profile_with_topics(profile_id, session)
-    existing = {t.name: t for t in profile.topics}
-
-    for td in new_topics:
-        topic = existing.get(td.name)
-        if topic:
-            # remove old links
-            await session.execute(
-                delete(TopicKeywordLink).where(
-                    TopicKeywordLink.topic_id == topic.id
-                )
-            )
-        else:
-            topic = Topic(name=td.name, search_profile_id=profile_id)
-            session.add(topic)
-            await session.flush()
-
-        # upsert keywords and links
-        for kw_name in td.keywords:
-            kw = keywords_map.get(kw_name)
-            if not kw:
-                kw = Keyword(name=kw_name)
-                session.add(kw)
-                await session.flush()
-                keywords_map[kw_name] = kw
-
-            link = TopicKeywordLink(topic_id=topic.id, keyword_id=kw.id)
-            session.add(link)
-    await session.flush()
+        await session.commit()

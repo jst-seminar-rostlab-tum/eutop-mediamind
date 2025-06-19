@@ -2,9 +2,9 @@ from typing import List, Sequence
 from uuid import UUID
 
 from pydantic import EmailStr
-from sqlalchemy import and_, or_, select
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import and_, or_
 from sqlalchemy.orm import selectinload
+from sqlmodel import select
 
 from app.core.db import async_session
 from app.models import Topic, User
@@ -13,37 +13,16 @@ from app.repositories.subscription_repository import (
     set_subscriptions_for_profile,
 )
 from app.repositories.topics_repository import TopicsRepository
-from app.schemas.search_profile_schemas import SearchProfileUpdateRequest
-from app.schemas.topic_schemas import TopicCreateOrUpdateRequest
+from app.schemas.search_profile_schemas import (
+    SearchProfileCreateRequest,
+    SearchProfileUpdateRequest,
+)
 
 
 async def create_profile_with_request(
-    create_data,  # SearchProfileCreateRequest
-    current_user,  # User
-    session: AsyncSession,
+    create_data: SearchProfileCreateRequest, current_user: User, session
 ) -> SearchProfile:
-    # Persist base profile and get its ID
-    profile = await _create_and_flush_profile(
-        create_data, current_user, session
-    )
-
-    # Assign topics (in-session, no separate commit)
-    await _assign_topics(profile.id, create_data.topics, session)
-
-    # Assign subscriptions
-    await set_subscriptions_for_profile(
-        profile_id=profile.id,
-        subscriptions=create_data.subscriptions,
-        session=session,
-    )
-
-    # Load and return full profile with all relations
-    return await _load_full_profile(profile.id, session)
-
-
-async def _create_and_flush_profile(
-    create_data, current_user, session: AsyncSession
-) -> SearchProfile:
+    # Create and persist base profile
     profile = SearchProfile(
         name=create_data.name,
         is_public=create_data.is_public,
@@ -52,36 +31,38 @@ async def _create_and_flush_profile(
         owner_id=create_data.owner_id,
         language=create_data.language,
     )
-    await update_emails(
-        profile, create_data.organization_emails, create_data.profile_emails
-    )
     session.add(profile)
-    await session.flush()  # assign profile.id
-    return profile
+    await session.commit()
+    await session.refresh(profile)
 
+    # Add related data: topics
+    await TopicsRepository.update_topics(profile, create_data.topics, session)
 
-async def _load_full_profile(
-    profile_id: str,
-    session: AsyncSession,
-) -> SearchProfile:
+    # Add subscriptions
+    await set_subscriptions_for_profile(
+        profile_id=profile.id,
+        subscriptions=create_data.subscriptions,
+        session=session,
+    )
+
+    # Add emails
+    await update_emails(
+        profile,
+        create_data.organization_emails,
+        create_data.profile_emails,
+    )
+
+    # Refresh with eager-loaded relationships
     result = await session.execute(
         select(SearchProfile)
-        .where(SearchProfile.id == profile_id)
+        .where(SearchProfile.id == profile.id)
         .options(
-            selectinload(SearchProfile.topics).selectinload(Topic.keywords),
-            selectinload(SearchProfile.subscriptions),
             selectinload(SearchProfile.users),
+            selectinload(SearchProfile.topics).selectinload(Topic.keywords),
         )
     )
-    return result.scalar_one()
-
-
-async def _assign_topics(
-    profile_id: str,
-    topics: List[TopicCreateOrUpdateRequest],
-    session: AsyncSession,
-) -> None:
-    await TopicsRepository.update_topics(profile_id, topics, session)
+    profile = result.scalars().one()
+    return profile
 
 
 async def get_accessible_profiles(
