@@ -21,7 +21,7 @@ logger = get_logger(__name__)
 async def get_report_by_id(report_id: UUID):
     report = await ReportService.get_report_by_id(report_id)
     if report is None:
-        logger.error(f"Report not found for id: {report_id}")
+        logger.warning(f"Report not found for id: {report_id}")
         raise HTTPException(status_code=404, detail="Report not found")
 
     presigned_url = None

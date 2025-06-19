@@ -3,7 +3,6 @@ from typing import List
 from uuid import UUID
 
 from fastapi import HTTPException
-from sqlalchemy import select
 
 from app.core.db import async_session
 from app.models import SearchProfile, Topic, User
@@ -15,6 +14,7 @@ from app.repositories.search_profile_repository import (
     create_profile_with_request,
     get_accessible_profile_by_id,
     get_accessible_profiles,
+    get_by_id,
     update_profile_with_request,
 )
 from app.repositories.subscription_repository import (
@@ -76,13 +76,7 @@ class SearchProfileService:
 
     @staticmethod
     async def get_by_id(search_profile_id: UUID) -> SearchProfile | None:
-        async with async_session() as session:
-            result = await session.execute(
-                select(SearchProfile).where(
-                    SearchProfile.id == search_profile_id
-                )
-            )
-            return result.scalars().one_or_none()
+        return await get_by_id(search_profile_id)
 
     @staticmethod
     async def get_available_search_profiles(
