@@ -2,11 +2,13 @@ from typing import Any, Dict, List, Optional, Union
 
 from app.core.db import async_session
 from app.repositories.user_repository import create_user as repo_create_user
+from app.repositories.user_repository import get_user_by_clerk_id
 from app.repositories.user_repository import (
     get_user_by_clerk_id as repo_get_by_clerk_id,
 )
 from app.repositories.user_repository import (
     get_user_list_by_org,
+    update_language,
 )
 from app.repositories.user_repository import update_user as repo_update_user
 from app.schemas.user_schema import UserEntity
@@ -57,3 +59,14 @@ class UserService:
         """
         async with async_session() as session:
             return await repo_update_user(session, existing, email, data)
+
+    @staticmethod
+    async def update_user_language(language, user):
+        async with async_session() as session:
+            # 1) fetch
+            user = await get_user_by_clerk_id(
+                clerk_id=user.clerk_id, session=session
+            )
+
+            # 2) update
+            return await update_language(user, language)

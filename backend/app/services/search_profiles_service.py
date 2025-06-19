@@ -52,6 +52,7 @@ class SearchProfileService:
                     organization_id=current_user.organization_id,
                     created_by_id=current_user.id,
                     owner_id=data.owner_id,
+                    language=data.language,
                 )
                 session.add(profile)
                 await session.flush()  # ← now profile.id is assigned
@@ -176,6 +177,7 @@ class SearchProfileService:
             is_editable=is_editable,
             owner_id=profile.created_by_id,
             is_owner=is_owner,
+            lanuage=profile.language,
             organization_emails=organization_emails,
             profile_emails=profile_emails,
             topics=topic_responses,

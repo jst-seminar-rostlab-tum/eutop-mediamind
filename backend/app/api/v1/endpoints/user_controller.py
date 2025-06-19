@@ -45,6 +45,11 @@ async def get_current_user_info(
     return current_user
 
 
+@router.put("/me/update", response_model=UserEntity)
+async def update_language(language: str, user=Depends(get_sync_user)):
+    return await UserService.update_user_language(language, user)
+
+
 @router.post("/sync", response_model=UserEntity)
 async def sync_user(
     sync_user: UserEntity = Depends(get_sync_user),
