@@ -18,8 +18,9 @@ provider "aws" {
 }
 
 locals {
-  secrets_arn  = "arn:aws:secretsmanager:eu-central-1:313193269185:secret:mediamind/app-env-fUauFQ"
-  cluster_name = "mediamind-cluster"
+  secrets_arn     = "arn:aws:secretsmanager:eu-central-1:313193269185:secret:mediamind/app-env-fUauFQ"
+  dev_secrets_arn = "arn:aws:secretsmanager:eu-central-1:313193269185:secret:mediamind/dev-env-mjm2wi"
+  cluster_name    = "mediamind-cluster"
 }
 
 data "aws_vpc" "selected" {
@@ -59,19 +60,46 @@ module "s3" {
   name   = "eutop-mediamind"
 }
 
+module "alb" {
+  source               = "./modules/alb"
+  vpc_id               = data.aws_vpc.selected.id
+  subnet_ids           = data.aws_subnets.selected.ids
+  certificate_arn_prod = "arn:aws:acm:eu-central-1:313193269185:certificate/ba1c0b9b-2c80-4c0f-acf6-355dfb9ba658"
+  certificate_arn_dev  = "arn:aws:acm:eu-central-1:313193269185:certificate/3f5b9917-f56f-414a-ab56-b751c55733ee"
+}
+
 module "ecs" {
-  source              = "./modules/ecs"
-  service_name        = "mediamind-service"
-  cluster_name        = local.cluster_name
-  container_image     = module.ecr.repository_url
-  db_endpoint         = module.database.endpoint
-  redis_endpoint      = module.redis.endpoint
-  subnet_ids          = data.aws_subnets.selected.ids
-  vpc_id              = data.aws_vpc.selected.id
-  secrets_arn         = local.secrets_arn
-  s3_backend_bucket   = module.s3.bucket
-  region              = "eu-central-1"
-  acm_certificate_arn = "arn:aws:acm:eu-central-1:313193269185:certificate/ba1c0b9b-2c80-4c0f-acf6-355dfb9ba658"
+  source                = "./modules/ecs"
+  service_name          = "mediamind-service"
+  cluster_name          = local.cluster_name
+  container_image       = module.ecr.repository_url
+  db_endpoint           = module.database.endpoint
+  redis_endpoint        = module.redis.endpoint
+  subnet_ids            = data.aws_subnets.selected.ids
+  vpc_id                = data.aws_vpc.selected.id
+  secrets_arn           = local.secrets_arn
+  s3_backend_bucket     = module.s3.bucket
+  region                = "eu-central-1"
+  alb_target_group_arn  = module.alb.alb_target_group_arn_prod
+  alb_listener_arn      = module.alb.alb_listener_arn
+  alb_security_group_id = module.alb.alb_security_group_id
+}
+
+module "ecs_dev" {
+  source                = "./modules/ecs"
+  service_name          = "mediamind-service-dev"
+  cluster_name          = local.cluster_name
+  container_image       = module.ecr.repository_url
+  db_endpoint           = module.database.endpoint
+  redis_endpoint        = module.redis.endpoint
+  subnet_ids            = data.aws_subnets.selected.ids
+  vpc_id                = data.aws_vpc.selected.id
+  secrets_arn           = local.dev_secrets_arn
+  s3_backend_bucket     = module.s3.bucket
+  region                = "eu-central-1"
+  alb_target_group_arn  = module.alb.alb_target_group_arn_dev
+  alb_listener_arn      = module.alb.alb_listener_arn
+  alb_security_group_id = module.alb.alb_security_group_id
 }
 
 module "qdrant" {
