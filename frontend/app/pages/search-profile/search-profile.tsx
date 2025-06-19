@@ -17,6 +17,7 @@ import Text from "~/custom-components/text";
 import { truncateAtWord } from "~/lib/utils";
 import { useNavigate } from "react-router";
 import { SidebarFilter } from "./sidebar-filter";
+import { ScrollArea } from "~/components/ui/scroll-area";
 
 const suppressSWRReloading = {
   refreshInterval: 0,
@@ -153,7 +154,7 @@ export function SearchProfileOverview() {
     // every or some here?
     if (selectedTopics.length > 0) {
       filtered = filtered.filter((a) =>
-        selectedTopics.every((topic) => a.topics.includes(topic)),
+        selectedTopics.some((topic) => a.topics.includes(topic)),
       );
     }
 
@@ -180,6 +181,8 @@ export function SearchProfileOverview() {
     });
   }, [search, articles, sortBy]);
 
+  // We want sources and topics form the search profile for now, leave it here as comment if we want to go back later
+  /*
   // Extract unique sources from articles
   const uniqueSources = useMemo(() => {
     const urls = articles.map((a) => a.url);
@@ -191,6 +194,25 @@ export function SearchProfileOverview() {
     const allTopics = articles.flatMap((a) => a.topics); // flattens the nested arrays
     return Array.from(new Set(allTopics));
   }, [articles]);
+  */
+
+  // Extract sources from search profile
+  const uniqueSources = useMemo(() => {
+    if (profile && profile.subscriptions) {
+      const subs = profile.subscriptions.map((s) => s.name);
+      return Array.from(new Set(subs));
+    }
+    return [];
+  }, [profile]);
+
+  // Extract topics from search profile
+  const uniqueTopics = useMemo(() => {
+    if (profile && profile.topics) {
+      const topics = profile.topics.map((t) => t.name);
+      return Array.from(new Set(topics));
+    }
+    return [];
+  }, [profile]);
 
   // maybe when unique sources available, check them all; causes infinit rerenders with mocked data, only needed when Endpoint ready
   /*
@@ -212,18 +234,20 @@ export function SearchProfileOverview() {
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
-      <Text hierachy={2}>{profile?.name}</Text>
-      <div className="flex gap-3 items-center mt-2">
-        <Book size={20} />
-        <p>Topics:</p>
-        {profile?.topics?.map((topic, idx) => (
-          <div className="bg-secondary rounded-lg py-1 px-2" key={idx}>
-            {topic.name}
-          </div>
-        ))}
+      <div className="flex gap-8">
+        <Text hierachy={2}>{profile?.name}</Text>
+        <div className="flex gap-3 items-center">
+          <Book size={20} />
+          <p>Topics:</p>
+          {profile?.topics?.map((topic, idx) => (
+            <div className="bg-secondary rounded-lg py-1 px-2" key={idx}>
+              {topic.name}
+            </div>
+          ))}
+        </div>
       </div>
 
-      <div className="w-full grid grid-cols-6 mt-10 gap-8">
+      <div className="w-full grid grid-cols-6 mt-2 gap-8">
         <div className="col-span-2">
           <SidebarFilter
             sortBy={sortBy}
@@ -256,37 +280,40 @@ export function SearchProfileOverview() {
               className="absolute right-3 top-2 text-muted-foreground"
             />
           </div>
+          <div className="bg-card rounded-xl border shadow-sm">
+            <ScrollArea className="h-[755px] p-4">
+              {filteredArticles.map((article, idx) => {
+                const relevance = parseFloat(article.relevance_score);
 
-          {filteredArticles.map((article, idx) => {
-            const relevance = parseFloat(article.relevance_score);
+                const bgColor =
+                  relevance > 7
+                    ? "bg-green-200"
+                    : relevance < 3
+                      ? "bg-red-200"
+                      : "bg-yellow-200";
 
-            const bgColor =
-              relevance > 7
-                ? "bg-green-200"
-                : relevance < 3
-                  ? "bg-red-200"
-                  : "bg-yellow-200";
-
-            return (
-              <Card className="mb-4 p-5 gap-4 justify-start" key={idx}>
-                <CardTitle>{article.title}</CardTitle>
-                <p>{truncateAtWord(article.summary, 205)}</p>
-                <div className="flex gap-3 items-center">
-                  <div className={`rounded-lg py-1 px-2 ${bgColor}`}>
-                    Relevance: {article.relevance_score}
-                  </div>
-                  {article.topics.map((topic, idx) => (
-                    <div
-                      className="bg-secondary rounded-lg py-1 px-2"
-                      key={idx}
-                    >
-                      {topic}
+                return (
+                  <Card className="mb-4 p-5 gap-4 justify-start" key={idx}>
+                    <CardTitle className="text-xl">{article.title}</CardTitle>
+                    <p>{truncateAtWord(article.summary, 190)}</p>
+                    <div className="flex gap-3 items-center">
+                      <div className={`rounded-lg py-1 px-2 ${bgColor}`}>
+                        Relevance: {article.relevance_score}
+                      </div>
+                      {article.topics.map((topic, idx) => (
+                        <div
+                          className="bg-secondary rounded-lg py-1 px-2"
+                          key={idx}
+                        >
+                          {topic}
+                        </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
-              </Card>
-            );
-          })}
+                  </Card>
+                );
+              })}
+            </ScrollArea>
+          </div>
         </div>
       </div>
     </Layout>

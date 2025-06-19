@@ -168,7 +168,7 @@ export function SidebarFilter({
       <CardTitle className="mt-4 flex items-center gap-2">
         <CalendarFold /> Date
       </CardTitle>
-      <div className="flex mx-2 flex-wrap gap-y-4">
+      <div className="flex mx-2 flex-wrap gap-y-4 mb-2">
         <div className="flex">
           <Label htmlFor="date" className="pr-2">
             From
