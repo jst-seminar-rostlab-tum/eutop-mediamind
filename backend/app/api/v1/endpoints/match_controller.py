@@ -8,6 +8,7 @@ from app.core.logger import get_logger
 from app.models import Match, User
 from app.repositories.match_repository import MatchRepository
 from app.services.matching_service import ArticleMatchingService
+from app.services.article_matching_service import ArticleMatchingService as AMS
 
 router = APIRouter(prefix="/matches", tags=["matches"])
 
@@ -47,3 +48,28 @@ async def get_matches_by_search_profile(
         search_profile_id, current_user
     )
     return matches
+
+
+def get_article_matching_service() -> ArticleMatchingService:
+    """
+    Dependency to get the ArticleMatchingService instance.
+    """
+    return AMS()
+
+
+@router.post("/create-matches/{search_profile_id}")
+async def create_matches_for_search_profile(
+    search_profile_id: UUID,
+    background_tasks: BackgroundTasks,
+    ams: ArticleMatchingService = Depends(get_article_matching_service),
+):
+    """
+    Create matches for a specific search profile in the background.
+    """
+
+    background_tasks.add_task(
+        ams.process_matching_for_search_profile, search_profile_id
+    )
+    return {
+        "message": "Matches are being created for the search profile in the background."
+    }

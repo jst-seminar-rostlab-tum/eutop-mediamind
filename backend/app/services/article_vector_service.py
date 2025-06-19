@@ -137,6 +137,25 @@ class ArticleVectorService:
             query=query, score_threshold=score_threshold
         )
 
+    async def retrieve_by_similarity_with_filter(
+        self, query: str, doc_ids: List[str], score_threshold: float = 0.3
+    ) -> List[tuple[Document, float]]:
+        """
+        Retrieve query-relevant documents from the vector store
+         with a filter on document IDs.
+        """
+        return self.vector_store.similarity_search_with_score(
+            query=query,
+            score_threshold=score_threshold,
+            filter=models.Filter(
+                must=[
+                    models.FieldCondition(
+                        key="id", match=models.MatchAny(any=doc_ids)
+                    )
+                ]
+            ),
+        )
+
     async def index_summarized_articles_to_vector_store(
         self, page_size: int = 100
     ) -> None:
