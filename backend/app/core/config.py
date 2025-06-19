@@ -1,4 +1,3 @@
-import secrets
 import warnings
 from typing import Annotated, Any, Literal
 
@@ -31,34 +30,45 @@ class Configs(BaseSettings):
         env_ignore_empty=True,
         extra="ignore",
     )
-    API_V1_STR: str = "/api/v1"
-    SECRET_KEY: str = secrets.token_urlsafe(32)
-    # 60 minutes * 24 hours * 8 days = 8 days
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 8
-    ENVIRONMENT: Literal["local", "staging", "production"] = "local"
 
-    FRONTEND_HOST: str = "http://localhost:5173"
+    ENVIRONMENT: Literal["local", "staging", "production"]
+    PROJECT_NAME: str
+
+    # Backend
+    SECRET_KEY: str
     BACKEND_CORS_ORIGINS: Annotated[
         list[AnyUrl] | str, BeforeValidator(parse_cors)
-    ] = []
+    ]
+    FERNET_KEY: str
 
-    @computed_field  # type: ignore[prop-decorator]
-    @property
-    def all_cors_origins(self) -> list[str]:
-        if self.ENVIRONMENT == "local":
-            return ["*"]
-        return [
-            str(origin).rstrip("/") for origin in self.BACKEND_CORS_ORIGINS
-        ] + [self.FRONTEND_HOST]
+    # Postgres
+    POSTGRES_SERVER: str
+    POSTGRES_PORT: int
+    POSTGRES_DB: str
+    POSTGRES_USER: str
+    POSTGRES_PASSWORD: str
 
-    PROJECT_NAME: str = "mediamind"
-    FERNET_KEY: str = "nNjpIl9Ax2LRtm-p6ryCRZ8lRsL0DtuY0f9JeAe2wG0="
-    SENTRY_DSN: HttpUrl | None = None
-    POSTGRES_SERVER: str = "localhost"
-    POSTGRES_PORT: int = 5432
-    POSTGRES_USER: str = "postgres"
-    POSTGRES_PASSWORD: str = "postgres"
-    POSTGRES_DB: str = "test_db"
+    SENTRY_DSN: HttpUrl | None
+
+    # Qdrant
+    QDRANT_URL: str | None
+    QDRANT_API_KEY: str | None
+    ARTICLE_VECTORS_COLLECTION: str | None
+
+    # LLMs
+    OPENAI_API_KEY: str | None
+
+    # Configuration of the user management tool (Clerk)
+    CLERK_SECRET_KEY: str | None
+    CLERK_PUBLISHABLE_KEY: str | None
+    CLERK_COOKIE_NAME: str
+
+    # Email
+    SENDER_EMAIL: EmailStr
+    SENDGRID_KEY: str
+    MAX_EMAIL_ATTEMPTS: int
+
+    DISABLE_AUTH: bool = False
 
     @computed_field  # type: ignore[prop-decorator]
     @property
@@ -74,58 +84,66 @@ class Configs(BaseSettings):
             path=self.POSTGRES_DB,
         )
 
-    SENDGRID_KEY: str = ""
-    SENDER_EMAIL: EmailStr = "test@example.com"
-    MAX_EMAIL_ATTEMPTS: int = 2
-
-    EMAIL_TEST_USER: EmailStr = "test@example.com"
-    FIRST_SUPERUSER: EmailStr = "test@example.com"
-    FIRST_SUPERUSER_PASSWORD: str = "test_password"
+    @computed_field  # type: ignore[prop-decorator]
+    @property
+    def all_cors_origins(self) -> list[str]:
+        if self.ENVIRONMENT == "local":
+            return ["*"]
+        return [
+            str(origin).rstrip("/") for origin in self.BACKEND_CORS_ORIGINS
+        ]
 
     def _check_default_secret(self, var_name: str, value: str | None) -> None:
-        if value == "changethis":
+        if (
+            value is None
+            or value == "changethis"
+            or "example" in value.lower()
+        ):
             message = (
-                f'The value of {var_name} is "changethis", '
+                f'The value of {var_name} is "{value}", '
                 "for security, please change it, at least for deployments."
             )
             if self.ENVIRONMENT == "local":
-                warnings.warn(message, stacklevel=1)
+                warnings.warn(message)
             else:
                 raise ValueError(message)
 
     @model_validator(mode="after")
     def _enforce_non_default_secrets(self) -> Self:
         self._check_default_secret("SECRET_KEY", self.SECRET_KEY)
-        self._check_default_secret("POSTGRES_PASSWORD", self.POSTGRES_PASSWORD)
         self._check_default_secret("FERNET_KEY", self.FERNET_KEY)
+        self._check_default_secret("POSTGRES_SERVER", self.POSTGRES_SERVER)
+        self._check_default_secret("POSTGRES_DB", self.POSTGRES_DB)
+        self._check_default_secret("POSTGRES_USER", self.POSTGRES_USER)
+        self._check_default_secret("POSTGRES_PASSWORD", self.POSTGRES_PASSWORD)
+        self._check_default_secret("CLERK_SECRET_KEY", self.CLERK_SECRET_KEY)
         self._check_default_secret(
-            "FIRST_SUPERUSER_PASSWORD", self.FIRST_SUPERUSER_PASSWORD
+            "CLERK_PUBLISHABLE_KEY", self.CLERK_PUBLISHABLE_KEY
         )
-
+        self._check_default_secret("QDRANT_URL", self.QDRANT_URL)
+        self._check_default_secret("QDRANT_API_KEY", self.QDRANT_API_KEY)
+        self._check_default_secret(
+            "ARTICLE_VECTORS_COLLECTION", self.ARTICLE_VECTORS_COLLECTION
+        )
+        self._check_default_secret("SENDER_EMAIL", self.SENDER_EMAIL)
         return self
 
-    # Qdrant
-    QDRANT_URL: str | None = None
-    QDRANT_API_KEY: str | None = None
-    ARTICLE_VECTORS_COLLECTION: str | None = None
-
-    # OpenAI
-    OPENAI_API_KEY: str | None = None
-
-    # Configuration of the user management tool (Clerk)
-    CLERK_SECRET_KEY: str | None = None
-    CLERK_PUBLISHABLE_KEY: str | None = None
-    CLERK_JWT_KEY: str | None = None
-    CLERK_COOKIE_NAME: str = "__session"
-
-    # Configuration of the AWS SDK
-    AWS_ACCESS_KEY_ID: str | None = None
-    AWS_SECRET_ACCESS_KEY: str | None = None
-    AWS_REGION: str | None = None
-    AWS_S3_BUCKET_NAME: str | None = None
-
-    # Disable Authentication (local testing only!)
-    DISABLE_AUTH: bool = False
+    @model_validator(mode="after")
+    def validate_auth_in_production(self) -> Self:
+        # Ensure authentication is not disabled in production or staging.
+        if self.ENVIRONMENT in ("production", "staging") and self.DISABLE_AUTH:
+            raise ValueError(
+                f"DISABLE_AUTH cannot be True in {self.ENVIRONMENT} "
+                "environment. This would be a severe security risk."
+            )
+        # Log warning for non-production environments.
+        elif self.DISABLE_AUTH:
+            warnings.warn(
+                "Authentication is disabled by DISABLED_AUTH in "
+                f"{self.ENVIRONMENT} environment. Never use this "
+                "setting in production.",
+            )
+        return self
 
     # NewsAPI AI
     NEWSAPIAI_API_KEY: str | None = None
