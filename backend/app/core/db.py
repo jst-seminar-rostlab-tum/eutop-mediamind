@@ -12,7 +12,6 @@ from sqlalchemy.ext.asyncio import (
     create_async_engine,
 )
 from sqlalchemy.future import select
-from sqlmodel import SQLModel
 
 from app.core.config import configs
 from app.core.logger import get_logger
@@ -32,9 +31,8 @@ def load_json_data(file_path: str) -> list[dict]:
         return json.load(f)
 
 
-async def init_db():
+async def seed_data():
     async with engine.begin() as conn:
-        await conn.run_sync(SQLModel.metadata.create_all)
         async with AsyncSession(bind=conn) as session:
             await seed_subscriptions(session)
 
