@@ -30,15 +30,7 @@ export function Welcome() {
         <Text className="mt-6" hierachy={1}>
           {t("welcome")}
         </Text>
-        <Text className="text-center">
-          Stay ahead in the fast-changing world of media with our Automated
-          Press Analysis Tool. Keep your client teams informed and prepared with
-          daily press reviews, personalized to your needs. Our platform extracts
-          and compiles the most relevant news articles into concise, anonymized
-          reports – delivered directly to your inbox each morning. Save time,
-          stay informed, and focus on what matters most – delivering value to
-          your clients.
-        </Text>
+        <Text className="text-center">{t("welcome_text")}</Text>
       </Layout>
 
       <div className="grid grid-cols-3 mx-auto max-w-7xl gap-6 my-16">
@@ -117,11 +109,7 @@ export function Welcome() {
         <img src="/csee-logo.webp" alt="CSEE Logo" className="h-20" />
       </Layout>
       <div>
-        <Text className="text-center">
-          MediaMind was build in cooperation between EUTOP, the Technical
-          University of Munich and CSEE during the Javascript Technology
-          Practicum.
-        </Text>
+        <Text className="text-center">{t("credits")}</Text>
       </div>
 
       <Layout className="m-6 flex justify-center">

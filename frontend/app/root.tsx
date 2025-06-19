@@ -23,6 +23,7 @@ import {
 } from "./hooks/use-authorization";
 import { Toaster } from "~/components/ui/sonner";
 import { Loader2 } from "lucide-react";
+import { Suspense } from "react";
 
 declare global {
   interface Window {
@@ -138,12 +139,14 @@ export default function App({ loaderData }: Route.ComponentProps) {
   }, []);
 
   return (
-    <ClerkProvider loaderData={loaderData}>
-      <AuthorizationContextProvider>
-        <Header />
-        <OutletWrapper />
-      </AuthorizationContextProvider>
-    </ClerkProvider>
+    <Suspense fallback={<div>Loading translations...</div>}>
+      <ClerkProvider loaderData={loaderData}>
+        <AuthorizationContextProvider>
+          <Header />
+          <OutletWrapper />
+        </AuthorizationContextProvider>
+      </ClerkProvider>
+    </Suspense>
   );
 }
 

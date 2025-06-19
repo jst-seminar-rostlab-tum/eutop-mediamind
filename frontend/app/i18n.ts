@@ -8,6 +8,9 @@ i18n
   .init({
     fallbackLng: "en",
     debug: true,
+    react: {
+      useSuspense: true,
+    },
     backend: {
       loadPath: "../public/locales/{{lng}}/translations.json", // <-- this line loads from public/
     },

@@ -15,6 +15,7 @@ import { sortBy } from "lodash-es";
 import { BreakingNews } from "./breaking-news";
 import Layout from "~/custom-components/layout";
 import "./dashboard.css";
+import { useTranslation } from "react-i18next";
 
 const suppressSWRReloading = {
   refreshInterval: 0,
@@ -32,6 +33,8 @@ export function DashboardPage() {
     error,
     mutate,
   } = useQuery("/api/v1/search-profiles", undefined, suppressSWRReloading);
+
+  const { t } = useTranslation();
 
   const sortedProfiles = sortBy(profiles, "name");
 
@@ -86,10 +89,10 @@ export function DashboardPage() {
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
-      <h1 className="text-3xl font-bold mb-2">Dashboard</h1>
+      <h1 className="text-3xl font-bold mb-2 mt-1">{t("dashboard_header")}</h1>
       <BreakingNews breakingNews={breakingNews} />
       <div className={"flex gap-5"}>
-        <h2 className="text-2xl font-bold ">Profiles</h2>
+        <h2 className="text-2xl font-bold ">{t("profile_header")}</h2>
         <EditProfile
           mutateDashboard={mutate}
           dialogOpen={createDialogOpen}
@@ -107,7 +110,7 @@ export function DashboardPage() {
         <div className="flex items-center justify-center py-8">
           <Loader2 className="h-8 w-8 animate-spin" />
           <span className="ml-2 text-muted-foreground">
-            Loading profiles...
+            {t("profiles_loading")}
           </span>
         </div>
       ) : (

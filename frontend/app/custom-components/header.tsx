@@ -53,7 +53,7 @@ export default function Header() {
     setOpenLogin(false);
   }, [pathname]);
 
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const changeLanguage = (lng: string) => {
     i18n.changeLanguage(lng);
@@ -114,7 +114,7 @@ export default function Header() {
             <PopoverTrigger asChild>
               <Button variant="outline">
                 <>
-                  <User /> Login
+                  <User /> {t("login")}
                 </>
               </Button>
             </PopoverTrigger>

@@ -1,3 +1,14 @@
 {
-  "welcome": "Welcome to MediaMind"
+  "login": "Login",
+  "welcome": "Welcome to MediaMind",
+  "welcome_text": "Stay ahead in the fast-changing world of media with our Automated Press Analysis Tool. Keep your client teams informed and prepared with daily press reviews, personalized to your needs. Our platform extracts and compiles the most relevant news articles into concise, anonymized reports – delivered directly to your inbox each morning. Save time, stay informed, and focus on what matters most – delivering value to your clients.",
+  "credits": "MediaMind was build in cooperation between EUTOP, the Technical University of Munich and CSEE during the Javascript Technology Practicum.",
+  "dashboard_header": "Dashbaord",
+  "profiles_header": "Profiles",
+  "new_articles": "new articles",
+  "profiles_loading": "Load profiles ...",
+  "breaking_news": "Breaking News",
+  "read_more": "Read more",
+  "edit": "edit",
+  "delete": "delete"
 }
