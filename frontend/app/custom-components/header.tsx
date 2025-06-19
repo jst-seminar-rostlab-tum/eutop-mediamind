@@ -6,7 +6,7 @@ import {
   SignUp,
 } from "@clerk/react-router";
 import { Link, useLocation, useSearchParams } from "react-router";
-import { Building2, Settings, User } from "lucide-react";
+import { Building2, Earth, Settings, User } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { useAuthorization } from "~/hooks/use-authorization";
 import {
@@ -15,6 +15,13 @@ import {
   PopoverTrigger,
 } from "~/components/ui/popover";
 import { useEffect, useState } from "react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "~/components/ui/dropdown-menu";
+import { useTranslation } from "react-i18next";
 
 const SIGN_UP = "ui_sign_up";
 const SIGN_IN = "ui_sign_in";
@@ -46,6 +53,12 @@ export default function Header() {
     setOpenLogin(false);
   }, [pathname]);
 
+  const { i18n } = useTranslation();
+
+  const changeLanguage = (lng: string) => {
+    i18n.changeLanguage(lng);
+  };
+
   return (
     <div className="p-4 w-full flex justify-between items-center">
       <div className="flex items-center gap-8">
@@ -66,6 +79,30 @@ export default function Header() {
         )}
       </div>
       <div className="flex justify-end items-center gap-4">
+        <div>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="flex items-center gap-2">
+                <Earth />
+                {i18n.language.toUpperCase() == "EN" ? (
+                  <img src="/US-UK_Flag.svg" alt="🇬🇧" width={"25rem"} />
+                ) : (
+                  <img src="/German_Flag.svg" alt="🇩🇪" width={"25rem"} />
+                )}
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => changeLanguage("en")}>
+                <img src="/US-UK_Flag.svg" alt="🇬🇧" width={"30rem"} />
+                English
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => changeLanguage("de")}>
+                <img src="/German_Flag.svg" alt="🇩🇪" width={"30rem"} />
+                Deutsch
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
         <SignedOut>
           <Popover
             open={openLogin}

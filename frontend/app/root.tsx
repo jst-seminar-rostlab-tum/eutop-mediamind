@@ -1,3 +1,4 @@
+import "./i18n";
 import * as Sentry from "@sentry/react";
 import {
   isRouteErrorResponse,

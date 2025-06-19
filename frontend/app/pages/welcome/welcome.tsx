@@ -6,10 +6,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import Layout from "~/custom-components/layout";
 import Text from "~/custom-components/text";
 import { useAuthorization } from "~/hooks/use-authorization";
+import { useTranslation } from "react-i18next";
 
 export function Welcome() {
   const { isSignedIn, user } = useAuthorization();
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (isSignedIn && user?.organization_id) {
@@ -26,7 +28,7 @@ export function Welcome() {
 
       <Layout className="flex flex-col items-center">
         <Text className="mt-6" hierachy={1}>
-          Welcome to MediaMind!
+          {t("welcome")}
         </Text>
         <Text className="text-center">
           Stay ahead in the fast-changing world of media with our Automated
