@@ -8,7 +8,9 @@ from fastapi import HTTPException
 
 from app.core.db import async_session
 from app.models import SearchProfile, Topic, User
+from app.models.associations import ArticleKeywordLink
 from app.models.match import Match
+from app.repositories.article_repository import ArticleRepository
 from app.repositories.keyword_repository import KeywordRepository
 from app.repositories.match_repository import MatchRepository
 from app.repositories.match_repositoy import (
@@ -263,40 +265,43 @@ class SearchProfileService:
                 <= request.endDate
             ]
 
+        article_topic_scores: Dict[UUID, Dict[UUID, float]] = defaultdict(dict)
+        article_topic_keywords: Dict[UUID, Dict[UUID, List[str]]] = (
+            defaultdict(lambda: defaultdict(list))
+        )
+        topic_id_to_name: Dict[UUID, str] = {}
+        topic_keywords: Dict[UUID, set] = {}
+        keyword_links: List[ArticleKeywordLink] = []
         if request.subscriptions:
             matches = [
                 m
                 for m in matches
-                if getattr(m.article, "subscription_id", None)
+                if await ArticleRepository.get_subscription_id_for_article(
+                    m.article_id
+                )
                 in request.subscriptions
             ]
+            print(f"Filtered matches by subscriptions: {len(matches)} matches")
+        async with async_session() as session:
+            profile: SearchProfile = await get_accessible_profile_by_id(
+                search_profile_id,
+                user_id=current_user.id,
+                organization_id=current_user.organization_id,
+                session=session,
+            )
         if request.topics:
             # gather keyword info to infer topic scores
             article_ids = [m.article_id for m in matches]
             keyword_links = await MatchRepository.get_keyword_links(
                 article_ids
             )
-            async with async_session() as session:
-                profile: SearchProfile = await get_accessible_profile_by_id(
-                    search_profile_id,
-                    user_id=current_user.id,
-                    organization_id=current_user.organization_id,
-                    session=session,
-                )
 
             # build topic-keyword map
             topic_keywords: Dict[UUID, set] = {
                 topic.id: {kw.id for kw in topic.keywords}
                 for topic in profile.topics
             }
-            # build article-topic-score map
-            article_topic_scores: Dict[UUID, Dict[UUID, float]] = defaultdict(
-                lambda: defaultdict(float)
-            )
 
-            article_topic_keywords: Dict[UUID, Dict[UUID, List[str]]] = (
-                defaultdict(lambda: defaultdict(list))
-            )
             all_keyword_ids = {link.keyword_id for link in keyword_links}
             all_keywords = await KeywordRepository.get_keywords_by_ids(
                 list(all_keyword_ids)
@@ -311,16 +316,14 @@ class SearchProfileService:
                 )
             )
 
-            # sorting
-            if request.sorting == "RELEVANCE" and request.searchTerm:
-                matches.sort(
-                    key=lambda m: relevance_map.get(m.article_id, 0.0),
-                    reverse=True,
-                )
-            else:
-                matches.sort(
-                    key=lambda m: m.article.published_at, reverse=True
-                )
+        # sorting
+        if request.sorting == "RELEVANCE" and request.searchTerm:
+            matches.sort(
+                key=lambda m: relevance_map.get(m.article_id, 0.0),
+                reverse=True,
+            )
+        else:
+            matches.sort(key=lambda m: m.article.published_at, reverse=True)
 
         topic_id_to_name = {t.id: t.name for t in profile.topics}
 
