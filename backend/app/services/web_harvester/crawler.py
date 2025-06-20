@@ -210,7 +210,7 @@ class NewsAPICrawler(Crawler):
         Parses the language code from the article and returns a standardized
         two-letter language code.
         """
-        lang_map = {"deu": "DE", "eng": "EN", "fra": "FR"}
+        lang_map = {"deu": "de", "eng": "en", "fra": "fr"}
         if not language:
             return None
         return lang_map.get(language, language.upper())
