@@ -11,7 +11,7 @@ from app.schemas.articles_schemas import (
     MatchDetailResponse,
 )
 from app.schemas.match_schemas import MatchFeedbackRequest
-from app.schemas.request_response import FeedbackResponse
+from app.schemas.request_response import FeedbackResponse, MatchFilterRequest
 from app.schemas.search_profile_schemas import (
     KeywordSuggestionResponse,
     SearchProfileCreateRequest,
@@ -61,11 +61,15 @@ async def get_search_profile(
     return profile
 
 
-@router.get(
-    "/{search_profile_id}/overview", response_model=ArticleOverviewResponse
+@router.post(
+    "/{search_profile_id}/matches", response_model=ArticleOverviewResponse
 )
-async def get_search_profile_overview(search_profile_id: UUID):
-    return await SearchProfileService.get_article_overview(search_profile_id)
+async def get_search_profile_overview(
+    search_profile_id: UUID, request: MatchFilterRequest
+):
+    return await SearchProfileService.get_article_matches(
+        search_profile_id=search_profile_id, request=request
+    )
 
 
 @router.get(

@@ -1,11 +1,14 @@
+import uuid
+from collections import defaultdict
 from datetime import datetime, timedelta, timezone
-from typing import List
+from typing import Dict, List
 from uuid import UUID
 
 from fastapi import HTTPException
 
 from app.core.db import async_session
 from app.models import SearchProfile, Topic, User
+from app.models.match import Match
 from app.repositories.match_repository import MatchRepository
 from app.repositories.match_repositoy import (
     get_recent_match_count_by_profile_id,
@@ -21,11 +24,12 @@ from app.repositories.subscription_repository import (
     set_subscriptions_for_profile,
 )
 from app.schemas.articles_schemas import (
-    ArticleOverviewItem,
     ArticleOverviewResponse,
     MatchDetailResponse,
+    MatchItem,
 )
 from app.schemas.match_schemas import MatchFeedbackRequest
+from app.schemas.request_response import MatchFilterRequest
 from app.schemas.search_profile_schemas import (
     KeywordSuggestionResponse,
     SearchProfileCreateRequest,
@@ -37,6 +41,7 @@ from app.schemas.subscription_schemas import (
     SubscriptionSummary,
 )
 from app.schemas.topic_schemas import TopicResponse
+from app.services.article_vector_service import ArticleVectorService
 from app.services.llm_service.llm_client import LLMClient
 from app.services.llm_service.llm_models import LLMModels
 
@@ -203,18 +208,107 @@ class SearchProfileService:
             )
 
     @staticmethod
-    async def get_article_overview(
-        search_profile_id: UUID,
+    async def get_article_matches(
+        search_profile_id: UUID, request: MatchFilterRequest
     ) -> ArticleOverviewResponse:
-        matches = await MatchRepository.get_articles_by_profile(
+        matches: list[Match] = []
+        relevance_map: dict[UUID, float] = {}
+
+        if request.searchTerm:
+            # 1. Qdrant vertor search
+            avs = ArticleVectorService()
+            results = await avs.retrieve_by_similarity(
+                query=request.searchTerm
+            )
+
+            # 2. extract article IDs and relevance scores
+            article_ids = []
+            for doc, score in results:
+                aid = uuid.UUID(doc.metadata["id"])
+                article_ids.append(aid)
+                relevance_map[aid] = score
+
+            # 3. get matches for the profile with the article IDs
+            all_matches = await MatchRepository.get_articles_by_profile(
+                search_profile_id
+            )
+            matches = [
+                m
+                for m in all_matches
+                if m.article_id in article_ids
+                and m.article
+                and request.startDate
+                <= m.article.published_at.date()
+                <= request.endDate
+            ]
+        else:
+            # no search term: get all matches for the profile
+            matches = await MatchRepository.get_articles_by_profile(
+                search_profile_id
+            )
+            matches = [
+                m
+                for m in matches
+                if m.article
+                and request.startDate
+                <= m.article.published_at.date()
+                <= request.endDate
+            ]
+
+        # topic/subscription filtering
+        if request.topics:
+            matches = [m for m in matches if m.topic_id in request.topics]
+        if request.subscriptions:
+            matches = [
+                m
+                for m in matches
+                if getattr(m.article, "subscription_id", None)
+                in request.subscriptions
+            ]
+
+        # gather keyword info to infer topic scores
+        article_ids = [m.article_id for m in matches]
+        keyword_links = await MatchRepository.get_keyword_links(article_ids)
+        profile: SearchProfile = await get_accessible_profile_by_id(
             search_profile_id
         )
-        articles = [
-            ArticleOverviewItem.from_entity(m) for m in matches if m.article
-        ]
-        return ArticleOverviewResponse(
-            search_profile_id=search_profile_id, articles=articles
+
+        # build topic-keyword map
+        topic_keywords: Dict[UUID, set] = {
+            topic.id: {kw.id for kw in topic.keywords}
+            for topic in profile.topics
+        }
+        # build article-topic-score map
+        article_topic_scores: Dict[UUID, Dict[UUID, float]] = defaultdict(
+            lambda: defaultdict(float)
         )
+        for link in keyword_links:
+            for topic_id, kw_ids in topic_keywords.items():
+                if link.keyword_id in kw_ids:
+                    article_topic_scores[link.article_id][
+                        topic_id
+                    ] += link.score
+
+        # sorting
+        if request.sorting == "RELEVANCE" and request.searchTerm:
+            matches.sort(
+                key=lambda m: relevance_map.get(m.article_id, 0.0),
+                reverse=True,
+            )
+        else:
+            matches.sort(key=lambda m: m.article.published_at, reverse=True)
+
+        # generate response
+        match_items = [
+            MatchItem.from_entity(
+                m,
+                relevance=relevance_map.get(m.article_id, 0.0),
+                topic_scores=article_topic_scores.get(m.article_id, {}),
+            )
+            for m in matches
+        ]
+
+        return ArticleOverviewResponse(matches=match_items)
 
     @staticmethod
     async def get_match_detail(

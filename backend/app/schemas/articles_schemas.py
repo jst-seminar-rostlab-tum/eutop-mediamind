@@ -35,9 +35,71 @@ class ArticleOverviewItem(BaseModel):
         )
 
 
+class MatchArticleContent(BaseModel):
+    headline: dict[str, str]
+    summary: dict[str, str]
+    text: dict[str, str]
+    image_urls: list[str]
+    published: datetime
+    crawled: datetime
+
+
+class MatchTopicItem(BaseModel):
+    id: UUID
+    name: str
+    score: float
+
+
+class MatchItem(BaseModel):
+    id: UUID
+    relevance: float
+    topic: list[MatchTopicItem]
+    article: MatchArticleContent
+
+    @classmethod
+    def from_entity(
+        cls,
+        match: Match,
+        topic_scores: dict[UUID, float],
+        relevance: float = 0.0,
+    ) -> "MatchItem":
+        a = match.article
+        return cls(
+            id=match.id,
+            relevance=relevance,
+            topic=(
+                [
+                    MatchTopicItem(
+                        id=tid,
+                        name=(
+                            match.topic.name
+                            if match.topic and match.topic.id == tid
+                            else ""
+                        ),
+                        score=score,
+                    )
+                    for tid, score in topic_scores.items()
+                ]
+                if match.topic
+                else []
+            ),
+            article=MatchArticleContent(
+                headline={
+                    "de": a.title or "",
+                    "en": a.title or "",
+                },  # need to implement language handling
+                summary={"de": a.summary or "", "en": a.summary or ""},
+                text={"de": a.content or "", "en": a.content or ""},
+                image_urls=[]
+                or [],  # need to implement image extraction in scraping
+                published=a.published_at,
+                crawled=a.crawled_at,
+            ),
+        )
+
+
 class ArticleOverviewResponse(BaseModel):
-    search_profile_id: UUID
-    articles: list[ArticleOverviewItem]
+    matches: list[MatchItem]
 
 
 class MatchDetailResponse(BaseModel):

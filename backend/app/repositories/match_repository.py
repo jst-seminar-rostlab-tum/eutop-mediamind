@@ -6,6 +6,7 @@ from sqlalchemy.orm import selectinload
 
 from app.core.db import async_session
 from app.models import User
+from app.models.associations import ArticleKeywordLink
 from app.models.match import Match
 
 
@@ -67,3 +68,18 @@ class MatchRepository:
             await session.commit()
             await session.refresh(match)
             return match
+
+    @staticmethod
+    async def get_keyword_links(
+        article_ids: List[UUID],
+    ) -> List[ArticleKeywordLink]:
+        """
+        retrieve all keyword links for a list of article IDs
+        """
+        async with async_session() as session:
+            result = await session.execute(
+                select(ArticleKeywordLink).where(
+                    ArticleKeywordLink.article_id.in_(article_ids)
+                )
+            )
+            return result.scalars().all()
