@@ -135,29 +135,31 @@ class ArticleRepository:
             )
 
             return summarized_articles
-
-    @staticmethod
-    async def get_sameple_articles(limit: int) -> List[Article]:
-        async with async_session() as session:
-            result = await session.execute(
-                select(Article)
-                .order_by(desc(Article.published_at))
-                .limit(limit)
-                .options(joinedload("*"))
-            )
-            return result.unique().scalars().all()
         
-    # Returns articles matched to the profile, in the time window(NOT YET), sorted by relevance
     @staticmethod
-    async def get_matched_articles_for_profile(search_profile_id: UUID, limit: int = 100) -> List[Article]:
+    async def get_matched_articles_for_profile(search_profile, match_start_time, match_stop_time, limit: int = 100) -> List[Article]:
+        # Extract id from SearchProfile or use directly if already UUID
+        if hasattr(search_profile, 'id'):
+            search_profile_id = search_profile.id
+        else:
+            search_profile_id = search_profile
+
         async with async_session() as session:
             query = (
                 select(Match)
-                .options(selectinload(Match.article))
-                .where(Match.search_profile_id == search_profile_id)
+                .options(
+                    selectinload(Match.article)
+                        .selectinload(Article.subscription),
+                    selectinload(Match.article)
+                        .selectinload(Article.keywords)
+                )
+                .where(
+                    Match.search_profile_id == search_profile_id,
+                    Match.article.has(Article.published_at >= match_start_time),
+                    Match.article.has(Article.published_at <= match_stop_time)
+                )
                 .order_by(Match.sorting_order.asc())
                 .limit(limit)
             )
             matches = (await session.execute(query)).scalars().all()
-            # Return only the articles, filter out any None
             return [m.article for m in matches if m.article is not None]

@@ -60,8 +60,8 @@ class ReportService:
         report = Report.model_validate(temp_report_data, from_attributes=True)
         report = await ReportRepository.create_report(report)
 
-        # TODO: Replace with actual PDF generation logic
-        pdf_bytes = await PDFService.create_sample_pdf(search_profile)
+        # PDF generation
+        pdf_bytes = await PDFService.create_pdf(search_profile, timeslot, now)
 
         # Set S3 key to the report id and upload the PDF
         s3_key = f"reports/{report.id}.pdf"

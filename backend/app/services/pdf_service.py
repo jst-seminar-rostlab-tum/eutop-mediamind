@@ -1,6 +1,6 @@
 import os
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timedelta
 from io import BytesIO
 from typing import List
 from uuid import UUID
@@ -33,6 +33,8 @@ from svglib.svglib import svg2rlg
 from app.core.logger import get_logger
 from app.models.search_profile import SearchProfile
 from app.repositories.article_repository import ArticleRepository
+
+import locale
 
 # TODO: Move colors to a separate module, Move only the needed styles to a
 # Stylesheet, sample works with matching
@@ -168,8 +170,26 @@ class PDFService:
     )
 
     @staticmethod
-    async def create_sample_pdf(search_profile: SearchProfile) -> bytes:
-        articles = await ArticleRepository.get_matched_articles_for_profile(search_profile.id)
+    async def create_pdf(search_profile: SearchProfile, timeslot: str, match_stop_time) -> bytes:
+        if timeslot not in ["morning", "afternoon", "evening"]:
+            raise logger.warning(
+                f"Invalid timeslot. Must be one of: morning, afternoon, evening."
+                )
+        elif timeslot == "morning":
+            match_start_time = match_stop_time - timedelta(hours=500)#TODO: 9 hours, but for testing
+        elif timeslot == "afternoon":
+            match_start_time = match_stop_time - timedelta(hours=8)
+        elif timeslot == "evening":
+            match_start_time = match_stop_time - timedelta(hours=7)
+
+        articles = await ArticleRepository.get_matched_articles_for_profile(search_profile, match_start_time, match_stop_time)
+
+        # TODO: Change locale based on translation needs
+        locale.setlocale(locale.LC_TIME, "de_DE.UTF-8")  # For German, for example
+        # To set back to English (US)
+        # locale.setlocale(locale.LC_TIME, "en_US.UTF-8")
+
+        # Here we can look that the metadata is working
         news_items = []
         for article in articles:
             # Convert Article to NewsItem
