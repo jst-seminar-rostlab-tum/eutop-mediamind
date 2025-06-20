@@ -214,7 +214,8 @@ class SearchProfileService:
 
     @staticmethod
     async def get_article_matches(
-        search_profile_id: UUID, request: MatchFilterRequest
+        search_profile_id: UUID, request: MatchFilterRequest, 
+        current_user: User
     ) -> ArticleOverviewResponse:
         matches: list[Match] = []
         relevance_map: dict[UUID, float] = {}
@@ -274,9 +275,13 @@ class SearchProfileService:
         # gather keyword info to infer topic scores
         article_ids = [m.article_id for m in matches]
         keyword_links = await MatchRepository.get_keyword_links(article_ids)
-        profile: SearchProfile = await get_accessible_profile_by_id(
-            search_profile_id
-        )
+        async with async_session() as session:
+            profile: SearchProfile = await get_accessible_profile_by_id(
+                search_profile_id,
+                user_id=current_user.id,
+                organization_id=current_user.organization_id,
+                session=session
+            )
 
         # build topic-keyword map
         topic_keywords: Dict[UUID, set] = {
