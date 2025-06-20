@@ -36,6 +36,14 @@ class KeywordRepository:
             return (await session.execute(statement)).scalar_one_or_none()
 
     @staticmethod
+    async def get_keywords_by_ids(keyword_ids: list[UUID]) -> list[Keyword]:
+        async with async_session() as session:
+            result = await session.execute(
+                select(Keyword).where(Keyword.id.in_(keyword_ids))
+            )
+            return result.scalars().all()
+
+    @staticmethod
     async def list_keywords(
         limit: int = 100, offset: int = 0
     ) -> Sequence[Keyword]:
@@ -200,3 +208,14 @@ class KeywordRepository:
             keywords = await KeywordRepository.list_keywords(
                 limit=page_size, offset=page * page_size
             )
+
+    @staticmethod
+    async def get_keywords_by_article_id(article_id: UUID) -> List[Keyword]:
+        async with async_session() as session:
+            query = (
+                select(Keyword)
+                .join(ArticleKeywordLink)
+                .where(ArticleKeywordLink.article_id == article_id)
+            )
+            result = await session.execute(query)
+            return result.scalars().all()

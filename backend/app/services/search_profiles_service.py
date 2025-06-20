@@ -9,6 +9,7 @@ from fastapi import HTTPException
 from app.core.db import async_session
 from app.models import SearchProfile, Topic, User
 from app.models.match import Match
+from app.repositories.keyword_repository import KeywordRepository
 from app.repositories.match_repository import MatchRepository
 from app.repositories.match_repositoy import (
     get_recent_match_count_by_profile_id,
@@ -214,8 +215,9 @@ class SearchProfileService:
 
     @staticmethod
     async def get_article_matches(
-        search_profile_id: UUID, request: MatchFilterRequest, 
-        current_user: User
+        search_profile_id: UUID,
+        request: MatchFilterRequest,
+        current_user: User,
     ) -> ArticleOverviewResponse:
         matches: list[Match] = []
         relevance_map: dict[UUID, float] = {}
@@ -261,9 +263,6 @@ class SearchProfileService:
                 <= request.endDate
             ]
 
-        # topic/subscription filtering
-        if request.topics:
-            matches = [m for m in matches if m.topic_id in request.topics]
         if request.subscriptions:
             matches = [
                 m
@@ -271,42 +270,59 @@ class SearchProfileService:
                 if getattr(m.article, "subscription_id", None)
                 in request.subscriptions
             ]
+        if request.topics:
+            # gather keyword info to infer topic scores
+            article_ids = [m.article_id for m in matches]
+            keyword_links = await MatchRepository.get_keyword_links(
+                article_ids
+            )
+            async with async_session() as session:
+                profile: SearchProfile = await get_accessible_profile_by_id(
+                    search_profile_id,
+                    user_id=current_user.id,
+                    organization_id=current_user.organization_id,
+                    session=session,
+                )
 
-        # gather keyword info to infer topic scores
-        article_ids = [m.article_id for m in matches]
-        keyword_links = await MatchRepository.get_keyword_links(article_ids)
-        async with async_session() as session:
-            profile: SearchProfile = await get_accessible_profile_by_id(
-                search_profile_id,
-                user_id=current_user.id,
-                organization_id=current_user.organization_id,
-                session=session
+            # build topic-keyword map
+            topic_keywords: Dict[UUID, set] = {
+                topic.id: {kw.id for kw in topic.keywords}
+                for topic in profile.topics
+            }
+            # build article-topic-score map
+            article_topic_scores: Dict[UUID, Dict[UUID, float]] = defaultdict(
+                lambda: defaultdict(float)
             )
 
-        # build topic-keyword map
-        topic_keywords: Dict[UUID, set] = {
-            topic.id: {kw.id for kw in topic.keywords}
-            for topic in profile.topics
-        }
-        # build article-topic-score map
-        article_topic_scores: Dict[UUID, Dict[UUID, float]] = defaultdict(
-            lambda: defaultdict(float)
-        )
-        for link in keyword_links:
-            for topic_id, kw_ids in topic_keywords.items():
-                if link.keyword_id in kw_ids:
-                    article_topic_scores[link.article_id][
-                        topic_id
-                    ] += link.score
-
-        # sorting
-        if request.sorting == "RELEVANCE" and request.searchTerm:
-            matches.sort(
-                key=lambda m: relevance_map.get(m.article_id, 0.0),
-                reverse=True,
+            article_topic_keywords: Dict[UUID, Dict[UUID, List[str]]] = (
+                defaultdict(lambda: defaultdict(list))
             )
-        else:
-            matches.sort(key=lambda m: m.article.published_at, reverse=True)
+            all_keyword_ids = {link.keyword_id for link in keyword_links}
+            all_keywords = await KeywordRepository.get_keywords_by_ids(
+                list(all_keyword_ids)
+            )
+            keyword_id_to_name = {kw.id: kw.name for kw in all_keywords}
+
+            article_topic_scores, article_topic_keywords = (
+                SearchProfileService._compute_topic_scores(
+                    keyword_links,
+                    topic_keywords,
+                    keyword_id_to_name,
+                )
+            )
+
+            # sorting
+            if request.sorting == "RELEVANCE" and request.searchTerm:
+                matches.sort(
+                    key=lambda m: relevance_map.get(m.article_id, 0.0),
+                    reverse=True,
+                )
+            else:
+                matches.sort(
+                    key=lambda m: m.article.published_at, reverse=True
+                )
+
+        topic_id_to_name = {t.id: t.name for t in profile.topics}
 
         # generate response
         match_items = [
@@ -314,6 +330,8 @@ class SearchProfileService:
                 m,
                 relevance=relevance_map.get(m.article_id, 0.0),
                 topic_scores=article_topic_scores.get(m.article_id, {}),
+                topic_keywords=article_topic_keywords.get(m.article_id, {}),
+                topic_id_to_name=topic_id_to_name,
             )
             for m in matches
         ]
@@ -321,8 +339,38 @@ class SearchProfileService:
         return ArticleOverviewResponse(matches=match_items)
 
     @staticmethod
+    def _compute_topic_scores(
+        keyword_links,
+        topic_keywords: dict[UUID, set[UUID]],
+        keyword_id_to_name: dict[UUID, str],
+    ) -> tuple[
+        dict[UUID, dict[UUID, float]], dict[UUID, dict[UUID, list[str]]]
+    ]:
+        score_sums = defaultdict(lambda: defaultdict(float))
+        score_counts = defaultdict(lambda: defaultdict(int))
+        keywords_map = defaultdict(lambda: defaultdict(list))
+
+        for link in keyword_links:
+            for topic_id, topic_kw_ids in topic_keywords.items():
+                if link.keyword_id in topic_kw_ids:
+                    score_sums[link.article_id][topic_id] += link.score
+                    score_counts[link.article_id][topic_id] += 1
+                    kw_name = keyword_id_to_name.get(link.keyword_id)
+                    if kw_name:
+                        keywords_map[link.article_id][topic_id].append(kw_name)
+
+        topic_scores = defaultdict(dict)
+        for article_id, topic_map in score_sums.items():
+            for topic_id, total in topic_map.items():
+                count = score_counts[article_id][topic_id]
+                if count > 0:
+                    topic_scores[article_id][topic_id] = total / count
+
+        return topic_scores, keywords_map
+
+    @staticmethod
     async def get_match_detail(
-        search_profile_id: UUID, match_id: UUID
+        search_profile_id: UUID, match_id: UUID, current_user: User
     ) -> MatchDetailResponse | None:
         match = await MatchRepository.get_match_by_id(
             search_profile_id, match_id
@@ -330,6 +378,7 @@ class SearchProfileService:
         if not match or not match.article:
             return None
         a = match.article
+
         return MatchDetailResponse(
             match_id=match.id,
             comment=match.comment,

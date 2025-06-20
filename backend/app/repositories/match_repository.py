@@ -18,8 +18,9 @@ class MatchRepository:
         async with async_session() as session:
             articles = await session.execute(
                 select(Match)
-                .options(selectinload(Match.article),
-                         selectinload(Match.topic))
+                .options(
+                    selectinload(Match.article), selectinload(Match.topic)
+                )
                 .where(Match.search_profile_id == search_profile_id)
                 .order_by(Match.sorting_order.asc())
             )

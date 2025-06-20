@@ -48,6 +48,7 @@ class MatchTopicItem(BaseModel):
     id: UUID
     name: str
     score: float
+    keywords: list[str] | None = None
 
 
 class MatchItem(BaseModel):
@@ -61,7 +62,9 @@ class MatchItem(BaseModel):
         cls,
         match: Match,
         topic_scores: dict[UUID, float],
+        topic_keywords: dict[UUID, list[str]] | None = None,
         relevance: float = 0.0,
+        topic_id_to_name: dict[UUID, str] | None = None,
     ) -> "MatchItem":
         a = match.article
         return cls(
@@ -72,25 +75,26 @@ class MatchItem(BaseModel):
                     MatchTopicItem(
                         id=tid,
                         name=(
-                            match.topic.name
-                            if match.topic and match.topic.id == tid
+                            topic_id_to_name.get(tid, "")
+                            if topic_id_to_name
                             else ""
+                        ),
+                        keywords=(
+                            topic_keywords.get(tid) if topic_keywords else None
                         ),
                         score=score,
                     )
                     for tid, score in topic_scores.items()
                 ]
-                if match.topic
-                else []
             ),
             article=MatchArticleContent(
                 headline={
                     "de": a.title or "",
                     "en": a.title or "",
                 },  # need to implement language handling
-                summary={"de": a.summary or "", "en": a.summary or ""},
-                text={"de": a.content or "", "en": a.content or ""},
-                image_urls=[]
+                summary={"de": a.summary or "", "en": ""},
+                text={"de": a.content or "", "en": ""},
+                image_urls=["https://example.com/image.jpg"]  # placeholder
                 or [],  # need to implement image extraction in scraping
                 published=a.published_at,
                 crawled=a.crawled_at,

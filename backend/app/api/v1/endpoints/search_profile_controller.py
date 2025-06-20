@@ -67,12 +67,14 @@ async def get_search_profile(
     "/{search_profile_id}/matches", response_model=ArticleOverviewResponse
 )
 async def get_search_profile_overview(
-    search_profile_id: UUID, request: MatchFilterRequest,
+    search_profile_id: UUID,
+    request: MatchFilterRequest,
     current_user: User = Depends(get_authenticated_user),
 ):
     return await SearchProfileService.get_article_matches(
-        search_profile_id=search_profile_id, request=request,
-        current_user=current_user
+        search_profile_id=search_profile_id,
+        request=request,
+        current_user=current_user,
     )
 
 
