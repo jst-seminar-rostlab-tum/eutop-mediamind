@@ -29,6 +29,16 @@ class AppCreator:
             openapi_url="/api/openapi.json",
             docs_url="/api/docs",
             version="0.0.1",
+            servers=[
+                {
+                    "url": "https://api.mediamind.csee.tech",
+                    "description": "Production",
+                },
+                {
+                    "url": "https://dev.api.mediamind.csee.tech",
+                    "description": "Development / Staging",
+                },
+            ],
         )
 
         self._register_exception_handlers()
