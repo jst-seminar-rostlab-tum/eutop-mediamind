@@ -65,8 +65,8 @@ class EmailService:
         html = MIMEText(email.content, 'html')
         msg.attach(html)
 
-        with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp_server:
+        with smtplib.SMTP_SSL(configs.SMTP_SERVER, configs.SMTP_PORT) as smtp_server:
             smtp_server.login(configs.SMTP_USER, configs.SMTP_PASSWORD)
-            err = smtp_server.sendmail(email.sender, email.recipient, msg.as_string())
-            if not err == {}:
-                raise Exception(f"Error sending email: {err}")
+            ok = smtp_server.sendmail(email.sender, email.recipient, msg.as_string())
+            if not ok:
+                raise Exception(f"Error sending email: {ok}")
