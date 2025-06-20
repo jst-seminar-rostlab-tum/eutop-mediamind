@@ -5,8 +5,6 @@ from app.repositories.email_repository import EmailRepository
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-from email.mime.base import MIMEBase
-from email import encoders
 
 logger = get_logger(__name__)
 
@@ -18,13 +16,11 @@ class EmailSchedule:
         subject: str,
         content_type: str,
         content: str,
-        attachment: str,
     ) -> None:
         self.recipient = recipient
         self.subject = subject
         self.content = content
         self.content_type = content_type
-        self.attachment = attachment
 
 
 class EmailService:
@@ -37,7 +33,6 @@ class EmailService:
         email.subject = schedule.subject
         email.content_type = schedule.content_type
         email.content = schedule.content
-        email.attachment = schedule.attachment
 
         return await EmailRepository.add_email(email)
 

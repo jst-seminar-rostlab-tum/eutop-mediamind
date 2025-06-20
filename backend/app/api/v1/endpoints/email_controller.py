@@ -29,7 +29,6 @@ async def trigger_email_sending(recipient_email: str):
         subject="[MEDIAMIND] Your daily report",
         content_type="text/HTML",
         content=build_email_content("<test_s3_link>", "<test_dashboard_link>", "<Test Search Profile>"),
-        attachment=""
     )
 
     await EmailService.schedule_email(email_schedule)
@@ -88,7 +87,6 @@ async def send_report_email(
         content=build_email_content(
             presigned_url, dashboard_url, search_profile.name
         ),
-        attachment=None,
     )
 
     await EmailService.schedule_email(email_schedule)
