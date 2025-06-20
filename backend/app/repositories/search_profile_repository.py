@@ -1,4 +1,4 @@
-from typing import List, Sequence
+from typing import List, Optional, Sequence
 from uuid import UUID
 
 from pydantic import EmailStr
@@ -132,6 +132,16 @@ async def get_search_profile_by_id(
                     Topic.keywords
                 ),
             )
+        )
+        return result.scalars().one_or_none()
+
+
+async def get_by_id(
+    search_profile_id: UUID,
+) -> Optional[SearchProfile]:
+    async with async_session() as session:
+        result = await session.execute(
+            select(SearchProfile).where(SearchProfile.id == search_profile_id)
         )
         return result.scalars().one_or_none()
 

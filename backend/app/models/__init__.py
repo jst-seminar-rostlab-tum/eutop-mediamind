@@ -6,6 +6,7 @@ from .email import Email
 from .keyword import Keyword
 from .match import Match
 from .organization import Organization
+from .report import Report
 from .search_profile import SearchProfile
 from .subscription import Subscription
 from .topic import Topic
@@ -29,4 +30,5 @@ __all__ = [
     "UserPublic",
     "UserUpdate",
     "UserUpdateMe",
+    "Report",
 ]
