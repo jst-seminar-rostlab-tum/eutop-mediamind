@@ -1,5 +1,5 @@
 import uuid
-from datetime import date, datetime
+from datetime import datetime
 from typing import List, Optional
 from uuid import UUID
 
@@ -22,7 +22,7 @@ class ReportService:
         search_profile_id: uuid.UUID, timeslot: str
     ) -> Optional[Report]:
         """
-        Fetches an existing report for today given a search profile an timeslot.
+        Fetches today's report for a given search profile an timeslot.
         If no report exists, generates a new one and stores it in S3.
         New reports are always generated for the current day.
         """
@@ -68,7 +68,7 @@ class ReportService:
         pdf_bytes = await PDFService.create_sample_pdf(search_profile)
 
         # Set S3 key to the report id and upload the PDF
-        s3_key = f"{configs.ENVIRONMENT}/reports/{search_profile_id}/{report.id}.pdf"
+        s3_key = f"{configs.ENVIRONMENT}/reports/{search_profile_id}/{report.id}.pdf"  # noqa: E501
         await S3Service.upload_fileobj(file_bytes=pdf_bytes, key=s3_key)
 
         # Update the report with the correct s3_key and mark as uploaded
