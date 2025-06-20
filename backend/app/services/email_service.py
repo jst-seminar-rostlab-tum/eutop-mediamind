@@ -1,10 +1,11 @@
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+
 from app.core.config import configs
 from app.core.logger import get_logger
 from app.models.email import Email, EmailState
 from app.repositories.email_repository import EmailRepository
-import smtplib
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
 
 logger = get_logger(__name__)
 
@@ -53,20 +54,26 @@ class EmailService:
                 else:
                     email.state = EmailState.RETRY
                 await EmailRepository.update_email(email)
-                raise Exception(f"Failed to send email to {email.recipient}: {str(e)}")
+                raise Exception(
+                    f"Failed to send email to {email.recipient}: {str(e)}"
+                )
 
     @staticmethod
     def __send_email(email: Email):
-        msg = MIMEMultipart('alternative')
-        msg['From'] = email.sender
-        msg['To'] = email.recipient
-        msg['Subject'] = email.subject
+        msg = MIMEMultipart("alternative")
+        msg["From"] = email.sender
+        msg["To"] = email.recipient
+        msg["Subject"] = email.subject
 
-        html = MIMEText(email.content, 'html')
+        html = MIMEText(email.content, "html")
         msg.attach(html)
 
-        with smtplib.SMTP_SSL(configs.SMTP_SERVER, configs.SMTP_PORT) as smtp_server:
+        with smtplib.SMTP_SSL(
+            configs.SMTP_SERVER, configs.SMTP_PORT
+        ) as smtp_server:
             smtp_server.login(configs.SMTP_USER, configs.SMTP_PASSWORD)
-            ok = smtp_server.sendmail(email.sender, email.recipient, msg.as_string())
+            ok = smtp_server.sendmail(
+                email.sender, email.recipient, msg.as_string()
+            )
             if not ok:
                 raise Exception(f"Error sending email: {ok}")
