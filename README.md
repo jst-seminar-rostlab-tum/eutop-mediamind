@@ -37,6 +37,16 @@ A request to [mediamind.csee.tech/dev/api/v1/healthcheck](https://mediamind.csee
 > - Only [mediamind.csee.tech](https://mediamind.csee.tech) uses the production environment.
 > - For authentication, Clerk cookies set on `localhost` are not sent to other domains (such as `*.mediamind.csee.tech`). To test authentication with the dev API, use a Vercel preview or run your backend locally.
 
+## Guidelines
+
+To ensure a high level of code quality, we have defined a set of [Development Guidelines](./docs/GUIDELINES.md). It is mandatory for everyone working on this repository to adhere to these guidelines. Pull requests may be declined for merge until the code meets our quality standards.
+
+Key areas covered:
+
+- Code style and formatting
+- Testing requirements (for Backend and Frontend)
+- Documentation standards
+
 ## Project Structure
 
 ```
@@ -83,16 +93,7 @@ cp frontend/.env.example frontend/.env
 ```
 
 Refer to each component's README for specific environment variable requirements.
-
-## Guidelines
-
-To ensure a high level of code quality, we have defined a set of [Development Guidelines](./docs/GUIDELINES.md). It is mandatory for everyone working on this repository to adhere to these guidelines. Pull requests may be declined for merge until the code meets our quality standards.
-
-Key areas covered:
-
-- Code style and formatting
-- Testing requirements
-- Documentation standards
+**Important:** Keep this file up to date, so whenever you add/remove a (new) environment variable, also add it with a **DUMMY** value to the respective `.env.example` file. Otherwise it's harder for other developers to understand which variables where added/removed by you.
 
 ## GitHub Actions
 

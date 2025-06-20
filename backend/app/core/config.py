@@ -118,6 +118,12 @@ class Configs(BaseSettings):
     CLERK_JWT_KEY: str | None = None
     CLERK_COOKIE_NAME: str = "__session"
 
+    # Configuration of the AWS SDK
+    AWS_ACCESS_KEY_ID: str | None = None
+    AWS_SECRET_ACCESS_KEY: str | None = None
+    AWS_REGION: str | None = None
+    AWS_S3_BUCKET_NAME: str | None = None
+
     # Disable Authentication (local testing only!)
     DISABLE_AUTH: bool = False
 
