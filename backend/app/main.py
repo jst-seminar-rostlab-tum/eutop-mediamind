@@ -38,6 +38,10 @@ class AppCreator:
                     "url": "https://dev.api.mediamind.csee.tech",
                     "description": "Development / Staging",
                 },
+                {
+                    "url": "http://localhost:8000",
+                    "description": "Local",
+                },
             ],
         )
 
