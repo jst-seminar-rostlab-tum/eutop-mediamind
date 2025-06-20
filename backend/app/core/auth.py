@@ -4,139 +4,80 @@ from fastapi import HTTPException, Request, status
 
 from app.core.config import configs
 from app.core.logger import get_logger
-from app.models import User
-from app.repositories.user_repository import (
-    create_user,
-    get_user_by_clerk_id,
-    update_user,
-)
 from app.schemas.user_schema import UserEntity
+from app.services.user_service import UserService
 
 logger = get_logger(__name__)
 
 
-async def get_authenticated_user(request: Request) -> UserEntity:
-    try:
-        if configs.DISABLE_AUTH:
-            user_clerk_id = "user_2xd0q4SUzIlYIZZnUZ2UmNmHz8n"
-        else:
-            token = request.cookies.get("__session")
-            if not token:
-                raise HTTPException(
-                    status_code=401,
-                    detail="Missing authentication token in cookies",
-                )
-
-            # Step 1: Verify token
-            user_claim = verify_token(
-                token,
-                VerifyTokenOptions(
-                    secret_key=configs.CLERK_SECRET_KEY,
-                ),
-            )
-
-            user_clerk_id = user_claim["sub"]
-
-            if not user_clerk_id:
-                raise HTTPException(
-                    status_code=401, detail="Missing user ID in token"
-                )
-
-        # User from local DB
-        user = await get_user_by_clerk_id(user_clerk_id)
-        if not user:
-            raise HTTPException(status_code=404, detail="User not found")
-
-        return user
-
-    except Exception as e:
-        logger.warning(f"Auth failed: {e}")
+def _extract_clerk_id(request: Request, cookie_name: str) -> str:
+    """
+    Verify session token in cookies and extract Clerk user ID.
+    """
+    token = request.cookies.get(cookie_name)
+    if not token:
+        logger.warning("Failed Authentication Process. Cookie missing")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid authentication token",
+            detail="Unauthorized",
         )
+
+    claims = verify_token(
+        token,
+        VerifyTokenOptions(secret_key=configs.CLERK_SECRET_KEY),
+    )
+    user_id = claims.get("sub")
+    if not user_id:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Missing user ID in token",
+        )
+
+    return user_id
+
+
+async def get_authenticated_user(request: Request) -> UserEntity:
+    """
+    Dependency: Retrieve authenticated user from local database
+    via Clerk token.
+    """
+    clerk_id = (
+        "user_2xd0q4SUzIlYIZZnUZ2UmNmHz8n"
+        if configs.DISABLE_AUTH
+        else _extract_clerk_id(request, configs.CLERK_COOKIE_NAME)
+    )
+
+    user = await UserService.get_by_clerk_id(clerk_id)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found",
+        )
+    return user
 
 
 async def get_sync_user(request: Request) -> UserEntity:
-    try:
-        if configs.DISABLE_AUTH:
-            user_clerk_id = "user_2xd0q4SUzIlYIZZnUZ2UmNmHz8n"
-        else:
-            token = request.cookies.get(configs.CLERK_COOKIE_NAME)
-            if not token:
-                raise HTTPException(
-                    status_code=401,
-                    detail="Missing authentication token in cookies",
-                )
+    """
+    Dependency: Synchronize user from Clerk to local DB and
+    return a UserEntity.
+    """
+    clerk_id = (
+        "user_2xd0q4SUzIlYIZZnUZ2UmNmHz8n"
+        if configs.DISABLE_AUTH
+        else _extract_clerk_id(request, configs.CLERK_COOKIE_NAME)
+    )
 
-            # Step 1: Verify the token and extract the Clerk user ID (sub)
-            user_claim = verify_token(
-                token,
-                VerifyTokenOptions(secret_key=configs.CLERK_SECRET_KEY),
-            )
+    async with Clerk(bearer_auth=configs.CLERK_SECRET_KEY) as clerk:
+        clerk_user = await clerk.users.get_async(user_id=clerk_id)
+        data = clerk_user.model_dump()
 
-            user_clerk_id = user_claim["sub"]
-            if not user_clerk_id:
-                raise HTTPException(
-                    status_code=401, detail="Missing user ID in token"
-                )
+    email = (
+        data.get("email_addresses", [{}])[0].get("email_address")
+        if data.get("email_addresses")
+        else None
+    )
 
-        # Step 2: Fetch the user from Clerk
-        async with Clerk(bearer_auth=configs.CLERK_SECRET_KEY) as clerk:
-            clerk_user = await clerk.users.get_async(user_id=user_clerk_id)
-            clerk_user_data = clerk_user.model_dump()
-
-            # Extract email from nested Clerk structure
-            clerk_email = (
-                clerk_user_data.get("email_addresses", [{}])[0].get(
-                    "email_address"
-                )
-                if clerk_user_data.get("email_addresses")
-                else None
-            )
-
-            # Step 3: Try to fetch user from local database
-            user = await get_user_by_clerk_id(user_clerk_id)
-
-            # Step 4: If user does not exist, create it
-            if not user:
-                user = User(
-                    clerk_id=user_clerk_id,
-                    email=clerk_email,
-                    first_name=clerk_user_data.get("first_name"),
-                    last_name=clerk_user_data.get("last_name"),
-                )
-                user = await create_user(user)
-
-            # Step 5: Synchronize selected fields if needed
-            updated = False
-
-            if (
-                clerk_user_data.get("first_name")
-                and user.first_name != clerk_user_data["first_name"]
-            ):
-                user.first_name = clerk_user_data["first_name"]
-                updated = True
-
-            if (
-                clerk_user_data.get("last_name")
-                and user.last_name != clerk_user_data["last_name"]
-            ):
-                user.last_name = clerk_user_data["last_name"]
-                updated = True
-
-            if clerk_email and user.email != clerk_email:
-                user.email = clerk_email
-                updated = True
-
-            if updated:
-                user = await update_user(user)
-
-        return user
-
-    except Exception as e:
-        logger.warning(f"Auth failed: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid authentication token",
-        )
+    existing = await UserService.get_by_clerk_id(clerk_id)
+    if not existing:
+        return await UserService.create_user_from_clerk(clerk_id, email, data)
+    return await UserService.sync_user_fields(existing, email, data)
