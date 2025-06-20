@@ -35,8 +35,16 @@ class AppCreator:
                     "description": "Production",
                 },
                 {
+                    "url": "https://mediamind.csee.tech",
+                    "description": "Production (Proxy)",
+                },
+                {
                     "url": "https://dev.api.mediamind.csee.tech",
                     "description": "Development / Staging",
+                },
+                {
+                    "url": "https://mediamind.csee.tech/dev",
+                    "description": "Development / Staging (Proxy)",
                 },
                 {
                     "url": "http://localhost:8000",
