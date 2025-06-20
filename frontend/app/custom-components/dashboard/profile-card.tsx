@@ -114,7 +114,7 @@ export function ProfileCard({ profile, mutateDashboard }: ProfileCardProps) {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>{t("back")}</AlertDialogCancel>
+            <AlertDialogCancel>{t("Back")}</AlertDialogCancel>
             <AlertDialogAction
               className="bg-destructive text-white shadow-xs hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60"
               onClick={() => {
@@ -124,7 +124,7 @@ export function ProfileCard({ profile, mutateDashboard }: ProfileCardProps) {
               }}
             >
               <Trash2 />
-              {t("delete")}
+              {t("Delete")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

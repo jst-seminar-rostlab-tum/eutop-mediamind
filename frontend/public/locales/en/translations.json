@@ -1,11 +1,17 @@
 {
   "login": "Login",
   "edit": "edit",
+  "Edit": "Edit",
   "delete": "delete",
   "back": "back",
   "leave": "leave",
+  "Back": "Back",
+  "Leave": "Leave",
   "Add": "Add",
   "Delete": "Delete",
+  "search": "Search",
+  "Cancel": "Cancel",
+  "save_changes": "Save Changes",
 
   "landing_page": {
     "welcome": "Welcome to MediaMind",
@@ -25,7 +31,8 @@
   "confirmation_dialog": {
     "title": "Are you sure?",
     "delete_text": "This will permanently delete this entity",
-    "leave_text": "Unsaved changes will be permanently lost"
+    "leave_text": "Unsaved changes will be permanently lost",
+    "unsaved_text": "You have unsaved changes"
   },
 
   "edit_profile": {
@@ -96,5 +103,44 @@
     "info": "Configure web scraping sources used for the external mailing list",
     "no_results": "No results.",
     "active": "Active"
+  },
+
+  "admin": {
+    "settings": "settings",
+    "header": "Admin Settings",
+    "organizations": "Organizations",
+    "subscriptions": "Subscriptions",
+    "orga_header": "Manage Organizations",
+    "orga_text": "Make changes to your Organizations here. You can add, edit or delete them",
+    "subs_header": "Manage Subscriptions",
+    "subs_text": "Make changes to your Subscriptions here. You can add, edit or delete them",
+    "admin": "admin",
+    "user": "user",
+    "add_user": "Add User...",
+    "no_user": "No user found.",
+    "no_results": "No results.",
+    "role": "Role"
+  },
+
+  "organization-dialog": {
+    "edit_header": "Edit Organization",
+    "add_header": "Add Organization",
+    "edit_text": "Edit your organization here. Click save when you're done.",
+    "add_text": "Enter the name of the Organization you want to add. Click save when you're done.",
+    "name_error_header": "Organization Name is Empty",
+    "name_error_text": "Please insert a valid Organization Name",
+    "email_error_header": "Invalid Email",
+    "email_error_text": "Please insert a valid and unique email address."
+  },
+
+  "subscription-dialog": {
+    "edit_header": "Edit Subscription",
+    "add_header": "Add Subscription",
+    "edit_text": "Edit your Subscription here. Click save when you're done.",
+    "add_text": "Enter the name of the Subscription you want to add. Click save when you're done.",
+    "credentials_error_header": "Invalid Credentials",
+    "credentials_error_text": "Please insert valid credentials.",
+    "username": "Username",
+    "password": "Password"
   }
 }

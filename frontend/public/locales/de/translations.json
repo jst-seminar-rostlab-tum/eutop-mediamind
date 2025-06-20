@@ -1,11 +1,17 @@
 {
   "login": "Einloggen",
   "edit": "bearbeiten",
+  "Edit": "Bearbeiten",
   "delete": "löschen",
   "back": "zurück",
   "leave": "verlassen",
+  "Back": "Zurück",
+  "Leave": "Verlassen",
   "Add": "Hinzufügen",
   "Delete": "Löschen",
+  "search": "Suchen",
+  "Cancel": "Abbruch",
+  "save_changes": "Änderungen speichern",
 
   "landing_page": {
     "welcome": "Wilkommen bei MediaMind",
@@ -25,7 +31,8 @@
   "confirmation_dialog": {
     "title": "Sind sie sicher?",
     "delete_text": "Das element wird endgültig gelöscht",
-    "leave_text": "Nicht gespeicherte Änderungen gehen verloren"
+    "leave_text": "Nicht gespeicherte Änderungen gehen verloren",
+    "unsaved_text": "Sie haben nicht gespeicherte Änderungen"
   },
 
   "edit_profile": {
@@ -96,5 +103,44 @@
     "info": "Konfigurieren sie die Web Scraping Quellen, die für die externe Email liste benutzt werden",
     "no_results": "No results.",
     "active": "Aktiv"
+  },
+
+  "admin": {
+    "settings": "Einstellungen",
+    "header": "Admin Einstellungen",
+    "organizations": "Organisationen",
+    "subscriptions": "Abonnements",
+    "orga_header": "Organisationen verwalten",
+    "orga_text": "Machen sie Änderungen an ihren Organisationen hier. Sie können bestehende löschen oder bearbeiten und neue hinzufügen",
+    "subs_header": "Abonnements verwalten",
+    "subs_text": "Machen sie Änderungen an ihren Abonnements hier. Sie können bestehende löschen oder bearbeiten und neue hinzufügen",
+    "admin": "Admin",
+    "user": "Benutzer",
+    "add_user": "Benutzer hinzufügen...",
+    "no_user": "Keine Benutzer gefunden.",
+    "no_results": "Keine Ergebnisse.",
+    "role": "Rolle"
+  },
+
+  "organization-dialog": {
+    "edit_header": "Organisation bearbeiten",
+    "add_header": "Organisation hinzufügen",
+    "edit_text": "Bearbeiten sie ihre Organisation hier. Klicken sie auf Speichern wenn sie fertig sind.",
+    "add_text": "Geben sie den Namen der Organisation ein die sie hinzufügen möchten. Klicken sie auf Speichern wenn sie fertig sind.",
+    "name_error_header": "Organisations Name ist leer!",
+    "name_error_text": "Bitte geben sie einen gültigen Namen ein",
+    "email_error_header": "Ungültige Email",
+    "email_error_text": "Bitte geben sie eine gültige und einmalige Email ein"
+  },
+
+  "subscription-dialog": {
+    "edit_header": "Abonnement bearbeiten",
+    "add_header": "Abonnement hinzufügen",
+    "edit_text": "Bearbeiten sie ihre Abonnement hier. Klicken sie auf Speichern wenn sie fertig sind.",
+    "add_text": "Geben sie den Namen der Abonnement ein die sie hinzufügen möchten. Klicken sie auf Speichern wenn sie fertig sind.",
+    "credentials_error_header": "Ungültige Anmeldedaten",
+    "credentials_error_text": "Bitte geben sie gültige Anmeldedaten ein",
+    "username": "Benutzername",
+    "password": "Passwort"
   }
 }
