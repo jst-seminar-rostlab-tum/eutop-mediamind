@@ -5,6 +5,15 @@ delivering daily press reviews. Each morning, it compiles and distributes PDFs
 containing curated, anonymized newspaper articles helping teams stay on top of
 relevant coverage.
 
+## Guidelines
+
+To ensure a high level of code quality, we have defined a set of [Development Guidelines](./docs/GUIDELINES.md). It is mandatory for everyone working on this repository to adhere to these guidelines. Pull requests may be declined for merge until the code meets our quality standards.
+
+Key areas covered:
+- Code style and formatting
+- Testing requirements (for Backend and Frontend)
+- Documentation standards
+
 ## Project Structure
 
 ```
@@ -40,6 +49,7 @@ For detailed setup instructions and development workflows, refer to the componen
 - **AWS CLI** and **openTofu** - For infrastructure as code (optional)
 
 ### Environment Configuration
+
 Copy the example environment files and configure them for your setup:
 ```bash
 cp backend/.env.example backend/.env
@@ -47,15 +57,7 @@ cp frontend/.env.example frontend/.env
 ```
 
 Refer to each component's README for specific environment variable requirements.
-
-## Guidelines
-
-To ensure a high level of code quality, we have defined a set of [Development Guidelines](./docs/GUIDELINES.md). It is mandatory for everyone working on this repository to adhere to these guidelines. Pull requests may be declined for merge until the code meets our quality standards.
-
-Key areas covered:
-- Code style and formatting
-- Testing requirements
-- Documentation standards
+**Important:** Keep this file up to date, so whenever you add/remove a (new) environment variable, also add it with a **DUMMY** value to the respective `.env.example` file. Otherwise it's harder for other developers to understand which variables where added/removed by you.
 
 ## GitHub Actions
 
