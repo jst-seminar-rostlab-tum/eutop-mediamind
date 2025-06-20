@@ -219,10 +219,10 @@ class PDFService:
             )
             # Replace the article with the news item
             news_items.append(news_item)
-        return PDFService.create_pdf(search_profile, news_items)
+        return PDFService.draw_pdf(search_profile, news_items)
 
     @staticmethod
-    def create_pdf(
+    def draw_pdf(
         search_profile: SearchProfile, news_items: List[NewsItem]
     ) -> bytes:
         dimensions = A4
@@ -613,7 +613,7 @@ class PDFService:
             story.append(Paragraph(pub_date_str, PDFService.date_style))
             story.append(Spacer(1, 0.05 * inch))
             # Change when Summary populated in DB
-            summary_text = news.content[:250].replace("\n", "<br/>")
+            summary_text = news.summary.replace("\n", "<br/>")
             story.append(Paragraph(summary_text, PDFService.summary_style))
             story.append(Spacer(1, 0.05 * inch))
             dest_name = f"full_{news.id}"
