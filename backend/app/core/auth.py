@@ -16,9 +16,10 @@ def _extract_clerk_id(request: Request, cookie_name: str) -> str:
     """
     token = request.cookies.get(cookie_name)
     if not token:
+        logger.warning("Failed Authentication Process. Cookie missing")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Missing authentication token in cookies",
+            detail="Unauthorized",
         )
 
     claims = verify_token(
@@ -70,8 +71,6 @@ async def get_sync_user(request: Request) -> UserEntity:
         clerk_user = await clerk.users.get_async(user_id=clerk_id)
         data = clerk_user.model_dump()
 
-    logger.info("Data")
-
     email = (
         data.get("email_addresses", [{}])[0].get("email_address")
         if data.get("email_addresses")
@@ -79,7 +78,6 @@ async def get_sync_user(request: Request) -> UserEntity:
     )
 
     existing = await UserService.get_by_clerk_id(clerk_id)
-    logger.info("Existing")
     if not existing:
         return await UserService.create_user_from_clerk(clerk_id, email, data)
     return await UserService.sync_user_fields(existing, email, data)

@@ -6,7 +6,7 @@ from app.repositories.user_repository import (
     get_user_by_clerk_id as repo_get_by_clerk_id,
 )
 from app.repositories.user_repository import (
-    get_user_list_by_org,
+    get_user_list_from_organization,
 )
 from app.repositories.user_repository import update_user as repo_update_user
 from app.schemas.user_schema import UserEntity
@@ -22,7 +22,7 @@ class UserService:
         Superusers receive all users.
         """
         async with async_session() as session:
-            return await get_user_list_by_org(session, user)
+            return await get_user_list_from_organization(session, user)
 
     @staticmethod
     async def get_by_clerk_id(
@@ -51,7 +51,7 @@ class UserService:
         existing: UserEntity,
         email: Optional[str],
         data: Dict[str, Any],
-    ) -> UserEntity:
+    ) -> UserEntity | None:
         """
         Update local User fields if they differ from Clerk data.
         """

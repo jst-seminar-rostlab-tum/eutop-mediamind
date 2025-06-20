@@ -159,3 +159,30 @@ class SearchProfileRepository:
             query = select(SearchProfile).offset(offset).limit(limit)
             result = await session.execute(query)
             return result.scalars().all()
+
+    @staticmethod
+    async def get_search_profile_by_id(
+            search_profile_id: UUID, current_user: User
+    ) -> SearchProfile | None:
+        async with async_session() as session:
+            result = await session.execute(
+                select(SearchProfile)
+                .where(SearchProfile.id == search_profile_id)
+                .options(
+                    selectinload(SearchProfile.users),
+                    selectinload(SearchProfile.topics).selectinload(
+                        Topic.keywords
+                    ),
+                )
+            )
+            return result.scalars().one_or_none()
+
+    @staticmethod
+    async def get_by_id(
+            search_profile_id: UUID,
+    ) -> Optional[SearchProfile]:
+        async with async_session() as session:
+            result = await session.execute(
+                select(SearchProfile).where(SearchProfile.id == search_profile_id)
+            )
+            return result.scalars().one_or_none()
