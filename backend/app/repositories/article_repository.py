@@ -4,8 +4,11 @@ from uuid import UUID
 from sqlalchemy import desc, or_, select
 from sqlalchemy.orm.strategy_options import joinedload
 
+from sqlalchemy.orm import selectinload #New
+
 from app.core.db import async_session
 from app.models.article import Article
+from app.models.match import Match
 
 
 class ArticleRepository:
@@ -143,3 +146,18 @@ class ArticleRepository:
                 .options(joinedload("*"))
             )
             return result.unique().scalars().all()
+        
+    # Returns articles matched to the profile, in the time window(NOT YET), sorted by relevance
+    @staticmethod
+    async def get_matched_articles_for_profile(search_profile_id: UUID, limit: int = 100) -> List[Article]:
+        async with async_session() as session:
+            query = (
+                select(Match)
+                .options(selectinload(Match.article))
+                .where(Match.search_profile_id == search_profile_id)
+                .order_by(Match.sorting_order.asc())
+                .limit(limit)
+            )
+            matches = (await session.execute(query)).scalars().all()
+            # Return only the articles, filter out any None
+            return [m.article for m in matches if m.article is not None]
