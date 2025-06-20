@@ -74,9 +74,11 @@ class Configs(BaseSettings):
             path=self.POSTGRES_DB,
         )
 
-    SENDGRID_KEY: str = ""
-    SENDER_EMAIL: EmailStr = "test@example.com"
     MAX_EMAIL_ATTEMPTS: int = 2
+    SMTP_SERVER: str = "localhost"
+    SMTP_PORT: int = 587
+    SMTP_USER: EmailStr = "test@example.com"
+    SMTP_PASSWORD: str = "changethis"
 
     EMAIL_TEST_USER: EmailStr = "test@example.com"
     FIRST_SUPERUSER: EmailStr = "test@example.com"
