@@ -62,7 +62,6 @@ class EmailService:
 
     @staticmethod
     def __send_email(email: Email):
-
         msg = MIMEMultipart('alternative')
         msg['From'] = email.sender
         msg['To'] = email.recipient
