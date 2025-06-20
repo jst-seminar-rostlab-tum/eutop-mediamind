@@ -4,6 +4,8 @@
   "delete": "löschen",
   "back": "zurück",
   "leave": "verlassen",
+  "Add": "Hinzufügen",
+  "Delete": "Löschen",
 
   "landing_page": {
     "welcome": "Wilkommen bei MediaMind",
@@ -35,17 +37,64 @@
     "topics": "Themen",
     "mailing": "Emails",
     "subscriptions": "Abonnements",
-    "ownership": "Besitzer",
-    "ownership_text": "Besitzer des Profils wechseln",
     "search_user": "Benutzer suchen...",
     "loading": "Laden...",
     "no_user": "Keine Benutzer gefunden.",
-    "visibility": "Sichtbarkeit",
-    "public": "Öffentlich",
-    "public_text": "Ein öffentliches Profil kann von jedem in deiner Organisation gesehen werden, ein privates nur von dir.",
     "creating": "Erstellen...",
     "saving": "Speichern...",
     "save_create": "Profil erstellen",
     "save_changes": "Änderungen speichern"
+  },
+
+  "general": {
+    "visibility": "Sichtbarkeit",
+    "public": "Öffentlich",
+    "public_text": "Ein öffentliches Profil kann von jedem in deiner Organisation gesehen werden, ein privates nur von dir.",
+    "ownership": "Besitzer",
+    "ownership_text": "Besitzer des Profils wechseln",
+    "select_user": "Benutzer auswählen...",
+    "user_error": "Laden der Benutzer fehlgeschlagen."
+  },
+
+  "topics": {
+    "AI_error": "Failed to get AI suggestions.",
+    "topic_error": "Can't add the same topic twice",
+    "header": "Themen und Schlagwörter",
+    "info": "Organisieren sie ihre Themen und Schlüsselwörter für die Nachrichten Extrahierung",
+    "select_topic": "Thema auswählen",
+    "label": "Thema: ",
+    "add": "+ Thema hinzufügen",
+    "AI_header": "AI Schlagwörter Vorschläge",
+    "no_suggestions": "Keine neuen Vorschläge verfügbar"
+  },
+
+  "keyword-field": {
+    "header": "Schlagwörter",
+    "placeholder": "+ Schlagwort hinzufügen"
+  },
+
+  "mailing": {
+    "header": "Email Liste",
+    "info": "Konfigurieren sie ihre Kontakte für den Pressemitteilungs Verteiler",
+    "Internal": "Intern",
+    "External": "Extern",
+    "internal": "intern",
+    "external": "extern",
+    "filter": "Filter {{type}} Emails"
+  },
+
+  "data-table-mailing": {
+    "actions": "Aktionen",
+    "no_results": "Keine Ergebnisse.",
+    "of": "von",
+    "rows_selected": "Zeile(n) ausgewählt."
+  },
+
+  "subscriptions": {
+    "header": "Quellen",
+    "source": "Quelle",
+    "info": "Konfigurieren sie die Web Scraping Quellen, die für die externe Email liste benutzt werden",
+    "no_results": "No results.",
+    "active": "Aktiv"
   }
 }

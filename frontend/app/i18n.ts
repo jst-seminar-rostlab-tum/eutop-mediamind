@@ -12,7 +12,7 @@ i18n
       useSuspense: true,
     },
     backend: {
-      loadPath: "../public/locales/{{lng}}/translations.json",
+      loadPath: "/locales/{{lng}}/translations.json",
     },
 
     interpolation: {

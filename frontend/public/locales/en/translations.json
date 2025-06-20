@@ -4,6 +4,8 @@
   "delete": "delete",
   "back": "back",
   "leave": "leave",
+  "Add": "Add",
+  "Delete": "Delete",
 
   "landing_page": {
     "welcome": "Welcome to MediaMind",
@@ -35,17 +37,64 @@
     "topics": "Topics",
     "mailing": "Mailing",
     "subscriptions": "Subscriptions",
-    "ownership": "Ownership",
-    "ownership_text": "Transfer ownership of the profile",
     "search_user": "Search user...",
     "loading": "Loading...",
     "no_user": "No user found.",
-    "visibility": "Visibility",
-    "public": "Public",
-    "public_text": "A public profile can be viewed by anyone in your organization, while a private profile is only visible to you.",
     "creating": "Creating...",
     "saving": "Saving...",
     "save_create": "Create Profile",
     "save_changes": "Save Changes"
+  },
+
+  "general": {
+    "visibility": "Visibility",
+    "public": "Public",
+    "public_text": "A public profile can be viewed by anyone in your organization, while a private profile is only visible to you.",
+    "ownership": "Ownership",
+    "ownership_text": "Transfer ownership of the profile",
+    "select_user": "Select user...",
+    "user_error": "Failed to load users."
+  },
+
+  "topics": {
+    "AI_error": "Failed to get AI suggestions.",
+    "topic_error": "Can't add the same topic twice",
+    "header": "Topics and Keywords",
+    "info": "Manage topics and keywords for news monitoring",
+    "select_topic": "Select Topic",
+    "label": "Topic: ",
+    "add": "+ Add topic",
+    "AI_header": "AI Keyword Suggestions",
+    "no_suggestions": "No new suggestions available"
+  },
+
+  "keyword-field": {
+    "header": "Keywords",
+    "placeholder": "+ Add keyword"
+  },
+
+  "mailing": {
+    "header": "Mailing List",
+    "info": "Configure profile contact database for press release distribution",
+    "Internal": "Internal",
+    "External": "External",
+    "internal": "internal",
+    "external": "external",
+    "filter": "filter {{type}} emails"
+  },
+
+  "data-table-mailing": {
+    "actions": "actions",
+    "no_results": "No results.",
+    "of": "of",
+    "rows_selected": "row(s) selected."
+  },
+
+  "subscriptions": {
+    "header": "Sources",
+    "source": "Source",
+    "info": "Configure web scraping sources used for the external mailing list",
+    "no_results": "No results.",
+    "active": "Active"
   }
 }

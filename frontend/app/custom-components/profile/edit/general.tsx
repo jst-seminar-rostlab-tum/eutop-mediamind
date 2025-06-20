@@ -35,7 +35,7 @@ export function General({ profile, setProfile }: GeneralProps) {
 
   useEffect(() => {
     if (error) {
-      toast.error("Failed to load users.");
+      toast.error(t("general.user_error"));
     }
   }, [error]);
 
@@ -55,13 +55,13 @@ export function General({ profile, setProfile }: GeneralProps) {
 
   const selectedUserLabel = selectedUser
     ? `${selectedUser.first_name} ${selectedUser.last_name}`
-    : "Select user...";
+    : t("general.select_user");
 
   return (
     <div>
-      <h2 className={"font-bold pt-3 pb-3"}>{t("edit_profile.ownership")}</h2>
+      <h2 className={"font-bold pt-3 pb-3"}>{t("general.ownership")}</h2>
       <Label className={"text-gray-400 font-normal pb-3"}>
-        {t("edit_profile.ownership_text")}
+        {t("general.ownership_text")}
       </Label>
       <div className="pb-3">
         <Popover open={open} onOpenChange={setOpen}>
@@ -123,10 +123,10 @@ export function General({ profile, setProfile }: GeneralProps) {
 
       <Separator />
 
-      <h2 className={"font-bold pt-3 pb-3"}>{t("edit_profile.visibility")}</h2>
+      <h2 className={"font-bold pt-3 pb-3"}>{t("general.visibility")}</h2>
       <div className={"flex gap-3 items-center pb-3"}>
         <Label className={"text-gray-400 font-normal"}>
-          {t("edit_profile.public")}
+          {t("general.public")}
         </Label>
         <Switch
           checked={profile.is_public}
@@ -134,7 +134,7 @@ export function General({ profile, setProfile }: GeneralProps) {
         />
       </div>
       <Label className={"text-gray-400 font-light pb-3"}>
-        {t("edit_profile.public_text")}
+        {t("general.public_text")}
       </Label>
 
       <Separator />
