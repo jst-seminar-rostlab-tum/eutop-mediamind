@@ -14,6 +14,7 @@ from app.repositories.search_profile_repository import (
     create_profile_with_request,
     get_accessible_profile_by_id,
     get_accessible_profiles,
+    get_by_id,
     update_profile_with_request,
 )
 from app.repositories.subscription_repository import (
@@ -72,6 +73,10 @@ class SearchProfileService:
             return await SearchProfileService._build_profile_response(
                 profile, current_user
             )
+
+    @staticmethod
+    async def get_by_id(search_profile_id: UUID) -> SearchProfile | None:
+        return await get_by_id(search_profile_id)
 
     @staticmethod
     async def get_available_search_profiles(
