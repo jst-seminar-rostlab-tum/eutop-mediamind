@@ -1,11 +1,9 @@
 import json
 from datetime import date
-from typing import Optional, Dict, List, Tuple, Set
+from typing import Dict, List, Optional, Set, Tuple
 from uuid import UUID
 
-from litellm.batches.main import retrieve_batch
-
-from app.models import SearchProfile, Match
+from app.models import Match, SearchProfile
 from app.repositories.match_repository import MatchRepository
 from app.repositories.search_profile_repository import get_search_profile_by_id
 from app.services.article_vector_service import ArticleVectorService
@@ -69,7 +67,7 @@ class ArticleMatchingService:
         print(topic_score_map)  # TODO: Remove this line in production
 
         # Phase 2 - Keyword Matching
-        # Track scores per keyword per article (only for articles matched in Phase 1)
+        # Track scores per keyword per article
         keyword_score_map: Dict[UUID, Dict[UUID, Dict[UUID, List[float]]]] = {}
         keyword_score_threshold = 0.1
 
@@ -121,7 +119,7 @@ class ArticleMatchingService:
 
         for topic_id, articles in topic_score_map.items():
             for art_id, t_score in articles.items():
-                # Overall keyword score per article (average across all keywords)
+                # Overall keyword score per article
                 k_scores = keyword_avg_per_keyword_map.get(topic_id, {}).get(
                     art_id, {}
                 )
@@ -196,6 +194,7 @@ class ArticleMatchingService:
 
         # Persist Matches to the database and attach 'results' as comment
         matches: List[Match] = []
+        await MatchRepository.cleanup_matches(search_profile_id, date.today())
         for idx, (art_id, topic_id, score) in enumerate(final_matches):
             # Find the result entry for this article
             result_entry = next(
@@ -212,7 +211,7 @@ class ArticleMatchingService:
                 match_date=date.today(),
             )
 
-            await MatchRepository.add_match(match)
+            await MatchRepository.insert_match(match)
             matches.append(match)
 
         print(matches)
@@ -220,8 +219,6 @@ class ArticleMatchingService:
     async def run(self):
         """
         Run the article matching process.
-        This method should implement the logic to match articles based on their content.
         """
         # Placeholder for matching logic
-        # This could involve comparing article content, keywords, or other attributes
         pass

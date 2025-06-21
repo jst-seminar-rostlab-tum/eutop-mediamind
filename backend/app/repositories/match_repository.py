@@ -1,6 +1,8 @@
+from datetime import date
 from typing import List
 from uuid import UUID
 
+from sqlalchemy import delete
 from sqlalchemy.future import select
 from sqlalchemy.orm import selectinload
 
@@ -69,37 +71,28 @@ class MatchRepository:
             return match
 
     @staticmethod
-    async def add_match(match: Match):
+    async def cleanup_matches(
+        search_profile_id: UUID, match_date: date
+    ) -> None:
         """
-        Add a new Match entry or update an existing one
-        with the same article_id, search_profile_id, and match_date.
+        Delete all Match entries for the given
+        search_profile_id and match_date.
+        """
+        async with async_session() as session:  # AsyncSession
+            delete_stmt = delete(Match).where(
+                Match.search_profile_id == search_profile_id,
+                Match.match_date == match_date,
+            )
+            await session.execute(delete_stmt)
+            await session.commit()
+
+    @staticmethod
+    async def insert_match(match: Match) -> Match:
+        """
+        Insert a new Match into the database.
         """
         async with async_session() as session:
-            # 1. Look for an existing match
-            stmt = select(Match).where(
-                Match.article_id == match.article_id,
-                Match.search_profile_id == match.search_profile_id,
-                Match.match_date == match.match_date,
-            )
-            result = await session.execute(stmt)
-            existing: Match | None = result.scalar_one_or_none()
-
-            if existing:
-                print(
-                    f"Match with article_id {match.article_id} already exists. Updating existing entry."
-                )
-                # 2a. Update the existing entry
-                existing.topic_id = match.topic_id
-                existing.sorting_order = match.sorting_order
-                existing.comment = match.comment
-
-                session.add(existing)  # redundant but clarifies intent
-                await session.commit()
-                await session.refresh(existing)
-                return existing
-            else:
-                # 2b. Insert a new entry
-                session.add(match)
-                await session.commit()
-                await session.refresh(match)
-                return match
+            session.add(match)
+            await session.commit()
+            await session.refresh(match)
+            return match
