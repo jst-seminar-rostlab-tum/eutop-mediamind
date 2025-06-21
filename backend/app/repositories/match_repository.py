@@ -67,3 +67,14 @@ class MatchRepository:
             await session.commit()
             await session.refresh(match)
             return match
+
+    @staticmethod
+    async def add_match(match: Match):
+        """
+        Add a new Match to the database.
+        """
+        async with async_session() as session:
+            session.add(match)
+            await session.commit()
+            await session.refresh(match)
+            return match

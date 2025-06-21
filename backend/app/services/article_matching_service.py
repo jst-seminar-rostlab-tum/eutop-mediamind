@@ -1,9 +1,12 @@
+import json
+from datetime import date
 from typing import Optional, Dict, List, Tuple, Set
 from uuid import UUID
 
 from litellm.batches.main import retrieve_batch
 
-from app.models import SearchProfile
+from app.models import SearchProfile, Match
+from app.repositories.match_repository import MatchRepository
 from app.repositories.search_profile_repository import get_search_profile_by_id
 from app.services.article_vector_service import ArticleVectorService
 
@@ -190,6 +193,29 @@ class ArticleMatchingService:
         print(
             results
         )  # TODO: Replace with return or other handling in production
+
+        # Persist Matches to the database and attach 'results' as comment
+        matches: List[Match] = []
+        for idx, (art_id, topic_id, score) in enumerate(final_matches):
+            # Find the result entry for this article
+            result_entry = next(
+                r for r in results if r["article_id"] == art_id
+            )
+            match = Match(
+                article_id=art_id,
+                search_profile_id=search_profile_id,
+                topic_id=topic_id,
+                sorting_order=idx,
+                comment=json.dumps(
+                    result_entry, default=str
+                ),  # results soll als comment hinzugefügt werden
+                match_date=date.today(),
+            )
+
+            await MatchRepository.add_match(match)
+            matches.append(match)
+
+        print(matches)
 
     async def run(self):
         """
