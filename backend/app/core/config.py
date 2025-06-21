@@ -107,7 +107,18 @@ class Configs(BaseSettings):
     # Qdrant
     QDRANT_URL: str | None = None
     QDRANT_API_KEY: str | None = None
-    ARTICLE_VECTORS_COLLECTION: str | None = None
+    ARTICLE_VECTORS_COLLECTION: str | None = "article_vectors"
+
+    @model_validator(mode="after")
+    def _check_qdrant_config(self) -> Self:
+        if not self.ENVIRONMENT == "local" and not self.QDRANT_URL:
+            raise ValueError("QDRANT_URL must be set in the configuration.")
+        if not self.ENVIRONMENT == "local" and not self.QDRANT_API_KEY:
+            raise ValueError(
+                "QDRANT_API_KEY must be set in the configuration."
+            )
+
+        return self
 
     # OpenAI
     OPENAI_API_KEY: str | None = None
