@@ -185,8 +185,6 @@ class ArticleMatchingService:
             f"for search profile {search_profile_id}"
         )
 
-        # Persist Matches to the database and attach 'results' as comment
-
         await MatchRepository.cleanup_matches(search_profile_id, date.today())
         for idx, (art_id, topic_id, score) in enumerate(final_matches):
             # Find the result entry for this article
