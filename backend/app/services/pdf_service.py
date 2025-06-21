@@ -1,14 +1,13 @@
+import json
+import locale
 import os
+import random
 from dataclasses import dataclass
 from datetime import datetime, timedelta
-import locale
 from io import BytesIO
 from typing import List
 from uuid import UUID
-import json
-import random
 
-from reportlab.graphics.shapes import Drawing
 from reportlab.lib import colors
 from reportlab.lib.enums import TA_JUSTIFY
 from reportlab.lib.pagesizes import A4
@@ -24,7 +23,6 @@ from reportlab.platypus import (
     Image,
     NextPageTemplate,
     PageBreak,
-    FrameBreak,
     PageTemplate,
     Paragraph,
     Spacer,
@@ -32,7 +30,6 @@ from reportlab.platypus import (
     TableStyle,
 )
 from reportlab.platypus.flowables import AnchorFlowable
-from svglib.svglib import svg2rlg
 
 from app.core.logger import get_logger
 from app.models.search_profile import SearchProfile
@@ -77,7 +74,11 @@ class NewsItem:
 
 
 # Load metadata for politicians, companies, people, industries, legislations
-with open(os.path.join(os.path.dirname(__file__), '../../assets/metadata.json'), 'r', encoding='utf-8') as f:
+with open(
+    os.path.join(os.path.dirname(__file__), "../../assets/metadata.json"),
+    "r",
+    encoding="utf-8",
+) as f:
     METADATA = json.load(f)
 
 
@@ -170,17 +171,21 @@ class PDFService:
         fontSize=8,
         leading=12,
         textColor=colors.gray,
-    )    
+    )
     metadata_title_style = ParagraphStyle(
         "Metadata_title",
-        fontName="DVS-BoldOblique" if _fonts_registered else "Helvetica-Oblique",
+        fontName=(
+            "DVS-BoldOblique" if _fonts_registered else "Helvetica-Oblique"
+        ),
         fontSize=8,
         leading=12,
         textColor=colors.gray,
     )
     metadata_subtitle_style = ParagraphStyle(
         "Metadata_subtitle",
-        fontName="DVS-BoldOblique" if _fonts_registered else "Helvetica-Oblique",
+        fontName=(
+            "DVS-BoldOblique" if _fonts_registered else "Helvetica-Oblique"
+        ),
         fontSize=8,
         leading=12,
         textColor=colors.gray,
@@ -208,22 +213,30 @@ class PDFService:
     )
 
     @staticmethod
-    async def create_pdf(search_profile: SearchProfile, timeslot: str, match_stop_time) -> bytes:
+    async def create_pdf(
+        search_profile: SearchProfile, timeslot: str, match_stop_time
+    ) -> bytes:
         if timeslot not in ["morning", "afternoon", "evening"]:
             raise logger.warning(
-                f"Invalid timeslot. Must be one of: morning, afternoon, evening."
-                )
+                "Invalid timeslot. \
+                Must be one of: ['morning', 'afternoon', 'evening']"
+            )
         elif timeslot == "morning":
-            match_start_time = match_stop_time - timedelta(hours=500)#TODO: 9 hours, but for testing
+            match_start_time = match_stop_time - timedelta(
+                hours=500
+            )  # TODO: 9 hours, but for testing
         elif timeslot == "afternoon":
             match_start_time = match_stop_time - timedelta(hours=8)
         elif timeslot == "evening":
             match_start_time = match_stop_time - timedelta(hours=7)
 
-        articles = await ArticleRepository.get_matched_articles_for_profile(search_profile, match_start_time, match_stop_time)
+        articles = await ArticleRepository.get_matched_articles_for_profile(
+            search_profile, match_start_time, match_stop_time
+        )
 
         # TODO: Change locale based on translation needs for future use cases
-        #locale.setlocale(locale.LC_TIME, "de_DE.UTF-8")  # For German, for example
+        # For German, for example
+        # locale.setlocale(locale.LC_TIME, "de_DE.UTF-8")
         # To set back to English (US)
         locale.setlocale(locale.LC_TIME, "en_US.UTF-8")
 
@@ -253,7 +266,13 @@ class PDFService:
                 summary=article.summary or "No summary available.",
                 subscription_id=article.subscription.id,
                 newspaper=(
-                    "Münchner Merkur" if getattr(article.subscription, "name", None) == "MÃ¼nchner Merkur" else (getattr(article.subscription, "name", None) or "Unknown")
+                    "Münchner Merkur"
+                    if getattr(article.subscription, "name", None)
+                    == "MÃ¼nchner Merkur"
+                    else (
+                        getattr(article.subscription, "name", None)
+                        or "Unknown"
+                    )
                 ),
                 keywords=[keyword.name for keyword in article.keywords],
                 image_url=None,  # Placeholder
@@ -378,14 +397,6 @@ class PDFService:
     ) -> List["Flowable"]:
         width, height = dimensions
         styles = getSampleStyleSheet()
-
-        style = ParagraphStyle(
-            name="HeaderTitle",
-            fontName="DVS-Bold",
-            fontSize=10,
-            alignment=TA_JUSTIFY,
-        )
-
         # TOC entry style
         toc_entry_style = ParagraphStyle(
             name="TOCEntry",
@@ -454,18 +465,22 @@ class PDFService:
             )
         )
         story.append(Spacer(1, 0.3 * inch))
-        
+
         # Total reading time
         total_text = " ".join(news.content for news in news_items)
         total_minutes = PDFService.__calculate_reading_time(
             total_text, words_per_minute=180
         )
+
         # Total reading time (compact Flowable)
         class ReadingTimeFlowable(Flowable):
             def __init__(self, minutes):
                 super().__init__()
                 self.minutes = minutes
-            def wrap(self, aw, ah): return aw, 16
+
+            def wrap(self, aw, ah):
+                return aw, 16
+
             def draw(self):
                 c = self.canv
                 c.setFont("DVS", 12)
@@ -477,6 +492,7 @@ class PDFService:
                 c.drawString(w, 0, str(self.minutes))
                 w += c.stringWidth(str(self.minutes), "DVS-Bold", 12)
                 c.drawString(w, 0, " min")
+
         story.append(ReadingTimeFlowable(total_minutes))
         story.append(Spacer(1, 0.3 * inch))
 
@@ -608,7 +624,7 @@ class PDFService:
         data = [
             [
                 Paragraph("<b>Daily News Report</b>", style),
-                Paragraph(f"<b>{now_str}</b>", style)
+                Paragraph(f"<b>{now_str}</b>", style),
             ]
         ]
         table = Table(data, colWidths=[4.25 * inch, 4 * inch])
@@ -616,7 +632,7 @@ class PDFService:
             TableStyle(
                 [
                     ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-                    ("ALIGN", (2, 0), (2, 0), "RIGHT")
+                    ("ALIGN", (2, 0), (2, 0), "RIGHT"),
                 ]
             )
         )
@@ -708,15 +724,17 @@ class PDFService:
             metadata_para = Paragraph(metadata_text, PDFService.metadata_style)
             metadata_first = Table(
                 [[metadata_para]],
-                colWidths=[(dimensions[0] - 2 * inch)],
-                style=TableStyle([
-                    ("BACKGROUND", (0, 0), (-1, -1), colors.white),
-                    ("BOX", (0, 0), (-1, -1), 0.25, colors.white),
-                    ("LEFTPADDING", (0, 0), (-1, -1), 6),
-                    ("RIGHTPADDING", (0, 0), (-1, -1), 6),
-                    ("TOPPADDING", (0, 0), (-1, -1), 0),
-                    ("BOTTOMPADDING", (0, 0), (-1, -1), 2),
-                ])
+                colWidths=[dimensions[0] - 2 * inch],
+                style=TableStyle(
+                    [
+                        ("BACKGROUND", (0, 0), (-1, -1), colors.white),
+                        ("BOX", (0, 0), (-1, -1), 0.25, colors.white),
+                        ("LEFTPADDING", (0, 0), (-1, -1), 6),
+                        ("RIGHTPADDING", (0, 0), (-1, -1), 6),
+                        ("TOPPADDING", (0, 0), (-1, -1), 0),
+                        ("BOTTOMPADDING", (0, 0), (-1, -1), 2),
+                    ]
+                ),
             )
             story.append(metadata_first)
 
@@ -725,31 +743,44 @@ class PDFService:
             story.append(Paragraph(news.summary, PDFService.content_style))
             story.append(Spacer(1, 0.15 * inch))
 
-            story.append(Paragraph("Article Content", PDFService.subtitle_style))
+            story.append(
+                Paragraph("Article Content", PDFService.subtitle_style)
+            )
 
             # Calculate reading time
             reading_time = PDFService.__calculate_reading_time(news.content)
             reading_time_text = f"Estimated Reading Time: {reading_time} min"
-            reading_time_para = Paragraph(reading_time_text, PDFService.link_style)
+            reading_time_para = Paragraph(
+                reading_time_text, PDFService.link_style
+            )
             read_summary_para = Paragraph(
                 f"""
                 <para alignment=\"right\">
-                    <a href=\"#toc_summary_{i}\">\n                        <u><font>Back to Summary List</font></u>\n                    </a>\n                </para>\n                """,
+                    <a href=\"#toc_summary_{i}\">\n
+                    <u><font>Back to Summary List</font></u>\n
+                    </a>
+                </para>
+                """,
                 PDFService.link_style,
             )
             # Put reading time and read summary in a box
             reading_time_box = Table(
                 [[reading_time_para, read_summary_para]],
-                colWidths=[2.5 * inch, (dimensions[0] - 2 * inch - 2.5 * inch)],
-                style=TableStyle([
-                    ("BACKGROUND", (0, 0), (-1, -1), colors.white),
-                    ("BOX", (0, 0), (-1, -1), 0.25, colors.white),
-                    ("LEFTPADDING", (0, 0), (-1, -1), 6),
-                    ("RIGHTPADDING", (0, 0), (-1, -1), 6),
-                    ("TOPPADDING", (0, 0), (-1, -1), 0),
-                    ("BOTTOMPADDING", (0, 0), (-1, -1), 4),
-                    ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-                ])
+                colWidths=[
+                    2.5 * inch,
+                    (dimensions[0] - 2 * inch - 2.5 * inch),
+                ],
+                style=TableStyle(
+                    [
+                        ("BACKGROUND", (0, 0), (-1, -1), colors.white),
+                        ("BOX", (0, 0), (-1, -1), 0.25, colors.white),
+                        ("LEFTPADDING", (0, 0), (-1, -1), 6),
+                        ("RIGHTPADDING", (0, 0), (-1, -1), 6),
+                        ("TOPPADDING", (0, 0), (-1, -1), 0),
+                        ("BOTTOMPADDING", (0, 0), (-1, -1), 4),
+                        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+                    ]
+                ),
             )
             story.append(reading_time_box)
 
@@ -758,53 +789,121 @@ class PDFService:
             story.append(Paragraph(content_text, PDFService.content_style))
             story.append(Spacer(1, 0.3 * inch))
 
-            #Metadata Box
+            # Metadata Box
             word_count = len(news.content.split()) if news.content else 0
             # TODO: Content Extracted Data from DB and added to NewsItem
             # Prepare grouped Mentioned metadata
             people_str = ", ".join(f"{p}" for p in news.politicians)
             pol_str = ", ".join(f"{p}" for p in news.people)
-            companies_str = ", ".join(f"{c}" for c in news.companies)
+            companies_str = ", ".join(f"{i}" for i in news.companies)
             industries_str = ", ".join(f"{i}" for i in news.industries)
-            legislations_str = ", ".join(f"{l}" for l in news.legislations)
+            legislations_str = ", ".join(f"{i}" for i in news.legislations)
 
             # Prepare metadata as label-value pairs for two columns
             metadata_rows = [
-                [Paragraph("Words:", PDFService.metadata_style), Paragraph(str(word_count), PDFService.metadata_style)],
-                [Paragraph("Reading Time:", PDFService.metadata_style), Paragraph(f"{reading_time} min", PDFService.metadata_style)],
-                [Paragraph("Author:", PDFService.metadata_style), Paragraph(news.author, PDFService.metadata_style)],
-                [Paragraph("Newspaper:", PDFService.metadata_style), Paragraph(news.newspaper, PDFService.metadata_style)],
-                [Paragraph("<b>Published at:</b>", PDFService.metadata_style), Paragraph(news.published_at, PDFService.metadata_style)],
-                [Paragraph("<b>Language:</b>", PDFService.metadata_style), Paragraph(news.language or "Unknown", PDFService.metadata_style)],
-                [Paragraph("<b>Category:</b>", PDFService.metadata_style), Paragraph(news.category or "Unknown", PDFService.metadata_style)],
-                [Paragraph("<b>Keywords:</b>", PDFService.metadata_style), Paragraph(", ".join(news.keywords) if news.keywords else "None", PDFService.metadata_style)],
-                [Paragraph("<b>Mentioned in this article</b>", PDFService.metadata_subtitle_style), ""],
-                [Paragraph("<b>People:</b>", PDFService.metadata_style), Paragraph(people_str, PDFService.metadata_style)],
-                [Paragraph("<b>Politicians:</b>", PDFService.metadata_style), Paragraph(pol_str, PDFService.metadata_style)],
-                [Paragraph("<b>Companies:</b>", PDFService.metadata_style), Paragraph(companies_str, PDFService.metadata_style)],
-                [Paragraph("<b>Industries:</b>", PDFService.metadata_style), Paragraph(industries_str, PDFService.metadata_style)],
-                [Paragraph("<b>Legislations:</b>", PDFService.metadata_style), Paragraph(legislations_str, PDFService.metadata_style)],
+                [
+                    Paragraph("Words:", PDFService.metadata_style),
+                    Paragraph(str(word_count), PDFService.metadata_style),
+                ],
+                [
+                    Paragraph("Reading Time:", PDFService.metadata_style),
+                    Paragraph(
+                        f"{reading_time} min", PDFService.metadata_style
+                    ),
+                ],
+                [
+                    Paragraph("Author:", PDFService.metadata_style),
+                    Paragraph(news.author, PDFService.metadata_style),
+                ],
+                [
+                    Paragraph("Newspaper:", PDFService.metadata_style),
+                    Paragraph(news.newspaper, PDFService.metadata_style),
+                ],
+                [
+                    Paragraph(
+                        "<b>Published at:</b>", PDFService.metadata_style
+                    ),
+                    Paragraph(news.published_at, PDFService.metadata_style),
+                ],
+                [
+                    Paragraph("<b>Language:</b>", PDFService.metadata_style),
+                    Paragraph(
+                        news.language or "Unknown", PDFService.metadata_style
+                    ),
+                ],
+                [
+                    Paragraph("<b>Category:</b>", PDFService.metadata_style),
+                    Paragraph(
+                        news.category or "Unknown", PDFService.metadata_style
+                    ),
+                ],
+                [
+                    Paragraph("<b>Keywords:</b>", PDFService.metadata_style),
+                    Paragraph(
+                        ", ".join(news.keywords) if news.keywords else "None",
+                        PDFService.metadata_style,
+                    ),
+                ],
+                [
+                    Paragraph(
+                        "<b>Mentioned in this article</b>",
+                        PDFService.metadata_subtitle_style,
+                    ),
+                    "",
+                ],
+                [
+                    Paragraph("<b>People:</b>", PDFService.metadata_style),
+                    Paragraph(people_str, PDFService.metadata_style),
+                ],
+                [
+                    Paragraph(
+                        "<b>Politicians:</b>", PDFService.metadata_style
+                    ),
+                    Paragraph(pol_str, PDFService.metadata_style),
+                ],
+                [
+                    Paragraph("<b>Companies:</b>", PDFService.metadata_style),
+                    Paragraph(companies_str, PDFService.metadata_style),
+                ],
+                [
+                    Paragraph("<b>Industries:</b>", PDFService.metadata_style),
+                    Paragraph(industries_str, PDFService.metadata_style),
+                ],
+                [
+                    Paragraph(
+                        "<b>Legislations:</b>", PDFService.metadata_style
+                    ),
+                    Paragraph(legislations_str, PDFService.metadata_style),
+                ],
             ]
 
             combined_box = Table(
                 metadata_rows,
-                colWidths=[(dimensions[0] - 4 * inch) * 0.25, (dimensions[0] - 1.5 * inch) * 0.75],
-                style=TableStyle([
-                    ("BACKGROUND", (0, 0), (-1, -1), colors.whitesmoke),
-                    ("BOX", (0, 0), (-1, -1), 0.25, colors.lightgrey),
-                    ("LEFTPADDING", (0, 0), (-1, -1), 2),
-                    ("RIGHTPADDING", (0, 0), (-1, -1), 8),
-                    ("TOPPADDING", (0, 0), (-1, -1), 2),
-                    ("BOTTOMPADDING", (0, 0), (-1, -1), 2),
-                    ("VALIGN", (0, 0), (-1, -1), "TOP"),
-                    ("ALIGN", (0, 0), (0, -1), "LEFT"),
-                    ("ALIGN", (1, 0), (1, -1), "LEFT"),
-                    ("SPAN", (0, 8), (1, 8)),  # Span both columns for "Mentioned in this article"
-                ])
+                colWidths=[
+                    (dimensions[0] - 4 * inch) * 0.25,
+                    (dimensions[0] - 1.5 * inch) * 0.75,
+                ],
+                style=TableStyle(
+                    [
+                        ("BACKGROUND", (0, 0), (-1, -1), colors.whitesmoke),
+                        ("BOX", (0, 0), (-1, -1), 0.25, colors.lightgrey),
+                        ("LEFTPADDING", (0, 0), (-1, -1), 2),
+                        ("RIGHTPADDING", (0, 0), (-1, -1), 8),
+                        ("TOPPADDING", (0, 0), (-1, -1), 2),
+                        ("BOTTOMPADDING", (0, 0), (-1, -1), 2),
+                        ("VALIGN", (0, 0), (-1, -1), "TOP"),
+                        ("ALIGN", (0, 0), (0, -1), "LEFT"),
+                        ("ALIGN", (1, 0), (1, -1), "LEFT"),
+                        (
+                            "SPAN",
+                            (0, 8),
+                            (1, 8),
+                        ),  # Span both columns for "Mentioned in this article"
+                    ]
+                ),
             )
             story.append(combined_box)
             story.append(Spacer(1, 0.1 * inch))
-
 
             # URL Link Button
             link_img = Image("assets/link_icon.png", width=16, height=16)
