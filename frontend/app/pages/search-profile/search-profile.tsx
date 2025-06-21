@@ -190,8 +190,12 @@ export function SearchProfileOverview() {
         <>
           <div className="my-8">
             <Skeleton className="h-4 w-[15%] mb-2" />
-            <Skeleton className="h-10 w-[20%] rounded-md mb-4" />
-            <Skeleton className="h-6 w-[30%]" />
+            <div className="flex justify-start items-center gap-4">
+              <Skeleton className="h-10 w-[20%] rounded-md" />
+              <Skeleton className="h-6 w-[8%]" />
+              <Skeleton className="h-6 w-[10%]" />
+              <Skeleton className="h-6 w-[10%]" />
+            </div>
           </div>
           <div className="grid grid-cols-6 gap-8 mt-10">
             {/* Sidebar skeleton */}
