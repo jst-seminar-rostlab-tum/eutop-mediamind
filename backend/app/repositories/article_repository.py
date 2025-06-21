@@ -2,6 +2,7 @@ from typing import List, Optional, Sequence
 from uuid import UUID
 
 from sqlalchemy import desc, or_, select
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm.strategy_options import joinedload
 
 from app.core.db import async_session
@@ -32,20 +33,28 @@ class ArticleRepository:
         Returns the updated Article, or None if it does not exist.
         """
         async with async_session() as session:
-            existing_article = await session.get(Article, article.id)
-            if not existing_article:
-                return None
-
-            existing_article_without_id = article.model_dump(
-                exclude_unset=True, exclude={"id"}
+            return await ArticleRepository._update_article_with_session(
+                session, article
             )
-            for key, val in existing_article_without_id.items():
-                setattr(existing_article, key, val)
 
-            session.add(existing_article)
-            await session.commit()
-            await session.refresh(existing_article)
-            return existing_article
+    @staticmethod
+    async def _update_article_with_session(
+        session: AsyncSession, article: Article
+    ) -> Optional[Article]:
+        existing_article = await session.get(Article, article.id)
+        if not existing_article:
+            return None
+
+        existing_article_without_id = article.model_dump(
+            exclude_unset=True, exclude={"id"}
+        )
+        for key, val in existing_article_without_id.items():
+            setattr(existing_article, key, val)
+
+        session.add(existing_article)
+        await session.commit()
+        await session.refresh(existing_article)
+        return existing_article
 
     @staticmethod
     async def update_article_summary(
