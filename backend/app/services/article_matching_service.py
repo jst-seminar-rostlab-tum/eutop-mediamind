@@ -37,8 +37,7 @@ class ArticleMatchingService:
 
         print(search_profile)  # TODO: Remove this line in production
 
-        # Phase 1- Topic Matching
-
+        # Phase 1 - Topic Matching
         topic_score_map: Dict[UUID, Dict[UUID, float]] = {}
         topic_score_threshold = 0.3
 
@@ -59,7 +58,6 @@ class ArticleMatchingService:
                     vector_query, topic_score_threshold
                 )
             )
-            # print(retrieved_docs)  # TODO: Remove this line in production
             # Map article_id -> topic_score
             topic_score_map[topic.id] = {
                 UUID(doc.metadata["id"]): score for doc, score in retrieved
@@ -68,17 +66,22 @@ class ArticleMatchingService:
         print(topic_score_map)  # TODO: Remove this line in production
 
         # Phase 2 - Keyword Matching
-
-        keyword_score_map: Dict[UUID, Dict[UUID, List[float]]] = {}
+        # Track scores per keyword per article (only for articles matched in Phase 1)
+        keyword_score_map: Dict[UUID, Dict[UUID, Dict[UUID, List[float]]]] = {}
         keyword_score_threshold = 0.1
 
         for topic in search_profile.topics:
-            keyword_score_map[topic.id] = {}
             matched_articles = topic_score_map.get(topic.id, {})
+            # Initialize nested structure: article_id -> { keyword_id: [] }
+            keyword_score_map[topic.id] = {
+                art_id: {kw.id: [] for kw in topic.keywords}
+                for art_id in matched_articles
+            }
 
             for keyword in topic.keywords:
-                print(f"Processing keyword: {keyword.name}")
-                # Retrieve articles similar to the single keyword
+                print(
+                    f"Processing keyword: {keyword.name}"
+                )  # TODO: Remove this line in production
                 retrieved = (
                     await self.article_vector_service.retrieve_by_similarity(
                         keyword.name, keyword_score_threshold
@@ -89,47 +92,104 @@ class ArticleMatchingService:
                     art_id = UUID(doc.metadata["id"])
                     # Only consider articles already matched in Phase 1
                     if art_id in matched_articles:
-                        print("Found matching article:", art_id)
-                        keyword_score_map[topic.id].setdefault(
-                            art_id, []
-                        ).append(score)
+                        print(
+                            "Found matching article:", art_id
+                        )  # TODO: Remove in production
+                        # Record score for this specific keyword
+                        keyword_score_map[topic.id][art_id][keyword.id].append(
+                            score
+                        )
 
-        ## Compute average keyword score per article
-        keyword_avg_score_map: Dict[UUID, Dict[UUID, float]] = {}
-        for topic_id, scores_by_article in keyword_score_map.items():
-            keyword_avg_score_map[topic_id] = {
-                art_id: sum(scores) / len(scores)
-                for art_id, scores in scores_by_article.items()
-            }
+        # Compute average keyword score per keyword per article
+        keyword_avg_per_keyword_map: Dict[
+            UUID, Dict[UUID, Dict[UUID, float]]
+        ] = {}
+        for topic_id, art_scores in keyword_score_map.items():
+            keyword_avg_per_keyword_map[topic_id] = {}
+            for art_id, kw_scores in art_scores.items():
+                keyword_avg_per_keyword_map[topic_id][art_id] = {
+                    kw_id: (sum(scores) / len(scores)) if scores else 0.0
+                    for kw_id, scores in kw_scores.items()
+                }
 
         # Phase 3 - Finalizing Matches
-
         weights = {"topic": 0.7, "keyword": 0.3}
         score_entries: List[Tuple[UUID, UUID, float]] = []
 
         for topic_id, articles in topic_score_map.items():
             for art_id, t_score in articles.items():
-                k_score = keyword_avg_score_map.get(topic_id, {}).get(
-                    art_id, 0.0
+                # Overall keyword score per article (average across all keywords)
+                k_scores = keyword_avg_per_keyword_map.get(topic_id, {}).get(
+                    art_id, {}
+                )
+                k_score = (
+                    (sum(k_scores.values()) / len(k_scores))
+                    if k_scores
+                    else 0.0
                 )
                 total_score = (
                     t_score * weights["topic"] + k_score * weights["keyword"]
                 )
                 score_entries.append((art_id, topic_id, total_score))
 
+        # Sort by descending combined score
         score_entries.sort(key=lambda x: x[2], reverse=True)
 
+        # Remove duplicates: retain only first occurrence per article
         final_matches: List[Tuple[UUID, UUID, float]] = []
         seen_article_ids: Set[UUID] = set()
-
         for art_id, topic_id, score in score_entries:
             if art_id not in seen_article_ids:
                 seen_article_ids.add(art_id)
                 final_matches.append((art_id, topic_id, score))
 
-        # TODO: print list of (article_id, topic_id, score) tuples sorted by score
+        # Build structured result list based on final_matches
+        from collections import defaultdict
 
-        print(final_matches)
+        article_topics_map: Dict[UUID, List[Dict]] = defaultdict(list)
+        topic_map = {topic.id: topic for topic in search_profile.topics}
+
+        for art_id, topic_id, combined_score in final_matches:
+            topic = topic_map[topic_id]
+            keywords_list = []
+            for keyword in topic.keywords:
+                kw_score = (
+                    keyword_avg_per_keyword_map.get(topic_id, {})
+                    .get(art_id, {})
+                    .get(keyword.id, 0.0)
+                )
+                keywords_list.append(
+                    {
+                        "keyword_id": keyword.id,
+                        "keyword_name": keyword.name,
+                        "score": kw_score,
+                    }
+                )
+
+            article_topics_map[art_id].append(
+                {
+                    "topic_id": topic.id,
+                    "topic_name": topic.name,
+                    "score": combined_score,
+                    "keywords": keywords_list,
+                }
+            )
+
+        results: List[Dict] = []
+        for art_id, topics in article_topics_map.items():
+            results.append(
+                {
+                    "article_id": art_id,
+                    "topics": topics,
+                }
+            )
+
+        print(
+            final_matches
+        )  # TODO: Replace with return or other handling in production
+        print(
+            results
+        )  # TODO: Replace with return or other handling in production
 
     async def run(self):
         """
