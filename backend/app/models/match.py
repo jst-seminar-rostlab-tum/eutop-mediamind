@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING
 
 from sqlmodel import Field, Relationship, SQLModel
 from datetime import date
+from sqlalchemy import Column, Text
 
 if TYPE_CHECKING:
     from app.models.article import Article
@@ -25,7 +26,7 @@ class Match(SQLModel, table=True):
     )
 
     sorting_order: int = Field(default=0)
-    comment: str | None = Field(default=None, max_length=255)
+    comment: str | None = Field(default=None, sa_column=Column(Text, nullable=True),)
 
     match_date: date = Field(default_factory=date.today, nullable=False, index=True)
 
