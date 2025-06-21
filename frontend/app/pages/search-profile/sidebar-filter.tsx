@@ -36,18 +36,26 @@ interface SidebarFilterProps {
   setSelectedSources: React.Dispatch<React.SetStateAction<string[]>>;
   searchSources: string;
   setSearchSources: (value: string) => void;
-  uniqueSources: string[];
+  Sources: {
+    id: string;
+    name: string;
+    is_subscribed: boolean;
+  }[];
 
   selectedTopics: string[];
   setSelectedTopics: React.Dispatch<React.SetStateAction<string[]>>;
   searchTopics: string;
   setSearchTopics: (value: string) => void;
-  uniqueTopics: string[];
+  Topics: {
+    id: string;
+    name: string;
+    keywords: string[];
+  }[];
 
   fromDate?: Date;
-  setFromDate: (value?: Date) => void;
+  setFromDate: React.Dispatch<React.SetStateAction<Date | undefined>>;
   toDate?: Date;
-  setToDate: (value?: Date) => void;
+  setToDate: React.Dispatch<React.SetStateAction<Date | undefined>>;
 }
 
 export function SidebarFilter({
@@ -57,12 +65,12 @@ export function SidebarFilter({
   setSelectedSources,
   searchSources,
   setSearchSources,
-  uniqueSources,
+  Sources,
   selectedTopics,
   setSelectedTopics,
   searchTopics,
   setSearchTopics,
-  uniqueTopics,
+  Topics,
   fromDate,
   setFromDate,
   toDate,
@@ -71,12 +79,12 @@ export function SidebarFilter({
   const [openFromDate, setOpenFromDate] = useState(false);
   const [openToDate, setOpenToDate] = useState(false);
 
-  const filteredSources = uniqueSources.filter((source) =>
-    source.toLowerCase().includes(searchSources.toLowerCase()),
+  const filteredSources = Sources.filter((source) =>
+    source.name.toLowerCase().includes(searchSources.toLowerCase()),
   );
 
-  const filteredTopics = uniqueTopics.filter((topic) =>
-    topic.toLowerCase().includes(searchTopics.toLowerCase()),
+  const filteredTopics = Topics.filter((topic) =>
+    topic.name.toLowerCase().includes(searchTopics.toLowerCase()),
   );
 
   return (
@@ -117,19 +125,19 @@ export function SidebarFilter({
       </div>
       <ScrollArea className="h-40 rounded-md border p-2">
         {filteredSources.map((source) => (
-          <div key={source} className="flex items-center gap-2 p-2">
+          <div key={source.id} className="flex items-center gap-2 p-2">
             <Checkbox
-              id={source}
-              checked={selectedSources.includes(source)}
+              id={source.id}
+              checked={selectedSources.includes(source.id)}
               onCheckedChange={(checked) => {
                 setSelectedSources((prev) =>
                   checked
-                    ? [...prev, source]
-                    : prev.filter((s) => s !== source),
+                    ? [...prev, source.id]
+                    : prev.filter((s) => s !== source.id),
                 );
               }}
             />
-            <Label>{source}</Label>
+            <Label>{source.name}</Label>
           </div>
         ))}
       </ScrollArea>
@@ -150,17 +158,19 @@ export function SidebarFilter({
       </div>
       <ScrollArea className="h-40 rounded-md border p-2">
         {filteredTopics.map((topic) => (
-          <div key={topic} className="flex items-center gap-2 p-2">
+          <div key={topic.id} className="flex items-center gap-2 p-2">
             <Checkbox
-              id={topic}
-              checked={selectedTopics.includes(topic)}
+              id={topic.id}
+              checked={selectedTopics.includes(topic.id)}
               onCheckedChange={(checked) => {
                 setSelectedTopics((prev) =>
-                  checked ? [...prev, topic] : prev.filter((t) => t !== topic),
+                  checked
+                    ? [...prev, topic.id]
+                    : prev.filter((t) => t !== topic.id),
                 );
               }}
             />
-            <Label>{topic}</Label>
+            <Label>{topic.name}</Label>
           </div>
         ))}
       </ScrollArea>
