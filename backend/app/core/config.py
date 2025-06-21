@@ -70,12 +70,6 @@ class Configs(BaseSettings):
 
     DISABLE_AUTH: bool = False
 
-    # Fill in dummy values for all fields in config.py
-    # when executing in CI so that the pipeline can run
-    @model_validator(mode="before")
-    def handle_ci_environment(cls, values):
-        return create_ci_dummy_values(cls, values)
-
     @computed_field
     @property
     def SQLALCHEMY_DATABASE_URI(self) -> PostgresDsn:
@@ -116,6 +110,10 @@ class Configs(BaseSettings):
 
     @model_validator(mode="after")
     def _enforce_non_default_secrets(self) -> Self:
+        # Skip checks in CI environment
+        if self.ENVIRONMENT == "ci":
+            return self
+
         self._check_default_secret("SECRET_KEY", self.SECRET_KEY)
         self._check_default_secret("FERNET_KEY", self.FERNET_KEY)
         self._check_default_secret("POSTGRES_SERVER", self.POSTGRES_SERVER)
@@ -154,30 +152,6 @@ class Configs(BaseSettings):
 
     # NewsAPI AI
     NEWSAPIAI_API_KEY: str | None = None
-
-
-def create_ci_dummy_values(cls, values):
-    if values.get("ENVIRONMENT") == "ci":
-        required_fields = {
-            name
-            for name, field in cls.model_fields.items()
-            if field.is_required()
-        }
-
-        for field_name in required_fields:
-            if field_name not in values or values[field_name] is None:
-                field_info = cls.model_fields[field_name]
-                field_type = field_info.annotation
-
-                if field_type == int:
-                    values[field_name] = 0
-                elif field_type == bool:
-                    values[field_name] = False
-                elif field_type == list:
-                    values[field_name] = []
-                else:
-                    values[field_name] = f"ci-dummy-{field_name}"
-    return values
 
 
 configs = Configs()
