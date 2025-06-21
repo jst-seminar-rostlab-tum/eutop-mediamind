@@ -5,4 +5,5 @@ export default [
   route("admin", "routes/admin.tsx"),
   route("dashboard", "routes/dashboard.tsx"),
   route("error/:code", "routes/error.tsx"),
+  route("search-profile/:id", "routes/search-profile.tsx"),
 ] satisfies RouteConfig;
