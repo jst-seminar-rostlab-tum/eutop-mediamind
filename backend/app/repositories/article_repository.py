@@ -4,8 +4,11 @@ from uuid import UUID
 from sqlalchemy import desc, or_, select
 from sqlalchemy.orm.strategy_options import joinedload
 
+from sqlalchemy.orm import selectinload #New
+
 from app.core.db import async_session
 from app.models.article import Article
+from app.models.match import Match
 
 
 class ArticleRepository:
@@ -132,14 +135,31 @@ class ArticleRepository:
             )
 
             return summarized_articles
-
+        
     @staticmethod
-    async def get_sameple_articles(limit: int) -> List[Article]:
+    async def get_matched_articles_for_profile(search_profile, match_start_time, match_stop_time, limit: int = 100) -> List[Article]:
+        # Extract id from SearchProfile or use directly if already UUID
+        if hasattr(search_profile, 'id'):
+            search_profile_id = search_profile.id
+        else:
+            search_profile_id = search_profile
+
         async with async_session() as session:
-            result = await session.execute(
-                select(Article)
-                .order_by(desc(Article.published_at))
+            query = (
+                select(Match)
+                .options(
+                    selectinload(Match.article)
+                        .selectinload(Article.subscription),
+                    selectinload(Match.article)
+                        .selectinload(Article.keywords)
+                )
+                .where(
+                    Match.search_profile_id == search_profile_id,
+                    Match.article.has(Article.published_at >= match_start_time),
+                    Match.article.has(Article.published_at <= match_stop_time)
+                )
+                .order_by(Match.sorting_order.asc())
                 .limit(limit)
-                .options(joinedload("*"))
             )
-            return result.unique().scalars().all()
+            matches = (await session.execute(query)).scalars().all()
+            return [m.article for m in matches if m.article is not None]
