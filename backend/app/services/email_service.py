@@ -1,13 +1,6 @@
-from sendgrid import SendGridAPIClient
-from sendgrid.helpers.mail import (
-    Attachment,
-    Content,
-)
-from sendgrid.helpers.mail import Email as SEmail
-from sendgrid.helpers.mail import (
-    Mail,
-    To,
-)
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 
 from app.core.config import configs
 from app.core.logger import get_logger
@@ -24,27 +17,23 @@ class EmailSchedule:
         subject: str,
         content_type: str,
         content: str,
-        attachment: str,
     ) -> None:
         self.recipient = recipient
         self.subject = subject
         self.content = content
         self.content_type = content_type
-        self.attachment = attachment
 
 
 class EmailService:
-    __sg_client = SendGridAPIClient(api_key=configs.SENDGRID_KEY)
 
     @staticmethod
     async def schedule_email(schedule: EmailSchedule) -> Email:
         email = Email()
-        email.sender = configs.SENDER_EMAIL
+        email.sender = configs.SMTP_USER
         email.recipient = schedule.recipient
         email.subject = schedule.subject
         email.content_type = schedule.content_type
         email.content = schedule.content
-        email.attachment = schedule.attachment
 
         return await EmailRepository.add_email(email)
 
@@ -59,34 +48,32 @@ class EmailService:
                 email.state = EmailState.SENT
                 await EmailRepository.update_email(email)
             except Exception as e:
-                logger.error(
-                    f"Failed to send email to {email.recipient}: {str(e)}"
-                )
                 email.add_error(str(e))
                 if email.attempts >= configs.MAX_EMAIL_ATTEMPTS:
                     email.state = EmailState.FAILED
                 else:
                     email.state = EmailState.RETRY
                 await EmailRepository.update_email(email)
+                raise Exception(
+                    f"Failed to send email to {email.recipient}: {str(e)}"
+                )
 
     @staticmethod
     def __send_email(email: Email):
-        from_email = SEmail(configs.SENDER_EMAIL)
-        to_email = To(email.recipient)
-        content = Content(email.content_type, email.content)
-        attachment = Attachment(
-            email.attachment, "report.pdf", "application/pdf", "attachment"
-        )
+        msg = MIMEMultipart("alternative")
+        msg["From"] = email.sender
+        msg["To"] = email.recipient
+        msg["Subject"] = email.subject
 
-        mail = Mail(from_email, to_email, email.subject, content)
-        mail.add_attachment(attachment)
+        html = MIMEText(email.content, "html")
+        msg.attach(html)
 
-        response = EmailService.__sg_client.client.mail.send.post(
-            request_body=mail.get()
-        )
-
-        if response.status_code >= 300:
-            raise Exception(
-                f"Failed to send email: {response.status_code} -  \
-                    {response.body.decode('utf-8')}"
+        with smtplib.SMTP_SSL(
+            configs.SMTP_SERVER, configs.SMTP_PORT
+        ) as smtp_server:
+            smtp_server.login(configs.SMTP_USER, configs.SMTP_PASSWORD)
+            ok = smtp_server.sendmail(
+                email.sender, email.recipient, msg.as_string()
             )
+            if not ok:
+                raise Exception(f"Error sending email: {ok}")

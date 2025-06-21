@@ -36,7 +36,6 @@ pytest-asyncio==1.0.0
 python-dotenv==1.1.0
 qdrant-client==1.14.2
 reportlab==4.4.1
-sendgrid==6.12.3
 sentence-transformers==4.1.0
 sentry-sdk==2.20.0
 sentry_sdk==2.20.0
