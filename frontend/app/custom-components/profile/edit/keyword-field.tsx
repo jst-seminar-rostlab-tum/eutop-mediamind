@@ -4,6 +4,7 @@ import { useState } from "react";
 import { KeywordTag } from "~/custom-components/profile/edit/keyword-tag";
 import type { Profile } from "../../../../types/model";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 
 interface KeywordFieldProps {
   keywords: string[];
@@ -19,6 +20,7 @@ export function KeywordField({
   selectedTopic,
 }: KeywordFieldProps) {
   const [newKeyword, setNewKeyword] = useState("");
+  const { t } = useTranslation();
 
   const handleAddKeyword = () => {
     if (newKeyword && selectedTopic) {
@@ -55,7 +57,7 @@ export function KeywordField({
   return (
     <Card className="rounded-3xl shadow-none">
       <CardHeader>
-        <CardTitle>Keywords</CardTitle>
+        <CardTitle>{t("keyword-field.header")}</CardTitle>
       </CardHeader>
       <CardContent>
         <div className={"flex flex-wrap gap-2 pb-5"}>
@@ -75,8 +77,8 @@ export function KeywordField({
                 handleAddKeyword();
               }
             }}
-            placeholder={"+ Add keyword"}
-            className={"w-[150px] border-0 shadow-none"}
+            placeholder={t("keyword-field.placeholder")}
+            className={"w-[200px] border-0 shadow-none"}
           />
         </div>
       </CardContent>

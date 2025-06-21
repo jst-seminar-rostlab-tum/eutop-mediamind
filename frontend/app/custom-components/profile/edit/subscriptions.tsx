@@ -2,6 +2,7 @@ import { Label } from "~/components/ui/label";
 import { DataTableSubscriptions } from "~/custom-components/profile/edit/data-table-subscriptions";
 import type { Profile, Subscription } from "../../../../types/model";
 import { useQuery } from "types/api";
+import { useTranslation } from "react-i18next";
 
 export interface SubscriptionsProps {
   profile: Profile;
@@ -23,14 +24,16 @@ export function Subscriptions({ profile, setProfile }: SubscriptionsProps) {
     };
   });
 
+  const { t } = useTranslation();
+
   return (
     <div>
-      <h2 className={"font-bold pt-3 pb-3"}>Sources</h2>
+      <h2 className={"font-bold pt-3 pb-3"}>{t("subscriptions.header")}</h2>
       <Label className={"text-gray-400 font-normal pb-4"}>
-        Configure web scraping sources used for the external mailing list.
+        {t("subscriptions.info")}
       </Label>
       <DataTableSubscriptions
-        name={"Source"}
+        name={t("subscriptions.source")}
         allSubscriptions={profileSubscriptions || []}
         setSubscriptions={setSubscriptions}
       ></DataTableSubscriptions>

@@ -17,6 +17,7 @@ import { AiSuggestionTag } from "~/custom-components/profile/edit/ai-suggestion-
 import type { Profile } from "../../../../types/model";
 import { client } from "../../../../types/api";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 
 interface TopicsProps {
   profile: Profile;
@@ -24,6 +25,8 @@ interface TopicsProps {
 }
 
 export function Topics({ profile, setProfile }: TopicsProps) {
+  const { t } = useTranslation();
+
   const [selectedTopic, setSelectedTopic] = useState<string | undefined>(
     profile.topics.length > 0 ? profile.topics[0].name : undefined,
   );
@@ -64,7 +67,7 @@ export function Topics({ profile, setProfile }: TopicsProps) {
       }
     } catch (error) {
       console.error("Failed to fetch AI suggestions:", error);
-      toast.error("Failed to get AI suggestions.");
+      toast.error(t("topics.AI_error"));
       setAiSuggestions([]);
     } finally {
       setIsLoadingSuggestions(false);
@@ -106,25 +109,25 @@ export function Topics({ profile, setProfile }: TopicsProps) {
       setSelectedTopic(newTopicName);
       setNewTopicName("");
     } else {
-      toast.error("Can't add the same topic twice");
+      toast.error(t("topics.topic_error"));
     }
   };
 
   return (
     <div>
-      <h2 className={"font-bold pt-3 pb-3"}>Topics and Keywords</h2>
+      <h2 className={"font-bold pt-3 pb-3"}>{t("topics.header")}</h2>
       <Label className={"text-gray-400 font-normal pb-4"}>
-        Manage topics and keywords for news monitoring
+        {t("topics.info")}
       </Label>
       <div className="space-y-4">
         <div className={"flex gap-3"}>
-          <Label>Topic:</Label>
+          <Label>{t("topics.label")}</Label>
           <Select
             value={selectedTopic}
             onValueChange={(value) => setSelectedTopic(value)}
           >
             <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Select Topic" />
+              <SelectValue placeholder={t("topics.select_topic")} />
             </SelectTrigger>
             <SelectContent>
               <SelectGroup>
@@ -157,7 +160,7 @@ export function Topics({ profile, setProfile }: TopicsProps) {
           )}
           <Input
             value={newTopicName}
-            placeholder={"+ Add topic"}
+            placeholder={t("topics.add")}
             className={"w-[180px] shadow-none ml-auto"}
             onChange={(e) => setNewTopicName(e.target.value)}
             onKeyDown={handleAddTopic}
@@ -174,7 +177,7 @@ export function Topics({ profile, setProfile }: TopicsProps) {
             <div className={"pl-5 pr-5"}>
               <div className="flex gap-2 items-center pb-2">
                 <Sparkles className={"w-4 h-4"} />
-                <h2>AI Keyword Suggestions</h2>
+                <h2>{t("topics.AI_header")}</h2>
                 {isLoadingSuggestions && (
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
                 )}
@@ -192,7 +195,7 @@ export function Topics({ profile, setProfile }: TopicsProps) {
                   selectedTopicKeywords.length > 0 &&
                   !isLoadingSuggestions && (
                     <Label className="text-gray-500 italic">
-                      No new suggestions available
+                      {t("topcs.no_suggestions")}
                     </Label>
                   )}
               </div>

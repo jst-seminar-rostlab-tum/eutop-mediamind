@@ -8,6 +8,7 @@ import {
 } from "@tanstack/react-table";
 import { Plus } from "lucide-react";
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import {
@@ -46,11 +47,14 @@ export function DataTable<TData, TValue>({
       columnFilters,
     },
   });
+
+  const { t } = useTranslation();
+
   return (
     <>
       <div className="flex items-center py-4">
         <Input
-          placeholder="Search"
+          placeholder={t("search")}
           value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
           onChange={(event) => {
             const value = event.target.value;
@@ -59,7 +63,7 @@ export function DataTable<TData, TValue>({
           }}
         />
         <Button variant={"outline"} className="ml-4" onClick={onAdd}>
-          Add
+          {t("Add")}
           <Plus />
         </Button>
       </div>

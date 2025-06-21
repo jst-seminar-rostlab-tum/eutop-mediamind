@@ -25,6 +25,7 @@ import {
   AlertDialogAction,
 } from "~/components/ui/alert-dialog";
 import { DataTableUsers } from "~/custom-components/admin-settings/data-table-users";
+import { useTranslation } from "react-i18next";
 
 type Props = {
   open: boolean;
@@ -87,6 +88,8 @@ export function OrganizationDialog({
     setUnsavedEdits(true);
   };
 
+  const { t } = useTranslation();
+
   return (
     <>
       <Dialog
@@ -104,20 +107,24 @@ export function OrganizationDialog({
         <DialogContent className="min-w-[700px]">
           <DialogHeader>
             <DialogTitle>
-              {isEdit ? "Edit Organization" : "Add Organization"}
+              {isEdit
+                ? t("organization-dialog.edit_header")
+                : t("organization-dialog.add_header")}
             </DialogTitle>
             <DialogDescription>
               {isEdit
-                ? "Edit your organization here. Click save when you're done."
-                : "Enter the name of the organization you want to add. Click save when you're done."}
+                ? t("organization-dialog.edit_text")
+                : t("organization-dialog.add_text")}
             </DialogDescription>
           </DialogHeader>
           {showOrgaNameAlert && (
             <Alert className="mt-2" variant="destructive">
               <AlertCircleIcon />
-              <AlertTitle>Organization Name is Empty</AlertTitle>
+              <AlertTitle>
+                {t("organization-dialog.name_error_header")}
+              </AlertTitle>
               <AlertDescription>
-                Please insert a valid Organization Name
+                {t("organization-dialog.name_error_text")}
               </AlertDescription>
             </Alert>
           )}
@@ -136,9 +143,11 @@ export function OrganizationDialog({
           {showAlert && (
             <Alert className="mt-2" variant="destructive">
               <AlertCircleIcon />
-              <AlertTitle>Invalid Email</AlertTitle>
+              <AlertTitle>
+                {t("organization-dialog.email_error_header")}
+              </AlertTitle>
               <AlertDescription>
-                Please insert a valid and unique email address.
+                {t("organization-dialog.email_error_text")}
               </AlertDescription>
             </Alert>
           )}
@@ -152,7 +161,7 @@ export function OrganizationDialog({
 
           <DialogFooter>
             <Button type="submit" onClick={onSave}>
-              Save changes
+              {t("save_changes")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -161,13 +170,15 @@ export function OrganizationDialog({
       <AlertDialog open={showLeaveConfirm} onOpenChange={setShowLeaveConfirm}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogTitle>
+              {t("confirmation_dialog.title")}
+            </AlertDialogTitle>
             <AlertDialogDescription>
-              You have unsaved changes right now
+              {t("confirmation_dialog.unsaved_text")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t("Cancle")}</AlertDialogCancel>
             <AlertDialogAction
               className="bg-destructive text-white shadow-xs hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60"
               onClick={() => {
@@ -175,7 +186,7 @@ export function OrganizationDialog({
                 onOpenChange(false); // close the main dialog
               }}
             >
-              Leave
+              {t("Leave")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

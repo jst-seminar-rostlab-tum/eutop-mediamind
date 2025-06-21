@@ -32,6 +32,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "~/components/ui/breadcrumb";
+import { useTranslation } from "react-i18next";
 
 // Fetch Orgas
 async function getOrgaData(): Promise<Organization[]> {
@@ -241,6 +242,8 @@ export function AdminPage() {
     setSubsData((prev) => prev.filter((_, i) => i !== index));
   }
 
+  const { t } = useTranslation();
+
   return (
     <>
       <Layout>
@@ -251,26 +254,27 @@ export function AdminPage() {
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
-              <BreadcrumbPage>Admin-Settigns</BreadcrumbPage>
+              <BreadcrumbPage>Admin-{t("admin.settings")}</BreadcrumbPage>
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
-        <Text hierachy={2}>Admin Settings</Text>
+        <Text hierachy={2}>{t("admin.header")}</Text>
 
         <Tabs defaultValue="organizations" className="my-2">
           <TabsList className="w-full">
-            <TabsTrigger value="organizations">Organizations</TabsTrigger>
-            <TabsTrigger value="subscriptions">Subscriptions</TabsTrigger>
+            <TabsTrigger value="organizations">
+              {t("admin.organizations")}
+            </TabsTrigger>
+            <TabsTrigger value="subscriptions">
+              {t("admin.subscriptions")}
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="organizations">
             <Card>
               <CardHeader>
-                <CardTitle>Manage Organizations</CardTitle>
-                <CardDescription>
-                  Make changes to your Organizations here. You can add, edit or
-                  delete them.
-                </CardDescription>
+                <CardTitle>{t("admin.orga_header")}</CardTitle>
+                <CardDescription>{t("admin.orga_text")}</CardDescription>
               </CardHeader>
               <CardContent>
                 <DataTable
@@ -295,11 +299,8 @@ export function AdminPage() {
           <TabsContent value="subscriptions">
             <Card>
               <CardHeader>
-                <CardTitle>Manage Subscriptions</CardTitle>
-                <CardDescription>
-                  Make changes to your Subscriptions here. You can add, edit or
-                  delete them.
-                </CardDescription>
+                <CardTitle>{t("admin.subs_header")}</CardTitle>
+                <CardDescription>{t("admin.subs_text")}</CardDescription>
               </CardHeader>
               <CardContent>
                 <DataTable

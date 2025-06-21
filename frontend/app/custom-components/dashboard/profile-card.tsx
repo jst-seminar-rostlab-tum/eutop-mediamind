@@ -28,6 +28,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "~/components/ui/alert-dialog";
+import { useTranslation } from "react-i18next";
 
 interface ProfileCardProps {
   profile: Profile;
@@ -37,6 +38,9 @@ interface ProfileCardProps {
 export function ProfileCard({ profile, mutateDashboard }: ProfileCardProps) {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
+
+  const { t } = useTranslation();
+
   return (
     <>
       <Card className="w-[15rem] h-[14rem] rounded-3xl shadow-[2px_2px_15px_rgba(0,0,0,0.1)] hover:shadow-none transition-shadow duration-300 ease-in-out">
@@ -63,7 +67,7 @@ export function ProfileCard({ profile, mutateDashboard }: ProfileCardProps) {
               <DropdownMenuContent align="center">
                 <DropdownMenuItem onClick={() => setShowEditDialog(true)}>
                   <SquarePen className="text-primary" />
-                  Edit
+                  {t("edit")}
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={() => {
@@ -72,7 +76,7 @@ export function ProfileCard({ profile, mutateDashboard }: ProfileCardProps) {
                   className="text-red-500 focus:text-red-500"
                 >
                   <Trash2 className="text-red-500" />
-                  Delete
+                  {t("delete")}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -80,7 +84,8 @@ export function ProfileCard({ profile, mutateDashboard }: ProfileCardProps) {
           <div className="flex items-center gap-2">
             <Rocket className={"h-4 w-4"} />
             <span className="font-semibold text-sm">
-              {Math.floor(Math.random() * 20)} new articles!
+              {Math.floor(Math.random() * 20)}
+              {" " + t("new_articles")}
             </span>
           </div>
         </CardHeader>
@@ -102,14 +107,14 @@ export function ProfileCard({ profile, mutateDashboard }: ProfileCardProps) {
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center">
               <OctagonAlert size={20} className="text-red-500 mr-2" />
-              Are you sure?
+              {t("confirmation_dialog.title")}
             </AlertDialogTitle>
             <AlertDialogDescription>
-              This will permanently delete this search profile
+              {t("confirmation_dialog.delete_text")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Back</AlertDialogCancel>
+            <AlertDialogCancel>{t("Back")}</AlertDialogCancel>
             <AlertDialogAction
               className="bg-destructive text-white shadow-xs hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60"
               onClick={() => {
@@ -119,7 +124,7 @@ export function ProfileCard({ profile, mutateDashboard }: ProfileCardProps) {
               }}
             >
               <Trash2 />
-              Delete
+              {t("Delete")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

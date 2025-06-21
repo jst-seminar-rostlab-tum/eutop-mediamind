@@ -42,6 +42,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "~/components/ui/alert-dialog";
+import { useTranslation } from "react-i18next";
 
 interface EditProfileProps {
   profile?: Profile;
@@ -59,6 +60,7 @@ export function EditProfile({
   const isCreating = !profile;
 
   const { user } = useAuthorization();
+  const { t } = useTranslation();
 
   const initialProfile: Profile = {
     id: "",
@@ -207,11 +209,13 @@ export function EditProfile({
               {isEditingName ? (
                 <div className="flex items-center gap-2 flex-1">
                   <DialogTitle className="text-xl font-semibold">
-                    {isCreating ? "Create" : "Edit"} Profile:
+                    {isCreating
+                      ? t("edit_profile.create")
+                      : t("edit_profile.edit")}
                   </DialogTitle>
                   <Input
                     value={profileName ?? ""}
-                    placeholder="Profile name"
+                    placeholder={t("edit_profile.profile_name")}
                     onChange={(e) => setProfileName(e.target.value)}
                     className="flex-1 max-w-xs"
                     autoFocus
@@ -240,7 +244,9 @@ export function EditProfile({
               ) : (
                 <div className="flex items-center gap-2">
                   <DialogTitle className={"text-xl"}>
-                    {isCreating ? "Create" : "Edit"} Profile:{" "}
+                    {isCreating
+                      ? t("edit_profile.create")
+                      : t("edit_profile.edit")}
                     {profileName || "New Profile"}
                   </DialogTitle>
                   <Button
@@ -263,22 +269,22 @@ export function EditProfile({
             <TabsList className="grid w-full grid-cols-4">
               <TabsTrigger value="general" className="flex items-center gap-2">
                 <Settings className="h-5 w-5" />
-                <span>General</span>
+                <span>{t("edit_profile.general")}</span>
               </TabsTrigger>
               <TabsTrigger value="topics" className="flex items-center gap-2">
                 <Book className="h-5 w-5" />
-                <span>Topics</span>
+                <span>{t("edit_profile.topics")}</span>
               </TabsTrigger>
               <TabsTrigger value="mailing" className="flex items-center gap-2">
                 <Mail className="h-5 w-5" />
-                <span>Mailing</span>
+                <span>{t("edit_profile.mailing")}</span>
               </TabsTrigger>
               <TabsTrigger
                 value="subscriptions"
                 className="flex items-center gap-2"
               >
                 <Newspaper className="h-5 w-5" />
-                <span>Subscriptions</span>
+                <span>{t("edit_profile.subscriptions")}</span>
               </TabsTrigger>
             </TabsList>
             <div className="grow overflow-hidden">
@@ -318,11 +324,11 @@ export function EditProfile({
             <Button type="button" disabled={!isValid} onClick={handleSave}>
               {isSaving
                 ? isCreating
-                  ? "Creating..."
-                  : "Saving..."
+                  ? t("edit_profile.creating")
+                  : t("edit_profile.saving")
                 : isCreating
-                  ? "Create Profile"
-                  : "Save Changes"}
+                  ? t("edit_profile.save_create")
+                  : t("edit_profile.save_changes")}
             </Button>
           </div>
         </DialogContent>
@@ -333,14 +339,14 @@ export function EditProfile({
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center">
               <OctagonAlert size={20} className="text-red-500 mr-2" />
-              Are you sure?
+              {t("confirmation_dialog.title")}
             </AlertDialogTitle>
             <AlertDialogDescription>
-              Unsaved changes will be permanently lost
+              {t("confirmation_dialog.leave_text")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Back</AlertDialogCancel>
+            <AlertDialogCancel>{t("Back")}</AlertDialogCancel>
             <AlertDialogAction
               className="bg-destructive text-white shadow-xs hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60"
               onClick={() => {
@@ -349,7 +355,7 @@ export function EditProfile({
               }}
             >
               <LogOut className="text-white" />
-              Leave
+              {t("Leave")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

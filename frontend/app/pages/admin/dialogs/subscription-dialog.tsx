@@ -23,6 +23,7 @@ import {
   AlertDialogAction,
 } from "~/components/ui/alert-dialog";
 import type { Subscription } from "../types";
+import { useTranslation } from "react-i18next";
 
 type Props = {
   open: boolean;
@@ -60,6 +61,8 @@ export function SubscriptionDialog({
   const [visible, setVisible] = useState(false);
   const [showLeaveConfirm, setShowLeaveConfirm] = React.useState(false);
 
+  const { t } = useTranslation();
+
   return (
     <>
       <Dialog
@@ -80,23 +83,27 @@ export function SubscriptionDialog({
           }
         }}
       >
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className="min-w-[400px]">
           <DialogHeader>
             <DialogTitle>
-              {isEdit ? "Edit Subscription" : "Add Subscription"}
+              {isEdit
+                ? t("subscription-dialog.edit_header")
+                : t("subscription-dialog.add_header")}
             </DialogTitle>
             <DialogDescription>
               {isEdit
-                ? "Edit your subscription here. Click save when you're done."
-                : "Enter the credentials of the subscription you want to add. Click save when you're done."}
+                ? t("subscription-dialog.edit_text")
+                : t("subscription-dialog.add_text")}
             </DialogDescription>
           </DialogHeader>
           {showAlert && (
             <Alert className="mt-2" variant="destructive">
               <AlertCircleIcon />
-              <AlertTitle>Invalid Credentials</AlertTitle>
+              <AlertTitle>
+                {t("subscription-dialog.credentials_error_header")}
+              </AlertTitle>
               <AlertDescription>
-                Please insert valid credentials.
+                {t("subscription-dialog.credentials_error_text")}
               </AlertDescription>
             </Alert>
           )}
@@ -124,24 +131,28 @@ export function SubscriptionDialog({
           </div>
 
           <div className="grid grid-cols-4 items-center gap-4">
-            <Label className="text-right">Username</Label>
+            <Label className="text-right">
+              {t("subscription-dialog.username")}
+            </Label>
             <Input
               id="username"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              placeholder="Username"
+              placeholder={t("subscription-dialog.username")}
               className="col-span-3"
             />
           </div>
 
           <div className="grid grid-cols-4 items-center gap-4">
-            <Label className="text-right">Password</Label>
+            <Label className="text-right">
+              {t("subscription-dialog.password")}
+            </Label>
             <Input
               type={visible ? "text" : "password"}
               id="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="Password"
+              placeholder={t("subscription-dialog.password")}
               className="col-span-3"
             />
             <Button
@@ -161,7 +172,7 @@ export function SubscriptionDialog({
 
           <DialogFooter>
             <Button type="submit" onClick={onSave}>
-              Save changes
+              {t("save_changes")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -169,13 +180,15 @@ export function SubscriptionDialog({
       <AlertDialog open={showLeaveConfirm} onOpenChange={setShowLeaveConfirm}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogTitle>
+              {t("confirmation-dialog.title")}
+            </AlertDialogTitle>
             <AlertDialogDescription>
-              You have unsaved changes right now
+              {t("confirmation-dialog.unsaved_text")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t("Cancel")}</AlertDialogCancel>
             <AlertDialogAction
               className="bg-destructive text-white shadow-xs hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60"
               onClick={() => {
@@ -183,7 +196,7 @@ export function SubscriptionDialog({
                 onOpenChange(false); // close the main dialog
               }}
             >
-              Leave
+              {t("Leave")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
