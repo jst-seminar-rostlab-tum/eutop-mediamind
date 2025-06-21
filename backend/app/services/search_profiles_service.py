@@ -7,9 +7,6 @@ from fastapi import HTTPException
 from app.core.db import async_session
 from app.models import SearchProfile, Topic, User
 from app.repositories.match_repository import MatchRepository
-from app.repositories.match_repositoy import (
-    get_recent_match_count_by_profile_id,
-)
 from app.repositories.search_profile_repository import (
     create_profile_with_request,
     get_accessible_profile_by_id,
@@ -127,8 +124,12 @@ class SearchProfileService:
         )
 
         time_threshold = datetime.now(timezone.utc) - timedelta(hours=24)
-        new_articles_count = await get_recent_match_count_by_profile_id(
-            profile.id, time_threshold
+        new_articles_count = (
+            await (
+                MatchRepository.get_recent_match_count_by_profile_id(
+                    profile.id, time_threshold
+                )
+            )
         )
 
         return SearchProfileDetailResponse(
