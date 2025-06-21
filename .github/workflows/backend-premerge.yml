@@ -64,6 +64,8 @@ jobs:
     defaults:
       run:
         working-directory: ./backend
+    env:
+      ENVIRONMENT: ci 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
