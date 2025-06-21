@@ -4,11 +4,13 @@ from sqlalchemy import delete, exists, select
 from sqlalchemy.orm import aliased
 
 from app.core.db import async_session
-from app.models import Subscription
+from app.models import Article, Subscription
 from app.models.associations import SearchProfileSubscriptionLink
 from app.schemas.subscription_schemas import (
     SubscriptionSummary,
 )
+from app.services.web_harvester.crawler import CrawlerType, get_crawlers
+from app.services.web_harvester.scraper import get_scraper
 
 
 async def get_all_subscriptions_with_search_profile(
@@ -72,3 +74,71 @@ async def set_subscriptions_for_profile(
     ]
 
     session.add_all(new_links)
+
+
+async def get_subscriptions_with_crawlers(
+    crawler: CrawlerType = None,
+) -> list[Subscription]:
+    """Get all subscriptions that have crawlers enabled.
+    This function retrieves all active subscriptions that have
+    crawlers associated with them. If a specific crawler type is
+    provided, it filters the subscriptions to only include those
+    that have the specified crawler type in their crawlers list.
+
+    Args:
+        crawler (CrawlerType, optional): The type of crawler to filter by.
+        Defaults to None.
+
+    Returns:
+        list[Subscription]: A list of Subscription objects that have crawlers.
+    """
+    async with async_session() as session:
+        stmt = select(Subscription).where(
+            Subscription.crawlers.isnot(None), Subscription.is_active.is_(True)
+        )
+        result = await session.execute(stmt)
+        result = result.scalars().all()
+        if crawler:
+            result = [sub for sub in result if crawler.value in sub.crawlers]
+        for subscription in result:
+            subscription.crawlers = get_crawlers(subscription)
+        return result
+
+
+async def get_subscriptions_with_scrapers() -> list[Subscription]:
+    """Get all subscriptions that have scrapers enabled.
+    This function retrieves all active subscriptions that have a
+    scraper. It also checks if the subscription has any articles
+    that have not been scraped yet.
+
+    Returns:
+        list[Subscription]: A list of Subscription objects with the scraper
+        class.
+    """
+    async with async_session() as session:
+        stmt = (
+            select(Subscription.id)
+            .join(Article, Article.subscription_id == Subscription.id)
+            .where(
+                Subscription.scrapers.isnot(None),
+                Article.status == "NEW",
+                Subscription.is_active.is_(True),
+            )
+            .distinct()
+        )
+        result = await session.execute(stmt)
+        ids = result.scalars().all()
+
+        subscriptions = (
+            (
+                await session.execute(
+                    select(Subscription).where(Subscription.id.in_(ids))
+                )
+            )
+            .scalars()
+            .all()
+        )
+
+        for subscription in subscriptions:
+            subscription.scrapers = get_scraper(subscription)
+        return subscriptions
