@@ -82,9 +82,13 @@ async def get_search_profile_overview(
     "/{search_profile_id}/article/{match_id}",
     response_model=MatchDetailResponse,
 )
-async def get_match_detail(search_profile_id: UUID, match_id: UUID):
+async def get_match_detail(
+    search_profile_id: UUID,
+    match_id: UUID,
+    current_user: User = Depends(get_authenticated_user),
+):
     detail = await SearchProfileService.get_match_detail(
-        search_profile_id, match_id
+        search_profile_id, match_id, current_user
     )
     if detail is None:
         raise HTTPException(status_code=404, detail="Match not found")

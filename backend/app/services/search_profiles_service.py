@@ -29,8 +29,11 @@ from app.repositories.subscription_repository import (
 )
 from app.schemas.articles_schemas import (
     ArticleOverviewResponse,
+    MatchArticleOverviewContent,
     MatchDetailResponse,
     MatchItem,
+    MatchProfileInfo,
+    MatchTopicItem,
 )
 from app.schemas.match_schemas import MatchFeedbackRequest
 from app.schemas.request_response import MatchFilterRequest
@@ -381,19 +384,64 @@ class SearchProfileService:
         if not match or not match.article:
             return None
         a = match.article
+        async with async_session() as session:
+            profile = await get_accessible_profile_by_id(
+                search_profile_id,
+                user_id=current_user.id,
+                organization_id=current_user.organization_id,
+                session=session,
+            )
 
+        # get keyword links for the article
+        keyword_links = await MatchRepository.get_keyword_links([a.id])
+        topic_keywords = {
+            topic.id: {kw.id for kw in topic.keywords}
+            for topic in profile.topics
+        }
+
+        # load all keywords by their IDs
+        all_keyword_ids = {link.keyword_id for link in keyword_links}
+        all_keywords = await KeywordRepository.get_keywords_by_ids(
+            list(all_keyword_ids)
+        )
+        keyword_id_to_name = {kw.id: kw.name for kw in all_keywords}
+
+        # calculate topic scores and keywords
+        topic_scores, topic_keyword_map = (
+            SearchProfileService._compute_topic_scores(
+                keyword_links, topic_keywords, keyword_id_to_name
+            )
+        )
+
+        # build the response
+        topics = []
+        for t in profile.topics:
+            score = topic_scores.get(a.id, {}).get(t.id)
+            if score is None:
+                continue
+            topics.append(
+                MatchTopicItem(
+                    id=t.id,
+                    name=t.name,
+                    score=round(score, 4),
+                    keywords=topic_keyword_map.get(a.id, {}).get(t.id, []),
+                )
+            )
         return MatchDetailResponse(
             match_id=match.id,
-            comment=match.comment,
-            sorting_order=match.sorting_order,
-            article_id=a.id,
-            title=a.title,
-            url=a.url,
-            author=a.author,
-            published_at=a.published_at,
-            language=a.language,
-            category=a.category,
-            summary=a.summary,
+            topics=topics,
+            search_profile=MatchProfileInfo(id=profile.id, name=profile.name),
+            article=MatchArticleOverviewContent(
+                headline={"de": a.title or "", "en": a.title or ""},
+                summary={"de": a.summary or "", "en": ""},
+                text={"de": a.content or "", "en": ""},
+                image_urls=["http"] or [],
+                published=a.published_at,
+                crawled=a.crawled_at,
+                author=a.author,
+                language=a.language,
+                newspaper_id=a.subscription_id,
+            ),
         )
 
     @staticmethod

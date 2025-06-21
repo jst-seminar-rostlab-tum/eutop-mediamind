@@ -35,13 +35,14 @@ class ArticleOverviewItem(BaseModel):
         )
 
 
-class MatchArticleContent(BaseModel):
+class MatchArticleOverviewContent(BaseModel):
     headline: dict[str, str]
     summary: dict[str, str]
     text: dict[str, str]
     image_urls: list[str]
     published: datetime
     crawled: datetime
+    newspaper_id: UUID | None = None
 
 
 class MatchTopicItem(BaseModel):
@@ -51,11 +52,16 @@ class MatchTopicItem(BaseModel):
     keywords: list[str] | None = None
 
 
+class MatchProfileInfo(BaseModel):
+    id: UUID
+    name: str
+
+
 class MatchItem(BaseModel):
     id: UUID
     relevance: float
-    topic: list[MatchTopicItem]
-    article: MatchArticleContent
+    topics: list[MatchTopicItem]
+    article: MatchArticleOverviewContent
 
     @classmethod
     def from_entity(
@@ -70,7 +76,7 @@ class MatchItem(BaseModel):
         return cls(
             id=match.id,
             relevance=relevance,
-            topic=(
+            topics=(
                 [
                     MatchTopicItem(
                         id=tid,
@@ -87,7 +93,7 @@ class MatchItem(BaseModel):
                     for tid, score in topic_scores.items()
                 ]
             ),
-            article=MatchArticleContent(
+            article=MatchArticleOverviewContent(
                 headline={
                     "de": a.title or "",
                     "en": a.title or "",
@@ -108,16 +114,8 @@ class ArticleOverviewResponse(BaseModel):
 
 class MatchDetailResponse(BaseModel):
     match_id: UUID
-    comment: str | None
-    sorting_order: int
-
-    article_id: UUID
-    title: str
-    url: str
-    author: str
-    published_at: datetime
-    language: str
-    category: str
-    summary: str | None
+    topics: list[MatchTopicItem]
+    search_profile: MatchProfileInfo | None
+    article: MatchArticleOverviewContent
 
     model_config = ConfigDict(from_attributes=True)
