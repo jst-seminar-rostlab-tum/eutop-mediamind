@@ -1,11 +1,17 @@
+import asyncio
 import json
+from collections import defaultdict
 from datetime import date
 from typing import Dict, List, Optional, Set, Tuple
 from uuid import UUID
 
+from app.core.logger import get_logger
 from app.models import Match, SearchProfile
 from app.repositories.match_repository import MatchRepository
-from app.repositories.search_profile_repository import get_search_profile_by_id
+from app.repositories.search_profile_repository import (
+    SearchProfileRepository,
+    get_search_profile_by_id,
+)
 from app.services.article_vector_service import ArticleVectorService
 
 
@@ -17,7 +23,8 @@ class ArticleMatchingService:
     def __init__(self):
         self.article_vector_service: ArticleVectorService = (
             ArticleVectorService()
-        )  # TODO: Inject this with a methode in an nother brache
+        )  # TODO: Inject this with a methode in an other brache
+        self.logger = get_logger(__name__)
 
     async def process_matching_for_search_profile(
         self, search_profile_id: UUID
@@ -36,23 +43,20 @@ class ArticleMatchingService:
                 f"Search profile with ID {search_profile_id} not found."
             )
 
-        print(search_profile)  # TODO: Remove this line in production
+        self.logger.info(
+            f"Processing article matching "
+            f"for search profile: {search_profile_id}"
+        )
 
         # Phase 1 - Topic Matching
         topic_score_map: Dict[UUID, Dict[UUID, float]] = {}
         topic_score_threshold = 0.3
 
         for topic in search_profile.topics:
-            print(
-                f"Processing topic: {topic.name}"
-            )  # TODO: Remove this line in production
             # Build a vector query from the topic name and its keywords
             keyword_names = [kw.name for kw in topic.keywords]
             vector_query = f"Topic {topic.name}: " + ", ".join(keyword_names)
 
-            print(
-                f"Vector query: {vector_query}"
-            )  # TODO: Remove this line in production
             # Retrieve similar articles above the threshold
             retrieved = (
                 await self.article_vector_service.retrieve_by_similarity(
@@ -63,8 +67,6 @@ class ArticleMatchingService:
             topic_score_map[topic.id] = {
                 UUID(doc.metadata["id"]): score for doc, score in retrieved
             }
-
-        print(topic_score_map)  # TODO: Remove this line in production
 
         # Phase 2 - Keyword Matching
         # Track scores per keyword per article
@@ -80,9 +82,6 @@ class ArticleMatchingService:
             }
 
             for keyword in topic.keywords:
-                print(
-                    f"Processing keyword: {keyword.name}"
-                )  # TODO: Remove this line in production
                 retrieved = (
                     await self.article_vector_service.retrieve_by_similarity(
                         keyword.name, keyword_score_threshold
@@ -93,9 +92,6 @@ class ArticleMatchingService:
                     art_id = UUID(doc.metadata["id"])
                     # Only consider articles already matched in Phase 1
                     if art_id in matched_articles:
-                        print(
-                            "Found matching article:", art_id
-                        )  # TODO: Remove in production
                         # Record score for this specific keyword
                         keyword_score_map[topic.id][art_id][keyword.id].append(
                             score
@@ -145,7 +141,6 @@ class ArticleMatchingService:
                 final_matches.append((art_id, topic_id, score))
 
         # Build structured result list based on final_matches
-        from collections import defaultdict
 
         article_topics_map: Dict[UUID, List[Dict]] = defaultdict(list)
         topic_map = {topic.id: topic for topic in search_profile.topics}
@@ -185,15 +180,13 @@ class ArticleMatchingService:
                 }
             )
 
-        print(
-            final_matches
-        )  # TODO: Replace with return or other handling in production
-        print(
-            results
-        )  # TODO: Replace with return or other handling in production
+        self.logger.info(
+            f"Found {len(final_matches)} matches "
+            f"for search profile {search_profile_id}"
+        )
 
         # Persist Matches to the database and attach 'results' as comment
-        matches: List[Match] = []
+
         await MatchRepository.cleanup_matches(search_profile_id, date.today())
         for idx, (art_id, topic_id, score) in enumerate(final_matches):
             # Find the result entry for this article
@@ -205,20 +198,48 @@ class ArticleMatchingService:
                 search_profile_id=search_profile_id,
                 topic_id=topic_id,
                 sorting_order=idx,
-                comment=json.dumps(
-                    result_entry, default=str
-                ),  # results soll als comment hinzugefügt werden
+                comment=json.dumps(result_entry, default=str),
                 match_date=date.today(),
             )
 
             await MatchRepository.insert_match(match)
-            matches.append(match)
 
-        print(matches)
+    async def run(self, limit: int = 100, offset: int = 0) -> None:
+        """
+        Run the article matching process in pages,
+        processing each profile in parallel.
 
-    async def run(self):
+        :param limit: Maximum number of profiles to fetch per batch.
+        :param offset: Starting offset for pagination.
         """
-        Run the article matching process.
-        """
-        # Placeholder for matching logic
-        pass
+        self.logger.info("Starting article matching process")
+
+        # Initial fetch outside the loop
+        profiles: List[SearchProfile] = (
+            await SearchProfileRepository.fetch_all_search_profiles(
+                limit=limit, offset=offset
+            )
+        )
+
+        # Continue while there are profiles
+        while len(profiles) > 0:
+            self.logger.info(
+                "Fetched %d profiles (offset=%d). Launching tasks...",
+                len(profiles),
+                offset,
+            )
+
+            tasks = [
+                asyncio.create_task(
+                    self.process_matching_for_search_profile(profile.id)
+                )
+                for profile in profiles
+            ]
+            await asyncio.gather(*tasks)
+
+            offset += limit
+            profiles = await SearchProfileRepository.fetch_all_search_profiles(
+                limit=limit, offset=offset
+            )
+
+        self.logger.info("Article matching process completed")

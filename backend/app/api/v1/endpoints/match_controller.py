@@ -46,3 +46,18 @@ async def create_matches_for_search_profile(
         "message": "Matches are being created "
         "for the search profile in the background."
     }
+
+
+@router.post("/create-matches")
+async def create_matches_for_all_profiles(
+    background_tasks: BackgroundTasks,
+    ams: ArticleMatchingService = Depends(get_article_matching_service),
+):
+    """
+    Create matches for all search profiles in the background.
+    """
+    background_tasks.add_task(ams.run)
+    return {
+        "message": "Matches are being created "
+        "for all search profiles in the background."
+    }
