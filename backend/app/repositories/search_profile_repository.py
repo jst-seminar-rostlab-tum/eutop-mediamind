@@ -2,7 +2,8 @@ from typing import List, Optional
 from uuid import UUID
 
 from pydantic import EmailStr
-from sqlalchemy import and_, or_
+from sqlalchemy import and_, or_, update
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 from sqlmodel import select
 
@@ -82,6 +83,15 @@ def _update_emails(
     )
 
 
+def _update_user_rights(
+    profile: SearchProfile,
+    can_read: Optional[List[UUID]],
+    can_edit: Optional[List[UUID]],
+):
+    profile.can_read = [str(e) for e in can_read] if can_read else []
+    profile.can_edit = [str(e) for e in can_edit] if can_edit else []
+
+
 class SearchProfileRepository:
     """
     Repository for CRUD operations on SearchProfile with clear separation
@@ -141,7 +151,16 @@ class SearchProfileRepository:
         _update_base_fields(profile, data, current_user)
         await _update_subscriptions(profile.id, data.subscriptions, session)
         await _update_topics(profile, data.topics, session)
-        _update_emails(profile, data.organization_emails, data.profile_emails)
+        _update_emails(
+            profile=profile,
+            organization_emails=data.organization_emails or [],
+            profile_emails=data.profile_emails or [],
+        )
+        _update_user_rights(
+            profile=profile,
+            can_read=data.can_read or [],
+            can_edit=data.can_edit or [],
+        )
 
         session.add(profile)
         await session.commit()
@@ -176,3 +195,21 @@ class SearchProfileRepository:
                 )
             )
             return result.scalars().one_or_none()
+
+    @staticmethod
+    async def update_user_rights(
+        profile: SearchProfile,
+        can_read: List[UUID],
+        can_edit: List[UUID],
+        session: AsyncSession,
+    ) -> None:
+        # bulk‐update the two list-columns in one go
+        await session.execute(
+            update(SearchProfile)
+            .where(SearchProfile.id == profile.id)
+            .values(
+                can_edit=can_edit,
+                can_read=can_read,
+            )
+        )
+        await session.flush()

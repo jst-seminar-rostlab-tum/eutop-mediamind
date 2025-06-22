@@ -73,6 +73,12 @@ class SearchProfileService:
                     profile_emails=data.profile_emails or [],
                     session=session,
                 )
+                await SearchProfileRepository.update_user_rights(
+                    profile=profile,
+                    can_read=data.can_read,
+                    can_edit=data.can_edit,
+                    session=session,
+                )
 
             result = await session.execute(
                 select(SearchProfile)
@@ -135,13 +141,18 @@ class SearchProfileService:
         profile: SearchProfile, current_user: UserEntity
     ) -> SearchProfileDetailResponse:
         is_owner = profile.created_by_id == current_user.id
-        is_editable = (
-            is_owner
-            or current_user.is_superuser
-            or (
-                profile.is_public
-                and current_user.organization_id == profile.organization_id
-            )
+
+        can_edit = (
+            current_user.id == profile.owner_id
+            or current_user.is_admin
+            or current_user.id in profile.can_write
+        )
+
+        can_read = (
+            current_user.id == profile.owner_id
+            or current_user.id == profile.created_by_id
+            or current_user.is_admin
+            or current_user.id in profile.can_read
         )
 
         organization_emails = (
@@ -172,10 +183,10 @@ class SearchProfileService:
             id=profile.id,
             name=profile.name,
             is_public=profile.is_public,
-            editable=is_editable,
-            is_editable=is_editable,
             owner_id=profile.created_by_id,
             is_owner=is_owner,
+            can_read=can_read,
+            can_edit=can_edit,
             organization_emails=organization_emails,
             profile_emails=profile_emails,
             topics=topic_responses,
