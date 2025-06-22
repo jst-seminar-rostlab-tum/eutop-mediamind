@@ -14,6 +14,8 @@ class SearchProfileBase(BaseModel):
     is_public: bool
     organization_emails: List[EmailStr] = []
     profile_emails: List[EmailStr] = []
+    can_edit: List[UUID] = []
+    can_read: List[UUID] = []
     subscriptions: List[SubscriptionSummary]
     owner_id: UUID
 
@@ -38,8 +40,8 @@ class SearchProfileDetailBase(BaseModel):
     is_public: bool
     organization_emails: List[EmailStr]
     profile_emails: List[EmailStr]
-    editable: bool
-    is_editable: bool
+    can_read: bool
+    can_edit: bool
     owner_id: UUID
     is_owner: bool
     topics: List[TopicResponse]
