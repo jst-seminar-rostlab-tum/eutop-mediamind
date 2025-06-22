@@ -2,6 +2,7 @@ import uuid
 from typing import TYPE_CHECKING, List
 
 from sqlalchemy import ARRAY, Column, String
+from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 from sqlmodel import Field, Relationship, SQLModel
 
 from .associations import SearchProfileSubscriptionLink, UserSearchProfileLink
@@ -27,6 +28,20 @@ class SearchProfile(SQLModel, table=True):
     organization: Organization = Relationship(back_populates="search_profiles")
     organization_emails: List[str] = Field(sa_column=Column(ARRAY(String)))
     profile_emails: List[str] = Field(sa_column=Column(ARRAY(String)))
+    can_read: List[uuid.UUID] = Field(
+        default_factory=list,
+        sa_column=Column(
+            ARRAY(PG_UUID(as_uuid=True)),  # ← use the PG dialect type
+            nullable=True,
+            server_default="{}",  # defaults to empty array
+        ),
+    )
+    can_edit: List[uuid.UUID] = Field(
+        default_factory=list,
+        sa_column=Column(
+            ARRAY(PG_UUID(as_uuid=True)), nullable=True, server_default="{}"
+        ),
+    )
 
     # Relationships
     users: List["User"] = Relationship(
