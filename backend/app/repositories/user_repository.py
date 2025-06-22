@@ -1,10 +1,10 @@
-from typing import Optional, Union
+from typing import Any, Dict, Optional, Union
 
 from sqlalchemy import select
 from sqlalchemy.exc import NoResultFound
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from app.core.db import async_session
 from app.models import User
 from app.schemas.user_schema import UserEntity
 
@@ -24,81 +24,107 @@ def _to_user_entity(user: User) -> UserEntity:
     )
 
 
-async def get_user_by_clerk_id(clerk_id: str) -> Optional[UserEntity]:
+async def get_user_by_clerk_id(
+    clerk_id: str, session: AsyncSession
+) -> Optional[UserEntity]:
     """
     Fetch a user by clerk ID and return as UserEntity
     including organization name.
     """
-    async with async_session() as session:
-        query = (
+    query = (
+        select(User)
+        .options(selectinload(User.organization))
+        .where(User.clerk_id == clerk_id)
+    )
+    result = await session.execute(query)
+    user = result.scalar_one_or_none()
+
+    return _to_user_entity(user) if user else None
+
+
+async def create_user(
+    session,
+    clerk_id: str,
+    email: Optional[str],
+    data: Dict[str, Any],
+) -> UserEntity:
+    new_user = User(
+        clerk_id=clerk_id,
+        email=email,
+        first_name=data.get("first_name"),
+        last_name=data.get("last_name"),
+    )
+    session.add(new_user)
+    await session.commit()
+    stmt = (
+        select(User)
+        .options(selectinload(User.organization))
+        .where(User.id == new_user.id)
+    )
+    result = await session.execute(stmt)
+    user = result.scalar_one()
+    return _to_user_entity(user)
+
+
+async def update_user(
+    session,
+    existing: UserEntity,
+    email: Optional[str],
+    data: Dict[str, Any],
+) -> UserEntity | None:
+    """
+    Update a user’s fields if they differ from Clerk data,
+    and return the updated UserEntity.
+    """
+    try:
+        stmt = (
             select(User)
             .options(selectinload(User.organization))
-            .where(User.clerk_id == clerk_id)
+            .where(User.id == existing.id)
         )
-        result = await session.execute(query)
-        user = result.scalar_one_or_none()
+        result = await session.execute(stmt)
+        user = result.scalar_one()
+    except NoResultFound:
+        return None
 
-        return _to_user_entity(user) if user else None
+    updated = False
 
+    if data.get("first_name") and user.first_name != data["first_name"]:
+        user.first_name = data["first_name"]
+        updated = True
 
-async def update_user(user_public: UserEntity) -> UserEntity:
-    """
-    Update a user in the database using a UserEntity object and
-    return the updated UserEntity.
-    """
-    async with async_session() as session:
-        try:
-            result = await session.execute(
-                select(User)
-                .options(selectinload(User.organization))
-                .where(User.id == user_public.id)
-            )
-            user = result.scalar_one()
-        except NoResultFound:
-            raise ValueError(f"User with id {user_public.id} not found")
+    if data.get("last_name") and user.last_name != data["last_name"]:
+        user.last_name = data["last_name"]
+        updated = True
 
-        # Update fields
-        user.email = user_public.email
-        user.first_name = user_public.first_name
-        user.last_name = user_public.last_name
-        user.is_superuser = user_public.is_superuser
-        user.organization_id = user_public.organization_id
+    if email and user.email != email:
+        user.email = email
+        updated = True
 
+    if updated:
         session.add(user)
         await session.commit()
         await session.refresh(user)
 
-        return _to_user_entity(user)
-
-
-async def create_user(user: User) -> UserEntity:
-    """
-    Create a new user in the database and return as UserEntity.
-    """
-    async with async_session() as session:
-        session.add(user)
-        await session.commit()
-        await session.refresh(user)
-        return _to_user_entity(user)
+    return _to_user_entity(user)
 
 
 async def get_user_list_from_organization(
-    user: User,
+    user: User, session: AsyncSession
 ) -> Union[list[User], User]:
     """
     Return all users in the same organization, or the user itself if
     no organization.
     Superusers receive all users.
     """
-    async with async_session() as session:
-        if user.is_superuser:
-            query = select(User)
-        elif user.organization_id is None:
-            return user
-        else:
-            query = select(User).where(
-                User.organization_id == user.organization_id
-            )
+    if user.is_superuser:
+        query = select(User)
+    elif user.organization_id is None:
+        return user
+    else:
+        query = select(User).where(
+            User.organization_id == user.organization_id
+        )
 
-        users = await session.execute(query)
-        return users.scalars().all()
+    users = await session.execute(query)
+    return users.scalars().all()
