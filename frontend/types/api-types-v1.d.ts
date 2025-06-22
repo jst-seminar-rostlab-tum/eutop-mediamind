@@ -1225,7 +1225,7 @@ export interface operations {
         parameters: {
             query: {
                 /** @description Clerk User ID */
-                clerk_user_id: string;
+                clerk_id: string;
                 /** @description Search Profile UUID */
                 search_profile_id: string;
             };
