@@ -8,7 +8,7 @@ from sqlmodel import select
 
 from app.core.db import async_session
 from app.models import SearchProfile, Topic, User
-from app.repositories.subscription_repository import SubscriptionsRepository
+from app.repositories.subscription_repository import SubscriptionRepository
 from app.repositories.topics_repository import TopicsRepository
 from app.schemas.search_profile_schemas import SearchProfileUpdateRequest
 from app.schemas.subscription_schemas import SubscriptionSummary
@@ -34,7 +34,7 @@ def _base_load_options():
     ]
 
 
-def _apply_base_fields(
+def _update_base_fields(
     profile: SearchProfile,
     data: SearchProfileUpdateRequest,
     user: UserEntity,
@@ -45,19 +45,19 @@ def _apply_base_fields(
         profile.created_by_id = data.owner_id
 
 
-async def _apply_subscriptions(
+async def _update_subscriptions(
     profile_id: UUID,
     subscriptions: List[SubscriptionSummary],
     session,
 ):
-    await SubscriptionsRepository.set_subscriptions_for_profile(
+    await SubscriptionRepository.set_subscriptions_for_profile(
         profile_id=profile_id,
         subscriptions=subscriptions,
         session=session,
     )
 
 
-async def _apply_topics(
+async def _update_topics(
     profile: SearchProfile,
     topics: list[TopicCreateOrUpdateRequest],
     session,
@@ -69,7 +69,7 @@ async def _apply_topics(
     )
 
 
-def _apply_emails(
+def _update_emails(
     profile: SearchProfile,
     organization_emails: Optional[List[EmailStr]],
     profile_emails: Optional[List[EmailStr]],
@@ -138,10 +138,10 @@ class SearchProfileRepository:
         Apply changes from request to the profile, including
         base fields, subscriptions, topics, and emails.
         """
-        _apply_base_fields(profile, data, current_user)
-        await _apply_subscriptions(profile.id, data.subscriptions, session)
-        await _apply_topics(profile, data.topics, session)
-        _apply_emails(profile, data.organization_emails, data.profile_emails)
+        _update_base_fields(profile, data, current_user)
+        await _update_subscriptions(profile.id, data.subscriptions, session)
+        await _update_topics(profile, data.topics, session)
+        _update_emails(profile, data.organization_emails, data.profile_emails)
 
         session.add(profile)
         await session.commit()
@@ -162,7 +162,7 @@ class SearchProfileRepository:
 
     @staticmethod
     async def get_search_profile_by_id(
-            search_profile_id: UUID, current_user: User
+        search_profile_id: UUID,
     ) -> SearchProfile | None:
         async with async_session() as session:
             result = await session.execute(
@@ -174,15 +174,5 @@ class SearchProfileRepository:
                         Topic.keywords
                     ),
                 )
-            )
-            return result.scalars().one_or_none()
-
-    @staticmethod
-    async def get_by_id(
-            search_profile_id: UUID,
-    ) -> Optional[SearchProfile]:
-        async with async_session() as session:
-            result = await session.execute(
-                select(SearchProfile).where(SearchProfile.id == search_profile_id)
             )
             return result.scalars().one_or_none()

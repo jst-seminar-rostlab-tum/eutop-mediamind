@@ -14,7 +14,7 @@ from app.repositories.match_repositoy import (
     get_recent_match_count_by_profile_id,
 )
 from app.repositories.search_profile_repository import SearchProfileRepository
-from app.repositories.subscription_repository import SubscriptionsRepository
+from app.repositories.subscription_repository import SubscriptionRepository
 from app.repositories.topics_repository import TopicsRepository
 from app.schemas.articles_schemas import (
     ArticleOverviewItem,
@@ -62,7 +62,7 @@ class SearchProfileService:
                     new_topics=data.topics,
                     session=session,
                 )
-                await SubscriptionsRepository.set_subscriptions_for_profile(
+                await SubscriptionRepository.set_subscriptions_for_profile(
                     profile_id=profile.id,
                     subscriptions=data.subscriptions,
                     session=session,
@@ -159,7 +159,7 @@ class SearchProfileService:
             for t in profile.topics
         ]
 
-        subscriptions = await SubscriptionsRepository.get_all_subscriptions_with_search_profile(  # noqa: E501
+        subscriptions = await SubscriptionRepository.get_all_subscriptions_with_search_profile(  # noqa: E501
             profile.id
         )
 

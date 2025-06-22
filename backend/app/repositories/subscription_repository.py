@@ -1,3 +1,4 @@
+from typing import List
 from uuid import UUID
 
 from sqlalchemy import delete, exists, select
@@ -11,11 +12,11 @@ from app.schemas.subscription_schemas import (
 )
 
 
-class SubscriptionsRepository:
+class SubscriptionRepository:
     @staticmethod
     async def get_all_subscriptions_with_search_profile(
         search_profile_id: UUID,
-    ) -> list[SubscriptionSummary]:
+    ) -> List[SubscriptionSummary]:
         async with async_session() as session:
             # Alias to improve readability (optional)
             spsl = aliased(SearchProfileSubscriptionLink)

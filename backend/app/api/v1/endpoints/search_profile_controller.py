@@ -19,8 +19,8 @@ from app.schemas.search_profile_schemas import (
     SearchProfileDetailResponse,
     SearchProfileUpdateRequest,
 )
-from app.services.report_service import ReportService
 from app.schemas.user_schema import UserEntity
+from app.services.report_service import ReportService
 from app.services.search_profiles_service import SearchProfileService
 
 router = APIRouter(
@@ -113,7 +113,8 @@ async def get_match_detail(
     )
     if not detail:
         logger.warning(
-            "Match detail for profile %s, match %s not found",
+            f"Match detail for profile {search_profile_id}, "
+            f"match {match_id} not found",
             search_profile_id,
             match_id,
         )
@@ -172,9 +173,8 @@ async def update_match_feedback(
     )
     if not success:
         logger.error(
-            "Failed to update feedback for profile %s, match %s",
-            search_profile_id,
-            match_id,
+            f"Failed to update feedback for profile {search_profile_id}, "
+            f"match {match_id}"
         )
         raise HTTPException(
             status_code=404,
