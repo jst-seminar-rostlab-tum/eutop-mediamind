@@ -47,6 +47,7 @@ async def get_current_user_info(
     return current_user
 
 
+@router.get("/sync", response_model=UserEntity)
 async def sync_user(
     synced_user: UserEntity = Depends(get_sync_user),
 ) -> UserEntity:
