@@ -6,8 +6,6 @@ from datetime import date
 from typing import Optional, Tuple
 
 import tenacity
-from app.services.llm_service.llm_client import LLMClient
-from app.services.llm_service.llm_models import LLMModels
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
@@ -15,6 +13,8 @@ from sqlalchemy.orm import sessionmaker
 from app.core.config import configs
 from app.models.article import Article
 from app.repositories.article_repository import ArticleRepository
+from app.services.llm_service.llm_client import LLMClient
+from app.services.llm_service.llm_models import LLMModels
 
 # Setup logging
 logger = logging.getLogger(__name__)
@@ -48,7 +48,7 @@ class ArticleCleaner:
     )
     def _call_llm_sync(self, prompt: str) -> str:
         return self.llm_client.generate_response(prompt)
-    
+
     async def clean_with_llm_removal_only(self, text, title: str) -> str:
         prompt = (
             "The following news article contains unwanted "
