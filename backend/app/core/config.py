@@ -63,6 +63,12 @@ class Configs(BaseSettings):
     CLERK_PUBLISHABLE_KEY: str | None
     CLERK_COOKIE_NAME: str
 
+    # AWS
+    AWS_ACCESS_KEY_ID: str | None
+    AWS_SECRET_ACCESS_KEY: str | None
+    AWS_REGION: str | None
+    AWS_S3_BUCKET_NAME: str | None
+
     # Email
     SENDER_EMAIL: EmailStr
     SENDGRID_KEY: str
@@ -125,6 +131,14 @@ class Configs(BaseSettings):
             "CLERK_PUBLISHABLE_KEY", self.CLERK_PUBLISHABLE_KEY
         )
         self._check_default_secret("CLERK_COOKIE_NAME", self.CLERK_COOKIE_NAME)
+        self._check_default_secret("AWS_ACCESS_KEY_ID", self.AWS_ACCESS_KEY_ID)
+        self._check_default_secret(
+            "AWS_SECRET_ACCESS_KEY", self.AWS_SECRET_ACCESS_KEY
+        )
+        self._check_default_secret("AWS_REGION", self.AWS_REGION)
+        self._check_default_secret(
+            "AWS_S3_BUCKET_NAME", self.AWS_S3_BUCKET_NAME
+        )
         self._check_default_secret("QDRANT_URL", self.QDRANT_URL)
         self._check_default_secret("QDRANT_API_KEY", self.QDRANT_API_KEY)
         self._check_default_secret(
