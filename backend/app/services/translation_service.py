@@ -1,328 +1,219 @@
-import uuid
 import json
-import time
-from pathlib import Path
-from typing import Optional
+import uuid
 
-from openai import OpenAI
 from langdetect import detect
-from starlette.concurrency import run_in_threadpool
 
-from app.core.config import configs
 from app.core.logger import get_logger
-from app.models.article import Article
 from app.repositories.article_repository import ArticleRepository
+from app.services.llm_service.llm_client import LLMClient, LLMModels
 
 logger = get_logger(__name__)
-client_openai = OpenAI(api_key=configs.OPENAI_API_KEY)
+base_prompt = (
+    "You are a professional translator. Translate "
+    "the following text to {target_lang}, "
+    "without adding or removing meaning. Do not "
+    "assume facts not present in the original "
+    "text. Keep the translation as neutral and "
+    "faithful as possible.\n\n{content}"
+)
 
 
 class ArticleTranslationService:
-    @staticmethod
-    def translate_with_llm(content: str, target_lang: str) -> str:
-        """
-        Translates content to the target language using a language model.
-
-        Args:
-            content (str): The text to translate.
-            target_lang (str): The target language.
-
-        Returns:
-            str: The translated text.
-        """
-        response = client_openai.chat.completions.create(
-            model="gpt-4o",
-            messages=[
-                {
-                    "role": "system",
-                    "content": (
-                        "You are a professional translator. Translate "
-                        f"the following text to {target_lang}, "
-                        "without adding or removing meaning. Do not "
-                        "assume facts not present in the original "
-                        "text. Keep the translation as neutral and "
-                        "faithful as possible."
-                    )
-                },
-                {"role": "user", "content": content}
-            ],
-            temperature=0.1
-        )
-        return response.choices[0].message.content
 
     @staticmethod
-    def generate_translations(content: str) -> dict[str, str]:
+    def prepare_translation_batch(
+        ids: list[str],
+        texts: list[str]
+    ) -> tuple[list[str], list[str], list[dict]]:
         """
-        Generates english and/or german translations of the given content
-        by calling the translate_with_llm() function only if necessary
-
-        Args:
-            content (str): The text to translate.
-
-        Returns:
-            dict[str, str]: A dictionary with the translations.
+        Description
         """
-        if not content or content.strip() == "":
-            return {"en": "", "de": ""}
-        try:
-            detected_lang = detect(content)
-            result = {"en": "", "de": ""}
+        if len(ids) != len(texts):
+            logger.error("ids and texts must have the same length")
+            return [], [], []
 
-            if detected_lang != "en":
-                result["en"] = ArticleTranslationService.translate_with_llm(
-                    content, "English"
-                )
+        target_langs = {"en": "English", "de": "German"}
+        custom_ids, prompts, auto_responses = [], [], []
 
-            if detected_lang != "de":
-                result["de"] = ArticleTranslationService.translate_with_llm(
-                    content, "German"
-                )
-
-            return result
-        except Exception as e:
-            logger.error(f"OpenAI translation error: {e}")
-            return {"en": "", "de": ""}
-
-    @staticmethod
-    async def translate_and_store(article_id: uuid.UUID) -> Optional[Article]:
-        """
-        Fetches an Article by ID, translates its content,
-        and updates the translated fields in the database.
-        Args:
-            article_id (uuid.UUID): id of the article to translate.
-
-        Returns:
-            Optional[Article]: The updated Article object.
-        """
-        article = await ArticleRepository.get_article_by_id(article_id)
-        if not article:
-            return None
-
-        translations = await run_in_threadpool(
-            ArticleTranslationService.generate_translations, article.content
-        )
-
-        return await ArticleRepository.update_article_translations(
-            article_id,
-            en=translations["en"],
-            de=translations["de"]
-        )
-
-    @staticmethod
-    def build_request_jsonl(
-        article_id: uuid.UUID, lang_code: str,
-        target_lang: str, content: str
-    ) -> dict:
-        """
-        Builds a JSONL-formatted request payload for translating
-        using OpenAI's batch API.
-
-        Args:
-            article_id (uuid.UUID): id of the article being translated.
-            custom_suffix (str): language code of the target language.
-            target_lang (str): the target language for translation.
-            content (str): the text content to be translated.
-
-        Returns:
-            dict: A dictionary representing a single JSONL entry.
-        """
-        return {
-            "custom_id": f"{article_id}_{lang_code}",
-            "method": "POST",
-            "url": "/v1/chat/completions",
-            "body": {
-                "model": "gpt-4o",
-                "messages": [
-                    {
-                        "role": "system",
-                        "content": (
-                            "You are a professional translator. Translate "
-                            f"the following text to {target_lang}, "
-                            "without adding or removing meaning. Do not "
-                            "assume facts not present in the original "
-                            "text. Keep the translation as neutral and "
-                            "faithful as possible."
-                        )
-                    },
-                    {
-                        "role": "user",
-                        "content": content
-                    }
-                ],
-                "temperature": 0.1
-            }
-        }
-
-    @staticmethod
-    async def generate_batch_jsonl(limit: int = 50) -> str:
-        """
-        Generates a .jsonl file with batch translation requests
-        for OpenAI Batch API.
-        Args:
-            limit (int, optional): the maximum number of articles to process
-            for the batch.
-
-        Returns:
-            str: The path to the generated JSONL file.
-        """
-        articles = await ArticleRepository.get_sameple_articles(limit=limit)
-        lines = []
-
-        for article in articles:
-            if not article.content:
+        for id_, text in zip(ids, texts):
+            if not text or not text.strip():
+                logger.warning(f"Empty text for id {id_}, skipping.")
                 continue
-            detected_lang = detect(article.content)
-            if detected_lang != "en":
-                line = ArticleTranslationService.build_request_jsonl(
-                    article.id, "en", "English", article.content
-                )
-                lines.append(line)
-            if detected_lang != "de":
-                line = ArticleTranslationService.build_request_jsonl(
-                    article.id, "de", "German", article.content
-                )
-                lines.append(line)
+            detected_lang = detect(text)
 
-        output_path = Path("openai_batch_translation.jsonl")
-        with output_path.open("w", encoding="utf-8") as f:
-            for line in lines:
-                f.write(json.dumps(line, ensure_ascii=False) + "\n")
+            for lang_code, lang_name in target_langs.items():
+                full_id = f"{id_}_{lang_code}"
+                if detected_lang == lang_code:
+                    auto_responses.append({
+                        "custom_id": full_id,
+                        "response": {
+                            "body": {
+                                "choices": [{
+                                    "message": {"content": text}
+                                }]
+                            }
+                        }
+                    })
+                else:
+                    prompts.append(base_prompt.format(
+                        target_lang=lang_name,
+                        content=text
+                    ))
+                    custom_ids.append(full_id)
 
-        logger.info(
-            (
-                "Batch for translation (JSONL) generated with "
-                f"{len(lines)} requests"
+        return custom_ids, prompts, auto_responses
+
+    @staticmethod
+    async def execute_translation_batch(
+        custom_ids: list[str], prompts: list[str], auto_responses: list[dict]
+    ) -> list[dict]:
+        """
+        Description
+        """
+        batch_responses = []
+
+        output_path = LLMClient.generate_batch(
+            custom_ids=custom_ids,
+            prompts=prompts,
+            model=LLMModels.openai_4o.value,
+            temperature=0.1,
+            output_filename="openai_batch_translation.jsonl"
+        )
+        raw_lines = await LLMClient.run_batch_api(output_path)
+
+        if raw_lines:
+            batch_responses = [json.loads(line) for line in raw_lines]
+
+        return batch_responses + auto_responses
+
+    @staticmethod
+    async def translate_all_fields(articles):
+        all_ids = []
+        all_texts = []
+
+        all_ids.extend([f"{a.id}_title" for a in articles])
+        all_texts.extend([a.title for a in articles])
+
+        all_ids.extend([f"{a.id}_content" for a in articles])
+        all_texts.extend([a.content for a in articles])
+
+        all_ids.extend([f"{a.id}_summary" for a in articles])
+        all_texts.extend([a.summary for a in articles])
+
+        custom_ids, prompts, auto_responses = (
+            ArticleTranslationService.prepare_translation_batch(
+                all_ids, all_texts
             )
         )
-        return str(output_path)
-
-    @staticmethod
-    def upload_batch_file(jsonl_path: str):
-        """
-        Uploads a .jsonl file (batch) to OpenAI for use with the batch API.
-
-        Args:
-            jsonl_path (str): path to the .jsonl file containing
-            batch requests.
-
-        Returns:
-            File: the uploaded OpenAI file object.
-        """
-        with open(jsonl_path, "rb") as f:
-            file = client_openai.files.create(file=f, purpose="batch")
-        logger.info(f"Translation batch uploaded to OpenAI: {file.id}")
-        return file
-
-    @staticmethod
-    def create_batch_job(file_id: str):
-        """
-        Creates a new batch job in OpenAI using the uploaded file ID.
-
-        Args:
-            file_id (str): The ID of the uploaded .jsonl file containing
-            the batch translation requests.
-
-        Returns:
-            Batch: The created OpenAI batch job object.
-        """
-        batch = client_openai.batches.create(
-            input_file_id=file_id,
-            endpoint="/v1/chat/completions",
-            completion_window="24h"
+        responses = await ArticleTranslationService.execute_translation_batch(
+            custom_ids, prompts, auto_responses
         )
-        logger.info(f"Batch work created: {batch.id}")
-        return batch
+
+        return responses
 
     @staticmethod
-    def wait_for_batch_completion(batch_id: str) -> bool:
+    async def store_translations(responses):
         """
-        Checks the status of a batch job until it
-        finalizes (with error or not).
-
-        Args:
-            batch_id (str): The ID of the batch job to monitor.
-
-        Returns:
-            bool: True if the batch was completed successfully,
-            False otherwise.
+        Description
         """
-        while True:
-            current = client_openai.batches.retrieve(batch_id)
-            logger.info(f"Batch status: {current.status}")
-            if current.status in (
-                "completed", "failed", "expired", "cancelled"
-            ):
-                break
-            time.sleep(10)
-        return current.status == "completed"
+        total_updates = []
 
-    @staticmethod
-    async def process_batch_output(batch_id: str) -> list[Article]:
-        """
-        Processes the output of a completed OpenAI batch translation job.
+        article_map: dict[uuid.UUID, dict[str, dict[str, str]]] = {}
 
-        Args:
-            batch_id (str): The ID of the completed batch job.
-
-        Returns:
-            list[Article]: A list of articles that were successfully updated
-            with translations.
-        """
-        current = client_openai.batches.retrieve(batch_id)
-        file_response = client_openai.files.content(current.output_file_id)
-        lines = file_response.text.strip().splitlines()
-
-        updated_articles = []
-        for line in lines:
+        for parsed in responses:
             try:
-                parsed = json.loads(line)
                 custom_id = parsed.get("custom_id")
                 response = parsed.get("response")
 
-                if not response:
+                if not custom_id or not response:
                     continue
 
-                # Extract article id and language code from custom_id
-                article_id_str, lang_code = custom_id.rsplit("_", 1)
-                article_id = uuid.UUID(article_id_str)
+                parts = custom_id.split("_")
+                if len(parts) != 3:
+                    logger.warning(f"Invalid custom_id format: {custom_id}")
+                    continue
 
+                article_id_str = parts[0]
+                field = parts[1]
+                lang = parts[2]
+                article_id = uuid.UUID(article_id_str)
                 content = response["body"]["choices"][0]["message"]["content"]
 
+                if article_id not in article_map:
+                    article_map[article_id] = {}
+
+                if lang not in article_map[article_id]:
+                    article_map[article_id][lang] = {}
+
+                article_map[article_id][lang][field] = content
+
+            except Exception as e:
+                logger.exception(f"Error processing batch response: {e}")
+
+        for article_id, langs in article_map.items():
+            for lang_code, fields in langs.items():
+                translated_fields = {
+                    f"{field}_{lang_code}": value
+                    for field, value in fields.items()
+                }
+
                 article = await ArticleRepository.update_article_translations(
-                    article_id, **{lang_code: content}
+                    article_id, **translated_fields
                 )
                 logger.info(
                     f"Article {article_id} updated with "
-                    f"{lang_code} translation"
+                    f"{lang_code} translation."
                 )
-                updated_articles.append(article)
+                total_updates.append(article)
 
-            except Exception as e:
-                logger.exception(f"Error at processing line from batch: {e}")
-
-        return updated_articles
+        return total_updates
 
     @staticmethod
-    async def run_translate_with_batch_api(limit: int = 50) -> list[Article]:
+    async def run(limit: int = 100):
         """
-        Translates multiple articles' content into english and/or german
-        using the OpenAI Batch API.
-
-        Args:
-            limit (int, optional): the maximum number of articles to include
-            in the batch.
-
-        Returns:
-            list[Article]: A list of updated Article objects
+        Description
         """
-        jsonl_path = await ArticleTranslationService.generate_batch_jsonl(
-            limit=limit
-        )
-        file = ArticleTranslationService.upload_batch_file(jsonl_path)
-        batch = ArticleTranslationService.create_batch_job(file.id)
+        try:
+            page = 0
+            offset = 0
 
-        if not ArticleTranslationService.wait_for_batch_completion(batch.id):
-            logger.error(f"The batch was not completed: {batch.id}")
-            return
+            articles = (
+                await ArticleRepository.get_articles_without_translations(
+                    limit=limit, offset=offset
+                )
+            )
 
-        return await ArticleTranslationService.process_batch_output(batch.id)
+            while articles:
+                logger.info(
+                    f"Translating page {page + 1} with "
+                    f"{len(articles)} articles"
+                )
+
+                responses = (
+                    await ArticleTranslationService.translate_all_fields(
+                        articles
+                    )
+                )
+                if not responses:
+                    logger.error(f"Translation failed for page {page + 1}")
+                    break
+
+                updated = await ArticleTranslationService.store_translations(
+                    responses
+                )
+                if not updated:
+                    logger.error("No articles updated.")
+                    break
+
+                page += 1
+                offset = page * limit
+
+                articles = (
+                    await ArticleRepository.get_articles_without_translations(
+                        limit=limit, offset=offset
+                    )
+                )
+
+        except Exception as e:
+            logger.exception(f"Error running translation workflow: {e}")
+            return None
