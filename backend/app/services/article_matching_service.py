@@ -6,7 +6,6 @@ from typing import Dict, List, Optional, Set, Tuple
 from uuid import UUID
 
 from app.core.logger import get_logger
-from app.core.service import get_article_vector_service
 from app.models import Match, SearchProfile
 from app.repositories.match_repository import MatchRepository
 from app.repositories.search_profile_repository import (
@@ -23,7 +22,7 @@ class ArticleMatchingService:
 
     def __init__(self):
         self.article_vector_service: ArticleVectorService = (
-            get_article_vector_service()
+            ArticleVectorService()
         )
         self.logger = get_logger(__name__)
 
