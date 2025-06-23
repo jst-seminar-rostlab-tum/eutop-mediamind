@@ -50,8 +50,8 @@ jobs:
       - name: Extract OpenAPI spec
         env:
           ENVIRONMENT: ci
-        run: python extract-openapi.py app.main:app --app-dir ../ --out /tmp/openapi.json
-        working-directory: ./backend/scripts
+        run: python ./scripts/extract-openapi.py app.main:app --app-dir ./ --out /tmp/openapi.json
+        working-directory: ./backend
 
       - name: Setup Node
         uses: actions/setup-node@v2
