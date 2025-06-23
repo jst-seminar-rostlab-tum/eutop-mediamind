@@ -42,6 +42,7 @@ def _update_base_fields(
 ):
     profile.name = data.name
     profile.is_public = data.is_public
+    profile.language = data.language
     if user.id == profile.created_by_id or user.is_superuser:
         profile.created_by_id = data.owner_id
 

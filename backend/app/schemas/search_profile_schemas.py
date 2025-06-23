@@ -18,6 +18,7 @@ class SearchProfileBase(BaseModel):
     can_read: List[UUID] = []
     subscriptions: List[SubscriptionSummary]
     owner_id: UUID
+    language: str = "en"
 
 
 # --- Request Models ---
@@ -46,6 +47,7 @@ class SearchProfileDetailBase(BaseModel):
     editors: List[UUID]
     owner_id: UUID
     is_owner: bool
+    language: str = "en"
     topics: List[TopicResponse]
 
 

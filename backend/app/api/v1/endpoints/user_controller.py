@@ -57,6 +57,11 @@ async def sync_user(
     return synced_user
 
 
+@router.put("/me/update", response_model=UserEntity)
+async def update_language(language: str, user=Depends(get_sync_user)):
+    return await UserService.update_user_language(language, user)
+
+
 @router.delete("/me", response_model=FeedbackResponse)
 async def delete_current_user(
     current_user: User = Depends(get_authenticated_user),
