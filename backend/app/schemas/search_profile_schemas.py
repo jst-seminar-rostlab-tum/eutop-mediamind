@@ -41,7 +41,9 @@ class SearchProfileDetailBase(BaseModel):
     organization_emails: List[EmailStr]
     profile_emails: List[EmailStr]
     can_read: bool
+    readers: List[UUID]
     can_edit: bool
+    editors: List[UUID]
     owner_id: UUID
     is_owner: bool
     topics: List[TopicResponse]
