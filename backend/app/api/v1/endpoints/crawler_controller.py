@@ -11,6 +11,10 @@ from datetime import date as Date
 from fastapi import APIRouter
 
 from app.core.logger import get_logger
+from app.services.web_harvester.breaking_news_crawler import (
+    fetch_breaking_news_newsapi,
+    get_all_breaking_news,
+)
 from app.services.web_harvester.crawler import CrawlerType
 from app.services.web_harvester.pipeline import run_crawler, run_scraper
 
@@ -42,3 +46,16 @@ async def trigger_scraping():
     logger.info("Triggering scraping")
     asyncio.create_task(run_scraper())
     return {"message": "Scraping triggered successfully"}
+
+
+@router.post("/trigger_breaking_news_crawling")
+async def trigger_newsapi_crawling():
+    logger.info("Triggering breaking news crawling")
+    breaking_news = fetch_breaking_news_newsapi()
+    return {"message": f"Crawled {len(breaking_news)} breaking news articles"}
+
+
+@router.get("/get_breaking_news")
+async def get_breaking_news():
+    breaking_news = get_all_breaking_news()
+    return {"results": breaking_news}

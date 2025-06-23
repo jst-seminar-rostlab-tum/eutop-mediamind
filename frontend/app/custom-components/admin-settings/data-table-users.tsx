@@ -8,6 +8,7 @@ import {
 } from "@tanstack/react-table";
 import { Check, ChevronsUpDown, Plus, Trash2 } from "lucide-react";
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "~/components/ui/button";
 import {
   Command,
@@ -79,6 +80,8 @@ export function DataTableUsers<TData, TValue>({
 
   const [open, setOpen] = React.useState(false);
 
+  const { t } = useTranslation();
+
   return (
     <>
       <div className="flex justify-between gap-4">
@@ -100,12 +103,12 @@ export function DataTableUsers<TData, TValue>({
                   aria-expanded={open}
                   className={cn(
                     "rounded-r-none min-w-[150px] justify-between",
-                    !newEmail && "text-muted-foreground", // 👈 add this
+                    !newEmail && "text-muted-foreground",
                   )}
                 >
                   {newEmail
                     ? users.find((user) => user.email === newEmail)?.email
-                    : "Add User..."}
+                    : t("admin.add_user")}
                   <ChevronsUpDown className="opacity-50" />
                 </Button>
               </PopoverTrigger>
@@ -113,7 +116,7 @@ export function DataTableUsers<TData, TValue>({
                 <Command>
                   <CommandInput placeholder="Search user..." className="h-9" />
                   <CommandList>
-                    <CommandEmpty>No user found.</CommandEmpty>
+                    <CommandEmpty>{t("admin.no_user")}</CommandEmpty>
                     <CommandGroup>
                       {users.map((user) => (
                         <CommandItem
@@ -153,7 +156,7 @@ export function DataTableUsers<TData, TValue>({
               }}
             >
               <Plus className={"h-4 w-4"} />
-              Add
+              {t("Add")}
             </Button>
           </div>
 
@@ -163,7 +166,7 @@ export function DataTableUsers<TData, TValue>({
             onClick={handleDeleteSelected}
           >
             <Trash2 className="h-4 w-4" />
-            Delete
+            {t("Delete")}
           </Button>
         </div>
       </div>
@@ -203,7 +206,7 @@ export function DataTableUsers<TData, TValue>({
           ) : (
             <TableRow>
               <TableCell colSpan={columns.length} className="h-24 text-center">
-                No results.
+                {t("admin.no_results")}
               </TableCell>
             </TableRow>
           )}

@@ -67,6 +67,11 @@ class Configs(BaseSettings):
 
     SENTRY_DSN: HttpUrl | None
 
+    # Redis
+    REDIS_HOST: str
+    REDIS_PORT: int
+    REDIS_DB: int
+
     # Qdrant
     QDRANT_URL: str | None
     QDRANT_API_KEY: str | None
