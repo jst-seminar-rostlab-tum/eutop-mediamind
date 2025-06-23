@@ -7,10 +7,7 @@ from uuid import UUID
 from app.core.logger import get_logger
 from app.models import Match, SearchProfile
 from app.repositories.match_repository import MatchRepository
-from app.repositories.search_profile_repository import (
-    SearchProfileRepository,
-    get_search_profile_by_id,
-)
+from app.repositories.search_profile_repository import SearchProfileRepository
 from app.services.article_vector_service import ArticleVectorService
 
 
@@ -60,7 +57,9 @@ class ArticleMatchingService:
         )
 
     async def _load_search_profile(self, profile_id: UUID) -> SearchProfile:
-        profile = await get_search_profile_by_id(profile_id, None)
+        profile = await SearchProfileRepository.get_search_profile_by_id(
+            profile_id, None
+        )
         if not profile:
             raise ValueError(f"Search profile with ID {profile_id} not found.")
         return profile
