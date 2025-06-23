@@ -47,9 +47,13 @@ class ArticleMatchingService:
         final_matches = self._phase3_finalize_matches(
             topic_scores, keyword_averages
         )
-        results = self._build_results(profile, final_matches, keyword_averages)
+        match_payloads = self._build_match_payloads(
+            profile, final_matches, keyword_averages
+        )
 
-        await self._persist_matches(search_profile_id, final_matches, results)
+        await self._persist_matches(
+            search_profile_id, final_matches, match_payloads
+        )
         self.logger.info(
             f"Found {len(final_matches)} matches for search profile {search_profile_id}"
         )
@@ -156,7 +160,7 @@ class ArticleMatchingService:
                 final.append((art_id, topic_id, score))
         return final
 
-    def _build_results(
+    def _build_match_payloads(
         self,
         profile: SearchProfile,
         matches: List[Tuple[UUID, UUID, float]],
