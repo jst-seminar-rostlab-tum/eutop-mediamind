@@ -1,5 +1,4 @@
-from datetime import date
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 from typing import List
 from uuid import UUID
 
