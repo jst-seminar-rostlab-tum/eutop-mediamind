@@ -71,7 +71,7 @@ async def get_search_profile(
     """
     Retrieve a specific search profile by its UUID.
     """
-    profile = await SearchProfileService.get_search_profile_by_id(
+    profile = await SearchProfileService.get_extended_by_id(
         search_profile_id, current_user
     )
     if not profile:

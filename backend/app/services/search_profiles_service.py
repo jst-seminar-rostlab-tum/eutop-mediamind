@@ -96,7 +96,7 @@ class SearchProfileService:
         )
 
     @staticmethod
-    async def get_search_profile_by_id(
+    async def get_extended_by_id(
         search_profile_id: UUID, current_user: UserEntity
     ) -> SearchProfileDetailResponse | None:
         async with async_session() as session:
@@ -118,9 +118,7 @@ class SearchProfileService:
 
     @staticmethod
     async def get_by_id(search_profile_id: UUID) -> SearchProfile | None:
-        return await SearchProfileRepository.get_search_profile_by_id(
-            search_profile_id
-        )
+        return await SearchProfileRepository.get_by_id(search_profile_id)
 
     @staticmethod
     async def get_available_search_profiles(

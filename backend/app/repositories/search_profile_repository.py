@@ -176,3 +176,15 @@ class SearchProfileRepository:
                 )
             )
             return result.scalars().one_or_none()
+
+    @staticmethod
+    async def get_by_id(
+        search_profile_id: UUID,
+    ) -> Optional[SearchProfile]:
+        async with async_session() as session:
+            result = await session.execute(
+                select(SearchProfile).where(
+                    SearchProfile.id == search_profile_id
+                )
+            )
+            return result.scalars().one_or_none()
