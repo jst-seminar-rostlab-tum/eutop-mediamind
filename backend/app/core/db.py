@@ -82,13 +82,25 @@ def get_postgresql_connection() -> PgConnection:
 
 
 def get_qdrant_connection() -> QdrantClient:
-    if not configs.QDRANT_URL:
-        logger.error("QDRANT_URL not set in config.")
-        raise ValueError("QDRANT_URL not set in config.")
+    """
+    Initializes and returns a Qdrant client.
+
+    Raises:
+        ValueError: If QDRANT_URL is not set in the configuration.
+        RuntimeError: If the client initialization fails.
+    """
+
     try:
-        return QdrantClient(
-            url=configs.QDRANT_URL, api_key=configs.QDRANT_API_KEY
-        )
-    except Exception as e:
-        logger.error(f"Failed to initialize Qdrant client: {str(e)}")
-        raise Exception(f"Failed to initialize Qdrant client: {str(e)}")
+        if configs.ENVIRONMENT == "local":
+            client = QdrantClient(host="localhost", port=6333)
+        else:
+            client = QdrantClient(
+                url=configs.QDRANT_URL,
+                api_key=configs.QDRANT_API_KEY,
+            )
+        return client
+
+    except Exception as err:
+        msg = f"Failed to initialize Qdrant client: {err}"
+        logger.error(msg)
+        raise RuntimeError(msg) from err

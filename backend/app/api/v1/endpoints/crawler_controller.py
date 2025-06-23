@@ -57,6 +57,5 @@ async def trigger_newsapi_crawling():
 
 @router.get("/get_breaking_news")
 async def get_breaking_news():
-    logger.info("Fetching breaking news")
     breaking_news = get_all_breaking_news()
     return {"results": breaking_news}
