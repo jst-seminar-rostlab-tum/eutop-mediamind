@@ -10,6 +10,7 @@ import { ScrollArea, ScrollBar } from "~/components/ui/scroll-area";
 import { Button } from "~/components/ui/button";
 import { Link } from "react-router";
 import { truncateAtWord } from "~/lib/utils";
+import { useTranslation } from "react-i18next";
 
 type NewsItem = {
   title: string;
@@ -21,6 +22,8 @@ type Props = {
 };
 
 export function BreakingNews({ breakingNews }: Props) {
+  const { t } = useTranslation();
+
   return (
     <div className="flex justify-center my-4">
       <ScrollArea className="w-[100%]">
@@ -30,7 +33,7 @@ export function BreakingNews({ breakingNews }: Props) {
               <CardHeader>
                 <CardDescription className="flex gap-2 items-center mb-2 text-orange-600">
                   <BellRing size={18} />
-                  Breaking News
+                  {t("dashboard.breaking_news")}
                 </CardDescription>
                 <CardTitle className="mb-3">{item.title}</CardTitle>
               </CardHeader>
@@ -44,7 +47,7 @@ export function BreakingNews({ breakingNews }: Props) {
                     className="ml-1 text-primary items-center"
                   >
                     <Newspaper />
-                    Read more
+                    {t("dashboard.read_more")}
                     <ChevronRight />
                   </Button>
                 </Link>
