@@ -10,12 +10,12 @@ from app.core.db import async_session
 from app.models import SearchProfile, Topic, User
 from app.repositories.email_repository import EmailRepository
 from app.repositories.match_repository import MatchRepository
-from app.repositories.match_repositoy import (
-    get_recent_match_count_by_profile_id,
-)
 from app.repositories.search_profile_repository import SearchProfileRepository
 from app.repositories.subscription_repository import SubscriptionRepository
 from app.repositories.topics_repository import TopicsRepository
+from app.repositories.subscription_repository import (
+    set_subscriptions_for_profile,
+)
 from app.schemas.articles_schemas import (
     ArticleOverviewItem,
     ArticleOverviewResponse,
@@ -27,6 +27,10 @@ from app.schemas.search_profile_schemas import (
     SearchProfileCreateRequest,
     SearchProfileDetailResponse,
     SearchProfileUpdateRequest,
+)
+from app.schemas.subscription_schemas import (
+    SetSearchProfileSubscriptionsRequest,
+    SubscriptionSummary,
 )
 from app.schemas.topic_schemas import TopicResponse
 from app.schemas.user_schema import UserEntity
@@ -114,6 +118,10 @@ class SearchProfileService:
             )
 
     @staticmethod
+    async def get_by_id(search_profile_id: UUID) -> SearchProfile | None:
+        return await SearchProfileRepository.get_search_profile_by_id(search_profile_id)
+
+    @staticmethod
     async def get_available_search_profiles(
         current_user: UserEntity,
     ) -> list[SearchProfileDetailResponse]:
@@ -164,8 +172,12 @@ class SearchProfileService:
         )
 
         time_threshold = datetime.now(timezone.utc) - timedelta(hours=24)
-        new_articles_count = await get_recent_match_count_by_profile_id(
-            profile.id, time_threshold
+        new_articles_count = (
+            await (
+                MatchRepository.get_recent_match_count_by_profile_id(
+                    profile.id, time_threshold
+                )
+            )
         )
 
         return SearchProfileDetailResponse(
@@ -182,6 +194,16 @@ class SearchProfileService:
             subscriptions=subscriptions,
             new_articles_count=new_articles_count,
         )
+
+    @staticmethod
+    def _filter_emails_by_org(
+        profile: SearchProfile, org_id: UUID, include: bool
+    ) -> list[str]:
+        return [
+            user.email
+            for user in profile.users
+            if (user.organization_id == org_id) is include
+        ]
 
     @staticmethod
     def _build_topic_response(topic: Topic) -> TopicResponse:
@@ -286,6 +308,25 @@ class SearchProfileService:
             ranking=data.ranking,
         )
         return match is not None
+
+    @staticmethod
+    async def get_all_subscriptions_for_profile(
+        search_profile_id: UUID,
+    ) -> list[SubscriptionSummary]:
+        return await SubscriptionRepository.get_all_subscriptions_with_search_profile(
+            search_profile_id
+        )
+
+    @staticmethod
+    async def set_search_profile_subscriptions(
+        request: SetSearchProfileSubscriptionsRequest,
+    ) -> None:
+        async with async_session() as session:
+            await set_subscriptions_for_profile(
+                profile_id=request.search_profile_id,
+                subscriptions=request.subscriptions,
+                session=session
+            )
 
     @staticmethod
     async def get_keyword_suggestions(
