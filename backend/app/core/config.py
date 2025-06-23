@@ -74,6 +74,9 @@ class Configs(BaseSettings):
     SENDGRID_KEY: str
     MAX_EMAIL_ATTEMPTS: int
 
+    # NewsAPI AI
+    NEWSAPIAI_API_KEY: str | None
+
     DISABLE_AUTH: bool = False
 
     @computed_field
@@ -163,9 +166,6 @@ class Configs(BaseSettings):
                 "setting in production.",
             )
         return self
-
-    # NewsAPI AI
-    NEWSAPIAI_API_KEY: str | None = None
 
 
 configs = Configs()
