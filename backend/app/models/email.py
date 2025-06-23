@@ -4,6 +4,7 @@ from enum import Enum
 from typing import Dict
 
 from sqlmodel import JSON, Column, Field, SQLModel
+from sqlalchemy import TIMESTAMP, func
 
 
 class EmailState(Enum):
@@ -31,8 +32,8 @@ class Email(SQLModel, table=True):
     errors: Dict[str, str] | None = Field(
         default_factory=dict, sa_column=Column(JSON)
     )
-    created_at: datetime = Field(default_factory=datetime.now, nullable=False)
-    updated_at: datetime = Field(default_factory=datetime.now, nullable=False)
+    created_at: datetime = Field(sa_column=Column(TIMESTAMP(timezone=True), nullable=False, server_default=func.now()))
+    update_at: datetime = Field(sa_column=Column(TIMESTAMP(timezone=True), nullable=False, server_default=func.now()))
 
     def add_error(self, error: str):
         """

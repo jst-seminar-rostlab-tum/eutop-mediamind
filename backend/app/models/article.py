@@ -3,7 +3,7 @@ from datetime import datetime
 from enum import Enum
 from typing import TYPE_CHECKING, List, Optional
 
-from sqlalchemy import Column, Text
+from sqlalchemy import TIMESTAMP, Column, Text, func
 from sqlmodel import JSON, Field, Relationship, SQLModel
 
 from app.models.associations import (
@@ -44,7 +44,7 @@ class Article(SQLModel, table=True):
             comment="List of authors for the article",
         ),
     )
-    published_at: datetime = Field()
+    published_at: datetime = Field(sa_column=Column(TIMESTAMP(timezone=True), nullable=False))
     language: str = Field(max_length=255, nullable=True)
     categories: List[str] = Field(
         sa_column=Column(
@@ -58,8 +58,8 @@ class Article(SQLModel, table=True):
     status: ArticleStatus = Field(default=ArticleStatus.NEW, nullable=False)
     relevance: int = Field(default=0, nullable=False)
 
-    crawled_at: datetime = Field(default_factory=datetime.now)
-    scraped_at: Optional[datetime] = Field(default=None, nullable=True)
+    crawled_at: datetime = Field(sa_column=Column(TIMESTAMP(timezone=True), nullable=False, server_default=func.now()))
+    scraped_at: Optional[datetime] = Field(sa_column=Column(TIMESTAMP(timezone=True), nullable=True))
 
     # vector_embedding
     subscription_id: uuid.UUID = Field(

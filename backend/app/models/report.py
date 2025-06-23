@@ -4,6 +4,7 @@ from enum import Enum
 from typing import TYPE_CHECKING, Optional
 
 from sqlmodel import Field, Relationship, SQLModel
+from sqlalchemy import TIMESTAMP, Column, func
 
 if TYPE_CHECKING:
     from .search_profile import SearchProfile
@@ -20,7 +21,8 @@ class Report(SQLModel, table=True):
     # Attributes
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     search_profile_id: uuid.UUID = Field(foreign_key="search_profiles.id")
-    created_at: datetime = Field(default_factory=datetime.now, nullable=False)
+
+    created_at: datetime = Field(sa_column=Column(TIMESTAMP(timezone=True), nullable=False, server_default=func.now()))
     time_slot: str = Field(
         max_length=32, nullable=True
     )  # e.g., "morning", "afternoon", "evening"
