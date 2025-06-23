@@ -28,8 +28,12 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** List Users */
-        get: operations["list_users_api_v1_users_get"];
+        /**
+         * Get Users
+         * @description List all users visible to the current user or
+         *     return the single user if restricted.
+         */
+        get: operations["get_users_api_v1_users_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -45,11 +49,17 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get Current User Info */
+        /**
+         * Get Current User Info
+         * @description Retrieve the authenticated user's profile information.
+         */
         get: operations["get_current_user_info_api_v1_users_me_get"];
         put?: never;
         post?: never;
-        /** Delete Current User */
+        /**
+         * Delete Current User
+         * @description Delete the authenticated user's account.
+         */
         delete: operations["delete_current_user_api_v1_users_me_delete"];
         options?: never;
         head?: never;
@@ -65,8 +75,11 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Sync User With Clerk */
-        post: operations["sync_user_with_clerk_api_v1_users_sync_post"];
+        /**
+         * Sync User
+         * @description Synchronize the current user with the external Clerk service.
+         */
+        post: operations["sync_user_api_v1_users_sync_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -161,6 +174,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/search-profiles/{search_profile_id}/reports": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Reports */
+        get: operations["get_reports_api_v1_search_profiles__search_profile_id__reports_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/subscriptions": {
         parameters: {
             query?: never;
@@ -178,32 +208,15 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/emails/{recipient_email}": {
+    "/api/v1/emails/test": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /** Trigger Email Sending */
-        get: operations["trigger_email_sending_api_v1_emails__recipient_email__get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/emails/pdf": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Trigger Pdf Creation */
-        get: operations["trigger_pdf_creation_api_v1_emails_pdf_get"];
+        /** Send Report Email */
+        get: operations["send_report_email_api_v1_emails_test_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -414,6 +427,57 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/crawler/trigger_crawling": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Trigger Crawling */
+        post: operations["trigger_crawling_api_v1_crawler_trigger_crawling_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/crawler/trigger_scraping": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Trigger Scraping */
+        post: operations["trigger_scraping_api_v1_crawler_trigger_scraping_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/reports/{report_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Report By Id */
+        get: operations["get_report_by_id_api_v1_reports__report_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -553,6 +617,66 @@ export interface components {
             /** Ranking */
             ranking: number;
         };
+        /** ReportDetailResponse */
+        ReportDetailResponse: {
+            /**
+             * Search Profile Id
+             * Format: uuid
+             */
+            search_profile_id: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Time Slot */
+            time_slot?: string | null;
+            /** S3 Key */
+            s3_key: string;
+            /** @default pending */
+            status: components["schemas"]["ReportStatus"];
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** S3 Url */
+            s3_url?: string | null;
+        };
+        /** ReportListResponse */
+        ReportListResponse: {
+            /** Reports */
+            reports: components["schemas"]["ReportRead"][];
+        };
+        /** ReportRead */
+        ReportRead: {
+            /**
+             * Search Profile Id
+             * Format: uuid
+             */
+            search_profile_id: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Time Slot */
+            time_slot?: string | null;
+            /** S3 Key */
+            s3_key: string;
+            /** @default pending */
+            status: components["schemas"]["ReportStatus"];
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+        };
+        /**
+         * ReportStatus
+         * @enum {string}
+         */
+        ReportStatus: "pending" | "uploaded" | "failed";
         /** SearchProfileCreateRequest */
         SearchProfileCreateRequest: {
             /** Name */
@@ -686,32 +810,6 @@ export interface components {
             /** Keywords */
             keywords: string[];
         };
-        /** User */
-        User: {
-            /** Clerk Id */
-            clerk_id: string;
-            /**
-             * Email
-             * Format: email
-             */
-            email: string;
-            /** First Name */
-            first_name: string;
-            /** Last Name */
-            last_name: string;
-            /**
-             * Is Superuser
-             * @default false
-             */
-            is_superuser: boolean;
-            /** Organization Id */
-            organization_id?: string | null;
-            /**
-             * Id
-             * Format: uuid
-             */
-            id?: string;
-        };
         /** UserEntity */
         UserEntity: {
             /**
@@ -775,7 +873,7 @@ export interface operations {
             };
         };
     };
-    list_users_api_v1_users_get: {
+    get_users_api_v1_users_get: {
         parameters: {
             query?: never;
             header?: never;
@@ -790,7 +888,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["User"][] | components["schemas"]["User"];
+                    "application/json": components["schemas"]["UserEntity"][] | components["schemas"]["UserEntity"];
                 };
             };
         };
@@ -835,7 +933,7 @@ export interface operations {
             };
         };
     };
-    sync_user_with_clerk_api_v1_users_sync_post: {
+    sync_user_api_v1_users_sync_post: {
         parameters: {
             query?: never;
             header?: never;
@@ -1106,6 +1204,37 @@ export interface operations {
             };
         };
     };
+    get_reports_api_v1_search_profiles__search_profile_id__reports_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                search_profile_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReportListResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     get_all_subscriptions_api_v1_subscriptions_get: {
         parameters: {
             query?: never;
@@ -1126,13 +1255,16 @@ export interface operations {
             };
         };
     };
-    trigger_email_sending_api_v1_emails__recipient_email__get: {
+    send_report_email_api_v1_emails_test_get: {
         parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                recipient_email: string;
+            query: {
+                /** @description Clerk User ID */
+                clerk_id: string;
+                /** @description Search Profile UUID */
+                search_profile_id: string;
             };
+            header?: never;
+            path?: never;
             cookie?: never;
         };
         requestBody?: never;
@@ -1153,26 +1285,6 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    trigger_pdf_creation_api_v1_emails_pdf_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": unknown;
                 };
             };
         };
@@ -1528,6 +1640,89 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Match"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    trigger_crawling_api_v1_crawler_trigger_crawling_post: {
+        parameters: {
+            query?: {
+                date_start?: string;
+                date_end?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    trigger_scraping_api_v1_crawler_trigger_scraping_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+        };
+    };
+    get_report_by_id_api_v1_reports__report_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                report_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReportDetailResponse"];
                 };
             };
             /** @description Validation Error */
