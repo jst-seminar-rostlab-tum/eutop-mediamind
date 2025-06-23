@@ -74,11 +74,11 @@ class Configs(BaseSettings):
             path=self.POSTGRES_DB,
         )
 
-    MAX_EMAIL_ATTEMPTS: int = 2
-    SMTP_SERVER: str = "localhost"
-    SMTP_PORT: int = 587
-    SMTP_USER: EmailStr = "test@example.com"
-    SMTP_PASSWORD: str = "changethis"
+    MAX_EMAIL_ATTEMPTS: int
+    SMTP_SERVER: str
+    SMTP_PORT: int 
+    SMTP_USER: EmailStr 
+    SMTP_PASSWORD: str
 
     EMAIL_TEST_USER: EmailStr = "test@example.com"
     FIRST_SUPERUSER: EmailStr = "test@example.com"
