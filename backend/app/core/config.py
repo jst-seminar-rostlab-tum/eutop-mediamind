@@ -23,6 +23,23 @@ def parse_cors(v: Any) -> list[str] | str:
     raise ValueError(v)
 
 
+"""
+NOTE: This file is used to load the configuration settings for the application.
+It uses Pydantic's BaseSettings to load environment variables and validate
+them. It also includes some custom validation logic to ensure that certain
+settings are not set to default values in production environments.
+
+IMPORTANT: Please, when adding new environment variables, ensure that they are
+documented in the .env.example file and that they are NOT set to default values
+in this file. The default values (for local and ci) should be set in the
+`.env.example` file, NOT here. Also, don't forget to add them to the validation
+checks below. Proper type hinting is also important, as it will help developers
+understand the expected type of each environment variable and should be done in
+this file. When removing environment variables, ensure that they are removed
+from the `.env.example` file, as well as from the validation checks.
+"""
+
+
 class Configs(BaseSettings):
     model_config = SettingsConfigDict(
         # Use top level .env file (one level above ./backend/)
