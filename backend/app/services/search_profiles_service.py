@@ -11,11 +11,10 @@ from app.models import SearchProfile, Topic, User
 from app.repositories.email_repository import EmailRepository
 from app.repositories.match_repository import MatchRepository
 from app.repositories.search_profile_repository import SearchProfileRepository
-from app.repositories.subscription_repository import SubscriptionRepository
-from app.repositories.topics_repository import TopicsRepository
 from app.repositories.subscription_repository import (
-    set_subscriptions_for_profile,
+    SubscriptionRepository,
 )
+from app.repositories.topics_repository import TopicsRepository
 from app.schemas.articles_schemas import (
     ArticleOverviewItem,
     ArticleOverviewResponse,
@@ -119,7 +118,9 @@ class SearchProfileService:
 
     @staticmethod
     async def get_by_id(search_profile_id: UUID) -> SearchProfile | None:
-        return await SearchProfileRepository.get_search_profile_by_id(search_profile_id)
+        return await SearchProfileRepository.get_search_profile_by_id(
+            search_profile_id
+        )
 
     @staticmethod
     async def get_available_search_profiles(
@@ -313,7 +314,7 @@ class SearchProfileService:
     async def get_all_subscriptions_for_profile(
         search_profile_id: UUID,
     ) -> list[SubscriptionSummary]:
-        return await SubscriptionRepository.get_all_subscriptions_with_search_profile(
+        return await SubscriptionRepository.get_all_subscriptions_with_search_profile(  # noqa: E501
             search_profile_id
         )
 
@@ -322,10 +323,10 @@ class SearchProfileService:
         request: SetSearchProfileSubscriptionsRequest,
     ) -> None:
         async with async_session() as session:
-            await set_subscriptions_for_profile(
+            await SubscriptionRepository.set_subscriptions_for_profile(
                 profile_id=request.search_profile_id,
                 subscriptions=request.subscriptions,
-                session=session
+                session=session,
             )
 
     @staticmethod
