@@ -1,13 +1,15 @@
 from datetime import date
+from datetime import datetime, timezone
 from typing import List
 from uuid import UUID
 
 from sqlalchemy import delete
 from sqlalchemy.future import select
 from sqlalchemy.orm import selectinload
+from sqlmodel import func
 
 from app.core.db import async_session
-from app.models import User
+from app.models import Article, User
 from app.models.match import Match
 
 
@@ -69,6 +71,29 @@ class MatchRepository:
             await session.commit()
             await session.refresh(match)
             return match
+
+    @staticmethod
+    async def get_recent_match_count_by_profile_id(
+        profile_id: UUID,
+        since: datetime,
+    ) -> int:
+        if since.tzinfo is None:
+            since = since.replace(tzinfo=timezone.utc)
+        else:
+            since = since.astimezone(timezone.utc)
+        async with async_session() as session:
+            since = since.replace(tzinfo=None)
+            stmt = (
+                select(func.count().label("count"))
+                .select_from(Match)
+                .join(Article, Match.article_id == Article.id)
+                .where(
+                    Match.search_profile_id == profile_id,
+                    Article.published_at >= since,
+                )
+            )
+            result = await session.execute(stmt)
+            return result.scalar_one_or_none() or 0
 
     @staticmethod
     async def cleanup_matches(

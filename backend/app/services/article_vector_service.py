@@ -1,5 +1,5 @@
 import uuid
-from typing import List, Optional, Sequence
+from typing import List, Optional
 
 from langchain_core.documents import Document
 from langchain_openai import OpenAIEmbeddings
@@ -30,7 +30,7 @@ class ArticleVectorService:
         self._sparse_embeddings = FastEmbedSparse(model_name="Qdrant/bm25")
         self.collection_name = configs.ARTICLE_VECTORS_COLLECTION
         self._qdrant_client = get_qdrant_connection()
-        self.create_collection_safe(self.collection_name)
+        self.create_collection(self.collection_name)
         self.vector_store: QdrantVectorStore = QdrantVectorStore(
             client=self._qdrant_client,
             collection_name=self.collection_name,
@@ -45,30 +45,9 @@ class ArticleVectorService:
             # Field name in Qdrant for storing sparse vectors
         )
 
-    def create_collection_safe(self, collection_name: str) -> None:
-        try:
-            if not self._qdrant_client.collection_exists(
-                collection_name=collection_name
-            ):
-                self._qdrant_client.create_collection(
-                    collection_name=collection_name,
-                    vectors_config={
-                        "dense": VectorParams(
-                            size=3072, distance=Distance.COSINE
-                        )
-                    },
-                    sparse_vectors_config={
-                        "sparse": SparseVectorParams(
-                            index=models.SparseIndexParams(on_disk=False)
-                        )
-                    },
-                )
-        except Exception:
-            pass
-
-    def create_collection(self, collection_name: str):
+    def create_collection(self, collection_name: str) -> None:
         """
-        Create a Qdrant collection for storing article vectors.
+        Create a Qdrant collection for storing vectors.
         """
         if not self._qdrant_client.collection_exists(collection_name):
             self._qdrant_client.create_collection(
@@ -105,18 +84,22 @@ class ArticleVectorService:
             articles(List[Article]): Articles to index.
 
         """
-        documents = [
-            Document(
-                page_content=article.summary,
-                metadata={
-                    "id": article.id,
-                    "subscription_id": article.subscription_id,
-                },
-            )
-            for article in articles
-        ]
 
-        uuids = [article.id for article in articles]
+        documents = []
+        uuids = []
+
+        for article in articles:
+            documents.append(
+                Document(
+                    page_content=article.summary,
+                    metadata={
+                        "id": str(article.id),
+                        "subscription_id": str(article.subscription_id),
+                        "title": article.title,
+                    },
+                )
+            )
+            uuids.append(str(article.id))
 
         self.vector_store.add_documents(documents=documents, ids=uuids)
 
@@ -147,32 +130,15 @@ class ArticleVectorService:
         page: int = 0
         offset: int = page * page_size
 
-        articles: Sequence[Article] = (
+        articles: List[Article] = (
             await ArticleRepository.list_articles_with_summary(
                 limit=page_size, offset=offset
             )
         )
 
-        while articles:
-            documents_to_index = []
-            document_ids = []
+        while len(articles) > 0:
 
-            for article in articles:
-                documents_to_index.append(
-                    Document(
-                        page_content=article.summary,
-                        metadata={
-                            "id": str(article.id),
-                            "subscription_id": str(article.subscription_id),
-                            "title": article.title,
-                        },
-                    )
-                )
-                document_ids.append(str(article.id))
-
-            self.vector_store.add_documents(
-                documents=documents_to_index, ids=document_ids
-            )
+            self.add_articles(articles)
 
             page += 1
             offset = page * page_size
@@ -181,36 +147,35 @@ class ArticleVectorService:
                 limit=page_size, offset=offset
             )
 
+    async def add_article(self, article_id: uuid.UUID) -> None:
+        """
+        Add an article to the vector store based on its ID.
+        Args:
+            self: Instance of the ArticleVectorService.
+            article_id: UUID of the article to be added to the vector store.
 
-async def add_article(self, article_id: uuid.UUID) -> None:
-    """
-    Add an article to the vector store based on its ID.
-    Args:
-        self: Instance of the ArticleVectorService.
-        article_id: UUID of the article to be added to the vector store.
+        Returns: None
 
-    Returns: None
-
-    """
-    article: Optional[Article] = await ArticleRepository.get_article_by_id(
-        article_id
-    )
-
-    if not article or not article.summary or not article.summary.strip():
-        logger.error(
-            f"Article with ID {article_id} not found or has no summary."
+        """
+        article: Optional[Article] = await ArticleRepository.get_article_by_id(
+            article_id
         )
-        return
 
-    document = Document(
-        page_content=article.summary,
-        metadata={
-            "id": str(article.id),
-            "subscription_id": str(article.subscription_id),
-            "title": article.title,
-        },
-    )
+        if not article or not article.summary or not article.summary.strip():
+            logger.error(
+                f"Article with ID {article_id} not found or has no summary."
+            )
+            return
 
-    self.vector_store.add_documents(
-        documents=[document], ids=[str(article.id)]
-    )
+        document = Document(
+            page_content=article.summary,
+            metadata={
+                "id": str(article.id),
+                "subscription_id": str(article.subscription_id),
+                "title": article.title,
+            },
+        )
+
+        self.vector_store.add_documents(
+            documents=[document], ids=[str(article.id)]
+        )
