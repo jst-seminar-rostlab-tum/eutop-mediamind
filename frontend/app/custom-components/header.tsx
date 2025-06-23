@@ -6,7 +6,7 @@ import {
   SignUp,
 } from "@clerk/react-router";
 import { Link, useLocation, useSearchParams } from "react-router";
-import { Building2, Earth, Settings, User } from "lucide-react";
+import { Building2, Globe, Settings, User } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { useAuthorization } from "~/hooks/use-authorization";
 import {
@@ -79,6 +79,24 @@ export default function Header() {
         )}
       </div>
       <div className="flex justify-end items-center gap-4">
+        <div>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="flex items-center gap-2">
+                <Globe />
+                {i18n.language == "en" ? "EN" : "DE"}
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => changeLanguage("en")}>
+                English
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => changeLanguage("de")}>
+                Deutsch
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
         <SignedOut>
           <Popover
             open={openLogin}
@@ -114,30 +132,6 @@ export default function Header() {
         <SignedIn>
           <UserButton />
         </SignedIn>
-        <div>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="flex items-center gap-2">
-                <Earth />
-                {i18n.language.toUpperCase() == "EN" ? (
-                  <img src="/US-UK_Flag.svg" alt="🇬🇧" width={"25rem"} />
-                ) : (
-                  <img src="/German_Flag.svg" alt="🇩🇪" width={"25rem"} />
-                )}
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => changeLanguage("en")}>
-                <img src="/US-UK_Flag.svg" alt="🇬🇧" width={"30rem"} />
-                English
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => changeLanguage("de")}>
-                <img src="/German_Flag.svg" alt="🇩🇪" width={"30rem"} />
-                Deutsch
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
         {isSignedIn && user?.is_superuser && (
           <Link to="/admin">
             <Button variant="outline">
