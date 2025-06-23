@@ -221,20 +221,21 @@ class ArticleMatchingService:
             )
             await MatchRepository.insert_match(match)
 
-    async def run(self, limit: int = 100, offset: int = 0) -> None:
+    async def run(self, batch_size: int = 100) -> None:
         """
         Run the article matching process in pages,
         processing each profile in parallel.
 
-        :param limit: Maximum number of profiles to fetch per batch.
-        :param offset: Starting offset for pagination.
+        :param batch_size: Maximum number of profiles per batch.
         """
         self.logger.info("Starting article matching process")
+
+        offset = 0
 
         # Initial fetch outside the loop
         profiles: List[SearchProfile] = (
             await SearchProfileRepository.fetch_all_search_profiles(
-                limit=limit, offset=offset
+                limit=batch_size, offset=offset
             )
         )
 
@@ -256,9 +257,9 @@ class ArticleMatchingService:
             ]
             await asyncio.gather(*tasks)
 
-            offset += limit
+            offset += batch_size
             profiles = await SearchProfileRepository.fetch_all_search_profiles(
-                limit=limit, offset=offset
+                limit=batch_size, offset=offset
             )
 
         self.logger.info("Article matching process completed")
