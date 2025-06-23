@@ -86,15 +86,17 @@ class Configs(BaseSettings):
     AWS_REGION: str | None
     AWS_S3_BUCKET_NAME: str | None
 
-    # Email
-    SENDER_EMAIL: EmailStr
-    SENDGRID_KEY: str
-    MAX_EMAIL_ATTEMPTS: int
-
     # NewsAPI AI
     NEWSAPIAI_API_KEY: str | None
 
     DISABLE_AUTH: bool = False
+
+    # Email
+    MAX_EMAIL_ATTEMPTS: int
+    SMTP_SERVER: str
+    SMTP_PORT: int
+    SMTP_USER: EmailStr
+    SMTP_PASSWORD: str
 
     @computed_field
     @property
@@ -109,16 +111,6 @@ class Configs(BaseSettings):
             port=self.POSTGRES_PORT,
             path=self.POSTGRES_DB,
         )
-
-    MAX_EMAIL_ATTEMPTS: int
-    SMTP_SERVER: str
-    SMTP_PORT: int
-    SMTP_USER: EmailStr
-    SMTP_PASSWORD: str
-
-    EMAIL_TEST_USER: EmailStr = "test@example.com"
-    FIRST_SUPERUSER: EmailStr = "test@example.com"
-    FIRST_SUPERUSER_PASSWORD: str = "test_password"
 
     @computed_field
     @property
@@ -174,7 +166,10 @@ class Configs(BaseSettings):
         self._check_default_secret(
             "ARTICLE_VECTORS_COLLECTION", self.ARTICLE_VECTORS_COLLECTION
         )
-        self._check_default_secret("SENDER_EMAIL", self.SENDER_EMAIL)
+        self._check_default_secret("SMTP_SERVER", self.SMTP_SERVER)
+        self._check_default_secret("SMTP_USER", self.SMTP_USER)
+        self._check_default_secret("SMTP_PASSWORD", self.SMTP_PASSWORD)
+
         return self
 
     @model_validator(mode="after")
