@@ -133,43 +133,6 @@ export function SearchProfileOverview() {
     return matches?.matches.filter((match) =>
       match.article.headline["en"].toLowerCase().includes(search.toLowerCase()),
     );
-
-    // leave it as comment if we want to change back to some filtering in the frontend
-    /*
-    if (selectedSources.length > 0) {
-      filtered = filtered.filter((a) => selectedSources.includes(a.url));
-    }
-
-    // every or some here?
-    if (selectedTopics.length > 0) {
-      filtered = filtered.filter((a) =>
-        selectedTopics.some((topic) => a.topics.includes(topic)),
-      );
-    }
-
-    if (fromDate) {
-      filtered = filtered.filter((a) => new Date(a.published_at) >= fromDate);
-    }
-
-    // to end of day to catch most time zone shifts (ask in meeting about Zulu Time (UTC) conversion to German time by javascript)
-    if (toDate) {
-      const endOfDay = new Date(toDate);
-      endOfDay.setHours(23, 59, 59, 999);
-      filtered = filtered.filter((a) => new Date(a.published_at) <= endOfDay);
-    }
-    
-
-    return filtered.sort((a, b) => {
-      if (sortBy === "relevance") {
-        return parseFloat(b.relevance_score) - parseFloat(a.relevance_score); // descending
-      } else {
-        return (
-          new Date(b.published_at).getTime() -
-          new Date(a.published_at).getTime()
-        ); // descending
-      }
-    });
-    */
   }, [search, matches]);
 
   const Sources = profile ? profile.subscriptions : [];
