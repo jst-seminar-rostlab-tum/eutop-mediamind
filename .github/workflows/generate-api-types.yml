@@ -43,6 +43,10 @@ jobs:
           pip install -r requirements.txt
         working-directory: ./backend
 
+      - name: Copy env
+        run: cp .env.example .env
+        working-directory: ./backend
+
       - name: Extract OpenAPI spec
         env:
           ENVIRONMENT: ci
