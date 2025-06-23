@@ -31,6 +31,7 @@ import {
 } from "~/components/ui/dropdown-menu";
 import { Input } from "~/components/ui/input";
 import { useEffect } from "react";
+import { useTranslation } from "react-i18next";
 
 export interface MailingTableProps {
   name: string;
@@ -84,6 +85,7 @@ export const getColumns = (name: string): ColumnDef<DataRow>[] => [
     id: "actions",
     enableHiding: false,
     cell: () => {
+      const { t } = useTranslation();
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -93,13 +95,15 @@ export const getColumns = (name: string): ColumnDef<DataRow>[] => [
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+            <DropdownMenuLabel>
+              {t("data-table-mailing.actions")}
+            </DropdownMenuLabel>
             <DropdownMenuItem
               onClick={() =>
                 console.log("Delete action triggered from dropdown")
               }
             >
-              Delete
+              {t("Delete")}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -169,6 +173,8 @@ export function DataTableMailing({
 
   const [email, setEmail] = React.useState("");
 
+  const { t } = useTranslation();
+
   return (
     <div className="w-full">
       <div className="flex items-center py-4 justify-between">
@@ -195,7 +201,7 @@ export function DataTableMailing({
               onClick={() => handleAddEmail()}
             >
               <Plus className={"h-4 w-4"} />
-              Add
+              {t("Add")}
             </Button>
           </div>
 
@@ -206,7 +212,7 @@ export function DataTableMailing({
             className={!canDelete ? "cursor-not-allowed opacity-50" : ""}
           >
             <Trash2 className="h-4 w-4" />
-            Delete ({numSelectedRows})
+            {t("Delete")} ({numSelectedRows})
           </Button>
         </div>
       </div>
@@ -246,7 +252,7 @@ export function DataTableMailing({
           ) : (
             <TableRow>
               <TableCell colSpan={columns.length} className="h-24 text-center">
-                No results.
+                {t("data-table-mailing.no_results")}
               </TableCell>
             </TableRow>
           )}
@@ -254,8 +260,9 @@ export function DataTableMailing({
       </Table>
       <div className="flex items-center justify-end space-x-2 py-4">
         <div className="flex-1 text-sm text-muted-foreground">
-          {numSelectedRows} of {table.getFilteredRowModel().rows.length} row(s)
-          selected.
+          {numSelectedRows} {t("data-table-mailing.of")}{" "}
+          {table.getFilteredRowModel().rows.length}{" "}
+          {t("data-table-mailing.rows_selected")}
         </div>
       </div>
     </div>
