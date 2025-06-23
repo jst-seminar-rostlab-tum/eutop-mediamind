@@ -1,8 +1,7 @@
 import asyncio
 import json
-from collections import defaultdict
 from datetime import date
-from typing import Dict, List, Optional, Set, Tuple
+from typing import Dict, List, Set, Tuple
 from uuid import UUID
 
 from app.core.logger import get_logger
@@ -35,7 +34,8 @@ class ArticleMatchingService:
         """
         profile = await self._load_search_profile(search_profile_id)
         self.logger.info(
-            f"Processing article matching for search profile: {search_profile_id}"
+            f"Processing article matching "
+            f"for search profile: {search_profile_id}"
         )
 
         topic_scores = await self._phase1_topic_matching(profile)
@@ -55,7 +55,8 @@ class ArticleMatchingService:
             search_profile_id, final_matches, match_payloads
         )
         self.logger.info(
-            f"Found {len(final_matches)} matches for search profile {search_profile_id}"
+            f"Found {len(final_matches)} matches "
+            f"for search profile {search_profile_id}"
         )
 
     async def _load_search_profile(self, profile_id: UUID) -> SearchProfile:
