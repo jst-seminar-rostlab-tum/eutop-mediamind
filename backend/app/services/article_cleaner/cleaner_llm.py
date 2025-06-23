@@ -6,7 +6,8 @@ from datetime import date
 from typing import Optional, Tuple
 
 import tenacity
-from openai import OpenAI
+from app.services.llm_service.llm_client import LLMClient
+from app.services.llm_service.llm_models import LLMModels
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
@@ -39,20 +40,15 @@ def remove_formatting_marks(text: str) -> str:
 class ArticleCleaner:
     def __init__(self, max_concurrency: int = 50):
         assert configs.OPENAI_API_KEY, "Missing OPENAI_API_KEY"
-        self.client = OpenAI(api_key=configs.OPENAI_API_KEY)
+        self.llm_client = LLMClient(LLMModels.openai_4o)
         self.semaphore = Semaphore(max_concurrency)
 
     @tenacity.retry(
         stop=tenacity.stop_after_attempt(3), wait=tenacity.wait_fixed(2)
     )
-    def _call_openai_sync(self, prompt: str) -> str:
-        response = self.client.chat.completions.create(
-            model="gpt-4.1",
-            messages=[{"role": "user", "content": prompt}],
-            temperature=0.3,
-        )
-        return response.choices[0].message.content.strip()
-
+    def _call_llm_sync(self, prompt: str) -> str:
+        return self.llm_client.generate_response(prompt)
+    
     async def clean_with_llm_removal_only(self, text, title: str) -> str:
         prompt = (
             "The following news article contains unwanted "
@@ -74,7 +70,7 @@ class ArticleCleaner:
             f"Body: {text}"
         )
         async with self.semaphore:
-            return await asyncio.to_thread(self._call_openai_sync, prompt)
+            return await asyncio.to_thread(self._call_llm_sync, prompt)
 
     async def clean_one(
         self, article: Article
@@ -118,9 +114,7 @@ class ArticleCleaner:
         updated = 0
         for article, new_content in cleaned_articles:
             article.content = new_content
-            await ArticleRepository._update_article_with_session(
-                session, article
-            )
+            await ArticleRepository.update_article(article)
             updated += 1
 
         return updated
