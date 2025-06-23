@@ -44,6 +44,8 @@ jobs:
         working-directory: ./backend
 
       - name: Extract OpenAPI spec
+        env:
+          ENVIRONMENT: ci
         run: python extract-openapi.py app.main:app --app-dir ../ --out /tmp/openapi.json
         working-directory: ./backend/scripts
 

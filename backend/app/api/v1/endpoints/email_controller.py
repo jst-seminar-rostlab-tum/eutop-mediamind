@@ -11,11 +11,11 @@ from datetime import datetime
 
 from fastapi import APIRouter, HTTPException, Query
 
-from app.repositories.user_repository import get_user_by_clerk_id
 from app.services.email_service import EmailSchedule, EmailService
 from app.services.report_service import ReportService
 from app.services.s3_service import S3Service
 from app.services.search_profiles_service import SearchProfileService
+from app.services.user_service import UserService
 
 router = APIRouter(
     prefix="/emails",
@@ -41,11 +41,11 @@ async def trigger_email_sending(recipient_email: str):
 
 @router.get("/test")
 async def send_report_email(
-    clerk_user_id: str = Query(..., description="Clerk User ID"),
+    clerk_id: str = Query(..., description="Clerk User ID"),
     search_profile_id: str = Query(..., description="Search Profile UUID"),
 ):
     print(
-        f"Sending report email for user {clerk_user_id} and search profile {search_profile_id}"
+        f"Sending report email for user {clerk_id} and search profile {search_profile_id}"
     )
 
     try:
@@ -57,7 +57,7 @@ async def send_report_email(
     timeslot = "morning"
 
     # Get user and check if found
-    user = await get_user_by_clerk_id(clerk_user_id)
+    user = await UserService.get_by_clerk_id(clerk_id)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
 

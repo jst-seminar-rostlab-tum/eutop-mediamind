@@ -1,3 +1,4 @@
+from datetime import date, datetime, timedelta
 from typing import List, Optional
 from uuid import UUID
 
@@ -9,7 +10,7 @@ from app.models.report import Report, ReportStatus
 
 class ReportRepository:
     @staticmethod
-    async def get_reports_by_search_profile(
+    async def get_by_search_profile(
         search_profile_id: UUID,
     ) -> List[Report]:
         async with async_session() as session:
@@ -21,7 +22,7 @@ class ReportRepository:
             return result.scalars().all()
 
     @staticmethod
-    async def get_report_by_id(report_id: UUID) -> Optional[Report]:
+    async def get_by_id(report_id: UUID) -> Optional[Report]:
         async with async_session() as session:
             result = await session.execute(
                 select(Report).where(Report.id == report_id)
@@ -29,21 +30,27 @@ class ReportRepository:
             return result.scalars().first()
 
     @staticmethod
-    async def get_report_by_search_profile_and_timeslot(
+    async def get_by_search_profile_and_timeslot(
         search_profile_id: UUID, timeslot: str
     ) -> Optional[Report]:
+        # Filter by created_at datetime falling within the given day
+        start = datetime.combine(date.today(), datetime.min.time())
+        end = start + timedelta(days=1)
+
         async with async_session() as session:
             result = await session.execute(
                 select(Report).where(
                     Report.search_profile_id == search_profile_id,
                     Report.time_slot == timeslot,
                     Report.status == ReportStatus.UPLOADED,
+                    Report.created_at >= start,
+                    Report.created_at < end,
                 )
             )
             return result.scalars().first()
 
     @staticmethod
-    async def create_report(report: Report) -> Report:
+    async def create(report: Report) -> Report:
         async with async_session() as session:
             session.add(report)
             await session.commit()
@@ -51,7 +58,7 @@ class ReportRepository:
             return report
 
     @staticmethod
-    async def update_report(report: Report) -> Report:
+    async def update(report: Report) -> Report:
         async with async_session() as session:
             db_report = await session.get(Report, report.id)
             if not db_report:
