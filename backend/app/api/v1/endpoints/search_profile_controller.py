@@ -19,6 +19,7 @@ from app.schemas.search_profile_schemas import (
     SearchProfileDetailResponse,
     SearchProfileUpdateRequest,
 )
+from app.schemas.user_schema import UserEntity
 from app.services.report_service import ReportService
 from app.services.search_profiles_service import SearchProfileService
 
@@ -31,42 +32,68 @@ router = APIRouter(
 logger = get_logger(__name__)
 
 
-@router.get("", response_model=list[SearchProfileDetailResponse])
+@router.get("", response_model=List[SearchProfileDetailResponse])
 async def get_available_search_profiles(
-    current_user: User = Depends(get_authenticated_user),
-):
+    current_user: UserEntity = Depends(get_authenticated_user),
+) -> List[SearchProfileDetailResponse]:
+    """
+    Retrieve all search profiles available to the current user.
+    """
     return await SearchProfileService.get_available_search_profiles(
         current_user
     )
 
 
-@router.post("/keywords/suggestions", response_model=KeywordSuggestionResponse)
+@router.post(
+    "/keywords/suggestions",
+    response_model=KeywordSuggestionResponse,
+)
 async def get_keyword_suggestions(
-    keyword_suggestion_request: List[str],
+    keywords: List[str],
     current_user: User = Depends(get_authenticated_user),
 ) -> KeywordSuggestionResponse:
+    """
+    Return keyword suggestions based on a list of input keywords.
+    """
     return await SearchProfileService.get_keyword_suggestions(
-        current_user, keyword_suggestion_request
+        current_user, keywords
     )
 
 
-@router.get("/{search_profile_id}", response_model=SearchProfileDetailResponse)
+@router.get(
+    "/{search_profile_id}",
+    response_model=SearchProfileDetailResponse,
+)
 async def get_search_profile(
     search_profile_id: UUID,
-    current_user: User = Depends(get_authenticated_user),
-):
-    profile = await SearchProfileService.get_search_profile_by_id(
+    current_user: UserEntity = Depends(get_authenticated_user),
+) -> SearchProfileDetailResponse:
+    """
+    Retrieve a specific search profile by its UUID.
+    """
+    profile = await SearchProfileService.get_extended_by_id(
         search_profile_id, current_user
     )
-    if profile is None:
-        raise HTTPException(status_code=404, detail="Search profile not found")
+    if not profile:
+        logger.warning("Search profile %s not found", search_profile_id)
+        raise HTTPException(
+            status_code=404,
+            detail="Search profile not found",
+        )
+
     return profile
 
 
 @router.get(
-    "/{search_profile_id}/overview", response_model=ArticleOverviewResponse
+    "/{search_profile_id}/overview",
+    response_model=ArticleOverviewResponse,
 )
-async def get_search_profile_overview(search_profile_id: UUID):
+async def get_search_profile_overview(
+    search_profile_id: UUID,
+) -> ArticleOverviewResponse:
+    """
+    Retrieve an overview of articles for a given search profile.
+    """
     return await SearchProfileService.get_article_overview(search_profile_id)
 
 
@@ -74,50 +101,86 @@ async def get_search_profile_overview(search_profile_id: UUID):
     "/{search_profile_id}/article/{match_id}",
     response_model=MatchDetailResponse,
 )
-async def get_match_detail(search_profile_id: UUID, match_id: UUID):
+async def get_match_detail(
+    search_profile_id: UUID,
+    match_id: UUID,
+) -> MatchDetailResponse:
+    """
+    Retrieve detailed match information for a specific article match.
+    """
     detail = await SearchProfileService.get_match_detail(
         search_profile_id, match_id
     )
-    if detail is None:
-        raise HTTPException(status_code=404, detail="Match not found")
+    if not detail:
+        logger.warning(
+            f"Match detail for profile {search_profile_id}, "
+            f"match {match_id} not found",
+            search_profile_id,
+            match_id,
+        )
+        raise HTTPException(
+            status_code=404,
+            detail="Match not found",
+        )
+
     return detail
 
 
 @router.post("", response_model=SearchProfileDetailResponse)
 async def create_search_profile(
     profile_data: SearchProfileCreateRequest,
-    current_user: User = Depends(get_authenticated_user),
-):
+    current_user: UserEntity = Depends(get_authenticated_user),
+) -> SearchProfileDetailResponse:
+    """
+    Create a new search profile for the current user.
+    """
     return await SearchProfileService.create_search_profile(
         profile_data, current_user
     )
 
 
-@router.put("/{search_profile_id}", response_model=SearchProfileDetailResponse)
+@router.put(
+    "/{search_profile_id}",
+    response_model=SearchProfileDetailResponse,
+)
 async def update_search_profile(
     search_profile_id: UUID,
     update_data: SearchProfileUpdateRequest,
-    current_user: User = Depends(get_authenticated_user),
-):
-    # Now always raises 404 if not found, so no need for `if updated is None`
+    current_user: UserEntity = Depends(get_authenticated_user),
+) -> SearchProfileDetailResponse:
+    """
+    Update an existing search profile by its UUID.
+    """
     return await SearchProfileService.update_search_profile(
         search_profile_id, update_data, current_user
     )
 
 
-@router.put("/{search_profile_id}/article/{match_id}")
+@router.put(
+    "/{search_profile_id}/article/{match_id}",
+    response_model=FeedbackResponse,
+)
 async def update_match_feedback(
     search_profile_id: UUID,
     match_id: UUID,
     feedback: MatchFeedbackRequest,
 ) -> FeedbackResponse:
+    """
+    Update feedback for a specific match within a search profile.
+    """
     success = await SearchProfileService.update_match_feedback(
         search_profile_id, match_id, feedback
     )
     if not success:
-        raise HTTPException(
-            status_code=404, detail="Match not found or feedback update failed"
+        logger.error(
+            f"Failed to update feedback for profile {search_profile_id}, "
+            f"match {match_id}"
         )
+        raise HTTPException(
+            status_code=404,
+            detail="Match not found or feedback update failed",
+        )
+
     return FeedbackResponse(status="success")
 
 
