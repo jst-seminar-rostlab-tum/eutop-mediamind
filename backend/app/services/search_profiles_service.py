@@ -11,14 +11,6 @@ from app.models import SearchProfile, Topic, User
 from app.repositories.email_repository import EmailRepository
 from app.repositories.match_repository import MatchRepository
 from app.repositories.search_profile_repository import SearchProfileRepository
-from app.repositories.subscription_repository import (
-    SubscriptionRepository,
-)
-from app.repositories.topics_repository import TopicsRepository
-from app.repositories.match_repositoy import (
-    get_recent_match_count_by_profile_id,
-)
-from app.repositories.search_profile_repository import SearchProfileRepository
 from app.repositories.subscription_repository import SubscriptionRepository
 from app.repositories.topics_repository import TopicsRepository
 from app.schemas.articles_schemas import (
@@ -33,7 +25,10 @@ from app.schemas.search_profile_schemas import (
     SearchProfileDetailResponse,
     SearchProfileUpdateRequest,
 )
-from app.schemas.subscription_schemas import SetSearchProfileSubscriptionsRequest, SubscriptionSummary
+from app.schemas.subscription_schemas import (
+    SetSearchProfileSubscriptionsRequest,
+    SubscriptionSummary,
+)
 from app.schemas.topic_schemas import TopicResponse
 from app.schemas.user_schema import UserEntity
 from app.services.llm_service.llm_client import LLMClient
@@ -154,14 +149,14 @@ class SearchProfileService:
 
         can_edit = (
             current_user.id == profile.owner_id
-            or current_user.is_admin
-            or current_user.id in profile.can_write
+            or current_user.is_superuser
+            or current_user.id in profile.can_edit
         )
 
         can_read = (
             current_user.id == profile.owner_id
             or current_user.id == profile.created_by_id
-            or current_user.is_admin
+            or current_user.is_superuser
             or current_user.id in profile.can_read
         )
 

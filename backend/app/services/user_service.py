@@ -6,7 +6,7 @@ from app.repositories.user_repository import (
     get_user_by_clerk_id as repo_get_by_clerk_id,
 )
 from app.repositories.user_repository import (
-    get_user_list_from_organization,
+    get_user_list_by_org,
 )
 from app.repositories.user_repository import update_user as repo_update_user
 from app.schemas.user_schema import UserEntity
@@ -22,7 +22,7 @@ class UserService:
         Superusers receive all users.
         """
         async with async_session() as session:
-            return await get_user_list_from_organization(user, session)
+            return await get_user_list_by_org(user, session)
 
     @staticmethod
     async def get_by_clerk_id(

@@ -1,4 +1,4 @@
-from typing import Any, Dict, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 
 from sqlalchemy import select
 from sqlalchemy.exc import NoResultFound
@@ -76,6 +76,7 @@ async def update_user(
     Update a user’s fields if they differ from Clerk data,
     and return the updated UserEntity.
     """
+    print("update user")
     try:
         stmt = (
             select(User)
@@ -109,22 +110,21 @@ async def update_user(
     return _to_user_entity(user)
 
 
-async def get_user_list_from_organization(
-    user: User, session: AsyncSession
-) -> Union[list[User], User]:
-    """
+async def get_user_list_by_org(
+    user: UserEntity, session: AsyncSession
+) -> Union[List[UserEntity], UserEntity]:
+    """Add commentMore actions
     Return all users in the same organization, or the user itself if
     no organization.
     Superusers receive all users.
     """
     if user.is_superuser:
-        query = select(User)
+        stmt = select(User).options(selectinload(User.organization))
     elif user.organization_id is None:
         return user
     else:
-        query = select(User).where(
-            User.organization_id == user.organization_id
-        )
-
-    users = await session.execute(query)
-    return users.scalars().all()
+        stmt = select(User).where(User.organization_id == user.organization_id)
+    stmt = stmt.options(selectinload(User.organization))
+    result = await session.execute(stmt)
+    users = result.scalars().all()
+    return [_to_user_entity(u) for u in users]
