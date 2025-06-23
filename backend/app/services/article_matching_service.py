@@ -26,7 +26,7 @@ class ArticleMatchingService:
         )  # TODO: Inject this with a methode in an other brache
         self.logger = get_logger(__name__)
 
-    async def process_matching_for_search_profile(
+    async def process_article_matching_for_search_profile(
         self, search_profile_id: UUID
     ):
         """
@@ -229,7 +229,9 @@ class ArticleMatchingService:
 
             tasks = [
                 asyncio.create_task(
-                    self.process_matching_for_search_profile(profile.id)
+                    self.process_article_matching_for_search_profile(
+                        profile.id
+                    )
                 )
                 for profile in profiles
             ]

@@ -40,7 +40,7 @@ async def create_matches_for_search_profile(
     """
 
     background_tasks.add_task(
-        ams.process_matching_for_search_profile, search_profile_id
+        ams.process_article_matching_for_search_profile, search_profile_id
     )
     return {
         "message": "Matches are being created "
