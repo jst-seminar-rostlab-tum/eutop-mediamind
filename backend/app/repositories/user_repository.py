@@ -1,14 +1,15 @@
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, Optional, Union
 
 from sqlalchemy import select
 from sqlalchemy.exc import NoResultFound
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.models import User
 from app.schemas.user_schema import UserEntity
 
 
-def _to_entity(user: User) -> UserEntity:
+def _to_user_entity(user: User) -> UserEntity:
     return UserEntity(
         id=user.id,
         clerk_id=user.clerk_id,
@@ -24,33 +25,21 @@ def _to_entity(user: User) -> UserEntity:
 
 
 async def get_user_by_clerk_id(
-    session,
-    clerk_id: str,
+    clerk_id: str, session: AsyncSession
 ) -> Optional[UserEntity]:
-    stmt = (
+    """
+    Fetch a user by clerk ID and return as UserEntity
+    including organization name.
+    """
+    query = (
         select(User)
         .options(selectinload(User.organization))
         .where(User.clerk_id == clerk_id)
     )
-    result = await session.execute(stmt)
+    result = await session.execute(query)
     user = result.scalar_one_or_none()
-    return _to_entity(user) if user else None
 
-
-async def get_user_list_by_org(
-    session,
-    user: UserEntity,
-) -> Union[List[UserEntity], UserEntity]:
-    if user.is_superuser:
-        stmt = select(User)
-    elif user.organization_id is None:
-        return user
-    else:
-        stmt = select(User).where(User.organization_id == user.organization_id)
-    stmt = stmt.options(selectinload(User.organization))
-    result = await session.execute(stmt)
-    users = result.scalars().all()
-    return [_to_entity(u) for u in users]
+    return _to_user_entity(user) if user else None
 
 
 async def create_user(
@@ -74,7 +63,7 @@ async def create_user(
     )
     result = await session.execute(stmt)
     user = result.scalar_one()
-    return _to_entity(user)
+    return _to_user_entity(user)
 
 
 async def update_user(
@@ -117,4 +106,25 @@ async def update_user(
         await session.commit()
         await session.refresh(user)
 
-    return _to_entity(user)
+    return _to_user_entity(user)
+
+
+async def get_user_list_from_organization(
+    user: User, session: AsyncSession
+) -> Union[list[User], User]:
+    """
+    Return all users in the same organization, or the user itself if
+    no organization.
+    Superusers receive all users.
+    """
+    if user.is_superuser:
+        query = select(User)
+    elif user.organization_id is None:
+        return user
+    else:
+        query = select(User).where(
+            User.organization_id == user.organization_id
+        )
+
+    users = await session.execute(query)
+    return users.scalars().all()
