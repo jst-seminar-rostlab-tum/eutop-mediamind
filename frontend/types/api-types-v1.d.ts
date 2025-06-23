@@ -427,6 +427,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/crawler/trigger_crawling": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Trigger Crawling */
+        post: operations["trigger_crawling_api_v1_crawler_trigger_crawling_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/crawler/trigger_scraping": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Trigger Scraping */
+        post: operations["trigger_scraping_api_v1_crawler_trigger_scraping_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/reports/{report_id}": {
         parameters: {
             query?: never;
@@ -1225,7 +1259,7 @@ export interface operations {
         parameters: {
             query: {
                 /** @description Clerk User ID */
-                clerk_user_id: string;
+                clerk_id: string;
                 /** @description Search Profile UUID */
                 search_profile_id: string;
             };
@@ -1615,6 +1649,58 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    trigger_crawling_api_v1_crawler_trigger_crawling_post: {
+        parameters: {
+            query?: {
+                date_start?: string;
+                date_end?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    trigger_scraping_api_v1_crawler_trigger_scraping_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
                 };
             };
         };
