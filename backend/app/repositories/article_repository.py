@@ -169,7 +169,7 @@ class ArticleRepository:
     @staticmethod
     async def list_articles_with_summary(
         limit: int = 100, offset: int = 0
-    ) -> Sequence[Article]:
+    ) -> List[Article]:
         """
         List articles that have a summary, with pagination.
         """
@@ -180,7 +180,7 @@ class ArticleRepository:
                 .limit(limit)
                 .offset(offset)
             )
-            summarized_articles: Sequence[Article] = (
+            summarized_articles: List[Article] = (
                 (await session.execute(statement)).scalars().all()
             )
 
