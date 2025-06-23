@@ -63,7 +63,7 @@ async def get_search_profile(
     return profile
 
 
-@router.post(
+@router.get(
     "/{search_profile_id}/matches", response_model=ArticleOverviewResponse
 )
 async def get_search_profile_overview(
