@@ -37,6 +37,31 @@ class Article(SQLModel, table=True):
     summary: str | None = Field(default=None, sa_column=Column(Text))
     status: ArticleStatus = Field(default=ArticleStatus.NEW, nullable=False)
 
+    title_en: Optional[str] = Field(
+        default=None,
+        sa_column=Column(Text, nullable=True)
+    )
+    title_de: Optional[str] = Field(
+        default=None,
+        sa_column=Column(Text, nullable=True)
+    )
+    content_en: Optional[str] = Field(
+        default=None,
+        sa_column=Column(Text, nullable=True)
+    )
+    content_de: Optional[str] = Field(
+        default=None,
+        sa_column=Column(Text, nullable=True)
+    )
+    summary_en: Optional[str] = Field(
+        default=None,
+        sa_column=Column(Text, nullable=True)
+    )
+    summary_de: Optional[str] = Field(
+        default=None,
+        sa_column=Column(Text, nullable=True)
+    )
+
     crawled_at: datetime = Field(default_factory=datetime.now)
     scraped_at: Optional[datetime] = Field(default=None, nullable=True)
 

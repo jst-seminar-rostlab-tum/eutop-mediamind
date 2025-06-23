@@ -143,3 +143,24 @@ class ArticleRepository:
                 .options(joinedload("*"))
             )
             return result.unique().scalars().all()
+
+    @staticmethod
+    async def update_article_translations(
+        article_id: UUID,
+        en: Optional[str] = None,
+        de: Optional[str] = None
+    ) -> Optional[Article]:
+        async with async_session() as session:
+            existing_article = await session.get(Article, article_id)
+            if not existing_article:
+                return None
+
+            if en is not None:
+                existing_article.content_en = en
+            if de is not None:
+                existing_article.content_de = de
+
+            session.add(existing_article)
+            await session.commit()
+            await session.refresh(existing_article)
+            return existing_article
