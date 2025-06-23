@@ -19,7 +19,7 @@ import { useNavigate } from "react-router";
 import { SidebarFilter } from "./sidebar-filter";
 import { ScrollArea } from "~/components/ui/scroll-area";
 import type { paths } from "types/api-types-v1";
-import { Skeleton } from "~/components/ui/skeleton";
+import { SearchProfileSkeleton } from "./search-profile-skeleton";
 
 const suppressSWRReloading = {
   refreshInterval: 0,
@@ -56,7 +56,7 @@ export function SearchProfileOverview() {
 
   useEffect(() => {
     if (!id) {
-      navigate("/Error/404");
+      navigate("/error/404");
     }
   }, [id, navigate]);
 
@@ -73,7 +73,7 @@ export function SearchProfileOverview() {
 
   useEffect(() => {
     if (profileError) {
-      navigate("/Error/404");
+      navigate("/error/404");
     }
   }, [profileError, navigate]);
 
@@ -96,12 +96,6 @@ export function SearchProfileOverview() {
     }
   }, [profile, profileError]);
 
-  // add skeletton or no matches later when Endpoints work
-  /*
-    if (isLoading) return <Skeleton />;
-    if (error) return <p>Error loading matches</p>;
-    */
-
   useEffect(() => {
     if (!profileReady) return;
 
@@ -117,7 +111,6 @@ export function SearchProfileOverview() {
       topics: selectedTopics,
       subscriptions: selectedSources,
     };
-    console.log("POST body:", requestBody);
     client
       .POST("/api/v1/search-profiles/{search_profile_id}/matches", {
         params: {
@@ -133,8 +126,6 @@ export function SearchProfileOverview() {
         }
       });
   }, [id, fromDate, toDate, sortBy, search, selectedTopics, selectedSources]);
-
-  //console.log(matches);
 
   const filteredMatches = useMemo(() => {
     if (!matches) return [];
@@ -187,54 +178,7 @@ export function SearchProfileOverview() {
   return (
     <Layout>
       {!profile || isProfileLoading ? (
-        <>
-          <div className="my-8">
-            <Skeleton className="h-4 w-[15%] mb-2" />
-            <div className="flex justify-start items-center gap-4">
-              <Skeleton className="h-10 w-[20%] rounded-md" />
-              <Skeleton className="h-6 w-[8%]" />
-              <Skeleton className="h-6 w-[10%]" />
-              <Skeleton className="h-6 w-[10%]" />
-            </div>
-          </div>
-          <div className="grid grid-cols-6 gap-8 mt-10">
-            {/* Sidebar skeleton */}
-            <div className="col-span-2 space-y-6 mt-2">
-              <Skeleton className="h-6 w-32" />
-              <Skeleton className="h-10 w-full rounded-md mb-8" />
-
-              <Skeleton className="h-6 w-32" />
-              <Skeleton className="h-8 w-full rounded-md" />
-              <Skeleton className="h-30 w-full rounded-md mb-8" />
-
-              <Skeleton className="h-6 w-32" />
-              <Skeleton className="h-8 w-full rounded-md" />
-              <Skeleton className="h-30 w-full rounded-md mb-8" />
-
-              <Skeleton className="h-6 w-32" />
-              <div className="flex gap-2">
-                <Skeleton className="h-10 w-full rounded-md" />
-                <Skeleton className="h-10 w-full rounded-md" />
-              </div>
-            </div>
-
-            {/* Content skeleton */}
-            <div className="col-span-4 space-y-6">
-              <Skeleton className="h-10 w-full rounded-md" />
-              {[...Array(4)].map((_, i) => (
-                <div key={i} className="p-4 border rounded-xl space-y-3">
-                  <Skeleton className="h-6 w-3/4" />
-                  <Skeleton className="h-4 w-full" />
-                  <Skeleton className="h-4 w-5/6" />
-                  <div className="flex gap-2 mt-2">
-                    <Skeleton className="h-6 w-24 rounded-lg" />
-                    <Skeleton className="h-6 w-32 rounded-lg" />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </>
+        <SearchProfileSkeleton />
       ) : (
         <>
           <Breadcrumb className="mt-8">
