@@ -11,6 +11,7 @@ from app.schemas.articles_schemas import (
     MatchDetailResponse,
 )
 from app.schemas.match_schemas import MatchFeedbackRequest
+from app.schemas.report_schemas import ReportListResponse, ReportRead
 from app.schemas.request_response import FeedbackResponse
 from app.schemas.search_profile_schemas import (
     KeywordSuggestionResponse,
@@ -18,6 +19,7 @@ from app.schemas.search_profile_schemas import (
     SearchProfileDetailResponse,
     SearchProfileUpdateRequest,
 )
+from app.services.report_service import ReportService
 from app.services.search_profiles_service import SearchProfileService
 
 router = APIRouter(
@@ -117,3 +119,28 @@ async def update_match_feedback(
             status_code=404, detail="Match not found or feedback update failed"
         )
     return FeedbackResponse(status="success")
+
+
+@router.get("/{search_profile_id}/reports", response_model=ReportListResponse)
+async def get_reports(
+    search_profile_id: UUID,
+    current_user: User = Depends(get_authenticated_user),
+):
+    profile = await SearchProfileService.get_search_profile_by_id(
+        search_profile_id, current_user
+    )
+    if profile is None:
+        raise HTTPException(status_code=404, detail="Search profile not found")
+
+    reports = await ReportService.get_reports_by_search_profile(
+        search_profile_id
+    )
+    if not reports:
+        raise HTTPException(
+            status_code=404, detail="No reports found for this profile"
+        )
+
+    reports_pydantic = [
+        ReportRead.model_validate(r, from_attributes=True) for r in reports
+    ]
+    return ReportListResponse(reports=reports_pydantic)
