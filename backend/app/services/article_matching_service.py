@@ -58,7 +58,7 @@ class ArticleMatchingService:
 
     async def _load_search_profile(self, profile_id: UUID) -> SearchProfile:
         profile = await SearchProfileRepository.get_search_profile_by_id(
-            profile_id, None
+            profile_id
         )
         if not profile:
             raise ValueError(f"Search profile with ID {profile_id} not found.")
@@ -208,7 +208,6 @@ class ArticleMatchingService:
         Clean up old matches and insert new ones in sorted order.
         """
 
-        matched_at = datetime.now()
         for order, (art_id, topic_id, score) in enumerate(matches):
             entry = next(r for r in results if r["article_id"] == art_id)
             match = Match(
@@ -217,7 +216,6 @@ class ArticleMatchingService:
                 topic_id=topic_id,
                 sorting_order=order,
                 comment=json.dumps(entry, default=str),
-                matched_at=matched_at,
                 score=score,
             )
             await MatchRepository.insert_match(match)
