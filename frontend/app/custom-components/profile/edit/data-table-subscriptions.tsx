@@ -25,6 +25,8 @@ import { ArrowUpDown } from "lucide-react";
 import { Input } from "~/components/ui/input";
 import { Switch } from "~/components/ui/switch";
 import type { Subscription } from "../../../../types/model";
+import { useTranslation } from "react-i18next";
+import type { TFunction } from "i18next";
 
 export interface MailingTableProps {
   name: string;
@@ -49,6 +51,7 @@ declare module "@tanstack/react-table" {
 
 const getColumns = (
   name: string,
+  t: TFunction,
   addSubscription: (s: Subscription) => void,
   removeSubscription: (s: Subscription) => void,
 ): ColumnDef<DataRow>[] => [
@@ -71,7 +74,7 @@ const getColumns = (
   },
   {
     accessorKey: "active",
-    header: "Active",
+    header: t("subscriptions.active"),
     cell: ({ row, table }) => (
       <Switch
         checked={row.getValue("active")}
@@ -140,8 +143,10 @@ export function DataTableSubscriptions({
     );
   }, [allSubscriptions]);
 
+  const { t } = useTranslation();
+
   const columns = React.useMemo(
-    () => getColumns(name, addSubscription, removeSubscription),
+    () => getColumns(name, t, addSubscription, removeSubscription),
     [name, addSubscription, removeSubscription],
   );
 
@@ -182,7 +187,10 @@ export function DataTableSubscriptions({
     <div className="w-full">
       <div className="flex items-center py-4 justify-between">
         <Input
-          placeholder={`Filter ${name.toLowerCase()}s...`}
+          placeholder={
+            "Filter " +
+            (name === "Source" ? name.toLowerCase() + "s..." : name + "n...")
+          }
           value={(table.getColumn("data")?.getFilterValue() as string) ?? ""}
           onChange={(event) =>
             table.getColumn("data")?.setFilterValue(event.target.value)
@@ -226,7 +234,7 @@ export function DataTableSubscriptions({
           ) : (
             <TableRow>
               <TableCell colSpan={columns.length} className="h-24 text-center">
-                No results.
+                {t("data-table-subscriptions.no_results")}
               </TableCell>
             </TableRow>
           )}

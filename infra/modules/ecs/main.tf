@@ -8,11 +8,14 @@ variable "vpc_id" { type = string }
 variable "secrets_arn" { type = string }
 variable "s3_backend_bucket" { type = string }
 variable "region" { type = string }
-variable "acm_certificate_arn" { type = string }
 variable "log_group_name" {
   type    = string
   default = null
 }
+variable "alb_target_group_arn" { type = string }
+variable "alb_listener_arn" { type = string }
+variable "alb_security_group_id" { type = string }
+
 locals {
   effective_log_group_name = var.log_group_name != null ? var.log_group_name : "/ecs/${var.service_name}"
 }
@@ -26,80 +29,17 @@ resource "aws_security_group" "ecs_service" {
   name_prefix = "${var.service_name}-sg-"
   description = "Allow inbound traffic to ECS service from ALB"
   vpc_id      = var.vpc_id
-  lifecycle {
-    create_before_destroy = true
-  }
   ingress {
-    from_port   = 8000
-    to_port     = 8000
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-  ingress {
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-  ingress {
-    from_port   = 443
-    to_port     = 443
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    from_port       = 8000
+    to_port         = 8000
+    protocol        = "tcp"
+    security_groups = [var.alb_security_group_id]
   }
   egress {
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
-  }
-}
-
-resource "aws_lb" "ecs_alb" {
-  name               = "${var.service_name}-alb"
-  internal           = false
-  load_balancer_type = "application"
-  subnets            = var.subnet_ids
-  security_groups    = [aws_security_group.ecs_service.id]
-}
-
-resource "aws_lb_target_group" "ecs" {
-  name        = "${var.service_name}-tg"
-  port        = 8000
-  protocol    = "HTTP"
-  vpc_id      = var.vpc_id
-  target_type = "ip"
-  health_check {
-    protocol = "HTTP"
-    path     = "/api/v1/healthcheck"
-    port     = "8000"
-  }
-}
-
-resource "aws_lb_listener" "https" {
-  load_balancer_arn = aws_lb.ecs_alb.arn
-  port              = 443
-  protocol          = "HTTPS"
-  ssl_policy        = "ELBSecurityPolicy-2016-08"
-  certificate_arn   = var.acm_certificate_arn
-
-  default_action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.ecs.arn
-  }
-}
-
-resource "aws_lb_listener" "http" {
-  load_balancer_arn = aws_lb.ecs_alb.arn
-  port              = 80
-  protocol          = "HTTP"
-  default_action {
-    type = "redirect"
-    redirect {
-      port        = "443"
-      protocol    = "HTTPS"
-      status_code = "HTTP_301"
-    }
   }
 }
 
@@ -198,14 +138,14 @@ resource "aws_ecs_service" "app" {
     security_groups  = [aws_security_group.ecs_service.id]
   }
   load_balancer {
-    target_group_arn = aws_lb_target_group.ecs.arn
+    target_group_arn = var.alb_target_group_arn
     container_name   = var.service_name
     container_port   = 8000
   }
-  depends_on = [aws_lb_listener.https]
+  depends_on = [aws_ecs_task_definition.app]
 }
 
 output "alb_dns_name" {
-  value       = aws_lb.ecs_alb.dns_name
-  description = "The DNS name of the Application Load Balancer for the ECS service."
+  value       = var.alb_listener_arn
+  description = "The ARN of the shared Application Load Balancer listener."
 }
