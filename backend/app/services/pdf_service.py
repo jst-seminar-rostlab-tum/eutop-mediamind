@@ -230,7 +230,7 @@ class PDFService:
         search_profile_id: uuid.UUID, timeslot: str, match_stop_time: datetime
     ) -> bytes:
         if timeslot not in ["morning", "afternoon", "evening"]:
-            raise logger.warning(
+            logger.info(
                 "Invalid timeslot. \
                 Must be one of: ['morning', 'afternoon', 'evening']"
             )

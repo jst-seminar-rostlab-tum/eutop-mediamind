@@ -9,6 +9,7 @@ from sqlalchemy.orm import selectinload  # New
 from app.core.db import async_session
 from app.models.article import Article
 from app.models.match import Match
+from app.models.search_profile import SearchProfile
 
 
 class ArticleRepository:
@@ -153,7 +154,7 @@ class ArticleRepository:
                     selectinload(Match.article).selectinload(Article.keywords),
                 )
                 .where(
-                    Match.search_profile_id == search_profile_id,
+                    Match.search_profile_id == SearchProfile.id,
                     Match.article.has(
                         Article.published_at >= match_start_time
                     ),
