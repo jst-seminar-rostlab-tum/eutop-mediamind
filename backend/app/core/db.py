@@ -2,6 +2,7 @@ import json
 import os
 
 import psycopg
+import redis
 from psycopg import OperationalError
 from psycopg import connection as PgConnection
 from qdrant_client import QdrantClient
@@ -22,6 +23,14 @@ logger = get_logger(__name__)
 engine: AsyncEngine = create_async_engine(str(configs.SQLALCHEMY_DATABASE_URI))
 async_session: AsyncSession = async_sessionmaker(
     engine, expire_on_commit=False
+)
+
+redis_engine = redis.Redis(
+    host=configs.REDIS_HOST,
+    port=configs.REDIS_PORT,
+    db=configs.REDIS_DB,
+    decode_responses=True,
+    password=getattr(configs, "REDIS_PASSWORD", None),
 )
 
 

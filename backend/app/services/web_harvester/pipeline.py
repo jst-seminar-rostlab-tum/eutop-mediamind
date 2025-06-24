@@ -166,7 +166,3 @@ def _handle_logout_and_cleanup(
                 f"Error logging out for subscription {subscription.name}: {e}",
             )
     driver.quit()
-
-
-if __name__ == "__main__":
-    asyncio.run(run_scraper())
