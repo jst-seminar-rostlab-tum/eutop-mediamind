@@ -73,13 +73,13 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
-        put?: never;
         /**
          * Sync User
          * @description Synchronize the current user with the external Clerk service.
          */
-        post: operations["sync_user_api_v1_users_sync_post"];
+        get: operations["sync_user_api_v1_users_sync_get"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -93,10 +93,16 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get Available Search Profiles */
+        /**
+         * Get Available Search Profiles
+         * @description Retrieve all search profiles available to the current user.
+         */
         get: operations["get_available_search_profiles_api_v1_search_profiles_get"];
         put?: never;
-        /** Create Search Profile */
+        /**
+         * Create Search Profile
+         * @description Create a new search profile for the current user.
+         */
         post: operations["create_search_profile_api_v1_search_profiles_post"];
         delete?: never;
         options?: never;
@@ -113,7 +119,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Get Keyword Suggestions */
+        /**
+         * Get Keyword Suggestions
+         * @description Return keyword suggestions based on a list of input keywords.
+         */
         post: operations["get_keyword_suggestions_api_v1_search_profiles_keywords_suggestions_post"];
         delete?: never;
         options?: never;
@@ -128,9 +137,15 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get Search Profile */
+        /**
+         * Get Search Profile
+         * @description Retrieve a specific search profile by its UUID.
+         */
         get: operations["get_search_profile_api_v1_search_profiles__search_profile_id__get"];
-        /** Update Search Profile */
+        /**
+         * Update Search Profile
+         * @description Update an existing search profile by its UUID.
+         */
         put: operations["update_search_profile_api_v1_search_profiles__search_profile_id__put"];
         post?: never;
         delete?: never;
@@ -146,7 +161,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get Search Profile Overview */
+        /**
+         * Get Search Profile Overview
+         * @description Retrieve an overview of articles for a given search profile.
+         */
         get: operations["get_search_profile_overview_api_v1_search_profiles__search_profile_id__overview_get"];
         put?: never;
         post?: never;
@@ -163,10 +181,33 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get Match Detail */
+        /**
+         * Get Match Detail
+         * @description Retrieve detailed match information for a specific article match.
+         */
         get: operations["get_match_detail_api_v1_search_profiles__search_profile_id__article__match_id__get"];
-        /** Update Match Feedback */
+        /**
+         * Update Match Feedback
+         * @description Update feedback for a specific match within a search profile.
+         */
         put: operations["update_match_feedback_api_v1_search_profiles__search_profile_id__article__match_id__put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/search-profiles/{search_profile_id}/reports": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Reports */
+        get: operations["get_reports_api_v1_search_profiles__search_profile_id__reports_get"];
+        put?: never;
         post?: never;
         delete?: never;
         options?: never;
@@ -191,69 +232,18 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/emails/{recipient_email}": {
+    "/api/v1/emails/test": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /** Trigger Email Sending */
-        get: operations["trigger_email_sending_api_v1_emails__recipient_email__get"];
+        /** Send Report Email */
+        get: operations["send_report_email_api_v1_emails_test_get"];
         put?: never;
         post?: never;
         delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/emails/pdf": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Trigger Pdf Creation */
-        get: operations["trigger_pdf_creation_api_v1_emails_pdf_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/vector-store/collections": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get Vector Store Collections */
-        get: operations["get_vector_store_collections_api_v1_vector_store_collections_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/vector-store/collections/{collection_name}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        /** Delete Vector Store Collection */
-        delete: operations["delete_vector_store_collection_api_v1_vector_store_collections__collection_name__delete"];
         options?: never;
         head?: never;
         patch?: never;
@@ -387,7 +377,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/matches/create-matches": {
+    "/api/v1/crawler/trigger_crawling": {
         parameters: {
             query?: never;
             header?: never;
@@ -396,29 +386,74 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /**
-         * Create Matches
-         * @description Create matches for articles in the background.
-         */
-        post: operations["create_matches_api_v1_matches_create_matches_post"];
+        /** Trigger Crawling */
+        post: operations["trigger_crawling_api_v1_crawler_trigger_crawling_post"];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/api/v1/matches": {
+    "/api/v1/crawler/trigger_scraping": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /**
-         * Get Matches By Search Profile
-         * @description Get matches by search profile ID.
-         */
-        get: operations["get_matches_by_search_profile_api_v1_matches_get"];
+        get?: never;
+        put?: never;
+        /** Trigger Scraping */
+        post: operations["trigger_scraping_api_v1_crawler_trigger_scraping_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/crawler/trigger_breaking_news_crawling": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Trigger Newsapi Crawling */
+        post: operations["trigger_newsapi_crawling_api_v1_crawler_trigger_breaking_news_crawling_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/crawler/get_breaking_news": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Breaking News */
+        get: operations["get_breaking_news_api_v1_crawler_get_breaking_news_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/reports/{report_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Report By Id */
+        get: operations["get_report_by_id_api_v1_reports__report_id__get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -493,33 +528,6 @@ export interface components {
             /** Suggestions */
             suggestions: string[];
         };
-        /** Match */
-        Match: {
-            /**
-             * Id
-             * Format: uuid
-             */
-            id?: string;
-            /**
-             * Article Id
-             * Format: uuid
-             */
-            article_id: string;
-            /**
-             * Search Profile Id
-             * Format: uuid
-             */
-            search_profile_id: string;
-            /** Topic Id */
-            topic_id?: string | null;
-            /**
-             * Sorting Order
-             * @default 0
-             */
-            sorting_order: number;
-            /** Comment */
-            comment?: string | null;
-        };
         /** MatchDetailResponse */
         MatchDetailResponse: {
             /**
@@ -566,6 +574,66 @@ export interface components {
             /** Ranking */
             ranking: number;
         };
+        /** ReportDetailResponse */
+        ReportDetailResponse: {
+            /**
+             * Search Profile Id
+             * Format: uuid
+             */
+            search_profile_id: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Time Slot */
+            time_slot?: string | null;
+            /** S3 Key */
+            s3_key: string;
+            /** @default pending */
+            status: components["schemas"]["ReportStatus"];
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** S3 Url */
+            s3_url?: string | null;
+        };
+        /** ReportListResponse */
+        ReportListResponse: {
+            /** Reports */
+            reports: components["schemas"]["ReportRead"][];
+        };
+        /** ReportRead */
+        ReportRead: {
+            /**
+             * Search Profile Id
+             * Format: uuid
+             */
+            search_profile_id: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Time Slot */
+            time_slot?: string | null;
+            /** S3 Key */
+            s3_key: string;
+            /** @default pending */
+            status: components["schemas"]["ReportStatus"];
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+        };
+        /**
+         * ReportStatus
+         * @enum {string}
+         */
+        ReportStatus: "pending" | "uploaded" | "failed";
         /** SearchProfileCreateRequest */
         SearchProfileCreateRequest: {
             /** Name */
@@ -822,7 +890,7 @@ export interface operations {
             };
         };
     };
-    sync_user_api_v1_users_sync_post: {
+    sync_user_api_v1_users_sync_get: {
         parameters: {
             query?: never;
             header?: never;
@@ -1093,6 +1161,37 @@ export interface operations {
             };
         };
     };
+    get_reports_api_v1_search_profiles__search_profile_id__reports_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                search_profile_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReportListResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     get_all_subscriptions_api_v1_subscriptions_get: {
         parameters: {
             query?: never;
@@ -1113,84 +1212,16 @@ export interface operations {
             };
         };
     };
-    trigger_email_sending_api_v1_emails__recipient_email__get: {
+    send_report_email_api_v1_emails_test_get: {
         parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                recipient_email: string;
+            query: {
+                /** @description Clerk User ID */
+                clerk_id: string;
+                /** @description Search Profile UUID */
+                search_profile_id: string;
             };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": unknown;
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    trigger_pdf_creation_api_v1_emails_pdf_get: {
-        parameters: {
-            query?: never;
             header?: never;
             path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": unknown;
-                };
-            };
-        };
-    };
-    get_vector_store_collections_api_v1_vector_store_collections_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": unknown;
-                };
-            };
-        };
-    };
-    delete_vector_store_collection_api_v1_vector_store_collections__collection_name__delete: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                collection_name: string;
-            };
             cookie?: never;
         };
         requestBody?: never;
@@ -1466,10 +1497,11 @@ export interface operations {
             };
         };
     };
-    create_matches_api_v1_matches_create_matches_post: {
+    trigger_crawling_api_v1_crawler_trigger_crawling_post: {
         parameters: {
             query?: {
-                page_size?: number;
+                date_start?: string;
+                date_end?: string;
             };
             header?: never;
             path?: never;
@@ -1497,11 +1529,9 @@ export interface operations {
             };
         };
     };
-    get_matches_by_search_profile_api_v1_matches_get: {
+    trigger_scraping_api_v1_crawler_trigger_scraping_post: {
         parameters: {
-            query: {
-                search_profile_id: string;
-            };
+            query?: never;
             header?: never;
             path?: never;
             cookie?: never;
@@ -1514,7 +1544,69 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["Match"][];
+                    "application/json": unknown;
+                };
+            };
+        };
+    };
+    trigger_newsapi_crawling_api_v1_crawler_trigger_breaking_news_crawling_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+        };
+    };
+    get_breaking_news_api_v1_crawler_get_breaking_news_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+        };
+    };
+    get_report_by_id_api_v1_reports__report_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                report_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReportDetailResponse"];
                 };
             };
             /** @description Validation Error */

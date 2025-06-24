@@ -16,16 +16,18 @@ import {
 import { MoreHorizontal, Trash } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { Checkbox } from "~/components/ui/checkbox";
+import { useTranslation } from "react-i18next";
 
 export function getOrgaColumns(
   handleEdit: (name: string) => void,
   setDeleteTarget: (target: DeleteTarget) => void,
   setOpenDeleteDialog: React.Dispatch<React.SetStateAction<boolean>>,
 ): ColumnDef<Organization>[] {
+  const { t } = useTranslation();
   return [
     {
       accessorKey: "name",
-      header: "Organization Name",
+      header: "Name",
     },
     {
       id: "actions",
@@ -41,7 +43,7 @@ export function getOrgaColumns(
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem onClick={() => handleEdit(orgName)}>
-                Edit
+                {t("Edit")}
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => {
@@ -53,7 +55,7 @@ export function getOrgaColumns(
                 }}
                 className="text-red-500"
               >
-                Delete
+                {t("Delete")}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -68,8 +70,9 @@ export function getSubsColumns(
   setDeleteTarget: (target: DeleteTarget) => void,
   setOpenDeleteDialog: React.Dispatch<React.SetStateAction<boolean>>,
 ): ColumnDef<Subscription>[] {
+  const { t } = useTranslation();
   return [
-    { accessorKey: "name", header: "Subscriptions" },
+    { accessorKey: "name", header: "Name" },
     { accessorKey: "url", header: "URL" },
     {
       id: "actions",
@@ -85,7 +88,7 @@ export function getSubsColumns(
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem onClick={() => onEdit(index)}>
-                Edit
+                {t("Edit")}
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => {
@@ -94,7 +97,7 @@ export function getSubsColumns(
                 }}
                 className="text-red-500"
               >
-                Delete
+                {t("Delete")}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -108,6 +111,7 @@ export function getUserColumns(
   onRoleChange: (index: number, role: "admin" | "user") => void,
   onDelete: (index: number) => void,
 ): ColumnDef<User>[] {
+  const { t } = useTranslation();
   return [
     {
       id: "select",
@@ -137,7 +141,7 @@ export function getUserColumns(
     },
     {
       accessorKey: "role",
-      header: "Role",
+      header: t("admin.role"),
       cell: ({ row }) => {
         const role = row.getValue("role") as "admin" | "user";
         const index = row.index;
@@ -153,8 +157,8 @@ export function getUserColumns(
               <SelectValue placeholder="Select role" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="admin">admin</SelectItem>
-              <SelectItem value="user">user</SelectItem>
+              <SelectItem value="admin">{t("admin.admin")}</SelectItem>
+              <SelectItem value="user">{t("admin.user")}</SelectItem>
             </SelectContent>
           </Select>
         );

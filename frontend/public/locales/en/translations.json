@@ -1,0 +1,146 @@
+{
+  "login": "Login",
+  "edit": "edit",
+  "Edit": "Edit",
+  "delete": "delete",
+  "back": "back",
+  "leave": "leave",
+  "Back": "Back",
+  "Leave": "Leave",
+  "Add": "Add",
+  "Delete": "Delete",
+  "search": "Search",
+  "Cancel": "Cancel",
+  "save_changes": "Save Changes",
+
+  "landing_page": {
+    "welcome": "Welcome to MediaMind",
+    "welcome_text": "Stay ahead in the fast-changing world of media with our Automated Press Analysis Tool. Keep your client teams informed and prepared with daily press reviews, personalized to your needs. Our platform extracts and compiles the most relevant news articles into concise, anonymized reports – delivered directly to your inbox each morning. Save time, stay informed, and focus on what matters most – delivering value to your clients.",
+    "credits": "MediaMind was build in cooperation between EUTOP, the Technical University of Munich and CSEE during the Javascript Technology Practicum."
+  },
+
+  "dashboard": {
+    "dashboard": "Dashbaord",
+    "profile": "Profiles",
+    "new_articles": "new articles",
+    "profiles_loading": "Load profiles ...",
+    "breaking_news": "Breaking News",
+    "read_more": "Read more"
+  },
+
+  "confirmation_dialog": {
+    "title": "Are you sure?",
+    "delete_text": "This will permanently delete this entity",
+    "leave_text": "Unsaved changes will be permanently lost",
+    "unsaved_text": "You have unsaved changes"
+  },
+
+  "edit_profile": {
+    "create": "Create Profile: ",
+    "edit": "Edit Profile: ",
+    "profile_name": "Profile name",
+    "new_profile": "New Profile",
+    "general": "General",
+    "topics": "Topics",
+    "mailing": "Mailing",
+    "subscriptions": "Subscriptions",
+    "search_user": "Search user...",
+    "loading": "Loading...",
+    "no_user": "No user found.",
+    "creating": "Creating...",
+    "saving": "Saving...",
+    "save_create": "Create Profile",
+    "save_changes": "Save Changes"
+  },
+
+  "general": {
+    "visibility": "Visibility",
+    "public": "Public",
+    "public_text": "A public profile can be viewed by anyone in your organization, while a private profile is only visible to you.",
+    "ownership": "Ownership",
+    "ownership_text": "Transfer ownership of the profile",
+    "select_user": "Select user...",
+    "user_error": "Failed to load users."
+  },
+
+  "topics": {
+    "AI_error": "Failed to get AI suggestions.",
+    "topic_error": "Can't add the same topic twice",
+    "header": "Topics and Keywords",
+    "info": "Manage topics and keywords for news monitoring",
+    "select_topic": "Select Topic",
+    "label": "Topic: ",
+    "add": "+ Add topic",
+    "AI_header": "AI Keyword Suggestions",
+    "no_suggestions": "No new suggestions available"
+  },
+
+  "keyword-field": {
+    "header": "Keywords",
+    "placeholder": "+ Add keyword"
+  },
+
+  "mailing": {
+    "header": "Mailing List",
+    "info": "Configure profile contact database for press release distribution",
+    "Internal": "Internal",
+    "External": "External",
+    "internal": "internal",
+    "external": "external",
+    "filter": "filter {{type}} emails"
+  },
+
+  "data-table-mailing": {
+    "actions": "actions",
+    "no_results": "No results.",
+    "of": "of",
+    "rows_selected": "row(s) selected."
+  },
+
+  "subscriptions": {
+    "header": "Sources",
+    "source": "Source",
+    "info": "Configure web scraping sources used for the external mailing list",
+    "no_results": "No results.",
+    "active": "Active"
+  },
+
+  "admin": {
+    "settings": "settings",
+    "header": "Admin Settings",
+    "organizations": "Organizations",
+    "subscriptions": "Subscriptions",
+    "orga_header": "Manage Organizations",
+    "orga_text": "Make changes to your Organizations here. You can add, edit or delete them",
+    "subs_header": "Manage Subscriptions",
+    "subs_text": "Make changes to your Subscriptions here. You can add, edit or delete them",
+    "admin": "admin",
+    "user": "user",
+    "add_user": "Add User...",
+    "no_user": "No user found.",
+    "no_results": "No results.",
+    "role": "Role"
+  },
+
+  "organization-dialog": {
+    "edit_header": "Edit Organization",
+    "add_header": "Add Organization",
+    "edit_text": "Edit your organization here. Click save when you're done.",
+    "add_text": "Enter the name of the Organization you want to add. Click save when you're done.",
+    "name_error_header": "Organization Name is Empty",
+    "name_error_text": "Please insert a valid Organization Name",
+    "email_error_header": "Invalid Email",
+    "email_error_text": "Please insert a valid and unique email address."
+  },
+
+  "subscription-dialog": {
+    "edit_header": "Edit Subscription",
+    "add_header": "Add Subscription",
+    "edit_text": "Edit your Subscription here. Click save when you're done.",
+    "add_text": "Enter the name of the Subscription you want to add. Click save when you're done.",
+    "credentials_error_header": "Invalid Credentials",
+    "credentials_error_text": "Please insert valid credentials.",
+    "username": "Username",
+    "password": "Password"
+  }
+}
