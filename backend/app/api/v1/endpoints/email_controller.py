@@ -200,7 +200,7 @@ def build_email_content(
                   </a>
                 </div>
                 <div style="margin-bottom:25px; padding-bottom:25px; border-bottom:1px solid #e9ecef;">
-                  <b>Note:</b> The download link expires after 7 days. After that, you can still access your report anytime via your dashboard. (<a style="font-weight:600; color:#1e5091" href="{dashboard_link}">click here</a>).
+                  <b>Note:</b> The download link expires after 7 days. After that, you can still access your report anytime via your dashboard (<a style="font-weight:600; color:#1e5091" href="{dashboard_link}">click here</a>).
                 </div>
                 <div style="color:#888; font-size:0.9em;">
                   If the link above does not work, copy and paste this URL into your browser:<br />
