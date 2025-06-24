@@ -95,27 +95,6 @@ class MatchRepository:
             return result.scalar_one_or_none() or 0
 
     @staticmethod
-    async def cleanup_matches(
-        search_profile_id: UUID, match_date: date
-    ) -> bool:
-        """
-        Delete all Match entries for the given
-        search_profile_id and match_date.
-
-        Returns:
-            bool: True if any matches were deleted,
-            False otherwise.
-        """
-        async with async_session() as session:
-            delete_stmt = delete(Match).where(
-                Match.search_profile_id == search_profile_id,
-                Match.match_date == match_date,
-            )
-            result = await session.execute(delete_stmt)
-            await session.commit()
-            return result.rowcount > 0
-
-    @staticmethod
     async def insert_match(match: Match) -> Match:
         """
         Insert a new Match into the database.

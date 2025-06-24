@@ -1,6 +1,6 @@
 import asyncio
 import json
-from datetime import date
+from datetime import date, datetime
 from typing import Dict, List, Set, Tuple
 from uuid import UUID
 
@@ -207,8 +207,9 @@ class ArticleMatchingService:
         """
         Clean up old matches and insert new ones in sorted order.
         """
-        await MatchRepository.cleanup_matches(profile_id, date.today())
-        for order, (art_id, topic_id, _) in enumerate(matches):
+
+        matched_at = datetime.now()
+        for order, (art_id, topic_id, score) in enumerate(matches):
             entry = next(r for r in results if r["article_id"] == art_id)
             match = Match(
                 article_id=art_id,
@@ -216,7 +217,8 @@ class ArticleMatchingService:
                 topic_id=topic_id,
                 sorting_order=order,
                 comment=json.dumps(entry, default=str),
-                match_date=date.today(),
+                matched_at=matched_at,
+                score=score,
             )
             await MatchRepository.insert_match(match)
 
