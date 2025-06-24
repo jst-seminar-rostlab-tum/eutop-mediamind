@@ -230,7 +230,7 @@ class PDFService:
             )
         elif timeslot == "morning":
             match_start_time = match_stop_time - timedelta(
-                hours=9
+                hours=700
             )  # For testing you maybe should increment the hours
         elif timeslot == "afternoon":
             match_start_time = match_stop_time - timedelta(hours=8)
@@ -506,7 +506,7 @@ class PDFService:
             meta_para = Paragraph(
                 f"""
                 <para>
-                <font size="9">{news.newspaper}</font><br/>
+                <font size="9">{news.newspaper.name}</font><br/>
                 <font size="9">{news.published_at}</font>
                 </para>
                 """,
@@ -618,7 +618,7 @@ class PDFService:
             story.append(Spacer(1, 0.05 * inch))
             story.append(
                 Paragraph(
-                    f'<link href="{news.url}">{news.newspaper}</link>' or "",
+                    f'<link href="{news.url}">{news.newspaper.name}</link>' or "",
                     PDFService.keywords_style,
                 )
             )
@@ -644,7 +644,6 @@ class PDFService:
                     PDFService.link_style,
                 )
             )
-            story.append(Spacer(1, 0.15 * inch))
             if i != len(news_items) - 1:
                 story.append(
                     HRFlowable(
@@ -653,7 +652,7 @@ class PDFService:
                         color=colors.HexColor("#003366"),
                     )
                 )
-                story.append(Spacer(1, 0.2 * inch))
+                story.append(Spacer(1, 0.1 * inch))
         return story
 
     @staticmethod
@@ -673,7 +672,7 @@ class PDFService:
 
             # Wrap metadata in a styled table box
             metadata_text = f"""
-            Published at: {news.published_at} | Newspaper: {news.newspaper}
+            Published at: {news.published_at} | Newspaper: {news.newspaper.name}
                     """
             metadata_para = Paragraph(metadata_text, PDFService.metadata_style)
             metadata_first = Table(
@@ -771,7 +770,7 @@ class PDFService:
                 ],
                 [
                     Paragraph("Newspaper:", PDFService.metadata_style),
-                    Paragraph(news.newspaper, PDFService.metadata_style),
+                    Paragraph(news.newspaper.name, PDFService.metadata_style),
                 ],
                 [
                     Paragraph(
