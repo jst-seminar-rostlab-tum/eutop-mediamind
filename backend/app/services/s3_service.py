@@ -32,7 +32,7 @@ class S3Service:
         )
 
     async def upload_fileobj(
-        self, file_bytes: bytes, bucket: str = None, key: str = ""
+        self, file_bytes: bytes, bucket: str | None = None, key: str = ""
     ):
         """
         Uploads an object to S3.
