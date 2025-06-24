@@ -1,5 +1,4 @@
 import json
-import locale
 import os
 import random
 from dataclasses import dataclass
@@ -50,6 +49,7 @@ colors = {
     "whitesmoke": colors.HexColor("#F5F5F5"),
     "darkgreen": colors.HexColor("#006400"),
 }
+
 
 @dataclass
 class NewsItem:
@@ -138,9 +138,7 @@ class PDFService:
     )
     button_style = ParagraphStyle(
         "Link",
-        fontName=(
-            "DVS-Bold" if _fonts_registered else "Helvetica-Bold"
-        ),
+        fontName=("DVS-Bold" if _fonts_registered else "Helvetica-Bold"),
         fontSize=8,
         textColor=colors["electricBlue"],
         spaceAfter=6,
@@ -154,7 +152,7 @@ class PDFService:
         fontName="DVS-Bold" if _fonts_registered else "Helvetica-Bold",
         fontSize=11,
         leading=13,
-        textColor=colors['main'],
+        textColor=colors["main"],
     )
     keywords_style = ParagraphStyle(
         "Keywords",
@@ -273,7 +271,7 @@ class PDFService:
                 category=article.category.name if article.category else None,
                 summary=article.summary or "No summary available.",
                 subscription_id=article.subscription.id,
-                newspaper=article.subscription or "Unknown",            
+                newspaper=article.subscription or "Unknown",
                 keywords=[keyword.name for keyword in article.keywords],
                 image_url=None,  # Placeholder
                 people=people,
@@ -426,7 +424,7 @@ class PDFService:
         # Title
         story.append(
             Paragraph(
-                f"<b> \
+                "<b> \
                    <font size=36>Daily News Report</font>\
                 </b>",
                 styles["Title"],
@@ -587,7 +585,7 @@ class PDFService:
                 Paragraph(f"<b>{now_str}</b>", style),
             ]
         ]
-        #4.5 is the width of the first column, 4 is the second
+        # 4.5 is the width of the first column, 4 is the second
         table = Table(data, colWidths=[4.25 * inch, 4 * inch])
         table.setStyle(
             TableStyle(
@@ -625,7 +623,8 @@ class PDFService:
             story.append(Spacer(1, 0.05 * inch))
             story.append(
                 Paragraph(
-                    f'<link href="{news.url}">{news.newspaper.name}</link>' or "",
+                    f'<link href="{news.url}">{news.newspaper.name}</link>'
+                    or "",
                     PDFService.keywords_style,
                 )
             )
@@ -653,11 +652,7 @@ class PDFService:
             )
             if i != len(news_items) - 1:
                 story.append(
-                    HRFlowable(
-                        width="100%",
-                        thickness=1,
-                        color=colors["main"]
-                    )
+                    HRFlowable(width="100%", thickness=1, color=colors["main"])
                 )
                 story.append(Spacer(1, 0.1 * inch))
         return story
@@ -679,7 +674,8 @@ class PDFService:
 
             # Wrap metadata in a styled table box
             metadata_text = f"""
-            Published at: {news.published_at} | Newspaper: {news.newspaper.name}
+            Published at: {news.published_at} |
+             Newspaper: {news.newspaper.name}
                     """
             metadata_para = Paragraph(metadata_text, PDFService.metadata_style)
             metadata_first = Table(
