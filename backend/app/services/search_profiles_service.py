@@ -10,16 +10,14 @@ from sqlalchemy.orm import selectinload
 
 from app.core.db import async_session
 from app.models import SearchProfile, Topic, User
-from app.repositories.email_repository import EmailRepository
 from app.models.associations import ArticleKeywordLink
 from app.models.match import Match
 from app.repositories.article_repository import ArticleRepository
+from app.repositories.email_repository import EmailRepository
 from app.repositories.keyword_repository import KeywordRepository
 from app.repositories.match_repository import MatchRepository
 from app.repositories.search_profile_repository import SearchProfileRepository
-from app.repositories.subscription_repository import (
-    SubscriptionRepository,
-)
+from app.repositories.subscription_repository import SubscriptionRepository
 from app.repositories.topics_repository import TopicsRepository
 from app.schemas.articles_schemas import (
     ArticleOverviewResponse,
@@ -336,11 +334,13 @@ class SearchProfileService:
             ]
             print(f"Filtered matches by subscriptions: {len(matches)} matches")
         async with async_session() as session:
-            profile: SearchProfile = await SearchProfileRepository.get_accessible_profile_by_id(
-                search_profile_id,
-                user_id=current_user.id,
-                organization_id=current_user.organization_id,
-                session=session,
+            profile: SearchProfile = (
+                await SearchProfileRepository.get_accessible_profile_by_id(
+                    search_profile_id,
+                    user_id=current_user.id,
+                    organization_id=current_user.organization_id,
+                    session=session,
+                )
             )
         if request.topics:
             # gather keyword info to infer topic scores
@@ -435,11 +435,13 @@ class SearchProfileService:
             return None
         a = match.article
         async with async_session() as session:
-            profile = await SearchProfileRepository.get_accessible_profile_by_id(
-                search_profile_id,
-                user_id=current_user.id,
-                organization_id=current_user.organization_id,
-                session=session,
+            profile = (
+                await SearchProfileRepository.get_accessible_profile_by_id(
+                    search_profile_id,
+                    user_id=current_user.id,
+                    organization_id=current_user.organization_id,
+                    session=session,
+                )
             )
 
         # get keyword links for the article

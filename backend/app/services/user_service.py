@@ -5,9 +5,7 @@ from app.repositories.user_repository import create_user as repo_create_user
 from app.repositories.user_repository import (
     get_user_by_clerk_id as repo_get_by_clerk_id,
 )
-from app.repositories.user_repository import (
-    get_user_list_from_organization,
-)
+from app.repositories.user_repository import get_user_list_from_organization
 from app.repositories.user_repository import update_user as repo_update_user
 from app.schemas.user_schema import UserEntity
 
