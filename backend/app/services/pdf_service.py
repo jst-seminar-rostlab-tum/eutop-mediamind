@@ -35,10 +35,6 @@ from app.core.logger import get_logger
 from app.models.search_profile import SearchProfile
 from app.repositories.article_repository import ArticleRepository
 
-# TODO: Move colors to a separate module, Move only the needed styles to a
-# Stylesheet
-
-
 # EUTOP colors #FFED00 #164194
 mainColor = colors.HexColor("#003366")
 blueColor = colors.HexColor("#164194")
@@ -46,9 +42,7 @@ electricBlue = colors.HexColor("#393be7")
 yellowColor = colors.HexColor("#FFED00")
 darkGrey = colors.HexColor("#525252")
 
-
 logger = get_logger(__name__)
-
 
 @dataclass
 class NewsItem:
@@ -223,8 +217,8 @@ class PDFService:
             )
         elif timeslot == "morning":
             match_start_time = match_stop_time - timedelta(
-                hours=500
-            )  # TODO: 9 hours, but for testing
+                hours=9
+            )  # For testing you maybe should increment the hours
         elif timeslot == "afternoon":
             match_start_time = match_stop_time - timedelta(hours=8)
         elif timeslot == "evening":
@@ -233,12 +227,6 @@ class PDFService:
         articles = await ArticleRepository.get_matched_articles_for_profile(
             search_profile, match_start_time, match_stop_time
         )
-
-        # TODO: Change locale based on translation needs for future use cases
-        # For German, for example
-        # locale.setlocale(locale.LC_TIME, "de_DE.UTF-8")
-        # To set back to English (US)
-        locale.setlocale(locale.LC_TIME, "en_US.UTF-8")
 
         # Here we can look that the metadata is working
         news_items = []
@@ -257,7 +245,7 @@ class PDFService:
                 url=article.url,
                 author=article.author.name if article.author else "Unknown",
                 published_at=(
-                    article.published_at.strftime("%d %B %Y – %I:%M%p")
+                    article.published_at.strftime("%d %B %Y – %I:%M")
                     if article.published_at
                     else None
                 ),
@@ -265,15 +253,7 @@ class PDFService:
                 category=article.category.name if article.category else None,
                 summary=article.summary or "No summary available.",
                 subscription_id=article.subscription.id,
-                newspaper=(
-                    "Münchner Merkur"
-                    if getattr(article.subscription, "name", None)
-                    == "MÃ¼nchner Merkur"
-                    else (
-                        getattr(article.subscription, "name", None)
-                        or "Unknown"
-                    )
-                ),
+                newspaper=article.subscription or "Unknown",            
                 keywords=[keyword.name for keyword in article.keywords],
                 image_url=None,  # Placeholder
                 people=people,
@@ -423,21 +403,6 @@ class PDFService:
         )
 
         story = []
-        # # Logo
-        # try:
-        #     drawing = svg2rlg("assets/eutop_logo.svg")
-        #     scale = 0.7
-        #     drawing.scale(scale, scale)
-        #     drawing.width *= scale
-        #     drawing.height *= scale
-
-        #     drawing_wrapper = Drawing(width, drawing.height)
-        #     drawing_wrapper.add(drawing, name="logo")
-        #     drawing_wrapper.translate((width - drawing.width) / 4, 0)
-        #     story.append(drawing_wrapper)
-        # except Exception as e:
-        #     logger.error(f"Error loading SVG logo: {e}")
-        # story.append(Spacer(1, 0.5 * inch))
         # Title
         story.append(
             Paragraph(
@@ -447,17 +412,9 @@ class PDFService:
                 styles["Title"],
             )
         )
-        # story.append(Spacer(1, 0.2 * inch))
-        # story.append(
-        #     Paragraph(
-        #         f"<b><font size=36 color='{electricBlue}'>"
-        #         f"{search_profile.name}</font></b>",
-        #         styles["Title"],
-        #     )
-        # )
         story.append(Spacer(1, 0.3 * inch))
         # Subtitle with current date and time
-        now_str = datetime.today().strftime("%d %B %Y – %I:%M%p")
+        now_str = datetime.today().strftime("%d %B %Y – %H:%M")
         story.append(
             Paragraph(
                 f"<b><font size=16 color='{blueColor}'>{now_str}</font></b>",
@@ -602,31 +559,15 @@ class PDFService:
             leading=12,
         )
 
-        now_str = datetime.today().strftime("%d %B %Y – %I:%M%p")
+        now_str = datetime.today().strftime("%d %B %Y – %I:%M")
 
-        # # Load and scale SVG logo
-        # try:
-        #     drawing = svg2rlg("assets/eutop_logo.svg")
-        #     target_height = 0.17 * inch
-        #     scale = target_height / drawing.height
-        #     drawing.width *= scale
-        #     drawing.height *= scale
-        #     drawing.scale(scale, scale)
-
-        #     # Wrap in a Drawing for compatibility in table
-        #     wrapped_drawing = Drawing(drawing.width, drawing.height)
-        #     wrapped_drawing.add(drawing)
-        # except Exception as e:
-        #     logger.error(f"Could not load logo: {e}")
-        #     wrapped_drawing = ""
-
-        # Construct table with Header,Time,SVG
         data = [
             [
                 Paragraph("<b>Daily News Report</b>", style),
                 Paragraph(f"<b>{now_str}</b>", style),
             ]
         ]
+        #4.5 is the width of the first column, 4 is the second
         table = Table(data, colWidths=[4.25 * inch, 4 * inch])
         table.setStyle(
             TableStyle(
