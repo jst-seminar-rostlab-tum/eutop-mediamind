@@ -35,10 +35,9 @@ from app.core.logger import get_logger
 from app.models.search_profile import SearchProfile
 from app.repositories.article_repository import ArticleRepository
 
-# EUTOP colors #FFED00 #164194
 mainColor = colors.HexColor("#003366")
 blueColor = colors.HexColor("#164194")
-electricBlue = colors.HexColor("#393be7")
+electricBlue = colors.HexColor("#393be7") #EUTOPS color
 yellowColor = colors.HexColor("#FFED00")
 darkGrey = colors.HexColor("#525252")
 
