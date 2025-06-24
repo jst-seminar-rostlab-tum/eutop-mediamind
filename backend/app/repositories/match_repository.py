@@ -1,8 +1,7 @@
-from datetime import date, datetime, timezone
+from datetime import datetime, timezone
 from typing import List
 from uuid import UUID
 
-from sqlalchemy import delete
 from sqlalchemy.future import select
 from sqlalchemy.orm import selectinload
 from sqlmodel import func
