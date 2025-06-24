@@ -449,27 +449,27 @@ class PDFService:
         )
 
         # Total reading time (compact Flowable)
-        class ReadingTimeFlowable(Flowable):
-            def __init__(self, minutes):
+        class EstimatedReadingTimeFlowable(Flowable):
+            def __init__(self, estimated_minutes):
                 super().__init__()
-                self.minutes = minutes
+                self.estimated_minutes = estimated_minutes
 
-            def wrap(self, aw, ah):
-                return aw, 16
+            def wrap(self, available_width, available_height):
+                return available_width, 16
 
             def draw(self):
-                c = self.canv
-                c.setFont("DVS", 12)
-                c.setFillColor(colors["darkgreen"])
-                txt = "Estimated Reading Time: "
-                c.drawString(0, 0, txt)
-                w = c.stringWidth(txt, "DVS", 12)
-                c.setFont("DVS-Bold", 12)
-                c.drawString(w, 0, str(self.minutes))
-                w += c.stringWidth(str(self.minutes), "DVS-Bold", 12)
-                c.drawString(w, 0, " min")
+                canvas = self.canv
+                canvas.setFont("DVS", 12)
+                canvas.setFillColor(colors["darkgreen"])
+                label = "Estimated Reading Time: "
+                canvas.drawString(0, 0, label)
+                label_width = canvas.stringWidth(label, "DVS", 12)
+                canvas.setFont("DVS-Bold", 12)
+                canvas.drawString(label_width, 0, str(self.estimated_minutes))
+                label_width += canvas.stringWidth(str(self.estimated_minutes), "DVS-Bold", 12)
+                canvas.drawString(label_width, 0, " min")
 
-        story.append(ReadingTimeFlowable(total_minutes))
+        story.append(EstimatedReadingTimeFlowable(total_minutes))
         story.append(Spacer(1, 0.3 * inch))
 
         # Add spacing before TOC
