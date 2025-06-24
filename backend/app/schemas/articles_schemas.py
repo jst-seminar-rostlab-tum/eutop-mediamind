@@ -4,6 +4,7 @@ from uuid import UUID
 from pydantic import BaseModel, ConfigDict
 
 from app.models import Match
+from app.models.article import ArticleStatus
 
 
 class ArticleOverviewItem(BaseModel):
@@ -43,6 +44,9 @@ class MatchArticleOverviewContent(BaseModel):
     published: datetime
     crawled: datetime
     newspaper_id: UUID | None = None
+    authors: list[str] | None = None
+    categories: list[str] | None = None
+    status: ArticleStatus | None = None
 
 
 class MatchTopicItem(BaseModel):

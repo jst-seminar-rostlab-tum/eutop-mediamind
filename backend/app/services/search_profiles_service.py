@@ -336,7 +336,7 @@ class SearchProfileService:
             ]
             print(f"Filtered matches by subscriptions: {len(matches)} matches")
         async with async_session() as session:
-            profile: SearchProfile = await get_accessible_profile_by_id(
+            profile: SearchProfile = await SearchProfileRepository.get_accessible_profile_by_id(
                 search_profile_id,
                 user_id=current_user.id,
                 organization_id=current_user.organization_id,
@@ -435,7 +435,7 @@ class SearchProfileService:
             return None
         a = match.article
         async with async_session() as session:
-            profile = await get_accessible_profile_by_id(
+            profile = await SearchProfileRepository.get_accessible_profile_by_id(
                 search_profile_id,
                 user_id=current_user.id,
                 organization_id=current_user.organization_id,
@@ -488,7 +488,9 @@ class SearchProfileService:
                 image_urls=["http"] or [],
                 published=a.published_at,
                 crawled=a.crawled_at,
-                author=a.author,
+                authors=a.authors or [],
+                status=a.status,
+                categories=a.categories or [],
                 language=a.language,
                 newspaper_id=a.subscription_id,
             ),
