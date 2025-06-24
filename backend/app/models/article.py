@@ -11,6 +11,7 @@ from app.models.associations import (
 )
 
 if TYPE_CHECKING:
+    from app.models.entity import ArticleEntity
     from app.models.keyword import Keyword
     from app.models.match import Match
     from app.models.subscription import Subscription
@@ -77,3 +78,4 @@ class Article(SQLModel, table=True):
         link_model=ArticleKeywordLink,
     )
     matches: List["Match"] = Relationship(back_populates="article")
+    entities: List["ArticleEntity"] = Relationship(back_populates="article")

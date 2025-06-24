@@ -1,105 +1,171 @@
+import json
 import uuid
-from typing import Optional, Sequence
+from typing import Sequence
 
-from langchain.chains.summarize import load_summarize_chain
-from langchain.docstore.document import Document
-from langchain.text_splitter import CharacterTextSplitter
-from langchain_openai import ChatOpenAI
-from starlette.concurrency import run_in_threadpool
-
-from app.core.config import configs
 from app.core.logger import get_logger
 from app.models.article import Article
 from app.repositories.article_repository import ArticleRepository
+from app.repositories.entity_repository import ArticleEntityRepository
+from app.services.llm_service.llm_client import LLMClient
+from app.services.llm_service.llm_models import LLMModels
 
 logger = get_logger(__name__)
 
 
 class ArticleSummaryService:
+
     @staticmethod
-    def summarize_text(text: str) -> str:
+    def build_prompt(article: Article) -> str:
+        return (
+            f"Summarize the following article in a clear, neutral, "
+            f"and informative tone, covering all major points without "
+            f"omitting key details. "
+            f"Then, extract and list separately:\n"
+            f"- Persons mentioned\n"
+            f"- Industries mentioned\n"
+            f"- Events mentioned\n"
+            f"- Organizations mentioned\n"
+            f"Article content:\n{article.content}\n\n"
+            f"Return your answer as a JSON object with the"
+            f"following structure:\n"
+            f"{{\n"
+            f'  "summary": "<summary text>",\n'
+            f'  "persons": ["person1", "person2", ...],\n'
+            f'  "industries": ["industry1", "industry2", ...],\n'
+            f'  "events": ["event1", "event2", ...],\n'
+            f'  "organizations": ["org1", "org2", ...]\n'
+            f"}}\n"
+            f"Make sure the JSON is valid and parsable."
+        )
+
+    @staticmethod
+    def generate_summary_batch_file(
+        articles: Sequence[Article],
+        model: str,
+        temperature: float = 0.1,
+        output_filename: str = "summary_batch.jsonl"
+    ) -> str | None:
         """
-        Summarizes the given text using a language model.
+        Generates a .jsonl batch file containing prompts for summarizing
+        and entity extraction.
 
         Args:
-            text (str): The text to summarize.
+            articles (Sequence[Article]): A list of articles to summarize
+            and extract entities.
+            model (str): The llm model to use.
+            temperature (float): The temperature setting for the model.
+            output_filename (str): Filename for the output batch file.
 
         Returns:
-            str: The summarized text.
+            str | None: The path to the generated .jsonl batch file.
         """
-        llm = ChatOpenAI(
-            model="gpt-4o-mini",
-            temperature=0,
-            api_key=configs.OPENAI_API_KEY,
+        custom_ids = [str(article.id) for article in articles]
+        prompts = [
+            ArticleSummaryService.build_prompt(article)
+            for article in articles
+        ]
+
+        batch_path = LLMClient.generate_batch(
+            custom_ids=custom_ids,
+            prompts=prompts,
+            model=model,
+            temperature=temperature,
+            output_filename=output_filename,
         )
 
-        text_splitter = CharacterTextSplitter(chunk_size=1000, chunk_overlap=0)
-        texts = text_splitter.split_text(text)
-        docs = [Document(page_content=t) for t in texts]
-
-        chain = load_summarize_chain(llm, chain_type="map_reduce")
-        summary = chain.invoke(docs)
-        return summary["output_text"]
-
-    @staticmethod
-    async def summarize_and_store(article_id: uuid.UUID) -> Optional[Article]:
-        """
-        Fetches an Article by ID, generates a summary for its content,
-        and updates only the `summary` field in the database.
-
-        Returns:
-            The updated Article if it exists, otherwise None.
-        """
-        article = await ArticleRepository.get_article_by_id(article_id)
-
-        if not article:
+        if not batch_path:
+            logger.error("Could not generate .jsonl batch file")
             return None
 
-        summary = ArticleSummaryService.summarize_text(article.content)
-        return await ArticleRepository.update_article_summary(
-            article_id, summary
-        )
+        return batch_path
+
+    @staticmethod
+    async def store_summaries_and_entities(output_lines: list[str]) -> None:
+        """
+        Parses and stores summaries and extracted entities
+        from the batch model responses.
+
+        Args:
+            output_lines (list[str]): list of JSON-formatted strings,
+            each representing a model output.
+        """
+        for line in output_lines:
+            try:
+                result = json.loads(line)
+                article_id = uuid.UUID(result["custom_id"])
+                response = result["response"]
+                content = (
+                    response["body"]["choices"][0]["message"]["content"]
+                )
+                if content.startswith("```json"):
+                    content = content[len("```json"):].strip()
+                if content.endswith("```"):
+                    content = content[:-len("```")].strip()
+                data = json.loads(content)
+
+                summary = data.get("summary", "")
+                persons = data.get("persons", [])
+                industries = data.get("industries", [])
+                events = data.get("events", [])
+                organizations = data.get("organizations", [])
+
+                await ArticleRepository.update_article_summary(
+                    article_id, summary
+                )
+                await ArticleEntityRepository.add_entities(
+                    article_id, persons=persons,
+                    industries=industries, events=events,
+                    organizations=organizations
+                )
+                logger.info(
+                    f"Updated summary and entities for article {article_id}"
+                )
+
+            except Exception as e:
+                logger.error(f"Error parsing summary and entities: {e}")
+                continue
 
     @staticmethod
     async def run(page_size: int = 100) -> None:
         """
-        Fetches all articles without a summary in batches,
-        generates summaries for each,
-        and updates the `summary` field in the database.
+        Main entry point to summarize a list of articles and
+        store their extracted entities.
 
         Args:
-            page_size (int): Number of articles to process in each batch.
+            articles (list[Article]): a list of Article objects to process.
         """
         page = 0
         offset = page * page_size
 
-        articles: Sequence[Article] = (
-            await ArticleRepository.list_articles_without_summary(
-                limit=page_size, offset=offset
-            )
-        )
-
-        while articles:
-            logger.info(
-                f"Processing page {page + 1} with {len(articles)} articles"
-            )
-            for article in articles:
-                try:
-                    # Run in a threadpool to avoid blocking the event loop
-                    summary = await run_in_threadpool(
-                        ArticleSummaryService.summarize_text, article.content
-                    )
-                    await ArticleRepository.update_article_summary(
-                        article.id, summary
-                    )
-                    logger.info(f"Updated summary for article {article.id}")
-
-                except Exception:
-                    continue
-
-            page += 1
-            offset = page * page_size
-
+        while True:
             articles = await ArticleRepository.list_articles_without_summary(
                 limit=page_size, offset=offset
             )
+            if not articles:
+                break
+
+            logger.info(
+                f"Processing batch {page + 1} with {len(articles)} articles"
+            )
+
+            batch_path = ArticleSummaryService.generate_summary_batch_file(
+                articles=articles,
+                model=LLMModels.openai_4o.value,
+                temperature=0.1,
+                output_filename="summary_batch.jsonl"
+            )
+            if not batch_path:
+                return
+
+            output_lines = await LLMClient.run_batch_api(str(batch_path))
+
+            if not output_lines:
+                logger.error("Could not obtain results from batch output")
+                return
+
+            await ArticleSummaryService.store_summaries_and_entities(
+                output_lines
+            )
+
+            page += 1
+            offset = page * page_size

@@ -26,7 +26,19 @@ class ArticleTranslationService:
         texts: list[str]
     ) -> tuple[list[str], list[str], list[dict]]:
         """
-        Description
+        Prepares prompts and auto-responses for a translation batch.
+
+        Args:
+            ids (list[str]): unique identifiers for each text.
+            texts (list[str]): list of raw texts to translate.
+
+        Returns:
+            tuple: A tuple containing:
+            - custom_ids (list[str]): IDs for requests that require
+              translation.
+            - prompts (list[str]): Prompts to send to the LLM.
+            - auto_responses (list[dict]): Pre-filled responses for texts
+              already in the target language.
         """
         if len(ids) != len(texts):
             logger.error("ids and texts must have the same length")
@@ -68,7 +80,17 @@ class ArticleTranslationService:
         custom_ids: list[str], prompts: list[str], auto_responses: list[dict]
     ) -> list[dict]:
         """
-        Description
+        Executes the LLM batch translation process and combines results.
+
+        Args:
+            custom_ids (list[str]): identifiers for the translation requests.
+            prompts (list[str]): prompts to send to the model.
+            auto_responses (list[dict]): responses for texts already in the
+            target language.
+
+        Returns:
+            list[dict]: All responses, including LLM completions
+            and auto-responses.
         """
         batch_responses = []
 
@@ -88,6 +110,16 @@ class ArticleTranslationService:
 
     @staticmethod
     async def translate_all_fields(articles):
+        """
+        Prepares and translates all fields (title, content, summary)
+        from a list of articles.
+
+        Args:
+            articles (list[Article]): List of article objects to be translated.
+
+        Returns:
+            list[dict]: List of translation responses.
+        """
         all_ids = []
         all_texts = []
 
@@ -114,7 +146,13 @@ class ArticleTranslationService:
     @staticmethod
     async def store_translations(responses):
         """
-        Description
+        Parses and stores translation responses back into the database.
+
+        Args:
+            responses (list[dict]): List of responses from the batch API.
+
+        Returns:
+            list[Article]: List of updated articles.
         """
         total_updates = []
 
@@ -171,7 +209,10 @@ class ArticleTranslationService:
     @staticmethod
     async def run(limit: int = 100):
         """
-        Description
+        Orchestrates the full translation pipeline in batches.
+
+        Args:
+            limit (int, optional): Number of articles to process per batch.
         """
         try:
             page = 0

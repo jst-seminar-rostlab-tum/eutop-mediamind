@@ -1,7 +1,7 @@
-import json
-from typing import Type, TypeVar, List, Optional
-from pathlib import Path
 import asyncio
+import json
+from pathlib import Path
+from typing import Type, TypeVar, List, Optional
 from litellm import (
     completion,
     acreate_file,
@@ -89,6 +89,15 @@ class LLMClient:
         """
         Builds a JSONL-formatted request payload for use with OpenAI's
         batch API.
+
+        Args:
+        custom_id (str): unique identifier for the request
+        model (str): The name of the LLM model to be used.
+        prompt (str): The user prompt to be sent to the model.
+        temperature (float, optional): randomness
+
+        Returns:
+            dict: dictionary representing a single request payload.
         """
         return {
             "custom_id": custom_id,
@@ -115,7 +124,18 @@ class LLMClient:
         output_filename: Optional[str] = "batch.jsonl"
     ) -> Path:
         """
-        Generates a batch of request payloads in JSONL format.
+        Generates a batch of request payloads in JSONL format and writes them
+        to a file for use with OpenAI's batch API.
+
+        Args:
+            custom_ids (List[str]): List of unique identifiers for each prompt.
+            prompts (List[str]): List of prompts to send to the model.
+            model (str): The name of the LLM model to be used.
+            temperature (float, optional): randomness.
+            output_filename (Optional[str): Name of the output .jsonl file.
+
+        Returns:
+            Path: Path object pointing to the created .jsonl file.
         """
         if len(custom_ids) != len(prompts):
             logger.error("custom_ids must be the same length as prompts")
@@ -211,7 +231,14 @@ class LLMClient:
     @staticmethod
     async def retrieve_batch_output(batch_id: str) -> List[dict]:
         """
-        Description
+        Retrieves the results of a completed batch job from OpenAI.
+
+        Args:
+            batch_id (str): The ID of the completed batch job.
+
+        Returns:
+            List[dict]: A list of parsed JSON lines representing the responses
+            from the batch job.
         """
         current = await aretrieve_batch(
             batch_id=batch_id,
@@ -228,7 +255,15 @@ class LLMClient:
     @staticmethod
     async def run_batch_api(jsonl_path: str):
         """
-        Description
+        Executes the complete lifecycle of a batch request to OpenAI
+
+        Args:
+            jsonl_path (str): Path to the JSONL file containing the
+            batch prompts.
+
+        Returns:
+            List[dict] | None: The list of response objects if successful,
+            or None if an error occurred.
         """
         try:
             file = await LLMClient.upload_batch_file(jsonl_path)
