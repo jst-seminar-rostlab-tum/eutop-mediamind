@@ -1,3 +1,5 @@
+import uuid
+from datetime import datetime
 from typing import List, Optional, Sequence
 from uuid import UUID
 
@@ -136,7 +138,10 @@ class ArticleRepository:
 
     @staticmethod
     async def get_matched_articles_for_profile(
-        search_profile, match_start_time, match_stop_time, limit: int = 100
+        search_profile: uuid.UUID,
+        match_start_time: datetime,
+        match_stop_time: datetime,
+        limit: int = 100,
     ) -> List[Article]:
         # Extract id from SearchProfile or use directly if already UUID
         if hasattr(search_profile, "id"):

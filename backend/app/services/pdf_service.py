@@ -1,6 +1,7 @@
 import json
 import os
 import random
+import uuid
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from io import BytesIO
@@ -226,7 +227,7 @@ class PDFService:
 
     @staticmethod
     async def create_pdf(
-        search_profile: SearchProfile, timeslot: str, match_stop_time
+        search_profile_id: uuid.UUID, timeslot: str, match_stop_time: datetime
     ) -> bytes:
         if timeslot not in ["morning", "afternoon", "evening"]:
             raise logger.warning(
@@ -243,7 +244,7 @@ class PDFService:
             match_start_time = match_stop_time - timedelta(hours=7)
 
         articles = await ArticleRepository.get_matched_articles_for_profile(
-            search_profile, match_start_time, match_stop_time
+            search_profile_id, match_start_time, match_stop_time
         )
 
         # Here we can look that the metadata is working
@@ -281,7 +282,7 @@ class PDFService:
                 legislations=legislations,
             )
             news_items.append(news_item)
-        return PDFService.draw_pdf(search_profile, news_items)
+        return PDFService.draw_pdf(search_profile_id, news_items)
 
     @staticmethod
     def draw_pdf(

@@ -65,7 +65,9 @@ class ReportService:
         report = await ReportRepository.create(report)
 
         # PDF generation
-        pdf_bytes = await PDFService.create_pdf(search_profile, timeslot, now)
+        pdf_bytes = await PDFService.create_pdf(
+            search_profile_id, timeslot, now
+        )
 
         # Set S3 key to the report id and upload the PDF
         s3_key = f"{configs.ENVIRONMENT}/reports/{search_profile_id}/{report.id}.pdf"  # noqa: E501
