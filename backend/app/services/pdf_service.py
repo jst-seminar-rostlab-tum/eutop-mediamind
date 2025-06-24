@@ -129,6 +129,19 @@ class PDFService:
         leading=12,
         alignment=TA_JUSTIFY,
     )
+    button_style = ParagraphStyle(
+        "Link",
+        fontName=(
+            "DVS-Bold" if _fonts_registered else "Helvetica-Bold"
+        ),
+        fontSize=8,
+        textColor=electricBlue,
+        spaceAfter=6,
+        bulletIndent=0,
+        leftIndent=6,
+        leading=12,
+        alignment=TA_JUSTIFY,
+    )
     newspaper_style = ParagraphStyle(
         "Newspaper",
         fontName="DVS-Bold" if _fonts_registered else "Helvetica-Bold",
@@ -510,7 +523,7 @@ class PDFService:
                     <a href="#toc_article_{i}">&nbsp;Full Article&nbsp;</a>
                 </font>
                 """,
-                PDFService.link_style,
+                PDFService.button_style,
             )
 
             row = [[meta_para, button_para]]
