@@ -35,13 +35,21 @@ from app.core.logger import get_logger
 from app.models.search_profile import SearchProfile
 from app.repositories.article_repository import ArticleRepository
 
-mainColor = colors.HexColor("#003366")
-blueColor = colors.HexColor("#164194")
-electricBlue = colors.HexColor("#393be7") #EUTOPS color
-yellowColor = colors.HexColor("#FFED00")
-darkGrey = colors.HexColor("#525252")
-
 logger = get_logger(__name__)
+
+# Define all colors in a single dictionary for consistency
+colors = {
+    "main": colors.HexColor("#003366"),
+    "blue": colors.HexColor("#164194"),
+    "electricBlue": colors.HexColor("#393be7"),
+    "yellow": colors.HexColor("#FFED00"),
+    "darkGrey": colors.HexColor("#525252"),
+    "gray": colors.HexColor("#888888"),  # Use a hex value for gray
+    "lightgrey": colors.HexColor("#D3D3D3"),
+    "white": colors.HexColor("#FFFFFF"),
+    "whitesmoke": colors.HexColor("#F5F5F5"),
+    "darkgreen": colors.HexColor("#006400"),
+}
 
 @dataclass
 class NewsItem:
@@ -121,7 +129,7 @@ class PDFService:
             "DVS-BoldOblique" if _fonts_registered else "Helvetica-BoldOblique"
         ),
         fontSize=8,
-        textColor=electricBlue,
+        textColor=colors["electricBlue"],
         spaceAfter=6,
         bulletIndent=0,
         leftIndent=6,
@@ -134,7 +142,7 @@ class PDFService:
             "DVS-Bold" if _fonts_registered else "Helvetica-Bold"
         ),
         fontSize=8,
-        textColor=electricBlue,
+        textColor=colors["electricBlue"],
         spaceAfter=6,
         bulletIndent=0,
         leftIndent=6,
@@ -146,21 +154,21 @@ class PDFService:
         fontName="DVS-Bold" if _fonts_registered else "Helvetica-Bold",
         fontSize=11,
         leading=13,
-        textColor=mainColor,
+        textColor=colors['main'],
     )
     keywords_style = ParagraphStyle(
         "Keywords",
         fontName="DVS-Oblique" if _fonts_registered else "Helvetica-Oblique",
         fontSize=8,
         leading=10,
-        textColor=blueColor,
+        textColor=colors["blue"],
     )
     date_style = ParagraphStyle(
         "Date",
         fontName="DVS-Oblique" if _fonts_registered else "Helvetica-Oblique",
         fontSize=8,
         leading=10,
-        textColor=colors.gray,
+        textColor=colors["gray"],
     )
     summary_style = ParagraphStyle(
         "Summary", fontName="DVS", fontSize=9, leading=12, alignment=TA_JUSTIFY
@@ -176,7 +184,7 @@ class PDFService:
         fontName="DVS" if _fonts_registered else "Helvetica-Oblique",
         fontSize=8,
         leading=12,
-        textColor=colors.gray,
+        textColor=colors["gray"],
     )
     metadata_title_style = ParagraphStyle(
         "Metadata_title",
@@ -185,7 +193,7 @@ class PDFService:
         ),
         fontSize=8,
         leading=12,
-        textColor=colors.gray,
+        textColor=colors["gray"],
     )
     metadata_subtitle_style = ParagraphStyle(
         "Metadata_subtitle",
@@ -194,7 +202,7 @@ class PDFService:
         ),
         fontSize=8,
         leading=12,
-        textColor=colors.gray,
+        textColor=colors["gray"],
     )
     content_style = ParagraphStyle(
         "Content",
@@ -207,7 +215,7 @@ class PDFService:
         "ReadingTime",
         fontName="DVS" if _fonts_registered else "Helvetica",
         fontSize=12,
-        textColor=colors.darkgreen,
+        textColor=colors["darkgreen"],
         allowOrphans=0,
         allowWidows=0,
         # Do NOT set bold here, so <b> works in the markup
@@ -394,7 +402,7 @@ class PDFService:
             name="TOCEntry",
             fontName="DVS-Bold",
             fontSize=10,
-            textColor=blueColor,
+            textColor=colors["blue"],
             spaceAfter=0,
             bulletIndent=0,
             leftIndent=0,
@@ -406,7 +414,7 @@ class PDFService:
             name="HeaderTitle",
             fontName="DVS",
             fontSize=10,
-            textColor=darkGrey,
+            textColor=colors["darkGrey"],
             spaceAfter=6,
             bulletIndent=0,
             leftIndent=6,
@@ -419,7 +427,7 @@ class PDFService:
         story.append(
             Paragraph(
                 f"<b> \
-                   <font size=36 color='{blueColor}'>Daily News Report</font>\
+                   <font size=36>Daily News Report</font>\
                 </b>",
                 styles["Title"],
             )
@@ -429,7 +437,7 @@ class PDFService:
         now_str = datetime.today().strftime("%d %B %Y – %H:%M")
         story.append(
             Paragraph(
-                f"<b><font size=16 color='{blueColor}'>{now_str}</font></b>",
+                f"<b><font size=16>{now_str}</font></b>",
                 styles["Title"],
             )
         )
@@ -453,7 +461,7 @@ class PDFService:
             def draw(self):
                 c = self.canv
                 c.setFont("DVS", 12)
-                c.setFillColor(colors.darkgreen)
+                c.setFillColor(colors["darkgreen"])
                 txt = "Estimated Reading Time: "
                 c.drawString(0, 0, txt)
                 w = c.stringWidth(txt, "DVS", 12)
@@ -477,7 +485,7 @@ class PDFService:
                     fontName="DVS-Bold",
                     fontSize=16,
                     spaceAfter=12,
-                    textColor=blueColor,
+                    textColor=colors["blue"],
                 ),
             )
         )
@@ -486,7 +494,7 @@ class PDFService:
             HRFlowable(
                 width="100%",
                 thickness=1,
-                color=colors.grey,
+                color=colors["gray"],
                 spaceBefore=6,
                 spaceAfter=6,
             )
@@ -514,11 +522,11 @@ class PDFService:
 
             button_para = Paragraph(
                 f"""
-                <font backColor="{colors.lightgrey}" size="9">
+                <font backColor="{colors["lightgrey"]}" size="9">
                     <a href="#toc_summary_{i}">&nbsp;Summary&nbsp;</a>
                 </font>
                 &nbsp;&nbsp;
-                <font backColor="{colors.lightgrey}" size="9">
+                <font backColor="{colors["lightgrey"]}" size="9">
                     <a href="#toc_article_{i}">&nbsp;Full Article&nbsp;</a>
                 </font>
                 """,
@@ -549,7 +557,7 @@ class PDFService:
             HRFlowable(
                 width="100%",
                 thickness=1,
-                color=colors.grey,
+                color=colors["gray"],
                 spaceBefore=6,
                 spaceAfter=6,
             )
@@ -567,7 +575,7 @@ class PDFService:
             name="HeaderTitle",
             fontName="DVS-BoldOblique",
             fontSize=10,
-            textColor=colors.HexColor("#003366"),
+            textColor=colors["main"],
             leading=12,
         )
 
@@ -594,7 +602,7 @@ class PDFService:
 
         # --- Draw page number in footer ---
         canvas.setFont("DVS", 10)
-        canvas.setFillColor(colors.HexColor("#003366"))
+        canvas.setFillColor(colors["main"])
         page_str = f"Page {doc.page}"
         canvas.drawRightString(width - inch, 0.4 * inch, page_str)
 
@@ -648,7 +656,7 @@ class PDFService:
                     HRFlowable(
                         width="100%",
                         thickness=1,
-                        color=colors.HexColor("#003366"),
+                        color=colors["main"]
                     )
                 )
                 story.append(Spacer(1, 0.1 * inch))
@@ -679,8 +687,8 @@ class PDFService:
                 colWidths=[dimensions[0] - 2 * inch],
                 style=TableStyle(
                     [
-                        ("BACKGROUND", (0, 0), (-1, -1), colors.white),
-                        ("BOX", (0, 0), (-1, -1), 0.25, colors.white),
+                        ("BACKGROUND", (0, 0), (-1, -1), colors["white"]),
+                        ("BOX", (0, 0), (-1, -1), 0.25, colors["white"]),
                         ("LEFTPADDING", (0, 0), (-1, -1), 6),
                         ("RIGHTPADDING", (0, 0), (-1, -1), 6),
                         ("TOPPADDING", (0, 0), (-1, -1), 0),
@@ -724,8 +732,8 @@ class PDFService:
                 ],
                 style=TableStyle(
                     [
-                        ("BACKGROUND", (0, 0), (-1, -1), colors.white),
-                        ("BOX", (0, 0), (-1, -1), 0.25, colors.white),
+                        ("BACKGROUND", (0, 0), (-1, -1), colors["white"]),
+                        ("BOX", (0, 0), (-1, -1), 0.25, colors["white"]),
                         ("LEFTPADDING", (0, 0), (-1, -1), 6),
                         ("RIGHTPADDING", (0, 0), (-1, -1), 6),
                         ("TOPPADDING", (0, 0), (-1, -1), 0),
@@ -837,8 +845,8 @@ class PDFService:
                 ],
                 style=TableStyle(
                     [
-                        ("BACKGROUND", (0, 0), (-1, -1), colors.whitesmoke),
-                        ("BOX", (0, 0), (-1, -1), 0.25, colors.lightgrey),
+                        ("BACKGROUND", (0, 0), (-1, -1), colors["whitesmoke"]),
+                        ("BOX", (0, 0), (-1, -1), 0.25, colors["lightgrey"]),
                         ("LEFTPADDING", (0, 0), (-1, -1), 2),
                         ("RIGHTPADDING", (0, 0), (-1, -1), 8),
                         ("TOPPADDING", (0, 0), (-1, -1), 2),
@@ -876,13 +884,13 @@ class PDFService:
             button.setStyle(
                 TableStyle(
                     [
-                        ("BACKGROUND", (0, 0), (-1, -1), colors.white),
-                        ("TEXTCOLOR", (0, 0), (-1, -1), blueColor),
+                        ("BACKGROUND", (0, 0), (-1, -1), colors["white"]),
+                        ("TEXTCOLOR", (0, 0), (-1, -1), colors["blue"]),
                         ("ALIGN", (0, 0), (-1, -1), "CENTER"),
                         ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
                         ("FONTSIZE", (0, 0), (-1, -1), 10),
-                        ("INNERGRID", (0, 0), (-1, -1), 0, colors.white),
-                        ("BOX", (0, 0), (-1, -1), 1, colors.white),
+                        ("INNERGRID", (0, 0), (-1, -1), 0, colors["white"]),
+                        ("BOX", (0, 0), (-1, -1), 1, colors["white"]),
                         ("TOPPADDING", (0, 0), (-1, -1), 4),
                         ("BOTTOMPADDING", (0, 0), (-1, -1), 4),
                         ("LEFTPADDING", (0, 0), (-1, -1), 8),
