@@ -23,6 +23,22 @@ router = APIRouter(
 )
 
 
+@router.get("/{recipient_email}")
+async def trigger_email_sending(recipient_email: str):
+    email_schedule = EmailSchedule(
+        recipient=recipient_email,
+        subject="[MEDIAMIND] Your daily report",
+        content_type="text/HTML",
+        content=build_email_content(
+            "<test_s3_link>", "<test_dashboard_link>", "<Test Search Profile>"
+        ),
+    )
+
+    await EmailService.schedule_email(email_schedule)
+    await EmailService.send_scheduled_emails()
+    return {"message": "Email scheduled and sent successfully."}
+
+
 @router.get("/test")
 async def send_report_email(
     clerk_id: str = Query(..., description="Clerk User ID"),
@@ -74,7 +90,6 @@ async def send_report_email(
         content=build_email_content(
             presigned_url, dashboard_url, search_profile.name
         ),
-        attachment=None,
     )
 
     await EmailService.schedule_email(email_schedule)
