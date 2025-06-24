@@ -535,7 +535,7 @@ class PDFService:
             row = [[meta_para, button_para]]
             table = Table(
                 row, colWidths=[4 * inch, 2 * inch]
-            )  # Adjust as needed
+            )  # 4 and 2 are the column widths
             table.setStyle(
                 TableStyle(
                     [
