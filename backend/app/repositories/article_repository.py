@@ -138,17 +138,11 @@ class ArticleRepository:
 
     @staticmethod
     async def get_matched_articles_for_profile(
-        search_profile: uuid.UUID,
+        search_profile_id: uuid.UUID,
         match_start_time: datetime,
         match_stop_time: datetime,
         limit: int = 100,
     ) -> List[Article]:
-        # Extract id from SearchProfile or use directly if already UUID
-        if hasattr(search_profile, "id"):
-            search_profile_id = search_profile.id
-        else:
-            search_profile_id = search_profile
-
         async with async_session() as session:
             query = (
                 select(Match)
