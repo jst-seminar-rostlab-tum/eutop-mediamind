@@ -1,16 +1,20 @@
 # This file contains all paragraph and table styles for the PDF service.
 from reportlab.lib.enums import TA_JUSTIFY
 from reportlab.lib.styles import ParagraphStyle
+
 from .colors import pdf_colors
 
 # Font registration will be handled in the main PDFService class
+
 
 def get_pdf_styles(fonts_registered: bool):
     return {
         "link_style": ParagraphStyle(
             "Link",
             fontName=(
-                "DVS-BoldOblique" if fonts_registered else "Helvetica-BoldOblique"
+                "DVS-BoldOblique"
+                if fonts_registered
+                else "Helvetica-BoldOblique"
             ),
             fontSize=8,
             textColor=pdf_colors["electricBlue"],
@@ -40,26 +44,43 @@ def get_pdf_styles(fonts_registered: bool):
         ),
         "keywords_style": ParagraphStyle(
             "Keywords",
-            fontName="DVS-Oblique" if fonts_registered else "Helvetica-Oblique",
+            fontName=(
+                "DVS-Oblique" if fonts_registered else "Helvetica-Oblique"
+            ),
             fontSize=8,
             leading=10,
             textColor=pdf_colors["blue"],
         ),
         "date_style": ParagraphStyle(
             "Date",
-            fontName="DVS-Oblique" if fonts_registered else "Helvetica-Oblique",
+            fontName=(
+                "DVS-Oblique" if fonts_registered else "Helvetica-Oblique"
+            ),
             fontSize=8,
             leading=10,
             textColor=pdf_colors["gray"],
         ),
         "summary_style": ParagraphStyle(
-            "Summary", fontName="DVS", fontSize=9, leading=12, alignment=TA_JUSTIFY
+            "Summary",
+            fontName="DVS",
+            fontSize=9,
+            leading=12,
+            alignment=TA_JUSTIFY,
         ),
         "title_style": ParagraphStyle(
-            "Title", fontName="DVS-Bold", fontSize=18, leading=20, spaceAfter=12, textColor=pdf_colors["main"]
+            "Title",
+            fontName="DVS-Bold",
+            fontSize=18,
+            leading=20,
+            spaceAfter=12,
+            textColor=pdf_colors["main"],
         ),
         "subtitle_style": ParagraphStyle(
-            "Title", fontName="DVS-Bold", fontSize=14, leading=10, spaceAfter=10
+            "Title",
+            fontName="DVS-Bold",
+            fontSize=14,
+            leading=10,
+            spaceAfter=10,
         ),
         "metadata_style": ParagraphStyle(
             "Metadata",

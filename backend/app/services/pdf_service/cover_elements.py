@@ -1,16 +1,30 @@
+from datetime import datetime
 from typing import List
-from reportlab.platypus import Flowable
+
+from reportlab.lib.enums import TA_JUSTIFY
+from reportlab.lib.styles import ParagraphStyle
+from reportlab.platypus import (
+    Flowable,
+    HRFlowable,
+    Paragraph,
+    Spacer,
+    Table,
+    TableStyle,
+)
+from reportlab.platypus.flowables import AnchorFlowable
+
 from app.models.search_profile import SearchProfile
-from .styles import get_pdf_styles
+
 from .colors import pdf_colors
 from .utils import calculate_reading_time
-from reportlab.platypus import Paragraph, Spacer, HRFlowable, Table, TableStyle
-from reportlab.platypus.flowables import AnchorFlowable
-from reportlab.lib.styles import ParagraphStyle
-from reportlab.lib.enums import TA_JUSTIFY
-from datetime import datetime
 
-def draw_cover_elements(search_profile: SearchProfile, news_items: List, dimensions: tuple[float, float], styles) -> List[Flowable]:
+
+def draw_cover_elements(
+    search_profile: SearchProfile,
+    news_items: List,
+    dimensions: tuple[float, float],
+    styles,
+) -> List[Flowable]:
     width, height = dimensions
     toc_entry_style = ParagraphStyle(
         name="TOCEntry",
@@ -37,11 +51,11 @@ def draw_cover_elements(search_profile: SearchProfile, news_items: List, dimensi
     story = []
     story.append(
         Paragraph(
-            "<b> \\n               <font size=36>Daily News Report</font>\\
-            </b>",
+            "<b>\n<font size=36>Daily News Report</font>\n</b>",
             styles["title_style"],
         )
     )
+
     story.append(Spacer(1, 0.3 * 72))
     now_str = datetime.today().strftime("%d %B %Y – %H:%M")
     story.append(
@@ -53,12 +67,15 @@ def draw_cover_elements(search_profile: SearchProfile, news_items: List, dimensi
     story.append(Spacer(1, 0.3 * 72))
     total_text = " ".join(news.content for news in news_items)
     total_minutes = calculate_reading_time(total_text, words_per_minute=180)
+
     class EstimatedReadingTimeFlowable(Flowable):
         def __init__(self, estimated_minutes):
             super().__init__()
             self.estimated_minutes = estimated_minutes
+
         def wrap(self, available_width, available_height):
             return available_width, 16
+
         def draw(self):
             canvas = self.canv
             canvas.setFont("DVS", 12)
@@ -68,8 +85,11 @@ def draw_cover_elements(search_profile: SearchProfile, news_items: List, dimensi
             label_width = canvas.stringWidth(label, "DVS", 12)
             canvas.setFont("DVS-Bold", 12)
             canvas.drawString(label_width, 0, str(self.estimated_minutes))
-            label_width += canvas.stringWidth(str(self.estimated_minutes), "DVS-Bold", 12)
+            label_width += canvas.stringWidth(
+                str(self.estimated_minutes), "DVS-Bold", 12
+            )
             canvas.drawString(label_width, 0, " min")
+
     story.append(EstimatedReadingTimeFlowable(total_minutes))
     story.append(Spacer(1, 0.3 * 72))
     story.append(Spacer(1, 12))

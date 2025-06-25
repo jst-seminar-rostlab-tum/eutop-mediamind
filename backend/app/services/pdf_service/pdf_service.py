@@ -6,9 +6,10 @@ import uuid
 from datetime import datetime, timedelta
 from io import BytesIO
 from typing import List
-from uuid import UUID
 
+from reportlab.lib.enums import TA_JUSTIFY
 from reportlab.lib.pagesizes import A4
+from reportlab.lib.styles import ParagraphStyle
 from reportlab.lib.units import inch
 from reportlab.platypus import (
     BaseDocTemplate,
@@ -25,16 +26,15 @@ from reportlab.platypus import (
     TableStyle,
 )
 from reportlab.platypus.flowables import AnchorFlowable
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.lib.enums import TA_JUSTIFY
 
 from app.core.logger import get_logger
 from app.models.search_profile import SearchProfile
 from app.repositories.article_repository import ArticleRepository
+
 from .colors import pdf_colors
-from .styles import get_pdf_styles
-from .news_item import NewsItem
 from .fonts import register_fonts
+from .news_item import NewsItem
+from .styles import get_pdf_styles
 from .utils import calculate_reading_time
 
 logger = get_logger(__name__)
@@ -58,7 +58,8 @@ class PDFService:
     ) -> bytes:
         if timeslot not in ["morning", "afternoon", "evening"]:
             logger.info(
-                "Invalid timeslot. Must be one of: ['morning', 'afternoon', 'evening']"
+                "Invalid timeslot. Must be one of: ['morning', 'afternoon',"
+                " 'evening']"
             )
         elif timeslot == "morning":
             match_start_time = match_stop_time - timedelta(hours=700)
@@ -279,7 +280,9 @@ class PDFService:
                 label_width = canvas.stringWidth(label, "DVS", 12)
                 canvas.setFont("DVS-Bold", 12)
                 canvas.drawString(label_width, 0, str(self.estimated_minutes))
-                label_width += canvas.stringWidth(str(self.estimated_minutes), "DVS-Bold", 12)
+                label_width += canvas.stringWidth(
+                    str(self.estimated_minutes), "DVS-Bold", 12
+                )
                 canvas.drawString(label_width, 0, " min")
 
         story.append(EstimatedReadingTimeFlowable(total_minutes))
@@ -451,11 +454,15 @@ class PDFService:
                     pub_date_str = dt.strftime("%d %B %Y at %H:%M")
                 except Exception:
                     pub_date_str = news.published_at
-            story.append(Paragraph(pub_date_str, PDFService.styles["date_style"]))
+            story.append(
+                Paragraph(pub_date_str, PDFService.styles["date_style"])
+            )
             story.append(Spacer(1, 0.05 * inch))
             summary_text = news.summary.replace("\n", "<br/>")
             # Add the summary paragraph directly instead of in a Table
-            story.append(Paragraph(summary_text, PDFService.styles["summary_style"]))
+            story.append(
+                Paragraph(summary_text, PDFService.styles["summary_style"])
+            )
             story.append(Spacer(1, 0.05 * inch))
             dest_name = f"full_{news.id}"
             story.append(
@@ -466,7 +473,9 @@ class PDFService:
             )
             if i != len(news_items) - 1:
                 story.append(
-                    HRFlowable(width="100%", thickness=1, color=pdf_colors["main"])
+                    HRFlowable(
+                        width="100%", thickness=1, color=pdf_colors["main"]
+                    )
                 )
                 story.append(Spacer(1, 0.1 * inch))
         return story
@@ -482,7 +491,8 @@ class PDFService:
             story.append(AnchorFlowable(f"toc_article_{i}"))
             story.append(
                 Paragraph(
-                    str(i + 1) + ". " + news.title, PDFService.styles["title_style"]
+                    str(i + 1) + ". " + news.title,
+                    PDFService.styles["title_style"],
                 )
             )
 
@@ -491,7 +501,9 @@ class PDFService:
             Published at: {news.published_at} |
              Newspaper: {news.newspaper.name}
                     """
-            metadata_para = Paragraph(metadata_text, PDFService.styles["metadata_style"])
+            metadata_para = Paragraph(
+                metadata_text, PDFService.styles["metadata_style"]
+            )
             metadata_first = Table(
                 [[metadata_para]],
                 colWidths=[dimensions[0] - 2 * inch],
@@ -509,12 +521,18 @@ class PDFService:
             story.append(metadata_first)
 
             # Summary
-            story.append(Paragraph("Summary", PDFService.styles["subtitle_style"]))
-            story.append(Paragraph(news.summary, PDFService.styles["content_style"]))
+            story.append(
+                Paragraph("Summary", PDFService.styles["subtitle_style"])
+            )
+            story.append(
+                Paragraph(news.summary, PDFService.styles["content_style"])
+            )
             story.append(Spacer(1, 0.15 * inch))
 
             story.append(
-                Paragraph("Article Content", PDFService.styles["subtitle_style"])
+                Paragraph(
+                    "Article Content", PDFService.styles["subtitle_style"]
+                )
             )
 
             # Calculate reading time
@@ -556,7 +574,9 @@ class PDFService:
 
             # Content
             content_text = news.content.replace("\n", "<br/>")
-            story.append(Paragraph(content_text, PDFService.styles["content_style"]))
+            story.append(
+                Paragraph(content_text, PDFService.styles["content_style"])
+            )
             story.append(Spacer(1, 0.3 * inch))
 
             # Metadata Box
@@ -573,42 +593,65 @@ class PDFService:
             metadata_rows = [
                 [
                     Paragraph("Words:", PDFService.styles["metadata_style"]),
-                    Paragraph(str(word_count), PDFService.styles["metadata_style"]),
+                    Paragraph(
+                        str(word_count), PDFService.styles["metadata_style"]
+                    ),
                 ],
                 [
-                    Paragraph("Reading Time:", PDFService.styles["metadata_style"]),
                     Paragraph(
-                        f"{reading_time} min", PDFService.styles["metadata_style"]
+                        "Reading Time:", PDFService.styles["metadata_style"]
+                    ),
+                    Paragraph(
+                        f"{reading_time} min",
+                        PDFService.styles["metadata_style"],
                     ),
                 ],
                 [
                     Paragraph("Author:", PDFService.styles["metadata_style"]),
-                    Paragraph(news.author, PDFService.styles["metadata_style"]),
-                ],
-                [
-                    Paragraph("Newspaper:", PDFService.styles["metadata_style"]),
-                    Paragraph(news.newspaper.name, PDFService.styles["metadata_style"]),
-                ],
-                [
                     Paragraph(
-                        "<b>Published at:</b>", PDFService.styles["metadata_style"]
-                    ),
-                    Paragraph(news.published_at, PDFService.styles["metadata_style"]),
-                ],
-                [
-                    Paragraph("<b>Language:</b>", PDFService.styles["metadata_style"]),
-                    Paragraph(
-                        news.language or "Unknown", PDFService.styles["metadata_style"]
+                        news.author, PDFService.styles["metadata_style"]
                     ),
                 ],
                 [
-                    Paragraph("<b>Category:</b>", PDFService.styles["metadata_style"]),
                     Paragraph(
-                        news.category or "Unknown", PDFService.styles["metadata_style"]
+                        "Newspaper:", PDFService.styles["metadata_style"]
+                    ),
+                    Paragraph(
+                        news.newspaper.name,
+                        PDFService.styles["metadata_style"],
                     ),
                 ],
                 [
-                    Paragraph("<b>Keywords:</b>", PDFService.styles["metadata_style"]),
+                    Paragraph(
+                        "<b>Published at:</b>",
+                        PDFService.styles["metadata_style"],
+                    ),
+                    Paragraph(
+                        news.published_at, PDFService.styles["metadata_style"]
+                    ),
+                ],
+                [
+                    Paragraph(
+                        "<b>Language:</b>", PDFService.styles["metadata_style"]
+                    ),
+                    Paragraph(
+                        news.language or "Unknown",
+                        PDFService.styles["metadata_style"],
+                    ),
+                ],
+                [
+                    Paragraph(
+                        "<b>Category:</b>", PDFService.styles["metadata_style"]
+                    ),
+                    Paragraph(
+                        news.category or "Unknown",
+                        PDFService.styles["metadata_style"],
+                    ),
+                ],
+                [
+                    Paragraph(
+                        "<b>Keywords:</b>", PDFService.styles["metadata_style"]
+                    ),
                     Paragraph(
                         ", ".join(news.keywords) if news.keywords else "None",
                         PDFService.styles["metadata_style"],
@@ -622,28 +665,44 @@ class PDFService:
                     "",
                 ],
                 [
-                    Paragraph("<b>People:</b>", PDFService.styles["metadata_style"]),
+                    Paragraph(
+                        "<b>People:</b>", PDFService.styles["metadata_style"]
+                    ),
                     Paragraph(people_str, PDFService.styles["metadata_style"]),
                 ],
                 [
                     Paragraph(
-                        "<b>Politicians:</b>", PDFService.styles["metadata_style"]
+                        "<b>Politicians:</b>",
+                        PDFService.styles["metadata_style"],
                     ),
                     Paragraph(pol_str, PDFService.styles["metadata_style"]),
                 ],
                 [
-                    Paragraph("<b>Companies:</b>", PDFService.styles["metadata_style"]),
-                    Paragraph(companies_str, PDFService.styles["metadata_style"]),
-                ],
-                [
-                    Paragraph("<b>Industries:</b>", PDFService.styles["metadata_style"]),
-                    Paragraph(industries_str, PDFService.styles["metadata_style"]),
+                    Paragraph(
+                        "<b>Companies:</b>",
+                        PDFService.styles["metadata_style"],
+                    ),
+                    Paragraph(
+                        companies_str, PDFService.styles["metadata_style"]
+                    ),
                 ],
                 [
                     Paragraph(
-                        "<b>Legislations:</b>", PDFService.styles["metadata_style"]
+                        "<b>Industries:</b>",
+                        PDFService.styles["metadata_style"],
                     ),
-                    Paragraph(legislations_str, PDFService.styles["metadata_style"]),
+                    Paragraph(
+                        industries_str, PDFService.styles["metadata_style"]
+                    ),
+                ],
+                [
+                    Paragraph(
+                        "<b>Legislations:</b>",
+                        PDFService.styles["metadata_style"],
+                    ),
+                    Paragraph(
+                        legislations_str, PDFService.styles["metadata_style"]
+                    ),
                 ],
             ]
 
@@ -655,8 +714,19 @@ class PDFService:
                 ],
                 style=TableStyle(
                     [
-                        ("BACKGROUND", (0, 0), (-1, -1), pdf_colors["whitesmoke"]),
-                        ("BOX", (0, 0), (-1, -1), 0.25, pdf_colors["lightgrey"]),
+                        (
+                            "BACKGROUND",
+                            (0, 0),
+                            (-1, -1),
+                            pdf_colors["whitesmoke"],
+                        ),
+                        (
+                            "BOX",
+                            (0, 0),
+                            (-1, -1),
+                            0.25,
+                            pdf_colors["lightgrey"],
+                        ),
                         ("LEFTPADDING", (0, 0), (-1, -1), 2),
                         ("RIGHTPADDING", (0, 0), (-1, -1), 8),
                         ("TOPPADDING", (0, 0), (-1, -1), 2),
@@ -699,7 +769,13 @@ class PDFService:
                         ("ALIGN", (0, 0), (-1, -1), "CENTER"),
                         ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
                         ("FONTSIZE", (0, 0), (-1, -1), 10),
-                        ("INNERGRID", (0, 0), (-1, -1), 0, pdf_colors["white"]),
+                        (
+                            "INNERGRID",
+                            (0, 0),
+                            (-1, -1),
+                            0,
+                            pdf_colors["white"],
+                        ),
                         ("BOX", (0, 0), (-1, -1), 1, pdf_colors["white"]),
                         ("TOPPADDING", (0, 0), (-1, -1), 4),
                         ("BOTTOMPADDING", (0, 0), (-1, -1), 4),

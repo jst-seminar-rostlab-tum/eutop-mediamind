@@ -3,10 +3,8 @@ from datetime import datetime
 from typing import List, Optional, Sequence
 from uuid import UUID
 
-from sqlalchemy import desc, or_, select
-from sqlalchemy.exc import IntegrityError
-from sqlalchemy.orm.strategy_options import joinedload
 from sqlalchemy import or_, select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import selectinload  # New
 
 from app.core.db import async_session

@@ -1,7 +1,8 @@
 # This file contains the NewsItem dataclass for the PDF service.
 from dataclasses import dataclass
-from typing import List, Optional
+from typing import Optional
 from uuid import UUID
+
 
 @dataclass
 class NewsItem:

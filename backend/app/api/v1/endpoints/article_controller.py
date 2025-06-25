@@ -3,7 +3,7 @@ from fastapi import APIRouter, BackgroundTasks, Depends
 from app.core.auth import get_authenticated_user
 from app.core.logger import get_logger
 from app.models import User
-from app.repositories.search_profile_repository import get_by_id
+from app.repositories.search_profile_repository import SearchProfileRepository
 from app.services.article_summary_service import ArticleSummaryService
 from app.services.pdf_service.pdf_service import PDFService
 
@@ -41,7 +41,7 @@ async def trigger_pdf_creation():
     # Probably never :(
     # Hardcoded search profile UUID for demonstration purposes
     search_profile_id = "7ea2dacc-2e5b-457a-a26b-906b3ed562fa"
-    search_profile = await get_by_id(search_profile_id)
+    search_profile = await SearchProfileRepository.get_by_id(search_profile_id)
     pdf_bytes = await PDFService.create_pdf(
         search_profile, "morning", datetime.now()
     )

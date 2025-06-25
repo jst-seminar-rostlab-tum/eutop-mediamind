@@ -1,10 +1,13 @@
 # This file contains the font registration logic for the PDF service.
 import os
+
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
+
 from app.core.logger import get_logger
 
 logger = get_logger(__name__)
+
 
 def register_fonts():
     font_dir = "assets/fonts"
@@ -25,6 +28,7 @@ def register_fonts():
             pdfmetrics.registerFont(TTFont(font_name, font_path))
         else:
             logger.warning(
-                f"Font file '{font_path}' not found. Some styles may not display correctly."
+                f"Font file '{font_path}' not found. Some styles may "
+                f"not display correctly."
             )
     return True
