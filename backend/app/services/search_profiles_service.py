@@ -272,7 +272,7 @@ class SearchProfileService:
         request: MatchFilterRequest,
         current_user: User,
     ) -> ArticleOverviewResponse:
-        matches: list[Match] = []
+        matches: List[Match] = []
         relevance_map: dict[UUID, float] = {}
 
         if request.searchTerm:
