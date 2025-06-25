@@ -73,13 +73,13 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        get?: never;
+        put?: never;
         /**
          * Sync User
          * @description Synchronize the current user with the external Clerk service.
          */
-        get: operations["sync_user_api_v1_users_sync_get"];
-        put?: never;
-        post?: never;
+        post: operations["sync_user_api_v1_users_sync_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -667,6 +667,16 @@ export interface components {
              * @default []
              */
             profile_emails: string[];
+            /**
+             * Can Edit User Ids
+             * @default []
+             */
+            can_edit_user_ids: string[];
+            /**
+             * Can Read User Ids
+             * @default []
+             */
+            can_read_user_ids: string[];
             /** Subscriptions */
             subscriptions: components["schemas"]["SubscriptionSummary"][];
             /**
@@ -692,10 +702,14 @@ export interface components {
             organization_emails: string[];
             /** Profile Emails */
             profile_emails: string[];
-            /** Editable */
-            editable: boolean;
-            /** Is Editable */
-            is_editable: boolean;
+            /** Can Read User Ids */
+            can_read_user_ids: string[];
+            /** Is Reader */
+            is_reader: boolean;
+            /** Can Edit User Ids */
+            can_edit_user_ids: string[];
+            /** Is Editor */
+            is_editor: boolean;
             /**
              * Owner Id
              * Format: uuid
@@ -726,6 +740,16 @@ export interface components {
              * @default []
              */
             profile_emails: string[];
+            /**
+             * Can Edit User Ids
+             * @default []
+             */
+            can_edit_user_ids: string[];
+            /**
+             * Can Read User Ids
+             * @default []
+             */
+            can_read_user_ids: string[];
             /** Subscriptions */
             subscriptions: components["schemas"]["SubscriptionSummary"][];
             /**
@@ -907,7 +931,7 @@ export interface operations {
             };
         };
     };
-    sync_user_api_v1_users_sync_get: {
+    sync_user_api_v1_users_sync_post: {
         parameters: {
             query?: never;
             header?: never;
