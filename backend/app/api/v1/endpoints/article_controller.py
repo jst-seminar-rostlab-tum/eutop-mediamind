@@ -5,7 +5,7 @@ from app.core.logger import get_logger
 from app.models import User
 from app.repositories.search_profile_repository import get_by_id
 from app.services.article_summary_service import ArticleSummaryService
-from app.services.pdf_service import PDFService
+from app.services.pdf_service.pdf_service import PDFService
 
 router = APIRouter(prefix="/articles", tags=["articles"])
 
