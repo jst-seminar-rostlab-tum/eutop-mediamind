@@ -74,9 +74,11 @@ docker compose -f ./scripts/docker-compose.dev.yml up --build
 ```
 
 To build/start individual containers, you can append the name of the image behind the command. E.g., to start the `postgres` container, run:
+
 ```bash
 docker compose -f ./scripts/docker-compose.dev.yml up postgres
 ```
+
 This is especially useful when working on the backend and you need the DB running locally.
 
 ### For Production
@@ -176,6 +178,14 @@ alembic current
 
 ```bash
 alembic history
+```
+
+#### Merge divergent heads
+
+In Alembic, a merge is used to join divergent migration branches. When multiple migrations are created from the same base. The alembic merge command creates a new revision that points to multiple down_revision values, reconciling the branches into a single migration path.
+
+```bash
+alembic merge -m "Merge heads" hash_head1 hash_head2
 ```
 
 ### Tips
