@@ -1,10 +1,9 @@
-import os
 import pytest
 from fastapi.testclient import TestClient
 
 from app.core.config import configs
 from app.main import AppCreator
-import app.core.db as db_module
+
 
 @pytest.fixture(autouse=True)
 def use_in_memory_db_and_stub_connect(monkeypatch):
@@ -21,9 +20,11 @@ def client():
     with TestClient(app) as client:
         yield client
 
+
 @pytest.fixture
 def test_name(request):
     return request.node.name
+
 
 @pytest.fixture(autouse=True)
 def disable_auth(monkeypatch):

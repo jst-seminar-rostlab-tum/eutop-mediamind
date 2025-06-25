@@ -1,14 +1,7 @@
 from typing import Any, Dict, List, Optional, Union
 
 from app.core.db import async_session
-from app.repositories.user_repository import create_user as repo_create_user
-from app.repositories.user_repository import (
-    get_user_by_clerk_id as repo_get_by_clerk_id,
-)
-from app.repositories.user_repository import (
-    get_user_list_by_org,
-)
-from app.repositories.user_repository import update_user as repo_update_user
+from app.repositories.user_repository import UserRepository
 from app.schemas.user_schema import UserEntity
 
 
@@ -22,7 +15,9 @@ class UserService:
         Superusers receive all users.
         """
         async with async_session() as session:
-            return await get_user_list_by_org(session, user)
+            return await UserRepository.get_users_by_user_organization(
+                user, session
+            )
 
     @staticmethod
     async def get_by_clerk_id(
@@ -32,7 +27,9 @@ class UserService:
         Fetch a user by Clerk ID, return UserEntity or None.
         """
         async with async_session() as session:
-            return await repo_get_by_clerk_id(session, clerk_id)
+            return await UserRepository.get_user_by_clerk_id(
+                clerk_id=clerk_id, session=session
+            )
 
     @staticmethod
     async def create_user_from_clerk(
@@ -44,7 +41,9 @@ class UserService:
         Create a new local User model from Clerk data.
         """
         async with async_session() as session:
-            return await repo_create_user(session, clerk_id, email, data)
+            return await UserRepository.create_user(
+                session, clerk_id, email, data
+            )
 
     @staticmethod
     async def sync_user_fields(
@@ -56,4 +55,6 @@ class UserService:
         Update local User fields if they differ from Clerk data.
         """
         async with async_session() as session:
-            return await repo_update_user(session, existing, email, data)
+            return await UserRepository.update_user(
+                session, existing, email, data
+            )

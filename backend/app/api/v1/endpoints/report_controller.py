@@ -6,7 +6,10 @@ from app.core.auth import get_authenticated_user
 from app.core.logger import get_logger
 from app.schemas.report_schemas import ReportDetailResponse
 from app.services.report_service import ReportService
-from app.services.s3_service import S3Service
+from app.services.s3_service import (
+    S3Service,
+    get_s3_service,
+)
 
 router = APIRouter(
     prefix="/reports",
@@ -18,7 +21,10 @@ logger = get_logger(__name__)
 
 
 @router.get("/{report_id}", response_model=ReportDetailResponse)
-async def get_report_by_id(report_id: UUID):
+async def get_report_by_id(
+    report_id: UUID,
+    s3_service: S3Service = Depends(get_s3_service),
+):
     report = await ReportService.get_report_by_id(report_id)
     if report is None:
         logger.warning(f"Report not found for id: {report_id}")
@@ -29,7 +35,7 @@ async def get_report_by_id(report_id: UUID):
         logger.error(f"Report {report.id} has no s3_key set.")
     else:
         try:
-            presigned_url = S3Service.generate_presigned_url(
+            presigned_url = s3_service.generate_presigned_url(
                 key=report.s3_key, expires_in=604800
             )
         except Exception as e:
