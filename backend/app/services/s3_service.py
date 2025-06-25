@@ -11,53 +11,36 @@ logger = get_logger(__name__)
 
 
 class S3Service:
-    def __init__(
-        self,
-        aws_access_key_id=None,
-        aws_secret_access_key=None,
-        aws_region=None,
-        bucket_name=None,
-    ):
-        self.aws_access_key_id = aws_access_key_id or configs.AWS_ACCESS_KEY_ID
-        self.aws_secret_access_key = (
-            aws_secret_access_key or configs.AWS_SECRET_ACCESS_KEY
-        )
-        self.aws_region = aws_region or configs.AWS_REGION
-        self.bucket_name = bucket_name or configs.AWS_S3_BUCKET_NAME
+    def __init__(self):
+        self.bucket_name: str = configs.AWS_S3_BUCKET_NAME
         self.client = boto3.client(
             "s3",
-            aws_access_key_id=self.aws_access_key_id,
-            aws_secret_access_key=self.aws_secret_access_key,
-            region_name=self.aws_region,
+            aws_access_key_id=configs.AWS_ACCESS_KEY_ID,
+            aws_secret_access_key=configs.AWS_SECRET_ACCESS_KEY,
+            region_name=configs.AWS_REGION,
         )
 
-    async def upload_fileobj(
-        self, file_bytes: bytes, bucket: str | None = None, key: str = ""
-    ):
+    async def upload_fileobj(self, file_bytes: bytes, key: str) -> None:
         """
         Uploads an object to S3.
         """
-        bucket = bucket or self.bucket_name
         loop = asyncio.get_event_loop()
         await loop.run_in_executor(
             None,
             self.client.upload_fileobj,
             io.BytesIO(file_bytes),
-            bucket,
+            self.bucket_name,
             key,
         )
 
-    def generate_presigned_url(
-        self, bucket_name: str = None, key: str = "", expires_in: int = 3600
-    ) -> str:
+    def generate_presigned_url(self, key: str, expires_in: int = 3600) -> str:
         """
         Generates a presigned URL for an S3 object.
         """
-        bucket_name = bucket_name or self.bucket_name
         try:
             url = self.client.generate_presigned_url(
                 "get_object",
-                Params={"Bucket": bucket_name, "Key": key},
+                Params={"Bucket": self.bucket_name, "Key": key},
                 ExpiresIn=expires_in,
             )
             return url
@@ -67,5 +50,5 @@ class S3Service:
 
 
 # FastAPI dependency
-def get_s3_service():
+def get_s3_service() -> S3Service:
     return S3Service()
