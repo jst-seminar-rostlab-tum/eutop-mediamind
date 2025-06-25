@@ -97,6 +97,17 @@ class MatchRepository:
             return result.scalar_one_or_none() or 0
 
     @staticmethod
+    async def insert_match(match: Match, session) -> Match:
+        """
+        Insert a new Match into the database.
+        """
+
+        session.add(match)
+        await session.commit()
+        await session.refresh(match)
+        return match
+
+    @staticmethod
     async def get_keyword_links(
         article_ids: List[UUID],
     ) -> List[ArticleKeywordLink]:

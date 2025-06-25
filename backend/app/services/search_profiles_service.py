@@ -85,6 +85,12 @@ class SearchProfileService:
                     profile_emails=data.profile_emails or [],
                     session=session,
                 )
+                await SearchProfileRepository.update_user_rights(
+                    profile=profile,
+                    can_read_user_ids=data.can_read_user_ids,
+                    can_edit_user_ids=data.can_edit_user_ids,
+                    session=session,
+                )
 
             result = await session.execute(
                 select(SearchProfile)
@@ -151,13 +157,17 @@ class SearchProfileService:
         profile: SearchProfile, current_user: UserEntity
     ) -> SearchProfileDetailResponse:
         is_owner = profile.created_by_id == current_user.id
-        is_editable = (
-            is_owner
+
+        is_editor = (
+            current_user.id == profile.owner_id
             or current_user.is_superuser
-            or (
-                profile.is_public
-                and current_user.organization_id == profile.organization_id
-            )
+            or current_user.id in profile.can_edit_user_ids
+        )
+
+        is_reader = (
+            current_user.id == profile.owner_id
+            or current_user.is_superuser
+            or current_user.id in profile.can_read_user_ids
         )
 
         organization_emails = (
@@ -192,26 +202,18 @@ class SearchProfileService:
             id=profile.id,
             name=profile.name,
             is_public=profile.is_public,
-            editable=is_editable,
-            is_editable=is_editable,
             owner_id=profile.created_by_id,
             is_owner=is_owner,
+            can_read_user_ids=profile.can_read_user_ids,
+            is_reader=is_reader,
+            can_edit_user_ids=profile.can_edit_user_ids,
+            is_editor=is_editor,
             organization_emails=organization_emails,
             profile_emails=profile_emails,
             topics=topic_responses,
             subscriptions=subscriptions,
             new_articles_count=new_articles_count,
         )
-
-    @staticmethod
-    def _filter_emails_by_org(
-        profile: SearchProfile, org_id: UUID, include: bool
-    ) -> list[str]:
-        return [
-            user.email
-            for user in profile.users
-            if (user.organization_id == org_id) is include
-        ]
 
     @staticmethod
     def _build_topic_response(topic: Topic) -> TopicResponse:

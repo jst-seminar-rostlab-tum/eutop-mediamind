@@ -195,7 +195,7 @@ async def get_reports(
     search_profile_id: UUID,
     current_user: User = Depends(get_authenticated_user),
 ):
-    profile = await SearchProfileService.get_search_profile_by_id(
+    profile = await SearchProfileService.get_extended_by_id(
         search_profile_id, current_user
     )
     if profile is None:
