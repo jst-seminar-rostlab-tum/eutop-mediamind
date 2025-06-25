@@ -6,6 +6,17 @@ from app.models.entity import ArticleEntity
 
 
 class ArticleEntityRepository:
+    """
+    This repository manages 'entities' extracted from articles.
+
+    An entity refers to a relevant keyword or named item detected in
+    the article's content.
+    It can be one of several types, such as:
+    - person
+    - industry
+    - event
+    - organization
+    """
 
     @staticmethod
     async def add_entities(

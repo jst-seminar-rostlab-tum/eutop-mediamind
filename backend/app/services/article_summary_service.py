@@ -106,9 +106,19 @@ class ArticleSummaryService:
                 events = data.get("events", [])
                 organizations = data.get("organizations", [])
 
+            except Exception as e:
+                logger.error(f"Error parsing summary and entities: {e}")
+                continue
+
+            try:
                 await ArticleRepository.update_article_summary(
                     article_id, summary
                 )
+            except Exception as e:
+                logger.error(
+                    f"Error updating article summary for {article_id}: {e}"
+                )
+            try:
                 await ArticleEntityRepository.add_entities(
                     article_id,
                     persons=persons,
@@ -116,13 +126,10 @@ class ArticleSummaryService:
                     events=events,
                     organizations=organizations,
                 )
-                logger.info(
-                    f"Updated summary and entities for article {article_id}"
-                )
-
             except Exception as e:
-                logger.error(f"Error parsing summary and entities: {e}")
-                continue
+                logger.error(
+                    f"Error adding entities for article {article_id}: {e}"
+                )
 
     @staticmethod
     async def run(page_size: int = 100) -> None:
