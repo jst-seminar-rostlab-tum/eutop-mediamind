@@ -1,4 +1,4 @@
-from typing import List, Sequence
+from typing import List
 from uuid import UUID
 
 from sqlalchemy import delete, select

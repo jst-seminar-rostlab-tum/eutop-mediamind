@@ -2,7 +2,7 @@ from typing import List, Optional
 from uuid import UUID
 
 from pydantic import EmailStr
-from sqlalchemy import and_, or_, update, delete
+from sqlalchemy import and_, delete, or_, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 from sqlmodel import select

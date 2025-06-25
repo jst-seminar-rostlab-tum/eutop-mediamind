@@ -379,7 +379,7 @@ class SearchProfileService:
                     await ReportRepository.delete_for_search_profile(
                         session, profile_id
                     )
-                    await SubscriptionRepository.delete_links_for_search_profile(
+                    await SubscriptionRepository.delete_links_for_search_profile(  # noqa: E501
                         session, profile_id
                     )
                     await UserRepository.delete_links_for_search_profile(
@@ -387,7 +387,7 @@ class SearchProfileService:
                     )
 
                     topic_ids = [topic.id for topic in search_profile.topics]
-                    await TopicsRepository.delete_keyword_links_for_search_profile(
+                    await TopicsRepository.delete_keyword_links_for_search_profile(  # noqa: E501
                         session, topic_ids
                     )
                     await TopicsRepository.delete_for_search_profile(
