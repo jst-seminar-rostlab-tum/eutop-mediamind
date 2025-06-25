@@ -182,3 +182,5 @@ cython_debug/
 newspapers_accounts.json
 output.pdf
 
+# Translation file for batch api
+openai_batch_translation.jsonl
