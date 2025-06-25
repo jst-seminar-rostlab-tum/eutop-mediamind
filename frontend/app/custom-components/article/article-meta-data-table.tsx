@@ -5,42 +5,51 @@ import {
   TableHead,
   TableRow,
 } from "~/components/ui/table";
-import type { Article } from "../../../types/model";
+import type { ArticleMatch } from "../../../types/model";
 import { formatDate } from "~/lib/utils";
+import { useTranslation } from "react-i18next";
 
 interface ArticleMetaDataTableProps {
-  article: Article;
+  article: ArticleMatch;
 }
 
 export function ArticleMetaDataTable({ article }: ArticleMetaDataTableProps) {
+  const { t } = useTranslation();
+
   return (
     <div className="border border-gray-200 rounded-3xl p-3">
       <Table>
-        <TableHead>Meta Data</TableHead>
+        <TableHead>{t("article-page.summary_header")}</TableHead>
         <TableBody>
           <TableRow>
-            <TableCell>Published</TableCell>
+            <TableCell>{t("article-page.meta_data_published")}</TableCell>
             <TableCell className="text-right">
-              {formatDate(article.published_at)}
+              {formatDate(article.article.published)}
             </TableCell>
           </TableRow>
           <TableRow>
-            <TableCell>Crawled</TableCell>
+            <TableCell>{t("article-page.meta_data_crawled")}</TableCell>
             <TableCell className="text-right">
-              {formatDate(article.crawled_at)}
+              {formatDate(article.article.crawled)}
             </TableCell>
           </TableRow>
           <TableRow>
-            <TableCell>Language</TableCell>
-            <TableCell className="text-right">{article.language}</TableCell>
+            <TableCell>{t("article-page.meta_data_language")}</TableCell>
+            <TableCell className="text-right">
+              {article.article.text["en"] ? "en" : "de"}
+            </TableCell>
           </TableRow>
           <TableRow>
-            <TableCell>Status</TableCell>
-            <TableCell className="text-right">{article.status}</TableCell>
+            <TableCell>{t("article-page.meta_data_status")}</TableCell>
+            <TableCell className="text-right">
+              {article.article.status}
+            </TableCell>
           </TableRow>
           <TableRow>
-            <TableCell>Category</TableCell>
-            <TableCell className="text-right">{article.category}</TableCell>
+            <TableCell>{t("article-page.meta_data_category")}</TableCell>
+            <TableCell className="text-right">
+              {article.article.categories}
+            </TableCell>
           </TableRow>
         </TableBody>
       </Table>

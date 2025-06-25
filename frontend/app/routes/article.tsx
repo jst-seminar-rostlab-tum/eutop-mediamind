@@ -1,7 +1,7 @@
 import { ArticlePage } from "~/pages/article/article";
 import { useParams } from "react-router";
-import { getArticle } from "~/pages/article/article-mock-data";
 import { ErrorPage } from "~/pages/error/error";
+import { useQuery } from "../../types/api";
 
 export default function Article() {
   const { searchProfileId, matchId } = useParams();
@@ -10,14 +10,25 @@ export default function Article() {
     return <ErrorPage />;
   }
 
-  const article = getArticle();
+  const { data } = useQuery(
+    "/api/v1/search-profiles/{search_profile_id}/article/{match_id}",
+    {
+      params: {
+        path: { search_profile_id: searchProfileId, match_id: matchId },
+      },
+    },
+  );
+
+  if (!data || !data.search_profile) {
+    return <ErrorPage />;
+  }
 
   return (
     <ArticlePage
       searchProfileId={searchProfileId}
       matchId={matchId}
-      article={article}
-      searchProfileName={article.profile.name}
+      article={data}
+      searchProfileName={data.search_profile.name}
     />
   );
 }

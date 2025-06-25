@@ -11,7 +11,7 @@ export function truncateAtWord(text: string, maxLength: number) {
   return truncated.slice(0, truncated.lastIndexOf(" ")) + "…";
 }
 
-export function formatDate(dateString: string) {
+export function formatDate(dateString: string, locale: string = "en-US") {
   try {
     const date = new Date(dateString);
 
@@ -19,7 +19,7 @@ export function formatDate(dateString: string) {
       return dateString;
     }
 
-    return date.toLocaleDateString("en-US", {
+    return date.toLocaleDateString(locale, {
       year: "numeric",
       month: "long",
       day: "numeric",

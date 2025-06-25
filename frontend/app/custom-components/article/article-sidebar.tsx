@@ -1,6 +1,4 @@
-import type { Article } from "../../../types/model";
-import { Button } from "~/components/ui/button";
-import { ExternalLink } from "lucide-react";
+import type { ArticleMatch } from "../../../types/model";
 import { ArticleMetaDataTable } from "~/custom-components/article/article-meta-data-table";
 import {
   Accordion,
@@ -9,20 +7,23 @@ import {
 } from "~/components/ui/accordion";
 import { AccordionContent } from "@radix-ui/react-accordion";
 import { Badge } from "~/components/ui/badge";
+import { useTranslation } from "react-i18next";
 
 interface ArticleSidebarProps {
-  article: Article;
+  article: ArticleMatch;
 }
 
 export function ArticleSidebar({ article }: ArticleSidebarProps) {
+  const { t } = useTranslation();
   return (
     <div className={"space-y-6"}>
-      <Button asChild>
-        <a href={article.url}>
-          Original
-          <ExternalLink />
-        </a>
-      </Button>
+      {/*TODO: missing*/}
+      {/*<Button asChild>*/}
+      {/*  <a href={article.article.url}>*/}
+      {/*    Original*/}
+      {/*    <ExternalLink />*/}
+      {/*  </a>*/}
+      {/*</Button>*/}
       <div className={"rounded-3xl pl-4 pr-4 bg-gray-100"}>
         <Accordion
           type={"single"}
@@ -34,21 +35,24 @@ export function ArticleSidebar({ article }: ArticleSidebarProps) {
             <AccordionTrigger
               className={"text-md font-semibold text-gray-900 cursor-pointer"}
             >
-              Summary
+              {t("article-page.summary_header")}
             </AccordionTrigger>
             <AccordionContent
               className={"text-gray-800 pb-4 whitespace-pre-wrap"}
             >
-              <p>{article.summary}</p>
+              <p>
+                {article.article.summary["en"]
+                  ? article.article.summary["en"]
+                  : article.article.summary["de"]}
+              </p>
             </AccordionContent>
           </AccordionItem>
         </Accordion>
       </div>
       <div className={"rounded-3xl border p-4 space-y-2"}>
-        <span className={"font-bold"}>Keywords</span>
+        <span className={"font-bold"}>{t("article-page.keywords_header")}</span>
         <p className={"text-sm text-gray-400"}>
-          Displays matched profile topics with keywords, and a score indicating
-          topic relevance to the article.
+          {t("article-page.keywords_text")}
         </p>
         {article.topics.map((topic) => (
           <div className={"space-y-1 bg-gray-100 p-2 rounded-2xl"}>
@@ -64,7 +68,7 @@ export function ArticleSidebar({ article }: ArticleSidebarProps) {
               </Badge>
             </div>
             <div className={"flex flex-wrap gap-1 pt-1"}>
-              {topic.keywords.map((keyword) => (
+              {topic.keywords?.map((keyword) => (
                 <Badge className={"p-1.5 rounded-lg"}>{keyword}</Badge>
               ))}
             </div>

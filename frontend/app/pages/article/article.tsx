@@ -1,15 +1,16 @@
 import React from "react";
 import { ArticleBreadcrumb } from "~/custom-components/article/article-breadcrumb";
 import { ArticleSidebar } from "~/custom-components/article/article-sidebar";
-import type { Article } from "../../../types/model";
+import type { ArticleMatch } from "../../../types/model";
 import { ArticleBody } from "~/custom-components/article/article-body";
 import Layout from "~/custom-components/layout";
 import { formatDate } from "~/lib/utils";
+import { useTranslation } from "react-i18next";
 
 interface ArticleProps {
   searchProfileId: string;
   matchId: string;
-  article: Article;
+  article: ArticleMatch;
   searchProfileName: string;
 }
 
@@ -18,7 +19,22 @@ export function ArticlePage({
   article,
   searchProfileName,
 }: ArticleProps) {
-  const publishDateString = formatDate(article.published_at);
+  const { i18n } = useTranslation();
+
+  const getLocale = (language: string) => {
+    switch (language) {
+      case "de":
+        return "de-DE";
+      case "en":
+        return "en-US";
+      default:
+        return "en-US";
+    }
+  };
+  const publishDateString = formatDate(
+    article.article.published,
+    getLocale(i18n.language),
+  );
 
   return (
     <Layout>
@@ -27,13 +43,25 @@ export function ArticlePage({
           <ArticleBreadcrumb
             searchProfileId={searchProfileId}
             searchProfileName={searchProfileName}
-            articleName={article.title}
+            articleName={article.article.headline["en"]}
           />
           <ArticleBody
-            title={article.title}
-            content={article.content}
+            title={
+              article.article.headline["en"]
+                ? article.article.headline["en"]
+                : article.article.headline["de"]
+            }
+            content={
+              article.article.text["en"]
+                ? article.article.text["en"]
+                : article.article.text["de"]
+            }
             published_at={publishDateString}
-            author={article.author}
+            author={
+              article.article.authors
+                ? article.article.authors?.join(", ")
+                : "Unknown"
+            }
           />
         </div>
         <div className="w-1/3">
