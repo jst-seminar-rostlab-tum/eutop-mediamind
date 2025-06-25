@@ -85,11 +85,19 @@ def _update_emails(
 
 def _update_user_rights(
     profile: SearchProfile,
-    can_read: Optional[List[UUID]],
-    can_edit: Optional[List[UUID]],
+    can_read_user_ids: Optional[List[UUID]],
+    can_edit_user_ids: Optional[List[UUID]],
 ):
-    profile.can_read = [str(e) for e in can_read] if can_read else []
-    profile.can_edit = [str(e) for e in can_edit] if can_edit else []
+    profile.can_read_user_ids = (
+        [str(user_id) for user_id in can_read_user_ids]
+        if can_read_user_ids
+        else []
+    )
+    profile.can_edit_user_ids = (
+        [str(user_id) for user_id in can_edit_user_ids]
+        if can_edit_user_ids
+        else []
+    )
 
 
 class SearchProfileRepository:
@@ -158,8 +166,8 @@ class SearchProfileRepository:
         )
         _update_user_rights(
             profile=profile,
-            can_read=data.can_read or [],
-            can_edit=data.can_edit or [],
+            can_read_user_ids=data.can_read_user_ids or [],
+            can_edit_user_ids=data.can_edit_user_ids or [],
         )
 
         session.add(profile)
@@ -211,8 +219,8 @@ class SearchProfileRepository:
     @staticmethod
     async def update_user_rights(
         profile: SearchProfile,
-        can_read: List[UUID],
-        can_edit: List[UUID],
+        can_read_user_ids: List[UUID],
+        can_edit_user_ids: List[UUID],
         session: AsyncSession,
     ) -> None:
         # bulk‐update the two list-columns in one go
@@ -220,8 +228,8 @@ class SearchProfileRepository:
             update(SearchProfile)
             .where(SearchProfile.id == profile.id)
             .values(
-                can_edit=can_edit,
-                can_read=can_read,
+                can_edit_user_ids=can_edit_user_ids,
+                can_read_user_ids=can_read_user_ids,
             )
         )
         await session.flush()

@@ -28,19 +28,16 @@ class SearchProfile(SQLModel, table=True):
     organization: Organization = Relationship(back_populates="search_profiles")
     organization_emails: List[str] = Field(sa_column=Column(ARRAY(String)))
     profile_emails: List[str] = Field(sa_column=Column(ARRAY(String)))
-    can_read: List[uuid.UUID] = Field(
+    can_read_user_ids: List[uuid.UUID] = Field(
         default_factory=list,
         sa_column=Column(
-            ARRAY(PG_UUID(as_uuid=True)),  # ← use the PG dialect type
-            nullable=True,
+            ARRAY(PG_UUID(as_uuid=True)),  # use the PG dialect type
             server_default="{}",  # defaults to empty array
         ),
     )
-    can_edit: List[uuid.UUID] = Field(
+    can_edit_user_ids: List[uuid.UUID] = Field(
         default_factory=list,
-        sa_column=Column(
-            ARRAY(PG_UUID(as_uuid=True)), nullable=True, server_default="{}"
-        ),
+        sa_column=Column(ARRAY(PG_UUID(as_uuid=True)), server_default="{}"),
     )
 
     # Relationships
