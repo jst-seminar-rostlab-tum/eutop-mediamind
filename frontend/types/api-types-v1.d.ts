@@ -232,7 +232,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/emails/{recipient_email}": {
+    "/api/v1/emails/send/{recipient_email}": {
         parameters: {
             query?: never;
             header?: never;
@@ -240,7 +240,7 @@ export interface paths {
             cookie?: never;
         };
         /** Trigger Email Sending */
-        get: operations["trigger_email_sending_api_v1_emails__recipient_email__get"];
+        get: operations["trigger_email_sending_api_v1_emails_send__recipient_email__get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1270,7 +1270,7 @@ export interface operations {
             };
         };
     };
-    trigger_email_sending_api_v1_emails__recipient_email__get: {
+    trigger_email_sending_api_v1_emails_send__recipient_email__get: {
         parameters: {
             query?: never;
             header?: never;
