@@ -235,3 +235,75 @@ class ArticleRepository:
                 (await session.execute(statement)).scalars().all()
             )
             return articles
+
+    @staticmethod
+    async def get_articles_without_translations(
+        limit: int = 100, offset: int = 0
+    ) -> Sequence[Article]:
+        """
+        Returns articles that are missing at least one translation
+        (title_en, title_de, content_en, content_de, summary_en, summary_de).
+        """
+        async with async_session() as session:
+            statement = (
+                select(Article)
+                .where(
+                    or_(
+                        Article.title_en.is_(None),
+                        Article.title_en == "",
+                        Article.title_de.is_(None),
+                        Article.title_de == "",
+                        Article.content_en.is_(None),
+                        Article.content_en == "",
+                        Article.content_de.is_(None),
+                        Article.content_de == "",
+                        Article.summary_en.is_(None),
+                        Article.summary_en == "",
+                        Article.summary_de.is_(None),
+                        Article.summary_de == "",
+                    )
+                )
+                .limit(limit)
+                .offset(offset)
+            )
+            articles_missing_translations: Sequence[Article] = (
+                (await session.execute(statement)).scalars().all()
+            )
+
+            return articles_missing_translations
+
+    @staticmethod
+    async def update_article_translations(
+        article_id: UUID,
+        title_en: Optional[str] = None,
+        title_de: Optional[str] = None,
+        content_en: Optional[str] = None,
+        content_de: Optional[str] = None,
+        summary_en: Optional[str] = None,
+        summary_de: Optional[str] = None,
+    ) -> Optional[Article]:
+        """
+        Update translation fields of an existing Article.
+        """
+        async with async_session() as session:
+            existing_article = await session.get(Article, article_id)
+            if not existing_article:
+                return None
+
+            if title_en is not None:
+                existing_article.title_en = title_en
+            if title_de is not None:
+                existing_article.title_de = title_de
+            if content_en is not None:
+                existing_article.content_en = content_en
+            if content_de is not None:
+                existing_article.content_de = content_de
+            if summary_en is not None:
+                existing_article.summary_en = summary_en
+            if summary_de is not None:
+                existing_article.summary_de = summary_de
+
+            session.add(existing_article)
+            await session.commit()
+            await session.refresh(existing_article)
+            return existing_article
