@@ -3,6 +3,7 @@ import json
 from typing import Dict, List, Set, Tuple
 from uuid import UUID
 
+from app.core.db import async_session
 from app.core.logger import get_logger
 from app.models import Match, SearchProfile
 from app.repositories.match_repository import MatchRepository
@@ -206,18 +207,18 @@ class ArticleMatchingService:
         """
         Clean up old matches and insert new ones in sorted order.
         """
-
-        for order, (art_id, topic_id, score) in enumerate(matches):
-            entry = next(r for r in results if r["article_id"] == art_id)
-            match = Match(
-                article_id=art_id,
-                search_profile_id=profile_id,
-                topic_id=topic_id,
-                sorting_order=order,
-                comment=json.dumps(entry, default=str),
-                score=score,
-            )
-            await MatchRepository.insert_match(match)
+        async with async_session() as session:
+            for order, (art_id, topic_id, score) in enumerate(matches):
+                entry = next(r for r in results if r["article_id"] == art_id)
+                match = Match(
+                    article_id=art_id,
+                    search_profile_id=profile_id,
+                    topic_id=topic_id,
+                    sorting_order=order,
+                    comment=json.dumps(entry, default=str),
+                    score=score,
+                )
+                await MatchRepository.insert_match(match, session)
 
     async def run(self, batch_size: int = 100) -> None:
         """

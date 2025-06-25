@@ -94,12 +94,12 @@ class MatchRepository:
             return result.scalar_one_or_none() or 0
 
     @staticmethod
-    async def insert_match(match: Match) -> Match:
+    async def insert_match(match: Match, session) -> Match:
         """
         Insert a new Match into the database.
         """
-        async with async_session() as session:
-            session.add(match)
-            await session.commit()
-            await session.refresh(match)
-            return match
+
+        session.add(match)
+        await session.commit()
+        await session.refresh(match)
+        return match
