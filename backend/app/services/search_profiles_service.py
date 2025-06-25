@@ -10,9 +10,11 @@ from app.core.db import async_session
 from app.models import SearchProfile, Topic, User
 from app.repositories.email_repository import EmailRepository
 from app.repositories.match_repository import MatchRepository
+from app.repositories.report_repository import ReportRepository
 from app.repositories.search_profile_repository import SearchProfileRepository
 from app.repositories.subscription_repository import SubscriptionRepository
 from app.repositories.topics_repository import TopicsRepository
+from app.repositories.user_repository import UserRepository
 from app.schemas.articles_schemas import (
     ArticleOverviewItem,
     ArticleOverviewResponse,
@@ -356,3 +358,46 @@ class SearchProfileService:
             )
 
         return response
+
+    @staticmethod
+    async def delete_search_profile(
+        profile_id: UUID, current_user: UserEntity
+    ) -> None:
+        search_profile = (
+            await SearchProfileRepository.get_search_profile_by_id(profile_id)
+        )
+        if current_user.id != search_profile.owner_id:
+            raise
+        async with async_session() as session:
+            try:
+                # begin a transaction
+                async with session.begin():
+                    # delete dependent records
+                    await MatchRepository.delete_for_search_profile(
+                        session, profile_id
+                    )
+                    await ReportRepository.delete_for_search_profile(
+                        session, profile_id
+                    )
+                    await SubscriptionRepository.delete_links_for_search_profile(
+                        session, profile_id
+                    )
+                    await UserRepository.delete_links_for_search_profile(
+                        session, profile_id
+                    )
+
+                    topic_ids = [topic.id for topic in search_profile.topics]
+                    await TopicsRepository.delete_keyword_links_for_search_profile(
+                        session, topic_ids
+                    )
+                    await TopicsRepository.delete_for_search_profile(
+                        session, profile_id
+                    )
+
+                    # finally, delete the profile itself
+                    await SearchProfileRepository.delete_by_id(
+                        session, profile_id
+                    )
+            except Exception:
+                # transaction is rolled back automatically on exception
+                raise

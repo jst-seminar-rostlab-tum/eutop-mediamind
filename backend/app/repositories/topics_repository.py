@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Sequence
 from uuid import UUID
 
 from sqlalchemy import delete, select
@@ -145,6 +145,30 @@ class TopicsRepository:
 
         await session.flush()
         await session.refresh(profile, ["topics"])
+
+    @staticmethod
+    async def delete_keyword_links_for_search_profile(
+        session: AsyncSession, topic_ids: List[UUID]
+    ) -> None:
+        """
+        Delete all entries in the linking table for keywords of topics
+        associated with the given search profile.
+        """
+        if not topic_ids:
+            return
+        # Cast to tuple for better type inference
+        ids_tuple = tuple(topic_ids)
+        stmt = delete(TopicKeywordLink).where(
+            TopicKeywordLink.topic_id.in_(ids_tuple)
+        )
+        await session.execute(stmt)
+
+    @staticmethod
+    async def delete_for_search_profile(
+        session: AsyncSession, profile_id: UUID
+    ) -> None:
+        stmt = delete(Topic).where(Topic.search_profile_id == profile_id)
+        await session.execute(stmt)
 
 
 # -- Helper functions (module-level) --

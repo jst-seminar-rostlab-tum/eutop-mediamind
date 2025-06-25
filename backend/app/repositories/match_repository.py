@@ -2,6 +2,8 @@ from datetime import datetime, timezone
 from typing import List
 from uuid import UUID
 
+from sqlalchemy import delete
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy.orm import selectinload
 from sqlmodel import func
@@ -103,3 +105,10 @@ class MatchRepository:
         await session.commit()
         await session.refresh(match)
         return match
+
+    @staticmethod
+    async def delete_for_search_profile(
+        session: AsyncSession, profile_id: UUID
+    ) -> None:
+        stmt = delete(Match).where(Match.search_profile_id == profile_id)
+        await session.execute(stmt)

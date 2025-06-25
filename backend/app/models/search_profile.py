@@ -66,7 +66,6 @@ class SearchProfile(SQLModel, table=True):
 # Pydantic schemas for API
 class SearchProfileBase(SQLModel):
     name: str = Field(max_length=255)
-    description: str | None = Field(default=None, max_length=255)
     organization_id: uuid.UUID
 
 
@@ -76,7 +75,6 @@ class SearchProfileCreate(SearchProfileBase):
 
 class SearchProfileUpdate(SQLModel):
     name: str | None = Field(default=None, max_length=255)
-    description: str | None = Field(default=None, max_length=255)
 
 
 class SearchProfileRead(SearchProfileBase):
