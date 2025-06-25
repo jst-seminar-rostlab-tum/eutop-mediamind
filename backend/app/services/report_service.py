@@ -19,10 +19,10 @@ class ReportService:
 
     @staticmethod
     async def get_or_create_report(
-        search_profile_id: uuid.UUID, timeslot: str
+        search_profile_id: uuid.UUID, timeslot: str, s3_service: S3Service
     ) -> Optional[Report]:
         """
-        Fetches today's report for a given search profile an timeslot.
+        Fetches today's report for a given search profile and timeslot.
         If no report exists, generates a new one and stores it in S3.
         New reports are always generated for the current day.
         """
@@ -38,12 +38,12 @@ class ReportService:
             f"Generating {timeslot} report for profile {search_profile_id}"
         )
         return await ReportService._generate_and_store_report(
-            search_profile_id, timeslot
+            search_profile_id, timeslot, s3_service
         )
 
     @staticmethod
     async def _generate_and_store_report(
-        search_profile_id: uuid.UUID, timeslot: str
+        search_profile_id: uuid.UUID, timeslot: str, s3_service: S3Service
     ) -> Optional[Report]:
         # Fetch search profile
         search_profile = await SearchProfileService.get_by_id(
@@ -69,7 +69,7 @@ class ReportService:
 
         # Set S3 key to the report id and upload the PDF
         s3_key = f"{configs.ENVIRONMENT}/reports/{search_profile_id}/{report.id}.pdf"  # noqa: E501
-        await S3Service.upload_fileobj(file_bytes=pdf_bytes, key=s3_key)
+        await s3_service.upload_fileobj(file_bytes=pdf_bytes, key=s3_key)
 
         # Update the report with the correct s3_key and mark as uploaded
         report.s3_key = s3_key

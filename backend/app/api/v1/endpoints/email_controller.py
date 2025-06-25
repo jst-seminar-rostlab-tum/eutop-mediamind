@@ -10,10 +10,11 @@ import uuid
 from datetime import datetime
 
 from fastapi import APIRouter, HTTPException, Query
+from fastapi.params import Depends
 
 from app.services.email_service import EmailSchedule, EmailService
 from app.services.report_service import ReportService
-from app.services.s3_service import S3Service
+from app.services.s3_service import S3Service, get_s3_service
 from app.services.search_profiles_service import SearchProfileService
 from app.services.user_service import UserService
 
@@ -23,7 +24,7 @@ router = APIRouter(
 )
 
 
-@router.get("/{recipient_email}")
+@router.get("/send/{recipient_email}")
 async def trigger_email_sending(recipient_email: str):
     email_schedule = EmailSchedule(
         recipient=recipient_email,
@@ -43,6 +44,7 @@ async def trigger_email_sending(recipient_email: str):
 async def send_report_email(
     clerk_id: str = Query(..., description="Clerk User ID"),
     search_profile_id: str = Query(..., description="Search Profile UUID"),
+    s3_service: S3Service = Depends(get_s3_service),
 ):
     print(
         f"Sending report email for user {clerk_id} and search profile {search_profile_id}"
@@ -61,7 +63,7 @@ async def send_report_email(
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
 
-    search_profile = await SearchProfileService.get_search_profile_by_id(
+    search_profile = await SearchProfileService.get_extended_by_id(
         search_profile_id, current_user=user
     )
     if not search_profile:
@@ -69,7 +71,7 @@ async def send_report_email(
 
     # Get or create report
     report = await ReportService.get_or_create_report(
-        search_profile_id, timeslot
+        search_profile_id, timeslot, s3_service
     )
     if not report:
         raise HTTPException(
@@ -77,7 +79,7 @@ async def send_report_email(
         )
 
     # Prepare email
-    presigned_url = S3Service.generate_presigned_url(
+    presigned_url = s3_service.generate_presigned_url(
         key=report.s3_key, expires_in=604800  # 7 days
     )
     dashboard_url = f"https://mediamind.csee.tech/dashboard/{report.s3_key}"
@@ -200,7 +202,7 @@ def build_email_content(
                   </a>
                 </div>
                 <div style="margin-bottom:25px; padding-bottom:25px; border-bottom:1px solid #e9ecef;">
-                  <b>Note:</b> The download link expires after 7 days. After that, you can still access your report anytime via your dashboard. (<a style="font-weight:600; color:#1e5091" href="{dashboard_link}">click here</a>).
+                  <b>Note:</b> The download link expires after 7 days. After that, you can still access your report anytime via your dashboard (<a style="font-weight:600; color:#1e5091" href="{dashboard_link}">click here</a>).
                 </div>
                 <div style="color:#888; font-size:0.9em;">
                   If the link above does not work, copy and paste this URL into your browser:<br />
