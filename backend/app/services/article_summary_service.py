@@ -43,7 +43,7 @@ class ArticleSummaryService:
         articles: Sequence[Article],
         model: str,
         temperature: float = 0.1,
-        output_filename: str = "summary_batch.jsonl"
+        output_filename: str = "summary_batch.jsonl",
     ) -> str | None:
         """
         Generates a .jsonl batch file containing prompts for summarizing
@@ -61,8 +61,7 @@ class ArticleSummaryService:
         """
         custom_ids = [str(article.id) for article in articles]
         prompts = [
-            ArticleSummaryService.build_prompt(article)
-            for article in articles
+            ArticleSummaryService.build_prompt(article) for article in articles
         ]
 
         batch_path = LLMClient.generate_batch(
@@ -94,13 +93,11 @@ class ArticleSummaryService:
                 result = json.loads(line)
                 article_id = uuid.UUID(result["custom_id"])
                 response = result["response"]
-                content = (
-                    response["body"]["choices"][0]["message"]["content"]
-                )
+                content = response["body"]["choices"][0]["message"]["content"]
                 if content.startswith("```json"):
-                    content = content[len("```json"):].strip()
+                    content = content[len("```json") :].strip()
                 if content.endswith("```"):
-                    content = content[:-len("```")].strip()
+                    content = content[: -len("```")].strip()
                 data = json.loads(content)
 
                 summary = data.get("summary", "")
@@ -113,9 +110,11 @@ class ArticleSummaryService:
                     article_id, summary
                 )
                 await ArticleEntityRepository.add_entities(
-                    article_id, persons=persons,
-                    industries=industries, events=events,
-                    organizations=organizations
+                    article_id,
+                    persons=persons,
+                    industries=industries,
+                    events=events,
+                    organizations=organizations,
                 )
                 logger.info(
                     f"Updated summary and entities for article {article_id}"
@@ -152,7 +151,7 @@ class ArticleSummaryService:
                 articles=articles,
                 model=LLMModels.openai_4o.value,
                 temperature=0.1,
-                output_filename="summary_batch.jsonl"
+                output_filename="summary_batch.jsonl",
             )
             if not batch_path:
                 return

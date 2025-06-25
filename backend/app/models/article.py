@@ -60,28 +60,22 @@ class Article(SQLModel, table=True):
     relevance: int = Field(default=0, nullable=False)
 
     title_en: Optional[str] = Field(
-        default=None,
-        sa_column=Column(Text, nullable=True)
+        default=None, sa_column=Column(Text, nullable=True)
     )
     title_de: Optional[str] = Field(
-        default=None,
-        sa_column=Column(Text, nullable=True)
+        default=None, sa_column=Column(Text, nullable=True)
     )
     content_en: Optional[str] = Field(
-        default=None,
-        sa_column=Column(Text, nullable=True)
+        default=None, sa_column=Column(Text, nullable=True)
     )
     content_de: Optional[str] = Field(
-        default=None,
-        sa_column=Column(Text, nullable=True)
+        default=None, sa_column=Column(Text, nullable=True)
     )
     summary_en: Optional[str] = Field(
-        default=None,
-        sa_column=Column(Text, nullable=True)
+        default=None, sa_column=Column(Text, nullable=True)
     )
     summary_de: Optional[str] = Field(
-        default=None,
-        sa_column=Column(Text, nullable=True)
+        default=None, sa_column=Column(Text, nullable=True)
     )
 
     crawled_at: datetime = Field(default_factory=datetime.now)

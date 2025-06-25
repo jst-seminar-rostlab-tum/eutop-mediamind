@@ -1,13 +1,14 @@
 import asyncio
 import json
 from pathlib import Path
-from typing import Type, TypeVar, List, Optional
+from typing import List, Optional, Type, TypeVar
+
 from litellm import (
-    completion,
-    acreate_file,
     acreate_batch,
-    aretrieve_batch,
+    acreate_file,
     afile_content,
+    aretrieve_batch,
+    completion,
 )
 
 from app.core.config import configs
@@ -46,9 +47,7 @@ class LLMClient:
         self, prompt: str, resp_format_type: Type[T], temperature: float = 0.1
     ) -> T:
         output = self.__prompt(
-            prompt,
-            resp_format=resp_format_type,
-            temperature=temperature
+            prompt, resp_format=resp_format_type, temperature=temperature
         )
         data = json.loads(output)
         return resp_format_type(**data)
@@ -59,7 +58,7 @@ class LLMClient:
         kwargs = {
             "model": self.model,
             "messages": [{"role": "user", "content": prompt}],
-            "temperature": temperature
+            "temperature": temperature,
         }
 
         if resp_format:
@@ -105,14 +104,9 @@ class LLMClient:
             "url": "/v1/chat/completions",
             "body": {
                 "model": model,
-                "messages": [
-                    {
-                        "role": "user",
-                        "content": prompt
-                    }
-                ],
-                "temperature": temperature
-            }
+                "messages": [{"role": "user", "content": prompt}],
+                "temperature": temperature,
+            },
         }
 
     @staticmethod
@@ -121,7 +115,7 @@ class LLMClient:
         prompts: List[str],
         model: str,
         temperature: float = 0.1,
-        output_filename: Optional[str] = "batch.jsonl"
+        output_filename: Optional[str] = "batch.jsonl",
     ) -> Path:
         """
         Generates a batch of request payloads in JSONL format and writes them
@@ -147,7 +141,7 @@ class LLMClient:
                 custom_id=custom_ids[i],
                 model=model,
                 prompt=prompts[i],
-                temperature=temperature
+                temperature=temperature,
             )
             lines.append(request)
 
@@ -173,9 +167,7 @@ class LLMClient:
         """
         with open(jsonl_path, "rb") as f:
             file_obj = await acreate_file(
-                file=f,
-                purpose="batch",
-                custom_llm_provider="openai"
+                file=f, purpose="batch", custom_llm_provider="openai"
             )
         logger.info(f"Batch uploaded to OpenAI: {file_obj.id}")
         return file_obj
@@ -197,7 +189,7 @@ class LLMClient:
             endpoint="/v1/chat/completions",
             input_file_id=file_id,
             custom_llm_provider="openai",
-            litellm_logging=False
+            litellm_logging=False,
         )
         logger.info(f"Batch work created: {batch.id}")
         return batch
@@ -217,13 +209,14 @@ class LLMClient:
         """
         while True:
             current = await aretrieve_batch(
-                batch_id=batch_id,
-                custom_llm_provider="openai"
+                batch_id=batch_id, custom_llm_provider="openai"
             )
             logger.info(f"Batch status: {current.status}")
-            if current.status in (
-                "completed", "failed", "expired", "cancelled"
-            ) and current.output_file_id:
+            if (
+                current.status
+                in ("completed", "failed", "expired", "cancelled")
+                and current.output_file_id
+            ):
                 break
             await asyncio.sleep(10)
         return current.status == "completed"
@@ -241,12 +234,10 @@ class LLMClient:
             from the batch job.
         """
         current = await aretrieve_batch(
-            batch_id=batch_id,
-            custom_llm_provider="openai"
+            batch_id=batch_id, custom_llm_provider="openai"
         )
         batch_output = await afile_content(
-            file_id=current.output_file_id,
-            custom_llm_provider="openai"
+            file_id=current.output_file_id, custom_llm_provider="openai"
         )
         lines = batch_output.text.strip().splitlines()
 

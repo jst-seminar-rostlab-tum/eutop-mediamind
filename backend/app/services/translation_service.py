@@ -22,8 +22,7 @@ class ArticleTranslationService:
 
     @staticmethod
     def prepare_translation_batch(
-        ids: list[str],
-        texts: list[str]
+        ids: list[str], texts: list[str]
     ) -> tuple[list[str], list[str], list[dict]]:
         """
         Prepares prompts and auto-responses for a translation batch.
@@ -56,21 +55,20 @@ class ArticleTranslationService:
             for lang_code, lang_name in target_langs.items():
                 full_id = f"{id_}_{lang_code}"
                 if detected_lang == lang_code:
-                    auto_responses.append({
-                        "custom_id": full_id,
-                        "response": {
-                            "body": {
-                                "choices": [{
-                                    "message": {"content": text}
-                                }]
-                            }
+                    auto_responses.append(
+                        {
+                            "custom_id": full_id,
+                            "response": {
+                                "body": {
+                                    "choices": [{"message": {"content": text}}]
+                                }
+                            },
                         }
-                    })
+                    )
                 else:
-                    prompts.append(base_prompt.format(
-                        target_lang=lang_name,
-                        content=text
-                    ))
+                    prompts.append(
+                        base_prompt.format(target_lang=lang_name, content=text)
+                    )
                     custom_ids.append(full_id)
 
         return custom_ids, prompts, auto_responses
@@ -99,7 +97,7 @@ class ArticleTranslationService:
             prompts=prompts,
             model=LLMModels.openai_4o.value,
             temperature=0.1,
-            output_filename="openai_batch_translation.jsonl"
+            output_filename="openai_batch_translation.jsonl",
         )
         raw_lines = await LLMClient.run_batch_api(output_path)
 

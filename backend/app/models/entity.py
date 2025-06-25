@@ -25,9 +25,7 @@ class ArticleEntity(SQLModel, table=True):
     value: str = Field(max_length=255, nullable=False)
 
     article_id: uuid.UUID = Field(
-        foreign_key="articles.id",
-        nullable=False,
-        index=True
+        foreign_key="articles.id", nullable=False, index=True
     )
 
     # Relationship
