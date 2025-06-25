@@ -61,7 +61,7 @@ export const AuthorizationContextProvider = ({
   useEffect(() => {
     if (isLoaded && isSignedIn) {
       const sync = async () => {
-        const { data: returnedUser } = await client.GET("/api/v1/users/sync");
+        const { data: returnedUser } = await client.POST("/api/v1/users/sync");
         setMediamindUser(returnedUser);
       };
       sync();
