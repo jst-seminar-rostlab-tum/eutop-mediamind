@@ -93,10 +93,16 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get Available Search Profiles */
+        /**
+         * Get Available Search Profiles
+         * @description Retrieve all search profiles available to the current user.
+         */
         get: operations["get_available_search_profiles_api_v1_search_profiles_get"];
         put?: never;
-        /** Create Search Profile */
+        /**
+         * Create Search Profile
+         * @description Create a new search profile for the current user.
+         */
         post: operations["create_search_profile_api_v1_search_profiles_post"];
         delete?: never;
         options?: never;
@@ -113,7 +119,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Get Keyword Suggestions */
+        /**
+         * Get Keyword Suggestions
+         * @description Return keyword suggestions based on a list of input keywords.
+         */
         post: operations["get_keyword_suggestions_api_v1_search_profiles_keywords_suggestions_post"];
         delete?: never;
         options?: never;
@@ -128,9 +137,15 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get Search Profile */
+        /**
+         * Get Search Profile
+         * @description Retrieve a specific search profile by its UUID.
+         */
         get: operations["get_search_profile_api_v1_search_profiles__search_profile_id__get"];
-        /** Update Search Profile */
+        /**
+         * Update Search Profile
+         * @description Update an existing search profile by its UUID.
+         */
         put: operations["update_search_profile_api_v1_search_profiles__search_profile_id__put"];
         post?: never;
         delete?: never;
@@ -146,7 +161,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get Search Profile Overview */
+        /**
+         * Get Search Profile Overview
+         * @description Retrieve an overview of articles for a given search profile.
+         */
         get: operations["get_search_profile_overview_api_v1_search_profiles__search_profile_id__overview_get"];
         put?: never;
         post?: never;
@@ -163,9 +181,15 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get Match Detail */
+        /**
+         * Get Match Detail
+         * @description Retrieve detailed match information for a specific article match.
+         */
         get: operations["get_match_detail_api_v1_search_profiles__search_profile_id__article__match_id__get"];
-        /** Update Match Feedback */
+        /**
+         * Update Match Feedback
+         * @description Update feedback for a specific match within a search profile.
+         */
         put: operations["update_match_feedback_api_v1_search_profiles__search_profile_id__article__match_id__put"];
         post?: never;
         delete?: never;
@@ -208,6 +232,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/emails/send/{recipient_email}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Trigger Email Sending */
+        get: operations["trigger_email_sending_api_v1_emails_send__recipient_email__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/emails/test": {
         parameters: {
             query?: never;
@@ -220,40 +261,6 @@ export interface paths {
         put?: never;
         post?: never;
         delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/vector-store/collections": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get Vector Store Collections */
-        get: operations["get_vector_store_collections_api_v1_vector_store_collections_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/vector-store/collections/{collection_name}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        /** Delete Vector Store Collection */
-        delete: operations["delete_vector_store_collection_api_v1_vector_store_collections__collection_name__delete"];
         options?: never;
         head?: never;
         patch?: never;
@@ -273,6 +280,23 @@ export interface paths {
          * @description Add a list of articles to the vector store.
          */
         post: operations["add_articles_to_vector_store_api_v1_vector_store_add_articles_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/article-matching/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Create Article Matching */
+        post: operations["create_article_matching_api_v1_article_matching__post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -387,46 +411,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/matches/create-matches": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Create Matches
-         * @description Create matches for articles in the background.
-         */
-        post: operations["create_matches_api_v1_matches_create_matches_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/matches": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get Matches By Search Profile
-         * @description Get matches by search profile ID.
-         */
-        get: operations["get_matches_by_search_profile_api_v1_matches_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/v1/crawler/trigger_crawling": {
         parameters: {
             query?: never;
@@ -455,6 +439,40 @@ export interface paths {
         put?: never;
         /** Trigger Scraping */
         post: operations["trigger_scraping_api_v1_crawler_trigger_scraping_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/crawler/trigger_breaking_news_crawling": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Trigger Newsapi Crawling */
+        post: operations["trigger_newsapi_crawling_api_v1_crawler_trigger_breaking_news_crawling_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/crawler/get_breaking_news": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Breaking News */
+        get: operations["get_breaking_news_api_v1_crawler_get_breaking_news_get"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -543,33 +561,6 @@ export interface components {
         KeywordSuggestionResponse: {
             /** Suggestions */
             suggestions: string[];
-        };
-        /** Match */
-        Match: {
-            /**
-             * Id
-             * Format: uuid
-             */
-            id?: string;
-            /**
-             * Article Id
-             * Format: uuid
-             */
-            article_id: string;
-            /**
-             * Search Profile Id
-             * Format: uuid
-             */
-            search_profile_id: string;
-            /** Topic Id */
-            topic_id?: string | null;
-            /**
-             * Sorting Order
-             * @default 0
-             */
-            sorting_order: number;
-            /** Comment */
-            comment?: string | null;
         };
         /** MatchDetailResponse */
         MatchDetailResponse: {
@@ -693,6 +684,16 @@ export interface components {
              * @default []
              */
             profile_emails: string[];
+            /**
+             * Can Edit User Ids
+             * @default []
+             */
+            can_edit_user_ids: string[];
+            /**
+             * Can Read User Ids
+             * @default []
+             */
+            can_read_user_ids: string[];
             /** Subscriptions */
             subscriptions: components["schemas"]["SubscriptionSummary"][];
             /**
@@ -718,10 +719,14 @@ export interface components {
             organization_emails: string[];
             /** Profile Emails */
             profile_emails: string[];
-            /** Editable */
-            editable: boolean;
-            /** Is Editable */
-            is_editable: boolean;
+            /** Can Read User Ids */
+            can_read_user_ids: string[];
+            /** Is Reader */
+            is_reader: boolean;
+            /** Can Edit User Ids */
+            can_edit_user_ids: string[];
+            /** Is Editor */
+            is_editor: boolean;
             /**
              * Owner Id
              * Format: uuid
@@ -752,6 +757,16 @@ export interface components {
              * @default []
              */
             profile_emails: string[];
+            /**
+             * Can Edit User Ids
+             * @default []
+             */
+            can_edit_user_ids: string[];
+            /**
+             * Can Read User Ids
+             * @default []
+             */
+            can_read_user_ids: string[];
             /** Subscriptions */
             subscriptions: components["schemas"]["SubscriptionSummary"][];
             /**
@@ -1255,16 +1270,13 @@ export interface operations {
             };
         };
     };
-    send_report_email_api_v1_emails_test_get: {
+    trigger_email_sending_api_v1_emails_send__recipient_email__get: {
         parameters: {
-            query: {
-                /** @description Clerk User ID */
-                clerk_id: string;
-                /** @description Search Profile UUID */
-                search_profile_id: string;
-            };
+            query?: never;
             header?: never;
-            path?: never;
+            path: {
+                recipient_email: string;
+            };
             cookie?: never;
         };
         requestBody?: never;
@@ -1289,33 +1301,16 @@ export interface operations {
             };
         };
     };
-    get_vector_store_collections_api_v1_vector_store_collections_get: {
+    send_report_email_api_v1_emails_test_get: {
         parameters: {
-            query?: never;
+            query: {
+                /** @description Clerk User ID */
+                clerk_id: string;
+                /** @description Search Profile UUID */
+                search_profile_id: string;
+            };
             header?: never;
             path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": unknown;
-                };
-            };
-        };
-    };
-    delete_vector_store_collection_api_v1_vector_store_collections__collection_name__delete: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                collection_name: string;
-            };
             cookie?: never;
         };
         requestBody?: never;
@@ -1367,6 +1362,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_article_matching_api_v1_article_matching__post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
                 };
             };
         };
@@ -1591,68 +1606,6 @@ export interface operations {
             };
         };
     };
-    create_matches_api_v1_matches_create_matches_post: {
-        parameters: {
-            query?: {
-                page_size?: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": unknown;
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    get_matches_by_search_profile_api_v1_matches_get: {
-        parameters: {
-            query: {
-                search_profile_id: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Match"][];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
     trigger_crawling_api_v1_crawler_trigger_crawling_post: {
         parameters: {
             query?: {
@@ -1686,6 +1639,46 @@ export interface operations {
         };
     };
     trigger_scraping_api_v1_crawler_trigger_scraping_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+        };
+    };
+    trigger_newsapi_crawling_api_v1_crawler_trigger_breaking_news_crawling_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+        };
+    };
+    get_breaking_news_api_v1_crawler_get_breaking_news_get: {
         parameters: {
             query?: never;
             header?: never;
