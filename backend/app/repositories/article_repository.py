@@ -5,13 +5,12 @@ from uuid import UUID
 
 from sqlalchemy import or_, select
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy.orm import selectinload  # New
+from sqlalchemy.orm import selectinload
 
 from app.core.db import async_session
 from app.core.logger import get_logger
 from app.models.article import Article
 from app.models.match import Match
-from app.models.search_profile import SearchProfile
 
 logger = get_logger(__name__)
 
@@ -207,11 +206,12 @@ class ArticleRepository:
                     selectinload(Match.article).selectinload(Article.keywords),
                 )
                 .where(
-                    Match.search_profile_id == SearchProfile.id,
+                    Match.search_profile_id == search_profile_id,
                     Match.article.has(
-                        Article.published_at >= match_start_time
+                        Article.published_at.between(
+                            match_start_time, match_stop_time
+                        )
                     ),
-                    Match.article.has(Article.published_at <= match_stop_time),
                 )
                 .order_by(Match.sorting_order.asc())
                 .limit(limit)

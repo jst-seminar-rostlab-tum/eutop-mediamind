@@ -20,12 +20,12 @@ from .utils import calculate_reading_time
 
 
 def draw_cover_elements(
-    search_profile: SearchProfile,
+    search_profile: SearchProfile,  # TODO are they needed
     news_items: List,
     dimensions: tuple[float, float],
     styles,
 ) -> List[Flowable]:
-    width, height = dimensions
+    width, height = dimensions  # TODO are they needed
     toc_entry_style = ParagraphStyle(
         name="TOCEntry",
         fontName="DVS-Bold",

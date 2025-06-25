@@ -31,6 +31,7 @@ from app.core.logger import get_logger
 from app.models.search_profile import SearchProfile
 from app.repositories.article_repository import ArticleRepository
 
+from ...repositories.search_profile_repository import SearchProfileRepository
 from .colors import pdf_colors
 from .fonts import register_fonts
 from .news_item import NewsItem
@@ -104,7 +105,12 @@ class PDFService:
                 legislations=legislations,
             )
             news_items.append(news_item)
-        return PDFService.draw_pdf(search_profile_id, news_items)
+        search_profile = (
+            await SearchProfileRepository.get_search_profile_by_id(
+                search_profile_id
+            )
+        )
+        return PDFService.draw_pdf(search_profile, news_items)
 
     @staticmethod
     def draw_pdf(
@@ -427,7 +433,7 @@ class PDFService:
     def __create_summaries_elements(
         news_items: List[NewsItem], dimensions: tuple[float, float]
     ) -> List["Flowable"]:
-        width, height = dimensions
+        width, height = dimensions  # TODO
         story = []
         for i, news in enumerate(news_items):
             story.append(AnchorFlowable(f"toc_summary_{i}"))
@@ -449,7 +455,9 @@ class PDFService:
             if news.published_at:
                 try:
                     dt = datetime.strptime(
-                        news.published_at.replace("Z", ""), "%Y-%m-%dT%H:%M:%S"
+                        # TODO inconsistent with previous time format
+                        news.published_at.replace("Z", ""),
+                        "%Y-%m-%dT%H:%M:%S",
                     )
                     pub_date_str = dt.strftime("%d %B %Y at %H:%M")
                 except Exception:
