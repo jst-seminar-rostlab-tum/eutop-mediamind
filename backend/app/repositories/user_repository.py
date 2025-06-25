@@ -119,7 +119,7 @@ class UserRepository:
         no organization.
         Superusers receive all users.
         """
-        if not user.is_superuser & (user.organization_id is None):
+        if (not user.is_superuser) & (user.organization_id is None):
             return [user]
         if user.is_superuser:
             stmt = select(User).options(selectinload(User.organization))
