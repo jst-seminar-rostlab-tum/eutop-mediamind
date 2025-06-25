@@ -127,7 +127,6 @@ class UserRepository:
 
         return _to_user_entity(user)
 
-
     @staticmethod
     async def get_users_by_user_organization(
         user: UserEntity, session: AsyncSession
