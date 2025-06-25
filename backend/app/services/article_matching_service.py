@@ -1,6 +1,5 @@
 import asyncio
 import json
-from datetime import date
 from typing import Dict, List, Set, Tuple
 from uuid import UUID
 
@@ -58,7 +57,7 @@ class ArticleMatchingService:
 
     async def _load_search_profile(self, profile_id: UUID) -> SearchProfile:
         profile = await SearchProfileRepository.get_search_profile_by_id(
-            profile_id, None
+            profile_id
         )
         if not profile:
             raise ValueError(f"Search profile with ID {profile_id} not found.")
@@ -207,8 +206,8 @@ class ArticleMatchingService:
         """
         Clean up old matches and insert new ones in sorted order.
         """
-        await MatchRepository.cleanup_matches(profile_id, date.today())
-        for order, (art_id, topic_id, _) in enumerate(matches):
+
+        for order, (art_id, topic_id, score) in enumerate(matches):
             entry = next(r for r in results if r["article_id"] == art_id)
             match = Match(
                 article_id=art_id,
@@ -216,7 +215,7 @@ class ArticleMatchingService:
                 topic_id=topic_id,
                 sorting_order=order,
                 comment=json.dumps(entry, default=str),
-                match_date=date.today(),
+                score=score,
             )
             await MatchRepository.insert_match(match)
 

@@ -1,8 +1,8 @@
 import uuid
-from datetime import date
+from datetime import datetime
 from typing import TYPE_CHECKING
 
-from sqlalchemy import Column, Text
+from sqlalchemy import TIMESTAMP, Column, Text, func
 from sqlmodel import Field, Relationship, SQLModel
 
 if TYPE_CHECKING:
@@ -30,9 +30,12 @@ class Match(SQLModel, table=True):
         default=None,
         sa_column=Column(Text, nullable=True),
     )
+    score: float = Field(default=0.0)
 
-    match_date: date = Field(
-        default_factory=date.today, nullable=False, index=True
+    matched_at: datetime = Field(
+        sa_column=Column(
+            TIMESTAMP(timezone=True), nullable=False, server_default=func.now()
+        )
     )
 
     # Relationships
