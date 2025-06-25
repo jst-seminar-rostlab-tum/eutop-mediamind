@@ -11,6 +11,7 @@ from app.models.associations import (
 )
 
 if TYPE_CHECKING:
+    from app.models.entity import ArticleEntity
     from app.models.keyword import Keyword
     from app.models.match import Match
     from app.models.subscription import Subscription
@@ -58,6 +59,25 @@ class Article(SQLModel, table=True):
     status: ArticleStatus = Field(default=ArticleStatus.NEW, nullable=False)
     relevance: int = Field(default=0, nullable=False)
 
+    title_en: Optional[str] = Field(
+        default=None, sa_column=Column(Text, nullable=True)
+    )
+    title_de: Optional[str] = Field(
+        default=None, sa_column=Column(Text, nullable=True)
+    )
+    content_en: Optional[str] = Field(
+        default=None, sa_column=Column(Text, nullable=True)
+    )
+    content_de: Optional[str] = Field(
+        default=None, sa_column=Column(Text, nullable=True)
+    )
+    summary_en: Optional[str] = Field(
+        default=None, sa_column=Column(Text, nullable=True)
+    )
+    summary_de: Optional[str] = Field(
+        default=None, sa_column=Column(Text, nullable=True)
+    )
+
     crawled_at: datetime = Field(default_factory=datetime.now)
     scraped_at: Optional[datetime] = Field(default=None, nullable=True)
 
@@ -73,3 +93,4 @@ class Article(SQLModel, table=True):
         link_model=ArticleKeywordLink,
     )
     matches: List["Match"] = Relationship(back_populates="article")
+    entities: List["ArticleEntity"] = Relationship(back_populates="article")

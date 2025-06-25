@@ -3,6 +3,7 @@ from .article import Article
 from .associations import ArticleKeywordLink
 from .auth import Message, NewPassword, Token, TokenPayload
 from .email import Email
+from .entity import ArticleEntity
 from .keyword import Keyword
 from .match import Match
 from .organization import Organization
@@ -23,6 +24,7 @@ __all__ = [
     "SearchProfile",
     "Subscription",
     "Topic",
+    "ArticleEntity",
     "User",
     "NewPassword",
     "Token",
