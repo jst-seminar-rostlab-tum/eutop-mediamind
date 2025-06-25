@@ -34,11 +34,13 @@ def upgrade() -> None:
     op.add_column(
         "articles", sa.Column("relevance", sa.Integer(), nullable=False, server_default='0')
     )
+    #Has to be done first lese existing migration will fail because of existing files
     op.execute("""
             UPDATE articles
             SET category = '[]'
             WHERE category IS NULL OR trim(category) = '';
         """)
+
     op.execute(
         """
         ALTER TABLE articles
