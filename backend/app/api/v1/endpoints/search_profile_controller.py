@@ -15,11 +15,10 @@ from app.schemas.report_schemas import ReportListResponse, ReportRead
 from app.schemas.request_response import FeedbackResponse
 from app.schemas.search_profile_schemas import (
     KeywordSuggestionResponse,
+    KeywordSuggestionTopic,
     SearchProfileCreateRequest,
     SearchProfileDetailResponse,
     SearchProfileUpdateRequest,
-    KeywordSuggestionTopic,
-    KeywordSuggestionRequest,
 )
 from app.schemas.user_schema import UserEntity
 from app.services.report_service import ReportService

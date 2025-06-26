@@ -22,10 +22,10 @@ from app.schemas.articles_schemas import (
 from app.schemas.match_schemas import MatchFeedbackRequest
 from app.schemas.search_profile_schemas import (
     KeywordSuggestionResponse,
+    KeywordSuggestionTopic,
     SearchProfileCreateRequest,
     SearchProfileDetailResponse,
     SearchProfileUpdateRequest,
-    KeywordSuggestionTopic,
 )
 from app.schemas.subscription_schemas import (
     SetSearchProfileSubscriptionsRequest,
