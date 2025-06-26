@@ -354,33 +354,9 @@ class SearchProfileService:
         prompt: str
         if search_profile_language == "de":
             prompt = KEYWORD_SUGGESTION_PROMPT_DE
-            prompt = """
-            System:
-Du bist ein Assistent, der für einen Nutzer präzise und relevante Such-Keywords vorschlägt.
-
-User:
-Suchprofilname: {search_profile_name}
-Thema: {selected_topic_name}
-Bereits verwendete Keywords: {selected_topic_keywords}
-
-Verwandte Themen:
-{related_topics}
-
-Aufgabe:
-Schlage genau fünf neue Keywords vor, die
-1. Nicht in „Bereits verwendete Keywords“ vorkommen.
-2. Optimal zu Suchprofilname und Thema passen.
-3. Keine Synonyme der vorhandenen Keywords sind.
-4. Jeweils 1–3 Wörter umfassen.
-
-Antwortformat (JSON-Liste):
-["keyword1", "keyword2", "keyword3", "keyword4", "keyword5"]
-
-            """
         elif search_profile_language == "en":
             prompt = KEYWORD_SUGGESTION_PROMPT_EN
         else:
-            print(search_profile_language)
             raise HTTPException(
                 status_code=400,
                 detail="Unsupported language for keyword suggestions",

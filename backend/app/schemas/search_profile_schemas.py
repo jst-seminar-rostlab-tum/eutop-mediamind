@@ -1,7 +1,7 @@
 from typing import List
 from uuid import UUID
 
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, Field
 
 from app.schemas.subscription_schemas import SubscriptionSummary
 from app.schemas.topic_schemas import TopicCreateOrUpdateRequest, TopicResponse
@@ -54,8 +54,13 @@ class SearchProfileDetailResponse(SearchProfileDetailBase):
     new_articles_count: int
 
 
-class KeywordSuggestionResponse(BaseModel):
-    suggestions: List[str]
+class KeywordSuggestionTopic(BaseModel):
+    topic_name: str
+    keywords: List[str]
 
-    def to_dict(self):
-        return {"keyword_suggestions": self.suggestions}
+
+class KeywordSuggestionResponse(BaseModel):
+    search_profile_name: str
+    search_profile_language: str
+    related_topics: List[KeywordSuggestionTopic]
+    selected_topic: KeywordSuggestionTopic
