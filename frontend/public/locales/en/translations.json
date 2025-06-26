@@ -142,5 +142,17 @@
     "credentials_error_text": "Please insert valid credentials.",
     "username": "Username",
     "password": "Password"
+  },
+
+  "article-page": {
+    "summary_header": "Summary",
+    "keywords_header": "Keywords",
+    "meta_data_header": "Meta Data",
+    "meta_data_published": "Published",
+    "meta_data_crawled": "Crawled",
+    "meta_data_language": "Language",
+    "meta_data_status": "Status",
+    "meta_data_category": "Category",
+    "keywords_text": "Displays matched profile topics with keywords, and a score indicating topic relevance to the article."
   }
 }
