@@ -35,7 +35,7 @@ def test_get_article_overview():
         mock_get.return_value = [match]
 
         result = asyncio.run(
-            SearchProfileService.get_article_overview(search_profile_id)
+            SearchProfileService.get_article_matches(search_profile_id)
         )
         assert result.search_profile_id == search_profile_id
         assert len(result.articles) == 1
