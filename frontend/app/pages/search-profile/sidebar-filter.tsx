@@ -27,6 +27,8 @@ import {
 } from "~/components/ui/popover";
 import { Calendar } from "~/components/ui/calendar";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
+import i18n from "~/i18n";
 
 interface SidebarFilterProps {
   sortBy: "relevance" | "date";
@@ -79,6 +81,8 @@ export function SidebarFilter({
   const [openFromDate, setOpenFromDate] = useState(false);
   const [openToDate, setOpenToDate] = useState(false);
 
+  const { t } = useTranslation();
+
   const filteredSources = Sources.filter((source) =>
     source.name.toLowerCase().includes(searchSources.toLowerCase()),
   );
@@ -90,7 +94,7 @@ export function SidebarFilter({
   return (
     <Card className="p-5 gap-4">
       <CardTitle className="mt-2 flex items-center gap-2">
-        <ArrowDownNarrowWide /> Sorting
+        <ArrowDownNarrowWide /> {t("search_profile.Sorting")}
       </CardTitle>
       <Select
         value={sortBy}
@@ -101,20 +105,20 @@ export function SidebarFilter({
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="relevance">
-            <Award /> Relevance
+            <Award /> {t("search_profile.Relevance")}
           </SelectItem>
           <SelectItem value="date">
-            <CalendarFold /> Date
+            <CalendarFold /> {t("search_profile.Date")}
           </SelectItem>
         </SelectContent>
       </Select>
 
       <CardTitle className="mt-4 flex items-center gap-2">
-        <StickyNote /> Sources
+        <StickyNote /> {t("search_profile.Sources")}
       </CardTitle>
       <div className="relative w-full flex">
         <Input
-          placeholder="Search sources"
+          placeholder={t("Search") + " " + t("search_profile.Sources")}
           value={searchSources}
           onChange={(e) => setSearchSources(e.target.value)}
         />
@@ -143,11 +147,11 @@ export function SidebarFilter({
       </ScrollArea>
 
       <CardTitle className="mt-4 flex items-center gap-2">
-        <Tag /> Topics
+        <Tag /> {t("search_profile.Topics")}
       </CardTitle>
       <div className="relative w-full flex">
         <Input
-          placeholder="Search topics"
+          placeholder={t("Search") + " " + t("search_profile.Topics")}
           value={searchTopics}
           onChange={(e) => setSearchTopics(e.target.value)}
         />
@@ -176,12 +180,12 @@ export function SidebarFilter({
       </ScrollArea>
 
       <CardTitle className="mt-4 flex items-center gap-2">
-        <CalendarFold /> Date
+        <CalendarFold /> {t("search_profile.Date")}
       </CardTitle>
       <div className="flex mx-2 flex-wrap gap-y-4 mb-2">
         <div className="flex">
           <Label htmlFor="date" className="pr-2">
-            From
+            {t("search_profile.From")}
           </Label>
           <Popover open={openFromDate} onOpenChange={setOpenFromDate}>
             <PopoverTrigger asChild>
@@ -208,9 +212,9 @@ export function SidebarFilter({
           </Popover>
         </div>
 
-        <div className="flex ml-4">
+        <div className={i18n.language == "de" ? "flex ml-2" : "flex ml-4"}>
           <Label htmlFor="date" className="pr-2">
-            To
+            {t("search_profile.To")}
           </Label>
           <Popover open={openToDate} onOpenChange={setOpenToDate}>
             <PopoverTrigger asChild>

@@ -205,7 +205,7 @@ export function SearchProfileOverview() {
                 />
                 <Button
                   variant="default"
-                  className="rounded-xl ml-2"
+                  className="rounded-m ml-2"
                   onClick={() => setSearchTerm(search)}
                 >
                   <Search />
