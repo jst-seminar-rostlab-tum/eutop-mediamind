@@ -72,7 +72,7 @@ async def send_report_email(
 
     # Get or create report
     report = await ReportService.get_or_create_report(
-        search_profile_id, timeslot, language, s3_service
+        search_profile.id, timeslot, language, s3_service
     )
     if not report:
         raise HTTPException(

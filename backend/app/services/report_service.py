@@ -30,7 +30,7 @@ class ReportService:
         New reports are always generated for the current day.
         """
         # Try to find existing report
-        report = await ReportRepository.get_by_search_profile_timeslot_language(
+        report = await ReportRepository.get_by_searchprofile_timeslot_language(
             search_profile_id, timeslot, language
         )
         if report:
