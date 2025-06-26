@@ -30,7 +30,7 @@ class ReportRepository:
             return result.scalars().first()
 
     @staticmethod
-    async def get_by_search_profile_timeslot_language(
+    async def get_by_searchprofile_timeslot_language(
         search_profile_id: UUID, timeslot: str, language: str
     ) -> Optional[Report]:
         # Filter by created_at datetime falling within the given day
