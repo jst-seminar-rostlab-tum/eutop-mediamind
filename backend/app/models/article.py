@@ -1,9 +1,9 @@
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from typing import TYPE_CHECKING, List, Optional
 
-from sqlalchemy import TIMESTAMP, Column, Text, func
+from sqlalchemy import TIMESTAMP, Column, Text
 from sqlmodel import JSON, Field, Relationship, SQLModel
 
 from app.models.associations import (
@@ -11,6 +11,7 @@ from app.models.associations import (
 )
 
 if TYPE_CHECKING:
+    from app.models.entity import ArticleEntity
     from app.models.keyword import Keyword
     from app.models.match import Match
     from app.models.subscription import Subscription
@@ -44,7 +45,13 @@ class Article(SQLModel, table=True):
             comment="List of authors for the article",
         ),
     )
-    published_at: datetime = Field(sa_column=Column(TIMESTAMP(timezone=True), nullable=False))
+    published_at: datetime = Field(
+        sa_column=Column(
+            TIMESTAMP(timezone=True),
+            nullable=False,
+            default=datetime.now(timezone.utc),
+        )
+    )
     language: str = Field(max_length=255, nullable=True)
     categories: List[str] = Field(
         sa_column=Column(
@@ -58,8 +65,36 @@ class Article(SQLModel, table=True):
     status: ArticleStatus = Field(default=ArticleStatus.NEW, nullable=False)
     relevance: int = Field(default=0, nullable=False)
 
-    crawled_at: datetime = Field(sa_column=Column(TIMESTAMP(timezone=True), nullable=False, server_default=func.now()))
-    scraped_at: Optional[datetime] = Field(sa_column=Column(TIMESTAMP(timezone=True), nullable=True))
+    title_en: Optional[str] = Field(
+        default=None, sa_column=Column(Text, nullable=True)
+    )
+    title_de: Optional[str] = Field(
+        default=None, sa_column=Column(Text, nullable=True)
+    )
+    content_en: Optional[str] = Field(
+        default=None, sa_column=Column(Text, nullable=True)
+    )
+    content_de: Optional[str] = Field(
+        default=None, sa_column=Column(Text, nullable=True)
+    )
+    summary_en: Optional[str] = Field(
+        default=None, sa_column=Column(Text, nullable=True)
+    )
+    summary_de: Optional[str] = Field(
+        default=None, sa_column=Column(Text, nullable=True)
+    )
+
+    crawled_at: datetime = Field(
+        sa_column=Column(
+            TIMESTAMP(timezone=True),
+            nullable=False,
+            default=datetime.now(timezone.utc),
+        )
+    )
+
+    scraped_at: Optional[datetime] = Field(
+        sa_column=Column(TIMESTAMP(timezone=True), nullable=True)
+    )
 
     # vector_embedding
     subscription_id: uuid.UUID = Field(
@@ -73,3 +108,4 @@ class Article(SQLModel, table=True):
         link_model=ArticleKeywordLink,
     )
     matches: List["Match"] = Relationship(back_populates="article")
+    entities: List["ArticleEntity"] = Relationship(back_populates="article")

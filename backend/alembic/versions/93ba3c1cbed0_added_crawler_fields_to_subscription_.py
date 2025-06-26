@@ -32,8 +32,13 @@ def upgrade() -> None:
         ),
     )
     op.add_column(
-        "articles", sa.Column("relevance", sa.Integer(), nullable=False)
+        "articles", sa.Column("relevance", sa.Integer(), nullable=False, server_default='0')
     )
+    op.execute("""
+            UPDATE articles
+            SET category = '[]'
+            WHERE category IS NULL OR trim(category) = '';
+        """)
     op.execute(
         """
         ALTER TABLE articles
@@ -55,6 +60,7 @@ def upgrade() -> None:
             "is_active",
             sa.Boolean(),
             nullable=False,
+            server_default=sa.text('TRUE'),
             comment="Indicates if this is included in the webcrawling"
             " pipeline",
         ),

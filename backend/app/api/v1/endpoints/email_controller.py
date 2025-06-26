@@ -7,13 +7,14 @@ Once we have a proper scheduler, we can remove this controller.
 """
 
 import uuid
-from datetime import datetime
+from time import gmtime, strftime
 
 from fastapi import APIRouter, HTTPException, Query
+from fastapi.params import Depends
 
 from app.services.email_service import EmailSchedule, EmailService
 from app.services.report_service import ReportService
-from app.services.s3_service import S3Service
+from app.services.s3_service import S3Service, get_s3_service
 from app.services.search_profiles_service import SearchProfileService
 from app.services.user_service import UserService
 
@@ -23,10 +24,27 @@ router = APIRouter(
 )
 
 
+@router.get("/send/{recipient_email}")
+async def trigger_email_sending(recipient_email: str):
+    email_schedule = EmailSchedule(
+        recipient=recipient_email,
+        subject="[MEDIAMIND] Your daily report",
+        content_type="text/HTML",
+        content=build_email_content(
+            "<test_s3_link>", "<test_dashboard_link>", "<Test Search Profile>"
+        ),
+    )
+
+    await EmailService.schedule_email(email_schedule)
+    await EmailService.send_scheduled_emails()
+    return {"message": "Email scheduled and sent successfully."}
+
+
 @router.get("/test")
 async def send_report_email(
     clerk_id: str = Query(..., description="Clerk User ID"),
     search_profile_id: str = Query(..., description="Search Profile UUID"),
+    s3_service: S3Service = Depends(get_s3_service),
 ):
     print(
         f"Sending report email for user {clerk_id} and search profile {search_profile_id}"
@@ -45,7 +63,7 @@ async def send_report_email(
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
 
-    search_profile = await SearchProfileService.get_search_profile_by_id(
+    search_profile = await SearchProfileService.get_extended_by_id(
         search_profile_id, current_user=user
     )
     if not search_profile:
@@ -53,7 +71,7 @@ async def send_report_email(
 
     # Get or create report
     report = await ReportService.get_or_create_report(
-        search_profile_id, timeslot
+        search_profile_id, timeslot, s3_service
     )
     if not report:
         raise HTTPException(
@@ -61,7 +79,7 @@ async def send_report_email(
         )
 
     # Prepare email
-    presigned_url = S3Service.generate_presigned_url(
+    presigned_url = s3_service.generate_presigned_url(
         key=report.s3_key, expires_in=604800  # 7 days
     )
     dashboard_url = f"https://mediamind.csee.tech/dashboard/{report.s3_key}"
@@ -74,7 +92,6 @@ async def send_report_email(
         content=build_email_content(
             presigned_url, dashboard_url, search_profile.name
         ),
-        attachment=None,
     )
 
     await EmailService.schedule_email(email_schedule)
@@ -85,7 +102,7 @@ async def send_report_email(
 def build_email_content(
     s3_link: str, dashboard_link: str, profile_name: str
 ) -> str:
-    today = datetime.now().strftime("%B %d, %Y")
+    today = strftime("%B %d, %Y", gmtime())
 
     return f"""
 <!DOCTYPE html>
@@ -185,7 +202,7 @@ def build_email_content(
                   </a>
                 </div>
                 <div style="margin-bottom:25px; padding-bottom:25px; border-bottom:1px solid #e9ecef;">
-                  <b>Note:</b> The download link expires after 7 days. After that, you can still access your report anytime via your dashboard. (<a style="font-weight:600; color:#1e5091" href="{dashboard_link}">click here</a>).
+                  <b>Note:</b> The download link expires after 7 days. After that, you can still access your report anytime via your dashboard (<a style="font-weight:600; color:#1e5091" href="{dashboard_link}">click here</a>).
                 </div>
                 <div style="color:#888; font-size:0.9em;">
                   If the link above does not work, copy and paste this URL into your browser:<br />

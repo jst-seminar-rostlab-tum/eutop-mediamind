@@ -3,8 +3,8 @@ from datetime import datetime, timezone
 from enum import Enum
 from typing import Dict
 
+from sqlalchemy import TIMESTAMP
 from sqlmodel import JSON, Column, Field, SQLModel
-from sqlalchemy import TIMESTAMP, func
 
 
 class EmailState(Enum):
@@ -25,15 +25,24 @@ class Email(SQLModel, table=True):
     content: str = Field(nullable=False)
     content_type: str = Field(default="text/plain", nullable=False)
     attempts: int = Field(default=0, nullable=False)
-    attachment: str | None = Field(default=None)
-    attachment_name: str | None = Field(default=None)
-    attempts: int = Field(default=0, nullable=False)
     state: EmailState = Field(default=EmailState.PENDING, nullable=False)
     errors: Dict[str, str] | None = Field(
         default_factory=dict, sa_column=Column(JSON)
     )
-    created_at: datetime = Field(sa_column=Column(TIMESTAMP(timezone=True), nullable=False, server_default=func.now()))
-    update_at: datetime = Field(sa_column=Column(TIMESTAMP(timezone=True), nullable=False, server_default=func.now()))
+    created_at: datetime = Field(
+        sa_column=Column(
+            TIMESTAMP(timezone=True),
+            nullable=False,
+            default=datetime.now(timezone.utc),
+        )
+    )
+    update_at: datetime = Field(
+        sa_column=Column(
+            TIMESTAMP(timezone=True),
+            nullable=False,
+            default=datetime.now(timezone.utc),
+        )
+    )
 
     def add_error(self, error: str):
         """
