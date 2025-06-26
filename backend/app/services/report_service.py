@@ -37,7 +37,9 @@ class ReportService:
             return report
 
         # Otherwise, create it
-        logger.info(f"Generating {timeslot} report ({language}) for profile {search_profile_id}")  # noqa: E501
+        logger.info(
+            f"Generating {timeslot} report ({language}) for profile {search_profile_id}"  # noqa: E501
+        )
 
         return await ReportService._generate_and_store_report(
             search_profile_id, timeslot, language, s3_service
