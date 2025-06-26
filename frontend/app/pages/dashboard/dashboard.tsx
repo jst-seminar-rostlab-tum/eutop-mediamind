@@ -34,6 +34,12 @@ export function DashboardPage() {
     mutate,
   } = useQuery("/api/v1/search-profiles", undefined, suppressSWRReloading);
 
+  const {
+    data: me,
+    error: meError,
+    isLoading: meLoading,
+  } = useQuery("/api/v1/users/me");
+
   const { t } = useTranslation();
 
   const sortedProfiles = sortBy(profiles, "name");
@@ -42,7 +48,10 @@ export function DashboardPage() {
     if (error) {
       toast.error("Failed to load profiles.");
     }
-  }, [error]);
+    if (meError) {
+      toast.error("Failed to load user information.");
+    }
+  }, [error, meError]);
 
   const breakingNews = [
     {
@@ -108,7 +117,7 @@ export function DashboardPage() {
           <Plus />
         </Button>
       </div>
-      {isLoading ? (
+      {isLoading || meLoading || !me ? (
         <div className="flex items-center justify-center py-8">
           <Loader2 className="h-8 w-8 animate-spin" />
           <span className="ml-2 text-muted-foreground">
@@ -122,6 +131,7 @@ export function DashboardPage() {
               key={profile.id + idx}
               profile={profile}
               mutateDashboard={mutate}
+              profile_id={me.id}
             />
           ))}
         </div>
