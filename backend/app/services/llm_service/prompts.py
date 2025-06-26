@@ -1,8 +1,7 @@
-# backend/app/prompts/search_profile_prompts.py
-
 KEYWORD_SUGGESTION_PROMPT_EN = """
 System:
-You are an assistant that suggests precise and relevant search keywords for a user.
+You are an assistant that suggests precise and
+relevant search keywords for a user.
 
 User:
 Search profile name: {search_profile_name}
@@ -25,7 +24,8 @@ Response format (JSON list):
 
 KEYWORD_SUGGESTION_PROMPT_DE = """
 System:
-Du bist ein Assistent, der für einen Nutzer präzise und relevante Such-Keywords vorschlägt.
+Du bist ein Assistent, der für einen Nutzer präzise und
+relevante Such-Keywords vorschlägt.
 
 User:
 Suchprofilname: {search_profile_name}
@@ -44,4 +44,4 @@ Schlage genau fünf neue Keywords vor, die
 
 Antwortformat (JSON-Liste):
 ["keyword1", "keyword2", "keyword3", "keyword4", "keyword5"]
-            """
+"""

@@ -7,7 +7,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 
 from app.core.db import async_session
-from app.models import SearchProfile, Topic, User
+from app.models import SearchProfile, Topic
 from app.repositories.email_repository import EmailRepository
 from app.repositories.match_repository import MatchRepository
 from app.repositories.search_profile_repository import SearchProfileRepository

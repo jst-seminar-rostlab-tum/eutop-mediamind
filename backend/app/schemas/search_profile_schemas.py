@@ -1,7 +1,7 @@
 from typing import List
 from uuid import UUID
 
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, EmailStr
 
 from app.schemas.subscription_schemas import SubscriptionSummary
 from app.schemas.topic_schemas import TopicCreateOrUpdateRequest, TopicResponse
