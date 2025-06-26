@@ -18,6 +18,7 @@ import { Alert, AlertTitle } from "~/components/ui/alert";
 import { useNavigate } from "react-router";
 import { useTranslation } from "react-i18next";
 
+
 const suppressSWRReloading = {
   refreshInterval: 0,
   refreshWhenHidden: false,
