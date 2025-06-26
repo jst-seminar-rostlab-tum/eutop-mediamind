@@ -90,12 +90,10 @@ async def get_search_profile(
 async def get_search_profile_overview(
     search_profile_id: UUID,
     request: MatchFilterRequest,
-    current_user: User = Depends(get_authenticated_user),
 ):
     return await SearchProfileService.get_article_matches(
         search_profile_id=search_profile_id,
         request=request,
-        current_user=current_user,
     )
     """
     Retrieve an overview of articles for a given search profile.
@@ -109,13 +107,12 @@ async def get_search_profile_overview(
 async def get_match_detail(
     search_profile_id: UUID,
     match_id: UUID,
-    current_user: User = Depends(get_authenticated_user),
 ) -> MatchDetailResponse:
     """
     Retrieve detailed match information for a specific article match.
     """
     detail = await SearchProfileService.get_match_detail(
-        search_profile_id, match_id, current_user
+        search_profile_id, match_id
     )
     if not detail:
         logger.warning(

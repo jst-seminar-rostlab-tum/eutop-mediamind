@@ -7,7 +7,7 @@ from sqlalchemy.orm import selectinload
 from sqlmodel import func
 
 from app.core.db import async_session
-from app.models import Article, User
+from app.models import Article
 from app.models.match import Match
 
 
@@ -29,7 +29,7 @@ class MatchRepository:
 
     @staticmethod
     async def get_matches_by_search_profile(
-        search_profile_id: UUID, user: User
+        search_profile_id: UUID,
     ) -> List[Match]:
         async with async_session() as session:
             query = (

@@ -270,7 +270,6 @@ class SearchProfileService:
     async def get_article_matches(
         search_profile_id: UUID,
         request: MatchFilterRequest,
-        current_user: User,
     ) -> ArticleOverviewResponse:
         matches: List[Match] = []
         relevance_map: dict[UUID, float] = {}
@@ -292,7 +291,6 @@ class SearchProfileService:
             # get matches for the profile with the article IDs
             all_matches = await MatchRepository.get_matches_by_search_profile(
                 search_profile_id,
-                user=current_user,
             )
             matches = [
                 m
@@ -307,7 +305,6 @@ class SearchProfileService:
             # no search term: get all matches for the profile
             matches = await MatchRepository.get_matches_by_search_profile(
                 search_profile_id,
-                current_user=current_user,
             )
             matches = [
                 m
@@ -409,7 +406,7 @@ class SearchProfileService:
 
     @staticmethod
     async def get_match_detail(
-        search_profile_id: UUID, match_id: UUID, current_user: User
+        search_profile_id: UUID, match_id: UUID
     ) -> MatchDetailResponse | None:
         match = await MatchRepository.get_match_by_id(
             search_profile_id, match_id
@@ -417,15 +414,9 @@ class SearchProfileService:
         if not match or not match.article:
             return None
         article = match.article
-        async with async_session() as session:
-            profile = (
-                await SearchProfileRepository.get_accessible_profile_by_id(
-                    search_profile_id,
-                    user_id=current_user.id,
-                    organization_id=current_user.organization_id,
-                    session=session,
-                )
-            )
+        profile = await SearchProfileRepository.get_search_profile_by_id(
+            search_profile_id
+        )
 
         all_matches = await MatchRepository.get_matches_by_profile_and_article(
             search_profile_id=search_profile_id, article_id=article.id
