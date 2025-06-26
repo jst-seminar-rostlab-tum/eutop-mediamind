@@ -18,6 +18,8 @@ from app.schemas.search_profile_schemas import (
     SearchProfileCreateRequest,
     SearchProfileDetailResponse,
     SearchProfileUpdateRequest,
+    KeywordSuggestionTopic,
+    KeywordSuggestionRequest,
 )
 from app.schemas.user_schema import UserEntity
 from app.services.report_service import ReportService
@@ -49,10 +51,10 @@ async def get_available_search_profiles(
     response_model=KeywordSuggestionResponse,
 )
 async def get_keyword_suggestions(
-    search_profile_name,
-    search_profile_language,
-    related_topics,
-    selected_topic,
+    search_profile_name: str,
+    search_profile_language: str,
+    related_topics: List[KeywordSuggestionTopic],
+    selected_topic: KeywordSuggestionTopic,
     current_user: User = Depends(get_authenticated_user),
 ) -> KeywordSuggestionResponse:
     """

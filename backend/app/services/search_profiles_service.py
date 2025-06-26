@@ -7,6 +7,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 
 from app.core.db import async_session
+from app.core.logger import get_logger
 from app.models import SearchProfile, Topic
 from app.repositories.email_repository import EmailRepository
 from app.repositories.match_repository import MatchRepository
@@ -24,6 +25,7 @@ from app.schemas.search_profile_schemas import (
     SearchProfileCreateRequest,
     SearchProfileDetailResponse,
     SearchProfileUpdateRequest,
+    KeywordSuggestionTopic,
 )
 from app.schemas.subscription_schemas import (
     SetSearchProfileSubscriptionsRequest,
@@ -37,6 +39,8 @@ from app.services.llm_service.prompts import (
     KEYWORD_SUGGESTION_PROMPT_DE,
     KEYWORD_SUGGESTION_PROMPT_EN,
 )
+
+logger = get_logger(__name__)
 
 
 class SearchProfileService:
@@ -335,19 +339,19 @@ class SearchProfileService:
     async def get_keyword_suggestions(
         search_profile_name: str,
         search_profile_language: str,
-        related_topics: List[dict],
-        selected_topic: dict,
+        related_topics: List[KeywordSuggestionTopic],
+        selected_topic: KeywordSuggestionTopic,
     ) -> KeywordSuggestionResponse:
         """
         Generate keyword suggestions based on the
         search profile information
         """
 
-        def format_related_topics(topics: List[dict]) -> str:
+        def format_related_topics(topics: List[KeywordSuggestionTopic]) -> str:
             if not topics:
-                return "KEINE"
+                return "--"
             return "\n".join(
-                f"{topic['topic_name']}: {', '.join(topic['keywords'])}"
+                f"{topic.topic_name}: {', '.join(topic.keywords)}"
                 for topic in topics
             )
 
@@ -364,18 +368,22 @@ class SearchProfileService:
 
         prompt = prompt.format(
             search_profile_name=search_profile_name,
-            selected_topic_name=selected_topic["topic_name"],
-            selected_topic_keywords=", ".join(selected_topic["keywords"]),
+            selected_topic_name=selected_topic.topic_name,
+            selected_topic_keywords=", ".join(selected_topic.keywords),
             related_topics=format_related_topics(related_topics),
         )
-
-        print(prompt)
 
         llm = LLMClient(LLMModels.openai_4o)
 
         response = llm.generate_typed_response(
             prompt, KeywordSuggestionResponse
         )
+
+        logger.info(
+            f"For search profile '{search_profile_name}', "
+            f"generated keyword suggestions: {response}"
+        )
+
         if not response:
             raise HTTPException(
                 status_code=500,

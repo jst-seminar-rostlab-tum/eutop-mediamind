@@ -59,8 +59,12 @@ class KeywordSuggestionTopic(BaseModel):
     keywords: List[str]
 
 
-class KeywordSuggestionResponse(BaseModel):
+class KeywordSuggestionRequest(BaseModel):
     search_profile_name: str
     search_profile_language: str
     related_topics: List[KeywordSuggestionTopic]
     selected_topic: KeywordSuggestionTopic
+
+
+class KeywordSuggestionResponse(BaseModel):
+    suggestions: List[str]
