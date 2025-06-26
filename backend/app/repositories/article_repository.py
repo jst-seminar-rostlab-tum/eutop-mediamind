@@ -322,5 +322,4 @@ class ArticleRepository:
             article: Optional[Article] = (
                 await session.execute(statement)
             ).scalar_one_or_none()
-            print(f"Article: {article.subscription_id}")
             return article.subscription_id if article else None
