@@ -83,7 +83,7 @@ async def send_report_email(
     presigned_url = s3_service.generate_presigned_url(
         key=report.s3_key, expires_in=604800  # 7 days
     )
-    dashboard_url = f"https://mediamind.csee.tech/dashboard/{report.s3_key}"
+    dashboard_url = f"https://mediamind.csee.tech/dashboard/reports/{report.id}"
 
     # Use the actual search profile name in the email content
     email_schedule = EmailSchedule(
