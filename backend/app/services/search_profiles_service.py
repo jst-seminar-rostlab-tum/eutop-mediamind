@@ -35,7 +35,7 @@ from app.schemas.topic_schemas import TopicResponse
 from app.schemas.user_schema import UserEntity
 from app.services.llm_service.llm_client import LLMClient
 from app.services.llm_service.llm_models import LLMModels
-from app.services.llm_service.prompts import (
+from app.services.llm_service.prompts.keyword_suggestion_prompts import (
     KEYWORD_SUGGESTION_PROMPT_DE,
     KEYWORD_SUGGESTION_PROMPT_EN,
 )
@@ -379,12 +379,12 @@ class SearchProfileService:
             prompt, KeywordSuggestionResponse
         )
 
-        logger.info(
-            f"For search profile '{search_profile_name}', "
-            f"generated keyword suggestions: {response}"
-        )
-
         if not response:
+            logger.error(
+                f"Failed to generate keyword "
+                f"suggestions from LLM "
+                f"for profile {search_profile_name}"
+            )
             raise HTTPException(
                 status_code=500,
                 detail="Failed to generate keyword suggestions from LLM",
