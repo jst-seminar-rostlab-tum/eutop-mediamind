@@ -1,5 +1,5 @@
 import { Book, Search } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router";
 import { client, useQuery } from "types/api";
 import {
@@ -20,6 +20,8 @@ import { SidebarFilter } from "./sidebar-filter";
 import { ScrollArea } from "~/components/ui/scroll-area";
 import type { paths } from "types/api-types-v1";
 import { SearchProfileSkeleton } from "./search-profile-skeleton";
+import { useTranslation } from "react-i18next";
+import { Button } from "~/components/ui/button";
 
 const suppressSWRReloading = {
   refreshInterval: 0,
@@ -46,6 +48,10 @@ export function SearchProfileOverview() {
   const [selectedTopics, setSelectedTopics] = useState<string[]>([]);
   const [selectedSources, setSelectedSources] = useState<string[]>([]);
   const [profileReady, setProfileReady] = useState<boolean>(false);
+
+  const [searchTerm, setSearchTerm] = useState<string>("");
+
+  const { t } = useTranslation();
 
   type MatchesResponse =
     paths["/api/v1/search-profiles/{search_profile_id}/matches"]["post"]["responses"]["200"]["content"]["application/json"];
@@ -107,10 +113,11 @@ export function SearchProfileOverview() {
         ? toDate.toISOString().split("T")[0]
         : today.toISOString().split("T")[0],
       sorting: sortBy.toUpperCase() as "DATE" | "RELEVANCE",
-      searchTerm: "",
+      searchTerm: searchTerm,
       topics: selectedTopics,
       subscriptions: selectedSources,
     };
+    console.log(requestBody);
     client
       .POST("/api/v1/search-profiles/{search_profile_id}/matches", {
         params: {
@@ -125,15 +132,15 @@ export function SearchProfileOverview() {
           console.error("Error fetching matches:", error);
         }
       });
-  }, [id, fromDate, toDate, sortBy, search, selectedTopics, selectedSources]);
-
-  const filteredMatches = useMemo(() => {
-    if (!matches) return [];
-
-    return matches?.matches.filter((match) =>
-      match.article.headline["en"].toLowerCase().includes(search.toLowerCase()),
-    );
-  }, [search, matches]);
+  }, [
+    id,
+    fromDate,
+    toDate,
+    sortBy,
+    searchTerm,
+    selectedTopics,
+    selectedSources,
+  ]);
 
   const Sources = profile ? profile.subscriptions : [];
   const Topics = profile ? profile.topics : [];
@@ -159,7 +166,7 @@ export function SearchProfileOverview() {
             <Text hierachy={2}>{profile?.name}</Text>
             <div className="flex gap-3 items-center">
               <Book size={20} />
-              <p>Topics:</p>
+              <p>{t("search_profile.Topics")}</p>
               {profile?.topics?.map((topic, idx) => (
                 <div className="bg-secondary rounded-lg py-1 px-2" key={idx}>
                   {topic.name}
@@ -192,18 +199,21 @@ export function SearchProfileOverview() {
             <div className="col-span-4">
               <div className="relative mb-4 w-full flex">
                 <Input
-                  placeholder="Search articles"
+                  placeholder={t("Search") + " " + t("search_profile.articles")}
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                 />
-                <Search
-                  size={20}
-                  className="absolute right-3 top-2 text-muted-foreground"
-                />
+                <Button
+                  variant="default"
+                  className="rounded-xl ml-2"
+                  onClick={() => setSearchTerm(search)}
+                >
+                  <Search />
+                </Button>
               </div>
               <div className="bg-card rounded-xl border shadow-sm">
                 <ScrollArea className="h-[755px] p-4">
-                  {filteredMatches?.map((match) => {
+                  {matches?.matches.map((match) => {
                     const relevance = match.relevance;
 
                     const bgColor =
@@ -228,7 +238,7 @@ export function SearchProfileOverview() {
                           <div className={`rounded-lg py-1 px-2 ${bgColor}`}>
                             Relevance: {relevance}
                           </div>
-                          {match.topic.map((topic) => (
+                          {match.topics.map((topic) => (
                             <div
                               className="bg-secondary rounded-lg py-1 px-2"
                               key={topic.id}
