@@ -16,8 +16,6 @@ import { BreakingNews } from "./breaking-news";
 import Layout from "~/custom-components/layout";
 import "./dashboard.css";
 
-import { Link } from "react-router";
-
 import { useTranslation } from "react-i18next";
 
 const suppressSWRReloading = {
@@ -121,13 +119,11 @@ export function DashboardPage() {
       ) : (
         <div className="grid-profile-cards mt-4 mb-4">
           {sortedProfiles?.map((profile, idx) => (
-            <Link to={`/search-profile/${profile.id}`}>
-              <ProfileCard
-                key={profile.id + idx}
-                profile={profile}
-                mutateDashboard={mutate}
-              />
-            </Link>
+            <ProfileCard
+              key={profile.id + idx}
+              profile={profile}
+              mutateDashboard={mutate}
+            />
           ))}
         </div>
       )}

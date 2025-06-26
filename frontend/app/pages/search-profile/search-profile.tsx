@@ -117,7 +117,7 @@ export function SearchProfileOverview() {
       topics: selectedTopics,
       subscriptions: selectedSources,
     };
-    console.log(requestBody);
+    console.log("Body: ", requestBody);
     client
       .POST("/api/v1/search-profiles/{search_profile_id}/matches", {
         params: {
@@ -141,6 +141,8 @@ export function SearchProfileOverview() {
     selectedTopics,
     selectedSources,
   ]);
+
+  console.log("Matches: ", matches);
 
   const Sources = profile ? profile.subscriptions : [];
   const Topics = profile ? profile.topics : [];
