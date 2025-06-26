@@ -74,7 +74,7 @@ class ReportService:
 
         # PDF generation
         pdf_bytes = await PDFService.create_pdf(
-            search_profile_id, timeslot, now
+            search_profile_id, timeslot, language, now
         )
 
         # Set S3 key to the report id and upload the PDF
