@@ -8,7 +8,7 @@ from app.core.logger import get_logger
 from app.models.report import Report, ReportStatus
 from app.repositories.report_repository import ReportRepository
 from app.schemas.report_schemas import ReportCreate
-from app.services.pdf_service import PDFService
+from app.services.pdf_service.pdf_service import PDFService
 from app.services.s3_service import S3Service
 from app.services.search_profiles_service import SearchProfileService
 
@@ -64,8 +64,10 @@ class ReportService:
         report = Report.model_validate(temp_report_data, from_attributes=True)
         report = await ReportRepository.create(report)
 
-        # TODO: Replace with actual PDF generation logic
-        pdf_bytes = await PDFService.create_sample_pdf(search_profile)
+        # PDF generation
+        pdf_bytes = await PDFService.create_pdf(
+            search_profile_id, timeslot, now
+        )
 
         # Set S3 key to the report id and upload the PDF
         s3_key = f"{configs.ENVIRONMENT}/reports/{search_profile_id}/{report.id}.pdf"  # noqa: E501
