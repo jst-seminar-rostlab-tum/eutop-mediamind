@@ -336,7 +336,7 @@ class SearchProfileService:
         else:
             matches.sort(key=lambda m: m.article.published_at, reverse=True)
 
-        article_match_map: dict[UUID, list[Match]] = defaultdict(list)
+        article_match_map: dict[UUID, List[Match]] = defaultdict(list)
         for m in matches:
             article_match_map[m.article_id].append(m)
 
