@@ -55,8 +55,19 @@ async def get_keyword_suggestions(
     """
     Return keyword suggestions based on a list of input keywords.
     """
+    search_profile_name = "BMW"
+    search_profile_language = "de"
+    related_topics = [
+        {"topic_name": "Automobile", "keywords": ["BMW", "Auto"]},
+        {"topic_name": "Fahrzeuge", "keywords": ["BMW", "Fahrzeug"]},
+    ]
+    selected_topic = {"topic_name": "Reifen", "keywords": ["Gummi", "Auto"]}
+
     return await SearchProfileService.get_keyword_suggestions(
-        current_user, keywords
+        search_profile_name,
+        search_profile_language,
+        related_topics,
+        selected_topic,
     )
 
 

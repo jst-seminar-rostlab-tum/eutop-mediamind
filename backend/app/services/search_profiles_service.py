@@ -33,6 +33,10 @@ from app.schemas.topic_schemas import TopicResponse
 from app.schemas.user_schema import UserEntity
 from app.services.llm_service.llm_client import LLMClient
 from app.services.llm_service.llm_models import LLMModels
+from app.services.llm_service.prompts import (
+    KEYWORD_SUGGESTION_PROMPT_DE,
+    KEYWORD_SUGGESTION_PROMPT_EN,
+)
 
 
 class SearchProfileService:
@@ -329,24 +333,71 @@ class SearchProfileService:
 
     @staticmethod
     async def get_keyword_suggestions(
-        user: User, suggestions: List[str]
+        search_profile_name: str,
+        search_profile_language: str,
+        related_topics: List[dict],
+        selected_topic: dict,
     ) -> KeywordSuggestionResponse:
-        # Avoid useless LLM calls if no topics are available
-        if len(suggestions) == 0:
-            return KeywordSuggestionResponse(suggestions=[])
-
-        prompt = """
-        I will give you a list related keywords. Please add 5
-        new relevant keywords. Don't include synonyms, but suggest
-        words to pin down the topic more exactly with your added
-        relevant keywords.\n
+        """
+        Generate keyword suggestions based on the
+        search profile information
         """
 
-        prompt += "Keywords: " + ", ".join(suggestions) + "\n\n"
+        def format_related_topics(topics: List[dict]) -> str:
+            if not topics:
+                return "KEINE"
+            return "\n".join(
+                f"{topic['topic_name']}: {', '.join(topic['keywords'])}"
+                for topic in topics
+            )
 
-        lhm_client = LLMClient(LLMModels.openai_4o)
+        prompt: str
+        if search_profile_language == "de":
+            prompt = KEYWORD_SUGGESTION_PROMPT_DE
+            prompt = """
+            System:
+Du bist ein Assistent, der für einen Nutzer präzise und relevante Such-Keywords vorschlägt.
 
-        response = lhm_client.generate_typed_response(
+User:
+Suchprofilname: {search_profile_name}
+Thema: {selected_topic_name}
+Bereits verwendete Keywords: {selected_topic_keywords}
+
+Verwandte Themen:
+{related_topics}
+
+Aufgabe:
+Schlage genau fünf neue Keywords vor, die
+1. Nicht in „Bereits verwendete Keywords“ vorkommen.
+2. Optimal zu Suchprofilname und Thema passen.
+3. Keine Synonyme der vorhandenen Keywords sind.
+4. Jeweils 1–3 Wörter umfassen.
+
+Antwortformat (JSON-Liste):
+["keyword1", "keyword2", "keyword3", "keyword4", "keyword5"]
+
+            """
+        elif search_profile_language == "en":
+            prompt = KEYWORD_SUGGESTION_PROMPT_EN
+        else:
+            print(search_profile_language)
+            raise HTTPException(
+                status_code=400,
+                detail="Unsupported language for keyword suggestions",
+            )
+
+        prompt = prompt.format(
+            search_profile_name=search_profile_name,
+            selected_topic_name=selected_topic["topic_name"],
+            selected_topic_keywords=", ".join(selected_topic["keywords"]),
+            related_topics=format_related_topics(related_topics),
+        )
+
+        print(prompt)
+
+        llm = LLMClient(LLMModels.openai_4o)
+
+        response = llm.generate_typed_response(
             prompt, KeywordSuggestionResponse
         )
         if not response:
