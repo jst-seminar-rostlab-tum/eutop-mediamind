@@ -15,9 +15,8 @@ import { sortBy } from "lodash-es";
 import Layout from "~/custom-components/layout";
 import "./dashboard.css";
 import { Alert, AlertTitle } from "~/components/ui/alert";
-import { useNavigate } from "react-router";
+import { Link } from "react-router";
 import { useTranslation } from "react-i18next";
-
 
 const suppressSWRReloading = {
   refreshInterval: 0,
@@ -47,7 +46,6 @@ export function DashboardPage() {
   }, [error]);
 
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
-  const navigate = useNavigate();
 
   return (
     <Layout>
@@ -59,13 +57,12 @@ export function DashboardPage() {
         </BreadcrumbList>
       </Breadcrumb>
       <h1 className="text-3xl font-bold mb-2">Dashboard</h1>
-      <Alert
-        onClick={() => navigate("/dashboard/breaking")}
-        className="hover:bg-gray-100 hover:cursor-pointer mb-2"
-      >
-        <Megaphone />
-        <AlertTitle>Click here to view the latest breaking news!</AlertTitle>
-      </Alert>
+      <Link to="/dashboard/breaking">
+        <Alert className="hover:bg-gray-100 mb-2">
+          <Megaphone />
+          <AlertTitle>Click here to view the latest breaking news!</AlertTitle>
+        </Alert>
+      </Link>
       <div className={"flex gap-5"}>
         <h2 className="text-2xl font-bold ">{t("dashboard.profile")}</h2>
         <EditProfile

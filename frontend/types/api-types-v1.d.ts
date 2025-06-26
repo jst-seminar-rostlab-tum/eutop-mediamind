@@ -73,13 +73,13 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        get?: never;
+        put?: never;
         /**
          * Sync User
          * @description Synchronize the current user with the external Clerk service.
          */
-        get: operations["sync_user_api_v1_users_sync_get"];
-        put?: never;
-        post?: never;
+        post: operations["sync_user_api_v1_users_sync_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -232,7 +232,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/emails/{recipient_email}": {
+    "/api/v1/emails/send/{recipient_email}": {
         parameters: {
             query?: never;
             header?: never;
@@ -240,7 +240,7 @@ export interface paths {
             cookie?: never;
         };
         /** Trigger Email Sending */
-        get: operations["trigger_email_sending_api_v1_emails__recipient_email__get"];
+        get: operations["trigger_email_sending_api_v1_emails_send__recipient_email__get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -286,6 +286,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/article-matching/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Create Article Matching */
+        post: operations["create_article_matching_api_v1_article_matching__post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/articles/summarize-all": {
         parameters: {
             query?: never;
@@ -300,6 +317,23 @@ export interface paths {
          * @description Summarize all articles in the database.
          */
         post: operations["summarize_all_articles_api_v1_articles_summarize_all_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/articles/pdf": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Trigger Pdf Creation */
+        get: operations["trigger_pdf_creation_api_v1_articles_pdf_get"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -667,6 +701,16 @@ export interface components {
              * @default []
              */
             profile_emails: string[];
+            /**
+             * Can Edit User Ids
+             * @default []
+             */
+            can_edit_user_ids: string[];
+            /**
+             * Can Read User Ids
+             * @default []
+             */
+            can_read_user_ids: string[];
             /** Subscriptions */
             subscriptions: components["schemas"]["SubscriptionSummary"][];
             /**
@@ -692,10 +736,14 @@ export interface components {
             organization_emails: string[];
             /** Profile Emails */
             profile_emails: string[];
-            /** Editable */
-            editable: boolean;
-            /** Is Editable */
-            is_editable: boolean;
+            /** Can Read User Ids */
+            can_read_user_ids: string[];
+            /** Is Reader */
+            is_reader: boolean;
+            /** Can Edit User Ids */
+            can_edit_user_ids: string[];
+            /** Is Editor */
+            is_editor: boolean;
             /**
              * Owner Id
              * Format: uuid
@@ -726,6 +774,16 @@ export interface components {
              * @default []
              */
             profile_emails: string[];
+            /**
+             * Can Edit User Ids
+             * @default []
+             */
+            can_edit_user_ids: string[];
+            /**
+             * Can Read User Ids
+             * @default []
+             */
+            can_read_user_ids: string[];
             /** Subscriptions */
             subscriptions: components["schemas"]["SubscriptionSummary"][];
             /**
@@ -907,7 +965,7 @@ export interface operations {
             };
         };
     };
-    sync_user_api_v1_users_sync_get: {
+    sync_user_api_v1_users_sync_post: {
         parameters: {
             query?: never;
             header?: never;
@@ -1229,7 +1287,7 @@ export interface operations {
             };
         };
     };
-    trigger_email_sending_api_v1_emails__recipient_email__get: {
+    trigger_email_sending_api_v1_emails_send__recipient_email__get: {
         parameters: {
             query?: never;
             header?: never;
@@ -1325,6 +1383,26 @@ export interface operations {
             };
         };
     };
+    create_article_matching_api_v1_article_matching__post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+        };
+    };
     summarize_all_articles_api_v1_articles_summarize_all_post: {
         parameters: {
             query?: {
@@ -1352,6 +1430,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    trigger_pdf_creation_api_v1_articles_pdf_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
                 };
             };
         };
