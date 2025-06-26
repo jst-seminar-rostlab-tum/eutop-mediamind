@@ -370,6 +370,15 @@ class SearchProfileService:
 
             avg_score = total_score / len(topics) if topics else 0.0
 
+            categories = (
+                article.categories
+                if isinstance(article.categories, list)
+                else (
+                    [article.categories]
+                    if article.categories is not None
+                    else []
+                )
+            )
             article_content = MatchArticleOverviewContent(
                 article_url=article.url or "https://no_url.com/",
                 headline={
@@ -389,7 +398,7 @@ class SearchProfileService:
                 crawled=article.crawled_at,
                 newspaper_id=article.subscription_id,
                 authors=article.authors or [],
-                categories=article.categories or [],
+                categories=categories,
                 status=article.status,
             )
 
