@@ -8,7 +8,6 @@ from sqlmodel import func
 
 from app.core.db import async_session
 from app.models import Article, User
-from app.models.associations import ArticleKeywordLink
 from app.models.match import Match
 
 
@@ -33,8 +32,10 @@ class MatchRepository:
         search_profile_id: UUID, user: User
     ) -> List[Match]:
         async with async_session() as session:
-            query = select(Match).where(
-                Match.search_profile_id == search_profile_id
+            query = (
+                select(Match)
+                .options(selectinload(Match.article))
+                .where(Match.search_profile_id == search_profile_id)
             )
             matches = (await session.execute(query)).scalars().all()
 
@@ -54,6 +55,24 @@ class MatchRepository:
                 )
             )
             return matches.scalars().first()
+
+    @staticmethod
+    async def get_matches_by_profile_and_article(
+        search_profile_id: UUID,
+        article_id: UUID,
+    ) -> list[Match]:
+        async with async_session() as session:
+            result = await session.execute(
+                select(Match)
+                .where(
+                    Match.search_profile_id == search_profile_id,
+                    Match.article_id == article_id,
+                )
+                .options(
+                    selectinload(Match.topic),
+                )
+            )
+            return result.scalars().all()
 
     @staticmethod
     async def update_match_feedback(
@@ -106,18 +125,3 @@ class MatchRepository:
         await session.commit()
         await session.refresh(match)
         return match
-
-    @staticmethod
-    async def get_keyword_links(
-        article_ids: List[UUID],
-    ) -> List[ArticleKeywordLink]:
-        """
-        retrieve all keyword links for a list of article IDs
-        """
-        async with async_session() as session:
-            result = await session.execute(
-                select(ArticleKeywordLink).where(
-                    ArticleKeywordLink.article_id.in_(article_ids)
-                )
-            )
-            return result.scalars().all()

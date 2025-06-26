@@ -37,6 +37,7 @@ class ArticleOverviewItem(BaseModel):
 
 
 class MatchArticleOverviewContent(BaseModel):
+    article_url: str
     headline: dict[str, str]
     summary: dict[str, str]
     text: dict[str, str]
@@ -66,50 +67,6 @@ class MatchItem(BaseModel):
     relevance: float
     topics: list[MatchTopicItem]
     article: MatchArticleOverviewContent
-
-    @classmethod
-    def from_entity(
-        cls,
-        match: Match,
-        topic_scores: dict[UUID, float],
-        topic_keywords: dict[UUID, list[str]] | None = None,
-        relevance: float = 0.0,
-        topic_id_to_name: dict[UUID, str] | None = None,
-    ) -> "MatchItem":
-        a = match.article
-        return cls(
-            id=match.id,
-            relevance=relevance,
-            topics=(
-                [
-                    MatchTopicItem(
-                        id=tid,
-                        name=(
-                            topic_id_to_name.get(tid, "")
-                            if topic_id_to_name
-                            else ""
-                        ),
-                        keywords=(
-                            topic_keywords.get(tid) if topic_keywords else None
-                        ),
-                        score=score,
-                    )
-                    for tid, score in topic_scores.items()
-                ]
-            ),
-            article=MatchArticleOverviewContent(
-                headline={
-                    "de": a.title or "",
-                    "en": a.title or "",
-                },  # need to implement language handling
-                summary={"de": a.summary or "", "en": ""},
-                text={"de": a.content or "", "en": ""},
-                image_urls=["https://example.com/image.jpg"]  # placeholder
-                or [],  # need to implement image extraction in scraping
-                published=a.published_at,
-                crawled=a.crawled_at,
-            ),
-        )
 
 
 class ArticleOverviewResponse(BaseModel):

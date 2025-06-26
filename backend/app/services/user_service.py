@@ -1,8 +1,4 @@
-from typing import Any
-from typing import Dict
-from typing import List
-from typing import Optional
-from typing import Union
+from typing import Any, Dict, List, Optional, Union
 
 from app.core.db import async_session
 from app.repositories.user_repository import UserRepository

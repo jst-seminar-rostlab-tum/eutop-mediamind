@@ -1,3 +1,4 @@
+from collections import defaultdict
 from typing import List, Optional, Sequence
 from uuid import UUID
 
@@ -42,6 +43,21 @@ class KeywordRepository:
                 select(Keyword).where(Keyword.id.in_(keyword_ids))
             )
             return result.scalars().all()
+
+    @staticmethod
+    async def get_keywords_by_topic_ids(
+        topic_ids: set[UUID],
+    ) -> dict[UUID, list[str]]:
+        async with async_session() as session:
+            result = await session.execute(
+                select(Topic.id, Keyword.name)
+                .join(Topic.keywords)
+                .where(Topic.id.in_(topic_ids))
+            )
+            topic_keywords = defaultdict(list)
+            for topic_id, keyword_name in result.all():
+                topic_keywords[topic_id].append(keyword_name)
+            return topic_keywords
 
     @staticmethod
     async def list_keywords(

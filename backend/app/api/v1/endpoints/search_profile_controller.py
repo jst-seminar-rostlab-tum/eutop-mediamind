@@ -10,9 +10,9 @@ from app.schemas.articles_schemas import (
     ArticleOverviewResponse,
     MatchDetailResponse,
 )
-from app.schemas.match_schemas import MatchFeedbackRequest
+from app.schemas.match_schemas import MatchFeedbackRequest, MatchFilterRequest
 from app.schemas.report_schemas import ReportListResponse, ReportRead
-from app.schemas.request_response import FeedbackResponse, MatchFilterRequest
+from app.schemas.request_response import FeedbackResponse
 from app.schemas.search_profile_schemas import (
     KeywordSuggestionResponse,
     SearchProfileCreateRequest,
