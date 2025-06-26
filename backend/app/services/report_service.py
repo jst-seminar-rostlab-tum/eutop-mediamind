@@ -19,31 +19,36 @@ class ReportService:
 
     @staticmethod
     async def get_or_create_report(
-        search_profile_id: uuid.UUID, timeslot: str, s3_service: S3Service
+        search_profile_id: uuid.UUID,
+        timeslot: str,
+        language: str,
+        s3_service: S3Service,
     ) -> Optional[Report]:
         """
-        Fetches today's report for a given search profile and timeslot.
+        Fetches today's report for a search profile, timeslot and language.
         If no report exists, generates a new one and stores it in S3.
         New reports are always generated for the current day.
         """
         # Try to find existing report
         report = await ReportRepository.get_by_search_profile_and_timeslot(
-            search_profile_id, timeslot
+            search_profile_id, timeslot, language
         )
         if report:
             return report
 
         # Otherwise, create it
-        logger.info(
-            f"Generating {timeslot} report for profile {search_profile_id}"
-        )
+        logger.info(f"Generating {timeslot} report ({language}) for profile {search_profile_id}")  # noqa: E501
+
         return await ReportService._generate_and_store_report(
-            search_profile_id, timeslot, s3_service
+            search_profile_id, timeslot, language, s3_service
         )
 
     @staticmethod
     async def _generate_and_store_report(
-        search_profile_id: uuid.UUID, timeslot: str, s3_service: S3Service
+        search_profile_id: uuid.UUID,
+        timeslot: str,
+        language: str,
+        s3_service: S3Service,
     ) -> Optional[Report]:
         # Fetch search profile
         search_profile = await SearchProfileService.get_by_id(
@@ -59,6 +64,7 @@ class ReportService:
             search_profile_id=search_profile_id,
             created_at=now,
             time_slot=timeslot,
+            language=language,
             s3_key="",  # set after upload
         )
         report = Report.model_validate(temp_report_data, from_attributes=True)

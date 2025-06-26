@@ -30,8 +30,8 @@ class ReportRepository:
             return result.scalars().first()
 
     @staticmethod
-    async def get_by_search_profile_and_timeslot(
-        search_profile_id: UUID, timeslot: str
+    async def get_by_search_profile_timeslot_language(
+        search_profile_id: UUID, timeslot: str, language: str
     ) -> Optional[Report]:
         # Filter by created_at datetime falling within the given day
         start = datetime.combine(date.today(), datetime.min.time())
@@ -42,6 +42,7 @@ class ReportRepository:
                 select(Report).where(
                     Report.search_profile_id == search_profile_id,
                     Report.time_slot == timeslot,
+                    Report.language == language,
                     Report.status == ReportStatus.UPLOADED,
                     Report.created_at >= start,
                     Report.created_at < end,
