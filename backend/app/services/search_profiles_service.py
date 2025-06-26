@@ -292,7 +292,7 @@ class SearchProfileService:
             # get matches for the profile with the article IDs
             all_matches = await MatchRepository.get_matches_by_search_profile(
                 search_profile_id,
-                current_user=current_user,
+                user=current_user,
             )
             matches = [
                 m
@@ -374,6 +374,7 @@ class SearchProfileService:
             avg_score = total_score / len(topics) if topics else 0.0
 
             article_content = MatchArticleOverviewContent(
+                article_url=article.url or "https://no_url.com/",
                 headline={
                     "de": article.title_de or "",
                     "en": article.title_en or "",
