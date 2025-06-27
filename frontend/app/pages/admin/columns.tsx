@@ -31,6 +31,7 @@ export function getOrgaColumns(
     },
     {
       id: "actions",
+      header: "Options",
       cell: ({ row }) => {
         const orgName = row.getValue("name") as string;
         return (
@@ -77,18 +78,14 @@ export function getSubsColumns(
     {
       accessorKey: "name",
       header: "Name",
-      cell: ({ row }) => (
-        <div className="lowercase">{row.getValue("name")}</div>
-      ),
     },
     {
       accessorKey: "url",
-      header: "",
-      cell: ({ row }) => <div>{row.getValue("url")}</div>,
+      header: "URL",
     },
     {
       id: "actions",
-      header: "",
+      header: "Options",
       cell: ({ row }) => {
         const index = row.index;
         return (

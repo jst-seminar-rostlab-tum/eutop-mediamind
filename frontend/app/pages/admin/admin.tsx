@@ -5,7 +5,7 @@ import {
   CardHeader,
   CardTitle,
 } from "~/components/ui/card";
-import { DataTable } from "~/custom-components/admin-settings/data-table";
+import { DataTableSubscriptions } from "~/custom-components/admin-settings/data-table-subs";
 import Layout from "~/custom-components/layout";
 import Text from "~/custom-components/text";
 import React from "react";
@@ -24,7 +24,8 @@ import {
 } from "~/components/ui/breadcrumb";
 import { useTranslation } from "react-i18next";
 import { ConfirmationDialog } from "~/custom-components/confirmation-dialog";
-import { Building2 } from "lucide-react";
+import { Building2, Newspaper } from "lucide-react";
+import { DataTableOrganizations } from "~/custom-components/admin-settings/data-table-orgas";
 
 // Fetch Orgas
 async function getOrgaData(): Promise<Organization[]> {
@@ -302,7 +303,7 @@ export function AdminPage() {
               <CardDescription>{t("admin.orga_text")}</CardDescription>
             </CardHeader>
             <CardContent>
-              <DataTable
+              <DataTableOrganizations
                 columns={getOrgaColumns(
                   handleEditOrganization,
                   setDeleteTarget,
@@ -322,13 +323,14 @@ export function AdminPage() {
 
           <Card>
             <CardHeader>
-              <CardTitle className="text-xl">
+              <CardTitle className="text-xl flex">
+                <Newspaper className="mr-2" />
                 {t("admin.subs_header")}
               </CardTitle>
               <CardDescription>{t("admin.subs_text")}</CardDescription>
             </CardHeader>
             <CardContent>
-              <DataTable
+              <DataTableSubscriptions
                 columns={getSubsColumns(
                   handleEditSubscription,
                   setDeleteTarget,
