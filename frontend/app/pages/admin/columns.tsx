@@ -13,7 +13,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
-import { MoreHorizontal, Trash } from "lucide-react";
+import { MoreHorizontal, SquarePen, Trash, Trash2 } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { Checkbox } from "~/components/ui/checkbox";
 import { useTranslation } from "react-i18next";
@@ -43,7 +43,8 @@ export function getOrgaColumns(
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem onClick={() => handleEdit(orgName)}>
-                {t("Edit")}
+                <SquarePen className="text-primary" />
+                {t("edit")}
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => {
@@ -55,7 +56,8 @@ export function getOrgaColumns(
                 }}
                 className="text-red-500"
               >
-                {t("Delete")}
+                <Trash2 className="text-red-500" />
+                {t("delete")}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -88,7 +90,8 @@ export function getSubsColumns(
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem onClick={() => onEdit(index)}>
-                {t("Edit")}
+                <SquarePen className="text-primary" />
+                {t("edit")}
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => {
@@ -97,7 +100,8 @@ export function getSubsColumns(
                 }}
                 className="text-red-500"
               >
-                {t("Delete")}
+                <Trash2 className="text-red-500" />
+                {t("delete")}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
