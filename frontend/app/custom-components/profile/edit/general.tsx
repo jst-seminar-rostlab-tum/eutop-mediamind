@@ -163,6 +163,9 @@ export function General({ profile, setProfile }: GeneralProps) {
           </SelectContent>
         </Select>
       </div>
+      <Label className="text-gray-400 font-light pb-3 leading-[120%]">
+        {t("general.language_text")}
+      </Label>
 
       <Separator />
     </div>
