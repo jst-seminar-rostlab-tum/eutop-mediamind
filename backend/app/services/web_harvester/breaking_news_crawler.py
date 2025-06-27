@@ -4,9 +4,7 @@ from datetime import datetime, timedelta, timezone
 from typing import List
 
 import requests
-from eventregistry import (
-    EventRegistry,
-)
+from eventregistry import EventRegistry
 
 from app.core.config import configs
 from app.core.db import redis_engine

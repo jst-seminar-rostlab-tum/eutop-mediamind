@@ -54,8 +54,12 @@ class PDFService:
     styles = get_pdf_styles(_fonts_registered)
 
     @staticmethod
+    # TODO: Update this to include language in PDF generation
     async def create_pdf(
-        search_profile_id: uuid.UUID, timeslot: str, match_stop_time: datetime
+        search_profile_id: uuid.UUID,
+        timeslot: str,
+        language: str,
+        match_stop_time: datetime,
     ) -> bytes:
         if timeslot not in ["morning", "afternoon", "evening"]:
             logger.info(
