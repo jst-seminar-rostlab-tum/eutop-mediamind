@@ -9,13 +9,13 @@ import {
 import { Label } from "@radix-ui/react-dropdown-menu";
 import { Input } from "~/components/ui/input";
 import { Button } from "~/components/ui/button";
-import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
 import React, { useState } from "react";
-import { AlertCircleIcon, Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, OctagonAlert } from "lucide-react";
 
 import type { Subscription } from "../types";
 import { useTranslation } from "react-i18next";
 import { ConfirmationDialog } from "~/custom-components/confirmation-dialog";
+import { cn } from "~/lib/utils";
 
 type Props = {
   open: boolean;
@@ -30,7 +30,6 @@ type Props = {
   setUsername: (value: string) => void;
   setPassword: (value: string) => void;
   onSave: () => void;
-  showAlert: boolean;
   initialSub?: Subscription;
 };
 
@@ -47,7 +46,6 @@ export function SubscriptionDialog({
   setUsername,
   setPassword,
   onSave,
-  showAlert,
   initialSub,
 }: Props) {
   const [visible, setVisible] = useState(false);
@@ -88,70 +86,114 @@ export function SubscriptionDialog({
                 : t("subscription-dialog.add_text")}
             </DialogDescription>
           </DialogHeader>
-          {showAlert && (
-            <Alert className="mt-2" variant="destructive">
-              <AlertCircleIcon />
-              <AlertTitle>
-                {t("subscription-dialog.credentials_error_header")}
-              </AlertTitle>
-              <AlertDescription>
-                {t("subscription-dialog.credentials_error_text")}
-              </AlertDescription>
-            </Alert>
-          )}
 
           <div className="grid grid-cols-4 items-center gap-4">
             <Label className="text-right">Name</Label>
-            <Input
-              id="name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Name"
-              className="col-span-3"
-            />
+            <div className="flex items-center col-span-3">
+              <Input
+                id="name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Name"
+                className={cn(
+                  "w-full pr-10",
+                  name == "" &&
+                    open &&
+                    "border-2 border-destructive focus-visible:ring-destructive focus-visible:border-destructive",
+                )}
+              />
+              {name == "" && open && (
+                <OctagonAlert
+                  size={24}
+                  className="text-red-500 absolute right-8"
+                />
+              )}
+            </div>
           </div>
 
           <div className="grid grid-cols-4 items-center gap-4">
             <Label className="text-right">URL</Label>
-            <Input
-              id="url"
-              value={url}
-              onChange={(e) => setURL(e.target.value)}
-              placeholder="URL"
-              className="col-span-3"
-            />
+            <div className="flex items-center col-span-3">
+              <Input
+                id="url"
+                value={url}
+                onChange={(e) => setURL(e.target.value)}
+                placeholder="URL"
+                className={cn(
+                  "w-full pr-10",
+                  url == "" &&
+                    open &&
+                    "border-2 border-destructive focus-visible:ring-destructive focus-visible:border-destructive",
+                )}
+              />
+              {url == "" && open && (
+                <OctagonAlert
+                  size={24}
+                  className="text-red-500 absolute right-8"
+                />
+              )}
+            </div>
           </div>
 
           <div className="grid grid-cols-4 items-center gap-4">
             <Label className="text-right">
               {t("subscription-dialog.username")}
             </Label>
-            <Input
-              id="username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              placeholder={t("subscription-dialog.username")}
-              className="col-span-3"
-            />
+            <div className="flex items-center col-span-3">
+              <Input
+                id="username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder={t("subscription-dialog.username")}
+                className={cn(
+                  "w-full pr-10",
+                  username == "" &&
+                    open &&
+                    "border-2 border-destructive focus-visible:ring-destructive focus-visible:border-destructive",
+                )}
+              />
+              {username == "" && open && (
+                <OctagonAlert
+                  size={24}
+                  className="text-red-500 absolute right-8"
+                />
+              )}
+            </div>
           </div>
 
           <div className="grid grid-cols-4 items-center gap-4">
             <Label className="text-right">
               {t("subscription-dialog.password")}
             </Label>
-            <Input
-              type={visible ? "text" : "password"}
-              id="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder={t("subscription-dialog.password")}
-              className="col-span-3"
-            />
+            <div className="flex items-center col-span-3">
+              <Input
+                type={visible ? "text" : "password"}
+                id="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder={t("subscription-dialog.password")}
+                className={cn(
+                  "w-full pr-10",
+                  password == "" &&
+                    open &&
+                    "border-2 border-destructive focus-visible:ring-destructive focus-visible:border-destructive",
+                )}
+              />
+              {password == "" && open && (
+                <OctagonAlert
+                  size={24}
+                  className="text-red-500 absolute right-8"
+                />
+              )}
+            </div>
             <Button
               type="button"
               variant="ghostNoHover"
               size="icon"
-              className="absolute right-6"
+              className={cn(
+                "absolute right-6",
+                password == "" && open && "absolute right-14",
+              )}
               onClick={() => setVisible((v) => !v)}
             >
               {visible ? (

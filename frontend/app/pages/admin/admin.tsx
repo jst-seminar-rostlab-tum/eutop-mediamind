@@ -5,7 +5,6 @@ import {
   CardHeader,
   CardTitle,
 } from "~/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { DataTable } from "~/custom-components/admin-settings/data-table";
 import Layout from "~/custom-components/layout";
 import Text from "~/custom-components/text";
@@ -25,6 +24,7 @@ import {
 } from "~/components/ui/breadcrumb";
 import { useTranslation } from "react-i18next";
 import { ConfirmationDialog } from "~/custom-components/confirmation-dialog";
+import { Building2 } from "lucide-react";
 
 // Fetch Orgas
 async function getOrgaData(): Promise<Organization[]> {
@@ -131,8 +131,6 @@ export function AdminPage() {
     null,
   );
   const [editingUserData, setEditingUserData] = React.useState<User[]>([]);
-  const [showOrgaNameAlert, setShowOrgaNameAlert] = React.useState(false);
-  const [showAlert, setShowAlert] = React.useState(false);
 
   // Subscriptions
   const [subsData, setSubsData] = React.useState<Subscription[]>([]);
@@ -175,9 +173,6 @@ export function AdminPage() {
   }
 
   function handleEditOrganization(name: string) {
-    // reset from possible previous dialog
-    setShowAlert(false);
-    setShowOrgaNameAlert(false);
     // set false on open for safety
     setUnsavedEdits(false);
     const index = orgaData.findIndex((org) => org.name === name);
@@ -197,7 +192,6 @@ export function AdminPage() {
 
   function handleSaveOrganization() {
     if (!newOrgaName.trim()) {
-      setShowOrgaNameAlert(true);
       return;
     }
 
@@ -234,10 +228,8 @@ export function AdminPage() {
       !newUsername.trim() ||
       !newPassword.trim()
     ) {
-      setShowAlert(true);
       return;
     }
-    setShowAlert(false);
     const newSubs = {
       name: newSubsName.trim(),
       url: newURL.trim(),
@@ -300,70 +292,62 @@ export function AdminPage() {
         </Breadcrumb>
         <Text hierachy={2}>{t("admin.header")}</Text>
 
-        <Tabs defaultValue="organizations" className="my-2">
-          <TabsList className="w-full">
-            <TabsTrigger value="organizations">
-              {t("admin.organizations")}
-            </TabsTrigger>
-            <TabsTrigger value="subscriptions">
-              {t("admin.subscriptions")}
-            </TabsTrigger>
-          </TabsList>
+        <div className="flex flex-col gap-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-xl flex">
+                <Building2 className="mr-2" />
+                {t("admin.orga_header")}
+              </CardTitle>
+              <CardDescription>{t("admin.orga_text")}</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <DataTable
+                columns={getOrgaColumns(
+                  handleEditOrganization,
+                  setDeleteTarget,
+                  setOpenDeleteDialog,
+                )}
+                data={orgaData}
+                onAdd={() => {
+                  setIsEditOrgaMode(false);
+                  setEditingOrgIndex(null);
+                  setNewOrgaName("");
+                  setEditingUserData([]);
+                  setShowOrgaDialog(true);
+                }}
+              />
+            </CardContent>
+          </Card>
 
-          <TabsContent value="organizations">
-            <Card>
-              <CardHeader>
-                <CardTitle>{t("admin.orga_header")}</CardTitle>
-                <CardDescription>{t("admin.orga_text")}</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <DataTable
-                  columns={getOrgaColumns(
-                    handleEditOrganization,
-                    setDeleteTarget,
-                    setOpenDeleteDialog,
-                  )}
-                  data={orgaData}
-                  onAdd={() => {
-                    setIsEditOrgaMode(false);
-                    setEditingOrgIndex(null);
-                    setNewOrgaName("");
-                    setEditingUserData([]);
-                    setShowOrgaDialog(true);
-                  }}
-                />
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="subscriptions">
-            <Card>
-              <CardHeader>
-                <CardTitle>{t("admin.subs_header")}</CardTitle>
-                <CardDescription>{t("admin.subs_text")}</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <DataTable
-                  columns={getSubsColumns(
-                    handleEditSubscription,
-                    setDeleteTarget,
-                    setOpenDeleteDialog,
-                  )}
-                  data={subsData}
-                  onAdd={() => {
-                    setNewSubsName("");
-                    setNewURL("");
-                    setNewUsername("");
-                    setNewPassword("");
-                    setIsEditSubsMode(false);
-                    setEditingSubsIndex(null);
-                    setShowSubsDialog(true);
-                  }}
-                />
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-xl">
+                {t("admin.subs_header")}
+              </CardTitle>
+              <CardDescription>{t("admin.subs_text")}</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <DataTable
+                columns={getSubsColumns(
+                  handleEditSubscription,
+                  setDeleteTarget,
+                  setOpenDeleteDialog,
+                )}
+                data={subsData}
+                onAdd={() => {
+                  setNewSubsName("");
+                  setNewURL("");
+                  setNewUsername("");
+                  setNewPassword("");
+                  setIsEditSubsMode(false);
+                  setEditingSubsIndex(null);
+                  setShowSubsDialog(true);
+                }}
+              />
+            </CardContent>
+          </Card>
+        </div>
 
         <OrganizationDialog
           open={showOrgaDialog}
@@ -377,9 +361,6 @@ export function AdminPage() {
           unsavedEdits={unsavedEdits}
           setUnsavedEdits={setUnsavedEdits}
           initialOrgaName={initialOrgaName}
-          showAlert={showAlert}
-          setShowAlert={setShowAlert}
-          showOrgaNameAlert={showOrgaNameAlert}
         />
 
         <SubscriptionDialog
@@ -395,7 +376,6 @@ export function AdminPage() {
           setUsername={setNewUsername}
           setPassword={setNewPassword}
           onSave={handleSaveSubscription}
-          showAlert={showAlert}
           initialSub={initialSub}
         />
 

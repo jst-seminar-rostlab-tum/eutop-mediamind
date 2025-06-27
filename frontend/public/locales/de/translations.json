@@ -126,11 +126,7 @@
     "edit_header": "Organisation bearbeiten",
     "add_header": "Organisation hinzufügen",
     "edit_text": "Bearbeiten sie ihre Organisation hier. Klicken sie auf Speichern wenn sie fertig sind.",
-    "add_text": "Geben sie den Namen der Organisation ein die sie hinzufügen möchten. Klicken sie auf Speichern wenn sie fertig sind.",
-    "name_error_header": "Organisations Name ist leer!",
-    "name_error_text": "Bitte geben sie einen gültigen Namen ein",
-    "email_error_header": "Ungültige Email",
-    "email_error_text": "Bitte geben sie eine gültige und einmalige Email ein"
+    "add_text": "Geben sie den Namen der Organisation ein die sie hinzufügen möchten. Klicken sie auf Speichern wenn sie fertig sind."
   },
 
   "subscription-dialog": {
