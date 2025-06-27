@@ -91,13 +91,13 @@ async def get_search_profile_overview(
     search_profile_id: UUID,
     request: MatchFilterRequest,
 ):
+    """
+    Retrieve an overview of articles for a given search profile.
+    """
     return await SearchProfileService.get_article_matches(
         search_profile_id=search_profile_id,
         request=request,
     )
-    """
-    Retrieve an overview of articles for a given search profile.
-    """
 
 
 @router.get(
