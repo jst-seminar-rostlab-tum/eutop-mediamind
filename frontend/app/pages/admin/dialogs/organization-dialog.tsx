@@ -13,7 +13,7 @@ import { getUserColumns } from "../columns";
 import type { User } from "../types";
 import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
 import React from "react";
-import { AlertCircleIcon } from "lucide-react";
+import { AlertCircleIcon, LogOut, OctagonAlert } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogContent,
@@ -170,7 +170,8 @@ export function OrganizationDialog({
       <AlertDialog open={showLeaveConfirm} onOpenChange={setShowLeaveConfirm}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>
+            <AlertDialogTitle className="flex items-center">
+              <OctagonAlert size={20} className="text-red-500 mr-2" />
               {t("confirmation_dialog.title")}
             </AlertDialogTitle>
             <AlertDialogDescription>
@@ -178,7 +179,7 @@ export function OrganizationDialog({
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>{t("Cancle")}</AlertDialogCancel>
+            <AlertDialogCancel>{t("Back")}</AlertDialogCancel>
             <AlertDialogAction
               className="bg-destructive text-white shadow-xs hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60"
               onClick={() => {
@@ -186,6 +187,7 @@ export function OrganizationDialog({
                 onOpenChange(false); // close the main dialog
               }}
             >
+              <LogOut className="text-white" />
               {t("Leave")}
             </AlertDialogAction>
           </AlertDialogFooter>

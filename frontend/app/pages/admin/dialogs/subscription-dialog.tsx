@@ -11,7 +11,13 @@ import { Input } from "~/components/ui/input";
 import { Button } from "~/components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
 import React, { useState } from "react";
-import { AlertCircleIcon, Eye, EyeOff } from "lucide-react";
+import {
+  AlertCircleIcon,
+  Eye,
+  EyeOff,
+  LogOut,
+  OctagonAlert,
+} from "lucide-react";
 import {
   AlertDialog,
   AlertDialogContent,
@@ -180,7 +186,8 @@ export function SubscriptionDialog({
       <AlertDialog open={showLeaveConfirm} onOpenChange={setShowLeaveConfirm}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>
+            <AlertDialogTitle className="flex items-center">
+              <OctagonAlert size={20} className="text-red-500 mr-2" />
               {t("confirmation-dialog.title")}
             </AlertDialogTitle>
             <AlertDialogDescription>
@@ -196,6 +203,7 @@ export function SubscriptionDialog({
                 onOpenChange(false); // close the main dialog
               }}
             >
+              <LogOut className="text-white" />
               {t("Leave")}
             </AlertDialogAction>
           </AlertDialogFooter>

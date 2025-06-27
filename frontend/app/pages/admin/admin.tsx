@@ -33,6 +33,7 @@ import {
   BreadcrumbSeparator,
 } from "~/components/ui/breadcrumb";
 import { useTranslation } from "react-i18next";
+import { OctagonAlert, Trash2 } from "lucide-react";
 
 // Fetch Orgas
 async function getOrgaData(): Promise<Organization[]> {
@@ -58,6 +59,30 @@ async function getOrgaData(): Promise<Organization[]> {
       name: "ADAC",
       users: [{ name: "leo@adac.com", role: "user" }],
     },
+    {
+      name: "Audi",
+      users: [{ name: "leo@adac.com", role: "user" }],
+    },
+    {
+      name: "TUM",
+      users: [{ name: "leo@adac.com", role: "user" }],
+    },
+    {
+      name: "Mercedes",
+      users: [{ name: "leo@adac.com", role: "user" }],
+    },
+    {
+      name: "Dell",
+      users: [{ name: "leo@adac.com", role: "user" }],
+    },
+    {
+      name: "Facebook",
+      users: [{ name: "leo@adac.com", role: "user" }],
+    },
+    {
+      name: "Google",
+      users: [{ name: "leo@adac.com", role: "user" }],
+    },
   ];
 }
 
@@ -65,6 +90,30 @@ async function getOrgaData(): Promise<Organization[]> {
 async function getSubsData(): Promise<Subscription[]> {
   // Fetch data from your API here
   return [
+    {
+      name: "Spiegel",
+      url: "spiegel-online.de",
+      username: "Test_123",
+      password: "Spiegel_123",
+    },
+    {
+      name: "SZ",
+      url: "sz.de",
+      username: "Test_456",
+      password: "SZ_123",
+    },
+    {
+      name: "Spiegel",
+      url: "spiegel-online.de",
+      username: "Test_123",
+      password: "Spiegel_123",
+    },
+    {
+      name: "SZ",
+      url: "sz.de",
+      username: "Test_456",
+      password: "SZ_123",
+    },
     {
       name: "Spiegel",
       url: "spiegel-online.de",
@@ -362,13 +411,16 @@ export function AdminPage() {
         <AlertDialog open={openDeleteDialog} onOpenChange={setOpenDeleteDialog}>
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+              <AlertDialogTitle className="flex items-center">
+                <OctagonAlert size={20} className="text-red-500 mr-2" />
+                {t("confirmation_dialog.title")}
+              </AlertDialogTitle>
               <AlertDialogDescription>
-                This will permanently delete this entity
+                {t("confirmation_dialog.delete_text")}
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogCancel>{t("Back")}</AlertDialogCancel>
               <AlertDialogAction
                 className="bg-destructive text-white shadow-xs hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60"
                 onClick={() => {
@@ -388,7 +440,8 @@ export function AdminPage() {
                   setDeleteTarget(null); // clear after use
                 }}
               >
-                Delete
+                <Trash2 />
+                {t("Delete")}
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>

@@ -54,7 +54,7 @@ export function getOrgaColumns(
                   });
                   setOpenDeleteDialog(true);
                 }}
-                className="text-red-500"
+                className="text-red-500 focus:text-red-500"
               >
                 <Trash2 className="text-red-500" />
                 {t("delete")}
@@ -74,10 +74,21 @@ export function getSubsColumns(
 ): ColumnDef<Subscription>[] {
   const { t } = useTranslation();
   return [
-    { accessorKey: "name", header: "Name" },
-    { accessorKey: "url", header: "URL" },
+    {
+      accessorKey: "name",
+      header: "Name",
+      cell: ({ row }) => (
+        <div className="lowercase">{row.getValue("name")}</div>
+      ),
+    },
+    {
+      accessorKey: "url",
+      header: "",
+      cell: ({ row }) => <div>{row.getValue("url")}</div>,
+    },
     {
       id: "actions",
+      header: "",
       cell: ({ row }) => {
         const index = row.index;
         return (
@@ -98,7 +109,7 @@ export function getSubsColumns(
                   setDeleteTarget({ type: "subscription", identifier: index });
                   setOpenDeleteDialog(true);
                 }}
-                className="text-red-500"
+                className="text-red-500 focus:text-red-500"
               >
                 <Trash2 className="text-red-500" />
                 {t("delete")}
