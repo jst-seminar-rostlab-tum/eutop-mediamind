@@ -60,7 +60,8 @@
     "ownership": "Ownership",
     "ownership_text": "Transfer ownership of the profile",
     "select_user": "Select user...",
-    "user_error": "Failed to load users."
+    "user_error": "Failed to load users.",
+    "language": "Language"
   },
 
   "topics": {

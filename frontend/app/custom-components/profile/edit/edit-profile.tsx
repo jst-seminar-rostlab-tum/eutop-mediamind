@@ -77,6 +77,7 @@ export function EditProfile({
     is_reader: true,
     is_editor: true,
     new_articles_count: 0,
+    language: user?.language ?? "en",
   };
 
   const [showCancelDialog, setShowCancelDialog] = useState(false);
@@ -127,6 +128,7 @@ export function EditProfile({
         owner_id: editedProfile.owner_id,
         can_read_user_ids: [],
         can_edit_user_ids: [],
+        language: editedProfile.language,
       };
 
       if (isCreating) {

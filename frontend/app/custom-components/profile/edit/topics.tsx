@@ -55,7 +55,7 @@ export function Topics({ profile, setProfile }: TopicsProps) {
           params: {
             query: {
               search_profile_name: profile.name,
-              search_profile_language: "en", // Todo set to profile language once added in backend
+              search_profile_language: profile.language, // Todo set to profile language once added in backend
             },
           },
           body: {
