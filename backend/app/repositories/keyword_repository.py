@@ -1,3 +1,4 @@
+from collections import defaultdict
 from typing import List, Optional, Sequence
 from uuid import UUID
 
@@ -34,6 +35,29 @@ class KeywordRepository:
         async with async_session() as session:
             statement = select(Keyword).where(Keyword.id == keyword_id)
             return (await session.execute(statement)).scalar_one_or_none()
+
+    @staticmethod
+    async def get_keywords_by_ids(keyword_ids: list[UUID]) -> list[Keyword]:
+        async with async_session() as session:
+            result = await session.execute(
+                select(Keyword).where(Keyword.id.in_(keyword_ids))
+            )
+            return result.scalars().all()
+
+    @staticmethod
+    async def get_keywords_by_topic_ids(
+        topic_ids: set[UUID],
+    ) -> dict[UUID, list[str]]:
+        async with async_session() as session:
+            result = await session.execute(
+                select(Topic.id, Keyword.name)
+                .join(Topic.keywords)
+                .where(Topic.id.in_(topic_ids))
+            )
+            topic_keywords = defaultdict(list)
+            for topic_id, keyword_name in result.all():
+                topic_keywords[topic_id].append(keyword_name)
+            return topic_keywords
 
     @staticmethod
     async def list_keywords(
@@ -200,3 +224,14 @@ class KeywordRepository:
             keywords = await KeywordRepository.list_keywords(
                 limit=page_size, offset=page * page_size
             )
+
+    @staticmethod
+    async def get_keywords_by_article_id(article_id: UUID) -> List[Keyword]:
+        async with async_session() as session:
+            query = (
+                select(Keyword)
+                .join(ArticleKeywordLink)
+                .where(ArticleKeywordLink.article_id == article_id)
+            )
+            result = await session.execute(query)
+            return result.scalars().all()

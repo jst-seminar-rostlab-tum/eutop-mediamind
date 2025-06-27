@@ -709,6 +709,8 @@ export interface components {
             created_at: string;
             /** Time Slot */
             time_slot?: string | null;
+            /** Language */
+            language: string;
             /** S3 Key */
             s3_key: string;
             /** @default pending */
@@ -740,6 +742,8 @@ export interface components {
             created_at: string;
             /** Time Slot */
             time_slot?: string | null;
+            /** Language */
+            language: string;
             /** S3 Key */
             s3_key: string;
             /** @default pending */

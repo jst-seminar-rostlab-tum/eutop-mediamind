@@ -75,5 +75,5 @@ class EmailService:
             ok = smtp_server.sendmail(
                 email.sender, email.recipient, msg.as_string()
             )
-            if not ok:
+            if not (ok == {}):
                 raise Exception(f"Error sending email: {ok}")

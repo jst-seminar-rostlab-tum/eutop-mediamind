@@ -10,6 +10,7 @@ from alembic import context
 # Needs to be imported for Alembic to recognize the models
 from app.models import (
     Article,
+    ArticleEntity,
     ArticleKeywordLink,
     Email,
     Keyword,
