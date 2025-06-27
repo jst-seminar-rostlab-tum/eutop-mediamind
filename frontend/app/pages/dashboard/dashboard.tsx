@@ -8,7 +8,7 @@ import {
   BreadcrumbList,
 } from "~/components/ui/breadcrumb";
 import { useQuery } from "types/api";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { toast } from "sonner";
 import { EditProfile } from "~/custom-components/profile/edit/edit-profile";
 import { sortBy } from "lodash-es";
@@ -16,6 +16,8 @@ import { BreakingNews } from "./breaking-news";
 import Layout from "~/custom-components/layout";
 import "./dashboard.css";
 import { useTranslation } from "react-i18next";
+import { FilterBar } from "~/custom-components/dashboard/filter-bar";
+import type { Profile } from "../../../types/model";
 
 const suppressSWRReloading = {
   refreshInterval: 0,
@@ -25,6 +27,43 @@ const suppressSWRReloading = {
   revalidateIfStale: false,
   revalidateOnReconnect: false,
 };
+
+interface FilterState {
+  showUpdatedOnly: boolean;
+  selectedRole: string;
+  selectedVisibility: string;
+}
+
+function getUserRole(profile: Profile, userId: string): string {
+  if (profile.owner_id === userId) {
+    return "owner";
+  } else if (profile.can_edit_user_ids.includes(userId)) {
+    return "editor";
+  } else if (profile.can_read_user_ids.includes(userId)) {
+    return "reader";
+  }
+  return "";
+}
+
+function getProfileVisibility(profile: Profile, userId: string): string {
+  if (profile.is_public) {
+    return "public";
+  }
+
+  const totalUsersWithAccess = new Set([
+    ...profile.can_read_user_ids,
+    ...profile.can_edit_user_ids,
+  ]).size;
+
+  if (
+    totalUsersWithAccess === 0 ||
+    (totalUsersWithAccess === 1 && profile.owner_id === userId)
+  ) {
+    return "private";
+  }
+
+  return "shared";
+}
 
 export function DashboardPage() {
   const {
@@ -42,7 +81,39 @@ export function DashboardPage() {
 
   const { t } = useTranslation();
 
-  const sortedProfiles = sortBy(profiles, "name");
+  const [filters, setFilters] = useState<FilterState>({
+    showUpdatedOnly: false,
+    selectedRole: "",
+    selectedVisibility: "",
+  });
+
+  const filteredAndSortedProfiles = useMemo(() => {
+    if (!profiles || !me) return [];
+
+    const filtered = profiles.filter((profile: Profile) => {
+      if (filters.showUpdatedOnly && profile.new_articles_count === 0) {
+        return false;
+      }
+
+      if (filters.selectedRole) {
+        const userRole = getUserRole(profile, me.id);
+        if (userRole !== filters.selectedRole) {
+          return false;
+        }
+      }
+
+      if (filters.selectedVisibility) {
+        const visibility = getProfileVisibility(profile, me.id);
+        if (visibility !== filters.selectedVisibility) {
+          return false;
+        }
+      }
+
+      return true;
+    });
+
+    return sortBy(filtered, "name");
+  }, [profiles, me, filters]);
 
   useEffect(() => {
     if (error) {
@@ -102,7 +173,7 @@ export function DashboardPage() {
         {t("dashboard.dashboard")}
       </h1>
       <BreakingNews breakingNews={breakingNews} />
-      <div className={"flex gap-5"}>
+      <div className={"flex gap-5 mb-3"}>
         <h2 className="text-2xl font-bold ">{t("dashboard.profile")}</h2>
         <EditProfile
           mutateDashboard={mutate}
@@ -117,6 +188,7 @@ export function DashboardPage() {
           <Plus />
         </Button>
       </div>
+      <FilterBar onFiltersChange={setFilters} />
       {isLoading || meLoading || !me ? (
         <div className="flex items-center justify-center py-8">
           <Loader2 className="h-8 w-8 animate-spin" />
@@ -126,7 +198,7 @@ export function DashboardPage() {
         </div>
       ) : (
         <div className="grid-profile-cards mt-4 mb-4">
-          {sortedProfiles?.map((profile, idx) => (
+          {filteredAndSortedProfiles?.map((profile, idx) => (
             <ProfileCard
               key={profile.id + idx}
               profile={profile}

@@ -1,6 +1,7 @@
 import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 import {
+  Crown,
   Eye,
   EyeOff,
   UserCheck,
@@ -22,6 +23,8 @@ const roleBadgeVariants = cva(
         public: "bg-indigo-100 text-indigo-900",
         shared: "bg-amber-100 text-amber-900",
         private: "bg-gray-100 text-gray-900",
+        ownership: "bg-blue-100 text-blue-900",
+        visibility: "bg-blue-100 text-blue-900",
       },
     },
   },
@@ -51,6 +54,14 @@ const roleConfig = {
   private: {
     icon: EyeOff,
     label: "Private",
+  },
+  ownership: {
+    icon: Crown,
+    label: "Ownership",
+  },
+  visibility: {
+    icon: Eye,
+    label: "Visibility",
   },
 } as const;
 

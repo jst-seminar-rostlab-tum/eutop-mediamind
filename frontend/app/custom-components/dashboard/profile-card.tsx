@@ -6,6 +6,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import type { KeyedMutator } from "swr";
+import { useState, useRef, useEffect } from "react";
 
 import { Button } from "~/components/ui/button";
 import { EditProfile } from "~/custom-components/profile/edit/edit-profile";
@@ -16,7 +17,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
-import { useState } from "react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -29,7 +29,12 @@ import {
 } from "~/components/ui/alert-dialog";
 import { useTranslation } from "react-i18next";
 import { RoleBadge } from "~/custom-components/dashboard/role-badge";
-import { truncateAtWord } from "~/lib/utils";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "~/components/ui/tooltip";
 
 interface ProfileCardProps {
   profile: Profile;
@@ -44,8 +49,24 @@ export function ProfileCard({
 }: ProfileCardProps) {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
+  const [isTruncated, setIsTruncated] = useState(false);
+  const titleRef = useRef<HTMLHeadingElement>(null);
 
   const { t } = useTranslation();
+
+  useEffect(() => {
+    const element = titleRef.current;
+    const handleResize = () => {
+      if (element) {
+        setIsTruncated(element.scrollWidth > element.clientWidth);
+      }
+    };
+
+    handleResize();
+    window.addEventListener("resize", handleResize);
+
+    return () => window.removeEventListener("resize", handleResize);
+  }, [profile.name]);
 
   const getRoleBadge = () => {
     if (profile.owner_id === profile_id) {
@@ -83,20 +104,36 @@ export function ProfileCard({
   ).length;
 
   return (
-    <>
-      <div className="w-[15rem] h-[14rem] rounded-3xl shadow-[2px_2px_15px_rgba(0,0,0,0.1)] p-5 ">
-        <div className=" h-full flex-1 flex flex-col justify-between">
+    <TooltipProvider>
+      <div className="w-[15.5rem] h-[14rem] rounded-3xl shadow-[2px_2px_15px_rgba(0,0,0,0.1)] p-5 ">
+        <div className="h-full flex-1 flex flex-col justify-between overflow-hidden">
           <div>
             <div className={"flex justify-between"}>
               <div className={"flex items-center gap-2"}>
-                <h2 className="font-semibold text-xl ">
-                  {truncateAtWord(profile.name, 14)}
-                </h2>
-                <span
-                  className={`bg-red-200 ${profile.new_articles_count > 99 ? "w-8" : "w-5"} h-5 rounded-full flex items-center justify-center text-sm font-bold text-red-900`}
-                >
-                  {profile.new_articles_count}
-                </span>
+                <Tooltip open={isTruncated ? undefined : false}>
+                  <TooltipTrigger asChild>
+                    <h2
+                      ref={titleRef}
+                      className={`font-semibold text-xl min-w-0 flex-1 truncate ${
+                        profile.new_articles_count > 0
+                          ? "max-w-[140px]"
+                          : "max-w-[160px]"
+                      }`}
+                    >
+                      {profile.name}
+                    </h2>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>{profile.name}</p>
+                  </TooltipContent>
+                </Tooltip>
+                {profile.new_articles_count > 0 && (
+                  <span
+                    className={`bg-red-200 ${profile.new_articles_count > 99 ? "w-8" : "w-5"} h-5 rounded-full flex items-center justify-center text-sm font-bold text-red-900`}
+                  >
+                    {profile.new_articles_count}
+                  </span>
+                )}
               </div>
               <EditProfile
                 profile={profile}
@@ -133,7 +170,6 @@ export function ProfileCard({
               {getVisibilityBadge()}
             </div>
             <div className={"mt-2 mb-2"}>
-              {/*<h3 className={"text-gray-400 "}>Topics</h3>*/}
               <div className={"flex items-center gap-1"}>
                 <div
                   className={
@@ -192,6 +228,6 @@ export function ProfileCard({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </>
+    </TooltipProvider>
   );
 }

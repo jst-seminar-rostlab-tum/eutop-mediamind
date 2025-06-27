@@ -20,7 +20,7 @@
   },
 
   "dashboard": {
-    "dashboard": "Dashbaord",
+    "dashboard": "Dashboard",
     "profile": "Profiles",
     "new_articles": "new articles",
     "profiles_loading": "Load profiles ...",
