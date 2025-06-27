@@ -81,6 +81,9 @@ class Article(SQLModel, table=True):
     crawled_at: datetime = Field(default_factory=datetime.now)
     scraped_at: Optional[datetime] = Field(default=None, nullable=True)
 
+    # Contains a note or error message related to the article
+    note: Optional[str] = Field(default=None, nullable=True)
+
     # vector_embedding
     subscription_id: uuid.UUID = Field(
         foreign_key="subscriptions.id", nullable=False, index=True

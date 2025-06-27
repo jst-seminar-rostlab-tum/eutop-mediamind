@@ -2,6 +2,7 @@
 from .article import Article
 from .associations import ArticleKeywordLink
 from .auth import Message, NewPassword, Token, TokenPayload
+from .crawl_stats import CrawlStats
 from .email import Email
 from .entity import ArticleEntity
 from .keyword import Keyword
@@ -16,6 +17,7 @@ from .user import User, UserPublic, UserUpdate, UserUpdateMe
 __all__ = [
     "Article",
     "ArticleKeywordLink",
+    "CrawlStats",
     "Email",
     "Message",
     "Keyword",
