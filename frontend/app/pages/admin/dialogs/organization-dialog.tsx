@@ -13,19 +13,11 @@ import { getUserColumns } from "../columns";
 import type { User } from "../types";
 import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
 import React from "react";
-import { AlertCircleIcon, LogOut, OctagonAlert } from "lucide-react";
-import {
-  AlertDialog,
-  AlertDialogContent,
-  AlertDialogHeader,
-  AlertDialogFooter,
-  AlertDialogTitle,
-  AlertDialogDescription,
-  AlertDialogCancel,
-  AlertDialogAction,
-} from "~/components/ui/alert-dialog";
+import { AlertCircleIcon } from "lucide-react";
+
 import { DataTableUsers } from "~/custom-components/admin-settings/data-table-users";
 import { useTranslation } from "react-i18next";
+import { ConfirmationDialog } from "~/custom-components/confirmation-dialog";
 
 type Props = {
   open: boolean;
@@ -167,32 +159,14 @@ export function OrganizationDialog({
         </DialogContent>
       </Dialog>
 
-      <AlertDialog open={showLeaveConfirm} onOpenChange={setShowLeaveConfirm}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle className="flex items-center">
-              <OctagonAlert size={20} className="text-red-500 mr-2" />
-              {t("confirmation_dialog.title")}
-            </AlertDialogTitle>
-            <AlertDialogDescription>
-              {t("confirmation_dialog.unsaved_text")}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>{t("Back")}</AlertDialogCancel>
-            <AlertDialogAction
-              className="bg-destructive text-white shadow-xs hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60"
-              onClick={() => {
-                setShowLeaveConfirm(false);
-                onOpenChange(false); // close the main dialog
-              }}
-            >
-              <LogOut className="text-white" />
-              {t("Leave")}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <ConfirmationDialog
+        open={showLeaveConfirm}
+        onOpenChange={setShowLeaveConfirm}
+        dialogType="leave"
+        action={() => {
+          onOpenChange(false); // closes organization dialog dialog
+        }}
+      />
     </>
   );
 }

@@ -14,16 +14,7 @@ import type { Organization, Subscription, User } from "./types";
 import { getOrgaColumns, getSubsColumns } from "./columns";
 import { OrganizationDialog } from "./dialogs/organization-dialog";
 import { SubscriptionDialog } from "./dialogs/subscription-dialog";
-import {
-  AlertDialog,
-  AlertDialogContent,
-  AlertDialogHeader,
-  AlertDialogFooter,
-  AlertDialogTitle,
-  AlertDialogDescription,
-  AlertDialogCancel,
-  AlertDialogAction,
-} from "~/components/ui/alert-dialog";
+
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -33,7 +24,7 @@ import {
   BreadcrumbSeparator,
 } from "~/components/ui/breadcrumb";
 import { useTranslation } from "react-i18next";
-import { OctagonAlert, Trash2 } from "lucide-react";
+import { ConfirmationDialog } from "~/custom-components/confirmation-dialog";
 
 // Fetch Orgas
 async function getOrgaData(): Promise<Organization[]> {
@@ -408,44 +399,20 @@ export function AdminPage() {
           initialSub={initialSub}
         />
 
-        <AlertDialog open={openDeleteDialog} onOpenChange={setOpenDeleteDialog}>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle className="flex items-center">
-                <OctagonAlert size={20} className="text-red-500 mr-2" />
-                {t("confirmation_dialog.title")}
-              </AlertDialogTitle>
-              <AlertDialogDescription>
-                {t("confirmation_dialog.delete_text")}
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>{t("Back")}</AlertDialogCancel>
-              <AlertDialogAction
-                className="bg-destructive text-white shadow-xs hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60"
-                onClick={() => {
-                  if (deleteTarget) {
-                    if (deleteTarget.type === "organization") {
-                      handleDeleteOrganization(
-                        deleteTarget.identifier as string,
-                      );
-                    } else if (deleteTarget.type === "subscription") {
-                      handleDeleteSubscription(
-                        deleteTarget.identifier as number,
-                      );
-                    }
-                  }
-
-                  setOpenDeleteDialog(false);
-                  setDeleteTarget(null); // clear after use
-                }}
-              >
-                <Trash2 />
-                {t("Delete")}
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+        <ConfirmationDialog
+          open={openDeleteDialog}
+          onOpenChange={setOpenDeleteDialog}
+          dialogType="delete"
+          action={() => {
+            if (deleteTarget) {
+              if (deleteTarget.type === "organization") {
+                handleDeleteOrganization(deleteTarget.identifier as string);
+              } else if (deleteTarget.type === "subscription") {
+                handleDeleteSubscription(deleteTarget.identifier as number);
+              }
+            }
+          }}
+        />
       </Layout>
     </>
   );

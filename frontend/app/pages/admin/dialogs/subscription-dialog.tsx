@@ -11,25 +11,11 @@ import { Input } from "~/components/ui/input";
 import { Button } from "~/components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
 import React, { useState } from "react";
-import {
-  AlertCircleIcon,
-  Eye,
-  EyeOff,
-  LogOut,
-  OctagonAlert,
-} from "lucide-react";
-import {
-  AlertDialog,
-  AlertDialogContent,
-  AlertDialogHeader,
-  AlertDialogFooter,
-  AlertDialogTitle,
-  AlertDialogDescription,
-  AlertDialogCancel,
-  AlertDialogAction,
-} from "~/components/ui/alert-dialog";
+import { AlertCircleIcon, Eye, EyeOff } from "lucide-react";
+
 import type { Subscription } from "../types";
 import { useTranslation } from "react-i18next";
+import { ConfirmationDialog } from "~/custom-components/confirmation-dialog";
 
 type Props = {
   open: boolean;
@@ -183,32 +169,15 @@ export function SubscriptionDialog({
           </DialogFooter>
         </DialogContent>
       </Dialog>
-      <AlertDialog open={showLeaveConfirm} onOpenChange={setShowLeaveConfirm}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle className="flex items-center">
-              <OctagonAlert size={20} className="text-red-500 mr-2" />
-              {t("confirmation-dialog.title")}
-            </AlertDialogTitle>
-            <AlertDialogDescription>
-              {t("confirmation-dialog.unsaved_text")}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>{t("Cancel")}</AlertDialogCancel>
-            <AlertDialogAction
-              className="bg-destructive text-white shadow-xs hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60"
-              onClick={() => {
-                setShowLeaveConfirm(false);
-                onOpenChange(false); // close the main dialog
-              }}
-            >
-              <LogOut className="text-white" />
-              {t("Leave")}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+
+      <ConfirmationDialog
+        open={showLeaveConfirm}
+        onOpenChange={setShowLeaveConfirm}
+        dialogType="leave"
+        action={() => {
+          onOpenChange(false);
+        }}
+      />
     </>
   );
 }
