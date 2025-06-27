@@ -242,8 +242,8 @@ export function EditProfile({
                   </Button>
                 </div>
               ) : (
-                <div className="flex items-center gap-2">
-                  <DialogTitle className={"text-xl"}>
+                <div className="flex items-center gap-2 w-full">
+                  <DialogTitle className={"text-xl w-full break-all"}>
                     {isCreating
                       ? t("edit_profile.create")
                       : t("edit_profile.edit")}
