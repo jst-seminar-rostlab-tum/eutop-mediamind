@@ -526,21 +526,44 @@ export interface components {
             id: string;
             /** Title */
             title: string;
+            /** Content */
+            content: string | null;
             /** Url */
             url: string;
-            /** Author */
-            author: string;
+            /** Image Url */
+            image_url: string | null;
+            /** Authors */
+            authors: string[] | null;
             /**
              * Published At
              * Format: date-time
              */
             published_at: string;
             /** Language */
-            language: string;
-            /** Category */
-            category: string;
+            language: string | null;
+            /** Categories */
+            categories: string[] | null;
             /** Summary */
             summary: string | null;
+            /** Title En */
+            title_en: string | null;
+            /** Title De */
+            title_de: string | null;
+            /** Content En */
+            content_en: string | null;
+            /** Content De */
+            content_de: string | null;
+            /** Summary En */
+            summary_en: string | null;
+            /** Summary De */
+            summary_de: string | null;
+            /**
+             * Crawled At
+             * Format: date-time
+             */
+            crawled_at: string;
+            /** Scraped At */
+            scraped_at: string | null;
             /** Sorting Order */
             sorting_order: number;
         };
@@ -553,6 +576,28 @@ export interface components {
             search_profile_id: string;
             /** Articles */
             articles: components["schemas"]["ArticleOverviewItem"][];
+        };
+        /** BreakingNewsItem */
+        BreakingNewsItem: {
+            /** Id */
+            id: string;
+            /** Title */
+            title: string | null;
+            /** Summary */
+            summary: string | null;
+            /** Image Url */
+            image_url: string | null;
+            /** Url */
+            url: string | null;
+            /** Published At */
+            published_at: string | null;
+        };
+        /** BreakingNewsResponse */
+        BreakingNewsResponse: {
+            /** News */
+            news: components["schemas"]["BreakingNewsItem"][];
+            /** Total Count */
+            total_count: number;
         };
         /** FeedbackResponse */
         FeedbackResponse: {
@@ -1730,7 +1775,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": unknown;
+                    "application/json": components["schemas"]["BreakingNewsResponse"];
                 };
             };
         };

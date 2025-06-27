@@ -4,6 +4,7 @@ from uuid import uuid4
 
 from app.services.search_profiles_service import SearchProfileService
 
+
 def test_get_article_overview():
     with patch(
         "app.services.search_profiles_service.MatchRepository.get_articles_by_profile",
@@ -24,6 +25,7 @@ def test_get_article_overview():
                 "language": "en",
                 "category": "news",
                 "summary": "summary",
+                "crawled_at": datetime(2023, 1, 1),
             },
         )()
 
