@@ -554,6 +554,12 @@ export interface components {
             /** Articles */
             articles: components["schemas"]["ArticleOverviewItem"][];
         };
+        /** Body_get_keyword_suggestions_api_v1_search_profiles_keywords_suggestions_post */
+        Body_get_keyword_suggestions_api_v1_search_profiles_keywords_suggestions_post: {
+            /** Related Topics */
+            related_topics: components["schemas"]["KeywordSuggestionTopic"][];
+            selected_topic: components["schemas"]["KeywordSuggestionTopic"];
+        };
         /** FeedbackResponse */
         FeedbackResponse: {
             /** Status */
@@ -578,6 +584,13 @@ export interface components {
         KeywordSuggestionResponse: {
             /** Suggestions */
             suggestions: string[];
+        };
+        /** KeywordSuggestionTopic */
+        KeywordSuggestionTopic: {
+            /** Topic Name */
+            topic_name: string;
+            /** Keywords */
+            keywords: string[];
         };
         /** MatchDetailResponse */
         MatchDetailResponse: {
@@ -1040,14 +1053,17 @@ export interface operations {
     };
     get_keyword_suggestions_api_v1_search_profiles_keywords_suggestions_post: {
         parameters: {
-            query?: never;
+            query: {
+                search_profile_name: string;
+                search_profile_language: string;
+            };
             header?: never;
             path?: never;
             cookie?: never;
         };
         requestBody: {
             content: {
-                "application/json": string[];
+                "application/json": components["schemas"]["Body_get_keyword_suggestions_api_v1_search_profiles_keywords_suggestions_post"];
             };
         };
         responses: {

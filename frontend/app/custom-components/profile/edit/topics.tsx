@@ -52,7 +52,19 @@ export function Topics({ profile, setProfile }: TopicsProps) {
       const result = await client.POST(
         "/api/v1/search-profiles/keywords/suggestions",
         {
-          body: keywords,
+          params: {
+            query: {
+              search_profile_name: profile.name,
+              search_profile_language: "en", // Todo set to profile language once added in backend
+            },
+          },
+          body: {
+            selected_topic: { topic_name: selectedTopic ?? "", keywords },
+            related_topics: profile.topics.map((t) => ({
+              keywords: t.keywords,
+              topic_name: t.name,
+            })),
+          },
         },
       );
 

@@ -70,10 +70,12 @@ export function EditProfile({
     profile_emails: [],
     subscriptions: [],
     topics: [],
+    can_edit_user_ids: [],
+    can_read_user_ids: [],
     owner_id: user?.id ?? "",
-    editable: true,
-    is_editable: true,
     is_owner: true,
+    is_reader: true,
+    is_editor: true,
     new_articles_count: 0,
   };
 
@@ -123,6 +125,8 @@ export function EditProfile({
         subscriptions: editedProfile.subscriptions,
         topics: editedProfile.topics,
         owner_id: editedProfile.owner_id,
+        can_read_user_ids: [],
+        can_edit_user_ids: [],
       };
 
       if (isCreating) {
