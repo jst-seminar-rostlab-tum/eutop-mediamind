@@ -6,9 +6,7 @@ from typing import TYPE_CHECKING, List, Optional
 from sqlalchemy import TIMESTAMP, Column, Text
 from sqlmodel import JSON, Field, Relationship, SQLModel
 
-from app.models.associations import (
-    ArticleKeywordLink,
-)
+from app.models.associations import ArticleKeywordLink
 
 if TYPE_CHECKING:
     from app.models.entity import ArticleEntity
