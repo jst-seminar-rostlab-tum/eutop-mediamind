@@ -5,8 +5,9 @@ from uuid import UUID
 
 from app.core.db import async_session
 from app.core.logger import get_logger
-from app.models import Match, SearchProfile
+from app.models import Match, SearchProfile, MatchingRun
 from app.repositories.match_repository import MatchRepository
+from app.repositories.matching_runs_repository import MatchingRunsRepository
 from app.repositories.search_profile_repository import SearchProfileRepository
 from app.services.article_vector_service import ArticleVectorService
 
@@ -24,7 +25,7 @@ class ArticleMatchingService:
         self.keyword_score_threshold = 0.1
 
     async def process_article_matching_for_search_profile(
-        self, search_profile_id: UUID
+        self, search_profile_id: UUID, matching_run: MatchingRun
     ):
         """
         Main entry point to process all matching phases and persist matches.
@@ -49,7 +50,7 @@ class ArticleMatchingService:
         )
 
         await self._persist_matches(
-            search_profile_id, final_matches, match_payloads
+            search_profile_id, final_matches, match_payloads, matching_run
         )
         self.logger.info(
             f"Found {len(final_matches)} matches "
@@ -203,11 +204,13 @@ class ArticleMatchingService:
         profile_id: UUID,
         matches: List[Tuple[UUID, UUID, float]],
         results: List[Dict],
+        matching_run: MatchingRun,
     ):
         """
-        Clean up old matches and insert new ones in sorted order.
+        Insert new ones in sorted order.
         """
         async with async_session() as session:
+
             for order, (art_id, topic_id, score) in enumerate(matches):
                 entry = next(r for r in results if r["article_id"] == art_id)
                 match = Match(
@@ -217,6 +220,7 @@ class ArticleMatchingService:
                     sorting_order=order,
                     comment=json.dumps(entry, default=str),
                     score=score,
+                    matching_run_id=matching_run.id,
                 )
                 await MatchRepository.insert_match(match, session)
 
@@ -238,6 +242,20 @@ class ArticleMatchingService:
             )
         )
 
+        matching_run: MatchingRun
+
+        if len(profiles) > 0:
+            # Create a matching run entry
+            algorithm_version = (
+                f"{self.weights['topic']}_{self.weights['keyword']}"
+            )
+            async with async_session() as session:
+                matching_run = (
+                    await MatchingRunsRepository.create_matching_run(
+                        session, algorithm_version=algorithm_version
+                    )
+                )
+
         # Continue while there are profiles
         while len(profiles) > 0:
             self.logger.info(
@@ -249,7 +267,7 @@ class ArticleMatchingService:
             tasks = [
                 asyncio.create_task(
                     self.process_article_matching_for_search_profile(
-                        profile.id
+                        profile.id, matching_run
                     )
                 )
                 for profile in profiles
