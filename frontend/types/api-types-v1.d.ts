@@ -154,20 +154,20 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/search-profiles/{search_profile_id}/overview": {
+    "/api/v1/search-profiles/{search_profile_id}/matches": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
+        get?: never;
+        put?: never;
         /**
          * Get Search Profile Overview
          * @description Retrieve an overview of articles for a given search profile.
          */
-        get: operations["get_search_profile_overview_api_v1_search_profiles__search_profile_id__overview_get"];
-        put?: never;
-        post?: never;
+        post: operations["get_search_profile_overview_api_v1_search_profiles__search_profile_id__matches_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -517,66 +517,16 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
-        /** ArticleOverviewItem */
-        ArticleOverviewItem: {
-            /**
-             * Id
-             * Format: uuid
-             */
-            id: string;
-            /** Title */
-            title: string;
-            /** Content */
-            content: string | null;
-            /** Url */
-            url: string;
-            /** Image Url */
-            image_url: string | null;
-            /** Authors */
-            authors: string[] | null;
-            /**
-             * Published At
-             * Format: date-time
-             */
-            published_at: string;
-            /** Language */
-            language: string | null;
-            /** Categories */
-            categories: string[] | null;
-            /** Summary */
-            summary: string | null;
-            /** Title En */
-            title_en: string | null;
-            /** Title De */
-            title_de: string | null;
-            /** Content En */
-            content_en: string | null;
-            /** Content De */
-            content_de: string | null;
-            /** Summary En */
-            summary_en: string | null;
-            /** Summary De */
-            summary_de: string | null;
-            /**
-             * Crawled At
-             * Format: date-time
-             */
-            crawled_at: string;
-            /** Scraped At */
-            scraped_at: string | null;
-            /** Sorting Order */
-            sorting_order: number;
-        };
         /** ArticleOverviewResponse */
         ArticleOverviewResponse: {
-            /**
-             * Search Profile Id
-             * Format: uuid
-             */
-            search_profile_id: string;
-            /** Articles */
-            articles: components["schemas"]["ArticleOverviewItem"][];
+            /** Matches */
+            matches: components["schemas"]["MatchItem"][];
         };
+        /**
+         * ArticleStatus
+         * @enum {string}
+         */
+        ArticleStatus: "new" | "scraped" | "error";
         /** BreakingNewsItem */
         BreakingNewsItem: {
             /** Id */
@@ -624,6 +574,42 @@ export interface components {
             /** Suggestions */
             suggestions: string[];
         };
+        /** MatchArticleOverviewContent */
+        MatchArticleOverviewContent: {
+            /** Article Url */
+            article_url: string;
+            /** Headline */
+            headline: {
+                [key: string]: string;
+            };
+            /** Summary */
+            summary: {
+                [key: string]: string;
+            };
+            /** Text */
+            text: {
+                [key: string]: string;
+            };
+            /** Image Urls */
+            image_urls: string[];
+            /**
+             * Published
+             * Format: date-time
+             */
+            published: string;
+            /**
+             * Crawled
+             * Format: date-time
+             */
+            crawled: string;
+            /** Newspaper Id */
+            newspaper_id?: string | null;
+            /** Authors */
+            authors?: string[] | null;
+            /** Categories */
+            categories?: string[] | null;
+            status?: components["schemas"]["ArticleStatus"] | null;
+        };
         /** MatchDetailResponse */
         MatchDetailResponse: {
             /**
@@ -631,32 +617,10 @@ export interface components {
              * Format: uuid
              */
             match_id: string;
-            /** Comment */
-            comment: string | null;
-            /** Sorting Order */
-            sorting_order: number;
-            /**
-             * Article Id
-             * Format: uuid
-             */
-            article_id: string;
-            /** Title */
-            title: string;
-            /** Url */
-            url: string;
-            /** Author */
-            author: string;
-            /**
-             * Published At
-             * Format: date-time
-             */
-            published_at: string;
-            /** Language */
-            language: string;
-            /** Category */
-            category: string;
-            /** Summary */
-            summary: string | null;
+            /** Topics */
+            topics: components["schemas"]["MatchTopicItem"][];
+            search_profile: components["schemas"]["MatchProfileInfo"] | null;
+            article: components["schemas"]["MatchArticleOverviewContent"];
         };
         /** MatchFeedbackRequest */
         MatchFeedbackRequest: {
@@ -669,6 +633,67 @@ export interface components {
             reason: "bad source" | "false" | "no good matching" | "other";
             /** Ranking */
             ranking: number;
+        };
+        /** MatchFilterRequest */
+        MatchFilterRequest: {
+            /**
+             * Startdate
+             * Format: date
+             */
+            startDate: string;
+            /**
+             * Enddate
+             * Format: date
+             */
+            endDate: string;
+            /**
+             * Sorting
+             * @enum {string}
+             */
+            sorting: "DATE" | "RELEVANCE";
+            /** Searchterm */
+            searchTerm?: string | null;
+            /** Topics */
+            topics?: string[] | null;
+            /** Subscriptions */
+            subscriptions?: string[] | null;
+        };
+        /** MatchItem */
+        MatchItem: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Relevance */
+            relevance: number;
+            /** Topics */
+            topics: components["schemas"]["MatchTopicItem"][];
+            article: components["schemas"]["MatchArticleOverviewContent"];
+        };
+        /** MatchProfileInfo */
+        MatchProfileInfo: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Name */
+            name: string;
+        };
+        /** MatchTopicItem */
+        MatchTopicItem: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Name */
+            name: string;
+            /** Score */
+            score: number;
+            /** Keywords */
+            keywords?: string[] | null;
         };
         /** ReportDetailResponse */
         ReportDetailResponse: {
@@ -1182,7 +1207,7 @@ export interface operations {
             };
         };
     };
-    get_search_profile_overview_api_v1_search_profiles__search_profile_id__overview_get: {
+    get_search_profile_overview_api_v1_search_profiles__search_profile_id__matches_post: {
         parameters: {
             query?: never;
             header?: never;
@@ -1191,7 +1216,11 @@ export interface operations {
             };
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MatchFilterRequest"];
+            };
+        };
         responses: {
             /** @description Successful Response */
             200: {
