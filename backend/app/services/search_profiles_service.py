@@ -10,7 +10,7 @@ from sqlalchemy.orm import selectinload
 
 from app.core.db import async_session
 from app.core.logger import get_logger
-from app.models import SearchProfile, Topic, User
+from app.models import SearchProfile, Topic
 from app.models.match import Match
 from app.repositories.article_repository import ArticleRepository
 from app.repositories.email_repository import EmailRepository
