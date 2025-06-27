@@ -54,7 +54,6 @@ class PDFService:
     styles = get_pdf_styles(_fonts_registered)
 
     @staticmethod
-    # TODO: Update this to include language in PDF generation
     async def create_pdf(
         search_profile_id: uuid.UUID,
         timeslot: str,
@@ -89,14 +88,22 @@ class PDFService:
                 title=article.title,
                 content=article.content,
                 url=article.url,
-                author=article.author.name if article.author else "Unknown",
+                author=(
+                    ", ".join(article.authors)
+                    if article.authors
+                    else "Unknown"
+                ),
                 published_at=(
                     article.published_at.strftime("%d %B %Y – %I:%M")
                     if article.published_at
                     else None
                 ),
                 language=article.language if article.language else None,
-                category=article.category.name if article.category else None,
+                category=(
+                    ", ".join(article.categories)
+                    if article.categories
+                    else None
+                ),
                 summary=article.summary or "No summary available.",
                 subscription_id=article.subscription.id,
                 newspaper=article.subscription or "Unknown",
