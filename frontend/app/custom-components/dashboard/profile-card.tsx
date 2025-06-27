@@ -4,6 +4,8 @@ import {
   SquarePen,
   OctagonAlert,
   MoreVertical,
+  UserSearch,
+  MoveRight,
 } from "lucide-react";
 import type { KeyedMutator } from "swr";
 
@@ -29,6 +31,7 @@ import {
   AlertDialogTitle,
 } from "~/components/ui/alert-dialog";
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router";
 
 interface ProfileCardProps {
   profile: Profile;
@@ -40,10 +43,11 @@ export function ProfileCard({ profile, mutateDashboard }: ProfileCardProps) {
   const [showEditDialog, setShowEditDialog] = useState(false);
 
   const { t } = useTranslation();
+  const navigate = useNavigate();
 
   return (
     <>
-      <Card className="w-[15rem] h-[14rem] rounded-3xl shadow-[2px_2px_15px_rgba(0,0,0,0.1)] hover:shadow-none transition-shadow duration-300 ease-in-out">
+      <Card className="w-[15rem] rounded-2xl shadow-[2px_2px_15px_rgba(0,0,0,0.1)] transition-shadow duration-300 ease-in-out">
         <CardHeader className="-mt-2">
           <div className={"flex justify-between"}>
             <div>
@@ -89,15 +93,16 @@ export function ProfileCard({ profile, mutateDashboard }: ProfileCardProps) {
             </span>
           </div>
         </CardHeader>
-        <CardContent className="-mt-4">
-          <div className="w-full h-[112px] overflow-hidden rounded-[38px]">
-            <img
-              src={
-                "https://developers.elementor.com/docs/assets/img/elementor-placeholder-image.png"
-              }
-              alt=""
-              className="h-full w-full object-cover object-center"
-            />
+        <CardContent className="">
+          <div className="flex justify-center">
+            <Button
+              variant={"outline"}
+              onClick={() => navigate(`/search-profile/${profile.id}`)}
+            >
+              <UserSearch />
+              Go to Profile
+              <MoveRight />
+            </Button>
           </div>
         </CardContent>
       </Card>

@@ -12,6 +12,7 @@
   "search": "Search",
   "Cancel": "Cancel",
   "save_changes": "Save Changes",
+  "Search": "Search",
 
   "landing_page": {
     "welcome": "Welcome to MediaMind",
@@ -142,5 +143,16 @@
     "credentials_error_text": "Please insert valid credentials.",
     "username": "Username",
     "password": "Password"
+  },
+
+  "search_profile": {
+    "Topics": "Topics",
+    "Sorting": "Sorting",
+    "Sources": "Sources",
+    "Date": "Date",
+    "From": "From",
+    "To": "To",
+    "articles": "Articles",
+    "Relevance": "Relevance"
   }
 }
