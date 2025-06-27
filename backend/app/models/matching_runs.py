@@ -7,6 +7,7 @@ from sqlmodel import SQLModel, Field, Relationship
 
 if TYPE_CHECKING:
     from app.models import Match
+    from app.models.report import Report
 
 counter_seq = Sequence("matching_run_counter_seq", metadata=SQLModel.metadata)
 
@@ -37,3 +38,4 @@ class MatchingRun(SQLModel, table=True):
     algorithm_version: Optional[str] = None
 
     matches: List["Match"] = Relationship(back_populates="matching_run")
+    reports: List["Report"] = Relationship(back_populates="matching_run")

@@ -7,6 +7,7 @@ from sqlmodel import Field, Relationship, SQLModel
 
 if TYPE_CHECKING:
     from .search_profile import SearchProfile
+    from .matching_runs import MatchingRun
 
 
 class ReportStatus(Enum):
@@ -26,8 +27,14 @@ class Report(SQLModel, table=True):
     )  # e.g., "morning", "afternoon", "evening"
     s3_key: str = Field(max_length=512, nullable=False)
     status: ReportStatus = Field(default=ReportStatus.PENDING, nullable=False)
+    matching_runs_id: Optional[uuid.UUID] = Field(
+        foreign_key="matching_runs.id", nullable=True
+    )
 
     # Relationships
     search_profile: Optional["SearchProfile"] = Relationship(
+        back_populates="reports"
+    )
+    matching_run: Optional["MatchingRun"] = Relationship(
         back_populates="reports"
     )
