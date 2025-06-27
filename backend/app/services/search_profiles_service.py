@@ -62,6 +62,7 @@ class SearchProfileService:
                     organization_id=current_user.organization_id,
                     created_by_id=current_user.id,
                     owner_id=data.owner_id,
+                    language=data.language,
                 )
                 session.add(profile)
                 await session.flush()  # ← now profile.id is assigned
@@ -212,6 +213,16 @@ class SearchProfileService:
             subscriptions=subscriptions,
             new_articles_count=new_articles_count,
         )
+
+    @staticmethod
+    def _filter_emails_by_org(
+        profile: SearchProfile, org_id: UUID, include: bool
+    ) -> list[str]:
+        return [
+            user.email
+            for user in profile.users
+            if (user.organization_id == org_id) is include
+        ]
 
     @staticmethod
     def _build_topic_response(topic: Topic) -> TopicResponse:

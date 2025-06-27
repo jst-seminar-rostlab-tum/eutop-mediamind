@@ -1,8 +1,11 @@
 import uuid
-from datetime import datetime
-from typing import TYPE_CHECKING, Optional
 
-from sqlalchemy import TIMESTAMP, Column, Text, func
+
+from typing import TYPE_CHECKING, Optional
+from datetime import datetime, timezone
+
+
+from sqlalchemy import TIMESTAMP, Column, Text
 from sqlmodel import Field, Relationship, SQLModel
 
 if TYPE_CHECKING:
@@ -35,7 +38,9 @@ class Match(SQLModel, table=True):
 
     matched_at: datetime = Field(
         sa_column=Column(
-            TIMESTAMP(timezone=True), nullable=False, server_default=func.now()
+            TIMESTAMP(timezone=True),
+            nullable=False,
+            default=datetime.now(timezone.utc),
         )
     )
     matching_run_id: uuid.UUID | None = Field(
