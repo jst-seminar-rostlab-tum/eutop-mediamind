@@ -6,8 +6,8 @@ from typing import TYPE_CHECKING, Optional
 from sqlmodel import Field, Relationship, SQLModel
 
 if TYPE_CHECKING:
-    from .search_profile import SearchProfile
     from .matching_runs import MatchingRun
+    from .search_profile import SearchProfile
 
 
 class ReportStatus(Enum):

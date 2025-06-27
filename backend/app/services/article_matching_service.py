@@ -5,7 +5,7 @@ from uuid import UUID
 
 from app.core.db import async_session
 from app.core.logger import get_logger
-from app.models import Match, SearchProfile, MatchingRun
+from app.models import Match, MatchingRun, SearchProfile
 from app.repositories.match_repository import MatchRepository
 from app.repositories.matching_runs_repository import MatchingRunsRepository
 from app.repositories.search_profile_repository import SearchProfileRepository

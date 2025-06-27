@@ -34,5 +34,5 @@ __all__ = [
     "UserUpdate",
     "UserUpdateMe",
     "Report",
-    "MatchingRun"
+    "MatchingRun",
 ]

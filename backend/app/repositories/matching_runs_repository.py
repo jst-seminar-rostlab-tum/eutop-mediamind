@@ -1,7 +1,8 @@
 from typing import Optional
 
-from app.models import MatchingRun
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.models import MatchingRun
 
 
 class MatchingRunsRepository:

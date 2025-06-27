@@ -1,15 +1,16 @@
 import uuid
 from datetime import datetime, timezone
-from typing import Optional, List, TYPE_CHECKING
+from typing import TYPE_CHECKING, List, Optional
 
-from sqlalchemy import Column, TIMESTAMP, Integer, Sequence
-from sqlmodel import SQLModel, Field, Relationship
+from sqlalchemy import TIMESTAMP, Column, Integer, Sequence
+from sqlmodel import Field, Relationship, SQLModel
 
 if TYPE_CHECKING:
     from app.models import Match
     from app.models.report import Report
 
 counter_seq = Sequence("matching_run_counter_seq", metadata=SQLModel.metadata)
+
 
 class MatchingRun(SQLModel, table=True):
     __tablename__ = "matching_runs"

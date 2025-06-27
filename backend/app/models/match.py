@@ -5,13 +5,11 @@ from typing import TYPE_CHECKING, Optional
 from sqlalchemy import TIMESTAMP, Column, Text, func
 from sqlmodel import Field, Relationship, SQLModel
 
-
-
 if TYPE_CHECKING:
+    from app.models import MatchingRun
     from app.models.article import Article
     from app.models.search_profile import SearchProfile
     from app.models.topic import Topic
-    from app.models import MatchingRun
 
 
 class Match(SQLModel, table=True):
@@ -48,4 +46,6 @@ class Match(SQLModel, table=True):
     article: "Article" = Relationship(back_populates="matches")
     search_profile: "SearchProfile" = Relationship(back_populates="matches")
     topic: "Topic" = Relationship(back_populates="matches")
-    matching_run: Optional["MatchingRun"] = Relationship(back_populates="matches")
+    matching_run: Optional["MatchingRun"] = Relationship(
+        back_populates="matches"
+    )
