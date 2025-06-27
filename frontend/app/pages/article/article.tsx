@@ -4,7 +4,7 @@ import { ArticleSidebar } from "~/custom-components/article/article-sidebar";
 import type { ArticleMatch } from "../../../types/model";
 import { ArticleBody } from "~/custom-components/article/article-body";
 import Layout from "~/custom-components/layout";
-import { formatDate } from "~/lib/utils";
+import { formatDate, getLocalizedContent } from "~/lib/utils";
 import { useTranslation } from "react-i18next";
 
 interface ArticleProps {
@@ -31,10 +31,14 @@ export function ArticlePage({
         return "en-US";
     }
   };
+
   const publishDateString = formatDate(
     article.article.published,
     getLocale(i18n.language),
   );
+
+  const localizedHeadline = getLocalizedContent(article.article.headline);
+  const localizedText = getLocalizedContent(article.article.text);
 
   return (
     <Layout>
@@ -43,19 +47,11 @@ export function ArticlePage({
           <ArticleBreadcrumb
             searchProfileId={searchProfileId}
             searchProfileName={searchProfileName}
-            articleName={article.article.headline["en"]}
+            articleName={localizedHeadline}
           />
           <ArticleBody
-            title={
-              article.article.headline["en"]
-                ? article.article.headline["en"]
-                : article.article.headline["de"]
-            }
-            content={
-              article.article.text["en"]
-                ? article.article.text["en"]
-                : article.article.text["de"]
-            }
+            title={localizedHeadline}
+            content={localizedText}
             published_at={publishDateString}
             author={
               article.article.authors

@@ -27,30 +27,39 @@ export function ArticleMetaDataTable({ article }: ArticleMetaDataTableProps) {
               {formatDate(article.article.published)}
             </TableCell>
           </TableRow>
+
           <TableRow>
             <TableCell>{t("article-page.meta_data_crawled")}</TableCell>
             <TableCell className="text-right">
               {formatDate(article.article.crawled)}
             </TableCell>
           </TableRow>
+
           <TableRow>
             <TableCell>{t("article-page.meta_data_language")}</TableCell>
             <TableCell className="text-right">
               {article.article.text["en"] ? "en" : "de"}
             </TableCell>
           </TableRow>
-          <TableRow>
-            <TableCell>{t("article-page.meta_data_status")}</TableCell>
-            <TableCell className="text-right">
-              {article.article.status}
-            </TableCell>
-          </TableRow>
-          <TableRow>
-            <TableCell>{t("article-page.meta_data_category")}</TableCell>
-            <TableCell className="text-right">
-              {article.article.categories}
-            </TableCell>
-          </TableRow>
+
+          {article.article.status && (
+            <TableRow>
+              <TableCell>{t("article-page.meta_data_status")}</TableCell>
+              <TableCell className="text-right">
+                {article.article.status}
+              </TableCell>
+            </TableRow>
+          )}
+
+          {article.article.categories &&
+            article.article.categories.length > 0 && (
+              <TableRow>
+                <TableCell>{t("article-page.meta_data_category")}</TableCell>
+                <TableCell className="text-right">
+                  {article.article.categories.join(", ")}
+                </TableCell>
+              </TableRow>
+            )}
         </TableBody>
       </Table>
     </div>

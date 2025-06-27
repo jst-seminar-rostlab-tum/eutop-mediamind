@@ -8,6 +8,8 @@ import {
 import { AccordionContent } from "@radix-ui/react-accordion";
 import { Badge } from "~/components/ui/badge";
 import { useTranslation } from "react-i18next";
+import { Button } from "~/components/ui/button";
+import { ExternalLink } from "lucide-react";
 
 interface ArticleSidebarProps {
   article: ArticleMatch;
@@ -17,13 +19,12 @@ export function ArticleSidebar({ article }: ArticleSidebarProps) {
   const { t } = useTranslation();
   return (
     <div className={"space-y-6"}>
-      {/*TODO: missing*/}
-      {/*<Button asChild>*/}
-      {/*  <a href={article.article.url}>*/}
-      {/*    Original*/}
-      {/*    <ExternalLink />*/}
-      {/*  </a>*/}
-      {/*</Button>*/}
+      <Button asChild>
+        <a href={article.article.article_url}>
+          Original
+          <ExternalLink />
+        </a>
+      </Button>
       <div className={"rounded-3xl pl-4 pr-4 bg-gray-100"}>
         <Accordion
           type={"single"}

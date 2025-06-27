@@ -163,7 +163,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Get Search Profile Overview */
+        /**
+         * Get Search Profile Overview
+         * @description Retrieve an overview of articles for a given search profile.
+         */
         post: operations["get_search_profile_overview_api_v1_search_profiles__search_profile_id__matches_post"];
         delete?: never;
         options?: never;
@@ -314,6 +317,23 @@ export interface paths {
          * @description Summarize all articles in the database.
          */
         post: operations["summarize_all_articles_api_v1_articles_summarize_all_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/articles/pdf": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Trigger Pdf Creation */
+        get: operations["trigger_pdf_creation_api_v1_articles_pdf_get"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -534,6 +554,8 @@ export interface components {
         };
         /** MatchArticleOverviewContent */
         MatchArticleOverviewContent: {
+            /** Article Url */
+            article_url: string;
             /** Headline */
             headline: {
                 [key: string]: string;
@@ -1460,6 +1482,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    trigger_pdf_creation_api_v1_articles_pdf_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
                 };
             };
         };
