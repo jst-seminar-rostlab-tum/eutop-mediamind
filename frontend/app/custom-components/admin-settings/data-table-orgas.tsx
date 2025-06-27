@@ -6,7 +6,7 @@ import {
   getFilteredRowModel,
   type ColumnDef,
 } from "@tanstack/react-table";
-import { Plus } from "lucide-react";
+import { Plus, Search } from "lucide-react";
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "~/components/ui/button";
@@ -55,15 +55,21 @@ export function DataTableOrganizations<TData, TValue>({
   return (
     <>
       <div className="flex items-center py-4">
-        <Input
-          placeholder={t("search")}
-          value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
-          onChange={(event) => {
-            const value = event.target.value;
-            table.getColumn("name")?.setFilterValue(value);
-            onSearchChange?.(value); // send value to parent
-          }}
-        />
+        <div className="relative w-full flex items-center">
+          <Input
+            placeholder={t("search")}
+            value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
+            onChange={(event) => {
+              const value = event.target.value;
+              table.getColumn("name")?.setFilterValue(value);
+              onSearchChange?.(value); // send value to parent
+            }}
+          />
+          <Search
+            size={20}
+            className="absolute right-3 text-muted-foreground"
+          />
+        </div>
         <Button variant={"outline"} className="ml-4" onClick={onAdd}>
           {t("Add")}
           <Plus />
