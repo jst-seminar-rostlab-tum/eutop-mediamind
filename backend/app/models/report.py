@@ -30,6 +30,7 @@ class Report(SQLModel, table=True):
     matching_runs_id: Optional[uuid.UUID] = Field(
         foreign_key="matching_runs.id", nullable=True
     )
+    language: str = Field(max_length=255, nullable=False, default="en")
 
     # Relationships
     search_profile: Optional["SearchProfile"] = Relationship(
