@@ -8,6 +8,7 @@ from app.schemas.match_schemas import MatchFilterRequest
 from app.services.search_profiles_service import SearchProfileService
 
 
+
 @patch("app.services.search_profiles_service.ArticleRepository.get_subscription_id_for_article", new_callable=AsyncMock)
 @patch("app.services.search_profiles_service.TopicsRepository.get_topic_names_by_ids", new_callable=AsyncMock)
 @patch("app.services.search_profiles_service.KeywordRepository.get_keywords_by_topic_ids", new_callable=AsyncMock)
