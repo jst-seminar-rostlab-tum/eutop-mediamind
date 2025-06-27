@@ -307,3 +307,19 @@ class ArticleRepository:
             await session.commit()
             await session.refresh(existing_article)
             return existing_article
+
+    @staticmethod
+    # get subscription id for an article
+    async def get_subscription_id_for_article(
+        article_id: UUID,
+    ) -> Optional[UUID]:
+        """
+        Retrieve the subscription ID for a given article.
+        Returns None if the article does not have a subscription.
+        """
+        async with async_session() as session:
+            statement = select(Article).where(Article.id == article_id)
+            article: Optional[Article] = (
+                await session.execute(statement)
+            ).scalar_one_or_none()
+            return article.subscription_id if article else None
