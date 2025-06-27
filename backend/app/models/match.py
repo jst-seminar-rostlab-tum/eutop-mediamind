@@ -1,9 +1,6 @@
 import uuid
-
-
-from typing import TYPE_CHECKING, Optional
 from datetime import datetime, timezone
-
+from typing import TYPE_CHECKING, Optional
 
 from sqlalchemy import TIMESTAMP, Column, Text
 from sqlmodel import Field, Relationship, SQLModel
