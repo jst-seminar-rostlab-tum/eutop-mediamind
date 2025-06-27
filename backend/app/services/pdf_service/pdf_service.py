@@ -1,4 +1,5 @@
 # Refactored PDFService to use split modules
+import gettext
 import json
 import os
 import random
@@ -52,6 +53,7 @@ with open(
 class PDFService:
     _fonts_registered = register_fonts()
     styles = get_pdf_styles(_fonts_registered)
+    translator = None
 
     @staticmethod
     async def create_pdf(
@@ -60,6 +62,15 @@ class PDFService:
         language: str,
         match_stop_time: datetime,
     ) -> bytes:
+        # Obtain translator for the specified language
+        locale_dir = os.path.join(os.path.dirname(__file__), "locales")
+        lang = gettext.translation(
+            'messages',
+            localedir=locale_dir,
+            languages=[language],
+            fallback=True,
+        )
+        PDFService.translator = lang.gettext
         if timeslot not in ["morning", "afternoon", "evening"]:
             logger.info(
                 "Invalid timeslot. Must be one of: ['morning', 'afternoon',"
@@ -76,6 +87,7 @@ class PDFService:
             search_profile_id, match_start_time, match_stop_time
         )
 
+        translator = PDFService.translator or (lambda x: x)
         news_items = []
         for article in articles:
             politicians = random.sample(METADATA["politicians"], k=8)
@@ -83,30 +95,49 @@ class PDFService:
             people = random.sample(METADATA["people"], k=3)
             industries = random.sample(METADATA["industries"], k=11)
             legislations = random.sample(METADATA["legislations"], k=3)
+            if article.published_at:
+                published_at_raw = article.published_at
+                month = published_at_raw.strftime("%B")
+                published_at_str = (
+                    f"{published_at_raw.strftime('%d')} "
+                    f"{translator(month)} {published_at_raw.strftime('%Y')} "
+                    f"– {published_at_raw.strftime('%H:%M')}"
+                )
+            else:
+                published_at_str = None
             news_item = NewsItem(
                 id=article.id,
-                title=article.title,
-                content=article.content,
+                title=(
+                    getattr(article, f"title_{language}", None)
+                    or article.title
+                ),
+                content=(
+                    getattr(article, f"content_{language}", None)
+                    or article.content
+                ),
                 url=article.url,
                 author=(
                     ", ".join(article.authors)
                     if article.authors
-                    else "Unknown"
+                    else translator("Unknown")
                 ),
-                published_at=(
-                    article.published_at.strftime("%d %B %Y – %I:%M")
-                    if article.published_at
-                    else None
-                ),
+                published_at=published_at_str,
                 language=article.language if article.language else None,
                 category=(
                     ", ".join(article.categories)
                     if article.categories
                     else None
                 ),
-                summary=article.summary or "No summary available.",
+                summary=(
+                    getattr(article, f"summary_{language}", None)
+                    or (
+                        article.summary
+                        if article.summary
+                        else translator("No summary available") + "."
+                    )
+                ),
                 subscription_id=article.subscription.id,
-                newspaper=article.subscription or "Unknown",
+                newspaper=article.subscription or translator("Unknown"),
                 keywords=[keyword.name for keyword in article.keywords],
                 image_url=None,
                 people=people,
@@ -227,6 +258,7 @@ class PDFService:
         dimensions: tuple[float, float],
     ) -> List["Flowable"]:
         width, height = dimensions
+        translator = PDFService.translator or (lambda x: x)
         # TOC entry style
         toc_entry_style = ParagraphStyle(
             name="TOCEntry",
@@ -256,15 +288,21 @@ class PDFService:
         # Title
         story.append(
             Paragraph(
-                "<b> \
-                   <font size=36>Daily News Report</font>\
+                f"<b> \
+                   <font size=36>{translator('Daily News Report')}</font>\
                 </b>",
                 PDFService.styles["title_style"],
             )
         )
         story.append(Spacer(1, 0.3 * inch))
+
+        now = datetime.today()
+        month = now.strftime("%B")
+        now_str = (
+            f"{now.strftime('%d')} {translator(month)} {now.strftime('%Y')} – "
+            f"{now.strftime('%H:%M')}"
+        )
         # Subtitle with current date and time
-        now_str = datetime.today().strftime("%d %B %Y – %H:%M")
         story.append(
             Paragraph(
                 f"<b><font size=16>{now_str}</font></b>",
@@ -292,7 +330,7 @@ class PDFService:
                 canvas = self.canv
                 canvas.setFont("DVS", 12)
                 canvas.setFillColor(pdf_colors["darkgreen"])
-                label = "Estimated Reading Time: "
+                label = translator("Estimated Reading Time") + ": "
                 canvas.drawString(0, 0, label)
                 label_width = canvas.stringWidth(label, "DVS", 12)
                 canvas.setFont("DVS-Bold", 12)
@@ -300,7 +338,7 @@ class PDFService:
                 label_width += canvas.stringWidth(
                     str(self.estimated_minutes), "DVS-Bold", 12
                 )
-                canvas.drawString(label_width, 0, " min")
+                canvas.drawString(label_width, 0, f" {translator('min')}")
 
         story.append(EstimatedReadingTimeFlowable(total_minutes))
         story.append(Spacer(1, 0.3 * inch))
@@ -311,7 +349,7 @@ class PDFService:
         # TOC Title (bold, styled)
         story.append(
             Paragraph(
-                "Table of Contents",
+                translator("Table of Contents"),
                 ParagraphStyle(
                     name="TOCHeader",
                     fontName="DVS-Bold",
@@ -352,14 +390,24 @@ class PDFService:
                 metadata_style,
             )
 
+            summary_link = (
+                f'<a href="#toc_summary_{i}">'
+                f'&nbsp;{translator("Summary")}&nbsp;'
+                '</a>'
+            )
+            full_article_link = (
+                f'<a href="#toc_article_{i}">'
+                f'&nbsp;{translator("Full Article")}&nbsp;'
+                '</a>'
+            )
             button_para = Paragraph(
                 f"""
                 <font backColor="{pdf_colors["lightgrey"]}" size="9">
-                    <a href="#toc_summary_{i}">&nbsp;Summary&nbsp;</a>
+                    {summary_link}
                 </font>
                 &nbsp;&nbsp;
                 <font backColor="{pdf_colors["lightgrey"]}" size="9">
-                    <a href="#toc_article_{i}">&nbsp;Full Article&nbsp;</a>
+                    {full_article_link}
                 </font>
                 """,
                 PDFService.styles["button_style"],
@@ -400,6 +448,7 @@ class PDFService:
 
     @staticmethod
     def draw_header_footer(canvas, doc):
+        translator = PDFService.translator or (lambda x: x)
         canvas.saveState()
         width, height = A4
 
@@ -411,11 +460,15 @@ class PDFService:
             leading=12,
         )
 
-        now_str = datetime.today().strftime("%d %B %Y – %I:%M")
-
+        now = datetime.today()
+        month = now.strftime("%B")
+        now_str = (
+            f"{now.strftime('%d')} {translator(month)} {now.strftime('%Y')} – "
+            f"{now.strftime('%H:%M')}"
+        )
         data = [
             [
-                Paragraph("<b>Daily News Report</b>", style),
+                Paragraph(f"<b>{translator('Daily News Report')}</b>", style),
                 Paragraph(f"<b>{now_str}</b>", style),
             ]
         ]
@@ -435,7 +488,7 @@ class PDFService:
         # --- Draw page number in footer ---
         canvas.setFont("DVS", 10)
         canvas.setFillColor(pdf_colors["main"])
-        page_str = f"Page {doc.page}"
+        page_str = translator("Page") + f" {doc.page}"
         canvas.drawRightString(width - inch, 0.4 * inch, page_str)
 
         canvas.restoreState()
@@ -445,6 +498,7 @@ class PDFService:
         news_items: List[NewsItem], dimensions: tuple[float, float]
     ) -> List["Flowable"]:
         width, height = dimensions  # TODO
+        translator = PDFService.translator or (lambda x: x)
         story = []
         for i, news in enumerate(news_items):
             story.append(AnchorFlowable(f"toc_summary_{i}"))
@@ -462,19 +516,8 @@ class PDFService:
                     PDFService.styles["keywords_style"],
                 )
             )
-            pub_date_str = ""
-            if news.published_at:
-                try:
-                    dt = datetime.strptime(
-                        # TODO inconsistent with previous time format
-                        news.published_at.replace("Z", ""),
-                        "%Y-%m-%dT%H:%M:%S",
-                    )
-                    pub_date_str = dt.strftime("%d %B %Y at %H:%M")
-                except Exception:
-                    pub_date_str = news.published_at
             story.append(
-                Paragraph(pub_date_str, PDFService.styles["date_style"])
+                Paragraph(news.published_at, PDFService.styles["date_style"])
             )
             story.append(Spacer(1, 0.05 * inch))
             summary_text = news.summary.replace("\n", "<br/>")
@@ -486,7 +529,8 @@ class PDFService:
             dest_name = f"full_{news.id}"
             story.append(
                 Paragraph(
-                    f'<a href="#{dest_name}">Read full article</a>',
+                    f"<a href='#{dest_name}'>"
+                    f"{translator('Read full article')}</a>",
                     PDFService.styles["link_style"],
                 )
             )
@@ -503,6 +547,7 @@ class PDFService:
     def __create_full_articles_elements(
         news_items: List[NewsItem], dimensions: tuple[float, float]
     ) -> List["Flowable"]:
+        translator = PDFService.translator or (lambda x: x)
         story = []
         for i, news in enumerate(news_items):
             dest_name = f"full_{news.id}"
@@ -517,8 +562,8 @@ class PDFService:
 
             # Wrap metadata in a styled table box
             metadata_text = f"""
-            Published at: {news.published_at} |
-             Newspaper: {news.newspaper.name}
+            {translator('Published at')}: {news.published_at} |
+             {translator('Newspaper')}: {news.newspaper.name}
                     """
             metadata_para = Paragraph(
                 metadata_text, PDFService.styles["metadata_style"]
@@ -541,7 +586,10 @@ class PDFService:
 
             # Summary
             story.append(
-                Paragraph("Summary", PDFService.styles["subtitle_style"])
+                Paragraph(
+                    translator("Summary"),
+                    PDFService.styles["subtitle_style"],
+                )
             )
             story.append(
                 Paragraph(news.summary, PDFService.styles["content_style"])
@@ -550,13 +598,17 @@ class PDFService:
 
             story.append(
                 Paragraph(
-                    "Article Content", PDFService.styles["subtitle_style"]
+                    translator("Article Content"),
+                    PDFService.styles["subtitle_style"]
                 )
             )
 
             # Calculate reading time
             reading_time = calculate_reading_time(news.content)
-            reading_time_text = f"Estimated Reading Time: {reading_time} min"
+            reading_time_text = (
+                f"{translator('Estimated Reading Time')}: "
+                f"{reading_time} {translator('min')}"
+            )
             reading_time_para = Paragraph(
                 reading_time_text, PDFService.styles["link_style"]
             )
@@ -564,7 +616,7 @@ class PDFService:
                 f"""
                 <para alignment=\"right\">
                     <a href=\"#toc_summary_{i}\">\n
-                    <u><font>Back to Summary List</font></u>\n
+                    <u><font>{translator('Back to Summary List')}</font></u>\n
                     </a>
                 </para>
                 """,
@@ -611,29 +663,36 @@ class PDFService:
             # Prepare metadata as label-value pairs for two columns
             metadata_rows = [
                 [
-                    Paragraph("Words:", PDFService.styles["metadata_style"]),
+                    Paragraph(
+                        f"{translator('Words')}:",
+                        PDFService.styles["metadata_style"]
+                    ),
                     Paragraph(
                         str(word_count), PDFService.styles["metadata_style"]
                     ),
                 ],
                 [
                     Paragraph(
-                        "Reading Time:", PDFService.styles["metadata_style"]
+                        f"{translator('Reading Time')}:",
+                        PDFService.styles["metadata_style"]
                     ),
                     Paragraph(
-                        f"{reading_time} min",
+                        f"{reading_time} {translator('min')}",
                         PDFService.styles["metadata_style"],
                     ),
                 ],
                 [
-                    Paragraph("Author:", PDFService.styles["metadata_style"]),
+                    Paragraph(
+                        f"{translator('Author')}:",
+                        PDFService.styles["metadata_style"]),
                     Paragraph(
                         news.author, PDFService.styles["metadata_style"]
                     ),
                 ],
                 [
                     Paragraph(
-                        "Newspaper:", PDFService.styles["metadata_style"]
+                        f"{translator('Newspaper')}:",
+                        PDFService.styles["metadata_style"]
                     ),
                     Paragraph(
                         news.newspaper.name,
@@ -642,7 +701,7 @@ class PDFService:
                 ],
                 [
                     Paragraph(
-                        "<b>Published at:</b>",
+                        f"<b>{translator('Published at')}:</b>",
                         PDFService.styles["metadata_style"],
                     ),
                     Paragraph(
@@ -651,54 +710,59 @@ class PDFService:
                 ],
                 [
                     Paragraph(
-                        "<b>Language:</b>", PDFService.styles["metadata_style"]
+                        f"<b>{translator('Language')}:</b>",
+                        PDFService.styles["metadata_style"]
                     ),
                     Paragraph(
-                        news.language or "Unknown",
+                        news.language or translator("Unknown"),
                         PDFService.styles["metadata_style"],
                     ),
                 ],
                 [
                     Paragraph(
-                        "<b>Category:</b>", PDFService.styles["metadata_style"]
+                        f"<b>{translator('Category')}:</b>",
+                        PDFService.styles["metadata_style"]
                     ),
                     Paragraph(
-                        news.category or "Unknown",
+                        news.category or translator("Unknown"),
                         PDFService.styles["metadata_style"],
                     ),
                 ],
                 [
                     Paragraph(
-                        "<b>Keywords:</b>", PDFService.styles["metadata_style"]
+                        f"<b>{translator('Keywords')}:</b>",
+                        PDFService.styles["metadata_style"]
                     ),
                     Paragraph(
-                        ", ".join(news.keywords) if news.keywords else "None",
+                        ", ".join(news.keywords) if news.keywords
+                        else translator('None'),
                         PDFService.styles["metadata_style"],
                     ),
                 ],
                 [
                     Paragraph(
-                        "<b>Mentioned in this article</b>",
+                        f"<b>{translator('Mentioned in this article')}:</b>",
                         PDFService.styles["metadata_subtitle_style"],
                     ),
                     "",
                 ],
                 [
                     Paragraph(
-                        "<b>People:</b>", PDFService.styles["metadata_style"]
+                        f"<b>{translator('People')}:</b>",
+                        PDFService.styles["metadata_style"]
                     ),
                     Paragraph(people_str, PDFService.styles["metadata_style"]),
                 ],
                 [
                     Paragraph(
-                        "<b>Politicians:</b>",
+                        f"<b>{translator('Politicians')}:</b>",
                         PDFService.styles["metadata_style"],
                     ),
                     Paragraph(pol_str, PDFService.styles["metadata_style"]),
                 ],
                 [
                     Paragraph(
-                        "<b>Companies:</b>",
+                        f"<b>{translator('Companies')}:</b>",
                         PDFService.styles["metadata_style"],
                     ),
                     Paragraph(
@@ -707,7 +771,7 @@ class PDFService:
                 ],
                 [
                     Paragraph(
-                        "<b>Industries:</b>",
+                        f"<b>{translator('Industries')}:</b>",
                         PDFService.styles["metadata_style"],
                     ),
                     Paragraph(
@@ -716,7 +780,7 @@ class PDFService:
                 ],
                 [
                     Paragraph(
-                        "<b>Legislations:</b>",
+                        f"<b>{translator('Legislations')}:</b>",
                         PDFService.styles["metadata_style"],
                     ),
                     Paragraph(
@@ -771,8 +835,9 @@ class PDFService:
                     [
                         link_img,
                         Paragraph(
-                            f'<a href="{news.url}"><b>Read Article at \
-                            Newspaper</b></a>',
+                            f'<a href="{news.url}">'
+                            f'<b>{translator("Read Article at Newspaper")}'
+                            f'</b></a>',
                             PDFService.styles["link_style"],
                         ),
                     ]
