@@ -26,6 +26,7 @@ class Report(SQLModel, table=True):
     )  # e.g., "morning", "afternoon", "evening"
     s3_key: str = Field(max_length=512, nullable=False)
     status: ReportStatus = Field(default=ReportStatus.PENDING, nullable=False)
+    language: str = Field(max_length=255, nullable=False, default="en")
 
     # Relationships
     search_profile: Optional["SearchProfile"] = Relationship(

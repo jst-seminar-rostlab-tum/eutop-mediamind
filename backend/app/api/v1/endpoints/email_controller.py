@@ -57,6 +57,7 @@ async def send_report_email(
             status_code=400, detail="Invalid search_profile_id UUID format"
         )
     timeslot = "morning"
+    language = "de"
 
     # Get user and check if found
     user = await UserService.get_by_clerk_id(clerk_id)
@@ -71,7 +72,7 @@ async def send_report_email(
 
     # Get or create report
     report = await ReportService.get_or_create_report(
-        search_profile_id, timeslot, s3_service
+        search_profile.id, timeslot, language, s3_service
     )
     if not report:
         raise HTTPException(
@@ -82,7 +83,9 @@ async def send_report_email(
     presigned_url = s3_service.generate_presigned_url(
         key=report.s3_key, expires_in=604800  # 7 days
     )
-    dashboard_url = f"https://mediamind.csee.tech/dashboard/{report.s3_key}"
+    dashboard_url = (
+        f"https://mediamind.csee.tech/dashboard/reports/{report.id}"
+    )
 
     # Use the actual search profile name in the email content
     email_schedule = EmailSchedule(
