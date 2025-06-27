@@ -1,4 +1,3 @@
-import { type BreakingNewsResponse } from "~/pages/breaking-news/breaking-news-mock-data";
 import { BreakingNewsCard } from "~/custom-components/breaking-news/breaking-news-card";
 import Layout from "~/custom-components/layout";
 import {
@@ -14,12 +13,10 @@ import { ErrorPage } from "~/pages/error/error";
 
 export function BreakingNews() {
   const {
-    data: response,
+    data: breakingNews,
     isLoading,
     error,
   } = useQuery("/api/v1/crawler/get_breaking_news");
-
-  const breakingNews = response as BreakingNewsResponse;
 
   if (isLoading) {
     return (
@@ -33,7 +30,13 @@ export function BreakingNews() {
     return <ErrorPage />;
   }
 
-  console.log(breakingNews.results);
+  if (!breakingNews || !breakingNews.news) {
+    return (
+      <Layout>
+        <div>No breaking news available</div>
+      </Layout>
+    );
+  }
 
   return (
     <Layout>
@@ -50,7 +53,7 @@ export function BreakingNews() {
       </Breadcrumb>
       <h1 className="text-3xl font-bold mb-2">Breaking News</h1>
       <div className={"space-y-4 "}>
-        {breakingNews.results.map((news) => (
+        {breakingNews.news.map((news) => (
           <BreakingNewsCard news={news} />
         ))}
       </div>

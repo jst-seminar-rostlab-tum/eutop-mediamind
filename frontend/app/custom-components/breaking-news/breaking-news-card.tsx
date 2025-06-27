@@ -2,26 +2,26 @@ import { useState } from "react";
 
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { formatDate } from "~/lib/utils";
-import type { NewsArticle } from "~/pages/breaking-news/breaking-news-mock-data";
 import { Button } from "~/components/ui/button";
+import type { BreakingNewsItem } from "../../../types/model";
 
 interface NewsCardProps {
-  news: NewsArticle;
+  news: BreakingNewsItem;
 }
 
 export function BreakingNewsCard({ news }: NewsCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const maxLength = 142;
 
-  const shouldTruncate = news.summary.length > maxLength;
+  const shouldTruncate = news.summary!.length > maxLength;
   const displayText = isExpanded
     ? news.summary
-    : news.summary.slice(0, maxLength) + (shouldTruncate ? "..." : "");
+    : news.summary!.slice(0, maxLength) + (shouldTruncate ? "..." : "");
 
   return (
     <div className="border p-3 w-full  rounded-3xl flex gap-4">
       <div className={"overflow-hidden rounded-2xl w-27 h-28 flex-shrink-0"}>
-        <img src={news.image_url} className="w-full h-full object-cover" />
+        <img src={news.image_url!} className="w-full h-full object-cover" />
       </div>
       <div>
         <div>
@@ -29,7 +29,7 @@ export function BreakingNewsCard({ news }: NewsCardProps) {
         </div>
         <div className="flex-grow text-gray-600">
           <p className={"text-sm text-gray-400 mb-1"}>
-            {formatDate(formatDate(news.published_at))}
+            {formatDate(formatDate(news.published_at!))}
           </p>
           <p className="mb-2">{displayText}</p>
           {shouldTruncate && (
