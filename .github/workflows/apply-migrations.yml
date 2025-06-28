@@ -1,0 +1,45 @@
+name: Apply migrations
+
+on:
+  workflow_call:
+    secrets:
+      DB_SERVER:
+        required: true
+      DB_PORT:
+        required: true
+      DB_USER:
+        required: true
+      DB_PASSWORD:
+        required: true
+      DB_NAME:
+        required: true
+
+jobs:
+  alembic:
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: ./backend
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: "pip"
+
+      - name: Copy env
+        run: cp .env.example .env
+
+      - name: Run Alembic upgrade
+        run:  alembic upgrade head
+        env:
+          POSTGRES_SERVER: ${{ secrets.DB_SERVER }}
+          POSTGRES_PORT: ${{ secrets.DB_PORT }}
+          POSTGRES_DB: ${{ secrets.DB_NAME }}
+          POSTGRES_USER: ${{ secrets.DB_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.DB_PASSWORD }}
+
+
