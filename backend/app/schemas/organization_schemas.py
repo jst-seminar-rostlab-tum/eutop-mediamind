@@ -13,8 +13,7 @@ class OrganizationBase(BaseModel):
 
 
 # Properties to receive on creation
-class OrganizationCreate(OrganizationBase):
-
+class OrganizationCreateOrUpdate(OrganizationBase):
     user_ids: List[uuid.UUID]
 
 
@@ -22,3 +21,8 @@ class OrganizationCreate(OrganizationBase):
 class OrganizationResponse(OrganizationBase):
     id: int
     user_ids: List[UserEntity]
+
+
+# Properties to return
+class OrganizationsResponse(OrganizationBase):
+    organizations = List[OrganizationResponse]
