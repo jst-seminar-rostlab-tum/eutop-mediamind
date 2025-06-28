@@ -61,17 +61,14 @@ msgstr "Im Artikel erwähnt"
 msgid "People"
 msgstr "Personen"
 
-msgid "Politicians"
-msgstr "Politiker"
-
-msgid "Companies"
-msgstr "Unternehmen"
+msgid "Organizations"
+msgstr "Organisationen"
 
 msgid "Industries"
 msgstr "Branchen"
 
-msgid "Legislations"
-msgstr "Gesetzgebungen"
+msgid "Events"
+msgstr "Ereignisse"
 
 msgid "Read Article at Newspaper"
 msgstr "Artikel bei der Zeitung lesen"

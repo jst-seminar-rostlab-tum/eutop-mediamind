@@ -1,8 +1,6 @@
 # Refactored PDFService to use split modules
 import gettext
-import json
 import os
-import random
 import uuid
 from datetime import datetime, timedelta
 from io import BytesIO
@@ -31,6 +29,7 @@ from reportlab.platypus.flowables import AnchorFlowable
 from app.core.logger import get_logger
 from app.models.search_profile import SearchProfile
 from app.repositories.article_repository import ArticleRepository
+from app.repositories.entity_repository import ArticleEntityRepository
 
 from ...repositories.search_profile_repository import SearchProfileRepository
 from .colors import pdf_colors
@@ -40,14 +39,6 @@ from .styles import get_pdf_styles
 from .utils import calculate_reading_time
 
 logger = get_logger(__name__)
-
-# Load metadata for politicians, companies, people, industries, legislations
-with open(
-    os.path.join(os.path.dirname(__file__), "../../../assets/metadata.json"),
-    "r",
-    encoding="utf-8",
-) as f:
-    METADATA = json.load(f)
 
 
 class PDFService:
@@ -90,11 +81,13 @@ class PDFService:
         translator = PDFService.translator or (lambda x: x)
         news_items = []
         for article in articles:
-            politicians = random.sample(METADATA["politicians"], k=8)
-            companies = random.sample(METADATA["companies"], k=3)
-            people = random.sample(METADATA["people"], k=3)
-            industries = random.sample(METADATA["industries"], k=11)
-            legislations = random.sample(METADATA["legislations"], k=3)
+            entities = await ArticleEntityRepository.get_entities_by_article(
+                article.id
+            )
+            persons = entities.get("person", [])
+            organizations = entities.get("organization", [])
+            industries = entities.get("industry", [])
+            events = entities.get("event", [])
             if article.published_at:
                 published_at_raw = article.published_at
                 month = published_at_raw.strftime("%B")
@@ -140,11 +133,10 @@ class PDFService:
                 newspaper=article.subscription or translator("Unknown"),
                 keywords=[keyword.name for keyword in article.keywords],
                 image_url=None,
-                people=people,
-                companies=companies,
-                politicians=politicians,
+                persons=persons,
+                organizations=organizations,
                 industries=industries,
-                legislations=legislations,
+                events=events
             )
             news_items.append(news_item)
         search_profile = (
@@ -652,13 +644,10 @@ class PDFService:
 
             # Metadata Box
             word_count = len(news.content.split()) if news.content else 0
-            # TODO: Content Extracted Data from DB and added to NewsItem
-            # Prepare grouped Mentioned metadata
-            people_str = ", ".join(f"{p}" for p in news.politicians)
-            pol_str = ", ".join(f"{p}" for p in news.people)
-            companies_str = ", ".join(f"{i}" for i in news.companies)
+            persons_str = ", ".join(f"{p}" for p in news.persons)
+            organizations_str = ", ".join(f"{i}" for i in news.organizations)
             industries_str = ", ".join(f"{i}" for i in news.industries)
-            legislations_str = ", ".join(f"{i}" for i in news.legislations)
+            events_str = ", ".join(f"{i}" for i in news.events)
 
             # Prepare metadata as label-value pairs for two columns
             metadata_rows = [
@@ -751,22 +740,18 @@ class PDFService:
                         f"<b>{translator('People')}:</b>",
                         PDFService.styles["metadata_style"]
                     ),
-                    Paragraph(people_str, PDFService.styles["metadata_style"]),
+                    Paragraph(
+                        persons_str,
+                        PDFService.styles["metadata_style"]
+                    ),
                 ],
                 [
                     Paragraph(
-                        f"<b>{translator('Politicians')}:</b>",
-                        PDFService.styles["metadata_style"],
-                    ),
-                    Paragraph(pol_str, PDFService.styles["metadata_style"]),
-                ],
-                [
-                    Paragraph(
-                        f"<b>{translator('Companies')}:</b>",
+                        f"<b>{translator('Organizations')}:</b>",
                         PDFService.styles["metadata_style"],
                     ),
                     Paragraph(
-                        companies_str, PDFService.styles["metadata_style"]
+                        organizations_str, PDFService.styles["metadata_style"]
                     ),
                 ],
                 [
@@ -780,11 +765,11 @@ class PDFService:
                 ],
                 [
                     Paragraph(
-                        f"<b>{translator('Legislations')}:</b>",
+                        f"<b>{translator('Events')}:</b>",
                         PDFService.styles["metadata_style"],
                     ),
                     Paragraph(
-                        legislations_str, PDFService.styles["metadata_style"]
+                        events_str, PDFService.styles["metadata_style"]
                     ),
                 ],
             ]

@@ -1,6 +1,8 @@
 from typing import List, Optional
 from uuid import UUID
 
+from sqlalchemy import select
+
 from app.core.db import async_session
 from app.models.entity import ArticleEntity
 
@@ -17,6 +19,27 @@ class ArticleEntityRepository:
     - event
     - organization
     """
+
+    @staticmethod
+    async def get_entities_by_article(article_id: UUID) -> dict:
+        async with async_session() as session:
+            result = await session.execute(
+                select(ArticleEntity).where(
+                    ArticleEntity.article_id == article_id
+                )
+            )
+            entities = result.scalars().all()
+
+            grouped_entities = {
+                "person": [],
+                "industry": [],
+                "event": [],
+                "organization": [],
+            }
+            for entity in entities:
+                grouped_entities[entity.entity_type].append(entity.value)
+
+            return grouped_entities
 
     @staticmethod
     async def add_entities(
