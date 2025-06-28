@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import datetime
 from typing import List
 from uuid import UUID
 
@@ -7,7 +7,7 @@ from sqlalchemy.orm import selectinload
 from sqlmodel import func
 
 from app.core.db import async_session
-from app.models import Article, User
+from app.models import Article
 from app.models.match import Match
 
 
@@ -19,7 +19,9 @@ class MatchRepository:
         async with async_session() as session:
             articles = await session.execute(
                 select(Match)
-                .options(selectinload(Match.article))
+                .options(
+                    selectinload(Match.article), selectinload(Match.topic)
+                )
                 .where(Match.search_profile_id == search_profile_id)
                 .order_by(Match.sorting_order.asc())
             )
@@ -27,11 +29,13 @@ class MatchRepository:
 
     @staticmethod
     async def get_matches_by_search_profile(
-        search_profile_id: UUID, user: User
+        search_profile_id: UUID,
     ) -> List[Match]:
         async with async_session() as session:
-            query = select(Match).where(
-                Match.search_profile_id == search_profile_id
+            query = (
+                select(Match)
+                .options(selectinload(Match.article))
+                .where(Match.search_profile_id == search_profile_id)
             )
             matches = (await session.execute(query)).scalars().all()
 
@@ -51,6 +55,24 @@ class MatchRepository:
                 )
             )
             return matches.scalars().first()
+
+    @staticmethod
+    async def get_matches_by_profile_and_article(
+        search_profile_id: UUID,
+        article_id: UUID,
+    ) -> list[Match]:
+        async with async_session() as session:
+            result = await session.execute(
+                select(Match)
+                .where(
+                    Match.search_profile_id == search_profile_id,
+                    Match.article_id == article_id,
+                )
+                .options(
+                    selectinload(Match.topic),
+                )
+            )
+            return result.scalars().all()
 
     @staticmethod
     async def update_match_feedback(
@@ -75,12 +97,7 @@ class MatchRepository:
         profile_id: UUID,
         since: datetime,
     ) -> int:
-        if since.tzinfo is None:
-            since = since.replace(tzinfo=timezone.utc)
-        else:
-            since = since.astimezone(timezone.utc)
         async with async_session() as session:
-            since = since.replace(tzinfo=None)
             stmt = (
                 select(func.count().label("count"))
                 .select_from(Match)

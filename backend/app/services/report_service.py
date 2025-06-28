@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import List, Optional
 from uuid import UUID
 
@@ -19,31 +19,38 @@ class ReportService:
 
     @staticmethod
     async def get_or_create_report(
-        search_profile_id: uuid.UUID, timeslot: str, s3_service: S3Service
+        search_profile_id: uuid.UUID,
+        timeslot: str,
+        language: str,
+        s3_service: S3Service,
     ) -> Optional[Report]:
         """
-        Fetches today's report for a given search profile and timeslot.
+        Fetches today's report for a search profile, timeslot and language.
         If no report exists, generates a new one and stores it in S3.
         New reports are always generated for the current day.
         """
         # Try to find existing report
-        report = await ReportRepository.get_by_search_profile_and_timeslot(
-            search_profile_id, timeslot
+        report = await ReportRepository.get_by_searchprofile_timeslot_language(
+            search_profile_id, timeslot, language
         )
         if report:
             return report
 
         # Otherwise, create it
         logger.info(
-            f"Generating {timeslot} report for profile {search_profile_id}"
+            f"Generating {timeslot} report ({language}) for profile {search_profile_id}"  # noqa: E501
         )
+
         return await ReportService._generate_and_store_report(
-            search_profile_id, timeslot, s3_service
+            search_profile_id, timeslot, language, s3_service
         )
 
     @staticmethod
     async def _generate_and_store_report(
-        search_profile_id: uuid.UUID, timeslot: str, s3_service: S3Service
+        search_profile_id: uuid.UUID,
+        timeslot: str,
+        language: str,
+        s3_service: S3Service,
     ) -> Optional[Report]:
         # Fetch search profile
         search_profile = await SearchProfileService.get_by_id(
@@ -52,13 +59,14 @@ class ReportService:
         if not search_profile:
             return None
 
-        now = datetime.now()
+        now = datetime.now(timezone.utc)
 
         # Create a report entry first to get the report id
         temp_report_data = ReportCreate(
             search_profile_id=search_profile_id,
             created_at=now,
             time_slot=timeslot,
+            language=language,
             s3_key="",  # set after upload
         )
         report = Report.model_validate(temp_report_data, from_attributes=True)
@@ -66,7 +74,7 @@ class ReportService:
 
         # PDF generation
         pdf_bytes = await PDFService.create_pdf(
-            search_profile_id, timeslot, now
+            search_profile_id, timeslot, language, now
         )
 
         # Set S3 key to the report id and upload the PDF
