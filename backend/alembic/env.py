@@ -102,12 +102,8 @@ def run_migrations_online() -> None:
             connection=connection, target_metadata=target_metadata
         )
 
-        with context.begin_transaction() as transaction:
+        with context.begin_transaction():
             context.run_migrations()
-            if 'dry-run' in context.get_x_argument():
-                print('Dry-run succeeded; now rolling back transaction...')
-                transaction.rollback()
-
 
 if context.is_offline_mode():
     run_migrations_offline()
