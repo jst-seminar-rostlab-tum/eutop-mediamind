@@ -7,7 +7,7 @@ Once we have a proper scheduler, we can remove this controller.
 """
 
 import uuid
-from datetime import datetime
+from time import gmtime, strftime
 
 from fastapi import APIRouter, HTTPException, Query
 from fastapi.params import Depends
@@ -105,7 +105,7 @@ async def send_report_email(
 def build_email_content(
     s3_link: str, dashboard_link: str, profile_name: str
 ) -> str:
-    today = datetime.now().strftime("%B %d, %Y")
+    today = strftime("%B %d, %Y", gmtime())
 
     return f"""
 <!DOCTYPE html>

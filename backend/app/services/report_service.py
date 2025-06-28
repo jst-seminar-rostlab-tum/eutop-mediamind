@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import List, Optional
 from uuid import UUID
 
@@ -59,7 +59,7 @@ class ReportService:
         if not search_profile:
             return None
 
-        now = datetime.now()
+        now = datetime.now(timezone.utc)
 
         # Create a report entry first to get the report id
         temp_report_data = ReportCreate(

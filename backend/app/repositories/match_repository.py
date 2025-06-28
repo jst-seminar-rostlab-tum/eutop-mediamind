@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import datetime
 from typing import List
 from uuid import UUID
 
@@ -97,12 +97,7 @@ class MatchRepository:
         profile_id: UUID,
         since: datetime,
     ) -> int:
-        if since.tzinfo is None:
-            since = since.replace(tzinfo=timezone.utc)
-        else:
-            since = since.astimezone(timezone.utc)
         async with async_session() as session:
-            since = since.replace(tzinfo=None)
             stmt = (
                 select(func.count().label("count"))
                 .select_from(Match)

@@ -1,9 +1,9 @@
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from typing import TYPE_CHECKING, List, Optional
 
-from sqlalchemy import Column, Text
+from sqlalchemy import TIMESTAMP, Column, Text
 from sqlmodel import JSON, Field, Relationship, SQLModel
 
 from app.models.associations import ArticleKeywordLink
@@ -43,7 +43,13 @@ class Article(SQLModel, table=True):
             comment="List of authors for the article",
         ),
     )
-    published_at: datetime = Field()
+    published_at: datetime = Field(
+        sa_column=Column(
+            TIMESTAMP(timezone=True),
+            nullable=False,
+            default=datetime.now(timezone.utc),
+        )
+    )
     language: str = Field(max_length=255, nullable=True)
     categories: List[str] = Field(
         sa_column=Column(
@@ -76,8 +82,17 @@ class Article(SQLModel, table=True):
         default=None, sa_column=Column(Text, nullable=True)
     )
 
-    crawled_at: datetime = Field(default_factory=datetime.now)
-    scraped_at: Optional[datetime] = Field(default=None, nullable=True)
+    crawled_at: datetime = Field(
+        sa_column=Column(
+            TIMESTAMP(timezone=True),
+            nullable=False,
+            default=datetime.now(timezone.utc),
+        )
+    )
+
+    scraped_at: Optional[datetime] = Field(
+        sa_column=Column(TIMESTAMP(timezone=True), nullable=True)
+    )
 
     # vector_embedding
     subscription_id: uuid.UUID = Field(
