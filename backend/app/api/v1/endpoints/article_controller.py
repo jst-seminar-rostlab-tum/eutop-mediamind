@@ -1,9 +1,13 @@
+from datetime import timezone
+
 from fastapi import APIRouter, BackgroundTasks, Depends
 
 from app.core.auth import get_authenticated_user
 from app.core.logger import get_logger
 from app.models import User
+from app.repositories.search_profile_repository import SearchProfileRepository
 from app.services.article_summary_service import ArticleSummaryService
+from app.services.pdf_service.pdf_service import PDFService
 
 router = APIRouter(prefix="/articles", tags=["articles"])
 
@@ -29,3 +33,20 @@ async def summarize_all_articles(
     logger.info("Summarizing all articles")
     background_tasks.add_task(ArticleSummaryService.run, page_size)
     return {"message": "Summarization started in the background."}
+
+
+@router.get("/pdf")
+async def trigger_pdf_creation():
+    from datetime import datetime
+
+    # TODO: Takeout this endpoint when no more design tests needed
+    # Probably never :(
+    # Hardcoded search profile UUID for demonstration purposes
+    search_profile_id = "7ea2dacc-2e5b-457a-a26b-906b3ed562fa"
+    search_profile = await SearchProfileRepository.get_by_id(search_profile_id)
+    pdf_bytes = await PDFService.create_pdf(
+        search_profile, "morning", datetime.now(timezone.utc)
+    )
+
+    with open("output.pdf", "wb") as f:
+        f.write(pdf_bytes)

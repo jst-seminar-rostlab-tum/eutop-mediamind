@@ -51,6 +51,14 @@ class TopicsRepository:
             return topic
 
     @staticmethod
+    async def get_topic_names_by_ids(topic_ids: set[UUID]) -> dict[UUID, str]:
+        async with async_session() as session:
+            result = await session.execute(
+                select(Topic.id, Topic.name).where(Topic.id.in_(topic_ids))
+            )
+            return {row.id: row.name for row in result.all()}
+
+    @staticmethod
     async def delete_topic_by_id(topic_id: UUID, user: User) -> bool:
         """
         Delete a topic by its ID (demo endpoint).
