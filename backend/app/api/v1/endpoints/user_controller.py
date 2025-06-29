@@ -22,7 +22,7 @@ async def get_users(
     current_user: UserEntity = Depends(get_authenticated_user),
 ) -> Union[List[UserEntity], UserEntity]:
     """
-    List all users visible to the current user or
+    List all users visible (same organization) to the current user or
     return the single user if restricted.
     """
     try:
@@ -46,7 +46,7 @@ async def get_all_users(
     return the single user if restricted.
     """
     try:
-        return await UserService.get_all_by_organization(current_user)
+        return await UserService.get_all(current_user)
     except Exception as e:
         logger.error(
             "Error listing users for user with id=%s: %s", current_user.id, e
