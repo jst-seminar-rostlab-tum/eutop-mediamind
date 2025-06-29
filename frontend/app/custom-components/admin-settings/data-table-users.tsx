@@ -24,6 +24,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "~/components/ui/popover";
+import { ScrollArea } from "~/components/ui/scroll-area";
 
 import {
   Table,
@@ -51,25 +52,37 @@ export function DataTableUsers<TData, TValue>({
   );
   const [newEmail, setNewEmail] = React.useState("");
 
+  const [rowSelection, setRowSelection] = React.useState({});
+
   const table = useReactTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
     onColumnFiltersChange: setColumnFilters,
     getFilteredRowModel: getFilteredRowModel(),
+    enableRowSelection: true,
+    onRowSelectionChange: setRowSelection,
     state: {
       columnFilters,
+      rowSelection,
     },
   });
 
-  const handleDeleteSelected = () => {
-    // you can call a prop like onDeleteMany if you implement one
-    const selectedRows = table.getSelectedRowModel().rows;
-    console.log(
-      "To delete:",
-      selectedRows.map((r) => r.original),
-    );
-  };
+  const numSelectedRows = table.getFilteredSelectedRowModel().rows.length;
+  const canDelete = numSelectedRows > 0;
+
+  function handleDeleteSelected() {
+    if (!canDelete) {
+      const selectedIds = table
+        .getSelectedRowModel()
+        .rows.map((row) => row.original);
+
+      // Implement actual deletion, when Endpoint ready:
+      //const newData = data.filter((row) => !selectedIds.includes(row));
+      // Update state (if you store data in parent)
+      console.log("Delete these IDs:", selectedIds);
+    } else return;
+  }
 
   const users = [
     { clerk_id: 1234, email: "leo@tum.de" },
@@ -163,10 +176,10 @@ export function DataTableUsers<TData, TValue>({
           <Button
             className=""
             variant="destructive"
-            onClick={handleDeleteSelected}
+            onClick={() => handleDeleteSelected()}
           >
             <Trash2 className="h-4 w-4" />
-            {t("Delete")}
+            {t("Delete")} ({numSelectedRows})
           </Button>
         </div>
       </div>
@@ -189,29 +202,40 @@ export function DataTableUsers<TData, TValue>({
             </TableRow>
           ))}
         </TableHeader>
-        <TableBody>
-          {table.getRowModel().rows?.length ? (
-            table.getRowModel().rows.map((row) => (
-              <TableRow
-                key={row.id}
-                data-state={row.getIsSelected() && "selected"}
-              >
-                {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id}>
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </TableCell>
-                ))}
-              </TableRow>
-            ))
-          ) : (
-            <TableRow>
-              <TableCell colSpan={columns.length} className="h-24 text-center">
-                {t("admin.no_results")}
-              </TableCell>
-            </TableRow>
-          )}
-        </TableBody>
       </Table>
+
+      <ScrollArea className="h-[200px]">
+        <Table>
+          <TableBody>
+            {table.getRowModel().rows?.length ? (
+              table.getRowModel().rows.map((row) => (
+                <TableRow
+                  key={row.id}
+                  data-state={row.getIsSelected() && "selected"}
+                >
+                  {row.getVisibleCells().map((cell) => (
+                    <TableCell key={cell.id}>
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext(),
+                      )}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell
+                  colSpan={columns.length}
+                  className="h-24 text-center"
+                >
+                  {t("admin.no_results")}
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </ScrollArea>
     </>
   );
 }

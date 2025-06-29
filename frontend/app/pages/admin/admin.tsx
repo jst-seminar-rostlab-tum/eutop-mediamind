@@ -5,8 +5,7 @@ import {
   CardHeader,
   CardTitle,
 } from "~/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
-import { DataTable } from "~/custom-components/admin-settings/data-table";
+import { DataTableSubscriptions } from "~/custom-components/admin-settings/data-table-subs";
 import Layout from "~/custom-components/layout";
 import Text from "~/custom-components/text";
 import React from "react";
@@ -14,16 +13,7 @@ import type { Organization, Subscription, User } from "./types";
 import { getOrgaColumns, getSubsColumns } from "./columns";
 import { OrganizationDialog } from "./dialogs/organization-dialog";
 import { SubscriptionDialog } from "./dialogs/subscription-dialog";
-import {
-  AlertDialog,
-  AlertDialogContent,
-  AlertDialogHeader,
-  AlertDialogFooter,
-  AlertDialogTitle,
-  AlertDialogDescription,
-  AlertDialogCancel,
-  AlertDialogAction,
-} from "~/components/ui/alert-dialog";
+
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -33,6 +23,9 @@ import {
   BreadcrumbSeparator,
 } from "~/components/ui/breadcrumb";
 import { useTranslation } from "react-i18next";
+import { ConfirmationDialog } from "~/custom-components/confirmation-dialog";
+import { Building2, Newspaper } from "lucide-react";
+import { DataTableOrganizations } from "~/custom-components/admin-settings/data-table-orgas";
 
 // Fetch Orgas
 async function getOrgaData(): Promise<Organization[]> {
@@ -58,6 +51,30 @@ async function getOrgaData(): Promise<Organization[]> {
       name: "ADAC",
       users: [{ name: "leo@adac.com", role: "user" }],
     },
+    {
+      name: "Audi",
+      users: [{ name: "leo@adac.com", role: "user" }],
+    },
+    {
+      name: "TUM",
+      users: [{ name: "leo@adac.com", role: "user" }],
+    },
+    {
+      name: "Mercedes",
+      users: [{ name: "leo@adac.com", role: "user" }],
+    },
+    {
+      name: "Dell",
+      users: [{ name: "leo@adac.com", role: "user" }],
+    },
+    {
+      name: "Facebook",
+      users: [{ name: "leo@adac.com", role: "user" }],
+    },
+    {
+      name: "Google",
+      users: [{ name: "leo@adac.com", role: "user" }],
+    },
   ];
 }
 
@@ -65,6 +82,30 @@ async function getOrgaData(): Promise<Organization[]> {
 async function getSubsData(): Promise<Subscription[]> {
   // Fetch data from your API here
   return [
+    {
+      name: "Spiegel",
+      url: "spiegel-online.de",
+      username: "Test_123",
+      password: "Spiegel_123",
+    },
+    {
+      name: "SZ",
+      url: "sz.de",
+      username: "Test_456",
+      password: "SZ_123",
+    },
+    {
+      name: "Spiegel",
+      url: "spiegel-online.de",
+      username: "Test_123",
+      password: "Spiegel_123",
+    },
+    {
+      name: "SZ",
+      url: "sz.de",
+      username: "Test_456",
+      password: "SZ_123",
+    },
     {
       name: "Spiegel",
       url: "spiegel-online.de",
@@ -91,8 +132,6 @@ export function AdminPage() {
     null,
   );
   const [editingUserData, setEditingUserData] = React.useState<User[]>([]);
-  const [showOrgaNameAlert, setShowOrgaNameAlert] = React.useState(false);
-  const [showAlert, setShowAlert] = React.useState(false);
 
   // Subscriptions
   const [subsData, setSubsData] = React.useState<Subscription[]>([]);
@@ -135,9 +174,6 @@ export function AdminPage() {
   }
 
   function handleEditOrganization(name: string) {
-    // reset from possible previous dialog
-    setShowAlert(false);
-    setShowOrgaNameAlert(false);
     // set false on open for safety
     setUnsavedEdits(false);
     const index = orgaData.findIndex((org) => org.name === name);
@@ -157,7 +193,6 @@ export function AdminPage() {
 
   function handleSaveOrganization() {
     if (!newOrgaName.trim()) {
-      setShowOrgaNameAlert(true);
       return;
     }
 
@@ -194,10 +229,8 @@ export function AdminPage() {
       !newUsername.trim() ||
       !newPassword.trim()
     ) {
-      setShowAlert(true);
       return;
     }
-    setShowAlert(false);
     const newSubs = {
       name: newSubsName.trim(),
       url: newURL.trim(),
@@ -260,70 +293,63 @@ export function AdminPage() {
         </Breadcrumb>
         <Text hierachy={2}>{t("admin.header")}</Text>
 
-        <Tabs defaultValue="organizations" className="my-2">
-          <TabsList className="w-full">
-            <TabsTrigger value="organizations">
-              {t("admin.organizations")}
-            </TabsTrigger>
-            <TabsTrigger value="subscriptions">
-              {t("admin.subscriptions")}
-            </TabsTrigger>
-          </TabsList>
+        <div className="flex flex-col gap-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-xl flex">
+                <Building2 className="mr-2" />
+                {t("admin.orga_header")}
+              </CardTitle>
+              <CardDescription>{t("admin.orga_text")}</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <DataTableOrganizations
+                columns={getOrgaColumns(
+                  handleEditOrganization,
+                  setDeleteTarget,
+                  setOpenDeleteDialog,
+                )}
+                data={orgaData}
+                onAdd={() => {
+                  setIsEditOrgaMode(false);
+                  setEditingOrgIndex(null);
+                  setNewOrgaName("");
+                  setEditingUserData([]);
+                  setShowOrgaDialog(true);
+                }}
+              />
+            </CardContent>
+          </Card>
 
-          <TabsContent value="organizations">
-            <Card>
-              <CardHeader>
-                <CardTitle>{t("admin.orga_header")}</CardTitle>
-                <CardDescription>{t("admin.orga_text")}</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <DataTable
-                  columns={getOrgaColumns(
-                    handleEditOrganization,
-                    setDeleteTarget,
-                    setOpenDeleteDialog,
-                  )}
-                  data={orgaData}
-                  onAdd={() => {
-                    setIsEditOrgaMode(false);
-                    setEditingOrgIndex(null);
-                    setNewOrgaName("");
-                    setEditingUserData([]);
-                    setShowOrgaDialog(true);
-                  }}
-                />
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="subscriptions">
-            <Card>
-              <CardHeader>
-                <CardTitle>{t("admin.subs_header")}</CardTitle>
-                <CardDescription>{t("admin.subs_text")}</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <DataTable
-                  columns={getSubsColumns(
-                    handleEditSubscription,
-                    setDeleteTarget,
-                    setOpenDeleteDialog,
-                  )}
-                  data={subsData}
-                  onAdd={() => {
-                    setNewSubsName("");
-                    setNewURL("");
-                    setNewUsername("");
-                    setNewPassword("");
-                    setIsEditSubsMode(false);
-                    setEditingSubsIndex(null);
-                    setShowSubsDialog(true);
-                  }}
-                />
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-xl flex">
+                <Newspaper className="mr-2" />
+                {t("admin.subs_header")}
+              </CardTitle>
+              <CardDescription>{t("admin.subs_text")}</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <DataTableSubscriptions
+                columns={getSubsColumns(
+                  handleEditSubscription,
+                  setDeleteTarget,
+                  setOpenDeleteDialog,
+                )}
+                data={subsData}
+                onAdd={() => {
+                  setNewSubsName("");
+                  setNewURL("");
+                  setNewUsername("");
+                  setNewPassword("");
+                  setIsEditSubsMode(false);
+                  setEditingSubsIndex(null);
+                  setShowSubsDialog(true);
+                }}
+              />
+            </CardContent>
+          </Card>
+        </div>
 
         <OrganizationDialog
           open={showOrgaDialog}
@@ -337,9 +363,6 @@ export function AdminPage() {
           unsavedEdits={unsavedEdits}
           setUnsavedEdits={setUnsavedEdits}
           initialOrgaName={initialOrgaName}
-          showAlert={showAlert}
-          setShowAlert={setShowAlert}
-          showOrgaNameAlert={showOrgaNameAlert}
         />
 
         <SubscriptionDialog
@@ -355,44 +378,23 @@ export function AdminPage() {
           setUsername={setNewUsername}
           setPassword={setNewPassword}
           onSave={handleSaveSubscription}
-          showAlert={showAlert}
           initialSub={initialSub}
         />
 
-        <AlertDialog open={openDeleteDialog} onOpenChange={setOpenDeleteDialog}>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-              <AlertDialogDescription>
-                This will permanently delete this entity
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction
-                className="bg-destructive text-white shadow-xs hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60"
-                onClick={() => {
-                  if (deleteTarget) {
-                    if (deleteTarget.type === "organization") {
-                      handleDeleteOrganization(
-                        deleteTarget.identifier as string,
-                      );
-                    } else if (deleteTarget.type === "subscription") {
-                      handleDeleteSubscription(
-                        deleteTarget.identifier as number,
-                      );
-                    }
-                  }
-
-                  setOpenDeleteDialog(false);
-                  setDeleteTarget(null); // clear after use
-                }}
-              >
-                Delete
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+        <ConfirmationDialog
+          open={openDeleteDialog}
+          onOpenChange={setOpenDeleteDialog}
+          dialogType="delete"
+          action={() => {
+            if (deleteTarget) {
+              if (deleteTarget.type === "organization") {
+                handleDeleteOrganization(deleteTarget.identifier as string);
+              } else if (deleteTarget.type === "subscription") {
+                handleDeleteSubscription(deleteTarget.identifier as number);
+              }
+            }
+          }}
+        />
       </Layout>
     </>
   );

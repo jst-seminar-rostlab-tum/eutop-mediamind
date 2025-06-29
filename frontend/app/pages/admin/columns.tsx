@@ -13,7 +13,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
-import { MoreHorizontal, Trash } from "lucide-react";
+import { MoreHorizontal, SquarePen, Trash, Trash2 } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { Checkbox } from "~/components/ui/checkbox";
 import { useTranslation } from "react-i18next";
@@ -31,6 +31,7 @@ export function getOrgaColumns(
     },
     {
       id: "actions",
+      header: "Options",
       cell: ({ row }) => {
         const orgName = row.getValue("name") as string;
         return (
@@ -43,7 +44,8 @@ export function getOrgaColumns(
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem onClick={() => handleEdit(orgName)}>
-                {t("Edit")}
+                <SquarePen className="text-primary" />
+                {t("edit")}
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => {
@@ -53,9 +55,10 @@ export function getOrgaColumns(
                   });
                   setOpenDeleteDialog(true);
                 }}
-                className="text-red-500"
+                className="text-red-500 focus:text-red-500"
               >
-                {t("Delete")}
+                <Trash2 className="text-red-500" />
+                {t("delete")}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -72,10 +75,17 @@ export function getSubsColumns(
 ): ColumnDef<Subscription>[] {
   const { t } = useTranslation();
   return [
-    { accessorKey: "name", header: "Name" },
-    { accessorKey: "url", header: "URL" },
+    {
+      accessorKey: "name",
+      header: "Name",
+    },
+    {
+      accessorKey: "url",
+      header: "URL",
+    },
     {
       id: "actions",
+      header: "Options",
       cell: ({ row }) => {
         const index = row.index;
         return (
@@ -88,16 +98,18 @@ export function getSubsColumns(
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem onClick={() => onEdit(index)}>
-                {t("Edit")}
+                <SquarePen className="text-primary" />
+                {t("edit")}
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => {
                   setDeleteTarget({ type: "subscription", identifier: index });
                   setOpenDeleteDialog(true);
                 }}
-                className="text-red-500"
+                className="text-red-500 focus:text-red-500"
               >
-                {t("Delete")}
+                <Trash2 className="text-red-500" />
+                {t("delete")}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

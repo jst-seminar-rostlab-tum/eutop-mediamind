@@ -11,21 +11,13 @@ import { Input } from "~/components/ui/input";
 import { Button } from "~/components/ui/button";
 import { getUserColumns } from "../columns";
 import type { User } from "../types";
-import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
 import React from "react";
-import { AlertCircleIcon } from "lucide-react";
-import {
-  AlertDialog,
-  AlertDialogContent,
-  AlertDialogHeader,
-  AlertDialogFooter,
-  AlertDialogTitle,
-  AlertDialogDescription,
-  AlertDialogCancel,
-  AlertDialogAction,
-} from "~/components/ui/alert-dialog";
+import { OctagonAlert } from "lucide-react";
+
 import { DataTableUsers } from "~/custom-components/admin-settings/data-table-users";
 import { useTranslation } from "react-i18next";
+import { ConfirmationDialog } from "~/custom-components/confirmation-dialog";
+import { cn } from "~/lib/utils";
 
 type Props = {
   open: boolean;
@@ -39,9 +31,6 @@ type Props = {
   unsavedEdits: boolean;
   setUnsavedEdits: (val: boolean) => void;
   initialOrgaName: string;
-  showAlert: boolean;
-  setShowAlert: (val: boolean) => void;
-  showOrgaNameAlert: boolean;
 };
 
 export function OrganizationDialog({
@@ -56,9 +45,6 @@ export function OrganizationDialog({
   unsavedEdits,
   setUnsavedEdits,
   initialOrgaName,
-  showAlert,
-  setShowAlert,
-  showOrgaNameAlert,
 }: Props) {
   const [showLeaveConfirm, setShowLeaveConfirm] = React.useState(false);
 
@@ -73,17 +59,6 @@ export function OrganizationDialog({
   };
 
   const handleAddNewUser = (email: string) => {
-    // check if email matches "something@something.something" format and does not already exist
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (
-      !emailRegex.test(email) ||
-      users.some((u) => u.name.toLowerCase() === email)
-    ) {
-      setShowAlert(true);
-      return;
-    }
-    // add user
-    setShowAlert(false);
     setUsers([...users, { name: email, role: "user" }]);
     setUnsavedEdits(true);
   };
@@ -117,17 +92,6 @@ export function OrganizationDialog({
                 : t("organization-dialog.add_text")}
             </DialogDescription>
           </DialogHeader>
-          {showOrgaNameAlert && (
-            <Alert className="mt-2" variant="destructive">
-              <AlertCircleIcon />
-              <AlertTitle>
-                {t("organization-dialog.name_error_header")}
-              </AlertTitle>
-              <AlertDescription>
-                {t("organization-dialog.name_error_text")}
-              </AlertDescription>
-            </Alert>
-          )}
           <div className="flex justyfiy-left items-center my-4">
             <Label className="mr-4 ml-2">Name</Label>
             <Input
@@ -137,20 +101,17 @@ export function OrganizationDialog({
                 onNameChange(e.target.value);
               }}
               placeholder="New Organization"
-              className="max-w-1/2"
+              className={cn(
+                "max-w-1/2",
+                name == "" &&
+                  open &&
+                  "border-2 border-destructive focus-visible:ring-destructive focus-visible:border-destructive",
+              )}
             />
+            {name == "" && open && (
+              <OctagonAlert className="text-red-500 ml-2" />
+            )}
           </div>
-          {showAlert && (
-            <Alert className="mt-2" variant="destructive">
-              <AlertCircleIcon />
-              <AlertTitle>
-                {t("organization-dialog.email_error_header")}
-              </AlertTitle>
-              <AlertDescription>
-                {t("organization-dialog.email_error_text")}
-              </AlertDescription>
-            </Alert>
-          )}
           <div>
             <DataTableUsers
               columns={getUserColumns(handleRoleChange, handleUserDelete)}
@@ -167,30 +128,14 @@ export function OrganizationDialog({
         </DialogContent>
       </Dialog>
 
-      <AlertDialog open={showLeaveConfirm} onOpenChange={setShowLeaveConfirm}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>
-              {t("confirmation_dialog.title")}
-            </AlertDialogTitle>
-            <AlertDialogDescription>
-              {t("confirmation_dialog.unsaved_text")}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>{t("Cancle")}</AlertDialogCancel>
-            <AlertDialogAction
-              className="bg-destructive text-white shadow-xs hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60"
-              onClick={() => {
-                setShowLeaveConfirm(false);
-                onOpenChange(false); // close the main dialog
-              }}
-            >
-              {t("Leave")}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <ConfirmationDialog
+        open={showLeaveConfirm}
+        onOpenChange={setShowLeaveConfirm}
+        dialogType="leave"
+        action={() => {
+          onOpenChange(false); // closes organization dialog dialog
+        }}
+      />
     </>
   );
 }
