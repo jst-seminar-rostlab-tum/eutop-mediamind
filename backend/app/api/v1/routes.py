@@ -8,6 +8,9 @@ from app.api.v1.endpoints.article_matching_controller import (
 from app.api.v1.endpoints.crawler_controller import router as crawler_router
 from app.api.v1.endpoints.email_controller import router as email_router
 from app.api.v1.endpoints.keyword_controller import router as keyword_router
+from app.api.v1.endpoints.organization_controller import (
+    router as organization_router,
+)
 from app.api.v1.endpoints.report_controller import router as report_router
 from app.api.v1.endpoints.search_profile_controller import (
     router as search_profile_router,
@@ -34,6 +37,7 @@ router_list = [
     keyword_router,
     crawler_router,
     report_router,
+    organization_router,
 ]
 
 
