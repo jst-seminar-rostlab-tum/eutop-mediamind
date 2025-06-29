@@ -8,9 +8,7 @@ from sqlalchemy.orm import aliased
 from app.core.db import async_session
 from app.models import Article, Subscription
 from app.models.associations import SearchProfileSubscriptionLink
-from app.schemas.subscription_schemas import (
-    SubscriptionSummary,
-)
+from app.schemas.subscription_schemas import SubscriptionSummary
 from app.services.web_harvester.crawler import CrawlerType, get_crawlers
 from app.services.web_harvester.scraper import get_scraper
 

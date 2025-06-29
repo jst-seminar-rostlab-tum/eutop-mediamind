@@ -3,6 +3,7 @@ from datetime import datetime, timezone
 from enum import Enum
 from typing import Dict
 
+from sqlalchemy import TIMESTAMP
 from sqlmodel import JSON, Column, Field, SQLModel
 
 
@@ -28,8 +29,20 @@ class Email(SQLModel, table=True):
     errors: Dict[str, str] | None = Field(
         default_factory=dict, sa_column=Column(JSON)
     )
-    created_at: datetime = Field(default_factory=datetime.now, nullable=False)
-    updated_at: datetime = Field(default_factory=datetime.now, nullable=False)
+    created_at: datetime = Field(
+        sa_column=Column(
+            TIMESTAMP(timezone=True),
+            nullable=False,
+            default=datetime.now(timezone.utc),
+        )
+    )
+    update_at: datetime = Field(
+        sa_column=Column(
+            TIMESTAMP(timezone=True),
+            nullable=False,
+            default=datetime.now(timezone.utc),
+        )
+    )
 
     def add_error(self, error: str):
         """
