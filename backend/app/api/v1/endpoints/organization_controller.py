@@ -49,7 +49,7 @@ async def update_organization_with_users(
 
 
 @router.put(
-    "/organizations/{organization_id}/subscriptions",
+    "/{organization_id}/subscriptions",
     response_model=List[SubscriptionSummary],
 )
 async def set_organization_subscriptions(
@@ -69,9 +69,7 @@ async def set_organization_subscriptions(
     return updated_subscriptions
 
 
-@router.get(
-    "/organizations/with-users", response_model=List[OrganizationResponse]
-)
+@router.get("", response_model=List[OrganizationResponse])
 async def get_all_organizations_with_users(
     current_user: UserEntity = Depends(get_authenticated_user),
 ) -> List[OrganizationResponse]:

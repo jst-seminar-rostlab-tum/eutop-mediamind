@@ -1,6 +1,7 @@
 from typing import Any, Dict, List, Optional
 
 from app.core.db import async_session
+from app.models import User
 from app.repositories.user_repository import UserRepository
 from app.schemas.user_schema import UserEntity
 
@@ -9,7 +10,7 @@ class UserService:
     @staticmethod
     async def list_users(
         user: UserEntity,
-    ) -> List[UserEntity]:
+    ) -> List[User]:
         """
         Return all users in the same organization, or self if no org.
         Superusers receive all users.

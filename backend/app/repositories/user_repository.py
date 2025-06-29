@@ -155,28 +155,24 @@ class UserRepository:
     @staticmethod
     async def get_users_by_organization(
         organization_id: uuid.UUID, session: AsyncSession
-    ) -> List[UserEntity]:
+    ) -> List[User]:
         """
         Return all users in the same organization, or the user itself if
         no organization.
         Superusers receive all users.
         """
 
-        stmt = (
-            select(User)
-            .where(User.organization_id == organization_id)
-            .options(selectinload(User.organization))
-        )
+        stmt = select(User).where(User.organization_id == organization_id)
         result = await session.execute(stmt)
         users = result.scalars().all()
-        return [_to_user_entity(u) for u in users]
+        return users
 
     @staticmethod
     async def update_organization(user: User, session) -> User:
         session.add(user)
         await session.commit()
         await session.refresh(user)
-        return user
+        return _to_user_base(user)
 
     @staticmethod
     async def update_language(user: UserEntity, language: str) -> UserEntity:

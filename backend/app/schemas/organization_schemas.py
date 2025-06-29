@@ -3,7 +3,7 @@ from typing import List
 
 from pydantic import BaseModel, EmailStr
 
-from app.schemas.user_schema import UserEntity
+from app.models import User
 
 
 # Shared properties
@@ -19,10 +19,10 @@ class OrganizationCreateOrUpdate(OrganizationBase):
 
 # Properties to return
 class OrganizationResponse(OrganizationBase):
-    id: int
-    user_ids: List[UserEntity]
+    id: uuid.UUID
+    users: List[User] = []
 
 
 # Properties to return
-class OrganizationsResponse(OrganizationBase):
-    organizations = List[OrganizationResponse]
+class OrganizationsResponse(BaseModel):
+    organizations: List[OrganizationResponse]

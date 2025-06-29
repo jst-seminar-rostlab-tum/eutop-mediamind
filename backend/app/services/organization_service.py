@@ -20,7 +20,7 @@ class OrganizationService:
     @staticmethod
     async def create_with_users(
         create_request: OrganizationCreateOrUpdate, current_user: UserEntity
-    ) -> Organization:
+    ) -> OrganizationResponse:
         if not current_user.is_superuser:
             raise HTTPException(
                 status_code=403, detail="Insufficient privileges"
@@ -42,14 +42,22 @@ class OrganizationService:
                     await UserRepository.update_organization(user, session)
             await session.commit()
             await session.refresh(organization)
-            return organization
+            users = await UserRepository.get_users_by_organization(
+                organization.id, session
+            )
+            return OrganizationResponse(
+                id=organization.id,
+                name=organization.name,
+                email=organization.email,
+                users=users,
+            )
 
     @staticmethod
     async def update_with_users(
         organization_id: uuid.UUID,
         update_request: OrganizationCreateOrUpdate,
         current_user: UserEntity,
-    ) -> Organization:
+    ) -> OrganizationResponse:
         if not current_user.is_superuser:
             raise HTTPException(
                 status_code=403, detail="Insufficient privileges"
@@ -68,15 +76,17 @@ class OrganizationService:
             session.add(organization)
 
             # Get current users assigned to the organization
-            current_users = await UserRepository.get_users_by_organization(
-                organization_id, session
+            organization_users = (
+                await UserRepository.get_users_by_organization(
+                    organization_id, session
+                )
             )
-            current_user_ids = {user.id for user in current_users}
+            organization_users_ids = {user.id for user in organization_users}
             new_user_ids = set(update_request.user_ids or [])
 
             # Determine which users to remove and which to add
-            users_to_remove = current_user_ids - new_user_ids
-            users_to_add = new_user_ids - current_user_ids
+            users_to_remove = organization_users_ids - new_user_ids
+            users_to_add = new_user_ids - organization_users_ids
 
             if users_to_remove:
                 users = await UserRepository.get_by_ids(
@@ -96,13 +106,21 @@ class OrganizationService:
 
             await session.commit()
             await session.refresh(organization)
-            return organization
+            users = await UserRepository.get_users_by_organization(
+                organization.id, session
+            )
+            return OrganizationResponse(
+                id=organization.id,
+                name=organization.name,
+                email=organization.email,
+                users=users,
+            )
 
     @staticmethod
     async def delete_organization(
         organization_id: uuid.UUID,
         current_user: UserEntity,
-    ) -> Organization:
+    ):
         if not current_user.is_superuser:
             raise HTTPException(
                 status_code=403, detail="Insufficient privileges"
@@ -126,7 +144,6 @@ class OrganizationService:
             # Delete the organization
             await session.delete(organization)
             await session.commit()
-            return organization
 
     @staticmethod
     async def set_subscriptions_from_summary(
