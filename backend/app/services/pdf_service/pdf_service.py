@@ -82,7 +82,7 @@ class PDFService:
         news_items = []
         for article in articles:
             entities = await ArticleEntityRepository.get_entities_by_article(
-                article.id
+                article.id, language
             )
             persons = entities.get("person", [])
             organizations = entities.get("organization", [])
@@ -741,7 +741,7 @@ class PDFService:
                         PDFService.styles["metadata_style"]
                     ),
                     Paragraph(
-                        persons_str,
+                        persons_str if persons_str else translator("None"),
                         PDFService.styles["metadata_style"]
                     ),
                 ],
@@ -751,7 +751,10 @@ class PDFService:
                         PDFService.styles["metadata_style"],
                     ),
                     Paragraph(
-                        organizations_str, PDFService.styles["metadata_style"]
+                        organizations_str if organizations_str else translator(
+                            "None"
+                        ),
+                        PDFService.styles["metadata_style"]
                     ),
                 ],
                 [
@@ -760,7 +763,10 @@ class PDFService:
                         PDFService.styles["metadata_style"],
                     ),
                     Paragraph(
-                        industries_str, PDFService.styles["metadata_style"]
+                        industries_str if industries_str else translator(
+                            "None"
+                        ),
+                        PDFService.styles["metadata_style"]
                     ),
                 ],
                 [
@@ -769,7 +775,8 @@ class PDFService:
                         PDFService.styles["metadata_style"],
                     ),
                     Paragraph(
-                        events_str, PDFService.styles["metadata_style"]
+                        events_str if events_str else translator("None"),
+                        PDFService.styles["metadata_style"]
                     ),
                 ],
             ]

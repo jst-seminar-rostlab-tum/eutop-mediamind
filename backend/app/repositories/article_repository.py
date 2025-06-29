@@ -273,7 +273,7 @@ class ArticleRepository:
             return articles_missing_translations
 
     @staticmethod
-    async def update_article_translations(
+    async def update_translations(
         article_id: UUID,
         title_en: Optional[str] = None,
         title_de: Optional[str] = None,
