@@ -220,7 +220,7 @@ class ArticleMatchingService:
                     sorting_order=order,
                     comment=json.dumps(entry, default=str),
                     score=score,
-                    matching_run_id=matching_run.id,
+                    matching_runs_id=matching_run.id,
                 )
                 await MatchRepository.insert_match(match, session)
 
