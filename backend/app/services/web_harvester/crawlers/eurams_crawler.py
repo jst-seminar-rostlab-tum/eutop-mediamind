@@ -49,11 +49,6 @@ class EuramsCrawler:
         self.limit = limit
         self.language = language
 
-        logger.info(
-            f"Initialized EuramsCrawler with date_start={date_start}, "
-            f"date_end={date_end}, limit={limit}"
-        )
-
     def is_date_in_range(self, article_date: Optional[date]) -> bool:
         """Check if the article date is within the specified range."""
         if not article_date:
@@ -115,10 +110,6 @@ class EuramsCrawler:
                 article_date = datetime.fromisoformat(
                     datetime_attr.split("T")[0]
                 ).date()
-                logger.debug(
-                    f"Extracted date from datetime attr: "
-                    f"{datetime_attr} -> {article_date}"
-                )
                 return article_date
             except ValueError as e:
                 logger.warning(
@@ -154,10 +145,6 @@ class EuramsCrawler:
         article_date = self._extract_date_from_result(result)
 
         if not self.is_date_in_range(article_date):
-            logger.debug(
-                f"Article date {article_date} is outside range "
-                f"({self.date_start} - {self.date_end}) for {result.url}"
-            )
             return None
 
         try:
@@ -203,9 +190,6 @@ class EuramsCrawler:
                 scraped_at=datetime.now(timezone.utc),
             )
 
-            logger.info(
-                f"Successfully processed article: {title} ({result.url})"
-            )
             return article
 
         except Exception as e:
@@ -216,7 +200,6 @@ class EuramsCrawler:
         self, page: Page, context: BrowserContext, url: str, response, **kwargs
     ):
         """Handle cookie consent popup."""
-        logger.info(f"Handling cookie consent for: {url}")
         try:
             await page.wait_for_selector(self.IFRAME_SELECTOR, timeout=10000)
             iframe_element = await page.query_selector(self.IFRAME_SELECTOR)
@@ -227,11 +210,6 @@ class EuramsCrawler:
                     await frame.click(
                         self.COOKIE_BUTTON_SELECTOR, timeout=5000
                     )
-                    logger.info("Cookie consent accepted successfully")
-                else:
-                    logger.warning("Unable to access iframe content frame")
-            else:
-                logger.warning("Cookie consent iframe not found")
 
         except Exception as e:
             logger.warning(f"Cookie consent handling failed: {e}")
@@ -270,7 +248,6 @@ class EuramsCrawler:
         """Crawl a single page and return Article objects
         and whether to stop."""
         url = f"https://www.eurams.de/nachrichten/{page_num}"
-        logger.info(f"Crawling page {page_num}: {url}")
 
         try:
             results = await crawler.arun(url, config=config)
@@ -289,11 +266,6 @@ class EuramsCrawler:
                         f"Failed to crawl {result.url}: "
                         f"{result.error_message}"
                     )
-
-            logger.info(
-                f"Page {page_num} completed: "
-                f"{len(page_articles)} articles extracted"
-            )
 
             return page_articles, has_out_of_range_article
 
@@ -349,9 +321,6 @@ class EuramsCrawler:
                 )
                 should_stop = True
 
-            if len(page_articles) == 0:
-                logger.warning(f"No articles found on page {page_num}")
-
             page_num += 1
 
         await crawler.close()
@@ -381,10 +350,3 @@ if __name__ == "__main__":
     )
 
     articles = asyncio.run(crawler.crawl_urls_async())
-
-    print(f"\nFinal result: {len(articles)} Article objects extracted")
-    for i, article in enumerate(articles, 1):
-        print(
-            f"{i}. {article.title} - {article.url} "
-            f"(date: {article.published_at.date()})"
-        )
