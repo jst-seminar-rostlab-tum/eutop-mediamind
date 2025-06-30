@@ -143,7 +143,7 @@ class ArticleVectorService:
 
         while len(articles) > 0:
 
-            self.add_articles(articles)
+            await self.add_articles(articles)
 
             articles = await ArticleRepository.list_articles_with_summary(
                 limit=page_size, date_start=date_start, date_end=date_end
