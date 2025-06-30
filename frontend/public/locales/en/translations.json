@@ -26,7 +26,9 @@
     "new_articles": "new articles",
     "profiles_loading": "Load profiles ...",
     "breaking_news": "Breaking News",
-    "read_more": "Read more"
+    "read_more": "Read more",
+    "loading_failed": "Failed to load profiles.",
+    "only_updated": "Only show updated"
   },
 
   "confirmation_dialog": {
@@ -145,6 +147,21 @@
     "credentials_error_text": "Please insert valid credentials.",
     "username": "Username",
     "password": "Password"
+  },
+
+  "role-badge": {
+    "owner": "Owner",
+    "reader": "Reader",
+    "editor": "Editor",
+    "public": "Public",
+    "shared": "Shared",
+    "private": "Private",
+    "ownership": "Access rights",
+    "visibility": "Visibility"
+  },
+
+  "sr-only": {
+    "open_menu": "Open menu"
   },
 
   "breaking-news": {
