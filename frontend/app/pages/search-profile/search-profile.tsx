@@ -1,6 +1,6 @@
 import { Book, Search } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useParams } from "react-router";
+import { Link, useParams } from "react-router";
 import { client, useQuery } from "types/api";
 import {
   Breadcrumb,
@@ -228,30 +228,34 @@ export function SearchProfileOverview() {
                             : "bg-yellow-200";
 
                       return (
-                        <Card
-                          className="mb-4 p-5 gap-4 justify-start"
-                          key={match.id}
-                        >
-                          <CardTitle className="text-xl">
-                            {match.article.headline["en"]}
-                          </CardTitle>
-                          <p>
-                            {truncateAtWord(match.article.summary["en"], 190)}
-                          </p>
-                          <div className="flex gap-3 items-center">
-                            <div className={`rounded-lg py-1 px-2 ${bgColor}`}>
-                              Relevance: {relevance}
-                            </div>
-                            {match.topics.map((topic) => (
+                        <Link to={`./${match.id}`}>
+                          <Card
+                            className="mb-4 p-5 gap-4 justify-start"
+                            key={match.id}
+                          >
+                            <CardTitle className="text-xl">
+                              {match.article.headline["en"]}
+                            </CardTitle>
+                            <p>
+                              {truncateAtWord(match.article.summary["en"], 190)}
+                            </p>
+                            <div className="flex gap-3 items-center">
                               <div
-                                className="bg-secondary rounded-lg py-1 px-2"
-                                key={topic.id}
+                                className={`rounded-lg py-1 px-2 ${bgColor}`}
                               >
-                                {topic.score + " " + topic.name}
+                                Relevance: {relevance}
                               </div>
-                            ))}
-                          </div>
-                        </Card>
+                              {match.topics.map((topic) => (
+                                <div
+                                  className="bg-secondary rounded-lg py-1 px-2"
+                                  key={topic.id}
+                                >
+                                  {topic.score + " " + topic.name}
+                                </div>
+                              ))}
+                            </div>
+                          </Card>
+                        </Link>
                       );
                     })
                   )}
