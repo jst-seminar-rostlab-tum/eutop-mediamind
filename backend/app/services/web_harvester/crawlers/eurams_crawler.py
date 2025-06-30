@@ -1,14 +1,10 @@
-import json
 import asyncio
+import json
 import uuid
-from typing import List, Optional
 from datetime import date, datetime, timezone
+from typing import List, Optional
+
 from bs4 import BeautifulSoup
-from playwright.async_api import Page, BrowserContext
-
-from app.core.logger import get_logger
-from app.models.article import Article, ArticleStatus
-
 from crawl4ai import (
     AsyncWebCrawler,
     BFSDeepCrawlStrategy,
@@ -21,6 +17,10 @@ from crawl4ai import (
     PruningContentFilter,
     URLPatternFilter,
 )
+from playwright.async_api import BrowserContext, Page
+
+from app.core.logger import get_logger
+from app.models.article import Article, ArticleStatus
 
 logger = get_logger(__name__)
 
@@ -41,14 +41,14 @@ class EuramsCrawler:
         date_start: Optional[date] = None,
         date_end: Optional[date] = None,
         limit: int = -1,
-        language: str = "de"
+        language: str = "de",
     ):
         self.subscription_id = subscription_id
         self.date_start = date_start
         self.date_end = date_end
         self.limit = limit
         self.language = language
-        
+
         logger.info(
             f"Initialized EuramsCrawler with date_start={date_start}, "
             f"date_end={date_end}, limit={limit}"
@@ -73,11 +73,7 @@ class EuramsCrawler:
             "name": "Eurams Article Schema",
             "baseSelector": "body > section > div > article",
             "fields": [
-                {
-                    "name": "title",
-                    "selector": "header > h1",
-                    "type": "text"
-                },
+                {"name": "title", "selector": "header > h1", "type": "text"},
                 {
                     "name": "author",
                     "selector": "header .article-meta .article-author strong",
@@ -96,7 +92,7 @@ class EuramsCrawler:
                 {
                     "name": "image_url",
                     "selector": "header > div:nth-child(3) > figure > "
-                                "picture > img",
+                    "picture > img",
                     "type": "attribute",
                     "attribute": "src",
                 },
@@ -120,17 +116,22 @@ class EuramsCrawler:
                     datetime_attr.split("T")[0]
                 ).date()
                 logger.debug(
-                    f"Extracted date from datetime attr: {datetime_attr} -> {article_date}"
+                    f"Extracted date from datetime attr: "
+                    f"{datetime_attr} -> {article_date}"
                 )
                 return article_date
             except ValueError as e:
                 logger.warning(
-                    f"Failed to parse date from datetime attr: {datetime_attr}, error: {e}"
+                    f"Failed to parse date from datetime attr: "
+                    f"{datetime_attr}, error: {e}"
                 )
 
         # use text content as fallback
         date_text = time_tag.get_text(strip=True)
-        logger.warning(f"Could not extract date from datetime attr, found text: {date_text}")
+        logger.warning(
+            f"Could not extract date from datetime attr, "
+            f"found text: {date_text}"
+        )
         return None
 
     def _extract_article_data(self, result) -> Optional[dict]:
@@ -138,11 +139,14 @@ class EuramsCrawler:
         try:
             data = (
                 json.loads(result.extracted_content)
-                if result.extracted_content else []
+                if result.extracted_content
+                else []
             )
             return data[0] if data else {}
         except (json.JSONDecodeError, IndexError) as e:
-            logger.warning(f"Failed to extract article data from {result.url}: {e}")
+            logger.warning(
+                f"Failed to extract article data from {result.url}: {e}"
+            )
             return {}
 
     def _process_article_result(self, result) -> Optional[Article]:
@@ -158,27 +162,30 @@ class EuramsCrawler:
 
         try:
             extracted_data = self._extract_article_data(result)
-            
+
             content = (
                 result.markdown.fit_markdown
                 if result.markdown.fit_markdown
                 else result.markdown.raw_markdown
             )
-            
+
             title = (
-                extracted_data.get("title", "").strip() 
-                or "Untitled Article"
+                extracted_data.get("title", "").strip() or "Untitled Article"
             )
-            
+
             author_text = extracted_data.get("author", "").strip()
             authors = [author_text] if author_text else []
-            
+
             image_url = extracted_data.get("image_url", "").strip() or None
-            
-            published_at = datetime.combine(
-                article_date, datetime.min.time()
-            ).replace(tzinfo=timezone.utc) if article_date else datetime.now(timezone.utc)
-            
+
+            published_at = (
+                datetime.combine(article_date, datetime.min.time()).replace(
+                    tzinfo=timezone.utc
+                )
+                if article_date
+                else datetime.now(timezone.utc)
+            )
+
             article = Article(
                 title=title,
                 content=content,
@@ -195,21 +202,18 @@ class EuramsCrawler:
                 crawled_at=datetime.now(timezone.utc),
                 scraped_at=datetime.now(timezone.utc),
             )
-            
-            logger.info(f"Successfully processed article: {title} ({result.url})")
+
+            logger.info(
+                f"Successfully processed article: {title} ({result.url})"
+            )
             return article
-            
+
         except Exception as e:
             logger.error(f"Failed to process article {result.url}: {e}")
             return None
 
     async def _handle_cookie_consent(
-        self,
-        page: Page,
-        context: BrowserContext,
-        url: str,
-        response,
-        **kwargs
+        self, page: Page, context: BrowserContext, url: str, response, **kwargs
     ):
         """Handle cookie consent popup."""
         logger.info(f"Handling cookie consent for: {url}")
@@ -220,7 +224,9 @@ class EuramsCrawler:
             if iframe_element:
                 frame = await iframe_element.content_frame()
                 if frame:
-                    await frame.click(self.COOKIE_BUTTON_SELECTOR, timeout=5000)
+                    await frame.click(
+                        self.COOKIE_BUTTON_SELECTOR, timeout=5000
+                    )
                     logger.info("Cookie consent accepted successfully")
                 else:
                     logger.warning("Unable to access iframe content frame")
@@ -235,13 +241,11 @@ class EuramsCrawler:
     def _setup_crawler_config(self) -> tuple:
         """Setup crawler configuration."""
         prune_filter = PruningContentFilter(
-            threshold=0.45,
-            threshold_type="dynamic",
-            min_word_threshold=5
+            threshold=0.45, threshold_type="dynamic", min_word_threshold=5
         )
 
         md_generator = DefaultMarkdownGenerator(content_filter=prune_filter)
-        
+
         urlfilter = URLPatternFilter(patterns=["*nachrichten*.html"])
 
         browser_config = BrowserConfig(headless=True, verbose=False)
@@ -250,8 +254,7 @@ class EuramsCrawler:
             cache_mode=CacheMode.BYPASS,
             wait_for="article",
             deep_crawl_strategy=BFSDeepCrawlStrategy(
-                max_depth=1,
-                filter_chain=FilterChain([urlfilter])
+                max_depth=1, filter_chain=FilterChain([urlfilter])
             ),
             extraction_strategy=JsonCssExtractionStrategy(
                 self._get_extraction_schema()
@@ -262,12 +265,10 @@ class EuramsCrawler:
         return browser_config, config
 
     async def _crawl_single_page(
-        self,
-        crawler: AsyncWebCrawler,
-        page_num: int,
-        config: CrawlerRunConfig
+        self, crawler: AsyncWebCrawler, page_num: int, config: CrawlerRunConfig
     ) -> tuple[List[Article], bool]:
-        """Crawl a single page and return Article objects and whether to stop."""
+        """Crawl a single page and return Article objects
+        and whether to stop."""
         url = f"https://www.eurams.de/nachrichten/{page_num}"
         logger.info(f"Crawling page {page_num}: {url}")
 
@@ -284,10 +285,14 @@ class EuramsCrawler:
                     else:
                         has_out_of_range_article = True
                 else:
-                    logger.warning(f"Failed to crawl {result.url}: {result.error_message}")
+                    logger.warning(
+                        f"Failed to crawl {result.url}: "
+                        f"{result.error_message}"
+                    )
 
             logger.info(
-                f"Page {page_num} completed: {len(page_articles)} articles extracted"
+                f"Page {page_num} completed: "
+                f"{len(page_articles)} articles extracted"
             )
 
             return page_articles, has_out_of_range_article
@@ -299,13 +304,13 @@ class EuramsCrawler:
     async def crawl_urls_async(self) -> List[Article]:
         """Main crawling method that returns List[Article]."""
         logger.info("Starting Eurams crawling process")
-        
+
         browser_config, config = self._setup_crawler_config()
         crawler = AsyncWebCrawler(config=browser_config)
-        
+
         # only handle cookie consent on the first load
         is_first_load = True
-        
+
         async def after_goto_wrapper(*args, **kwargs):
             nonlocal is_first_load
             if is_first_load:
@@ -333,12 +338,15 @@ class EuramsCrawler:
             # check if any articles are out of range
             if has_out_of_range:
                 logger.info(
-                    f"Found articles outside date range on page {page_num}, stopping crawl"
+                    f"Found articles outside date range on page {page_num}, "
+                    f"stopping crawl"
                 )
                 should_stop = True
 
-            if (self.limit > 0 and len(all_articles) >= self.limit):
-                logger.info(f"Reached article limit ({self.limit}), stopping crawl")
+            if self.limit > 0 and len(all_articles) >= self.limit:
+                logger.info(
+                    f"Reached article limit ({self.limit}), stopping crawl"
+                )
                 should_stop = True
 
             if len(page_articles) == 0:
@@ -348,8 +356,10 @@ class EuramsCrawler:
 
         await crawler.close()
 
-        final_articles = all_articles[:self.limit] if self.limit > 0 else all_articles
-        
+        final_articles = (
+            all_articles[: self.limit] if self.limit > 0 else all_articles
+        )
+
         logger.info(
             f"Crawling completed: {len(final_articles)} articles extracted "
             f"from {page_num - 1} pages"
@@ -361,17 +371,20 @@ class EuramsCrawler:
 if __name__ == "__main__":
     # Example subscription ID
     subscription_id = uuid.uuid4()
-    
+
     crawler = EuramsCrawler(
         subscription_id=subscription_id,
         date_start=date(2025, 6, 15),
         date_end=None,
         limit=50,
-        language="de"
+        language="de",
     )
 
     articles = asyncio.run(crawler.crawl_urls_async())
 
     print(f"\nFinal result: {len(articles)} Article objects extracted")
     for i, article in enumerate(articles, 1):
-        print(f"{i}. {article.title} - {article.url} (date: {article.published_at.date()})")
+        print(
+            f"{i}. {article.title} - {article.url} "
+            f"(date: {article.published_at.date()})"
+        )
