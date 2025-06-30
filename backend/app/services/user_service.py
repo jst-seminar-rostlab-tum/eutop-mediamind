@@ -58,3 +58,14 @@ class UserService:
             return await UserRepository.update_user(
                 session, existing, email, data
             )
+
+    @staticmethod
+    async def update_user_language(language, user):
+        async with async_session() as session:
+            # 1) fetch
+            user = await UserRepository.get_user_by_clerk_id(
+                clerk_id=user.clerk_id, session=session
+            )
+
+            # 2) update
+            return await UserRepository.update_language(user, language)

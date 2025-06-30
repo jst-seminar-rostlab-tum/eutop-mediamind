@@ -10,11 +10,12 @@ from app.schemas.articles_schemas import (
     ArticleOverviewResponse,
     MatchDetailResponse,
 )
-from app.schemas.match_schemas import MatchFeedbackRequest
+from app.schemas.match_schemas import MatchFeedbackRequest, MatchFilterRequest
 from app.schemas.report_schemas import ReportListResponse, ReportRead
 from app.schemas.request_response import FeedbackResponse
 from app.schemas.search_profile_schemas import (
     KeywordSuggestionResponse,
+    KeywordSuggestionTopic,
     SearchProfileCreateRequest,
     SearchProfileDetailResponse,
     SearchProfileUpdateRequest,
@@ -49,14 +50,21 @@ async def get_available_search_profiles(
     response_model=KeywordSuggestionResponse,
 )
 async def get_keyword_suggestions(
-    keywords: List[str],
+    search_profile_name: str,
+    search_profile_language: str,
+    related_topics: List[KeywordSuggestionTopic],
+    selected_topic: KeywordSuggestionTopic,
     current_user: User = Depends(get_authenticated_user),
 ) -> KeywordSuggestionResponse:
     """
     Return keyword suggestions based on a list of input keywords.
     """
+
     return await SearchProfileService.get_keyword_suggestions(
-        current_user, keywords
+        search_profile_name,
+        search_profile_language,
+        related_topics,
+        selected_topic,
     )
 
 
@@ -84,17 +92,20 @@ async def get_search_profile(
     return profile
 
 
-@router.get(
-    "/{search_profile_id}/overview",
-    response_model=ArticleOverviewResponse,
+@router.post(
+    "/{search_profile_id}/matches", response_model=ArticleOverviewResponse
 )
 async def get_search_profile_overview(
     search_profile_id: UUID,
-) -> ArticleOverviewResponse:
+    request: MatchFilterRequest,
+):
     """
     Retrieve an overview of articles for a given search profile.
     """
-    return await SearchProfileService.get_article_overview(search_profile_id)
+    return await SearchProfileService.get_article_matches(
+        search_profile_id=search_profile_id,
+        request=request,
+    )
 
 
 @router.get(

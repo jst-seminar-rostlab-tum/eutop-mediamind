@@ -12,7 +12,7 @@ from .report import Report
 from .search_profile import SearchProfile
 from .subscription import Subscription
 from .topic import Topic
-from .user import User, UserPublic, UserUpdate, UserUpdateMe
+from .user import User, UserPublic
 
 __all__ = [
     "Article",
@@ -32,7 +32,5 @@ __all__ = [
     "Token",
     "TokenPayload",
     "UserPublic",
-    "UserUpdate",
-    "UserUpdateMe",
     "Report",
 ]
