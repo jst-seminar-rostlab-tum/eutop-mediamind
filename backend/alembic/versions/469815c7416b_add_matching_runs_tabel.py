@@ -52,7 +52,7 @@ def upgrade() -> None:
         "matches", sa.Column("matching_runs_id", sa.Uuid(), nullable=True)
     )
     op.create_index(
-        op.f("ix_matches_matching_run_id"),
+        op.f("ix_matches_matching_runs_id"),
         "matches",
         ["matching_runs_id"],
         unique=False,
