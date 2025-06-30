@@ -45,7 +45,7 @@ export function BreakingNewsCard({ news }: NewsCardProps) {
               >
                 {isExpanded
                   ? t("breaking-news.show_less")
-                  : "breaking-news.show_more"}
+                  : t("breaking-news.show_more")}
                 {isExpanded ? (
                   <ChevronUp className="w-4 h-4 ml-2" />
                 ) : (
