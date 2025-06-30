@@ -14,13 +14,13 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
+from app.core.logger import get_logger
 from app.services.web_harvester.utils import (
     change_frame,
     click_element,
     insert_credential,
     scroll_to_element,
 )
-from app.core.logger import get_logger
 
 logger = get_logger(__name__)
 
@@ -87,8 +87,8 @@ class LoginLLM:
     def _take_screenshot(driver):
         try:
             screenshot_bytes = driver.get_screenshot_as_png()
-            screenshot_base64 = (
-                base64.b64encode(screenshot_bytes).decode("utf-8")
+            screenshot_base64 = base64.b64encode(screenshot_bytes).decode(
+                "utf-8"
             )
             image_url = f"data:image/png;base64,{screenshot_base64}"
             logger.info("Screenshot successfully taken")
@@ -519,7 +519,9 @@ class LoginLLM:
                 if logged_in:
                     logger.info(f"Login completed at attempt {attempt}")
             except Exception:
-                logger.info(f"Login couldn't be completed at attempt {attempt}")
+                logger.info(
+                    f"Login couldn't be completed at attempt {attempt}"
+                )
                 continue
 
         # Save the new newspaper in the JSON
@@ -528,7 +530,7 @@ class LoginLLM:
                 with open(
                     "app/services/updated_newspapers_data.json",
                     "w",
-                    encoding="utf-8"
+                    encoding="utf-8",
                 ) as file:
                     json.dump(newspapers, file, indent=4, ensure_ascii=False)
                 logger.info(
