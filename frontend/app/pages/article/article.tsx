@@ -18,10 +18,7 @@ export function ArticlePage({
   article,
   searchProfileName,
 }: ArticleProps) {
-
-  const publishDateString = formatDate(
-    article.article.published,
-  );
+  const publishDateString = formatDate(article.article.published);
 
   const localizedHeadline = getLocalizedContent(article.article.headline);
   const localizedText = getLocalizedContent(article.article.text);
