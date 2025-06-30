@@ -1,13 +1,10 @@
 import asyncio
 import base64
 import json
-import os
 import re
 import time
 
-import tiktoken
 from bs4 import BeautifulSoup, Comment
-from openai import OpenAI
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
@@ -15,7 +12,9 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
 from app.core.logger import get_logger
-from app.services.web_harvester.utils import (
+from app.services.llm_service.llm_client import LLMClient
+from app.services.llm_service.llm_client import LLMModels
+from app.services.web_harvester.utils.web_utils import (
     change_frame,
     click_element,
     insert_credential,
@@ -242,7 +241,7 @@ class LoginLLM:
                     if click_element(
                         driver, wait, xpath, key
                     ) and insert_credential(
-                        driver, wait, xpath, key, credential
+                        driver, wait, credential, xpath, key,
                     ):
                         newspaper[key] = xpath
                         return True
@@ -250,50 +249,31 @@ class LoginLLM:
                 if click_element(
                     driver, wait, selectors, key
                 ) and insert_credential(
-                    driver, wait, selectors, key, credential
+                    driver, wait, credential, selectors, key
                 ):
                     return True
         return False
 
     @staticmethod
-    async def _call_LLM(
-        LLM_model: str,
+    def _call_LLM(
         html: str,
         instructions: str,
         response_schema: str,
         image_url: str,
     ):
-        def sync_call():
-            messages = [
-                {
-                    "role": "developer",
-                    "content": f"{instructions}.\n{response_schema}",
-                },
-                {
-                    "role": "user",
-                    "content": [
-                        {"type": "text", "text": html},
-                        {
-                            "type": "image_url",
-                            "image_url": {
-                                "url": image_url,
-                            },
-                        },
-                    ],
-                },
-            ]
+        try:
+            prompt = (
+                f"{instructions}\n\n{response_schema}\n\n"
+                f"HTML Content:\n{html}\n"
+            )
+            client = LLMClient(LLMModels.openai_4o)
+            response = client.generate_response(prompt, 0.1, image_url)
 
-            try:
-                client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-                completion = client.chat.completions.create(
-                    model=LLM_model, messages=messages, temperature=0.1
-                )
-                return completion.choices[0].message.content
-            except Exception as e:
-                logger.error(f"Error at calling OpenAI API: {e}")
-                return None
+            return response
 
-        return await asyncio.to_thread(sync_call)
+        except Exception as e:
+            logger.error(f"Error while calling LLMClient: {e}")
+            return None
 
     @staticmethod
     async def _extract_and_merge_dynamic_content(driver, html):
@@ -379,25 +359,16 @@ class LoginLLM:
         return str(target)
 
     @staticmethod
-    def _count_tokens(text, LLM_model):
-        enc = tiktoken.encoding_for_model(LLM_model)
-        return len(enc.encode(text))
-
     async def _find_elements_with_LLM(
-        driver, instructions, response_schema, newspaper, LLM_model
+        driver, instructions, response_schema, newspaper
     ):
         html = driver.page_source
         html = await LoginLLM._extract_and_merge_dynamic_content(driver, html)
         html = LoginLLM._custom_clean_html(html)
-        with open("html.txt", "w", encoding="utf-8") as file:
-            file.write(html)
-        logger.info(
-            f"Tokens in HTML: {LoginLLM._count_tokens(html, LLM_model)}"
-        )
         time.sleep(3)
         website_image = LoginLLM._take_screenshot(driver)
-        LLM_result_raw = await LoginLLM._call_LLM(
-            LLM_model, html, instructions, response_schema, website_image
+        LLM_result_raw = LoginLLM._call_LLM(
+            html, instructions, response_schema, website_image
         )
         LLM_result = LoginLLM._llm_response_to_json(LLM_result_raw)
         updated_newspaper = LoginLLM._add_new_keys_to_newspaper(
@@ -407,12 +378,12 @@ class LoginLLM:
 
     @staticmethod
     async def _execute_attempt_login(
-        driver, wait, newspaper, LLM_model, username, password
+        driver, wait, newspaper, username, password
     ):
         instructions = instructions_login
         response_schema = login_schema
         updated_neswspaper = await LoginLLM._find_elements_with_LLM(
-            driver, instructions, response_schema, newspaper, LLM_model
+            driver, instructions, response_schema, newspaper,
         )
         logged_in = False
 
@@ -479,14 +450,14 @@ class LoginLLM:
         return logged_in
 
     @staticmethod
-    async def add_page(name, url, username, password, LLM_model):
+    async def add_page(name, url, username, password):
         # Obtain file with current registered newspapers
         try:
             with open("app/services/newspapers_data.json", "r") as file:
                 newspapers = json.load(file)
         except FileNotFoundError:
             logger.error("Newspapers data .json not found")
-            return None
+            return False
 
         # Create the new newspaper JSON object
         new_key = f"newspaper{len(newspapers['newspapers'])+1}"
@@ -496,11 +467,9 @@ class LoginLLM:
         # Initialize Selenium
         chrome_options = Options()
         chrome_options.add_argument("--disable-notifications")
-        chrome_options.add_extension("./cookie-blocker.crx")
         driver = webdriver.Chrome(options=chrome_options)
         wait = WebDriverWait(driver, 5)
         driver.get(url)
-        driver.maximize_window()
         time.sleep(3)
 
         # Variables to control login flow
@@ -514,7 +483,7 @@ class LoginLLM:
             logger.info(f"Login attempt {attempt}/{max_attempts}")
             try:
                 logged_in = await LoginLLM._execute_attempt_login(
-                    driver, wait, new_newspaper, LLM_model, username, password
+                    driver, wait, new_newspaper, username, password
                 )
                 if logged_in:
                     logger.info(f"Login completed at attempt {attempt}")
@@ -523,6 +492,8 @@ class LoginLLM:
                     f"Login couldn't be completed at attempt {attempt}"
                 )
                 continue
+
+        driver.quit()
 
         # Save the new newspaper in the JSON
         if logged_in:
@@ -536,11 +507,10 @@ class LoginLLM:
                 logger.info(
                     f"Login elements from newspaper {name} successfully added"
                 )
+                return True
             except Exception:
                 logger.error(f"Error at adding newspaper {name}")
+                return False
         else:
             logger.error(f"Login was not possible on newspaper {name}")
-
-        time.sleep(300)
-
-        driver.quit()
+            return False
