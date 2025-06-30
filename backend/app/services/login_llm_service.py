@@ -1,14 +1,12 @@
 import asyncio
 import base64
 import json
-import logging
 import os
 import re
 import time
 
 import tiktoken
 from bs4 import BeautifulSoup, Comment
-from dotenv import load_dotenv
 from openai import OpenAI
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
@@ -22,10 +20,9 @@ from app.services.web_harvester.utils import (
     insert_credential,
     scroll_to_element,
 )
+from app.core.logger import get_logger
 
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
-load_dotenv()
+logger = get_logger(__name__)
 
 # Instructions to search for elements in the html
 instructions_login = (
@@ -84,453 +81,464 @@ Use the following schema:\n
 """
 
 
-def take_screenshot(driver):
-    try:
-        screenshot_bytes = driver.get_screenshot_as_png()
-        screenshot_base64 = base64.b64encode(screenshot_bytes).decode("utf-8")
-        image_url = f"data:image/png;base64,{screenshot_base64}"
-        logger.info("Screenshot successfully taken")
-        return image_url
-    except Exception:
-        logger.error("Error at taking the screenshot")
+class LoginLLM:
 
+    @staticmethod
+    def _take_screenshot(driver):
+        try:
+            screenshot_bytes = driver.get_screenshot_as_png()
+            screenshot_base64 = (
+                base64.b64encode(screenshot_bytes).decode("utf-8")
+            )
+            image_url = f"data:image/png;base64,{screenshot_base64}"
+            logger.info("Screenshot successfully taken")
+            return image_url
+        except Exception:
+            logger.error("Error at taking the screenshot")
 
-def llm_response_to_json(raw_response: str) -> str:
-    try:
-        cleaned_response = re.sub(
-            r"^```(?:json)?\s*|\s*```$", "", raw_response.strip()
-        )
-        json_reponse = json.loads(cleaned_response)
-        return json_reponse
-    except json.JSONDecodeError:
-        logger.error("Error parsing LLM JSON response")
-        return None
+    @staticmethod
+    def _llm_response_to_json(raw_response: str) -> str:
+        try:
+            cleaned_response = re.sub(
+                r"^```(?:json)?\s*|\s*```$", "", raw_response.strip()
+            )
+            json_reponse = json.loads(cleaned_response)
+            return json_reponse
+        except json.JSONDecodeError:
+            logger.error("Error parsing LLM JSON response")
+            return None
 
-
-def add_new_keys_to_newspaper(new_keys, newspaper):
-    if new_keys:
-        for key, value in new_keys.items():
-            if value is not None and key not in ["name", "link"]:
-                if key in newspaper:
-                    if isinstance(newspaper[key], list):
-                        newspaper[key].append(value)
+    @staticmethod
+    def _add_new_keys_to_newspaper(new_keys, newspaper):
+        if new_keys:
+            for key, value in new_keys.items():
+                if value is not None and key not in ["name", "link"]:
+                    if key in newspaper:
+                        if isinstance(newspaper[key], list):
+                            newspaper[key].append(value)
+                        else:
+                            existing_value = newspaper[key]
+                            newspaper[key] = [existing_value, value]
                     else:
-                        existing_value = newspaper[key]
-                        newspaper[key] = [existing_value, value]
-                else:
-                    newspaper[key] = value
+                        newspaper[key] = value
 
-        logger.info("Successfully added new keys.")
-        return newspaper
-    else:
-        logger.error("Failed to add new keys.")
-        return None
-
-
-def find_correct_clickable_element(driver, wait, newspaper, key):
-    selectors = newspaper.get(key)
-    if selectors:
-        if isinstance(selectors, list):
-            for xpath in selectors:
-                scroll_to_element(driver, wait, xpath, key)
-                if click_element(driver, wait, xpath, key):
-                    newspaper[key] = xpath
-                    return True
+            logger.info("Successfully added new keys.")
+            return newspaper
         else:
-            scroll_to_element(driver, wait, selectors, key)
-            if click_element(driver, wait, selectors, key):
-                return True
-    return False
+            logger.error("Failed to add new keys.")
+            return None
 
-
-def click_shadow_root_element(
-    driver, wait, newspaper, key_shadow, key_cookies
-):
-    shadow_selectors = newspaper.get(key_shadow)
-    cookies_selectors = newspaper.get(key_cookies)
-
-    if not shadow_selectors or not cookies_selectors:
-        logger.warning("Shadow selectors or cookies selectors missing")
+    @staticmethod
+    def _find_correct_clickable_element(driver, wait, newspaper, key):
+        selectors = newspaper.get(key)
+        if selectors:
+            if isinstance(selectors, list):
+                for xpath in selectors:
+                    scroll_to_element(driver, wait, xpath, key)
+                    if click_element(driver, wait, xpath, key):
+                        newspaper[key] = xpath
+                        return True
+            else:
+                scroll_to_element(driver, wait, selectors, key)
+                if click_element(driver, wait, selectors, key):
+                    return True
         return False
 
-    if not isinstance(shadow_selectors, list):
-        shadow_selectors = [shadow_selectors]
-    if not isinstance(cookies_selectors, list):
-        cookies_selectors = [cookies_selectors]
+    @staticmethod
+    def _click_shadow_root_element(
+        driver, wait, newspaper, key_shadow, key_cookies
+    ):
+        shadow_selectors = newspaper.get(key_shadow)
+        cookies_selectors = newspaper.get(key_cookies)
 
-    for shadow_xpath in shadow_selectors:
-        try:
-            shadow_host = wait.until(
-                EC.presence_of_element_located((By.CSS_SELECTOR, shadow_xpath))
-            )
-            shadow_root = driver.execute_script(
-                "return arguments[0].shadowRoot", shadow_host
-            )
-            if not shadow_root:
-                logger.warning(f"No shadow root found for host {shadow_xpath}")
-                continue
+        if not shadow_selectors or not cookies_selectors:
+            logger.warning("Shadow selectors or cookies selectors missing")
+            return False
 
-            for css_selector in cookies_selectors:
-                try:
-                    clickable_element = shadow_root.find_element(
-                        By.CSS_SELECTOR, css_selector
+        if not isinstance(shadow_selectors, list):
+            shadow_selectors = [shadow_selectors]
+        if not isinstance(cookies_selectors, list):
+            cookies_selectors = [cookies_selectors]
+
+        for shadow_xpath in shadow_selectors:
+            try:
+                shadow_host = wait.until(
+                    EC.presence_of_element_located(
+                        (By.CSS_SELECTOR, shadow_xpath)
                     )
+                )
+                shadow_root = driver.execute_script(
+                    "return arguments[0].shadowRoot", shadow_host
+                )
+                if not shadow_root:
+                    logger.warning(
+                        f"No shadow root found for host {shadow_xpath}"
+                    )
+                    continue
+
+                for css_selector in cookies_selectors:
                     try:
-                        clickable_element.click()
-                        logger.info(
-                            f"Clicked element {css_selector} inside shadow "
-                            f"root {shadow_xpath}"
+                        clickable_element = shadow_root.find_element(
+                            By.CSS_SELECTOR, css_selector
                         )
-                        newspaper[key_shadow] = shadow_xpath
-                        newspaper[key_cookies] = css_selector
-                        return True
-                    except Exception:
                         try:
-                            driver.execute_script(
-                                "arguments[0].click();", clickable_element
+                            clickable_element.click()
+                            logger.info(
+                                f"Clicked element {css_selector} "
+                                f"inside shadow "
+                                f"root {shadow_xpath}"
                             )
                             newspaper[key_shadow] = shadow_xpath
                             newspaper[key_cookies] = css_selector
-                            logger.info(
-                                f"Clicked element {css_selector} inside "
-                                f"shadow root {shadow_xpath}"
-                            )
                             return True
                         except Exception:
-                            logger.debug(
-                                f"Could not click element {css_selector} "
-                                f"inside shadow root {shadow_xpath}"
-                            )
-                except Exception:
-                    logger.error(
-                        f"Element {css_selector} not found in shadow root "
-                        f"{shadow_xpath}"
-                    )
-        except Exception:
-            logger.debug(f"Error locating shadow host element {shadow_xpath}")
+                            try:
+                                driver.execute_script(
+                                    "arguments[0].click();", clickable_element
+                                )
+                                newspaper[key_shadow] = shadow_xpath
+                                newspaper[key_cookies] = css_selector
+                                logger.info(
+                                    f"Clicked element {css_selector} inside "
+                                    f"shadow root {shadow_xpath}"
+                                )
+                                return True
+                            except Exception:
+                                logger.debug(
+                                    f"Could not click element {css_selector} "
+                                    f"inside shadow root {shadow_xpath}"
+                                )
+                    except Exception:
+                        logger.error(
+                            f"Element {css_selector} not found in shadow root "
+                            f"{shadow_xpath}"
+                        )
+            except Exception:
+                logger.debug(
+                    f"Error locating shadow host element {shadow_xpath}"
+                )
 
-    logger.error("No clickable element found inside shadow roots")
-    return False
+        logger.error("No clickable element found inside shadow roots")
+        return False
 
+    @staticmethod
+    def _change_to_correct_iframe(driver, wait, newspaper, key):
+        selectors = newspaper.get(key)
+        if selectors:
+            if isinstance(selectors, list):
+                for xpath in selectors:
+                    if change_frame(driver, wait, xpath, key):
+                        newspaper[key] = xpath
+                        break
+            else:
+                change_frame(driver, wait, selectors, key)
 
-def change_to_correct_iframe(driver, wait, newspaper, key):
-    selectors = newspaper.get(key)
-    if selectors:
-        if isinstance(selectors, list):
-            for xpath in selectors:
-                if change_frame(driver, wait, xpath, key):
-                    newspaper[key] = xpath
-                    break
-        else:
-            change_frame(driver, wait, selectors, key)
-
-
-def find_correct_input_element(driver, wait, newspaper, key, credential):
-    selectors = newspaper.get(key)
-    if selectors:
-        if isinstance(selectors, list):
-            for xpath in selectors:
+    @staticmethod
+    def _find_correct_input_element(driver, wait, newspaper, key, credential):
+        selectors = newspaper.get(key)
+        if selectors:
+            if isinstance(selectors, list):
+                for xpath in selectors:
+                    if click_element(
+                        driver, wait, xpath, key
+                    ) and insert_credential(
+                        driver, wait, xpath, key, credential
+                    ):
+                        newspaper[key] = xpath
+                        return True
+            else:
                 if click_element(
-                    driver, wait, xpath, key
-                ) and insert_credential(driver, wait, xpath, key, credential):
-                    newspaper[key] = xpath
+                    driver, wait, selectors, key
+                ) and insert_credential(
+                    driver, wait, selectors, key, credential
+                ):
                     return True
-        else:
-            if click_element(
-                driver, wait, selectors, key
-            ) and insert_credential(driver, wait, selectors, key, credential):
-                return True
-    return False
+        return False
 
-
-async def call_LLM(
-    LLM_model: str,
-    html: str,
-    instructions: str,
-    response_schema: str,
-    image_url: str,
-):
-    def sync_call():
-        messages = [
-            {
-                "role": "developer",
-                "content": f"{instructions}.\n{response_schema}",
-            },
-            {
-                "role": "user",
-                "content": [
-                    {"type": "text", "text": html},
-                    {
-                        "type": "image_url",
-                        "image_url": {
-                            "url": image_url,
-                        },
-                    },
-                ],
-            },
-        ]
-
-        try:
-            client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-            completion = client.chat.completions.create(
-                model=LLM_model, messages=messages, temperature=0.1
-            )
-            return completion.choices[0].message.content
-        except Exception as e:
-            logger.error(f"Error at calling OpenAI API: {e}")
-            return None
-
-    return await asyncio.to_thread(sync_call)
-
-
-async def extract_and_merge_dynamic_content(driver, html):
-    soup = BeautifulSoup(html, "html.parser")
-
-    # Extract the content of each iframe
-    iframe_contents = {}
-    for i, iframe in enumerate(soup.find_all("iframe")):
-        iframe_id = iframe.get("id")
-        if iframe_id:
-            try:
-                driver.switch_to.frame(iframe_id)
-                iframe_html = driver.page_source
-                iframe_contents[iframe_id] = iframe_html
-                driver.switch_to.default_content()
-            except Exception as e:
-                logger.warning(f"Error accessing iframe {iframe_id}: {e}")
-                driver.switch_to.default_content()
-
-    # Extract shadow roots content
-    shadow_contents = {}
-    shadow_hosts = driver.execute_script(
-        """
-        return Array.from(document.querySelectorAll('*'))
-            .filter(el => el.shadowRoot)
-            .map(el => {
-                return {
-                    id: el.id || null,
-                    tag: el.tagName,
-                    classes: el.className || null,
-                    shadowHtml: el.shadowRoot.innerHTML
-                };
-            });
-    """
-    )
-    for host in shadow_hosts:
-        identifier = host["id"]
-        shadow_contents[identifier] = host["shadowHtml"]
-
-    # Insert iframe content in original html
-    soup_final = BeautifulSoup(html, "html.parser")
-    for iframe in soup_final.find_all("iframe"):
-        iframe_id = iframe.get("id")
-        if iframe_id and iframe_id in iframe_contents:
-            extracted_html = BeautifulSoup(
-                iframe_contents[iframe_id], "html.parser"
-            )
-            inner_content = extracted_html.find().decode_contents()
-            iframe.append(BeautifulSoup(inner_content, "html.parser"))
-
-    # Insert shadow roots content in original html
-    for element in soup_final.find_all(True):
-        if element.get("id") and element.get("id") in shadow_contents:
-            shadow_html = shadow_contents[element.get("id")]
-            shadow_root_tag = soup_final.new_tag("div")
-            shadow_root_tag["data-shadow-host"] = element.get("id")
-            shadow_inner_soup = BeautifulSoup(shadow_html, "html.parser")
-            for child in shadow_inner_soup.find_all(recursive=False):
-                shadow_root_tag.append(child)
-            element.append(shadow_root_tag)
-
-    return soup_final.prettify()
-
-
-def custom_clean_html(raw_html):
-    soup = BeautifulSoup(raw_html, "html.parser")
-
-    body = soup.find("body")
-
-    if body:
-        target = body
-    else:
-        target = soup
-
-    for tag in target(["script", "style", "noscript"]):
-        tag.decompose()
-
-    for comment in target.find_all(
-        string=lambda text: isinstance(text, Comment)
+    @staticmethod
+    async def _call_LLM(
+        LLM_model: str,
+        html: str,
+        instructions: str,
+        response_schema: str,
+        image_url: str,
     ):
-        comment.decompose()
+        def sync_call():
+            messages = [
+                {
+                    "role": "developer",
+                    "content": f"{instructions}.\n{response_schema}",
+                },
+                {
+                    "role": "user",
+                    "content": [
+                        {"type": "text", "text": html},
+                        {
+                            "type": "image_url",
+                            "image_url": {
+                                "url": image_url,
+                            },
+                        },
+                    ],
+                },
+            ]
 
-    return str(target)
+            try:
+                client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+                completion = client.chat.completions.create(
+                    model=LLM_model, messages=messages, temperature=0.1
+                )
+                return completion.choices[0].message.content
+            except Exception as e:
+                logger.error(f"Error at calling OpenAI API: {e}")
+                return None
 
+        return await asyncio.to_thread(sync_call)
 
-def count_tokens(text, LLM_model):
-    enc = tiktoken.encoding_for_model(LLM_model)
-    return len(enc.encode(text))
+    @staticmethod
+    async def _extract_and_merge_dynamic_content(driver, html):
+        soup = BeautifulSoup(html, "html.parser")
 
+        # Extract the content of each iframe
+        iframe_contents = {}
+        for i, iframe in enumerate(soup.find_all("iframe")):
+            iframe_id = iframe.get("id")
+            if iframe_id:
+                try:
+                    driver.switch_to.frame(iframe_id)
+                    iframe_html = driver.page_source
+                    iframe_contents[iframe_id] = iframe_html
+                    driver.switch_to.default_content()
+                except Exception as e:
+                    logger.warning(f"Error accessing iframe {iframe_id}: {e}")
+                    driver.switch_to.default_content()
 
-def debugging_LLM_response(title, LLM_response):
-    logger.info(f"-----------------{title}----------------------")
-    logger.info(LLM_response)
-    logger.info("-----------------------------------------------")
+        # Extract shadow roots content
+        shadow_contents = {}
+        shadow_hosts = driver.execute_script(
+            """
+            return Array.from(document.querySelectorAll('*'))
+                .filter(el => el.shadowRoot)
+                .map(el => {
+                    return {
+                        id: el.id || null,
+                        tag: el.tagName,
+                        classes: el.className || null,
+                        shadowHtml: el.shadowRoot.innerHTML
+                    };
+                });
+        """
+        )
+        for host in shadow_hosts:
+            identifier = host["id"]
+            shadow_contents[identifier] = host["shadowHtml"]
 
+        # Insert iframe content in original html
+        soup_final = BeautifulSoup(html, "html.parser")
+        for iframe in soup_final.find_all("iframe"):
+            iframe_id = iframe.get("id")
+            if iframe_id and iframe_id in iframe_contents:
+                extracted_html = BeautifulSoup(
+                    iframe_contents[iframe_id], "html.parser"
+                )
+                inner_content = extracted_html.find().decode_contents()
+                iframe.append(BeautifulSoup(inner_content, "html.parser"))
 
-async def find_elements_with_LLM(
-    driver, instructions, response_schema, newspaper, LLM_model
-):
-    html = driver.page_source
-    html = await extract_and_merge_dynamic_content(driver, html)
-    html = custom_clean_html(html)
-    with open("html.txt", "w", encoding="utf-8") as file:
-        file.write(html)
-    logger.info(f"Tokens in HTML: {count_tokens(html, LLM_model)}")
-    time.sleep(3)
-    website_image = take_screenshot(driver)
-    LLM_result_raw = await call_LLM(
-        LLM_model, html, instructions, response_schema, website_image
-    )
-    LLM_result = llm_response_to_json(LLM_result_raw)
-    debugging_LLM_response("LLM RESPONSE", LLM_result)
-    updated_newspaper = add_new_keys_to_newspaper(LLM_result, newspaper)
-    debugging_LLM_response("UPDATED NEWSPAPER", updated_newspaper)
-    return updated_newspaper
+        # Insert shadow roots content in original html
+        for element in soup_final.find_all(True):
+            if element.get("id") and element.get("id") in shadow_contents:
+                shadow_html = shadow_contents[element.get("id")]
+                shadow_root_tag = soup_final.new_tag("div")
+                shadow_root_tag["data-shadow-host"] = element.get("id")
+                shadow_inner_soup = BeautifulSoup(shadow_html, "html.parser")
+                for child in shadow_inner_soup.find_all(recursive=False):
+                    shadow_root_tag.append(child)
+                element.append(shadow_root_tag)
 
+        return soup_final.prettify()
 
-async def execute_attempt_login(
-    driver, wait, newspaper, LLM_model, username, password
-):
-    instructions = instructions_login
-    response_schema = login_schema
-    updated_neswspaper = await find_elements_with_LLM(
+    @staticmethod
+    def _custom_clean_html(raw_html):
+        soup = BeautifulSoup(raw_html, "html.parser")
+
+        body = soup.find("body")
+
+        if body:
+            target = body
+        else:
+            target = soup
+
+        for tag in target(["script", "style", "noscript"]):
+            tag.decompose()
+
+        for comment in target.find_all(
+            string=lambda text: isinstance(text, Comment)
+        ):
+            comment.decompose()
+
+        return str(target)
+
+    @staticmethod
+    def _count_tokens(text, LLM_model):
+        enc = tiktoken.encoding_for_model(LLM_model)
+        return len(enc.encode(text))
+
+    async def _find_elements_with_LLM(
         driver, instructions, response_schema, newspaper, LLM_model
-    )
-    logged_in = False
+    ):
+        html = driver.page_source
+        html = await LoginLLM._extract_and_merge_dynamic_content(driver, html)
+        html = LoginLLM._custom_clean_html(html)
+        with open("html.txt", "w", encoding="utf-8") as file:
+            file.write(html)
+        logger.info(
+            f"Tokens in HTML: {LoginLLM._count_tokens(html, LLM_model)}"
+        )
+        time.sleep(3)
+        website_image = LoginLLM._take_screenshot(driver)
+        LLM_result_raw = await LoginLLM._call_LLM(
+            LLM_model, html, instructions, response_schema, website_image
+        )
+        LLM_result = LoginLLM._llm_response_to_json(LLM_result_raw)
+        updated_newspaper = LoginLLM._add_new_keys_to_newspaper(
+            LLM_result, newspaper
+        )
+        return updated_newspaper
 
-    # Accept cookies in shadow root
-    cookies_accepted = False
-    if updated_neswspaper.get("shadow_host_cookies"):
-        cookies_accepted = click_shadow_root_element(
-            driver,
-            wait,
-            updated_neswspaper,
-            "shadow_host_cookies",
-            "cookies_button",
+    @staticmethod
+    async def _execute_attempt_login(
+        driver, wait, newspaper, LLM_model, username, password
+    ):
+        instructions = instructions_login
+        response_schema = login_schema
+        updated_neswspaper = await LoginLLM._find_elements_with_LLM(
+            driver, instructions, response_schema, newspaper, LLM_model
         )
+        logged_in = False
 
-    # Accept cookies
-    if not cookies_accepted:
-        # Change to cookies iframe
-        change_to_correct_iframe(
-            driver, wait, updated_neswspaper, "iframe_cookies"
-        )
-        # Click cookies button
-        find_correct_clickable_element(
-            driver, wait, updated_neswspaper, "cookies_button"
-        )
-    driver.switch_to.default_content()
+        # Accept cookies in shadow root
+        cookies_accepted = False
+        if updated_neswspaper.get("shadow_host_cookies"):
+            cookies_accepted = LoginLLM._click_shadow_root_element(
+                driver,
+                wait,
+                updated_neswspaper,
+                "shadow_host_cookies",
+                "cookies_button",
+            )
 
-    # Remove notifications window
-    find_correct_clickable_element(
-        driver, wait, updated_neswspaper, "refuse_notifications"
-    )
-
-    # Go to section containing login element
-    find_correct_clickable_element(
-        driver, wait, updated_neswspaper, "path_to_login_button"
-    )
-
-    # Open login form
-    find_correct_clickable_element(
-        driver, wait, updated_neswspaper, "login_button"
-    )
-
-    # We check if the login form is in this scraped page
-    if updated_neswspaper.get("submit_button"):
-        # Change to credentials iframe
-        change_to_correct_iframe(
-            driver, wait, updated_neswspaper, "iframe_credentials"
-        )
-        # Insert credentials
-        user_inserted = find_correct_input_element(
-            driver, wait, updated_neswspaper, "user_input", username
-        )
-        password_inserted = find_correct_input_element(
-            driver, wait, updated_neswspaper, "password_input", password
-        )
-        # Submit credentials
-        submitted = find_correct_clickable_element(
-            driver, wait, updated_neswspaper, "submit_button"
-        )
+        # Accept cookies
+        if not cookies_accepted:
+            # Change to cookies iframe
+            LoginLLM._change_to_correct_iframe(
+                driver, wait, updated_neswspaper, "iframe_cookies"
+            )
+            # Click cookies button
+            LoginLLM._find_correct_clickable_element(
+                driver, wait, updated_neswspaper, "cookies_button"
+            )
         driver.switch_to.default_content()
 
-    if user_inserted and password_inserted and submitted:
-        logged_in = True
+        # Remove notifications window
+        LoginLLM._find_correct_clickable_element(
+            driver, wait, updated_neswspaper, "refuse_notifications"
+        )
 
-    return logged_in
+        # Go to section containing login element
+        LoginLLM._find_correct_clickable_element(
+            driver, wait, updated_neswspaper, "path_to_login_button"
+        )
 
+        # Open login form
+        LoginLLM._find_correct_clickable_element(
+            driver, wait, updated_neswspaper, "login_button"
+        )
 
-async def add_page(name, url, username, password, LLM_model):
-    # Obtain file with current registered newspapers
-    try:
-        with open("app/services/newspapers_data.json", "r") as file:
-            newspapers = json.load(file)
-    except FileNotFoundError:
-        logger.error("Newspapers data .json not found")
-        return None
-
-    # Create the new newspaper JSON object
-    new_key = f"newspaper{len(newspapers['newspapers'])+1}"
-    newspapers["newspapers"][new_key] = {"name": name, "link": url}
-    new_newspaper = newspapers["newspapers"][new_key]
-
-    # Initialize Selenium
-    chrome_options = Options()
-    chrome_options.add_argument("--disable-notifications")
-    chrome_options.add_extension("./cookie-blocker.crx")
-    driver = webdriver.Chrome(options=chrome_options)
-    wait = WebDriverWait(driver, 5)
-    driver.get(url)
-    driver.maximize_window()
-    time.sleep(3)
-
-    # Variables to control login flow
-    max_attempts = 8
-    attempt = 0
-    logged_in = False
-
-    logger.info(f"Initializing LLM login process for newspaper: {name}")
-    while attempt < max_attempts and not logged_in:
-        attempt += 1
-        logger.info(f"Login attempt {attempt}/{max_attempts}")
-        try:
-            logged_in = await execute_attempt_login(
-                driver, wait, new_newspaper, LLM_model, username, password
+        # We check if the login form is in this scraped page
+        if updated_neswspaper.get("submit_button"):
+            # Change to credentials iframe
+            LoginLLM._change_to_correct_iframe(
+                driver, wait, updated_neswspaper, "iframe_credentials"
             )
-            if logged_in:
-                logger.info(f"Login completed at attempt {attempt}")
-        except Exception:
-            logger.info(f"Login couldn't be completed at attempt {attempt}")
-            continue
-
-    # Save the new newspaper in the JSON
-    if logged_in:
-        try:
-            with open(
-                "app/services/updated_newspapers_data.json",
-                "w",
-                encoding="utf-8"
-            ) as file:
-                json.dump(newspapers, file, indent=4, ensure_ascii=False)
-            logger.info(
-                f"Login elements from newspaper {name} successfully added"
+            # Insert credentials
+            user_inserted = LoginLLM._find_correct_input_element(
+                driver, wait, updated_neswspaper, "user_input", username
             )
-        except Exception:
-            logger.error(f"Error at adding newspaper {name}")
-    else:
-        logger.error(f"Login was not possible on newspaper {name}")
+            password_inserted = LoginLLM._find_correct_input_element(
+                driver, wait, updated_neswspaper, "password_input", password
+            )
+            # Submit credentials
+            submitted = LoginLLM._find_correct_clickable_element(
+                driver, wait, updated_neswspaper, "submit_button"
+            )
+            driver.switch_to.default_content()
 
-    time.sleep(300)
+        if user_inserted and password_inserted and submitted:
+            logged_in = True
 
-    driver.quit()
+        return logged_in
+
+    @staticmethod
+    async def add_page(name, url, username, password, LLM_model):
+        # Obtain file with current registered newspapers
+        try:
+            with open("app/services/newspapers_data.json", "r") as file:
+                newspapers = json.load(file)
+        except FileNotFoundError:
+            logger.error("Newspapers data .json not found")
+            return None
+
+        # Create the new newspaper JSON object
+        new_key = f"newspaper{len(newspapers['newspapers'])+1}"
+        newspapers["newspapers"][new_key] = {"name": name, "link": url}
+        new_newspaper = newspapers["newspapers"][new_key]
+
+        # Initialize Selenium
+        chrome_options = Options()
+        chrome_options.add_argument("--disable-notifications")
+        chrome_options.add_extension("./cookie-blocker.crx")
+        driver = webdriver.Chrome(options=chrome_options)
+        wait = WebDriverWait(driver, 5)
+        driver.get(url)
+        driver.maximize_window()
+        time.sleep(3)
+
+        # Variables to control login flow
+        max_attempts = 8
+        attempt = 0
+        logged_in = False
+
+        logger.info(f"Initializing LLM login process for newspaper: {name}")
+        while attempt < max_attempts and not logged_in:
+            attempt += 1
+            logger.info(f"Login attempt {attempt}/{max_attempts}")
+            try:
+                logged_in = await LoginLLM._execute_attempt_login(
+                    driver, wait, new_newspaper, LLM_model, username, password
+                )
+                if logged_in:
+                    logger.info(f"Login completed at attempt {attempt}")
+            except Exception:
+                logger.info(f"Login couldn't be completed at attempt {attempt}")
+                continue
+
+        # Save the new newspaper in the JSON
+        if logged_in:
+            try:
+                with open(
+                    "app/services/updated_newspapers_data.json",
+                    "w",
+                    encoding="utf-8"
+                ) as file:
+                    json.dump(newspapers, file, indent=4, ensure_ascii=False)
+                logger.info(
+                    f"Login elements from newspaper {name} successfully added"
+                )
+            except Exception:
+                logger.error(f"Error at adding newspaper {name}")
+        else:
+            logger.error(f"Login was not possible on newspaper {name}")
+
+        time.sleep(300)
+
+        driver.quit()
