@@ -1,4 +1,5 @@
 import uuid
+from datetime import date
 from typing import List, Optional
 
 from langchain_core.documents import Document
@@ -15,6 +16,7 @@ from app.core.config import configs
 from app.core.db import get_qdrant_connection
 from app.core.logger import get_logger
 from app.models import Article
+from app.models.article import ArticleStatus
 from app.repositories.article_repository import ArticleRepository
 
 logger = get_logger(__name__)
@@ -77,7 +79,7 @@ class ArticleVectorService:
         """
         return self._qdrant_client.get_collections()
 
-    def add_articles(self, articles: List[Article]) -> None:
+    async def add_articles(self, articles: List[Article]) -> None:
         """
         Add a list of articles to the vector store.
         Args:
@@ -100,6 +102,8 @@ class ArticleVectorService:
                 )
             )
             uuids.append(str(article.id))
+            article.status = ArticleStatus.EMBEDDED
+            await ArticleRepository.update_article(article)
 
         self.vector_store.add_documents(documents=documents, ids=uuids)
 
@@ -121,18 +125,19 @@ class ArticleVectorService:
         )
 
     async def index_summarized_articles_to_vector_store(
-        self, page_size: int = 100
+        self,
+        page_size: int = 100,
+        date_start: date = date.today(),
+        date_end: date = date.today(),
     ) -> None:
         """
         Run the functionality to read articles from the database and
         add them to the vector store.
         """
-        page: int = 0
-        offset: int = page * page_size
 
         articles: List[Article] = (
             await ArticleRepository.list_articles_with_summary(
-                limit=page_size, offset=offset
+                limit=page_size, date_start=date_start, date_end=date_end
             )
         )
 
@@ -140,11 +145,8 @@ class ArticleVectorService:
 
             self.add_articles(articles)
 
-            page += 1
-            offset = page * page_size
-
             articles = await ArticleRepository.list_articles_with_summary(
-                limit=page_size, offset=offset
+                limit=page_size, date_start=date_start, date_end=date_end
             )
 
     async def add_article(self, article_id: uuid.UUID) -> None:

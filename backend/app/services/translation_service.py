@@ -1,5 +1,6 @@
 import json
 import uuid
+from datetime import date
 
 from langdetect import detect
 
@@ -205,7 +206,11 @@ class ArticleTranslationService:
         return total_updates
 
     @staticmethod
-    async def run(limit: int = 100):
+    async def run(
+        page_size: int = 100,
+        date_start: date = date.today(),
+        date_end: date = date.today(),
+    ):
         """
         Orchestrates the full translation pipeline in batches.
 
@@ -214,14 +219,14 @@ class ArticleTranslationService:
         """
         try:
             page = 0
-            offset = 0
 
             articles = (
                 await ArticleRepository.get_articles_without_translations(
-                    limit=limit, offset=offset
+                    limit=page_size,
+                    date_start=date_start,
+                    date_end=date_end,
                 )
             )
-
             while articles:
                 logger.info(
                     f"Translating page {page + 1} with "
@@ -245,11 +250,12 @@ class ArticleTranslationService:
                     break
 
                 page += 1
-                offset = page * limit
 
                 articles = (
                     await ArticleRepository.get_articles_without_translations(
-                        limit=limit, offset=offset
+                        limit=page_size,
+                        date_start=date_start,
+                        date_end=date_end,
                     )
                 )
 

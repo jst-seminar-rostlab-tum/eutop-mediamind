@@ -178,13 +178,16 @@ class SearchProfileRepository:
 
     @staticmethod
     async def fetch_all_search_profiles(
-        limit: int, offset: int
+        limit: int = None, offset: int = None
     ) -> List[SearchProfile]:
         """
         Fetch all search profiles with pagination.
         """
         async with async_session() as session:
-            query = select(SearchProfile).offset(offset).limit(limit)
+            if offset and limit:
+                query = select(SearchProfile).offset(offset).limit(limit)
+            else:
+                query = select(SearchProfile)
             result = await session.execute(query)
             return result.scalars().all()
 

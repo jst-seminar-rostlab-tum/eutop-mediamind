@@ -1,5 +1,6 @@
 import json
 import uuid
+from datetime import date
 from typing import Sequence
 
 from app.core.logger import get_logger
@@ -132,7 +133,11 @@ class ArticleSummaryService:
                 )
 
     @staticmethod
-    async def run(page_size: int = 100) -> None:
+    async def run(
+        page_size: int = 100,
+        date_start: date = date.today(),
+        date_end: date = date.today(),
+    ) -> None:
         """
         Main entry point to summarize a list of articles and
         store their extracted entities.
@@ -140,19 +145,17 @@ class ArticleSummaryService:
         Args:
             articles (list[Article]): a list of Article objects to process.
         """
-        page = 0
-        offset = page * page_size
 
         while True:
             articles = await ArticleRepository.list_articles_without_summary(
-                limit=page_size, offset=offset
+                limit=page_size,
+                date_start=date_start,
+                date_end=date_end,
             )
             if not articles:
                 break
 
-            logger.info(
-                f"Processing batch {page + 1} with {len(articles)} articles"
-            )
+            logger.info(f"Processing batch with {len(articles)} articles")
 
             batch_path = ArticleSummaryService.generate_summary_batch_file(
                 articles=articles,
@@ -172,6 +175,3 @@ class ArticleSummaryService:
             await ArticleSummaryService.store_summaries_and_entities(
                 output_lines
             )
-
-            page += 1
-            offset = page * page_size
