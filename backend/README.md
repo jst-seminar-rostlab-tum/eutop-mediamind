@@ -74,9 +74,11 @@ docker compose -f ./scripts/docker-compose.dev.yml up --build
 ```
 
 To build/start individual containers, you can append the name of the image behind the command. E.g., to start the `postgres` container, run:
+
 ```bash
 docker compose -f ./scripts/docker-compose.dev.yml up postgres
 ```
+
 This is especially useful when working on the backend and you need the DB running locally.
 
 ### For Production
@@ -117,6 +119,25 @@ Alembic is a lightweight database migration tool for use with SQLAlchemy. It all
 ### Creating new models
 
 Ensure to import newly created models in the following file: alembic/env.py
+
+### Handling Migrations Before Merging a Branch
+
+When working with database migrations, follow this procedure to avoid conflicts:
+Test Locally First
+1. Always run your migrations against your local database before pushing or merging anything.
+2. Merge Migration Heads
+After updating your branch from master, you might have multiple migration heads.
+Usually, there are only two. Merge them using:
+    ```bash
+    alembic merge <hash 1> <hash 2> ... <hash n>
+    ```
+
+3. Apply Migrations to Dev/Prod Carefully
+Only apply migrations to the development or production databases right before or immediately after merging your branch into master.
+Otherwise, other developers may be blocked from merging their own migrations.
+    ```bash
+    alembic upgrade head
+    ```
 
 ### Basics
 
@@ -176,6 +197,14 @@ alembic current
 
 ```bash
 alembic history
+```
+
+#### Merge divergent heads
+
+In Alembic, a merge is used to join divergent migration branches. When multiple migrations are created from the same base. The alembic merge command creates a new revision that points to multiple down_revision values, reconciling the branches into a single migration path.
+
+```bash
+alembic merge -m "Merge heads" hash_head1 hash_head2
 ```
 
 ### Tips

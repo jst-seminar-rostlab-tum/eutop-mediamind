@@ -1,6 +1,8 @@
 import uuid
+from datetime import datetime, timezone
 from typing import TYPE_CHECKING
 
+from sqlalchemy import TIMESTAMP, Column, Text
 from sqlmodel import Field, Relationship, SQLModel
 
 if TYPE_CHECKING:
@@ -24,7 +26,19 @@ class Match(SQLModel, table=True):
     )
 
     sorting_order: int = Field(default=0)
-    comment: str | None = Field(default=None, max_length=255)
+    comment: str | None = Field(
+        default=None,
+        sa_column=Column(Text, nullable=True),
+    )
+    score: float = Field(default=0.0)
+
+    matched_at: datetime = Field(
+        sa_column=Column(
+            TIMESTAMP(timezone=True),
+            nullable=False,
+            default=datetime.now(timezone.utc),
+        )
+    )
 
     # Relationships
     article: "Article" = Relationship(back_populates="matches")

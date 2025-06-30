@@ -50,3 +50,17 @@ class EmailRepository:
             )
         )
         await session.flush()
+
+    @staticmethod
+    async def update_email(email: Email) -> Email | None:
+        async with async_session() as session:
+            existing_email = await session.get(Email, email.id)
+            if existing_email:
+                for attr, value in vars(email).items():
+                    if attr != "_sa_instance_state":
+                        setattr(existing_email, attr, value)
+                await session.commit()
+                await session.refresh(existing_email)
+                return existing_email
+            else:
+                return None

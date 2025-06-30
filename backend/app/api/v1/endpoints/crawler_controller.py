@@ -11,6 +11,10 @@ from datetime import date as Date
 from fastapi import APIRouter
 
 from app.core.logger import get_logger
+from app.schemas.breaking_news_schemas import (
+    BreakingNewsItem,
+    BreakingNewsResponse,
+)
 from app.services.web_harvester.breaking_news_crawler import (
     fetch_breaking_news_newsapi,
     get_all_breaking_news,
@@ -55,7 +59,8 @@ async def trigger_newsapi_crawling():
     return {"message": f"Crawled {len(breaking_news)} breaking news articles"}
 
 
-@router.get("/get_breaking_news")
+@router.get("/get_breaking_news", response_model=BreakingNewsResponse)
 async def get_breaking_news():
     breaking_news = get_all_breaking_news()
-    return {"results": breaking_news}
+    news_items = [BreakingNewsItem.from_entity(news) for news in breaking_news]
+    return BreakingNewsResponse(news=news_items, total_count=len(news_items))

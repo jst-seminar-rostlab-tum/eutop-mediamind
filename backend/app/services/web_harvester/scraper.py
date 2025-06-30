@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 
 import trafilatura
@@ -63,7 +63,7 @@ class Scraper(ABC):
             article.image_url = metadata.get("image")
         if not article.content:
             article.content = content
-        article.scraped_at = datetime.now()
+        article.scraped_at = datetime.now(timezone.utc)
         article.status = article.status.SCRAPED
         self.logger.info(
             f"Successfully extracted content for article: {article.url}"
@@ -124,7 +124,7 @@ class TrafilaturaScraper(Scraper):
                 f"Failed to extract content for article: {article.url}"
             )
             article.status = article.status.ERROR
-            article.scraped_at = datetime.now()
+            article.scraped_at = datetime.now(timezone.utc)
 
         return article
 

@@ -1,9 +1,7 @@
 from fastapi import APIRouter, Depends
 
 from app.core.auth import get_authenticated_user
-from app.schemas.subscription_schemas import (
-    SubscriptionSummary,
-)
+from app.schemas.subscription_schemas import SubscriptionSummary
 from app.services.subscription_service import SubscriptionService
 
 router = APIRouter(
