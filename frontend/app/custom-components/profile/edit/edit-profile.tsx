@@ -68,12 +68,15 @@ export function EditProfile({
     is_public: false,
     organization_emails: [],
     profile_emails: [],
-    subscriptions: [],
-    topics: [],
+    can_read_user_ids: [],
+    is_reader: true,
+    can_edit_user_ids: [],
+    is_editor: true,
     owner_id: user?.id ?? "",
-    editable: true,
-    is_editable: true,
     is_owner: true,
+    language: "en",
+    topics: [],
+    subscriptions: [],
     new_articles_count: 0,
   };
 
@@ -120,9 +123,12 @@ export function EditProfile({
         is_public: editedProfile.is_public,
         organization_emails: editedProfile.organization_emails,
         profile_emails: editedProfile.profile_emails,
+        can_read_user_ids: editedProfile.can_read_user_ids,
+        can_edit_user_ids: editedProfile.can_edit_user_ids,
         subscriptions: editedProfile.subscriptions,
         topics: editedProfile.topics,
         owner_id: editedProfile.owner_id,
+        language: editedProfile.language,
       };
 
       if (isCreating) {

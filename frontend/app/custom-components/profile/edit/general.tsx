@@ -23,13 +23,23 @@ import type { MediamindUser, Profile } from "../../../../types/model";
 import { useEffect } from "react";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
+import { DataTableUsers } from "~/custom-components/admin-settings/data-table-users";
+import { getUserColumns } from "./columns";
 
 export interface GeneralProps {
   profile: Profile;
   setProfile: (profile: Profile) => void;
 }
 
+export type UserWithRole = {
+  id: string;
+  name: string;
+  rights: "read" | "edit";
+};
+
 export function General({ profile, setProfile }: GeneralProps) {
+  const [open, setOpen] = React.useState(false);
+
   const { data: userData, isLoading, error } = useQuery("/api/v1/users");
   const { t } = useTranslation();
 
@@ -49,13 +59,95 @@ export function General({ profile, setProfile }: GeneralProps) {
     return [userData];
   }, [userData]);
 
-  const [open, setOpen] = React.useState(false);
+  function getUsersWithRole(
+    userIds: string[],
+    users: MediamindUser[],
+    rights: "read" | "edit",
+  ): UserWithRole[] {
+    const userMap = new Map(users.map((u) => [u.id, u]));
+
+    return userIds
+      .map((id) => {
+        const user = userMap.get(id)!;
+        if (!user) return null;
+        return {
+          id: user.id,
+          name: user.email,
+          rights,
+        };
+      })
+      .filter((u): u is UserWithRole => u !== null);
+  }
+
+  const [usersWithRoles, setUsersWithRoles] = React.useState<UserWithRole[]>(
+    [],
+  );
+
+  //console.log(userData);
+
+  useEffect(() => {
+    if (!users.length) return;
+
+    const readUsers = getUsersWithRole(
+      profile.can_read_user_ids,
+      users,
+      "read",
+    );
+    const editUsers = getUsersWithRole(
+      profile.can_edit_user_ids,
+      users,
+      "edit",
+    );
+
+    setUsersWithRoles([...readUsers, ...editUsers]);
+  }, [users, profile.can_read_user_ids, profile.can_edit_user_ids]);
 
   const selectedUser = users.find((user) => user.id === profile.owner_id);
 
   const selectedUserLabel = selectedUser
     ? `${selectedUser.first_name} ${selectedUser.last_name}`
     : t("general.select_user");
+
+  const handleRoleChange = (index: number, newRights: "read" | "edit") => {
+    const user = usersWithRoles[index];
+    if (!user) return;
+
+    const userId = user.id;
+
+    // update local state for table
+    setUsersWithRoles((prev) =>
+      prev.map((user, i) =>
+        i === index ? { ...user, rights: newRights } : user,
+      ),
+    );
+
+    // Clean out userId from both roles
+    const cleanedReadIds = profile.can_read_user_ids.filter(
+      (id) => id !== userId,
+    );
+    const cleanedEditIds = profile.can_edit_user_ids.filter(
+      (id) => id !== userId,
+    );
+
+    const updatedProfile = {
+      ...profile,
+      can_read_user_ids:
+        newRights === "read" ? [...cleanedReadIds, userId] : cleanedReadIds,
+      can_edit_user_ids:
+        newRights === "edit" ? [...cleanedEditIds, userId] : cleanedEditIds,
+    };
+
+    setProfile(updatedProfile);
+
+    // check for changes
+    //setUnsavedEdits(true);
+  };
+
+  const handleUserDelete = (index: number) => {
+    setUsersWithRoles((prev) => prev.filter((_, i) => i !== index));
+    // check for changes
+    //setUnsavedEdits(true);
+  };
 
   return (
     <div>
@@ -138,6 +230,13 @@ export function General({ profile, setProfile }: GeneralProps) {
       </Label>
 
       <Separator />
+      <div className="mt-4">
+        <DataTableUsers
+          columns={getUserColumns(handleRoleChange, handleUserDelete)}
+          data={usersWithRoles}
+          onAdd={() => {}}
+        />
+      </div>
     </div>
   );
 }

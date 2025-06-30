@@ -60,7 +60,10 @@
     "ownership": "Besitzer",
     "ownership_text": "Besitzer des Profils wechseln",
     "select_user": "Benutzer auswählen...",
-    "user_error": "Laden der Benutzer fehlgeschlagen."
+    "user_error": "Laden der Benutzer fehlgeschlagen.",
+    "Rights": "Rechte",
+    "read": "lesen",
+    "edit": "bearbeiten"
   },
 
   "topics": {

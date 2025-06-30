@@ -60,7 +60,10 @@
     "ownership": "Ownership",
     "ownership_text": "Transfer ownership of the profile",
     "select_user": "Select user...",
-    "user_error": "Failed to load users."
+    "user_error": "Failed to load users.",
+    "Rights": "Rights",
+    "read": "read",
+    "edit": "edit"
   },
 
   "topics": {

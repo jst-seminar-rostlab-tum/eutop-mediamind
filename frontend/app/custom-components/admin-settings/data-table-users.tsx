@@ -75,7 +75,7 @@ export function DataTableUsers<TData, TValue>({
     { clerk_id: 1234, email: "leo@tum.de" },
     { clerk_id: 2345, email: "rafael@tum.de" },
     { clerk_id: 3456, email: "jonathan@tum.de" },
-    { clerk_id: 3456, email: "leo@bmw.com" },
+    { clerk_id: 3457, email: "leo@bmw.com" },
   ];
 
   const [open, setOpen] = React.useState(false);
