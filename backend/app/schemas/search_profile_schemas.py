@@ -56,8 +56,17 @@ class SearchProfileDetailResponse(SearchProfileDetailBase):
     new_articles_count: int
 
 
+class KeywordSuggestionTopic(BaseModel):
+    topic_name: str
+    keywords: List[str]
+
+
+class KeywordSuggestionRequest(BaseModel):
+    search_profile_name: str
+    search_profile_language: str
+    related_topics: List[KeywordSuggestionTopic]
+    selected_topic: KeywordSuggestionTopic
+
+
 class KeywordSuggestionResponse(BaseModel):
     suggestions: List[str]
-
-    def to_dict(self):
-        return {"keyword_suggestions": self.suggestions}
