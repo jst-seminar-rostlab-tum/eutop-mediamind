@@ -160,6 +160,7 @@
     "meta_data_status": "Status",
     "meta_data_category": "Category",
     "keywords_text": "Displays matched profile topics with keywords, and a score indicating topic relevance to the article."
+  },
 
   "role-badge": {
     "owner": "Owner",

@@ -160,19 +160,20 @@
     "meta_data_status": "Status",
     "meta_data_category": "Kategorie",
     "keywords_text": "Zeigt übereinstimmende Themen mit Schlüsselwörtern und einer Bewertung an, die die Themenrelevanz für den Artikel angibt."
+  },
 
   "role-badge": {
-      "owner": "Besitzer",
-      "reader": "Leser",
-      "editor": "Bearbeiter",
-      "public": "Öffentlich",
-      "shared": "Geteilt",
-      "private": "Privat",
-      "ownership": "Berechtigung",
-      "visibility": "Sichtbarkeit"
+    "owner": "Besitzer",
+    "reader": "Leser",
+    "editor": "Bearbeiter",
+    "public": "Öffentlich",
+    "shared": "Geteilt",
+    "private": "Privat",
+    "ownership": "Berechtigung",
+    "visibility": "Sichtbarkeit"
   },
 
   "sr-only": {
-      "open_menu": "Menü öffnen"
+    "open_menu": "Menü öffnen"
   }
 }
