@@ -45,7 +45,7 @@ export function getOrgaColumns(
             <DropdownMenuContent align="end">
               <DropdownMenuItem onClick={() => handleEdit(orgName)}>
                 <SquarePen className="text-primary" />
-                {t("edit")}
+                {t("Edit")}
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => {
@@ -58,7 +58,7 @@ export function getOrgaColumns(
                 className="text-red-500 focus:text-red-500"
               >
                 <Trash2 className="text-red-500" />
-                {t("delete")}
+                {t("Delete")}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -99,7 +99,7 @@ export function getSubsColumns(
             <DropdownMenuContent align="end">
               <DropdownMenuItem onClick={() => onEdit(index)}>
                 <SquarePen className="text-primary" />
-                {t("edit")}
+                {t("Edit")}
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => {
@@ -109,7 +109,7 @@ export function getSubsColumns(
                 className="text-red-500 focus:text-red-500"
               >
                 <Trash2 className="text-red-500" />
-                {t("delete")}
+                {t("Delete")}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

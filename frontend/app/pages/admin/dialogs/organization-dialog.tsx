@@ -12,7 +12,6 @@ import { Button } from "~/components/ui/button";
 import { getUserColumns } from "../columns";
 import type { User } from "../types";
 import React from "react";
-import { OctagonAlert } from "lucide-react";
 
 import { DataTableUsers } from "~/custom-components/admin-settings/data-table-users";
 import { useTranslation } from "react-i18next";
@@ -108,9 +107,6 @@ export function OrganizationDialog({
                   "border-2 border-destructive focus-visible:ring-destructive focus-visible:border-destructive",
               )}
             />
-            {name == "" && open && (
-              <OctagonAlert className="text-red-500 ml-2" />
-            )}
           </div>
           <div>
             <DataTableUsers

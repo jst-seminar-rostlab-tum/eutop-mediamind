@@ -10,7 +10,7 @@ import { Label } from "@radix-ui/react-dropdown-menu";
 import { Input } from "~/components/ui/input";
 import { Button } from "~/components/ui/button";
 import React, { useState } from "react";
-import { Eye, EyeOff, OctagonAlert } from "lucide-react";
+import { Eye, EyeOff } from "lucide-react";
 
 import type { Subscription } from "../types";
 import { useTranslation } from "react-i18next";
@@ -102,12 +102,6 @@ export function SubscriptionDialog({
                     "border-2 border-destructive focus-visible:ring-destructive focus-visible:border-destructive",
                 )}
               />
-              {name == "" && open && (
-                <OctagonAlert
-                  size={24}
-                  className="text-red-500 absolute right-8"
-                />
-              )}
             </div>
           </div>
 
@@ -126,12 +120,6 @@ export function SubscriptionDialog({
                     "border-2 border-destructive focus-visible:ring-destructive focus-visible:border-destructive",
                 )}
               />
-              {url == "" && open && (
-                <OctagonAlert
-                  size={24}
-                  className="text-red-500 absolute right-8"
-                />
-              )}
             </div>
           </div>
 
@@ -152,12 +140,6 @@ export function SubscriptionDialog({
                     "border-2 border-destructive focus-visible:ring-destructive focus-visible:border-destructive",
                 )}
               />
-              {username == "" && open && (
-                <OctagonAlert
-                  size={24}
-                  className="text-red-500 absolute right-8"
-                />
-              )}
             </div>
           </div>
 
@@ -179,12 +161,6 @@ export function SubscriptionDialog({
                     "border-2 border-destructive focus-visible:ring-destructive focus-visible:border-destructive",
                 )}
               />
-              {password == "" && open && (
-                <OctagonAlert
-                  size={24}
-                  className="text-red-500 absolute right-8"
-                />
-              )}
             </div>
             <Button
               type="button"
