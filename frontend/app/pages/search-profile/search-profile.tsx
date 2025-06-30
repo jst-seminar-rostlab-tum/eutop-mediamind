@@ -137,8 +137,6 @@ export function SearchProfileOverview() {
     selectedSources,
   ]);
 
-  console.log("Matches: ", matches);
-
   const Sources = profile ? profile.subscriptions : [];
   const Topics = profile ? profile.topics : [];
 
