@@ -12,6 +12,7 @@
   "search": "Search",
   "Cancel": "Cancel",
   "save_changes": "Save Changes",
+  "breadcrumb_home": "Home",
 
   "landing_page": {
     "welcome": "Welcome to MediaMind",
@@ -20,12 +21,14 @@
   },
 
   "dashboard": {
-    "dashboard": "Dashbaord",
+    "dashboard": "Dashboard",
     "profile": "Profiles",
     "new_articles": "new articles",
     "profiles_loading": "Load profiles ...",
     "breaking_news": "Breaking News",
-    "read_more": "Read more"
+    "read_more": "Read more",
+    "loading_failed": "Failed to load profiles.",
+    "only_updated": "Only show updated"
   },
 
   "confirmation_dialog": {
@@ -144,5 +147,43 @@
     "credentials_error_text": "Please insert valid credentials.",
     "username": "Username",
     "password": "Password"
+  },
+
+  "article-page": {
+    "summary_header": "Summary",
+    "original_header": "Original",
+    "keywords_header": "Keywords",
+    "meta_data_header": "Meta Data",
+    "meta_data_published": "Published",
+    "meta_data_crawled": "Crawled",
+    "meta_data_language": "Language",
+    "meta_data_status": "Status",
+    "meta_data_category": "Category",
+    "keywords_text": "Displays matched profile topics with keywords, and a score indicating topic relevance to the article."
+  },
+
+  "role-badge": {
+    "owner": "Owner",
+    "reader": "Reader",
+    "editor": "Editor",
+    "public": "Public",
+    "shared": "Shared",
+    "private": "Private",
+    "ownership": "Access rights",
+    "visibility": "Visibility"
+  },
+
+  "sr-only": {
+    "open_menu": "Open menu"
+  },
+
+  "breaking-news": {
+    "header": "Breaking News",
+    "news_loading": "Loading breaking news...",
+    "no_news": "No breaking news available.",
+    "entry": "Click here to view the latest breaking news!",
+    "show_less": "Show less",
+    "show_more": "Show more",
+    "original": "Original"
   }
 }

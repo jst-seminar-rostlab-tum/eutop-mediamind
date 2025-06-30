@@ -13,6 +13,7 @@ if TYPE_CHECKING:
     from app.models.article import Article
     from app.models.organization import Organization
     from app.models.search_profile import SearchProfile
+    from app.models.crawl_stats import CrawlStats
 
 from cryptography.fernet import Fernet
 
@@ -89,6 +90,9 @@ class Subscription(SQLModel, table=True):
     search_profiles: List["SearchProfile"] = Relationship(
         back_populates="subscriptions",
         link_model=SearchProfileSubscriptionLink,
+    )
+    crawl_stats: List["CrawlStats"] = Relationship(
+        back_populates="subscription"
     )
 
     @property
