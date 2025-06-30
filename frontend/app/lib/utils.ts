@@ -1,5 +1,6 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { useTranslation } from "react-i18next";
 import i18n from "i18next";
 
 export function cn(...inputs: ClassValue[]) {
@@ -12,12 +13,16 @@ export function truncateAtWord(text: string, maxLength: number) {
   return truncated.slice(0, truncated.lastIndexOf(" ")) + "…";
 }
 
-export function formatDate(dateString: string, locale: string = "en-US") {
+export function formatDate(dateString: string) {
+  const { i18n } = useTranslation();
+
+  const locale = i18n.language == "de" ? "de-DE" : "en-US";
+
   try {
     const date = new Date(dateString);
 
     if (isNaN(date.getTime())) {
-      return dateString;
+      return "Invalid Date";
     }
 
     return date.toLocaleDateString(locale, {
