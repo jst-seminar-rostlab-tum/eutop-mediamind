@@ -230,7 +230,7 @@ export function DataTableUsers<TData, TValue>({
                   colSpan={columns.length}
                   className="h-24 text-center"
                 >
-                  {t("admin.no_results")}
+                  {t("organization-dialog.no_results")}
                 </TableCell>
               </TableRow>
             )}

@@ -136,10 +136,6 @@ export function AdminPage() {
   const [subsData, setSubsData] = React.useState<Subscription[]>([]);
   const [initialSub, setInitialSub] = React.useState<Subscription>();
   const [showSubsDialog, setShowSubsDialog] = React.useState(false);
-  const [newSubsName, setNewSubsName] = React.useState("");
-  const [newURL, setNewURL] = React.useState("");
-  const [newUsername, setNewUsername] = React.useState("");
-  const [newPassword, setNewPassword] = React.useState("");
   const [isEditSubsMode, setIsEditSubsMode] = React.useState(false);
   const [editingSubsIndex, setEditingSubsIndex] = React.useState<number | null>(
     null,
@@ -219,20 +215,25 @@ export function AdminPage() {
 
   // Subscriptions Functions
 
-  function handleSaveSubscription() {
+  function handleSaveSubscription(data: {
+    name: string;
+    url: string;
+    username: string;
+    password: string;
+  }) {
     if (
-      !newSubsName.trim() ||
-      !newURL.trim() ||
-      !newUsername.trim() ||
-      !newPassword.trim()
+      !data.name.trim() ||
+      !data.url.trim() ||
+      !data.username.trim() ||
+      !data.password.trim()
     ) {
       return;
     }
     const newSubs = {
-      name: newSubsName.trim(),
-      url: newURL.trim(),
-      username: newUsername.trim(),
-      password: newPassword.trim(),
+      name: data.name.trim(),
+      url: data.url.trim(),
+      username: data.username.trim(),
+      password: data.password.trim(),
     };
 
     if (isEditSubsMode && editingSubsIndex !== null) {
@@ -242,12 +243,6 @@ export function AdminPage() {
     } else {
       setSubsData((prev) => [...prev, newSubs]);
     }
-
-    // reset
-    setNewSubsName("");
-    setNewURL("");
-    setNewUsername("");
-    setNewPassword("");
     setIsEditSubsMode(false);
     setEditingSubsIndex(null);
     setShowSubsDialog(false);
@@ -259,10 +254,6 @@ export function AdminPage() {
     const sub = subsData[index];
     setInitialSub(sub);
 
-    setNewSubsName(sub.name);
-    setNewURL(sub.url);
-    setNewUsername(sub.username);
-    setNewPassword(sub.password);
     setEditingSubsIndex(index);
     setIsEditSubsMode(true);
     setShowSubsDialog(true);
@@ -334,10 +325,6 @@ export function AdminPage() {
                 )}
                 data={subsData}
                 onAdd={() => {
-                  setNewSubsName("");
-                  setNewURL("");
-                  setNewUsername("");
-                  setNewPassword("");
                   setIsEditSubsMode(false);
                   setEditingSubsIndex(null);
                   setShowSubsDialog(true);
@@ -363,14 +350,6 @@ export function AdminPage() {
           open={showSubsDialog}
           onOpenChange={setShowSubsDialog}
           isEdit={isEditSubsMode}
-          name={newSubsName}
-          url={newURL}
-          username={newUsername}
-          password={newPassword}
-          setName={setNewSubsName}
-          setURL={setNewURL}
-          setUsername={setNewUsername}
-          setPassword={setNewPassword}
           onSave={handleSaveSubscription}
           initialSub={initialSub}
         />

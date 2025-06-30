@@ -118,16 +118,20 @@
     "user": "Benutzer",
     "add_user": "Benutzer hinzufügen...",
     "no_user": "Keine Benutzer gefunden.",
-    "no_results": "Keine Ergebnisse.",
-    "role": "Rolle",
-    "Name": "Name"
+    "no_results": "Keine Ergebnisse."
   },
 
   "organization-dialog": {
     "edit_header": "Organisation bearbeiten",
     "add_header": "Organisation hinzufügen",
     "edit_text": "Bearbeiten sie ihre Organisation hier. Klicken sie auf Speichern wenn sie fertig sind.",
-    "add_text": "Geben sie den Namen der Organisation ein die sie hinzufügen möchten. Klicken sie auf Speichern wenn sie fertig sind."
+    "add_text": "Geben sie den Namen der Organisation ein die sie hinzufügen möchten. Klicken sie auf Speichern wenn sie fertig sind.",
+    "Name": "Name",
+    "role": "Rolle",
+    "no_results": "Keine Ergebnisse.",
+    "New_Organization": "Neue Organisation",
+    "admin": "Admin",
+    "user": "Benutzer"
   },
 
   "subscription-dialog": {
@@ -137,7 +141,9 @@
     "add_text": "Geben sie den Namen der Abonnement ein die sie hinzufügen möchten. Klicken sie auf Speichern wenn sie fertig sind.",
     "credentials_error_header": "Ungültige Anmeldedaten",
     "credentials_error_text": "Bitte geben sie gültige Anmeldedaten ein",
-    "username": "Benutzername",
-    "password": "Passwort"
+    "Name": "Name",
+    "URL": "URL",
+    "Username": "Benutzername",
+    "Password": "Passwort"
   }
 }

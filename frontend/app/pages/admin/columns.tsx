@@ -153,7 +153,7 @@ export function getUserColumns(
     },
     {
       accessorKey: "role",
-      header: t("admin.role"),
+      header: t("organization-dialog.role"),
       cell: ({ row }) => {
         const role = row.getValue("role") as "admin" | "user";
         const index = row.index;
@@ -169,8 +169,12 @@ export function getUserColumns(
               <SelectValue placeholder="Select role" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="admin">{t("admin.admin")}</SelectItem>
-              <SelectItem value="user">{t("admin.user")}</SelectItem>
+              <SelectItem value="admin">
+                {t("organization-dialog.admin")}
+              </SelectItem>
+              <SelectItem value="user">
+                {t("organization-dialog.user")}
+              </SelectItem>
             </SelectContent>
           </Select>
         );

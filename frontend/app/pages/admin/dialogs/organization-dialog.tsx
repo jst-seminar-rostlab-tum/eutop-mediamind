@@ -90,7 +90,7 @@ export function OrganizationDialog({
 
   useEffect(() => {
     form.reset({ name: initialOrgaName });
-  }, [initialOrgaName]);
+  }, [initialOrgaName, open]);
 
   return (
     <>
@@ -127,9 +127,14 @@ export function OrganizationDialog({
                   name="name"
                   render={({ field }) => (
                     <FormItem className="flex">
-                      <FormLabel>{t("admin.Name")}</FormLabel>
+                      <FormLabel>{t("organization-dialog.Name")}</FormLabel>
                       <FormControl>
-                        <Input placeholder="New Organization" {...field} />
+                        <Input
+                          placeholder={t(
+                            "organization-dialog.New_Organization",
+                          )}
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
