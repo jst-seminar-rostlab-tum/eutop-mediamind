@@ -12,6 +12,7 @@
   "search": "Search",
   "Cancel": "Cancel",
   "save_changes": "Save Changes",
+  "breadcrumb_home": "Home",
 
   "landing_page": {
     "welcome": "Welcome to MediaMind",
@@ -148,6 +149,19 @@
     "password": "Password"
   },
 
+  "article-page": {
+    "summary_header": "Summary",
+    "original_header": "Original",
+    "keywords_header": "Keywords",
+    "meta_data_header": "Meta Data",
+    "meta_data_published": "Published",
+    "meta_data_crawled": "Crawled",
+    "meta_data_language": "Language",
+    "meta_data_status": "Status",
+    "meta_data_category": "Category",
+    "keywords_text": "Displays matched profile topics with keywords, and a score indicating topic relevance to the article."
+  },
+
   "role-badge": {
     "owner": "Owner",
     "reader": "Reader",
@@ -161,5 +175,15 @@
 
   "sr-only": {
     "open_menu": "Open menu"
+  },
+
+  "breaking-news": {
+    "header": "Breaking News",
+    "news_loading": "Loading breaking news...",
+    "no_news": "No breaking news available.",
+    "entry": "Click here to view the latest breaking news!",
+    "show_less": "Show less",
+    "show_more": "Show more",
+    "original": "Original"
   }
 }
