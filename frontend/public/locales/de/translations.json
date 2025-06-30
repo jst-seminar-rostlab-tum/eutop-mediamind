@@ -25,7 +25,9 @@
     "new_articles": "Neue Artikel",
     "profiles_loading": "Lade Profile ...",
     "breaking_news": "Aktuelle Schlagzeile",
-    "read_more": "Weiter lesen"
+    "read_more": "Weiter lesen",
+    "loading_failed": "Profile konnten nicht geladen werden.",
+    "only_updated": "Nur aktualisierte anzeigen"
   },
 
   "confirmation_dialog": {
@@ -144,5 +146,20 @@
     "credentials_error_text": "Bitte geben sie gültige Anmeldedaten ein",
     "username": "Benutzername",
     "password": "Passwort"
+  },
+
+  "role-badge": {
+    "owner": "Besitzer",
+    "reader": "Leser",
+    "editor": "Bearbeiter",
+    "public": "Öffentlich",
+    "shared": "Geteilt",
+    "private": "Privat",
+    "ownership": "Berechtigung",
+    "visibility": "Sichtbarkeit"
+  },
+
+  "sr-only": {
+    "open_menu": "Menü öffnen"
   }
 }
