@@ -1,6 +1,7 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { useTranslation } from "react-i18next";
+import i18n from "i18next";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -33,4 +34,18 @@ export function formatDate(dateString: string) {
   } catch (error) {
     return dateString;
   }
+}
+
+export function getLocalizedContent(content: { [key: string]: string }) {
+  if (content[i18n.language]) {
+    return content[i18n.language];
+  }
+
+  if (content["en"]) {
+    return content["en"];
+  }
+  if (content["de"]) {
+    return content["de"];
+  }
+  return "Error";
 }

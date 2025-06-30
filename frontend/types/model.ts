@@ -11,3 +11,5 @@ export type ProfileUpdate = components["schemas"]["SearchProfileUpdateRequest"];
 export type ProfileCreate = components["schemas"]["SearchProfileCreateRequest"];
 
 export type BreakingNewsItem = components["schemas"]["BreakingNewsItem"];
+
+export type ArticleMatch = components["schemas"]["MatchDetailResponse"];
