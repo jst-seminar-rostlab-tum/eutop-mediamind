@@ -1,4 +1,4 @@
-"""add matching_runs tabel
+"""add matching_runs table
 
 Revision ID: 469815c7416b
 Revises: 3e8a9b88e46c
@@ -58,7 +58,7 @@ def upgrade() -> None:
         unique=False,
     )
     op.create_foreign_key(
-        None, "matches", "matching_runs", ["matching_run_id"], ["id"]
+        None, "matches", "matching_runs", ["matching_runs_id"], ["id"]
     )
     op.add_column(
         "reports", sa.Column("matching_runs_id", sa.Uuid(), nullable=True)
