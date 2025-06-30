@@ -18,6 +18,7 @@ import "./dashboard.css";
 import { useTranslation } from "react-i18next";
 import { FilterBar } from "~/custom-components/dashboard/filter-bar";
 import type { Profile } from "../../../types/model";
+import { useAuthorization } from "~/hooks/use-authorization";
 
 const suppressSWRReloading = {
   refreshInterval: 0,
@@ -73,11 +74,7 @@ export function DashboardPage() {
     mutate,
   } = useQuery("/api/v1/search-profiles", undefined, suppressSWRReloading);
 
-  const {
-    data: me,
-    error: meError,
-    isLoading: meLoading,
-  } = useQuery("/api/v1/users/me");
+  const { user: me } = useAuthorization();
 
   const { t } = useTranslation();
 
@@ -117,12 +114,9 @@ export function DashboardPage() {
 
   useEffect(() => {
     if (error) {
-      toast.error("Failed to load profiles.");
+      toast.error(t("dashboar.loading_failed"));
     }
-    if (meError) {
-      toast.error("Failed to load user information.");
-    }
-  }, [error, meError]);
+  }, [error]);
 
   const breakingNews = [
     {
@@ -189,11 +183,17 @@ export function DashboardPage() {
         </Button>
       </div>
       <FilterBar onFiltersChange={setFilters} />
-      {isLoading || meLoading || !me ? (
+      {isLoading || !me ? (
         <div className="flex items-center justify-center py-8">
           <Loader2 className="h-8 w-8 animate-spin" />
           <span className="ml-2 text-muted-foreground">
             {t("dashboard.profiles_loading")}
+          </span>
+        </div>
+      ) : filteredAndSortedProfiles?.length === 0 ? (
+        <div className="flex items-center justify-center py-8">
+          <span className="text-gray-400">
+            No matched profiles for current filters
           </span>
         </div>
       ) : (

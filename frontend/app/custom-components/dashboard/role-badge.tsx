@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 
 import { cn } from "~/lib/utils";
+import { useTranslation } from "react-i18next";
 
 const roleBadgeVariants = cva(
   "inline-flex items-center gap-1 rounded-md transition-colors px-1.5 py-1 text-sm",
@@ -33,35 +34,35 @@ const roleBadgeVariants = cva(
 const roleConfig = {
   owner: {
     icon: UserRoundCog,
-    label: "Owner",
+    label: "role-badge.owner",
   },
   reader: {
     icon: Eye,
-    label: "Reader",
+    label: "role-badge.reader",
   },
   editor: {
     icon: UserPen,
-    label: "Editor",
+    label: "role-badge.editor",
   },
   public: {
     icon: Users,
-    label: "Public",
+    label: "role-badge.public",
   },
   shared: {
     icon: UserCheck,
-    label: "Shared",
+    label: "role-badge.shared",
   },
   private: {
     icon: EyeOff,
-    label: "Private",
+    label: "role-badge.private",
   },
   ownership: {
     icon: Crown,
-    label: "Ownership",
+    label: "role-badge.ownership",
   },
   visibility: {
     icon: Eye,
-    label: "Visibility",
+    label: "role-badge.visibility",
   },
 } as const;
 
@@ -75,6 +76,7 @@ interface RoleBadgeProps
 
 function RoleBadge({ className, variant, ...props }: RoleBadgeProps) {
   const config = roleConfig[variant];
+  const { t } = useTranslation();
 
   if (!config) {
     console.warn(`Role "${variant}" not found`);
@@ -86,7 +88,7 @@ function RoleBadge({ className, variant, ...props }: RoleBadgeProps) {
   return (
     <div className={cn(roleBadgeVariants({ variant, className }))} {...props}>
       <Icon className={"h-4 w-4"} />
-      <span>{label}</span>
+      <span>{t(label)}</span>
     </div>
   );
 }
