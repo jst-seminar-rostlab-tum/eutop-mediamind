@@ -215,43 +215,49 @@ export function SearchProfileOverview() {
               </div>
               <div className="bg-card rounded-xl border shadow-sm">
                 <ScrollArea className="h-[755px] p-4">
-                  {matches?.matches.map((match) => {
-                    const relevance = match.relevance;
+                  {matches?.matches.length === 0 ? (
+                    <p className="text-muted-foreground text-sm text-center pt-2 italic">
+                      No matches found.
+                    </p>
+                  ) : (
+                    matches?.matches.map((match) => {
+                      const relevance = match.relevance;
 
-                    const bgColor =
-                      relevance > 7
-                        ? "bg-green-200"
-                        : relevance < 3
-                          ? "bg-red-200"
-                          : "bg-yellow-200";
+                      const bgColor =
+                        relevance > 7
+                          ? "bg-green-200"
+                          : relevance < 3
+                            ? "bg-red-200"
+                            : "bg-yellow-200";
 
-                    return (
-                      <Card
-                        className="mb-4 p-5 gap-4 justify-start"
-                        key={match.id}
-                      >
-                        <CardTitle className="text-xl">
-                          {match.article.headline["en"]}
-                        </CardTitle>
-                        <p>
-                          {truncateAtWord(match.article.summary["en"], 190)}
-                        </p>
-                        <div className="flex gap-3 items-center">
-                          <div className={`rounded-lg py-1 px-2 ${bgColor}`}>
-                            Relevance: {relevance}
-                          </div>
-                          {match.topics.map((topic) => (
-                            <div
-                              className="bg-secondary rounded-lg py-1 px-2"
-                              key={topic.id}
-                            >
-                              {topic.score + " " + topic.name}
+                      return (
+                        <Card
+                          className="mb-4 p-5 gap-4 justify-start"
+                          key={match.id}
+                        >
+                          <CardTitle className="text-xl">
+                            {match.article.headline["en"]}
+                          </CardTitle>
+                          <p>
+                            {truncateAtWord(match.article.summary["en"], 190)}
+                          </p>
+                          <div className="flex gap-3 items-center">
+                            <div className={`rounded-lg py-1 px-2 ${bgColor}`}>
+                              Relevance: {relevance}
                             </div>
-                          ))}
-                        </div>
-                      </Card>
-                    );
-                  })}
+                            {match.topics.map((topic) => (
+                              <div
+                                className="bg-secondary rounded-lg py-1 px-2"
+                                key={topic.id}
+                              >
+                                {topic.score + " " + topic.name}
+                              </div>
+                            ))}
+                          </div>
+                        </Card>
+                      );
+                    })
+                  )}
                 </ScrollArea>
               </div>
             </div>

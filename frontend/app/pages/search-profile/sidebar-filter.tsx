@@ -141,7 +141,7 @@ export function SidebarFilter({
                 );
               }}
             />
-            <Label>{source.name}</Label>
+            <Label htmlFor={source.id}>{source.name}</Label>
           </div>
         ))}
       </ScrollArea>
@@ -174,7 +174,7 @@ export function SidebarFilter({
                 );
               }}
             />
-            <Label>{topic.name}</Label>
+            <Label htmlFor={topic.id}>{topic.name}</Label>
           </div>
         ))}
       </ScrollArea>

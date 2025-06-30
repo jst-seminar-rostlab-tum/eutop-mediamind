@@ -153,6 +153,7 @@
     "From": "Von",
     "To": "Bis",
     "articles": "Artikel",
-    "Relevance": "Relevanz"
+    "Relevance": "Relevanz",
+    "No_articles": "Keine Artikel gefunden"
   }
 }
