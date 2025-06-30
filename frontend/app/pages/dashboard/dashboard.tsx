@@ -1,5 +1,5 @@
 import { ProfileCard } from "~/custom-components/dashboard/profile-card";
-import { Loader2, Megaphone, Plus } from "lucide-react";
+import { Info, Loader2, Plus } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import {
   Breadcrumb,
@@ -52,15 +52,17 @@ export function DashboardPage() {
       <Breadcrumb className="mt-8">
         <BreadcrumbList>
           <BreadcrumbItem>
-            <BreadcrumbLink href="/dashboard">Home</BreadcrumbLink>
+            <BreadcrumbLink href="/dashboard">
+              {t("breadcrumb_home")}
+            </BreadcrumbLink>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
-      <h1 className="text-3xl font-bold mb-2">Dashboard</h1>
+      <h1 className="text-3xl font-bold mb-4">{t("dashboard.dashboard")}</h1>
       <Link to="/dashboard/breaking">
-        <Alert className="hover:bg-gray-100 mb-2">
-          <Megaphone />
-          <AlertTitle>Click here to view the latest breaking news!</AlertTitle>
+        <Alert className="hover:bg-blue-100 mb-4 bg-blue-200 text-blue-900">
+          <Info />
+          <AlertTitle>{t("breaking-news.entry")}</AlertTitle>
         </Alert>
       </Link>
       <div className={"flex gap-5"}>

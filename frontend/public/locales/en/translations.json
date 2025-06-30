@@ -12,6 +12,7 @@
   "search": "Search",
   "Cancel": "Cancel",
   "save_changes": "Save Changes",
+  "breadcrumb_home": "Home",
 
   "landing_page": {
     "welcome": "Welcome to MediaMind",
@@ -20,7 +21,7 @@
   },
 
   "dashboard": {
-    "dashboard": "Dashbaord",
+    "dashboard": "Dashboard",
     "profile": "Profiles",
     "new_articles": "new articles",
     "profiles_loading": "Load profiles ...",
@@ -142,5 +143,12 @@
     "credentials_error_text": "Please insert valid credentials.",
     "username": "Username",
     "password": "Password"
+  },
+
+  "breaking-news": {
+    "header": "Breaking News",
+    "news_loading": "Loading breaking news...",
+    "no_news": "No breaking news available.",
+    "entry": "Click here to view the latest breaking news!"
   }
 }

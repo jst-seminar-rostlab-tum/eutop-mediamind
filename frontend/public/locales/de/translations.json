@@ -12,6 +12,7 @@
   "search": "Suchen",
   "Cancel": "Abbruch",
   "save_changes": "Änderungen speichern",
+  "breadcrumb_home": "Home",
 
   "landing_page": {
     "welcome": "Wilkommen bei MediaMind",
@@ -142,5 +143,12 @@
     "credentials_error_text": "Bitte geben sie gültige Anmeldedaten ein",
     "username": "Benutzername",
     "password": "Passwort"
+  },
+
+  "breaking-news": {
+    "header": "Breaking News",
+    "news_loading": "Nachrichten werden geladen...",
+    "no_news": "Keine Nachrichten verfügbar.",
+    "entry": "Klicke hier, um die neusten globalen Nachrichten anzusehen!"
   }
 }
