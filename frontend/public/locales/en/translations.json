@@ -26,7 +26,9 @@
     "new_articles": "new articles",
     "profiles_loading": "Load profiles ...",
     "breaking_news": "Breaking News",
-    "read_more": "Read more"
+    "read_more": "Read more",
+    "loading_failed": "Failed to load profiles.",
+    "only_updated": "Only show updated"
   },
 
   "confirmation_dialog": {
@@ -61,7 +63,9 @@
     "ownership": "Ownership",
     "ownership_text": "Transfer ownership of the profile",
     "select_user": "Select user...",
-    "user_error": "Failed to load users."
+    "user_error": "Failed to load users.",
+    "language": "Language",
+    "language_text": "Specify the language of the report and topic & keywords. If the language is changed, these content settings of the profile should also be adjusted."
   },
 
   "topics": {
@@ -156,5 +160,19 @@
     "meta_data_status": "Status",
     "meta_data_category": "Category",
     "keywords_text": "Displays matched profile topics with keywords, and a score indicating topic relevance to the article."
+
+  "role-badge": {
+    "owner": "Owner",
+    "reader": "Reader",
+    "editor": "Editor",
+    "public": "Public",
+    "shared": "Shared",
+    "private": "Private",
+    "ownership": "Access rights",
+    "visibility": "Visibility"
+  },
+
+  "sr-only": {
+    "open_menu": "Open menu"
   }
 }

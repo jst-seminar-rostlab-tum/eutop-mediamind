@@ -26,7 +26,9 @@
     "new_articles": "Neue Artikel",
     "profiles_loading": "Lade Profile ...",
     "breaking_news": "Aktuelle Schlagzeile",
-    "read_more": "Weiter lesen"
+    "read_more": "Weiter lesen",
+    "loading_failed": "Profile konnten nicht geladen werden.",
+    "only_updated": "Nur aktualisierte anzeigen"
   },
 
   "confirmation_dialog": {
@@ -61,7 +63,9 @@
     "ownership": "Besitzer",
     "ownership_text": "Besitzer des Profils wechseln",
     "select_user": "Benutzer auswählen...",
-    "user_error": "Laden der Benutzer fehlgeschlagen."
+    "user_error": "Laden der Benutzer fehlgeschlagen.",
+    "language": "Sprache",
+    "language_text": "Legt die Sprache des Reports und von Topic & Keywords fest. Wenn die Sprache geändert wird, sollten auch die inhaltlichen Einstellungen des Profils angepasst werden."
   },
 
   "topics": {
@@ -156,5 +160,19 @@
     "meta_data_status": "Status",
     "meta_data_category": "Kategorie",
     "keywords_text": "Zeigt übereinstimmende Themen mit Schlüsselwörtern und einer Bewertung an, die die Themenrelevanz für den Artikel angibt."
+
+  "role-badge": {
+      "owner": "Besitzer",
+      "reader": "Leser",
+      "editor": "Bearbeiter",
+      "public": "Öffentlich",
+      "shared": "Geteilt",
+      "private": "Privat",
+      "ownership": "Berechtigung",
+      "visibility": "Sichtbarkeit"
+  },
+
+  "sr-only": {
+      "open_menu": "Menü öffnen"
   }
 }

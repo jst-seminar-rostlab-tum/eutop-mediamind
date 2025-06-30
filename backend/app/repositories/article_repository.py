@@ -1,13 +1,16 @@
+import uuid
+from datetime import datetime
 from typing import List, Optional, Sequence
 from uuid import UUID
 
-from sqlalchemy import desc, or_, select
+from sqlalchemy import or_, select
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy.orm.strategy_options import joinedload
+from sqlalchemy.orm import selectinload
 
 from app.core.db import async_session
 from app.core.logger import get_logger
 from app.models.article import Article
+from app.models.match import Match
 
 logger = get_logger(__name__)
 
@@ -187,15 +190,34 @@ class ArticleRepository:
             return summarized_articles
 
     @staticmethod
-    async def get_sameple_articles(limit: int) -> List[Article]:
+    async def get_matched_articles_for_profile(
+        search_profile_id: uuid.UUID,
+        match_start_time: datetime,
+        match_stop_time: datetime,
+        limit: int = 100,
+    ) -> List[Article]:
         async with async_session() as session:
-            result = await session.execute(
-                select(Article)
-                .order_by(desc(Article.published_at))
+            query = (
+                select(Match)
+                .options(
+                    selectinload(Match.article).selectinload(
+                        Article.subscription
+                    ),
+                    selectinload(Match.article).selectinload(Article.keywords),
+                )
+                .where(
+                    Match.search_profile_id == search_profile_id,
+                    Match.article.has(
+                        Article.published_at.between(
+                            match_start_time, match_stop_time
+                        )
+                    ),
+                )
+                .order_by(Match.sorting_order.asc())
                 .limit(limit)
-                .options(joinedload("*"))
             )
-            return result.unique().scalars().all()
+            matches = (await session.execute(query)).scalars().all()
+            return [m.article for m in matches if m.article is not None]
 
     @staticmethod
     async def list_new_articles_by_subscription(
@@ -285,3 +307,19 @@ class ArticleRepository:
             await session.commit()
             await session.refresh(existing_article)
             return existing_article
+
+    @staticmethod
+    # get subscription id for an article
+    async def get_subscription_id_for_article(
+        article_id: UUID,
+    ) -> Optional[UUID]:
+        """
+        Retrieve the subscription ID for a given article.
+        Returns None if the article does not have a subscription.
+        """
+        async with async_session() as session:
+            statement = select(Article).where(Article.id == article_id)
+            article: Optional[Article] = (
+                await session.execute(statement)
+            ).scalar_one_or_none()
+            return article.subscription_id if article else None

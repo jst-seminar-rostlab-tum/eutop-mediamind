@@ -11,6 +11,7 @@ class ReportBase(BaseModel):
     search_profile_id: uuid.UUID
     created_at: datetime
     time_slot: Optional[str] = None
+    language: str
     s3_key: str
     status: ReportStatus = ReportStatus.PENDING
 
