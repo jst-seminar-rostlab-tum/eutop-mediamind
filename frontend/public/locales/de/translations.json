@@ -20,7 +20,6 @@
 
   "breadcrumb_home": "Home",
 
-
   "landing_page": {
     "welcome": "Wilkommen bei MediaMind",
     "welcome_text": "Bleiben sie informiert in der sich schnell ändernden Welt der digitalen Medien, mit unserem automatischen Presse Analyse Tool. Halten sie ihre Kunden auf dem neusten Stand mit täglichen Presse Updates, angepasst an ihre Bedürfnisse. Unsere Plattform extrahiert die wichtigsten Nachrichten und fasst sie in kurze und informative Beiträge zusammen – direkt in ihr Email Postfach. Sparen sie Zeit, bleiben sie Informiert, und fokusieren sie sich auf das Wesentliche – das Liefern von Mehrwert für ihre Kunden.",
@@ -166,6 +165,7 @@
     "articles": "Artikel",
     "Relevance": "Relevanz",
     "No_articles": "Keine Artikel gefunden"
+  },
 
   "article-page": {
     "summary_header": "Zusammenfassung",

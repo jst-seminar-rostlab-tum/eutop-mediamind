@@ -13,7 +13,7 @@
   "Cancel": "Cancel",
   "save_changes": "Save Changes",
   "Search": "Search",
-  
+
   "breadcrumbs": {
     "Dashboard": "Dashboard"
   },
@@ -155,7 +155,6 @@
     "password": "Password"
   },
 
-
   "search_profile": {
     "Topics": "Topics",
     "Sorting": "Sorting",
@@ -166,6 +165,7 @@
     "articles": "Articles",
     "Relevance": "Relevance",
     "No_articles": "No articles found."
+  },
 
   "article-page": {
     "summary_header": "Summary",
