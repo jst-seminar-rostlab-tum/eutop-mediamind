@@ -4,7 +4,7 @@ interface ArticleBodyProps {
   title: string;
   content: string;
   published_at: string;
-  author: string;
+  author?: string;
 }
 
 const calculateReadingTime = (text: string): string => {
@@ -34,10 +34,14 @@ export function ArticleBody({
         <div className={"flex items-center gap-2"}>
           <Calendar className={"w-4 h-4"} /> {published_at}
         </div>
-        <span className="mx-4">•</span>
-        <div className={"flex items-center gap-2"}>
-          <User className={"w-4 h-4"} /> {author}
-        </div>
+        {author && (
+          <>
+            <span className="mx-4">•</span>
+            <div className={"flex items-center gap-2"}>
+              <User className={"w-4 h-4"} /> {author}
+            </div>
+          </>
+        )}
         <span className="mx-4">•</span>
         <div className={"flex items-center gap-2"}>
           <FileClock className={"w-4 h-4"} />

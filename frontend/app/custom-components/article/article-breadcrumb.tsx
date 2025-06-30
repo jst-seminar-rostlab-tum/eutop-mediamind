@@ -8,6 +8,7 @@ import {
 } from "~/components/ui/breadcrumb";
 import React from "react";
 import { truncateAtWord } from "~/lib/utils";
+import { useTranslation } from "react-i18next";
 
 interface ArticleBreadcrumbProps {
   searchProfileId: string;
@@ -20,11 +21,14 @@ export function ArticleBreadcrumb({
   searchProfileName,
   articleName,
 }: ArticleBreadcrumbProps) {
+  const { t } = useTranslation();
   return (
     <Breadcrumb>
       <BreadcrumbList>
         <BreadcrumbItem>
-          <BreadcrumbLink href="/dashboard">Home</BreadcrumbLink>
+          <BreadcrumbLink href="/dashboard">
+            {t("breadcrumb_home")}
+          </BreadcrumbLink>
         </BreadcrumbItem>
         <BreadcrumbSeparator />
         <BreadcrumbItem>

@@ -12,6 +12,7 @@
   "search": "Search",
   "Cancel": "Cancel",
   "save_changes": "Save Changes",
+  "breadcrumb_home": "Home",
 
   "landing_page": {
     "welcome": "Welcome to MediaMind",
@@ -20,7 +21,7 @@
   },
 
   "dashboard": {
-    "dashboard": "Dashbaord",
+    "dashboard": "Dashboard",
     "profile": "Profiles",
     "new_articles": "new articles",
     "profiles_loading": "Load profiles ...",
@@ -146,6 +147,7 @@
 
   "article-page": {
     "summary_header": "Summary",
+    "original_header": "Original",
     "keywords_header": "Keywords",
     "meta_data_header": "Meta Data",
     "meta_data_published": "Published",

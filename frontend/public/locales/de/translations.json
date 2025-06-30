@@ -12,6 +12,7 @@
   "search": "Suchen",
   "Cancel": "Abbruch",
   "save_changes": "Änderungen speichern",
+  "breadcrumb_home": "Home",
 
   "landing_page": {
     "welcome": "Wilkommen bei MediaMind",
@@ -146,6 +147,7 @@
 
   "article-page": {
     "summary_header": "Zusammenfassung",
+    "original_header": "Original",
     "keywords_header": "Schlüsselwörter",
     "meta_data_header": "Metadaten",
     "meta_data_published": "Veröffentlicht",

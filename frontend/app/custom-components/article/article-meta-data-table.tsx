@@ -19,7 +19,7 @@ export function ArticleMetaDataTable({ article }: ArticleMetaDataTableProps) {
   return (
     <div className="border border-gray-200 rounded-3xl p-3">
       <Table>
-        <TableHead>{t("article-page.summary_header")}</TableHead>
+        <TableHead>{t("article-page.meta_data_header")}</TableHead>
         <TableBody>
           <TableRow>
             <TableCell>{t("article-page.meta_data_published")}</TableCell>

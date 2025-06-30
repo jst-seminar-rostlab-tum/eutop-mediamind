@@ -21,7 +21,7 @@ export function ArticleSidebar({ article }: ArticleSidebarProps) {
     <div className={"space-y-6"}>
       <Button asChild>
         <a href={article.article.article_url}>
-          Original
+          {t("article-page.original_header")}
           <ExternalLink />
         </a>
       </Button>

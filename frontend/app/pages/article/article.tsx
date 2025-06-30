@@ -53,11 +53,9 @@ export function ArticlePage({
             title={localizedHeadline}
             content={localizedText}
             published_at={publishDateString}
-            author={
-              article.article.authors
-                ? article.article.authors?.join(", ")
-                : "Unknown"
-            }
+            {...(article.article.authors?.length
+              ? { author: article.article.authors.join(", ") }
+              : {})}
           />
         </div>
         <div className="w-1/3">
