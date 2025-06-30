@@ -2,6 +2,9 @@ from fastapi import APIRouter
 from fastapi.responses import JSONResponse
 
 from app.api.v1.endpoints.article_controller import router as article_router
+from app.api.v1.endpoints.article_matching_controller import (
+    router as article_matching_router,
+)
 from app.api.v1.endpoints.crawler_controller import router as crawler_router
 from app.api.v1.endpoints.email_controller import router as email_router
 from app.api.v1.endpoints.keyword_controller import router as keyword_router
@@ -25,6 +28,7 @@ router_list = [
     subscription_router,
     email_router,
     vector_store_router,
+    article_matching_router,
     article_router,
     topic_router,
     keyword_router,

@@ -14,8 +14,11 @@ class SearchProfileBase(BaseModel):
     is_public: bool
     organization_emails: List[EmailStr] = []
     profile_emails: List[EmailStr] = []
+    can_edit_user_ids: List[UUID] = []
+    can_read_user_ids: List[UUID] = []
     subscriptions: List[SubscriptionSummary]
     owner_id: UUID
+    language: str = "en"
 
 
 # --- Request Models ---
@@ -38,10 +41,13 @@ class SearchProfileDetailBase(BaseModel):
     is_public: bool
     organization_emails: List[EmailStr]
     profile_emails: List[EmailStr]
-    editable: bool
-    is_editable: bool
+    can_read_user_ids: List[UUID]
+    is_reader: bool
+    can_edit_user_ids: List[UUID]
+    is_editor: bool
     owner_id: UUID
     is_owner: bool
+    language: str = "en"
     topics: List[TopicResponse]
 
 
@@ -50,8 +56,17 @@ class SearchProfileDetailResponse(SearchProfileDetailBase):
     new_articles_count: int
 
 
+class KeywordSuggestionTopic(BaseModel):
+    topic_name: str
+    keywords: List[str]
+
+
+class KeywordSuggestionRequest(BaseModel):
+    search_profile_name: str
+    search_profile_language: str
+    related_topics: List[KeywordSuggestionTopic]
+    selected_topic: KeywordSuggestionTopic
+
+
 class KeywordSuggestionResponse(BaseModel):
     suggestions: List[str]
-
-    def to_dict(self):
-        return {"keyword_suggestions": self.suggestions}

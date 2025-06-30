@@ -12,3 +12,7 @@ export type ProfileCreate = components["schemas"]["SearchProfileCreateRequest"];
 
 export type MatchesResponse =
   paths["/api/v1/search-profiles/{search_profile_id}/matches"]["post"]["responses"]["200"]["content"]["application/json"];
+
+export type BreakingNewsItem = components["schemas"]["BreakingNewsItem"];
+
+export type ArticleMatch = components["schemas"]["MatchDetailResponse"];

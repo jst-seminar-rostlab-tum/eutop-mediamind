@@ -18,6 +18,9 @@
     "Dashboard": "Dashboard"
   },
 
+  "breadcrumb_home": "Home",
+
+
   "landing_page": {
     "welcome": "Wilkommen bei MediaMind",
     "welcome_text": "Bleiben sie informiert in der sich schnell ändernden Welt der digitalen Medien, mit unserem automatischen Presse Analyse Tool. Halten sie ihre Kunden auf dem neusten Stand mit täglichen Presse Updates, angepasst an ihre Bedürfnisse. Unsere Plattform extrahiert die wichtigsten Nachrichten und fasst sie in kurze und informative Beiträge zusammen – direkt in ihr Email Postfach. Sparen sie Zeit, bleiben sie Informiert, und fokusieren sie sich auf das Wesentliche – das Liefern von Mehrwert für ihre Kunden.",
@@ -30,7 +33,9 @@
     "new_articles": "Neue Artikel",
     "profiles_loading": "Lade Profile ...",
     "breaking_news": "Aktuelle Schlagzeile",
-    "read_more": "Weiter lesen"
+    "read_more": "Weiter lesen",
+    "loading_failed": "Profile konnten nicht geladen werden.",
+    "only_updated": "Nur aktualisierte anzeigen"
   },
 
   "confirmation_dialog": {
@@ -65,7 +70,9 @@
     "ownership": "Besitzer",
     "ownership_text": "Besitzer des Profils wechseln",
     "select_user": "Benutzer auswählen...",
-    "user_error": "Laden der Benutzer fehlgeschlagen."
+    "user_error": "Laden der Benutzer fehlgeschlagen.",
+    "language": "Sprache",
+    "language_text": "Legt die Sprache des Reports und von Topic & Keywords fest. Wenn die Sprache geändert wird, sollten auch die inhaltlichen Einstellungen des Profils angepasst werden."
   },
 
   "topics": {
@@ -159,5 +166,42 @@
     "articles": "Artikel",
     "Relevance": "Relevanz",
     "No_articles": "Keine Artikel gefunden"
+
+  "article-page": {
+    "summary_header": "Zusammenfassung",
+    "original_header": "Original",
+    "keywords_header": "Schlüsselwörter",
+    "meta_data_header": "Metadaten",
+    "meta_data_published": "Veröffentlicht",
+    "meta_data_crawled": "Gecrawlt",
+    "meta_data_language": "Sprache",
+    "meta_data_status": "Status",
+    "meta_data_category": "Kategorie",
+    "keywords_text": "Zeigt übereinstimmende Themen mit Schlüsselwörtern und einer Bewertung an, die die Themenrelevanz für den Artikel angibt."
+  },
+
+  "role-badge": {
+    "owner": "Besitzer",
+    "reader": "Leser",
+    "editor": "Bearbeiter",
+    "public": "Öffentlich",
+    "shared": "Geteilt",
+    "private": "Privat",
+    "ownership": "Berechtigung",
+    "visibility": "Sichtbarkeit"
+  },
+
+  "sr-only": {
+    "open_menu": "Menü öffnen"
+  },
+
+  "breaking-news": {
+    "header": "Breaking News",
+    "news_loading": "Nachrichten werden geladen...",
+    "no_news": "Keine Nachrichten verfügbar.",
+    "entry": "Klicke hier, um die neusten globalen Nachrichten anzusehen!",
+    "show_less": "Weniger anzeigen",
+    "show_more": "Mehr anzeigen",
+    "original": "Original"
   }
 }

@@ -1,3 +1,5 @@
+import uuid
+from collections import defaultdict
 from datetime import datetime, timedelta, timezone
 from typing import List
 from uuid import UUID
@@ -7,22 +9,28 @@ from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 
 from app.core.db import async_session
-from app.models import SearchProfile, Topic, User
+from app.core.logger import get_logger
+from app.models import SearchProfile, Topic
+from app.models.match import Match
+from app.repositories.article_repository import ArticleRepository
 from app.repositories.email_repository import EmailRepository
+from app.repositories.keyword_repository import KeywordRepository
 from app.repositories.match_repository import MatchRepository
 from app.repositories.search_profile_repository import SearchProfileRepository
-from app.repositories.subscription_repository import (
-    SubscriptionRepository,
-)
+from app.repositories.subscription_repository import SubscriptionRepository
 from app.repositories.topics_repository import TopicsRepository
 from app.schemas.articles_schemas import (
-    ArticleOverviewItem,
     ArticleOverviewResponse,
+    MatchArticleOverviewContent,
     MatchDetailResponse,
+    MatchItem,
+    MatchProfileInfo,
+    MatchTopicItem,
 )
-from app.schemas.match_schemas import MatchFeedbackRequest
+from app.schemas.match_schemas import MatchFeedbackRequest, MatchFilterRequest
 from app.schemas.search_profile_schemas import (
     KeywordSuggestionResponse,
+    KeywordSuggestionTopic,
     SearchProfileCreateRequest,
     SearchProfileDetailResponse,
     SearchProfileUpdateRequest,
@@ -33,8 +41,15 @@ from app.schemas.subscription_schemas import (
 )
 from app.schemas.topic_schemas import TopicResponse
 from app.schemas.user_schema import UserEntity
+from app.services.article_vector_service import ArticleVectorService
 from app.services.llm_service.llm_client import LLMClient
 from app.services.llm_service.llm_models import LLMModels
+from app.services.llm_service.prompts.keyword_suggestion_prompts import (
+    KEYWORD_SUGGESTION_PROMPT_DE,
+    KEYWORD_SUGGESTION_PROMPT_EN,
+)
+
+logger = get_logger(__name__)
 
 
 class SearchProfileService:
@@ -55,6 +70,7 @@ class SearchProfileService:
                     organization_id=current_user.organization_id,
                     created_by_id=current_user.id,
                     owner_id=data.owner_id,
+                    language=data.language,
                 )
                 session.add(profile)
                 await session.flush()  # ← now profile.id is assigned
@@ -74,6 +90,12 @@ class SearchProfileService:
                     profile_id=profile.id,
                     organization_emails=data.organization_emails or [],
                     profile_emails=data.profile_emails or [],
+                    session=session,
+                )
+                await SearchProfileRepository.update_user_rights(
+                    profile=profile,
+                    can_read_user_ids=data.can_read_user_ids,
+                    can_edit_user_ids=data.can_edit_user_ids,
                     session=session,
                 )
 
@@ -142,13 +164,17 @@ class SearchProfileService:
         profile: SearchProfile, current_user: UserEntity
     ) -> SearchProfileDetailResponse:
         is_owner = profile.created_by_id == current_user.id
-        is_editable = (
-            is_owner
+
+        is_editor = (
+            current_user.id == profile.owner_id
             or current_user.is_superuser
-            or (
-                profile.is_public
-                and current_user.organization_id == profile.organization_id
-            )
+            or current_user.id in profile.can_edit_user_ids
+        )
+
+        is_reader = (
+            current_user.id == profile.owner_id
+            or current_user.is_superuser
+            or current_user.id in profile.can_read_user_ids
         )
 
         organization_emails = (
@@ -183,10 +209,12 @@ class SearchProfileService:
             id=profile.id,
             name=profile.name,
             is_public=profile.is_public,
-            editable=is_editable,
-            is_editable=is_editable,
             owner_id=profile.created_by_id,
             is_owner=is_owner,
+            can_read_user_ids=profile.can_read_user_ids,
+            is_reader=is_reader,
+            can_edit_user_ids=profile.can_edit_user_ids,
+            is_editor=is_editor,
             organization_emails=organization_emails,
             profile_emails=profile_emails,
             topics=topic_responses,
@@ -258,18 +286,151 @@ class SearchProfileService:
             )
 
     @staticmethod
-    async def get_article_overview(
+    async def get_article_matches(
         search_profile_id: UUID,
+        request: MatchFilterRequest,
     ) -> ArticleOverviewResponse:
-        matches = await MatchRepository.get_articles_by_profile(
-            search_profile_id
+        matches: List[Match] = []
+        relevance_map: dict[UUID, float] = {}
+
+        if request.searchTerm:
+            # Qdrant vertor search
+            avs = ArticleVectorService()
+            results = await avs.retrieve_by_similarity(
+                query=request.searchTerm
+            )
+
+            # extract article IDs and relevance scores
+            article_ids = []
+            for doc, score in results:
+                aid = uuid.UUID(doc.metadata["id"])
+                article_ids.append(aid)
+                relevance_map[aid] = score
+
+            # get matches for the profile with the article IDs
+            all_matches = await MatchRepository.get_matches_by_search_profile(
+                search_profile_id,
+            )
+            matches = [
+                m
+                for m in all_matches
+                if m.article_id in article_ids
+                and m.article
+                and request.startDate
+                <= m.article.published_at.date()
+                <= request.endDate
+            ]
+        else:
+            # no search term: get all matches for the profile
+            matches = await MatchRepository.get_matches_by_search_profile(
+                search_profile_id,
+            )
+            matches = [
+                m
+                for m in matches
+                if m.article
+                and request.startDate
+                <= m.article.published_at.date()
+                <= request.endDate
+            ]
+
+        if request.subscriptions:
+            matches = [
+                m
+                for m in matches
+                if await ArticleRepository.get_subscription_id_for_article(
+                    m.article_id
+                )
+                in request.subscriptions
+            ]
+
+        # filter matches by requested topics
+        if request.topics:
+            requested_topic_ids = set(request.topics)
+            matches = [m for m in matches if m.topic_id in requested_topic_ids]
+
+        # sorting
+        if request.sorting == "RELEVANCE":
+            matches.sort(key=lambda m: m.score, reverse=True)
+        else:
+            matches.sort(key=lambda m: m.article.published_at, reverse=True)
+
+        article_match_map: dict[UUID, List[Match]] = defaultdict(list)
+        for m in matches:
+            article_match_map[m.article_id].append(m)
+
+        all_topic_ids = {m.topic_id for m in matches if m.topic_id is not None}
+
+        topic_names = await TopicsRepository.get_topic_names_by_ids(
+            all_topic_ids
         )
-        articles = [
-            ArticleOverviewItem.from_entity(m) for m in matches if m.article
-        ]
-        return ArticleOverviewResponse(
-            search_profile_id=search_profile_id, articles=articles
+        topic_keywords_map = await KeywordRepository.get_keywords_by_topic_ids(
+            all_topic_ids
         )
+
+        match_items = []
+        for article_id, match_group in article_match_map.items():
+            article = match_group[0].article
+            topics = []
+            total_score = 0.0
+            for m in match_group:
+                topic_id = m.topic_id
+                if topic_id is None:
+                    continue
+                topics.append(
+                    MatchTopicItem(
+                        id=topic_id,
+                        name=topic_names.get(topic_id, ""),
+                        score=round(m.score, 4),
+                        keywords=topic_keywords_map.get(topic_id, []),
+                    )
+                )
+                total_score += m.score
+
+            avg_score = total_score / len(topics) if topics else 0.0
+
+            categories = (
+                article.categories
+                if isinstance(article.categories, list)
+                else (
+                    [article.categories]
+                    if article.categories is not None
+                    else []
+                )
+            )
+            article_content = MatchArticleOverviewContent(
+                article_url=article.url or "https://no_url.com/",
+                headline={
+                    "de": article.title_de or "",
+                    "en": article.title_en or "",
+                },
+                summary={
+                    "de": article.summary_de or "",
+                    "en": article.summary_en or "",
+                },
+                text={
+                    "de": article.content_de or "",
+                    "en": article.content_en or "",
+                },
+                image_urls=["https://example.com/image.jpg"],
+                published=article.published_at,
+                crawled=article.crawled_at,
+                newspaper_id=article.subscription_id,
+                authors=article.authors or [],
+                categories=categories,
+                status=article.status,
+            )
+
+            match_items.append(
+                MatchItem(
+                    id=match_group[0].id,
+                    relevance=avg_score,
+                    topics=topics,
+                    article=article_content,
+                )
+            )
+
+        return ArticleOverviewResponse(matches=match_items)
 
     @staticmethod
     async def get_match_detail(
@@ -280,19 +441,63 @@ class SearchProfileService:
         )
         if not match or not match.article:
             return None
-        a = match.article
+        article = match.article
+        profile = await SearchProfileRepository.get_search_profile_by_id(
+            search_profile_id
+        )
+
+        all_matches = await MatchRepository.get_matches_by_profile_and_article(
+            search_profile_id=search_profile_id, article_id=article.id
+        )
+
+        topic_ids = {m.topic_id for m in all_matches if m.topic_id is not None}
+
+        topic_names = await TopicsRepository.get_topic_names_by_ids(topic_ids)
+        topic_keywords_map = await KeywordRepository.get_keywords_by_topic_ids(
+            topic_ids
+        )
+
+        topics = []
+        for m in all_matches:
+            tid = m.topic_id
+            if tid is None:
+                continue
+            topics.append(
+                MatchTopicItem(
+                    id=tid,
+                    name=topic_names.get(tid, ""),
+                    score=round(m.score, 4),
+                    keywords=topic_keywords_map.get(tid, []),
+                )
+            )
+
         return MatchDetailResponse(
             match_id=match.id,
-            comment=match.comment,
-            sorting_order=match.sorting_order,
-            article_id=a.id,
-            title=a.title,
-            url=a.url,
-            author=a.author,
-            published_at=a.published_at,
-            language=a.language,
-            category=a.category,
-            summary=a.summary,
+            topics=topics,
+            search_profile=MatchProfileInfo(id=profile.id, name=profile.name),
+            article=MatchArticleOverviewContent(
+                article_url=article.url or "https://no_url.com/",
+                headline={
+                    "de": article.title_de or "",
+                    "en": article.title_en or "",
+                },
+                summary={
+                    "de": article.summary_de or "",
+                    "en": article.summary_en or "",
+                },
+                text={
+                    "de": article.content_de or "",
+                    "en": article.content_en or "",
+                },
+                image_urls=[article.image_url or "https://no_image.com/"],
+                published=article.published_at,
+                crawled=article.crawled_at,
+                authors=article.authors or [],
+                status=article.status,
+                categories=article.categories or [],
+                language=article.language,
+                newspaper_id=article.subscription_id,
+            ),
         )
 
     @staticmethod
@@ -329,27 +534,54 @@ class SearchProfileService:
 
     @staticmethod
     async def get_keyword_suggestions(
-        user: User, suggestions: List[str]
+        search_profile_name: str,
+        search_profile_language: str,
+        related_topics: List[KeywordSuggestionTopic],
+        selected_topic: KeywordSuggestionTopic,
     ) -> KeywordSuggestionResponse:
-        # Avoid useless LLM calls if no topics are available
-        if len(suggestions) == 0:
-            return KeywordSuggestionResponse(suggestions=[])
-
-        prompt = """
-        I will give you a list related keywords. Please add 5
-        new relevant keywords. Don't include synonyms, but suggest
-        words to pin down the topic more exactly with your added
-        relevant keywords.\n
+        """
+        Generate keyword suggestions based on the
+        search profile information
         """
 
-        prompt += "Keywords: " + ", ".join(suggestions) + "\n\n"
+        def format_related_topics(topics: List[KeywordSuggestionTopic]) -> str:
+            if not topics:
+                return "--"
+            return "\n".join(
+                f"{topic.topic_name}: {', '.join(topic.keywords)}"
+                for topic in topics
+            )
 
-        lhm_client = LLMClient(LLMModels.openai_4o)
+        prompt: str
+        if search_profile_language == "de":
+            prompt = KEYWORD_SUGGESTION_PROMPT_DE
+        elif search_profile_language == "en":
+            prompt = KEYWORD_SUGGESTION_PROMPT_EN
+        else:
+            raise HTTPException(
+                status_code=400,
+                detail="Unsupported language for keyword suggestions",
+            )
 
-        response = lhm_client.generate_typed_response(
+        prompt = prompt.format(
+            search_profile_name=search_profile_name,
+            selected_topic_name=selected_topic.topic_name,
+            selected_topic_keywords=", ".join(selected_topic.keywords),
+            related_topics=format_related_topics(related_topics),
+        )
+
+        llm = LLMClient(LLMModels.openai_4o)
+
+        response = llm.generate_typed_response(
             prompt, KeywordSuggestionResponse
         )
+
         if not response:
+            logger.error(
+                f"Failed to generate keyword "
+                f"suggestions from LLM "
+                f"for profile {search_profile_name}"
+            )
             raise HTTPException(
                 status_code=500,
                 detail="Failed to generate keyword suggestions from LLM",
