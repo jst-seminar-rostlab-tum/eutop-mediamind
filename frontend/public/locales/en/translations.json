@@ -149,6 +149,9 @@
     "header": "Breaking News",
     "news_loading": "Loading breaking news...",
     "no_news": "No breaking news available.",
-    "entry": "Click here to view the latest breaking news!"
+    "entry": "Click here to view the latest breaking news!",
+    "show_less": "Show less",
+    "show_more": "Show more",
+    "original": "Original"
   }
 }

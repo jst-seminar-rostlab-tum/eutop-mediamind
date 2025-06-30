@@ -149,6 +149,9 @@
     "header": "Breaking News",
     "news_loading": "Nachrichten werden geladen...",
     "no_news": "Keine Nachrichten verfügbar.",
-    "entry": "Klicke hier, um die neusten globalen Nachrichten anzusehen!"
+    "entry": "Klicke hier, um die neusten globalen Nachrichten anzusehen!",
+    "show_less": "Weniger anzeigen",
+    "show_more": "Mehr anzeigen",
+    "original": "Original"
   }
 }
