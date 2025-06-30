@@ -5,7 +5,6 @@ import type { ArticleMatch } from "../../../types/model";
 import { ArticleBody } from "~/custom-components/article/article-body";
 import Layout from "~/custom-components/layout";
 import { formatDate, getLocalizedContent } from "~/lib/utils";
-import { useTranslation } from "react-i18next";
 
 interface ArticleProps {
   searchProfileId: string;
@@ -19,22 +18,9 @@ export function ArticlePage({
   article,
   searchProfileName,
 }: ArticleProps) {
-  const { i18n } = useTranslation();
-
-  const getLocale = (language: string) => {
-    switch (language) {
-      case "de":
-        return "de-DE";
-      case "en":
-        return "en-US";
-      default:
-        return "en-US";
-    }
-  };
 
   const publishDateString = formatDate(
     article.article.published,
-    getLocale(i18n.language),
   );
 
   const localizedHeadline = getLocalizedContent(article.article.headline);
