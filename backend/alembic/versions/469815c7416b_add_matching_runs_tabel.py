@@ -76,7 +76,7 @@ def downgrade() -> None:
     op.drop_column("reports", "matching_runs_id")
     op.drop_constraint(None, "matches", type_="foreignkey")
     op.drop_index(op.f("ix_matches_matching_run_id"), table_name="matches")
-    op.drop_column("matches", "matching_run_id")
+    op.drop_column("matches", "matching_runs_id")
     op.drop_table("matching_runs")
     seq = sa.Sequence("matching_run_counter_seq")
     op.execute(DropSequence(seq))
