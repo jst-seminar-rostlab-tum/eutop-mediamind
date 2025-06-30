@@ -35,6 +35,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "~/components/ui/tooltip";
+import { useNavigate } from "react-router";
 
 interface ProfileCardProps {
   profile: Profile;
@@ -53,6 +54,7 @@ export function ProfileCard({
   const titleRef = useRef<HTMLHeadingElement>(null);
 
   const { t } = useTranslation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const element = titleRef.current;
@@ -194,6 +196,7 @@ export function ProfileCard({
             className={
               "w-full h-20 bg-gray-100 items-center flex justify-center rounded-2xl hover:bg-gray-200 hover:cursor-pointer transition-background duration-300"
             }
+            onClick={() => navigate(`/search-profile/${profile.id}`)}
           >
             <span className={"text-gray-700"}>Explore</span>
             <ChevronRight className="w-7 h-7" />
