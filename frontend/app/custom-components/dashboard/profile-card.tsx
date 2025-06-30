@@ -3,8 +3,6 @@ import {
   SquarePen,
   OctagonAlert,
   MoreVertical,
-  UserSearch,
-  MoveRight,
   ChevronRight,
 } from "lucide-react";
 import type { KeyedMutator } from "swr";
