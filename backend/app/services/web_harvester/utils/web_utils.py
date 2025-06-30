@@ -23,6 +23,7 @@ def create_driver(headless: bool = True):
         "--enable-features=NetworkService,NetworkServiceInProcess"
     )
     chrome_options.add_argument("--disable-gpu")
+    chrome_options.set_capability("goog:loggingPrefs", {"performance": "ALL"})
     chrome_options.add_argument(f"--user-agent={UserAgent().random}")
 
     driver = webdriver.Chrome(options=chrome_options)
@@ -335,3 +336,25 @@ def hardcoded_logout(driver, wait, subscription: Subscription):
         return True
 
     return False
+
+
+def get_response_code(driver, url):
+    """
+    Get the HTTP response code of the main page after loading it in the
+    browser. This function uses the performance logs to find the response
+    code of the main page.
+    """
+    logs = driver.get_log("performance")
+    main_page_status = 404
+
+    for log in logs:
+        message = json.loads(log["message"])
+        if message["message"]["method"] == "Network.responseReceived":
+            response = message["message"]["params"]["response"]
+            response_url = response["url"]
+
+            # Check if this is the main page (exact match or main document)
+            if response_url == url or response["mimeType"] == "text/html":
+                main_page_status = response["status"]
+                break
+    return main_page_status
