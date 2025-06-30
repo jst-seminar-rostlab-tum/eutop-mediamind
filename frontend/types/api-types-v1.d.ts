@@ -556,11 +556,6 @@ export interface components {
             /** Total Count */
             total_count: number;
         };
-        /**
-         * ArticleStatus
-         * @enum {string}
-         */
-        ArticleStatus: "new" | "scraped" | "error";
         /** FeedbackResponse */
         FeedbackResponse: {
             /** Status */
