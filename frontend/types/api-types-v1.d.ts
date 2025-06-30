@@ -34,9 +34,14 @@ export interface paths {
          *     return the single user if restricted.
          */
         get: operations["get_users_api_v1_users_get"];
-        put?: never;
+        /** Update Language */
+        put: operations["update_language_api_v1_users_put"];
         post?: never;
-        delete?: never;
+        /**
+         * Delete Current User
+         * @description Delete the authenticated user's account.
+         */
+        delete: operations["delete_current_user_api_v1_users_delete"];
         options?: never;
         head?: never;
         patch?: never;
@@ -56,11 +61,7 @@ export interface paths {
         get: operations["get_current_user_info_api_v1_users_me_get"];
         put?: never;
         post?: never;
-        /**
-         * Delete Current User
-         * @description Delete the authenticated user's account.
-         */
-        delete: operations["delete_current_user_api_v1_users_me_delete"];
+        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -527,6 +528,12 @@ export interface components {
          * @enum {string}
          */
         ArticleStatus: "new" | "scraped" | "error";
+        /** Body_get_keyword_suggestions_api_v1_search_profiles_keywords_suggestions_post */
+        Body_get_keyword_suggestions_api_v1_search_profiles_keywords_suggestions_post: {
+            /** Related Topics */
+            related_topics: components["schemas"]["KeywordSuggestionTopic"][];
+            selected_topic: components["schemas"]["KeywordSuggestionTopic"];
+        };
         /** BreakingNewsItem */
         BreakingNewsItem: {
             /** Id */
@@ -573,6 +580,13 @@ export interface components {
         KeywordSuggestionResponse: {
             /** Suggestions */
             suggestions: string[];
+        };
+        /** KeywordSuggestionTopic */
+        KeywordSuggestionTopic: {
+            /** Topic Name */
+            topic_name: string;
+            /** Keywords */
+            keywords: string[];
         };
         /** MatchArticleOverviewContent */
         MatchArticleOverviewContent: {
@@ -792,6 +806,11 @@ export interface components {
              * Format: uuid
              */
             owner_id: string;
+            /**
+             * Language
+             * @default en
+             */
+            language: string;
             /** Topics */
             topics: components["schemas"]["TopicCreateOrUpdateRequest"][];
         };
@@ -825,6 +844,11 @@ export interface components {
             owner_id: string;
             /** Is Owner */
             is_owner: boolean;
+            /**
+             * Language
+             * @default en
+             */
+            language: string;
             /** Topics */
             topics: components["schemas"]["TopicResponse"][];
             /** Subscriptions */
@@ -865,6 +889,11 @@ export interface components {
              * Format: uuid
              */
             owner_id: string;
+            /**
+             * Language
+             * @default en
+             */
+            language: string;
             /** Topics */
             topics: components["schemas"]["TopicCreateOrUpdateRequest"][];
         };
@@ -936,6 +965,11 @@ export interface components {
             last_name: string;
             /** Is Superuser */
             is_superuser: boolean;
+            /**
+             * Language
+             * @default en
+             */
+            language: string;
             /** Organization Id */
             organization_id?: string | null;
             /** Organization Name */
@@ -999,6 +1033,57 @@ export interface operations {
             };
         };
     };
+    update_language_api_v1_users_put: {
+        parameters: {
+            query: {
+                language: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserEntity"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_current_user_api_v1_users_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FeedbackResponse"];
+                };
+            };
+        };
+    };
     get_current_user_info_api_v1_users_me_get: {
         parameters: {
             query?: never;
@@ -1015,26 +1100,6 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["UserEntity"];
-                };
-            };
-        };
-    };
-    delete_current_user_api_v1_users_me_delete: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["FeedbackResponse"];
                 };
             };
         };
@@ -1114,14 +1179,17 @@ export interface operations {
     };
     get_keyword_suggestions_api_v1_search_profiles_keywords_suggestions_post: {
         parameters: {
-            query?: never;
+            query: {
+                search_profile_name: string;
+                search_profile_language: string;
+            };
             header?: never;
             path?: never;
             cookie?: never;
         };
         requestBody: {
             content: {
-                "application/json": string[];
+                "application/json": components["schemas"]["Body_get_keyword_suggestions_api_v1_search_profiles_keywords_suggestions_post"];
             };
         };
         responses: {

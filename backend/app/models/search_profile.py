@@ -1,7 +1,7 @@
 import uuid
 from typing import TYPE_CHECKING, List
 
-from sqlalchemy import ARRAY, Column, String
+from sqlalchemy import ARRAY, CheckConstraint, Column, String
 from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 from sqlmodel import Field, Relationship, SQLModel
 
@@ -39,6 +39,20 @@ class SearchProfile(SQLModel, table=True):
         default_factory=list,
         sa_column=Column(ARRAY(PG_UUID(as_uuid=True)), server_default="{}"),
     )
+    # Language with default English
+    language: str = Field(
+        default="en",
+        regex=r"^(en|de)$",
+        sa_column=Column(
+            String(2),
+            CheckConstraint(
+                "language IN ('en','de')", name="ck_search_profiles_language"
+            ),
+            nullable=False,
+            server_default="en",
+        ),
+        description="Language code, must be 'en' or 'de'",
+    )
 
     # Relationships
     users: List["User"] = Relationship(
@@ -66,8 +80,8 @@ class SearchProfile(SQLModel, table=True):
 # Pydantic schemas for API
 class SearchProfileBase(SQLModel):
     name: str = Field(max_length=255)
-    description: str | None = Field(default=None, max_length=255)
     organization_id: uuid.UUID
+    language: str = Field(default="en")
 
 
 class SearchProfileCreate(SearchProfileBase):
@@ -76,7 +90,7 @@ class SearchProfileCreate(SearchProfileBase):
 
 class SearchProfileUpdate(SQLModel):
     name: str | None = Field(default=None, max_length=255)
-    description: str | None = Field(default=None, max_length=255)
+    language: str | None = Field(default="en")
 
 
 class SearchProfileRead(SearchProfileBase):

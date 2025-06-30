@@ -22,12 +22,14 @@ import {
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
 import { useTranslation } from "react-i18next";
+import { client } from "types/api";
+import { Skeleton } from "~/components/ui/skeleton";
 
 const SIGN_UP = "ui_sign_up";
 const SIGN_IN = "ui_sign_in";
 
 export default function Header() {
-  const { isSignedIn, user } = useAuthorization();
+  const { isSignedIn, user, isLoaded } = useAuthorization();
   const { pathname } = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
   const redirectUrl = searchParams.get("redirect_url");
@@ -48,7 +50,6 @@ export default function Header() {
     }
   }, [searchParams]);
 
-  // Close login on route change as header is always present
   useEffect(() => {
     setOpenLogin(false);
   }, [pathname]);
@@ -57,20 +58,19 @@ export default function Header() {
 
   const changeLanguage = (lng: string) => {
     i18n.changeLanguage(lng);
+    if (user) {
+      client.PUT("/api/v1/users", { params: { query: { language: lng } } });
+    }
   };
 
   return (
     <div className="p-4 w-full flex justify-between items-center">
       <div className="flex items-center gap-8">
         <Link to="/" className="mt-[0.3rem]">
-          <img
-            src="/MediaMind_Logo.svg"
-            alt="MediaMind_Logo"
-            width={"140rem"}
-          />
+          <img src="/MediaMind_Logo.svg" alt="MediaMind Logo" width={140} />
         </Link>
         {isSignedIn && user?.organization_name && (
-          <div className="flex items-center gap-2 ">
+          <div className="flex items-center gap-2">
             <Building2 className="h-4 w-4" />
             <span className="text-sm font-semibold text-black">
               {user.organization_name}
@@ -78,13 +78,16 @@ export default function Header() {
           </div>
         )}
       </div>
+
       <div className="flex justify-end items-center gap-4">
-        <div>
+        {!isLoaded || (isLoaded && isSignedIn && !user) ? (
+          <Skeleton className="h-8 w-20" />
+        ) : (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" className="flex items-center gap-2">
                 <Globe />
-                {i18n.language == "en" ? "EN" : "DE"}
+                {i18n.language.toUpperCase()}
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
@@ -96,7 +99,8 @@ export default function Header() {
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-        </div>
+        )}
+
         <SignedOut>
           <Popover
             open={openLogin}
@@ -107,9 +111,7 @@ export default function Header() {
           >
             <PopoverTrigger asChild>
               <Button variant="outline">
-                <>
-                  <User /> {t("login")}
-                </>
+                <User /> {t("login")}
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-[25rem] p-0 border-none">
@@ -132,6 +134,7 @@ export default function Header() {
         <SignedIn>
           <UserButton />
         </SignedIn>
+
         {isSignedIn && user?.is_superuser && (
           <Link to="/admin">
             <Button variant="outline">
