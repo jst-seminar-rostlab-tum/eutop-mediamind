@@ -1,4 +1,3 @@
-import asyncio
 import base64
 import json
 import re
@@ -12,8 +11,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
 from app.core.logger import get_logger
-from app.services.llm_service.llm_client import LLMClient
-from app.services.llm_service.llm_client import LLMModels
+from app.services.llm_service.llm_client import LLMClient, LLMModels
 from app.services.web_harvester.utils.web_utils import (
     change_frame,
     click_element,
@@ -241,7 +239,11 @@ class LoginLLM:
                     if click_element(
                         driver, wait, xpath, key
                     ) and insert_credential(
-                        driver, wait, credential, xpath, key,
+                        driver,
+                        wait,
+                        credential,
+                        xpath,
+                        key,
                     ):
                         newspaper[key] = xpath
                         return True
@@ -383,7 +385,10 @@ class LoginLLM:
         instructions = instructions_login
         response_schema = login_schema
         updated_neswspaper = await LoginLLM._find_elements_with_LLM(
-            driver, instructions, response_schema, newspaper,
+            driver,
+            instructions,
+            response_schema,
+            newspaper,
         )
         logged_in = False
 

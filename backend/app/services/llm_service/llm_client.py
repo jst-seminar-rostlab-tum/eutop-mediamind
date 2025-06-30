@@ -39,10 +39,7 @@ class LLMClient:
         self.api_key = configs.OPENAI_API_KEY
 
     def generate_response(
-            self,
-            prompt: str,
-            temperature: float = 0.1,
-            image_url: str = None
+        self, prompt: str, temperature: float = 0.1, image_url: str = None
     ) -> str:
         return self.__prompt(
             prompt, temperature=temperature, image_url=image_url
@@ -55,11 +52,13 @@ class LLMClient:
         prompt: str,
         resp_format_type: Type[T],
         temperature: float = 0.1,
-        image_url: str = None
+        image_url: str = None,
     ) -> T:
         output = self.__prompt(
-            prompt, resp_format=resp_format_type,
-            temperature=temperature, image_url=image_url
+            prompt,
+            resp_format=resp_format_type,
+            temperature=temperature,
+            image_url=image_url,
         )
         data = json.loads(output)
         return resp_format_type(**data)
