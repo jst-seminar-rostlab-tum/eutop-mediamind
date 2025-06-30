@@ -60,7 +60,9 @@
     "ownership": "Besitzer",
     "ownership_text": "Besitzer des Profils wechseln",
     "select_user": "Benutzer auswählen...",
-    "user_error": "Laden der Benutzer fehlgeschlagen."
+    "user_error": "Laden der Benutzer fehlgeschlagen.",
+    "language": "Sprache",
+    "language_text": "Legt die Sprache des Reports und von Topic & Keywords fest. Wenn die Sprache geändert wird, sollten auch die inhaltlichen Einstellungen des Profils angepasst werden."
   },
 
   "topics": {
