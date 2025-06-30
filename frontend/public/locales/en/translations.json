@@ -62,7 +62,9 @@
     "ownership": "Ownership",
     "ownership_text": "Transfer ownership of the profile",
     "select_user": "Select user...",
-    "user_error": "Failed to load users."
+    "user_error": "Failed to load users.",
+    "language": "Language",
+    "language_text": "Specify the language of the report and topic & keywords. If the language is changed, these content settings of the profile should also be adjusted."
   },
 
   "topics": {

@@ -34,9 +34,14 @@ export interface paths {
          *     return the single user if restricted.
          */
         get: operations["get_users_api_v1_users_get"];
-        put?: never;
+        /** Update Language */
+        put: operations["update_language_api_v1_users_put"];
         post?: never;
-        delete?: never;
+        /**
+         * Delete Current User
+         * @description Delete the authenticated user's account.
+         */
+        delete: operations["delete_current_user_api_v1_users_delete"];
         options?: never;
         head?: never;
         patch?: never;
@@ -56,11 +61,7 @@ export interface paths {
         get: operations["get_current_user_info_api_v1_users_me_get"];
         put?: never;
         post?: never;
-        /**
-         * Delete Current User
-         * @description Delete the authenticated user's account.
-         */
-        delete: operations["delete_current_user_api_v1_users_me_delete"];
+        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -154,20 +155,20 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/search-profiles/{search_profile_id}/overview": {
+    "/api/v1/search-profiles/{search_profile_id}/matches": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
+        get?: never;
+        put?: never;
         /**
          * Get Search Profile Overview
          * @description Retrieve an overview of articles for a given search profile.
          */
-        get: operations["get_search_profile_overview_api_v1_search_profiles__search_profile_id__overview_get"];
-        put?: never;
-        post?: never;
+        post: operations["get_search_profile_overview_api_v1_search_profiles__search_profile_id__matches_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -517,42 +518,43 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
-        /** ArticleOverviewItem */
-        ArticleOverviewItem: {
-            /**
-             * Id
-             * Format: uuid
-             */
-            id: string;
-            /** Title */
-            title: string;
-            /** Url */
-            url: string;
-            /** Author */
-            author: string;
-            /**
-             * Published At
-             * Format: date-time
-             */
-            published_at: string;
-            /** Language */
-            language: string;
-            /** Category */
-            category: string;
-            /** Summary */
-            summary: string | null;
-            /** Sorting Order */
-            sorting_order: number;
-        };
         /** ArticleOverviewResponse */
         ArticleOverviewResponse: {
-            /**
-             * Search Profile Id
-             * Format: uuid
-             */
-            search_profile_id: string;
-            /** Articles */
-            articles: components["schemas"]["ArticleOverviewItem"][];
+            /** Matches */
+            matches: components["schemas"]["MatchItem"][];
+        };
+        /**
+         * ArticleStatus
+         * @enum {string}
+         */
+        ArticleStatus: "new" | "scraped" | "error";
+        /** Body_get_keyword_suggestions_api_v1_search_profiles_keywords_suggestions_post */
+        Body_get_keyword_suggestions_api_v1_search_profiles_keywords_suggestions_post: {
+            /** Related Topics */
+            related_topics: components["schemas"]["KeywordSuggestionTopic"][];
+            selected_topic: components["schemas"]["KeywordSuggestionTopic"];
+        };
+        /** BreakingNewsItem */
+        BreakingNewsItem: {
+            /** Id */
+            id: string;
+            /** Title */
+            title: string | null;
+            /** Summary */
+            summary: string | null;
+            /** Image Url */
+            image_url: string | null;
+            /** Url */
+            url: string | null;
+            /** Published At */
+            published_at: string | null;
+        };
+        /** BreakingNewsResponse */
+        BreakingNewsResponse: {
+            /** News */
+            news: components["schemas"]["BreakingNewsItem"][];
+            /** Total Count */
+            total_count: number;
         };
         /** FeedbackResponse */
         FeedbackResponse: {
@@ -579,6 +581,49 @@ export interface components {
             /** Suggestions */
             suggestions: string[];
         };
+        /** KeywordSuggestionTopic */
+        KeywordSuggestionTopic: {
+            /** Topic Name */
+            topic_name: string;
+            /** Keywords */
+            keywords: string[];
+        };
+        /** MatchArticleOverviewContent */
+        MatchArticleOverviewContent: {
+            /** Article Url */
+            article_url: string;
+            /** Headline */
+            headline: {
+                [key: string]: string;
+            };
+            /** Summary */
+            summary: {
+                [key: string]: string;
+            };
+            /** Text */
+            text: {
+                [key: string]: string;
+            };
+            /** Image Urls */
+            image_urls: string[];
+            /**
+             * Published
+             * Format: date-time
+             */
+            published: string;
+            /**
+             * Crawled
+             * Format: date-time
+             */
+            crawled: string;
+            /** Newspaper Id */
+            newspaper_id?: string | null;
+            /** Authors */
+            authors?: string[] | null;
+            /** Categories */
+            categories?: string[] | null;
+            status?: components["schemas"]["ArticleStatus"] | null;
+        };
         /** MatchDetailResponse */
         MatchDetailResponse: {
             /**
@@ -586,32 +631,10 @@ export interface components {
              * Format: uuid
              */
             match_id: string;
-            /** Comment */
-            comment: string | null;
-            /** Sorting Order */
-            sorting_order: number;
-            /**
-             * Article Id
-             * Format: uuid
-             */
-            article_id: string;
-            /** Title */
-            title: string;
-            /** Url */
-            url: string;
-            /** Author */
-            author: string;
-            /**
-             * Published At
-             * Format: date-time
-             */
-            published_at: string;
-            /** Language */
-            language: string;
-            /** Category */
-            category: string;
-            /** Summary */
-            summary: string | null;
+            /** Topics */
+            topics: components["schemas"]["MatchTopicItem"][];
+            search_profile: components["schemas"]["MatchProfileInfo"] | null;
+            article: components["schemas"]["MatchArticleOverviewContent"];
         };
         /** MatchFeedbackRequest */
         MatchFeedbackRequest: {
@@ -624,6 +647,67 @@ export interface components {
             reason: "bad source" | "false" | "no good matching" | "other";
             /** Ranking */
             ranking: number;
+        };
+        /** MatchFilterRequest */
+        MatchFilterRequest: {
+            /**
+             * Startdate
+             * Format: date
+             */
+            startDate: string;
+            /**
+             * Enddate
+             * Format: date
+             */
+            endDate: string;
+            /**
+             * Sorting
+             * @enum {string}
+             */
+            sorting: "DATE" | "RELEVANCE";
+            /** Searchterm */
+            searchTerm?: string | null;
+            /** Topics */
+            topics?: string[] | null;
+            /** Subscriptions */
+            subscriptions?: string[] | null;
+        };
+        /** MatchItem */
+        MatchItem: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Relevance */
+            relevance: number;
+            /** Topics */
+            topics: components["schemas"]["MatchTopicItem"][];
+            article: components["schemas"]["MatchArticleOverviewContent"];
+        };
+        /** MatchProfileInfo */
+        MatchProfileInfo: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Name */
+            name: string;
+        };
+        /** MatchTopicItem */
+        MatchTopicItem: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Name */
+            name: string;
+            /** Score */
+            score: number;
+            /** Keywords */
+            keywords?: string[] | null;
         };
         /** ReportDetailResponse */
         ReportDetailResponse: {
@@ -639,6 +723,8 @@ export interface components {
             created_at: string;
             /** Time Slot */
             time_slot?: string | null;
+            /** Language */
+            language: string;
             /** S3 Key */
             s3_key: string;
             /** @default pending */
@@ -670,6 +756,8 @@ export interface components {
             created_at: string;
             /** Time Slot */
             time_slot?: string | null;
+            /** Language */
+            language: string;
             /** S3 Key */
             s3_key: string;
             /** @default pending */
@@ -718,6 +806,11 @@ export interface components {
              * Format: uuid
              */
             owner_id: string;
+            /**
+             * Language
+             * @default en
+             */
+            language: string;
             /** Topics */
             topics: components["schemas"]["TopicCreateOrUpdateRequest"][];
         };
@@ -751,6 +844,11 @@ export interface components {
             owner_id: string;
             /** Is Owner */
             is_owner: boolean;
+            /**
+             * Language
+             * @default en
+             */
+            language: string;
             /** Topics */
             topics: components["schemas"]["TopicResponse"][];
             /** Subscriptions */
@@ -791,6 +889,11 @@ export interface components {
              * Format: uuid
              */
             owner_id: string;
+            /**
+             * Language
+             * @default en
+             */
+            language: string;
             /** Topics */
             topics: components["schemas"]["TopicCreateOrUpdateRequest"][];
         };
@@ -862,6 +965,11 @@ export interface components {
             last_name: string;
             /** Is Superuser */
             is_superuser: boolean;
+            /**
+             * Language
+             * @default en
+             */
+            language: string;
             /** Organization Id */
             organization_id?: string | null;
             /** Organization Name */
@@ -925,6 +1033,57 @@ export interface operations {
             };
         };
     };
+    update_language_api_v1_users_put: {
+        parameters: {
+            query: {
+                language: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserEntity"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_current_user_api_v1_users_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FeedbackResponse"];
+                };
+            };
+        };
+    };
     get_current_user_info_api_v1_users_me_get: {
         parameters: {
             query?: never;
@@ -941,26 +1100,6 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["UserEntity"];
-                };
-            };
-        };
-    };
-    delete_current_user_api_v1_users_me_delete: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["FeedbackResponse"];
                 };
             };
         };
@@ -1040,14 +1179,17 @@ export interface operations {
     };
     get_keyword_suggestions_api_v1_search_profiles_keywords_suggestions_post: {
         parameters: {
-            query?: never;
+            query: {
+                search_profile_name: string;
+                search_profile_language: string;
+            };
             header?: never;
             path?: never;
             cookie?: never;
         };
         requestBody: {
             content: {
-                "application/json": string[];
+                "application/json": components["schemas"]["Body_get_keyword_suggestions_api_v1_search_profiles_keywords_suggestions_post"];
             };
         };
         responses: {
@@ -1137,7 +1279,7 @@ export interface operations {
             };
         };
     };
-    get_search_profile_overview_api_v1_search_profiles__search_profile_id__overview_get: {
+    get_search_profile_overview_api_v1_search_profiles__search_profile_id__matches_post: {
         parameters: {
             query?: never;
             header?: never;
@@ -1146,7 +1288,11 @@ export interface operations {
             };
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MatchFilterRequest"];
+            };
+        };
         responses: {
             /** @description Successful Response */
             200: {
@@ -1730,7 +1876,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": unknown;
+                    "application/json": components["schemas"]["BreakingNewsResponse"];
                 };
             };
         };
