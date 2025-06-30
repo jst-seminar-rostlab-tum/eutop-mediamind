@@ -119,7 +119,8 @@
     "add_user": "Add User...",
     "no_user": "No user found.",
     "no_results": "No results.",
-    "role": "Role"
+    "role": "Role",
+    "Name": "Name"
   },
 
   "organization-dialog": {

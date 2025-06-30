@@ -163,7 +163,8 @@ export function DataTableUsers<TData, TValue>({
             <Button
               className={"rounded-l-none"}
               variant={"secondary"}
-              onClick={() => {
+              onClick={(e) => {
+                e.preventDefault();
                 onAdd(newEmail);
                 setNewEmail("");
               }}

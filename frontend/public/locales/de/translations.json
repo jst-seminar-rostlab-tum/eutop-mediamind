@@ -119,7 +119,8 @@
     "add_user": "Benutzer hinzufügen...",
     "no_user": "Keine Benutzer gefunden.",
     "no_results": "Keine Ergebnisse.",
-    "role": "Rolle"
+    "role": "Rolle",
+    "Name": "Name"
   },
 
   "organization-dialog": {

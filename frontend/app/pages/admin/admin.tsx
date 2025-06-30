@@ -125,7 +125,6 @@ export function AdminPage() {
   //Organizations
   const [orgaData, setOrgaData] = React.useState<Organization[]>([]);
   const [showOrgaDialog, setShowOrgaDialog] = React.useState(false);
-  const [newOrgaName, setNewOrgaName] = React.useState("");
   const [initialOrgaName, setInitialOrgaName] = React.useState("");
   const [isEditOrgaMode, setIsEditOrgaMode] = React.useState(false);
   const [editingOrgIndex, setEditingOrgIndex] = React.useState<number | null>(
@@ -179,7 +178,6 @@ export function AdminPage() {
     const index = orgaData.findIndex((org) => org.name === name);
     if (index !== -1) {
       setInitialOrgaName(orgaData[index].name); // to catch edge case if you edit back to initial name as no changes
-      setNewOrgaName(orgaData[index].name);
       setEditingOrgIndex(index);
       setIsEditOrgaMode(true);
 
@@ -191,12 +189,12 @@ export function AdminPage() {
     }
   }
 
-  function handleSaveOrganization() {
-    if (!newOrgaName.trim()) {
+  function handleSaveOrganization(data: { name: string }) {
+    const trimmedName = data.name.trim();
+
+    if (!trimmedName) {
       return;
     }
-
-    const trimmedName = newOrgaName.trim();
 
     if (isEditOrgaMode && editingOrgIndex !== null) {
       setOrgaData((prev) =>
@@ -213,7 +211,6 @@ export function AdminPage() {
       ]);
     }
 
-    setNewOrgaName("");
     setShowOrgaDialog(false);
     setIsEditOrgaMode(false);
     setEditingOrgIndex(null);
@@ -313,7 +310,6 @@ export function AdminPage() {
                 onAdd={() => {
                   setIsEditOrgaMode(false);
                   setEditingOrgIndex(null);
-                  setNewOrgaName("");
                   setEditingUserData([]);
                   setShowOrgaDialog(true);
                 }}
@@ -355,8 +351,6 @@ export function AdminPage() {
           open={showOrgaDialog}
           onOpenChange={setShowOrgaDialog}
           isEdit={isEditOrgaMode}
-          name={newOrgaName}
-          onNameChange={setNewOrgaName}
           users={editingUserData}
           setUsers={setEditingUserData}
           onSave={handleSaveOrganization}
