@@ -14,6 +14,10 @@
   "save_changes": "Save Changes",
   "Search": "Search",
 
+  "breadcrumbs": {
+    "Dashboard": "Dashboard"
+  },
+
   "landing_page": {
     "welcome": "Welcome to MediaMind",
     "welcome_text": "Stay ahead in the fast-changing world of media with our Automated Press Analysis Tool. Keep your client teams informed and prepared with daily press reviews, personalized to your needs. Our platform extracts and compiles the most relevant news articles into concise, anonymized reports – delivered directly to your inbox each morning. Save time, stay informed, and focus on what matters most – delivering value to your clients.",

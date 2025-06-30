@@ -18,10 +18,10 @@ import { truncateAtWord } from "~/lib/utils";
 import { useNavigate } from "react-router";
 import { SidebarFilter } from "./sidebar-filter";
 import { ScrollArea } from "~/components/ui/scroll-area";
-import type { paths } from "types/api-types-v1";
 import { SearchProfileSkeleton } from "./search-profile-skeleton";
 import { useTranslation } from "react-i18next";
 import { Button } from "~/components/ui/button";
+import type { MatchesResponse } from "types/model";
 
 const suppressSWRReloading = {
   refreshInterval: 0,
@@ -53,9 +53,6 @@ export function SearchProfileOverview() {
 
   const { t } = useTranslation();
 
-  type MatchesResponse =
-    paths["/api/v1/search-profiles/{search_profile_id}/matches"]["post"]["responses"]["200"]["content"]["application/json"];
-
   const [matches, setMatches] = useState<MatchesResponse | undefined>(
     undefined,
   );
@@ -70,7 +67,6 @@ export function SearchProfileOverview() {
     data: profile,
     isLoading: isProfileLoading,
     error: profileError,
-    //mutate: mutateProfile,
   } = useQuery(
     "/api/v1/search-profiles/{search_profile_id}",
     { params: { path: { search_profile_id: id! } } },
@@ -117,7 +113,6 @@ export function SearchProfileOverview() {
       topics: selectedTopics,
       subscriptions: selectedSources,
     };
-    console.log("Body: ", requestBody);
     client
       .POST("/api/v1/search-profiles/{search_profile_id}/matches", {
         params: {
@@ -156,7 +151,9 @@ export function SearchProfileOverview() {
           <Breadcrumb className="mt-8">
             <BreadcrumbList>
               <BreadcrumbItem>
-                <BreadcrumbLink href="/dashboard">Dashboard</BreadcrumbLink>
+                <BreadcrumbLink href="/dashboard">
+                  {t("breadcrumbs.Dashboard")}
+                </BreadcrumbLink>
               </BreadcrumbItem>
               <BreadcrumbSeparator />
               <BreadcrumbItem>
