@@ -1,5 +1,8 @@
+import gettext
 import json
+import os
 import uuid
+from typing import Callable
 
 from langdetect import detect
 
@@ -22,6 +25,37 @@ base_prompt = (
 
 
 class ArticleTranslationService:
+    _translators_cache = {}
+
+    @staticmethod
+    def get_translator(language: str) -> Callable[[str], str]:
+        """
+        Returns the gettext translator function for the given language.
+
+        Args:
+            language (str): language code
+
+        Returns:
+            Callable[[str], str]: a function that receives a string 
+            (translation key) and returns its translated string in the
+            specified language. If no translation is available, it returns
+            the original string.
+        """
+        if language not in ArticleTranslationService._translators_cache:
+            locale_dir = os.path.join(
+                os.path.dirname(__file__), "locales"
+            )
+            lang = gettext.translation(
+                'messages',
+                localedir=locale_dir,
+                languages=[language],
+                fallback=True,
+            )
+            ArticleTranslationService._translators_cache[language] = (
+                lang.gettext
+            )
+
+        return ArticleTranslationService._translators_cache[language]
 
     @staticmethod
     async def _process_fields(items, field_name):

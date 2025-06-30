@@ -1,10 +1,9 @@
 # Refactored PDFService to use split modules
-import gettext
-import os
 import uuid
 from datetime import datetime, timedelta
 from io import BytesIO
-from typing import List
+from typing import List, Callable
+from functools import partial
 
 from reportlab.lib.enums import TA_JUSTIFY
 from reportlab.lib.pagesizes import A4
@@ -30,6 +29,7 @@ from app.core.logger import get_logger
 from app.models.search_profile import SearchProfile
 from app.repositories.article_repository import ArticleRepository
 from app.repositories.entity_repository import ArticleEntityRepository
+from app.services.translation_service import ArticleTranslationService
 
 from ...repositories.search_profile_repository import SearchProfileRepository
 from .colors import pdf_colors
@@ -44,7 +44,6 @@ logger = get_logger(__name__)
 class PDFService:
     _fonts_registered = register_fonts()
     styles = get_pdf_styles(_fonts_registered)
-    translator = None
 
     @staticmethod
     async def create_pdf(
@@ -54,14 +53,6 @@ class PDFService:
         match_stop_time: datetime,
     ) -> bytes:
         # Obtain translator for the specified language
-        locale_dir = os.path.join(os.path.dirname(__file__), "locales")
-        lang = gettext.translation(
-            'messages',
-            localedir=locale_dir,
-            languages=[language],
-            fallback=True,
-        )
-        PDFService.translator = lang.gettext
         if timeslot not in ["morning", "afternoon", "evening"]:
             logger.info(
                 "Invalid timeslot. Must be one of: ['morning', 'afternoon',"
@@ -78,7 +69,7 @@ class PDFService:
             search_profile_id, match_start_time, match_stop_time
         )
 
-        translator = PDFService.translator or (lambda x: x)
+        translator = ArticleTranslationService.get_translator(language)
         news_items = []
         for article in articles:
             entities = await ArticleEntityRepository.get_entities_by_article(
@@ -144,11 +135,13 @@ class PDFService:
                 search_profile_id
             )
         )
-        return PDFService.draw_pdf(search_profile, news_items)
+        return PDFService.draw_pdf(search_profile, news_items, translator)
 
     @staticmethod
     def draw_pdf(
-        search_profile: SearchProfile, news_items: List[NewsItem]
+        search_profile: SearchProfile,
+        news_items: List[NewsItem],
+        translator: Callable[[str], str]
     ) -> bytes:
         dimensions = A4
         logger.debug("Articles chosen before PDF Generation:")
@@ -162,13 +155,13 @@ class PDFService:
 
         # Prepare all flowable elements for the PDF
         cover_elements = PDFService.__draw_cover_elements(
-            search_profile, news_items, dimensions
+            search_profile, news_items, dimensions, translator
         )
         summaries_elements = PDFService.__create_summaries_elements(
-            news_items, dimensions
+            news_items, dimensions, translator
         )
         full_articles_elements = PDFService.__create_full_articles_elements(
-            news_items, dimensions
+            news_items, dimensions, translator
         )
         # Combine all elements
         all_elements = []
@@ -223,19 +216,19 @@ class PDFService:
             topMargin=margin,
             bottomMargin=margin,
         )
-
+        on_page = partial(PDFService.draw_header_footer, translator=translator)
         doc.addPageTemplates(
             [
                 PageTemplate(id="Cover", frames=[frame]),
                 PageTemplate(
                     id="SummariesThreeCol",
                     frames=frames,
-                    onPage=PDFService.draw_header_footer,
+                    onPage=on_page,
                 ),
                 PageTemplate(
                     id="FullArticles",
                     frames=[full_article_frame],
-                    onPage=PDFService.draw_header_footer,
+                    onPage=on_page,
                 ),
             ]
         )
@@ -248,9 +241,9 @@ class PDFService:
         search_profile: SearchProfile,
         news_items: List[NewsItem],
         dimensions: tuple[float, float],
+        translator: Callable[[str], str],
     ) -> List["Flowable"]:
         width, height = dimensions
-        translator = PDFService.translator or (lambda x: x)
         # TOC entry style
         toc_entry_style = ParagraphStyle(
             name="TOCEntry",
@@ -439,8 +432,7 @@ class PDFService:
         return story
 
     @staticmethod
-    def draw_header_footer(canvas, doc):
-        translator = PDFService.translator or (lambda x: x)
+    def draw_header_footer(canvas, doc, translator):
         canvas.saveState()
         width, height = A4
 
@@ -487,10 +479,11 @@ class PDFService:
 
     @staticmethod
     def __create_summaries_elements(
-        news_items: List[NewsItem], dimensions: tuple[float, float]
+        news_items: List[NewsItem],
+        dimensions: tuple[float, float],
+        translator: Callable[[str], str]
     ) -> List["Flowable"]:
         width, height = dimensions  # TODO
-        translator = PDFService.translator or (lambda x: x)
         story = []
         for i, news in enumerate(news_items):
             story.append(AnchorFlowable(f"toc_summary_{i}"))
@@ -537,9 +530,10 @@ class PDFService:
 
     @staticmethod
     def __create_full_articles_elements(
-        news_items: List[NewsItem], dimensions: tuple[float, float]
+        news_items: List[NewsItem],
+        dimensions: tuple[float, float],
+        translator: Callable[[str], str]
     ) -> List["Flowable"]:
-        translator = PDFService.translator or (lambda x: x)
         story = []
         for i, news in enumerate(news_items):
             dest_name = f"full_{news.id}"
