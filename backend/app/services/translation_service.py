@@ -36,17 +36,15 @@ class ArticleTranslationService:
             language (str): language code
 
         Returns:
-            Callable[[str], str]: a function that receives a string 
+            Callable[[str], str]: a function that receives a string
             (translation key) and returns its translated string in the
             specified language. If no translation is available, it returns
             the original string.
         """
         if language not in ArticleTranslationService._translators_cache:
-            locale_dir = os.path.join(
-                os.path.dirname(__file__), "locales"
-            )
+            locale_dir = os.path.join(os.path.dirname(__file__), "locales")
             lang = gettext.translation(
-                'messages',
+                "messages",
                 localedir=locale_dir,
                 languages=[language],
                 fallback=True,
@@ -179,9 +177,7 @@ class ArticleTranslationService:
             list[dict]: List of translation responses.
         """
         custom_ids, prompts, auto_responses = (
-            ArticleTranslationService._prepare_translation_batch(
-                ids, texts
-            )
+            ArticleTranslationService._prepare_translation_batch(ids, texts)
         )
         responses = await ArticleTranslationService._execute_translation_batch(
             custom_ids, prompts, auto_responses
@@ -308,8 +304,8 @@ class ArticleTranslationService:
                     logger.error(f"Translation failed for page {page + 1}")
                     break
 
-                articles_map = await ArticleTranslationService.\
-                    _parse_translation_responses(responses)
+                parse = ArticleTranslationService._parse_translation_responses
+                articles_map = await parse(responses)
 
                 await ArticleTranslationService._store_translations(
                     articles_map, ArticleRepository
@@ -341,10 +337,8 @@ class ArticleTranslationService:
             page = 0
             offset = 0
 
-            entities = await ArticleEntityRepository.\
-                get_entities_without_translations(
-                        limit=limit, offset=offset
-                )
+            get = ArticleEntityRepository.get_entities_without_translations
+            entities = await get(limit=limit, offset=offset)
 
             while entities:
                 logger.info(
@@ -368,10 +362,8 @@ class ArticleTranslationService:
                     logger.error(f"Translation failed for page {page + 1}")
                     break
 
-                entities_map = await ArticleTranslationService.\
-                    _parse_translation_responses(
-                        responses
-                    )
+                parse = ArticleTranslationService._parse_translation_responses
+                entities_map = await parse(responses)
 
                 await ArticleTranslationService._store_translations(
                     entities_map, ArticleEntityRepository
@@ -380,10 +372,7 @@ class ArticleTranslationService:
                 page += 1
                 offset = page * limit
 
-                entities = await ArticleEntityRepository.\
-                    get_entities_without_translations(
-                        limit=limit, offset=offset
-                    )
+                entities = await get(limit=limit, offset=offset)
 
             logger.info("No more entities without translation found")
 

@@ -1,5 +1,6 @@
 # flake8: noqa: E501
 from uuid import UUID
+
 """
 NOTE:
 This is just a testing controller for sending emails and creating PDFs.
@@ -16,8 +17,8 @@ from app.services.email_service import EmailSchedule, EmailService
 from app.services.report_service import ReportService
 from app.services.s3_service import S3Service, get_s3_service
 from app.services.search_profiles_service import SearchProfileService
-from app.services.user_service import UserService
 from app.services.translation_service import ArticleTranslationService
+from app.services.user_service import UserService
 
 router = APIRouter(
     prefix="/emails",
@@ -69,7 +70,7 @@ async def send_report_email(
     )
     if not search_profile:
         raise HTTPException(status_code=404, detail="SearchProfile not found")
-    
+
     language = search_profile.language
 
     # Get or create report
@@ -101,7 +102,11 @@ async def send_report_email(
         subject=subject,
         content_type="text/HTML",
         content=EmailService.build_email_content(
-            presigned_url, dashboard_url, search_profile.name, user.last_name, language
+            presigned_url,
+            dashboard_url,
+            search_profile.name,
+            user.last_name,
+            language,
         ),
     )
 

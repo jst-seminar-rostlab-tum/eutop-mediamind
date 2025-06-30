@@ -125,32 +125,32 @@ class EmailService:
             "profile_name": profile_name,
             "date": today,
             "language_code": language,
-            "title": translator('Daily News Report'),
-            "search_profile": translator('Search Profile'),
+            "title": translator("Daily News Report"),
+            "search_profile": translator("Search Profile"),
             "salutation": salutation,
             "text_1": translator(
-                'This is your daily news report, carefully picked to match '
-                'your specific interests and search criteria. Our system has '
-                'identified the most relevant developments in your field, '
-                'ensuring you stay informed with the insights that matter to '
-                'your business'
+                "This is your daily news report, carefully picked to match "
+                "your specific interests and search criteria. Our system has "
+                "identified the most relevant developments in your field, "
+                "ensuring you stay informed with the insights that matter to "
+                "your business"
             ),
             "text_2": translator(
                 "Each story has been selected based on its relevance to your "
                 "profile, providing you with a comprehensive overview of "
                 "today's key developments"
             ),
-            "download_text": translator('Download here'),
+            "download_text": translator("Download here"),
             "text_3": translator(
-                'After that, you can still access your report anytime '
-                'via your dashboard'
+                "After that, you can still access your report anytime "
+                "via your dashboard"
             ),
-            "click_text": translator('click here'),
+            "click_text": translator("click here"),
             "text_4": translator(
-                'If the link above does not work, copy and paste this URL '
-                'into your browser'
+                "If the link above does not work, copy and paste this URL "
+                "into your browser"
             ),
-            "deliver_text": translator('Delivered by MediaMind')
+            "deliver_text": translator("Delivered by MediaMind"),
         }
 
         template_name = "email_template.html"

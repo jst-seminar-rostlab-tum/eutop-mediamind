@@ -1,9 +1,9 @@
 # Refactored PDFService to use split modules
 import uuid
 from datetime import datetime, timedelta
-from io import BytesIO
-from typing import List, Callable
 from functools import partial
+from io import BytesIO
+from typing import Callable, List
 
 from reportlab.lib.enums import TA_JUSTIFY
 from reportlab.lib.pagesizes import A4
@@ -127,7 +127,7 @@ class PDFService:
                 persons=persons,
                 organizations=organizations,
                 industries=industries,
-                events=events
+                events=events,
             )
             news_items.append(news_item)
         search_profile = (
@@ -141,7 +141,7 @@ class PDFService:
     def draw_pdf(
         search_profile: SearchProfile,
         news_items: List[NewsItem],
-        translator: Callable[[str], str]
+        translator: Callable[[str], str],
     ) -> bytes:
         dimensions = A4
         logger.debug("Articles chosen before PDF Generation:")
@@ -378,12 +378,12 @@ class PDFService:
             summary_link = (
                 f'<a href="#toc_summary_{i}">'
                 f'&nbsp;{translator("Summary")}&nbsp;'
-                '</a>'
+                "</a>"
             )
             full_article_link = (
                 f'<a href="#toc_article_{i}">'
                 f'&nbsp;{translator("Full Article")}&nbsp;'
-                '</a>'
+                "</a>"
             )
             button_para = Paragraph(
                 f"""
@@ -481,7 +481,7 @@ class PDFService:
     def __create_summaries_elements(
         news_items: List[NewsItem],
         dimensions: tuple[float, float],
-        translator: Callable[[str], str]
+        translator: Callable[[str], str],
     ) -> List["Flowable"]:
         width, height = dimensions  # TODO
         story = []
@@ -532,7 +532,7 @@ class PDFService:
     def __create_full_articles_elements(
         news_items: List[NewsItem],
         dimensions: tuple[float, float],
-        translator: Callable[[str], str]
+        translator: Callable[[str], str],
     ) -> List["Flowable"]:
         story = []
         for i, news in enumerate(news_items):
@@ -585,7 +585,7 @@ class PDFService:
             story.append(
                 Paragraph(
                     translator("Article Content"),
-                    PDFService.styles["subtitle_style"]
+                    PDFService.styles["subtitle_style"],
                 )
             )
 
@@ -648,7 +648,7 @@ class PDFService:
                 [
                     Paragraph(
                         f"{translator('Words')}:",
-                        PDFService.styles["metadata_style"]
+                        PDFService.styles["metadata_style"],
                     ),
                     Paragraph(
                         str(word_count), PDFService.styles["metadata_style"]
@@ -657,7 +657,7 @@ class PDFService:
                 [
                     Paragraph(
                         f"{translator('Reading Time')}:",
-                        PDFService.styles["metadata_style"]
+                        PDFService.styles["metadata_style"],
                     ),
                     Paragraph(
                         f"{reading_time} {translator('min')}",
@@ -667,7 +667,8 @@ class PDFService:
                 [
                     Paragraph(
                         f"{translator('Author')}:",
-                        PDFService.styles["metadata_style"]),
+                        PDFService.styles["metadata_style"],
+                    ),
                     Paragraph(
                         news.author, PDFService.styles["metadata_style"]
                     ),
@@ -675,7 +676,7 @@ class PDFService:
                 [
                     Paragraph(
                         f"{translator('Newspaper')}:",
-                        PDFService.styles["metadata_style"]
+                        PDFService.styles["metadata_style"],
                     ),
                     Paragraph(
                         news.newspaper.name,
@@ -694,7 +695,7 @@ class PDFService:
                 [
                     Paragraph(
                         f"<b>{translator('Language')}:</b>",
-                        PDFService.styles["metadata_style"]
+                        PDFService.styles["metadata_style"],
                     ),
                     Paragraph(
                         news.language or translator("Unknown"),
@@ -704,7 +705,7 @@ class PDFService:
                 [
                     Paragraph(
                         f"<b>{translator('Category')}:</b>",
-                        PDFService.styles["metadata_style"]
+                        PDFService.styles["metadata_style"],
                     ),
                     Paragraph(
                         news.category or translator("Unknown"),
@@ -714,11 +715,14 @@ class PDFService:
                 [
                     Paragraph(
                         f"<b>{translator('Keywords')}:</b>",
-                        PDFService.styles["metadata_style"]
+                        PDFService.styles["metadata_style"],
                     ),
                     Paragraph(
-                        ", ".join(news.keywords) if news.keywords
-                        else translator('None'),
+                        (
+                            ", ".join(news.keywords)
+                            if news.keywords
+                            else translator("None")
+                        ),
                         PDFService.styles["metadata_style"],
                     ),
                 ],
@@ -732,11 +736,11 @@ class PDFService:
                 [
                     Paragraph(
                         f"<b>{translator('People')}:</b>",
-                        PDFService.styles["metadata_style"]
+                        PDFService.styles["metadata_style"],
                     ),
                     Paragraph(
                         persons_str if persons_str else translator("None"),
-                        PDFService.styles["metadata_style"]
+                        PDFService.styles["metadata_style"],
                     ),
                 ],
                 [
@@ -745,10 +749,12 @@ class PDFService:
                         PDFService.styles["metadata_style"],
                     ),
                     Paragraph(
-                        organizations_str if organizations_str else translator(
-                            "None"
+                        (
+                            organizations_str
+                            if organizations_str
+                            else translator("None")
                         ),
-                        PDFService.styles["metadata_style"]
+                        PDFService.styles["metadata_style"],
                     ),
                 ],
                 [
@@ -757,10 +763,12 @@ class PDFService:
                         PDFService.styles["metadata_style"],
                     ),
                     Paragraph(
-                        industries_str if industries_str else translator(
-                            "None"
+                        (
+                            industries_str
+                            if industries_str
+                            else translator("None")
                         ),
-                        PDFService.styles["metadata_style"]
+                        PDFService.styles["metadata_style"],
                     ),
                 ],
                 [
@@ -770,7 +778,7 @@ class PDFService:
                     ),
                     Paragraph(
                         events_str if events_str else translator("None"),
-                        PDFService.styles["metadata_style"]
+                        PDFService.styles["metadata_style"],
                     ),
                 ],
             ]
@@ -823,7 +831,7 @@ class PDFService:
                         Paragraph(
                             f'<a href="{news.url}">'
                             f'<b>{translator("Read Article at Newspaper")}'
-                            f'</b></a>',
+                            f"</b></a>",
                             PDFService.styles["link_style"],
                         ),
                     ]
