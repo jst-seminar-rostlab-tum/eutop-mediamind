@@ -1,3 +1,4 @@
+from typing import List
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -25,10 +26,22 @@ def _assert_admin(user: UserEntity):
 
 @router.get(
     "",
-    response_model=list[SubscriptionSummary],
+    response_model=List[SubscriptionSummary],
 )
 async def get_all_subscriptions():
     return await SubscriptionService.get_all_subscriptions()
+
+
+@router.get(
+    "/{subscription_id}",
+    response_model=SubscriptionRead,
+)
+async def get_subscription(
+    subscription_id: UUID,
+    current_user: UserEntity = Depends(get_authenticated_user),
+):
+    _assert_admin(current_user)
+    return await SubscriptionService.get(subscription_id)
 
 
 @router.post("", response_model=SubscriptionRead)

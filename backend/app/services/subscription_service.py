@@ -2,12 +2,14 @@ from typing import List
 from uuid import UUID
 
 from fastapi import HTTPException
+from sqlalchemy import delete, select
 
 from app.core.db import async_session
 from app.models import Subscription
 from app.repositories.subscription_repository import SubscriptionRepository
 from app.schemas.subscription_schemas import (
     SubscriptionCreateOrUpdate,
+    SubscriptionRead,
     SubscriptionSummary,
 )
 
@@ -28,7 +30,13 @@ class SubscriptionService:
     @staticmethod
     async def create(data: SubscriptionCreateOrUpdate) -> Subscription:
         async with async_session() as session:
-            subscription = Subscription(**data.model_dump(exclude_unset=True))
+            subscription = Subscription(
+                name=data.name,
+                domain=data.domain,
+                paywall=data.paywall,
+                username=data.username,
+                secrets=data.password,
+            )
             session.add(subscription)
             await session.commit()
             await session.refresh(subscription)
@@ -45,8 +53,16 @@ class SubscriptionService:
                     status_code=404, detail="Subscription not found"
                 )
 
-            for key, value in data.model_dump(exclude_unset=True).items():
-                setattr(subscription, key, value)
+            if data.domain != subscription.domain:
+                subscription.domain = data.domain
+            if data.paywall != subscription.paywall:
+                subscription.paywall = data.paywall
+            if data.name != subscription.name:
+                subscription.name = data.name
+            if data.username != subscription.username:
+                subscription.username = data.username
+            if data.password is not None:
+                subscription.secrets = data.password
 
             session.add(subscription)
             await session.commit()
@@ -56,11 +72,23 @@ class SubscriptionService:
     @staticmethod
     async def delete(subscription_id: UUID) -> None:
         async with async_session() as session:
-            subscription = await session.get(Subscription, subscription_id)
-            if not subscription:
-                raise HTTPException(
-                    status_code=404, detail="Subscription not found"
-                )
-
-            await session.delete(subscription)
+            await session.execute(
+                delete(Subscription).where(Subscription.id == subscription_id)
+            )
             await session.commit()
+
+    @staticmethod
+    async def get(subscription_id: UUID) -> SubscriptionRead:
+        async with async_session() as session:
+            stmt = select(Subscription).where(
+                Subscription.id == subscription_id
+            )
+            result = await session.execute(stmt)
+            subscription = result.scalar_one_or_none()
+            return SubscriptionRead(
+                id=subscription.id,
+                name=subscription.name,
+                domain=subscription.domain,
+                paywall=subscription.paywall,
+                username=subscription.username,
+            )

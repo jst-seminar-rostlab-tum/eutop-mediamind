@@ -66,6 +66,8 @@ class Subscription(SQLModel, table=True):
         default=None, sa_column_kwargs={"nullable": True}
     )
 
+    username: Optional[str] = Field(default=None, nullable=True)
+
     scrapers: Optional[dict[str, dict[str, Any]]] = Field(
         sa_column=Column(
             JSON,

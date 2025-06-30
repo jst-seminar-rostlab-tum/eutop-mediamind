@@ -27,3 +27,4 @@ class SubscriptionRead(BaseModel):
     name: str
     domain: str
     paywall: bool
+    username: str
