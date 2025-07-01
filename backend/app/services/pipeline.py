@@ -48,7 +48,9 @@ async def run(date_start: datetime, date_end: datetime, language: str = "en"):
 
     logger.info("Report generation")
     # returns the Report, presigned URL, dashboard URL and search profile
-    reports_info = await ReportService.run()
+    reports_info = await ReportService.run(
+        timeslot="morning", language=language
+    )
     logger.info(f"Generated {len(reports_info)} reports")
 
     logger.info("Sending emails")
