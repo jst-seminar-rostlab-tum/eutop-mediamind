@@ -61,6 +61,24 @@ class UserRepository:
         return _to_user_entity(user) if user else None
 
     @staticmethod
+    async def get_user_by_email(
+        email: str, session: AsyncSession
+    ) -> Optional[UserEntity]:
+        """
+        Fetch a user by email and return as UserEntity
+        including organization name.
+        """
+        query = (
+            select(User)
+            .options(selectinload(User.organization))
+            .where(User.email == email)
+        )
+        result = await session.execute(query)
+        user = result.scalar_one_or_none()
+
+        return _to_user_entity(user) if user else None
+
+    @staticmethod
     async def create_user(
         session,
         clerk_id: str,
