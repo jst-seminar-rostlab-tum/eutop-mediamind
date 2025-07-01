@@ -1,12 +1,13 @@
 from typing import Any, Dict, List, Optional
 
-from sqlalchemy import select
+from sqlalchemy import UUID, delete, select
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.core.db import async_session
 from app.models import User
+from app.models.associations import UserSearchProfileLink
 from app.schemas.user_schema import UserEntity
 
 
@@ -136,18 +137,43 @@ class UserRepository:
         no organization.
         Superusers receive all users.
         """
-        if not user.is_superuser & (user.organization_id is None):
+        if user.organization_id is None:
             return [user]
-        if user.is_superuser:
-            stmt = select(User).options(selectinload(User.organization))
-        else:
-            stmt = select(User).where(
-                User.organization_id == user.organization_id
-            )
-        stmt = stmt.options(selectinload(User.organization))
+
+        stmt = (
+            select(User)
+            .where(User.organization_id == user.organization_id)
+            .options(selectinload(User.organization))
+        )
         result = await session.execute(stmt)
         users = result.scalars().all()
         return [_to_user_entity(u) for u in users]
+
+    @staticmethod
+    async def get_all(
+        user: UserEntity, session: AsyncSession
+    ) -> List[UserEntity]:
+        """
+        Return all users in the same organization, or the user itself if
+        no organization.
+        Superusers receive all users.
+        """
+        if not user.is_superuser:
+            return [user]
+
+        stmt = select(User).options(selectinload(User.organization))
+        result = await session.execute(stmt)
+        users = result.scalars().all()
+        return [_to_user_entity(u) for u in users]
+
+    @staticmethod
+    async def delete_links_for_search_profile(
+        session: AsyncSession, profile_id: UUID
+    ) -> None:
+        stmt = delete(UserSearchProfileLink).where(
+            UserSearchProfileLink.search_profile_id == profile_id
+        )
+        await session.execute(stmt)
 
     @staticmethod
     async def update_language(user: UserEntity, language: str) -> UserEntity:
