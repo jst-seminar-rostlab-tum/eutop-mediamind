@@ -14,10 +14,6 @@
   "save_changes": "Save Changes",
   "Search": "Search",
 
-  "breadcrumbs": {
-    "Dashboard": "Dashboard"
-  },
-
   "breadcrumb_home": "Home",
 
   "landing_page": {
@@ -30,7 +26,6 @@
     "dashboard": "Dashboard",
     "profile": "Profiles",
     "new_articles": "new articles",
-    "profiles_loading": "Load profiles ...",
     "breaking_news": "Breaking News",
     "read_more": "Read more",
     "loading_failed": "Failed to load profiles.",
