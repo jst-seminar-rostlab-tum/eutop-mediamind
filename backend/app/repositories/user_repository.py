@@ -1,12 +1,13 @@
 from typing import Any, Dict, List, Optional
 
-from sqlalchemy import select
+from sqlalchemy import UUID, delete, select
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.core.db import async_session
 from app.models import User
+from app.models.associations import UserSearchProfileLink
 from app.schemas.user_schema import UserEntity
 
 
@@ -164,6 +165,15 @@ class UserRepository:
         result = await session.execute(stmt)
         users = result.scalars().all()
         return [_to_user_entity(u) for u in users]
+
+    @staticmethod
+    async def delete_links_for_search_profile(
+        session: AsyncSession, profile_id: UUID
+    ) -> None:
+        stmt = delete(UserSearchProfileLink).where(
+            UserSearchProfileLink.search_profile_id == profile_id
+        )
+        await session.execute(stmt)
 
     @staticmethod
     async def update_language(user: UserEntity, language: str) -> UserEntity:
