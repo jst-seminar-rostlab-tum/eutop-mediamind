@@ -1,11 +1,12 @@
 import uuid
 from datetime import datetime, timezone
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 from sqlalchemy import TIMESTAMP, Column, Text
 from sqlmodel import Field, Relationship, SQLModel
 
 if TYPE_CHECKING:
+    from app.models import MatchingRun
     from app.models.article import Article
     from app.models.search_profile import SearchProfile
     from app.models.topic import Topic
@@ -39,8 +40,14 @@ class Match(SQLModel, table=True):
             default=datetime.now(timezone.utc),
         )
     )
+    matching_run_id: uuid.UUID | None = Field(
+        default=None, foreign_key="matching_runs.id", index=True
+    )
 
     # Relationships
     article: "Article" = Relationship(back_populates="matches")
     search_profile: "SearchProfile" = Relationship(back_populates="matches")
     topic: "Topic" = Relationship(back_populates="matches")
+    matching_run: Optional["MatchingRun"] = Relationship(
+        back_populates="matches"
+    )

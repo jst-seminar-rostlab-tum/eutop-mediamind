@@ -30,7 +30,7 @@ export interface paths {
         };
         /**
          * Get Users
-         * @description List all users visible to the current user or
+         * @description List all users visible (same organization) to the current user or
          *     return the single user if restricted.
          */
         get: operations["get_users_api_v1_users_get"];
@@ -42,6 +42,27 @@ export interface paths {
          * @description Delete the authenticated user's account.
          */
         delete: operations["delete_current_user_api_v1_users_delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/users/all": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get All Users
+         * @description List all users visible to the current user or
+         *     return the single user if restricted.
+         */
+        get: operations["get_all_users_api_v1_users_all_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -211,6 +232,23 @@ export interface paths {
         put?: never;
         post?: never;
         delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/search-profiles/search-profiles/{search_profile_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete Search Profile */
+        delete: operations["delete_search_profile_api_v1_search_profiles_search_profiles__search_profile_id__delete"];
         options?: never;
         head?: never;
         patch?: never;
@@ -1084,6 +1122,26 @@ export interface operations {
             };
         };
     };
+    get_all_users_api_v1_users_all_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserEntity"][] | components["schemas"]["UserEntity"];
+                };
+            };
+        };
+    };
     get_current_user_info_api_v1_users_me_get: {
         parameters: {
             query?: never;
@@ -1401,6 +1459,35 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["ReportListResponse"];
                 };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_search_profile_api_v1_search_profiles_search_profiles__search_profile_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                search_profile_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
             /** @description Validation Error */
             422: {

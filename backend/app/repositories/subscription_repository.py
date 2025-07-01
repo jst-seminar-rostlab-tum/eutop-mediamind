@@ -2,6 +2,7 @@ from typing import List
 from uuid import UUID
 
 from sqlalchemy import delete, exists, select
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import aliased
 
 from app.core.db import async_session
@@ -115,6 +116,15 @@ class SubscriptionRepository:
             paywall=subscription.paywall,
             username=subscription.username,
         )
+
+    @staticmethod
+    async def delete_links_for_search_profile(
+        session: AsyncSession, profile_id: UUID
+    ) -> None:
+        stmt = delete(SearchProfileSubscriptionLink).where(
+            SearchProfileSubscriptionLink.search_profile_id == profile_id
+        )
+        await session.execute(stmt)
 
 
 async def get_subscriptions_with_crawlers(
