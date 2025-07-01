@@ -12,6 +12,12 @@
   "search": "Suchen",
   "Cancel": "Abbruch",
   "save_changes": "Änderungen speichern",
+  "Search": "Suche",
+
+  "breadcrumbs": {
+    "Dashboard": "Dashboard"
+  },
+
   "breadcrumb_home": "Home",
 
   "landing_page": {
@@ -147,6 +153,18 @@
     "credentials_error_text": "Bitte geben sie gültige Anmeldedaten ein",
     "username": "Benutzername",
     "password": "Passwort"
+  },
+
+  "search_profile": {
+    "Topics": "Themen",
+    "Sorting": "Sortierung",
+    "Sources": "Quellen",
+    "Date": "Datum",
+    "From": "Von",
+    "To": "Bis",
+    "articles": "Artikel",
+    "Relevance": "Relevanz",
+    "No_articles": "Keine Artikel gefunden"
   },
 
   "article-page": {
