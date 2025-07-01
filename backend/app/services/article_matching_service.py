@@ -246,8 +246,10 @@ class ArticleMatchingService:
 
         if len(profiles) > 0:
             # Create a matching run entry
-            algorithm_version = (f"V1_TOPIC_WEIGHTS_{self.weights['topic']}_"
-                                 f"KEYWORD_WEIGHTS_{self.weights['keyword']}")
+            algorithm_version = (
+                f"V1_TOPIC_WEIGHTS_{self.weights['topic']}_"
+                f"KEYWORD_WEIGHTS_{self.weights['keyword']}"
+            )
             async with async_session() as session:
                 matching_run = await MatchingRunRepository.create_matching_run(
                     session, algorithm_version=algorithm_version
