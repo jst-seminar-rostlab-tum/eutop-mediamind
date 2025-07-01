@@ -1,6 +1,6 @@
 import json
 import uuid
-from datetime import date
+from datetime import date, datetime
 from typing import Sequence
 
 from app.core.logger import get_logger
@@ -134,9 +134,11 @@ class ArticleSummaryService:
 
     @staticmethod
     async def run(
-        page_size: int = 100,
-        date_start: date = date.today(),
-        date_end: date = date.today(),
+        page_size: int = 300,
+        date_start: datetime = datetime.combine(
+            date.today(), datetime.min.time()
+        ),
+        date_end: datetime = datetime.now(),
     ) -> None:
         """
         Main entry point to summarize a list of articles and

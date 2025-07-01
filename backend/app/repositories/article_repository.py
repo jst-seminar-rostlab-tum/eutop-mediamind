@@ -153,8 +153,10 @@ class ArticleRepository:
     @staticmethod
     async def list_articles_without_summary(
         limit: int = 100,
-        date_start: date = date.today(),
-        date_end: date = date.today(),
+        date_start: datetime = datetime.combine(
+            date.today(), datetime.min.time()
+        ),
+        date_end: datetime = datetime.now(),
     ) -> Sequence[Article]:
         """
         List articles that have no summary yet, with pagination.
@@ -252,8 +254,10 @@ class ArticleRepository:
     @staticmethod
     async def get_articles_without_translations(
         limit: int = 100,
-        date_start: date = date.today(),
-        date_end: date = date.today(),
+        date_start: datetime = datetime.combine(
+            date.today(), datetime.min.time()
+        ),
+        date_end: datetime = datetime.now(),
     ) -> Sequence[Article]:
         """
         Returns articles that are missing at least one translation

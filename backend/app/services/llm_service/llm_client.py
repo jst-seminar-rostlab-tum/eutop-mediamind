@@ -218,7 +218,6 @@ class LLMClient:
                 and current.output_file_id
             ):
                 break
-            print("hello")
             await asyncio.sleep(10)
         return current.status == "completed"
 

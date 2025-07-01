@@ -1,5 +1,5 @@
 import uuid
-from datetime import date
+from datetime import date, datetime
 from typing import List, Optional
 
 from langchain_core.documents import Document
@@ -126,9 +126,11 @@ class ArticleVectorService:
 
     async def index_summarized_articles_to_vector_store(
         self,
-        page_size: int = 100,
-        date_start: date = date.today(),
-        date_end: date = date.today(),
+        page_size: int = 300,
+        date_start: datetime = datetime.combine(
+            date.today(), datetime.min.time()
+        ),
+        date_end: datetime = datetime.now(),
     ) -> None:
         """
         Run the functionality to read articles from the database and

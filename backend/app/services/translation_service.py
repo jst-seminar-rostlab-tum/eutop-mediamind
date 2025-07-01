@@ -1,6 +1,6 @@
 import json
 import uuid
-from datetime import date
+from datetime import date, datetime
 
 from langdetect import detect
 
@@ -207,9 +207,11 @@ class ArticleTranslationService:
 
     @staticmethod
     async def run(
-        page_size: int = 100,
-        date_start: date = date.today(),
-        date_end: date = date.today(),
+        page_size: int = 300,
+        date_start: datetime = datetime.combine(
+            date.today(), datetime.min.time()
+        ),
+        date_end: datetime = datetime.now(),
     ):
         """
         Orchestrates the full translation pipeline in batches.

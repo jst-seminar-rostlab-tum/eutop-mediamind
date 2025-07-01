@@ -8,6 +8,7 @@ from app.services.article_vector_service import ArticleVectorService
 from app.services.email_service import EmailService
 from app.services.report_service import ReportService
 from app.services.translation_service import ArticleTranslationService
+from app.services.web_harvester.crawler import CrawlerType
 from app.services.web_harvester.web_harvester_orchestrator import (
     run_crawler,
     run_scraper,
@@ -22,26 +23,28 @@ async def run(date_start: datetime, date_end: datetime, language: str = "en"):
     logger.info(f"Running pipeline from {date_start} to {date_end}")
 
     logger.info("Running crawler and scraper")
-    run_crawler(date_start=date_start, date_end=date_end)
-    run_scraper()
+    await run_crawler(
+        CrawlerType.NewsAPICrawler, date_start=date_start, date_end=date_end
+    )
+    await run_scraper()
 
     logger.info("Running Summarization and Entity Extraction")
-    ArticleSummaryService.run(date_start=date_start, date_end=date_end)
+    await ArticleSummaryService.run(date_start=date_start, date_end=date_end)
 
     logger.info("Running Translation")
-    ArticleTranslationService.run(date_start=date_start, date_end=date_end)
+    await ArticleTranslationService.run(
+        date_start=date_start, date_end=date_end
+    )
 
     logger.info("Running Embedding")
     vector_service = ArticleVectorService()
-    asyncio.run(
-        vector_service.index_summarized_articles_to_vector_store(
-            date_start=date_start, date_end=date_end
-        )
+    await vector_service.index_summarized_articles_to_vector_store(
+        date_start=date_start, date_end=date_end
     )
 
     logger.info("Running Article Matching")
     matching_service = ArticleMatchingService()
-    matching_service.run()
+    await matching_service.run()
 
     logger.info("Report generation")
     # returns the Report, presigned URL, dashboard URL and search profile
@@ -50,3 +53,10 @@ async def run(date_start: datetime, date_end: datetime, language: str = "en"):
 
     logger.info("Sending emails")
     await EmailService.run(reports_info)
+
+
+if __name__ == "__main__":
+    # Example usage
+    start_date = datetime(2025, 6, 30)
+    end_date = datetime.now()
+    asyncio.run(run(date_start=start_date, date_end=end_date))
