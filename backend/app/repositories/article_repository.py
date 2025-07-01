@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime
+from datetime import date, datetime
 from typing import List, Optional, Sequence
 from uuid import UUID
 
@@ -9,7 +9,7 @@ from sqlalchemy.orm import selectinload
 
 from app.core.db import async_session
 from app.core.logger import get_logger
-from app.models.article import Article
+from app.models.article import Article, ArticleStatus
 from app.models.match import Match
 
 logger = get_logger(__name__)
@@ -68,6 +68,7 @@ class ArticleRepository:
                 return None
 
             existing_article.summary = article_summary
+            existing_article.status = ArticleStatus.SUMMARIZED
             session.add(existing_article)
             await session.commit()
             await session.refresh(existing_article)
@@ -151,7 +152,11 @@ class ArticleRepository:
 
     @staticmethod
     async def list_articles_without_summary(
-        limit: int = 100, offset: int = 0
+        limit: int = 100,
+        date_start: datetime = datetime.combine(
+            date.today(), datetime.min.time()
+        ),
+        date_end: datetime = datetime.now(),
     ) -> Sequence[Article]:
         """
         List articles that have no summary yet, with pagination.
@@ -159,9 +164,12 @@ class ArticleRepository:
         async with async_session() as session:
             statement = (
                 select(Article)
-                .where(or_(Article.summary.is_(None), Article.summary == ""))
+                .where(
+                    Article.status == "SCRAPED",
+                    Article.published_at.between(date_start, date_end),
+                    or_(Article.summary.is_(None), Article.summary == ""),
+                )
                 .limit(limit)
-                .offset(offset)
             )
             unsummarized_articles: Sequence[Article] = (
                 (await session.execute(statement)).scalars().all()
@@ -171,7 +179,9 @@ class ArticleRepository:
 
     @staticmethod
     async def list_articles_with_summary(
-        limit: int = 100, offset: int = 0
+        limit: int = 100,
+        date_start: date = date.today(),
+        date_end: date = date.today(),
     ) -> List[Article]:
         """
         List articles that have a summary, with pagination.
@@ -179,10 +189,15 @@ class ArticleRepository:
         async with async_session() as session:
             statement = (
                 select(Article)
-                .where(Article.summary.isnot(None), Article.summary != "")
+                .where(
+                    Article.summary.isnot(None),
+                    Article.summary != "",
+                    Article.status == "TRANSLATED",
+                    Article.published_at.between(date_start, date_end),
+                )
                 .limit(limit)
-                .offset(offset)
             )
+
             summarized_articles: List[Article] = (
                 (await session.execute(statement)).scalars().all()
             )
@@ -238,7 +253,11 @@ class ArticleRepository:
 
     @staticmethod
     async def get_articles_without_translations(
-        limit: int = 100, offset: int = 0
+        limit: int = 100,
+        date_start: datetime = datetime.combine(
+            date.today(), datetime.min.time()
+        ),
+        date_end: datetime = datetime.now(),
     ) -> Sequence[Article]:
         """
         Returns articles that are missing at least one translation
@@ -248,6 +267,8 @@ class ArticleRepository:
             statement = (
                 select(Article)
                 .where(
+                    Article.status == "SUMMARIZED",
+                    Article.published_at.between(date_start, date_end),
                     or_(
                         Article.title_en.is_(None),
                         Article.title_en == "",
@@ -261,10 +282,9 @@ class ArticleRepository:
                         Article.summary_en == "",
                         Article.summary_de.is_(None),
                         Article.summary_de == "",
-                    )
+                    ),
                 )
                 .limit(limit)
-                .offset(offset)
             )
             articles_missing_translations: Sequence[Article] = (
                 (await session.execute(statement)).scalars().all()
@@ -302,6 +322,8 @@ class ArticleRepository:
                 existing_article.summary_en = summary_en
             if summary_de is not None:
                 existing_article.summary_de = summary_de
+
+            existing_article.status = ArticleStatus.TRANSLATED
 
             session.add(existing_article)
             await session.commit()

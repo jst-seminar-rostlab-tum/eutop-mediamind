@@ -20,13 +20,33 @@ logger = get_logger(__name__)
 @router.get("", response_model=Union[List[UserEntity], UserEntity])
 async def get_users(
     current_user: UserEntity = Depends(get_authenticated_user),
-) -> Union[List[UserEntity], UserEntity]:
+) -> List[UserEntity]:
+    """
+    List all users visible (same organization) to the current user or
+    return the single user if restricted.
+    """
+    try:
+        return await UserService.get_all_by_organization(current_user)
+    except Exception as e:
+        logger.error(
+            "Error listing users for user with id=%s: %s", current_user.id, e
+        )
+        raise HTTPException(
+            status_code=500,
+            detail="Failed to list users",
+        )
+
+
+@router.get("/all", response_model=Union[List[UserEntity], UserEntity])
+async def get_all_users(
+    current_user: UserEntity = Depends(get_authenticated_user),
+) -> List[UserEntity]:
     """
     List all users visible to the current user or
     return the single user if restricted.
     """
     try:
-        return await UserService.list_users(current_user)
+        return await UserService.get_all(current_user)
     except Exception as e:
         logger.error(
             "Error listing users for user with id=%s: %s", current_user.id, e

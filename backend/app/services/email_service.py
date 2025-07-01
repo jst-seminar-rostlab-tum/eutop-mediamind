@@ -1,8 +1,10 @@
+# flake8: noqa: E501
 import os
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from time import gmtime, strftime
+from typing import List
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
@@ -156,3 +158,32 @@ class EmailService:
         template_name = "email_template.html"
 
         return EmailService._render_email_template(template_name, context)
+
+    @staticmethod
+    async def run(reports_infos: List[dict]):
+        for reports_info in reports_infos:
+            report = reports_info["report"]
+            presigned_url = reports_info["presigned_url"]
+            dashboard_url = reports_info["dashboard_url"]
+            search_profile = reports_info["search_profile"]
+            try:
+                for email in search_profile.organization_emails:
+                    email_schedule = EmailSchedule(
+                        recipient=email,
+                        subject=f"[MEDIAMIND] Your "
+                        f"{report.time_slot.capitalize()}"
+                        f"Report for {search_profile.name}",
+                        content_type="text/HTML",
+                        content=EmailService._build_email_content(
+                            presigned_url, dashboard_url, search_profile.name
+                        ),
+                    )
+
+                    await EmailService.schedule_email(email_schedule)
+                    await EmailService.send_scheduled_emails()
+                logger.info(
+                    f"Email scheduling done for report {search_profile.name}"
+                )
+            except Exception as e:
+                logger.error(f"Error in EmailService: {str(e)}")
+                continue

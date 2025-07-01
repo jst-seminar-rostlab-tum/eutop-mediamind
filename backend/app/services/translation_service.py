@@ -3,6 +3,7 @@ import json
 import os
 import uuid
 from typing import Callable
+from datetime import date, datetime
 
 from langdetect import detect
 
@@ -260,7 +261,13 @@ class ArticleTranslationService:
                 )
 
     @staticmethod
-    async def run_for_articles(limit: int = 100):
+    async def run(
+        page_size: int = 300,
+        date_start: datetime = datetime.combine(
+            date.today(), datetime.min.time()
+        ),
+        date_end: datetime = datetime.now(),
+    ):
         """
         Orchestrates the full articles translation pipeline in batches.
 
@@ -269,14 +276,14 @@ class ArticleTranslationService:
         """
         try:
             page = 0
-            offset = 0
 
             articles = (
                 await ArticleRepository.get_articles_without_translations(
-                    limit=limit, offset=offset
+                    limit=page_size,
+                    date_start=date_start,
+                    date_end=date_end,
                 )
             )
-
             while articles:
                 logger.info(
                     f"Translating page {page + 1} with "
@@ -312,11 +319,12 @@ class ArticleTranslationService:
                 )
 
                 page += 1
-                offset = page * limit
 
                 articles = (
                     await ArticleRepository.get_articles_without_translations(
-                        limit=limit, offset=offset
+                        limit=page_size,
+                        date_start=date_start,
+                        date_end=date_end,
                     )
                 )
             logger.info("No more articles without translation found")
