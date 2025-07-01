@@ -63,7 +63,8 @@
     "user_error": "Laden der Benutzer fehlgeschlagen.",
     "Rights": "Rechte",
     "read": "lesen",
-    "edit": "bearbeiten"
+    "edit": "bearbeiten",
+    "user_already_added": "Dieser Benutzer ist bereits teil des Profils"
   },
 
   "topics": {

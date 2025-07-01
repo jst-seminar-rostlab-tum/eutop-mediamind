@@ -23,7 +23,10 @@ import type { MediamindUser, Profile } from "../../../../types/model";
 import { useEffect } from "react";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
-import { DataTableUsers } from "~/custom-components/admin-settings/data-table-users";
+import {
+  DataTableUsers,
+  type UserWithRole,
+} from "~/custom-components/admin-settings/data-table-users";
 import { getUserColumns } from "./columns";
 
 export interface GeneralProps {
@@ -31,14 +34,11 @@ export interface GeneralProps {
   setProfile: (profile: Profile) => void;
 }
 
-export type UserWithRole = {
-  id: string;
-  name: string;
-  rights: "read" | "edit";
-};
-
 export function General({ profile, setProfile }: GeneralProps) {
   const [open, setOpen] = React.useState(false);
+  const [usersWithRoles, setUsersWithRoles] = React.useState<UserWithRole[]>(
+    [],
+  );
 
   const { data: userData, isLoading, error } = useQuery("/api/v1/users");
   const { t } = useTranslation();
@@ -59,14 +59,21 @@ export function General({ profile, setProfile }: GeneralProps) {
     return [userData];
   }, [userData]);
 
+  const selectedUser = users.find((user) => user.id === profile.owner_id);
+
+  const selectedUserLabel = selectedUser
+    ? `${selectedUser.first_name} ${selectedUser.last_name}`
+    : t("general.select_user");
+
+  // match read and write ids with users emails and rights
   function getUsersWithRole(
-    userIds: string[],
-    users: MediamindUser[],
+    profileUserIds: string[],
+    orgaUsers: MediamindUser[],
     rights: "read" | "edit",
   ): UserWithRole[] {
-    const userMap = new Map(users.map((u) => [u.id, u]));
+    const userMap = new Map(orgaUsers.map((u) => [u.id, u]));
 
-    return userIds
+    return profileUserIds
       .map((id) => {
         const user = userMap.get(id)!;
         if (!user) return null;
@@ -79,12 +86,7 @@ export function General({ profile, setProfile }: GeneralProps) {
       .filter((u): u is UserWithRole => u !== null);
   }
 
-  const [usersWithRoles, setUsersWithRoles] = React.useState<UserWithRole[]>(
-    [],
-  );
-
-  //console.log(userData);
-
+  // initialize users with roles for the table
   useEffect(() => {
     if (!users.length) return;
 
@@ -102,12 +104,7 @@ export function General({ profile, setProfile }: GeneralProps) {
     setUsersWithRoles([...readUsers, ...editUsers]);
   }, [users, profile.can_read_user_ids, profile.can_edit_user_ids]);
 
-  const selectedUser = users.find((user) => user.id === profile.owner_id);
-
-  const selectedUserLabel = selectedUser
-    ? `${selectedUser.first_name} ${selectedUser.last_name}`
-    : t("general.select_user");
-
+  // handle role change
   const handleRoleChange = (index: number, newRights: "read" | "edit") => {
     const user = usersWithRoles[index];
     if (!user) return;
@@ -121,7 +118,7 @@ export function General({ profile, setProfile }: GeneralProps) {
       ),
     );
 
-    // Clean out userId from both roles
+    // Clean out userId from both rights
     const cleanedReadIds = profile.can_read_user_ids.filter(
       (id) => id !== userId,
     );
@@ -129,6 +126,7 @@ export function General({ profile, setProfile }: GeneralProps) {
       (id) => id !== userId,
     );
 
+    // create updated profile with new user's rights
     const updatedProfile = {
       ...profile,
       can_read_user_ids:
@@ -137,16 +135,60 @@ export function General({ profile, setProfile }: GeneralProps) {
         newRights === "edit" ? [...cleanedEditIds, userId] : cleanedEditIds,
     };
 
+    // set profile to updated profile
     setProfile(updatedProfile);
+  };
 
-    // check for changes
-    //setUnsavedEdits(true);
+  // crate user with rights object form selected email to add
+  const createAndAddNewUser = (email: string) => {
+    // find user with selected email
+    const user = users.find((u) => u.email === email);
+    if (!user) return;
+
+    const alreadyExists = usersWithRoles.some((u) => u.id === user.id);
+    if (alreadyExists) {
+      toast.error(t("general.user_already_added"));
+      return;
+    }
+
+    const newUser: UserWithRole = {
+      id: user.id,
+      name: user.email,
+      rights: "read", // default rights: read
+    };
+
+    // update local state
+    setUsersWithRoles(
+      (prev) => [...prev, newUser], // prevent duplicates in local state
+    );
+
+    // add new id to read ids, prevent duplicates in profile
+    if (!profile.can_read_user_ids.includes(user.id)) {
+      setProfile({
+        ...profile,
+        can_read_user_ids: [...profile.can_read_user_ids, user.id],
+      });
+    }
   };
 
   const handleUserDelete = (index: number) => {
+    //get user with this index
+    const userToRemove = usersWithRoles[index];
+    if (!userToRemove) return;
+
+    // update local state
     setUsersWithRoles((prev) => prev.filter((_, i) => i !== index));
-    // check for changes
-    //setUnsavedEdits(true);
+
+    // update profile
+    setProfile({
+      ...profile,
+      can_read_user_ids: profile.can_read_user_ids.filter(
+        (id) => id !== userToRemove.id,
+      ),
+      can_edit_user_ids: profile.can_edit_user_ids.filter(
+        (id) => id !== userToRemove.id,
+      ),
+    });
   };
 
   return (
@@ -234,7 +276,8 @@ export function General({ profile, setProfile }: GeneralProps) {
         <DataTableUsers
           columns={getUserColumns(handleRoleChange, handleUserDelete)}
           data={usersWithRoles}
-          onAdd={() => {}}
+          onAdd={createAndAddNewUser}
+          users={users}
         />
       </div>
     </div>

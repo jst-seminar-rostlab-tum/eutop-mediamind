@@ -63,7 +63,8 @@
     "user_error": "Failed to load users.",
     "Rights": "Rights",
     "read": "read",
-    "edit": "edit"
+    "edit": "edit",
+    "user_already_added": "This user is already in the profile"
   },
 
   "topics": {

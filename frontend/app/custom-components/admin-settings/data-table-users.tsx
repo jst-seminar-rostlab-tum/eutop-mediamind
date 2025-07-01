@@ -9,6 +9,7 @@ import {
 import { Check, ChevronsUpDown, Plus, Trash2 } from "lucide-react";
 import React from "react";
 import { useTranslation } from "react-i18next";
+import type { MediamindUser } from "types/model";
 import { Button } from "~/components/ui/button";
 import {
   Command,
@@ -35,21 +36,29 @@ import {
 } from "~/components/ui/table";
 import { cn } from "~/lib/utils";
 
+export type UserWithRole = {
+  id: string;
+  name: string; //name is users email here
+  rights: "read" | "edit";
+};
+
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   onAdd: (email: string) => void;
+  users: MediamindUser[];
 }
 
 export function DataTableUsers<TData, TValue>({
   columns,
   data,
   onAdd,
+  users,
 }: DataTableProps<TData, TValue>) {
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     [],
   );
-  const [newEmail, setNewEmail] = React.useState("");
+  const [selectedEmail, setSelectedEmail] = React.useState<string>("");
 
   const table = useReactTable({
     data,
@@ -70,13 +79,6 @@ export function DataTableUsers<TData, TValue>({
       selectedRows.map((r) => r.original),
     );
   };
-
-  const users = [
-    { clerk_id: 1234, email: "leo@tum.de" },
-    { clerk_id: 2345, email: "rafael@tum.de" },
-    { clerk_id: 3456, email: "jonathan@tum.de" },
-    { clerk_id: 3457, email: "leo@bmw.com" },
-  ];
 
   const [open, setOpen] = React.useState(false);
 
@@ -103,11 +105,11 @@ export function DataTableUsers<TData, TValue>({
                   aria-expanded={open}
                   className={cn(
                     "rounded-r-none min-w-[150px] justify-between",
-                    !newEmail && "text-muted-foreground",
+                    !selectedEmail && "text-muted-foreground",
                   )}
                 >
-                  {newEmail
-                    ? users.find((user) => user.email === newEmail)?.email
+                  {selectedEmail
+                    ? users.find((user) => user.email === selectedEmail)?.email
                     : t("admin.add_user")}
                   <ChevronsUpDown className="opacity-50" />
                 </Button>
@@ -120,10 +122,10 @@ export function DataTableUsers<TData, TValue>({
                     <CommandGroup>
                       {users.map((user) => (
                         <CommandItem
-                          key={user.clerk_id}
+                          key={user.id}
                           value={user.email}
                           onSelect={(currentValue) => {
-                            setNewEmail(currentValue);
+                            setSelectedEmail(currentValue);
                             setOpen(false);
                           }}
                         >
@@ -151,8 +153,8 @@ export function DataTableUsers<TData, TValue>({
               className={"rounded-l-none"}
               variant={"secondary"}
               onClick={() => {
-                onAdd(newEmail);
-                setNewEmail("");
+                onAdd(selectedEmail);
+                setSelectedEmail("");
               }}
             >
               <Plus className={"h-4 w-4"} />
