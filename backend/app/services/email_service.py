@@ -12,6 +12,7 @@ from app.core.config import configs
 from app.core.logger import get_logger
 from app.models.email import Email, EmailState
 from app.repositories.email_repository import EmailRepository
+from app.repositories.user_repository import UserRepository
 from app.services.translation_service import ArticleTranslationService
 
 logger = get_logger(__name__)
@@ -101,7 +102,7 @@ class EmailService:
             raise
 
     @staticmethod
-    def build_email_content(
+    def _build_email_content(
         s3_link: str,
         dashboard_link: str,
         profile_name: str,
@@ -168,14 +169,25 @@ class EmailService:
             search_profile = reports_info["search_profile"]
             try:
                 for email in search_profile.organization_emails:
+                    user_last_name = await UserRepository.get_last_name_by_email(
+                        email
+                    )
+                    translator = ArticleTranslationService.get_translator(search_profile.language)
+                    time_slot_translated = translator(report.time_slot.capitalize())
+                    subject = (
+                        f"[MEDIAMIND] {translator('Your')} {time_slot_translated} "
+                        f"{translator('Report')} {translator('for')} {search_profile.name}"
+                    )
                     email_schedule = EmailSchedule(
                         recipient=email,
-                        subject=f"[MEDIAMIND] Your "
-                        f"{report.time_slot.capitalize()}"
-                        f"Report for {search_profile.name}",
+                        subject=subject,
                         content_type="text/HTML",
                         content=EmailService._build_email_content(
-                            presigned_url, dashboard_url, search_profile.name
+                            presigned_url,
+                            dashboard_url,
+                            search_profile.name,
+                            user_last_name,
+                            search_profile.language
                         ),
                     )
 

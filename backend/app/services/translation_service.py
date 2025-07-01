@@ -45,7 +45,7 @@ class ArticleTranslationService:
         if language not in ArticleTranslationService._translators_cache:
             locale_dir = os.path.join(os.path.dirname(__file__), "locales")
             lang = gettext.translation(
-                "messages",
+                "translations",
                 localedir=locale_dir,
                 languages=[language],
                 fallback=True,
