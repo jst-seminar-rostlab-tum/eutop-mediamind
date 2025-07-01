@@ -2,7 +2,7 @@ from typing import List, Optional
 from uuid import UUID
 
 from pydantic import EmailStr
-from sqlalchemy import and_, or_, update
+from sqlalchemy import and_, delete, or_, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 from sqlmodel import select
@@ -237,3 +237,8 @@ class SearchProfileRepository:
             )
         )
         await session.flush()
+
+    @staticmethod
+    async def delete_by_id(session: AsyncSession, profile_id: UUID) -> None:
+        stmt = delete(SearchProfile).where(SearchProfile.id == profile_id)
+        await session.execute(stmt)

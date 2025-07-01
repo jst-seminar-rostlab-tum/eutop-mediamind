@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional
 
 from app.core.db import async_session
 from app.repositories.user_repository import UserRepository
@@ -7,9 +7,9 @@ from app.schemas.user_schema import UserEntity
 
 class UserService:
     @staticmethod
-    async def list_users(
+    async def get_all_by_organization(
         user: UserEntity,
-    ) -> Union[List[UserEntity], UserEntity]:
+    ) -> List[UserEntity]:
         """
         Return all users in the same organization, or self if no org.
         Superusers receive all users.
@@ -18,6 +18,16 @@ class UserService:
             return await UserRepository.get_users_by_user_organization(
                 user, session
             )
+
+    @staticmethod
+    async def get_all(
+        user: UserEntity,
+    ) -> List[UserEntity]:
+        """
+        Return all users Superusers receive all users.
+        """
+        async with async_session() as session:
+            return await UserRepository.get_all(user, session)
 
     @staticmethod
     async def get_by_clerk_id(
