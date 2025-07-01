@@ -227,13 +227,16 @@ async def get_reports(
 )
 async def delete_search_profile(
     search_profile_id: UUID,
-    current_user: User = Depends(get_authenticated_user),
+    current_user: UserEntity = Depends(get_authenticated_user),
 ):
     try:
         await SearchProfileService.delete_search_profile(
             search_profile_id, current_user
         )
     except Exception as e:
+        logger.error(
+            f"Failed to delete search profile {search_profile_id}, Error: {e}"
+        )
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
+            status_code=409, detail="Failed to delete search profile"
         )
