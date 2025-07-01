@@ -40,7 +40,7 @@ class Match(SQLModel, table=True):
             default=datetime.now(timezone.utc),
         )
     )
-    matching_runs_id: uuid.UUID | None = Field(
+    matching_run_id: uuid.UUID | None = Field(
         default=None, foreign_key="matching_runs.id", index=True
     )
 

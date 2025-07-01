@@ -7,7 +7,7 @@ from .email import Email
 from .entity import ArticleEntity
 from .keyword import Keyword
 from .match import Match
-from .matching_runs import MatchingRun
+from .matching_run import MatchingRun
 from .organization import Organization
 from .report import Report
 from .search_profile import SearchProfile

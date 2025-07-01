@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.models import MatchingRun
 
 
-class MatchingRunsRepository:
+class MatchingRunRepository:
     """
     Repository for managing matching runs in the database.
     """

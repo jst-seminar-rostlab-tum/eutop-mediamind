@@ -7,7 +7,7 @@ from app.core.db import async_session
 from app.core.logger import get_logger
 from app.models import Match, MatchingRun, SearchProfile
 from app.repositories.match_repository import MatchRepository
-from app.repositories.matching_runs_repository import MatchingRunsRepository
+from app.repositories.matching_run_repository import MatchingRunRepository
 from app.repositories.search_profile_repository import SearchProfileRepository
 from app.services.article_vector_service import ArticleVectorService
 
@@ -220,7 +220,7 @@ class ArticleMatchingService:
                     sorting_order=order,
                     comment=json.dumps(entry, default=str),
                     score=score,
-                    matching_runs_id=matching_run.id,
+                    matching_run_id=matching_run.id,
                 )
                 await MatchRepository.insert_match(match, session)
 
@@ -246,14 +246,10 @@ class ArticleMatchingService:
 
         if len(profiles) > 0:
             # Create a matching run entry
-            algorithm_version = (
-                f"{self.weights['topic']}_{self.weights['keyword']}"
-            )
+            algorithm_version = f"V1_TOPIC_WEIGHTS_{self.weights['topic']}_KEYWORD_WEIGHTS_{self.weights['keyword']}"
             async with async_session() as session:
-                matching_run = (
-                    await MatchingRunsRepository.create_matching_run(
-                        session, algorithm_version=algorithm_version
-                    )
+                matching_run = await MatchingRunRepository.create_matching_run(
+                    session, algorithm_version=algorithm_version
                 )
 
         # Continue while there are profiles

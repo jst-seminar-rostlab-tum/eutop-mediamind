@@ -2,14 +2,14 @@ import uuid
 from datetime import datetime, timezone
 from typing import TYPE_CHECKING, List, Optional
 
-from sqlalchemy import TIMESTAMP, Column, Integer, Sequence
+from sqlalchemy import TIMESTAMP, Column
 from sqlmodel import Field, Relationship, SQLModel
 
 if TYPE_CHECKING:
     from app.models import Match
     from app.models.report import Report
 
-counter_seq = Sequence("matching_run_counter_seq", metadata=SQLModel.metadata)
+
 
 
 class MatchingRun(SQLModel, table=True):
@@ -18,21 +18,12 @@ class MatchingRun(SQLModel, table=True):
     Represents a matching run for a search profile.
     """
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
-    run_at: datetime = Field(
+
+    created_at: datetime = Field(
         sa_column=Column(
             TIMESTAMP(timezone=True),
             nullable=False,
             default=datetime.now(timezone.utc),
-        )
-    )
-
-    counter: int = Field(
-        sa_column=Column(
-            Integer,
-            counter_seq,
-            server_default=counter_seq.next_value(),
-            nullable=False,
-            unique=True,
         )
     )
 
