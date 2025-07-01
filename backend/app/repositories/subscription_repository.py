@@ -7,7 +7,10 @@ from sqlalchemy.orm import aliased
 from app.core.db import async_session
 from app.models import Article, Subscription
 from app.models.associations import SearchProfileSubscriptionLink
-from app.schemas.subscription_schemas import SubscriptionSummary
+from app.schemas.subscription_schemas import (
+    SubscriptionRead,
+    SubscriptionSummary,
+)
 from app.services.web_harvester.crawler import CrawlerType, get_crawlers
 from app.services.web_harvester.scraper import get_scraper
 
@@ -44,7 +47,7 @@ class SubscriptionRepository:
             ]
 
     @staticmethod
-    async def get_all_subscriptions() -> list[SubscriptionSummary]:
+    async def get_all() -> list[SubscriptionSummary]:
         async with async_session() as session:
             stmt = select(Subscription.id, Subscription.name)
             result = await session.execute(stmt)
@@ -77,6 +80,41 @@ class SubscriptionRepository:
         ]
 
         session.add_all(new_links)
+
+    @staticmethod
+    async def get_by_id(session, subscription_id: UUID) -> Subscription | None:
+        return await session.get(Subscription, subscription_id)
+
+    @staticmethod
+    async def create(session, subscription: Subscription) -> Subscription:
+        session.add(subscription)
+        await session.commit()
+        await session.refresh(subscription)
+        return subscription
+
+    @staticmethod
+    async def update(session, subscription: Subscription) -> Subscription:
+        session.add(subscription)
+        await session.commit()
+        await session.refresh(subscription)
+        return subscription
+
+    @staticmethod
+    async def delete(session, subscription_id: UUID):
+        await session.execute(
+            delete(Subscription).where(Subscription.id == subscription_id)
+        )
+        await session.commit()
+
+    @staticmethod
+    def to_read_model(subscription: Subscription) -> SubscriptionRead:
+        return SubscriptionRead(
+            id=subscription.id,
+            name=subscription.name,
+            domain=subscription.domain,
+            paywall=subscription.paywall,
+            username=subscription.username,
+        )
 
 
 async def get_subscriptions_with_crawlers(
