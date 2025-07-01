@@ -8,7 +8,7 @@ from app.schemas.user_schema import UserEntity
 
 class UserService:
     @staticmethod
-    async def list_users(
+    async def get_all_by_organization(
         user: UserEntity,
     ) -> List[User]:
         """
@@ -21,6 +21,16 @@ class UserService:
             return await UserRepository.get_users_by_organization(
                 user.organization_id, session
             )
+
+    @staticmethod
+    async def get_all(
+        user: UserEntity,
+    ) -> List[UserEntity]:
+        """
+        Return all users Superusers receive all users.
+        """
+        async with async_session() as session:
+            return await UserRepository.get_all(user, session)
 
     @staticmethod
     async def get_by_clerk_id(
