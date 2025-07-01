@@ -127,7 +127,6 @@ async def test_index_summarized_articles_and_count(
     # index
     await service.index_summarized_articles_to_vector_store(page_size=2)
 
-    print(qdrant_client.count(collection_name=service.collection_name).count)
     # now 4
     assert (
         qdrant_client.count(collection_name=service.collection_name).count == 4
