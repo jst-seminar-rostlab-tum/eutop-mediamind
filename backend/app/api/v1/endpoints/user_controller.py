@@ -20,7 +20,7 @@ logger = get_logger(__name__)
 @router.get("", response_model=Union[List[UserEntity], UserEntity])
 async def get_users(
     current_user: UserEntity = Depends(get_authenticated_user),
-) -> Union[List[UserEntity], UserEntity]:
+) -> List[UserEntity]:
     """
     List all users visible (same organization) to the current user or
     return the single user if restricted.
@@ -40,7 +40,7 @@ async def get_users(
 @router.get("/all", response_model=Union[List[UserEntity], UserEntity])
 async def get_all_users(
     current_user: UserEntity = Depends(get_authenticated_user),
-) -> Union[List[UserEntity], UserEntity]:
+) -> List[UserEntity]:
     """
     List all users visible to the current user or
     return the single user if restricted.
