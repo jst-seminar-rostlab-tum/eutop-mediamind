@@ -10,8 +10,6 @@ if TYPE_CHECKING:
     from app.models.report import Report
 
 
-
-
 class MatchingRun(SQLModel, table=True):
     __tablename__ = "matching_runs"
     """
