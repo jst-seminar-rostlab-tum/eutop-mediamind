@@ -169,11 +169,15 @@ class EmailService:
             search_profile = reports_info["search_profile"]
             try:
                 for email in search_profile.organization_emails:
-                    user_last_name = await UserRepository.get_last_name_by_email(
-                        email
+                    user_last_name = (
+                        await UserRepository.get_last_name_by_email(email)
                     )
-                    translator = ArticleTranslationService.get_translator(search_profile.language)
-                    time_slot_translated = translator(report.time_slot.capitalize())
+                    translator = ArticleTranslationService.get_translator(
+                        search_profile.language
+                    )
+                    time_slot_translated = translator(
+                        report.time_slot.capitalize()
+                    )
                     subject = (
                         f"[MEDIAMIND] {translator('Your')} {time_slot_translated} "
                         f"{translator('Report')} {translator('for')} {search_profile.name}"
@@ -187,7 +191,7 @@ class EmailService:
                             dashboard_url,
                             search_profile.name,
                             user_last_name,
-                            search_profile.language
+                            search_profile.language,
                         ),
                     )
 

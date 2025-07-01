@@ -2,8 +2,8 @@ import gettext
 import json
 import os
 import uuid
-from typing import Callable
 from datetime import date, datetime
+from typing import Callable
 
 from langdetect import detect
 
