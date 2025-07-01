@@ -2,6 +2,7 @@ from typing import List
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException
+from starlette import status
 
 from app.core.auth import get_authenticated_user
 from app.core.logger import get_logger
@@ -218,3 +219,24 @@ async def get_reports(
         ReportRead.model_validate(r, from_attributes=True) for r in reports
     ]
     return ReportListResponse(reports=reports_pydantic)
+
+
+@router.delete(
+    "/search-profiles/{search_profile_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+async def delete_search_profile(
+    search_profile_id: UUID,
+    current_user: UserEntity = Depends(get_authenticated_user),
+):
+    try:
+        await SearchProfileService.delete_search_profile(
+            search_profile_id, current_user
+        )
+    except Exception as e:
+        logger.error(
+            f"Failed to delete search profile {search_profile_id}, Error: {e}"
+        )
+        raise HTTPException(
+            status_code=409, detail="Failed to delete search profile"
+        )

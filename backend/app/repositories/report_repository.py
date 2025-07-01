@@ -2,6 +2,8 @@ from datetime import date, datetime, timedelta
 from typing import List, Optional
 from uuid import UUID
 
+from sqlalchemy import delete
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import select
 
 from app.core.db import async_session
@@ -70,3 +72,10 @@ class ReportRepository:
             await session.commit()
             await session.refresh(db_report)
             return db_report
+
+    @staticmethod
+    async def delete_for_search_profile(
+        session: AsyncSession, profile_id: UUID
+    ) -> None:
+        stmt = delete(Report).where(Report.search_profile_id == profile_id)
+        await session.execute(stmt)
