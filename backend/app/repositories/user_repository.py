@@ -155,7 +155,7 @@ class UserRepository:
 
     @staticmethod
     async def get_users_by_organization(
-            organization_id: uuid.UUID, session: AsyncSession
+        organization_id: uuid.UUID, session: AsyncSession
     ) -> List[User]:
         """
         Return all users in the same organization, or the user itself if
@@ -170,7 +170,7 @@ class UserRepository:
 
     @staticmethod
     async def get_all(
-            user: UserEntity, session: AsyncSession
+        user: UserEntity, session: AsyncSession
     ) -> List[UserEntity]:
         """
         Return all users in the same organization, or the user itself if
