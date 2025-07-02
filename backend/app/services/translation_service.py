@@ -208,10 +208,10 @@ class ArticleTranslationService:
     @staticmethod
     async def run(
         page_size: int = 300,
-        date_start: datetime = datetime.combine(
+        datetime_start: datetime = datetime.combine(
             date.today(), datetime.min.time()
         ),
-        date_end: datetime = datetime.now(),
+        datetime_end: datetime = datetime.now(),
     ):
         """
         Orchestrates the full translation pipeline in batches.
@@ -225,8 +225,8 @@ class ArticleTranslationService:
             articles = (
                 await ArticleRepository.get_articles_without_translations(
                     limit=page_size,
-                    date_start=date_start,
-                    date_end=date_end,
+                    datetime_start=datetime_start,
+                    datetime_end=datetime_end,
                 )
             )
             while articles:
@@ -256,8 +256,8 @@ class ArticleTranslationService:
                 articles = (
                     await ArticleRepository.get_articles_without_translations(
                         limit=page_size,
-                        date_start=date_start,
-                        date_end=date_end,
+                        datetime_start=datetime_start,
+                        datetime_end=datetime_end,
                     )
                 )
 
