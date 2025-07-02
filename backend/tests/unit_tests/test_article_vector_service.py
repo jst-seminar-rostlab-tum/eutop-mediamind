@@ -6,6 +6,7 @@ from langchain_core.documents import Document
 
 from app.models import Article
 from app.services.article_vector_service import ArticleVectorService
+import asyncio
 
 
 def make_article(
@@ -78,8 +79,21 @@ def test_get_list_of_collections(patch_qdrant_and_store):
     assert service.get_list_of_collections() == ["col1", "col2"]
 
 
-def test_add_articles_calls_vector_store(patch_qdrant_and_store):
+@pytest.mark.asyncio
+async def test_add_articles_calls_vector_store(
+    monkeypatch, patch_qdrant_and_store
+):
     _, store = patch_qdrant_and_store
+
+    # Mock the ArticleRepository.update_article to avoid database calls
+    async def mock_update_article(article):
+        return None
+
+    monkeypatch.setattr(
+        "app.repositories.article_repository.ArticleRepository.update_article",
+        mock_update_article,
+    )
+
     articles = [
         make_article(
             id=uuid.UUID(int=i), subscription_id=uuid.UUID(int=i + 10)
@@ -87,7 +101,7 @@ def test_add_articles_calls_vector_store(patch_qdrant_and_store):
         for i in range(1, 4)
     ]
     service = ArticleVectorService()
-    service.add_articles(articles)
+    await service.add_articles(articles)
     store.add_documents.assert_called_once()
     docs = store.add_documents.call_args.kwargs["documents"]
     ids = store.add_documents.call_args.kwargs["ids"]
