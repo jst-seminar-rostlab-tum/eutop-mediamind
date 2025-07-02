@@ -20,7 +20,10 @@ from app.services.web_harvester.breaking_news_crawler import (
     get_all_breaking_news,
 )
 from app.services.web_harvester.crawler import CrawlerType
-from app.services.web_harvester.pipeline import run_crawler, run_scraper
+from app.services.web_harvester.web_harvester_orchestrator import (
+    run_crawler,
+    run_scraper,
+)
 
 router = APIRouter(
     prefix="/crawler",

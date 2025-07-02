@@ -7,9 +7,10 @@ from app.core.config import configs
 from app.core.logger import get_logger
 from app.models.report import Report, ReportStatus
 from app.repositories.report_repository import ReportRepository
+from app.repositories.search_profile_repository import SearchProfileRepository
 from app.schemas.report_schemas import ReportCreate
 from app.services.pdf_service.pdf_service import PDFService
-from app.services.s3_service import S3Service
+from app.services.s3_service import S3Service, get_s3_service
 from app.services.search_profiles_service import SearchProfileService
 
 logger = get_logger(__name__)
@@ -29,6 +30,7 @@ class ReportService:
         If no report exists, generates a new one and stores it in S3.
         New reports are always generated for the current day.
         """
+
         # Try to find existing report
         report = await ReportRepository.get_by_searchprofile_timeslot_language(
             search_profile_id, timeslot, language
@@ -97,3 +99,44 @@ class ReportService:
     @staticmethod
     async def get_report_by_id(report_id: UUID) -> Optional[Report]:
         return await ReportRepository.get_by_id(report_id)
+
+    @staticmethod
+    async def run(
+        timeslot: str,
+        language: str,
+    ):
+        """
+        Run the report generation process for a specific timeslot and language
+        in the pipeline.
+        """
+        s3_service = get_s3_service()
+        reports = []
+        search_profiles = (
+            await SearchProfileRepository.fetch_all_search_profiles()
+        )
+        for search_profile in search_profiles:
+            logger.info(
+                f"Generating {timeslot} report ({language}) for profile "
+                f"{search_profile.id}"
+            )
+            report = await ReportService.get_or_create_report(
+                search_profile.id, timeslot, language, s3_service
+            )
+
+            # For email generation
+            presigned_url = s3_service.generate_presigned_url(
+                key=report.s3_key, expires_in=604800  # 7 days
+            )
+            dashboard_url = (
+                f"https://mediamind.csee.tech/dashboard/reports/{report.id}"
+            )
+
+            reports.append(
+                {
+                    "report": report,
+                    "presigned_url": presigned_url,
+                    "dashboard_url": dashboard_url,
+                    "search_profile": search_profile,
+                }
+            )
+        return reports
