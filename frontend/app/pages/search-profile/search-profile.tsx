@@ -146,11 +146,11 @@ export function SearchProfileOverview() {
         <SearchProfileSkeleton />
       ) : (
         <>
-          <Breadcrumb className="mt-8">
+          <Breadcrumb>
             <BreadcrumbList>
               <BreadcrumbItem>
-                <BreadcrumbLink href="/dashboard">
-                  {t("breadcrumbs.Dashboard")}
+                <BreadcrumbLink asChild>
+                  <Link to="/dashboard">{t("breadcrumb_home")}</Link>
                 </BreadcrumbLink>
               </BreadcrumbItem>
               <BreadcrumbSeparator />

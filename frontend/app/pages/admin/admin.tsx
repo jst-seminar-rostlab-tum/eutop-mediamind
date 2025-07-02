@@ -33,6 +33,7 @@ import {
   BreadcrumbSeparator,
 } from "~/components/ui/breadcrumb";
 import { useTranslation } from "react-i18next";
+import { Link } from "react-router";
 
 // Fetch Orgas
 async function getOrgaData(): Promise<Organization[]> {
@@ -247,10 +248,12 @@ export function AdminPage() {
   return (
     <>
       <Layout>
-        <Breadcrumb className="mt-8">
+        <Breadcrumb>
           <BreadcrumbList>
             <BreadcrumbItem>
-              <BreadcrumbLink href="/dashboard">Home</BreadcrumbLink>
+              <BreadcrumbLink>
+                <Link to="/dashboard">{t("breadcrumb_home")}</Link>
+              </BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
