@@ -103,6 +103,9 @@ class Configs(BaseSettings):
     SMTP_USER: EmailStr
     SMTP_PASSWORD: str
 
+    # Subscription accounts
+    SUBSCRIPTION_ACCOUNTS: dict | None
+
     @computed_field
     @property
     def SQLALCHEMY_DATABASE_URI(self) -> PostgresDsn:
