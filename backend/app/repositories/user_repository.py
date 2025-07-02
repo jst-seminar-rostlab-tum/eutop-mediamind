@@ -1,3 +1,4 @@
+import uuid
 from typing import Any, Dict, List, Optional
 
 from sqlalchemy import UUID, delete, select
@@ -60,6 +61,30 @@ class UserRepository:
         user = result.scalar_one_or_none()
 
         return _to_user_entity(user) if user else None
+
+    @staticmethod
+    async def get_by_id(user_id: uuid.UUID, session: AsyncSession) -> User:
+        """
+        Fetch a user by clerk ID and return as UserEntity
+        including organization name.
+        """
+        query = select(User).where(User.id == user_id)
+        result = await session.execute(query)
+        user = result.scalar_one_or_none()
+
+        return user if user else None
+
+    @staticmethod
+    async def get_by_ids(
+        ids: List[uuid.UUID], session: AsyncSession
+    ) -> List[User]:
+        """
+        Fetch a user by clerk ID and return as UserEntity
+        including organization name.
+        """
+        stmt = select(User).where(User.id.in_(ids))
+        result = await session.execute(stmt)
+        return result.scalars().all()
 
     @staticmethod
     async def create_user(
@@ -129,25 +154,19 @@ class UserRepository:
         return _to_user_entity(user)
 
     @staticmethod
-    async def get_users_by_user_organization(
-        user: UserEntity, session: AsyncSession
-    ) -> List[UserEntity]:
+    async def get_users_by_organization(
+        organization_id: uuid.UUID, session: AsyncSession
+    ) -> List[User]:
         """
         Return all users in the same organization, or the user itself if
         no organization.
         Superusers receive all users.
         """
-        if user.organization_id is None:
-            return [user]
 
-        stmt = (
-            select(User)
-            .where(User.organization_id == user.organization_id)
-            .options(selectinload(User.organization))
-        )
+        stmt = select(User).where(User.organization_id == organization_id)
         result = await session.execute(stmt)
         users = result.scalars().all()
-        return [_to_user_entity(u) for u in users]
+        return users
 
     @staticmethod
     async def get_all(
@@ -165,6 +184,13 @@ class UserRepository:
         result = await session.execute(stmt)
         users = result.scalars().all()
         return [_to_user_entity(u) for u in users]
+
+    @staticmethod
+    async def update_organization(user: User, session) -> User:
+        session.add(user)
+        await session.commit()
+        await session.refresh(user)
+        return _to_user_base(user)
 
     @staticmethod
     async def delete_links_for_search_profile(

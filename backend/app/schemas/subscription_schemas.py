@@ -12,3 +12,8 @@ class SubscriptionSummary(BaseModel):
 class SetSearchProfileSubscriptionsRequest(BaseModel):
     search_profile_id: UUID
     subscriptions: list[SubscriptionSummary]
+
+
+class SetOrganizationSubscriptionsRequest(BaseModel):
+    organization_id: UUID
+    subscriptions: list[SubscriptionSummary]
