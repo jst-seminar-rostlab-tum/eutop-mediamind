@@ -66,6 +66,10 @@ class Subscription(SQLModel, table=True):
         default=None, sa_column_kwargs={"nullable": True}
     )
 
+    encrypted_username: Optional[bytes] = Field(
+        default=None, sa_column_kwargs={"nullable": True}
+    )
+
     scrapers: Optional[dict[str, dict[str, Any]]] = Field(
         sa_column=Column(
             JSON,
@@ -104,3 +108,13 @@ class Subscription(SQLModel, table=True):
     @secrets.setter
     def secrets(self, value: str):
         self.encrypted_secrets = fernet.encrypt(value.encode())
+
+    @property
+    def username(self) -> Optional[str]:
+        if self.encrypted_username:
+            return fernet.decrypt(self.encrypted_username).decode()
+        return None
+
+    @username.setter
+    def username(self, value: str):
+        self.encrypted_username = fernet.encrypt(value.encode())
