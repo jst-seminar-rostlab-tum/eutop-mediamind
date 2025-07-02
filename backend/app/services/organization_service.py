@@ -5,6 +5,7 @@ from fastapi import HTTPException
 
 from app.core.db import async_session
 from app.models import Organization
+from app.models.user import UserRole
 from app.repositories.organization_repository import OrganizationRepository
 from app.repositories.user_repository import UserRepository
 from app.schemas.organization_schemas import (
@@ -33,12 +34,17 @@ class OrganizationService:
                 organization, session=session
             )
 
-            if create_request.user_ids:
+            if create_request.users:
                 users = await UserRepository.get_by_ids(
                     create_request.user_ids, session
                 )
+
+                # Create mapping from user_id to role
+                role_map = {u.id: u.role for u in create_request.users}
+
                 for user in users:
                     user.organization_id = organization.id
+                    user.role = role_map.get(user.id, UserRole.member)
                     await UserRepository.update_organization(user, session)
             await session.commit()
             await session.refresh(organization)
