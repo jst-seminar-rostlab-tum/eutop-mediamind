@@ -11,6 +11,8 @@ import {
 import { useQuery } from "../../../types/api";
 import { ErrorPage } from "~/pages/error/error";
 import { useTranslation } from "react-i18next";
+import { Link } from "react-router";
+import Text from "~/custom-components/text";
 
 export function BreakingNews() {
   const {
@@ -38,8 +40,8 @@ export function BreakingNews() {
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
-            <BreadcrumbLink href="/dashboard">
-              {t("breadcrumb_home")}
+            <BreadcrumbLink asChild>
+              <Link to="/dashboard">{t("breadcrumb_home")}</Link>
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
@@ -48,7 +50,7 @@ export function BreakingNews() {
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
-      <h1 className="text-3xl font-bold mb-2">{t("breaking-news.header")}</h1>
+      <Text hierachy={2}>{t("breaking-news.header")}</Text>
       {!breakingNews || !breakingNews.news || breakingNews.news.length === 0 ? (
         <div className={"text-gray-400"}>{t("breaking-news.no_news")}</div>
       ) : (

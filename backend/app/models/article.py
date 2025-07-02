@@ -18,6 +18,9 @@ if TYPE_CHECKING:
 class ArticleStatus(str, Enum):
     NEW = "new"
     SCRAPED = "scraped"
+    SUMMARIZED = "summarized"
+    TRANSLATED = "translated"
+    EMBEDDED = "embedded"
     ERROR = "error"
 
 

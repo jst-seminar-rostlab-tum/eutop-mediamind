@@ -14,6 +14,11 @@ class SetSearchProfileSubscriptionsRequest(BaseModel):
     subscriptions: list[SubscriptionSummary]
 
 
+class SetOrganizationSubscriptionsRequest(BaseModel):
+    organization_id: UUID
+    subscriptions: list[SubscriptionSummary]
+
+
 class SubscriptionCreateOrUpdate(BaseModel):
     name: str
     domain: str
