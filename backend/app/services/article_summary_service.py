@@ -135,10 +135,10 @@ class ArticleSummaryService:
     @staticmethod
     async def run(
         page_size: int = 300,
-        date_start: datetime = datetime.combine(
+        datetime_start: datetime = datetime.combine(
             date.today(), datetime.min.time()
         ),
-        date_end: datetime = datetime.now(),
+        datetime_end: datetime = datetime.now(),
     ) -> None:
         """
         Main entry point to summarize a list of articles and
@@ -151,8 +151,8 @@ class ArticleSummaryService:
         while True:
             articles = await ArticleRepository.list_articles_without_summary(
                 limit=page_size,
-                date_start=date_start,
-                date_end=date_end,
+                datetime_start=datetime_start,
+                datetime_end=datetime_end,
             )
             if not articles:
                 break

@@ -184,7 +184,7 @@ class SearchProfileRepository:
         Fetch all search profiles with pagination.
         """
         async with async_session() as session:
-            if offset and limit:
+            if offset is not None and limit is not None:
                 query = select(SearchProfile).offset(offset).limit(limit)
             else:
                 query = select(SearchProfile)

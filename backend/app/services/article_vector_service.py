@@ -127,10 +127,10 @@ class ArticleVectorService:
     async def index_summarized_articles_to_vector_store(
         self,
         page_size: int = 300,
-        date_start: datetime = datetime.combine(
+        datetime_start: datetime = datetime.combine(
             date.today(), datetime.min.time()
         ),
-        date_end: datetime = datetime.now(),
+        datetime_end: datetime = datetime.now(),
     ) -> None:
         """
         Run the functionality to read articles from the database and
@@ -139,7 +139,9 @@ class ArticleVectorService:
 
         articles: List[Article] = (
             await ArticleRepository.list_articles_with_summary(
-                limit=page_size, date_start=date_start, date_end=date_end
+                limit=page_size,
+                date_start=datetime_start,
+                date_end=datetime_end,
             )
         )
 
@@ -148,7 +150,9 @@ class ArticleVectorService:
             await self.add_articles(articles)
 
             articles = await ArticleRepository.list_articles_with_summary(
-                limit=page_size, date_start=date_start, date_end=date_end
+                limit=page_size,
+                date_start=datetime_start,
+                date_end=datetime_end,
             )
 
     async def add_article(self, article_id: uuid.UUID) -> None:
