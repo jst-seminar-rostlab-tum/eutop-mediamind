@@ -95,7 +95,7 @@ To build and run using Docker:
      "SENTRY_DSN": "your_sentry_dsn_here",
      "CREDENTIALS": {
        "subscription_name": {
-         "user_email": "user@example.com",
+         "username": "user@example.com",
          "password": "password123"
        }
      }
