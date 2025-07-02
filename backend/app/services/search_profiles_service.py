@@ -147,7 +147,7 @@ class SearchProfileService:
     @staticmethod
     async def get_available_search_profiles(
         current_user: UserEntity,
-    ) -> list[SearchProfileDetailResponse]:
+    ) -> List[SearchProfileDetailResponse]:
         accessible_profiles = (
             await SearchProfileRepository.get_accessible_profiles(
                 current_user.id, current_user.organization_id

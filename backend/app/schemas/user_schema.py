@@ -3,6 +3,8 @@ from typing import Optional
 
 from pydantic import BaseModel, EmailStr
 
+from app.models.user import UserRole
+
 
 class UserUpdate(BaseModel):
     first_name: Optional[str] = None
@@ -17,5 +19,6 @@ class UserEntity(BaseModel):
     last_name: str
     is_superuser: bool
     language: str = "en"
+    role: UserRole = UserRole.member
     organization_id: Optional[uuid.UUID] = None
     organization_name: Optional[str] = None

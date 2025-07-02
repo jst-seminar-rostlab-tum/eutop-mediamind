@@ -13,7 +13,7 @@ from .report import Report
 from .search_profile import SearchProfile
 from .subscription import Subscription
 from .topic import Topic
-from .user import User, UserPublic
+from .user import User
 
 __all__ = [
     "Article",
@@ -32,7 +32,6 @@ __all__ = [
     "NewPassword",
     "Token",
     "TokenPayload",
-    "UserPublic",
     "Report",
     "MatchingRun",
 ]
