@@ -33,8 +33,8 @@ class SubscriptionService:
                 name=data.name,
                 domain=data.domain,
                 paywall=data.paywall,
-                username=data.username,
             )
+            subscription.username = data.username
             subscription.secrets = data.password
             created = await SubscriptionRepository.create(
                 session, subscription
