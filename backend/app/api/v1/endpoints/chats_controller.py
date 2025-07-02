@@ -68,12 +68,13 @@ async def receive_chat(
         )
 
     # Send a reply email to the user
+    # flake8: noqa: E501
     email_schedule = EmailSchedule(
         recipient=user.email,
         subject=f"[MEDIAMIND] RE: {chat.subject}",
         content_type="text/HTML",
         content=f"""<p>Hi {user.first_name},</p>
-        Congratulations on using the slowest, most unsecure, and least scalable web chatbot in the world!</p>
+        Congratulations on using the slowest, most unsecure and least scalable web chatbot in the world!</p>
         <p><strong>Subject:</strong> {chat.subject}</p>
         <p><strong>Message:</strong> {chat.body}</p>
         Plese use chatgpt, claude, or any other AI chatbot instead:
