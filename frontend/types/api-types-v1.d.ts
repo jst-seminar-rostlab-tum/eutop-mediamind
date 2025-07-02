@@ -264,8 +264,28 @@ export interface paths {
         /** Get All Subscriptions */
         get: operations["get_all_subscriptions_api_v1_subscriptions_get"];
         put?: never;
-        post?: never;
+        /** Create Subscription */
+        post: operations["create_subscription_api_v1_subscriptions_post"];
         delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/subscriptions/{subscription_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Subscription */
+        get: operations["get_subscription_api_v1_subscriptions__subscription_id__get"];
+        /** Update Subscription */
+        put: operations["update_subscription_api_v1_subscriptions__subscription_id__put"];
+        post?: never;
+        /** Delete Subscription */
+        delete: operations["delete_subscription_api_v1_subscriptions__subscription_id__delete"];
         options?: never;
         head?: never;
         patch?: never;
@@ -1030,6 +1050,35 @@ export interface components {
             /** Subscriptions */
             subscriptions: components["schemas"]["SubscriptionSummary"][];
         };
+        /** SubscriptionCreateOrUpdate */
+        SubscriptionCreateOrUpdate: {
+            /** Name */
+            name: string;
+            /** Domain */
+            domain: string;
+            /** Paywall */
+            paywall: boolean;
+            /** Username */
+            username: string;
+            /** Password */
+            password: string;
+        };
+        /** SubscriptionRead */
+        SubscriptionRead: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Name */
+            name: string;
+            /** Domain */
+            domain: string;
+            /** Paywall */
+            paywall: boolean;
+            /** Username */
+            username: string;
+        };
         /** SubscriptionSummary */
         SubscriptionSummary: {
             /**
@@ -1643,6 +1692,138 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["SubscriptionSummary"][];
+                };
+            };
+        };
+    };
+    create_subscription_api_v1_subscriptions_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SubscriptionCreateOrUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SubscriptionRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_subscription_api_v1_subscriptions__subscription_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                subscription_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SubscriptionRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_subscription_api_v1_subscriptions__subscription_id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                subscription_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SubscriptionCreateOrUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SubscriptionRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_subscription_api_v1_subscriptions__subscription_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                subscription_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };
