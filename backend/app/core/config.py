@@ -1,4 +1,3 @@
-import json
 import warnings
 from typing import Annotated, Any, Literal
 
@@ -9,7 +8,6 @@ from pydantic import (
     HttpUrl,
     PostgresDsn,
     computed_field,
-    field_validator,
     model_validator,
 )
 from pydantic_core import MultiHostUrl
