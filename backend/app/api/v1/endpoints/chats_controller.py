@@ -70,7 +70,7 @@ async def receive_chat(
     # Send a reply email to the user
     email_schedule = EmailSchedule(
         recipient=user.email,
-        subject=f"[MEDIAMIND] Reply to your chat: {chat.subject}",
+        subject=f"[MEDIAMIND] RE: {chat.subject}",
         content_type="text/HTML",
         content=f"""<p>Hi {user.first_name},</p>
         Congratulations on using the slowest, most unsecure, and least scalable web chatbot in the world!</p>
