@@ -565,7 +565,7 @@ export interface components {
          * ArticleStatus
          * @enum {string}
          */
-        ArticleStatus: "new" | "scraped" | "error";
+        ArticleStatus: "new" | "scraped" | "summarized" | "translated" | "embedded" | "error";
         /** Body_get_keyword_suggestions_api_v1_search_profiles_keywords_suggestions_post */
         Body_get_keyword_suggestions_api_v1_search_profiles_keywords_suggestions_post: {
             /** Related Topics */

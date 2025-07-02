@@ -1,6 +1,7 @@
 from typing import Any, Dict, List, Optional
 
 from app.core.db import async_session
+from app.models import User
 from app.repositories.user_repository import UserRepository
 from app.schemas.user_schema import UserEntity
 
@@ -9,14 +10,16 @@ class UserService:
     @staticmethod
     async def get_all_by_organization(
         user: UserEntity,
-    ) -> List[UserEntity]:
+    ) -> List[User]:
         """
         Return all users in the same organization, or self if no org.
         Superusers receive all users.
         """
+        if (not user.is_superuser) & (user.organization_id is None):
+            return [user]
         async with async_session() as session:
-            return await UserRepository.get_users_by_user_organization(
-                user, session
+            return await UserRepository.get_users_by_organization(
+                user.organization_id, session
             )
 
     @staticmethod
