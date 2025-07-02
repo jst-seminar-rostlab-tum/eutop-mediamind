@@ -170,19 +170,12 @@ def insert_credential(driver, wait, credential, input_selector, input_name):
         return False
 
 
-def get_account_credentials(raw_account):
-    try:
-        account = json.loads(raw_account)
-        if not account:
-            return None
-        username = account.get("user_email")
-        password = account.get("password")
-        if not username or not password:
-            return None
-        return username, password
-    except json.JSONDecodeError:
-        logger.error("Invalid account format, could not parse JSON")
+def get_account_credentials(subscription):
+    username = subscription.username
+    password = subscription.secrets
+    if not username or not password:
         return None
+    return username, password
 
 
 def accept_cookies(driver, wait, paper):
@@ -282,8 +275,7 @@ def submit_login_credentials(driver, wait, paper, username, password):
 
 def hardcoded_login(driver, wait, subscription: Subscription):
     # Load newspapers accounts
-    account = subscription.secrets
-    credentials = get_account_credentials(account)
+    credentials = get_account_credentials(subscription)
     if credentials is None:
         logger.error(
             f"No credentials found for subscription: {subscription.name}."

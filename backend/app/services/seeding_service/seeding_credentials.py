@@ -18,7 +18,7 @@ async def seed_credentials_from_json(credentials_data: Dict[str, Any]) -> None:
 
     Args:
         credentials_data: Dictionary with subscription names as keys and
-                          credential objects as values containing user_email
+                          credential objects as values containing username
                           and password
     """
     async with async_session() as session:
@@ -33,7 +33,8 @@ async def seed_credentials_from_json(credentials_data: Dict[str, Any]) -> None:
 
             if subscription:
                 # Store credentials as encrypted JSON
-                subscription.secrets = json.dumps(credentials)
+                subscription.secrets = credentials["password"]
+                subscription.username = credentials["username"]
                 session.add(subscription)
                 logger.info(
                     f"Updated credentials for subscription: "
