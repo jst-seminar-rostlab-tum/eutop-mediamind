@@ -153,10 +153,10 @@ class ArticleRepository:
     @staticmethod
     async def list_articles_without_summary(
         limit: int = 100,
-        date_start: datetime = datetime.combine(
+        datetime_start: datetime = datetime.combine(
             date.today(), datetime.min.time()
         ),
-        date_end: datetime = datetime.now(),
+        datetime_end: datetime = datetime.now(),
     ) -> Sequence[Article]:
         """
         List articles that have no summary yet, with pagination.
@@ -166,7 +166,7 @@ class ArticleRepository:
                 select(Article)
                 .where(
                     Article.status == "SCRAPED",
-                    Article.published_at.between(date_start, date_end),
+                    Article.published_at.between(datetime_start, datetime_end),
                     or_(Article.summary.is_(None), Article.summary == ""),
                 )
                 .limit(limit)
@@ -254,10 +254,10 @@ class ArticleRepository:
     @staticmethod
     async def get_articles_without_translations(
         limit: int = 100,
-        date_start: datetime = datetime.combine(
+        datetime_start: datetime = datetime.combine(
             date.today(), datetime.min.time()
         ),
-        date_end: datetime = datetime.now(),
+        datetime_end: datetime = datetime.now(),
     ) -> Sequence[Article]:
         """
         Returns articles that are missing at least one translation
@@ -268,7 +268,7 @@ class ArticleRepository:
                 select(Article)
                 .where(
                     Article.status == "SUMMARIZED",
-                    Article.published_at.between(date_start, date_end),
+                    Article.published_at.between(datetime_start, datetime_end),
                     or_(
                         Article.title_en.is_(None),
                         Article.title_en == "",
