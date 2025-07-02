@@ -1,4 +1,3 @@
-import asyncio
 from datetime import datetime
 
 from app.core.logger import get_logger
