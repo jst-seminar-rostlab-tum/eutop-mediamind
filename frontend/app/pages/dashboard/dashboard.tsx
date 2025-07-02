@@ -1,5 +1,5 @@
 import { ProfileCard } from "~/custom-components/dashboard/profile-card";
-import { Info, Loader2, Plus } from "lucide-react";
+import { Info, Plus } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import {
   Breadcrumb,
@@ -20,6 +20,8 @@ import { useTranslation } from "react-i18next";
 import { FilterBar } from "~/custom-components/dashboard/filter-bar";
 import type { Profile } from "../../../types/model";
 import { useAuthorization } from "~/hooks/use-authorization";
+import { ProfileCardSkeleton } from "~/custom-components/dashboard/profile-card-skeleton";
+import Text from "~/custom-components/text";
 
 const suppressSWRReloading = {
   refreshInterval: 0,
@@ -68,15 +70,13 @@ function getProfileVisibility(profile: Profile, userId: string): string {
 }
 
 export function DashboardPage() {
+  const { user: me } = useAuthorization();
   const {
     data: profiles,
     isLoading,
     error,
     mutate,
   } = useQuery("/api/v1/search-profiles", undefined, suppressSWRReloading);
-
-  const { user: me } = useAuthorization();
-
   const { t } = useTranslation();
 
   const [filters, setFilters] = useState<FilterState>({
@@ -123,16 +123,16 @@ export function DashboardPage() {
 
   return (
     <Layout>
-      <Breadcrumb className="mt-8">
+      <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
-            <BreadcrumbLink href="/dashboard">
-              {t("breadcrumb_home")}
+            <BreadcrumbLink asChild>
+              <Link to="/dashboard">{t("breadcrumb_home")}</Link>
             </BreadcrumbLink>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
-      <h1 className="text-3xl font-bold mb-4">{t("dashboard.dashboard")}</h1>
+      <Text hierachy={2}>{t("dashboard.dashboard")}</Text>
       <Link to="/dashboard/breaking">
         <Alert className="hover:bg-blue-100 mb-4 bg-blue-200 text-blue-900">
           <Info />
@@ -155,14 +155,7 @@ export function DashboardPage() {
         </Button>
       </div>
       <FilterBar onFiltersChange={setFilters} />
-      {isLoading || !me ? (
-        <div className="flex items-center justify-center py-8">
-          <Loader2 className="h-8 w-8 animate-spin" />
-          <span className="ml-2 text-muted-foreground">
-            {t("dashboard.profiles_loading")}
-          </span>
-        </div>
-      ) : filteredAndSortedProfiles?.length === 0 ? (
+      {!isLoading && filteredAndSortedProfiles?.length === 0 ? (
         <div className="flex items-center justify-center py-8">
           <span className="text-gray-400">
             No matched profiles for current filters
@@ -170,14 +163,18 @@ export function DashboardPage() {
         </div>
       ) : (
         <div className="grid-profile-cards mt-4 mb-4">
-          {filteredAndSortedProfiles?.map((profile, idx) => (
-            <ProfileCard
-              key={profile.id + idx}
-              profile={profile}
-              mutateDashboard={mutate}
-              profile_id={me.id}
-            />
-          ))}
+          {isLoading || !me
+            ? Array.from({ length: 8 }).map((_, idx) => (
+                <ProfileCardSkeleton key={idx} />
+              ))
+            : filteredAndSortedProfiles?.map((profile, idx) => (
+                <ProfileCard
+                  key={profile.id + idx}
+                  profile={profile}
+                  mutateDashboard={mutate}
+                  profile_id={me.id}
+                />
+              ))}
         </div>
       )}
     </Layout>

@@ -35,21 +35,3 @@ class Organization(SQLModel, table=True):
 class OrganizationBase(SQLModel):
     name: str = Field(max_length=255)
     email: EmailStr = Field(max_length=255)
-
-
-class OrganizationCreate(OrganizationBase):
-    pass
-
-
-class OrganizationRead(OrganizationBase):
-    id: uuid.UUID
-
-
-class OrganizationUpdate(SQLModel):
-    name: str | None = Field(default=None, max_length=255)
-    email: EmailStr | None = Field(default=None, max_length=255)
-
-
-class OrganizationsRead(SQLModel):
-    data: list[OrganizationRead]
-    count: int
