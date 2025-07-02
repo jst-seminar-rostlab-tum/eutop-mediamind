@@ -153,9 +153,7 @@ class Configs(BaseSettings):
             try:
                 return json.loads(v)
             except json.JSONDecodeError as e:
-                raise ValueError(
-                    f"Invalid JSON for SUBSCRIPTION_ACCOUNTS: {e}"
-                )
+                warnings.warn(f"Failed to parse SUBSCRIPTION_ACCOUNTS: {e}. ")
         return v
 
     @model_validator(mode="after")
