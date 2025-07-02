@@ -72,11 +72,22 @@ async def receive_chat(
         recipient=user.email,
         subject=f"[MEDIAMIND] Reply to your chat: {chat.subject}",
         content_type="text/HTML",
-        content=f"""<p><strong>Subject:</strong> {chat.subject}</p>
-        <p><strong>Message:</strong> {chat.body}</p>""",
+        content=f"""<p>Hi {user.first_name},</p>
+        Congratulations on using the slowest, most unsecure, and least scalable web chatbot in the world!</p>
+        <p><strong>Subject:</strong> {chat.subject}</p>
+        <p><strong>Message:</strong> {chat.body}</p>
+        Plese use chatgpt, claude, or any other AI chatbot instead:
+        <p><a href="https://chat.openai.com/">ChatGPT</a> |
+        <a href="https://claude.ai/">Claude</a> |
+        <a href="https://www.bing.com/chat">Bing Chat</a></p>
+        <p>Best regards,<br>
+        MediaMind Team</p>
+        <p><small>This is an automated reply. Please do not reply to this email.</small></p>
+        """,
     )
 
     await EmailService.schedule_email(email_schedule)
+    await EmailService.send_scheduled_emails()
 
     return {
         "message": f"Chat received and reply sent to {sender_email}.",
