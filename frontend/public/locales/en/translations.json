@@ -12,6 +12,8 @@
   "search": "Search",
   "Cancel": "Cancel",
   "save_changes": "Save Changes",
+  "Search": "Search",
+
   "breadcrumb_home": "Home",
 
   "landing_page": {
@@ -24,7 +26,6 @@
     "dashboard": "Dashboard",
     "profile": "Profiles",
     "new_articles": "new articles",
-    "profiles_loading": "Load profiles ...",
     "breaking_news": "Breaking News",
     "read_more": "Read more",
     "loading_failed": "Failed to load profiles.",
@@ -147,6 +148,18 @@
     "credentials_error_text": "Please insert valid credentials.",
     "username": "Username",
     "password": "Password"
+  },
+
+  "search_profile": {
+    "Topics": "Topics",
+    "Sorting": "Sorting",
+    "Sources": "Sources",
+    "Date": "Date",
+    "From": "From",
+    "To": "To",
+    "articles": "Articles",
+    "Relevance": "Relevance",
+    "No_articles": "No articles found."
   },
 
   "article-page": {
