@@ -12,6 +12,7 @@ from app.core.db import async_session
 from app.core.logger import get_logger
 from app.models import SearchProfile, Topic
 from app.models.match import Match
+from app.models.user import UserRole
 from app.repositories.article_repository import ArticleRepository
 from app.repositories.email_repository import EmailRepository
 from app.repositories.keyword_repository import KeywordRepository
@@ -150,7 +151,10 @@ class SearchProfileService:
     ) -> List[SearchProfileDetailResponse]:
         accessible_profiles = (
             await SearchProfileRepository.get_accessible_profiles(
-                current_user.id, current_user.organization_id
+                current_user.id,
+                current_user.organization_id,
+                current_user.role,
+                current_user.is_superuser,
             )
         )
 
@@ -266,6 +270,10 @@ class SearchProfileService:
             if not (
                 current_user.is_superuser
                 or db_profile.created_by_id == current_user.id
+                or (
+                    db_profile.organization_id == current_user.organization_id
+                    and current_user.role == UserRole.maintainer
+                )
                 or (
                     db_profile.is_public
                     and db_profile.organization_id
@@ -598,7 +606,15 @@ class SearchProfileService:
         search_profile = (
             await SearchProfileRepository.get_search_profile_by_id(profile_id)
         )
-        if current_user.id != search_profile.owner_id:
+        if (
+            current_user.id != search_profile.owner_id
+            and not current_user.is_superuser
+            and not (
+                current_user.role == UserRole.maintainer
+                and current_user.organization_id
+                == search_profile.organization_id
+            )
+        ):
             raise
         async with async_session() as session:
             try:
