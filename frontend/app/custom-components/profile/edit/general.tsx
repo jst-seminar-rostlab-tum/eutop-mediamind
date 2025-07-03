@@ -1,13 +1,13 @@
 import { Label } from "~/components/ui/label";
 import { Switch } from "~/components/ui/switch";
 import { Separator } from "~/components/ui/separator";
+import { Button } from "~/components/ui/button";
+import { Check, ChevronsUpDown } from "lucide-react";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "~/components/ui/popover";
-import { Button } from "~/components/ui/button";
-import { Check, ChevronsUpDown } from "lucide-react";
 import {
   Command,
   CommandEmpty,
@@ -16,6 +16,13 @@ import {
   CommandItem,
   CommandList,
 } from "~/components/ui/command";
+import {
+  Select,
+  SelectTrigger,
+  SelectContent,
+  SelectItem,
+  SelectValue,
+} from "~/components/ui/select";
 import * as React from "react";
 import { cn } from "~/lib/utils";
 import { useQuery } from "../../../../types/api";
@@ -51,17 +58,11 @@ export function General({ profile, setProfile }: GeneralProps) {
   }, [error]);
 
   const users: MediamindUser[] = React.useMemo(() => {
-    if (!userData) {
-      return [];
-    }
-    if (Array.isArray(userData)) {
-      return userData;
-    }
-    return [userData];
+    if (!userData) return [];
+    return Array.isArray(userData) ? userData : [userData];
   }, [userData]);
 
   const selectedUser = users.find((user) => user.id === profile.owner_id);
-
   const selectedUserLabel = selectedUser
     ? `${selectedUser.first_name} ${selectedUser.last_name}`
     : t("general.select_user");
@@ -215,11 +216,17 @@ export function General({ profile, setProfile }: GeneralProps) {
       can_edit_user_ids: newEditIds,
     });
   };
+    
+  const languages = [
+    { value: "en", label: "English" },
+    { value: "de", label: "Deutsch" },
+  ];
+
 
   return (
     <div>
-      <h2 className={"font-bold pt-3 pb-3"}>{t("general.ownership")}</h2>
-      <Label className={"text-gray-400 font-normal pb-3"}>
+      <h2 className="font-bold pt-3 pb-3">{t("general.ownership")}</h2>
+      <Label className="text-gray-400 font-normal pb-3">
         {t("general.ownership_text")}
       </Label>
       <div className="pb-3">
@@ -229,14 +236,14 @@ export function General({ profile, setProfile }: GeneralProps) {
               variant="outline"
               role="combobox"
               aria-expanded={open}
-              className="w-[200px] justify-between"
+              className=" justify-between"
               disabled={isLoading}
             >
               {selectedUserLabel}
               <ChevronsUpDown className="opacity-50" />
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="w-[200px] p-0">
+          <PopoverContent className="w-full p-0">
             <Command>
               <CommandInput
                 placeholder={t("edit_profile.search_user")}
@@ -282,9 +289,9 @@ export function General({ profile, setProfile }: GeneralProps) {
 
       <Separator />
 
-      <h2 className={"font-bold pt-3 pb-3"}>{t("general.visibility")}</h2>
-      <div className={"flex gap-3 items-center pb-3"}>
-        <Label className={"text-gray-400 font-normal"}>
+      <h2 className="font-bold pt-3 pb-3">{t("general.visibility")}</h2>
+      <div className="flex gap-3 items-center pb-3">
+        <Label className="text-gray-400 font-normal">
           {t("general.public")}
         </Label>
         <Switch
@@ -292,12 +299,37 @@ export function General({ profile, setProfile }: GeneralProps) {
           onCheckedChange={(e) => setProfile({ ...profile, is_public: e })}
         />
       </div>
-      <Label className={"text-gray-400 font-light pb-3"}>
+      <Label className="text-gray-400 font-light pb-3">
         {t("general.public_text")}
       </Label>
 
       <Separator />
-      <div className="mt-4">
+
+      <h2 className="font-bold pt-3 pb-3">{t("general.language")}</h2>
+      <div className="pb-3">
+        <Select
+          value={profile.language}
+          onValueChange={(value) => setProfile({ ...profile, language: value })}
+        >
+          <SelectTrigger className="w-[200px]">
+            <SelectValue placeholder={t("general.select_language")} />
+          </SelectTrigger>
+          <SelectContent>
+            {languages.map((lang) => (
+              <SelectItem key={lang.value} value={lang.value}>
+                {lang.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+      <Label className="text-gray-400 font-light pb-3 leading-[120%]">
+        {t("general.language_text")}
+      </Label>
+
+      <Separator />
+      
+       <div className="mt-4">
         <DataTableUsers
           columns={getUserColumns(handleRoleChange, handleUserDelete)}
           data={usersWithRoles}

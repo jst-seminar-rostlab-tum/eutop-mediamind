@@ -12,6 +12,9 @@
   "search": "Suchen",
   "Cancel": "Abbruch",
   "save_changes": "Änderungen speichern",
+  "Search": "Suche",
+
+  "breadcrumb_home": "Home",
 
   "landing_page": {
     "welcome": "Wilkommen bei MediaMind",
@@ -23,9 +26,10 @@
     "dashboard": "Übersicht",
     "profile": "Profile",
     "new_articles": "Neue Artikel",
-    "profiles_loading": "Lade Profile ...",
     "breaking_news": "Aktuelle Schlagzeile",
-    "read_more": "Weiter lesen"
+    "read_more": "Weiter lesen",
+    "loading_failed": "Profile konnten nicht geladen werden.",
+    "only_updated": "Nur aktualisierte anzeigen"
   },
 
   "confirmation_dialog": {
@@ -68,6 +72,8 @@
     "Username": "Benutzername",
     "Email": "Email",
     "Users": "Benutzer"
+    "language": "Sprache",
+    "language_text": "Legt die Sprache des Reports und von Topic & Keywords fest. Wenn die Sprache geändert wird, sollten auch die inhaltlichen Einstellungen des Profils angepasst werden."
   },
 
   "topics": {
@@ -149,5 +155,55 @@
     "credentials_error_text": "Bitte geben sie gültige Anmeldedaten ein",
     "username": "Benutzername",
     "password": "Passwort"
+  },
+
+  "search_profile": {
+    "Topics": "Themen",
+    "Sorting": "Sortierung",
+    "Sources": "Quellen",
+    "Date": "Datum",
+    "From": "Von",
+    "To": "Bis",
+    "articles": "Artikel",
+    "Relevance": "Relevanz",
+    "No_articles": "Keine Artikel gefunden"
+  },
+
+  "article-page": {
+    "summary_header": "Zusammenfassung",
+    "original_header": "Original",
+    "keywords_header": "Schlüsselwörter",
+    "meta_data_header": "Metadaten",
+    "meta_data_published": "Veröffentlicht",
+    "meta_data_crawled": "Gecrawlt",
+    "meta_data_language": "Sprache",
+    "meta_data_status": "Status",
+    "meta_data_category": "Kategorie",
+    "keywords_text": "Zeigt übereinstimmende Themen mit Schlüsselwörtern und einer Bewertung an, die die Themenrelevanz für den Artikel angibt."
+  },
+
+  "role-badge": {
+    "owner": "Besitzer",
+    "reader": "Leser",
+    "editor": "Bearbeiter",
+    "public": "Öffentlich",
+    "shared": "Geteilt",
+    "private": "Privat",
+    "ownership": "Berechtigung",
+    "visibility": "Sichtbarkeit"
+  },
+
+  "sr-only": {
+    "open_menu": "Menü öffnen"
+  },
+
+  "breaking-news": {
+    "header": "Breaking News",
+    "news_loading": "Nachrichten werden geladen...",
+    "no_news": "Keine Nachrichten verfügbar.",
+    "entry": "Klicke hier, um die neusten globalen Nachrichten anzusehen!",
+    "show_less": "Weniger anzeigen",
+    "show_more": "Mehr anzeigen",
+    "original": "Original"
   }
 }

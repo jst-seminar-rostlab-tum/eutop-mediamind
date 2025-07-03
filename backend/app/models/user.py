@@ -2,6 +2,7 @@ import uuid
 from typing import TYPE_CHECKING, List
 
 from pydantic import BaseModel, EmailStr
+from sqlalchemy import CheckConstraint, Column, String
 from sqlmodel import Field, Relationship, SQLModel
 
 from app.models.associations import UserSearchProfileLink
@@ -11,15 +12,6 @@ from .organization import Organization
 if TYPE_CHECKING:
 
     from app.models.search_profile import SearchProfile
-
-
-class UserCreate(BaseModel):
-    clerk_id: str
-    email: str
-    first_name: str
-    last_name: str
-    is_superuser: bool = False
-    organization_id: uuid.UUID | None = None
 
 
 # Shared properties
@@ -32,21 +24,30 @@ class UserBase(SQLModel):
     organization_id: uuid.UUID | None = Field(
         default=None, foreign_key="organizations.id"
     )
+    # New language field on the base schema (default=en)
+    language: str = Field(
+        default="en",
+        regex=r"^(en|de)$",
+        sa_column=Column(
+            String(2),
+            CheckConstraint(
+                "language IN ('en','de')", name="ck_search_profiles_language"
+            ),
+            nullable=False,
+            server_default="en",
+        ),
+        description="Language code, must be 'en' or 'de'",
+    )
 
 
-class UserRegister(SQLModel):
-    email: EmailStr = Field(max_length=255)
-    full_name: str | None = Field(default=None, max_length=255)
-
-
-# Properties to receive via API on update, all are optional
-class UserUpdate(UserBase):
-    email: EmailStr | None = Field(default=None, max_length=255)
-
-
-class UserUpdateMe(SQLModel):
-    full_name: str | None = Field(default=None, max_length=255)
-    email: EmailStr | None = Field(default=None, max_length=255)
+class UserCreate(BaseModel):
+    clerk_id: str
+    email: str
+    first_name: str
+    last_name: str
+    is_superuser: bool = False
+    organization_id: uuid.UUID | None = None
+    language: str = "en"
 
 
 # Database model, table inferred from class name

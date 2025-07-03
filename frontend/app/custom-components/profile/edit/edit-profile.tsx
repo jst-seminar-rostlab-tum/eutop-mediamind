@@ -68,16 +68,16 @@ export function EditProfile({
     is_public: false,
     organization_emails: [],
     profile_emails: [],
-    can_read_user_ids: [],
-    is_reader: true,
+    subscriptions: [],
+    topics: [],
     can_edit_user_ids: [],
-    is_editor: true,
+    can_read_user_ids: [],
     owner_id: user?.id ?? "",
     is_owner: true,
-    language: "en",
-    topics: [],
-    subscriptions: [],
+    is_reader: true,
+    is_editor: true,
     new_articles_count: 0,
+    language: user?.language ?? "en",
   };
 
   const [showCancelDialog, setShowCancelDialog] = useState(false);
@@ -248,8 +248,8 @@ export function EditProfile({
                   </Button>
                 </div>
               ) : (
-                <div className="flex items-center gap-2">
-                  <DialogTitle className={"text-xl"}>
+                <div className="flex items-center gap-2 w-full">
+                  <DialogTitle className={"text-xl break-all"}>
                     {isCreating
                       ? t("edit_profile.create")
                       : t("edit_profile.edit")}

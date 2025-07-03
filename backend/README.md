@@ -92,12 +92,18 @@ To build and run using Docker:
    ```json
    {
      "API_URL": "https://api.example.com",
-     "SENTRY_DSN": "your_sentry_dsn_here"
-     // Add other environment variables as needed
+     "SENTRY_DSN": "your_sentry_dsn_here",
+     "CREDENTIALS": {
+       "subscription_name": {
+         "username": "user@example.com",
+         "password": "password123"
+       }
+     }
    }
    ```
 
    > This file should contain all the environment variables your application needs, formatted as a JSON object.
+   > The CREDENTIALS field should contain login credentials for each subscription by name.
    > **Make sure to keep this file secure and do not commit it to version control.**
 
 2. Build the Docker image:
@@ -124,20 +130,21 @@ Ensure to import newly created models in the following file: alembic/env.py
 
 When working with database migrations, follow this procedure to avoid conflicts:
 Test Locally First
+
 1. Always run your migrations against your local database before pushing or merging anything.
 2. Merge Migration Heads
-After updating your branch from master, you might have multiple migration heads.
-Usually, there are only two. Merge them using:
-    ```bash
-    alembic merge <hash 1> <hash 2> ... <hash n>
-    ```
+   After updating your branch from master, you might have multiple migration heads.
+   Usually, there are only two. Merge them using:
+   `bash
+alembic merge <hash 1> <hash 2> ... <hash n>
+`
 
 3. Apply Migrations to Dev/Prod Carefully
-Only apply migrations to the development or production databases right before or immediately after merging your branch into master.
-Otherwise, other developers may be blocked from merging their own migrations.
-    ```bash
-    alembic upgrade head
-    ```
+   Only apply migrations to the development or production databases right before or immediately after merging your branch into master.
+   Otherwise, other developers may be blocked from merging their own migrations.
+   `bash
+alembic upgrade head
+`
 
 ### Basics
 

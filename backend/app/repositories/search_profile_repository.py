@@ -2,7 +2,7 @@ from typing import List, Optional
 from uuid import UUID
 
 from pydantic import EmailStr
-from sqlalchemy import and_, or_, update
+from sqlalchemy import and_, delete, or_, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 from sqlmodel import select
@@ -42,6 +42,7 @@ def _update_base_fields(
 ):
     profile.name = data.name
     profile.is_public = data.is_public
+    profile.language = data.language
     if user.id == profile.created_by_id or user.is_superuser:
         profile.created_by_id = data.owner_id
 
@@ -177,13 +178,16 @@ class SearchProfileRepository:
 
     @staticmethod
     async def fetch_all_search_profiles(
-        limit: int, offset: int
+        limit: int = None, offset: int = None
     ) -> List[SearchProfile]:
         """
         Fetch all search profiles with pagination.
         """
         async with async_session() as session:
-            query = select(SearchProfile).offset(offset).limit(limit)
+            if offset is not None and limit is not None:
+                query = select(SearchProfile).offset(offset).limit(limit)
+            else:
+                query = select(SearchProfile)
             result = await session.execute(query)
             return result.scalars().all()
 
@@ -233,3 +237,8 @@ class SearchProfileRepository:
             )
         )
         await session.flush()
+
+    @staticmethod
+    async def delete_by_id(session: AsyncSession, profile_id: UUID) -> None:
+        stmt = delete(SearchProfile).where(SearchProfile.id == profile_id)
+        await session.execute(stmt)

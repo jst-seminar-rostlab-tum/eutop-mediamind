@@ -1,5 +1,4 @@
 from abc import ABC, abstractmethod
-from datetime import date as Date
 from datetime import datetime
 from enum import Enum
 from typing import Any, List
@@ -34,8 +33,8 @@ class Crawler(ABC):
     @abstractmethod
     def crawl_urls(
         self,
-        date_start: Date | None = None,
-        date_end: Date | None = None,
+        date_start: datetime | None = None,
+        date_end: datetime | None = None,
         limit: int = -1,
     ) -> List[Article]:
         """
@@ -92,8 +91,8 @@ class NewsAPICrawler(Crawler):
 
     def crawl_urls(
         self,
-        date_start: Date | None = None,
-        date_end: Date | None = None,
+        date_start: datetime | None = None,
+        date_end: datetime | None = None,
         limit: int = -1,
     ) -> List[Article]:
 
@@ -163,7 +162,9 @@ class NewsAPICrawler(Crawler):
 
         return articles
 
-    def _build_query(self, date_start: Date | None, date_end: Date | None):
+    def _build_query(
+        self, date_start: datetime | None, date_end: datetime | None
+    ):
         """
         Builds the query for the EventRegistry API.
         """
