@@ -1,3 +1,4 @@
+import asyncio
 import gettext
 import json
 import os
@@ -27,6 +28,11 @@ base_prompt = (
 
 class ArticleTranslationService:
     _translators_cache = {}
+    _llm_client = LLMClient(LLMModels.openai_4o)
+    _semaphore = asyncio.Semaphore(50)
+
+    _completed_count = 0
+    _completed_count_lock = asyncio.Lock()
 
     @staticmethod
     def get_translator(language: str) -> Callable[[str], str]:
@@ -133,11 +139,41 @@ class ArticleTranslationService:
         return custom_ids, prompts, auto_responses
 
     @staticmethod
-    async def _execute_translation_batch(
+    async def _translate_one(custom_id, prompt):
+        try:
+            async with ArticleTranslationService._semaphore:
+                content = await asyncio.to_thread(
+                    ArticleTranslationService._llm_client.generate_response,
+                    prompt
+                )
+
+            async with ArticleTranslationService._completed_count_lock:
+                ArticleTranslationService._completed_count += 1
+            if ArticleTranslationService._completed_count % 50 == 0:
+                logger.info(
+                    f"Completed {ArticleTranslationService._completed_count} "
+                    f"translation calls."
+                )
+
+            return {
+                "custom_id": custom_id,
+                "response": {
+                    "body": {
+                        "choices": [{"message": {"content": content}}]
+                    }
+                }
+            }
+        except Exception as e:
+            logger.exception(f"Translation failed for {custom_id}: {e}")
+            return None
+
+    @staticmethod
+    async def _execute_concurrent_translations(
         custom_ids: list[str], prompts: list[str], auto_responses: list[dict]
     ) -> list[dict]:
         """
-        Executes the LLM batch translation process and combines results.
+        Executes the translation process with concurrent calls and
+        combines results.
 
         Args:
             custom_ids (list[str]): identifiers for the translation requests.
@@ -149,21 +185,13 @@ class ArticleTranslationService:
             list[dict]: All responses, including LLM completions
             and auto-responses.
         """
-        batch_responses = []
+        tasks = [
+            ArticleTranslationService._translate_one(cid, prompt)
+            for cid, prompt in zip(custom_ids, prompts)
+        ]
+        llm_responses = await asyncio.gather(*tasks)
 
-        output_path = LLMClient.generate_batch(
-            custom_ids=custom_ids,
-            prompts=prompts,
-            model=LLMModels.openai_4o.value,
-            temperature=0.1,
-            output_filename="openai_batch_translation.jsonl",
-        )
-        raw_lines = await LLMClient.run_batch_api(output_path)
-
-        if raw_lines:
-            batch_responses = [json.loads(line) for line in raw_lines]
-
-        return batch_responses + auto_responses
+        return [r for r in llm_responses if r] + auto_responses
 
     @staticmethod
     async def _translate_all_fields(ids: list[str], texts: list[str]):
@@ -180,8 +208,10 @@ class ArticleTranslationService:
         custom_ids, prompts, auto_responses = (
             ArticleTranslationService._prepare_translation_batch(ids, texts)
         )
-        responses = await ArticleTranslationService._execute_translation_batch(
-            custom_ids, prompts, auto_responses
+        responses = (
+            await ArticleTranslationService._execute_concurrent_translations(
+                custom_ids, prompts, auto_responses
+            )
         )
 
         return responses
