@@ -13,6 +13,7 @@ if TYPE_CHECKING:
     from app.models.article import Article
     from app.models.organization import Organization
     from app.models.search_profile import SearchProfile
+    from app.models.crawl_stats import CrawlStats
 
 from cryptography.fernet import Fernet
 
@@ -65,6 +66,10 @@ class Subscription(SQLModel, table=True):
         default=None, sa_column_kwargs={"nullable": True}
     )
 
+    encrypted_username: Optional[bytes] = Field(
+        default=None, sa_column_kwargs={"nullable": True}
+    )
+
     scrapers: Optional[dict[str, dict[str, Any]]] = Field(
         sa_column=Column(
             JSON,
@@ -90,6 +95,9 @@ class Subscription(SQLModel, table=True):
         back_populates="subscriptions",
         link_model=SearchProfileSubscriptionLink,
     )
+    crawl_stats: List["CrawlStats"] = Relationship(
+        back_populates="subscription"
+    )
 
     @property
     def secrets(self) -> Optional[str]:
@@ -100,3 +108,13 @@ class Subscription(SQLModel, table=True):
     @secrets.setter
     def secrets(self, value: str):
         self.encrypted_secrets = fernet.encrypt(value.encode())
+
+    @property
+    def username(self) -> Optional[str]:
+        if self.encrypted_username:
+            return fernet.decrypt(self.encrypted_username).decode()
+        return None
+
+    @username.setter
+    def username(self, value: str):
+        self.encrypted_username = fernet.encrypt(value.encode())

@@ -6,6 +6,7 @@ import {
   useState,
   type PropsWithChildren,
 } from "react";
+import { useTranslation } from "react-i18next";
 import { useLocation, useNavigate } from "react-router";
 import { client } from "types/api";
 import type { MediamindUser } from "types/model";
@@ -27,6 +28,7 @@ const AuthorizationContext = createContext(initialValue);
 export const AuthorizationContextProvider = ({
   children,
 }: PropsWithChildren) => {
+  const { i18n } = useTranslation();
   const { isSignedIn, isLoaded } = useUser();
   const [mediamindUser, setMediamindUser] = useState<MediamindUser>();
 
@@ -63,6 +65,7 @@ export const AuthorizationContextProvider = ({
       const sync = async () => {
         const { data: returnedUser } = await client.POST("/api/v1/users/sync");
         setMediamindUser(returnedUser);
+        i18n.changeLanguage(returnedUser?.language);
       };
       sync();
     }

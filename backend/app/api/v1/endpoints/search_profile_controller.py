@@ -2,6 +2,7 @@ from typing import List
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException
+from starlette import status
 
 from app.core.auth import get_authenticated_user
 from app.core.logger import get_logger
@@ -15,6 +16,7 @@ from app.schemas.report_schemas import ReportListResponse, ReportRead
 from app.schemas.request_response import FeedbackResponse
 from app.schemas.search_profile_schemas import (
     KeywordSuggestionResponse,
+    KeywordSuggestionTopic,
     SearchProfileCreateRequest,
     SearchProfileDetailResponse,
     SearchProfileUpdateRequest,
@@ -49,14 +51,21 @@ async def get_available_search_profiles(
     response_model=KeywordSuggestionResponse,
 )
 async def get_keyword_suggestions(
-    keywords: List[str],
+    search_profile_name: str,
+    search_profile_language: str,
+    related_topics: List[KeywordSuggestionTopic],
+    selected_topic: KeywordSuggestionTopic,
     current_user: User = Depends(get_authenticated_user),
 ) -> KeywordSuggestionResponse:
     """
     Return keyword suggestions based on a list of input keywords.
     """
+
     return await SearchProfileService.get_keyword_suggestions(
-        current_user, keywords
+        search_profile_name,
+        search_profile_language,
+        related_topics,
+        selected_topic,
     )
 
 
@@ -210,3 +219,24 @@ async def get_reports(
         ReportRead.model_validate(r, from_attributes=True) for r in reports
     ]
     return ReportListResponse(reports=reports_pydantic)
+
+
+@router.delete(
+    "/search-profiles/{search_profile_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+async def delete_search_profile(
+    search_profile_id: UUID,
+    current_user: UserEntity = Depends(get_authenticated_user),
+):
+    try:
+        await SearchProfileService.delete_search_profile(
+            search_profile_id, current_user
+        )
+    except Exception as e:
+        logger.error(
+            f"Failed to delete search profile {search_profile_id}, Error: {e}"
+        )
+        raise HTTPException(
+            status_code=409, detail="Failed to delete search profile"
+        )

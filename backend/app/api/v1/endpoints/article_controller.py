@@ -1,3 +1,5 @@
+from datetime import timezone
+
 from fastapi import APIRouter, BackgroundTasks, Depends
 
 from app.core.auth import get_authenticated_user
@@ -43,7 +45,7 @@ async def trigger_pdf_creation():
     search_profile_id = "7ea2dacc-2e5b-457a-a26b-906b3ed562fa"
     search_profile = await SearchProfileRepository.get_by_id(search_profile_id)
     pdf_bytes = await PDFService.create_pdf(
-        search_profile, "morning", datetime.now()
+        search_profile, "morning", datetime.now(timezone.utc)
     )
 
     with open("output.pdf", "wb") as f:

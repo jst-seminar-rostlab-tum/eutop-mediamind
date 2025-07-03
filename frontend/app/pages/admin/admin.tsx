@@ -26,6 +26,7 @@ import { useTranslation } from "react-i18next";
 import { ConfirmationDialog } from "~/custom-components/confirmation-dialog";
 import { Building2, Newspaper } from "lucide-react";
 import { DataTableOrganizations } from "~/custom-components/admin-settings/data-table-orgas";
+import { Link } from "react-router";
 
 // Fetch Orgas
 async function getOrgaData(): Promise<Organization[]> {
@@ -268,10 +269,12 @@ export function AdminPage() {
   return (
     <>
       <Layout>
-        <Breadcrumb className="mt-8">
+        <Breadcrumb>
           <BreadcrumbList>
             <BreadcrumbItem>
-              <BreadcrumbLink href="/dashboard">Home</BreadcrumbLink>
+              <BreadcrumbLink>
+                <Link to="/dashboard">{t("breadcrumb_home")}</Link>
+              </BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
