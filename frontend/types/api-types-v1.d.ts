@@ -62,7 +62,11 @@ export interface paths {
         get: operations["get_all_users_api_v1_users_all_get"];
         put?: never;
         post?: never;
-        delete?: never;
+        /**
+         * Delete Current User
+         * @description Delete the authenticated user's account.
+         */
+        delete: operations["delete_current_user_api_v1_users_delete"];
         options?: never;
         head?: never;
         patch?: never;
