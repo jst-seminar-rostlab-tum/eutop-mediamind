@@ -5,10 +5,12 @@ import {
   useReactTable,
   type ColumnDef,
   type ColumnFiltersState,
+  type Row,
 } from "@tanstack/react-table";
 import { Check, ChevronsUpDown, Plus, Trash2 } from "lucide-react";
 import React from "react";
 import { useTranslation } from "react-i18next";
+import type { MediamindUser } from "types/model";
 import { Button } from "~/components/ui/button";
 import {
   Command,
@@ -36,21 +38,32 @@ import {
 } from "~/components/ui/table";
 import { cn } from "~/lib/utils";
 
+export type UserWithRole = {
+  id: string;
+  email: string;
+  Username: string;
+  rights: "read" | "edit";
+};
+
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   onAdd: (email: string) => void;
+  users: MediamindUser[];
+  onBunchDelete: (selectedRows: Row<TData>[]) => void;
 }
 
 export function DataTableUsers<TData, TValue>({
   columns,
   data,
   onAdd,
+  users,
+  onBunchDelete,
 }: DataTableProps<TData, TValue>) {
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     [],
   );
-  const [newEmail, setNewEmail] = React.useState("");
+  const [selectedEmail, setSelectedEmail] = React.useState<string>("");
 
   const [rowSelection, setRowSelection] = React.useState({});
 
@@ -68,30 +81,9 @@ export function DataTableUsers<TData, TValue>({
     },
   });
 
-  const numSelectedRows = table.getFilteredSelectedRowModel().rows.length;
-  const canDelete = numSelectedRows > 0;
-
-  function handleDeleteSelected() {
-    if (!canDelete) {
-      const selectedIds = table
-        .getSelectedRowModel()
-        .rows.map((row) => row.original);
-
-      // Implement actual deletion, when Endpoint ready:
-      //const newData = data.filter((row) => !selectedIds.includes(row));
-      // Update state (if you store data in parent)
-      console.log("Delete these IDs:", selectedIds);
-    } else return;
-  }
-
-  const users = [
-    { clerk_id: 1234, email: "leo@tum.de" },
-    { clerk_id: 2345, email: "rafael@tum.de" },
-    { clerk_id: 3456, email: "jonathan@tum.de" },
-    { clerk_id: 3456, email: "leo@bmw.com" },
-  ];
-
   const [open, setOpen] = React.useState(false);
+
+  const canDelete = table.getFilteredSelectedRowModel().rows.length > 0;
 
   const { t } = useTranslation();
 
@@ -99,10 +91,10 @@ export function DataTableUsers<TData, TValue>({
     <>
       <div className="flex justify-between gap-4">
         <Input
-          placeholder={"Filter Emails..."}
-          value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
+          placeholder={"Filter " + t("general.Users")}
+          value={(table.getColumn("email")?.getFilterValue() as string) ?? ""}
           onChange={(event) => {
-            table.getColumn("name")?.setFilterValue(event.target.value);
+            table.getColumn("email")?.setFilterValue(event.target.value);
           }}
           className="max-w-1/2"
         />
@@ -116,11 +108,11 @@ export function DataTableUsers<TData, TValue>({
                   aria-expanded={open}
                   className={cn(
                     "rounded-r-none min-w-[150px] justify-between",
-                    !newEmail && "text-muted-foreground",
+                    !selectedEmail && "text-muted-foreground",
                   )}
                 >
-                  {newEmail
-                    ? users.find((user) => user.email === newEmail)?.email
+                  {selectedEmail
+                    ? users.find((user) => user.email === selectedEmail)?.email
                     : t("admin.add_user")}
                   <ChevronsUpDown className="opacity-50" />
                 </Button>
@@ -133,10 +125,10 @@ export function DataTableUsers<TData, TValue>({
                     <CommandGroup>
                       {users.map((user) => (
                         <CommandItem
-                          key={user.clerk_id}
+                          key={user.id}
                           value={user.email}
                           onSelect={(currentValue) => {
-                            setNewEmail(currentValue);
+                            setSelectedEmail(currentValue);
                             setOpen(false);
                           }}
                         >
@@ -147,7 +139,7 @@ export function DataTableUsers<TData, TValue>({
                               table
                                 .getRowModel()
                                 .rows.some(
-                                  (row) => row.getValue("name") === user.email,
+                                  (row) => row.getValue("email") === user.email,
                                 )
                                 ? "opacity-100"
                                 : "opacity-0",
@@ -163,10 +155,9 @@ export function DataTableUsers<TData, TValue>({
             <Button
               className={"rounded-l-none"}
               variant={"secondary"}
-              onClick={(e) => {
-                e.preventDefault();
-                onAdd(newEmail);
-                setNewEmail("");
+              onClick={() => {
+                onAdd(selectedEmail);
+                setSelectedEmail("");
               }}
             >
               <Plus className={"h-4 w-4"} />
@@ -175,12 +166,15 @@ export function DataTableUsers<TData, TValue>({
           </div>
 
           <Button
-            className=""
+            disabled={!canDelete}
+            className={!canDelete ? "cursor-not-allowed opacity-50" : ""}
             variant="destructive"
-            onClick={() => handleDeleteSelected()}
+            onClick={() => {
+              onBunchDelete(table.getSelectedRowModel().rows);
+            }}
           >
             <Trash2 className="h-4 w-4" />
-            {t("Delete")} ({numSelectedRows})
+            {t("Delete")} ({table.getFilteredSelectedRowModel().rows.length})
           </Button>
         </div>
       </div>
