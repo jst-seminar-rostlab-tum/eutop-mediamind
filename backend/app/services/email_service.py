@@ -58,7 +58,7 @@ class EmailService:
         for email in emails:
             try:
                 email.attempts += 1
-                EmailService.__send_email(email)
+                EmailService.send_email(email)
                 email.state = EmailState.SENT
                 await EmailRepository.update_email(email)
             except Exception as e:
@@ -73,7 +73,7 @@ class EmailService:
                 )
 
     @staticmethod
-    def __send_email(email: Email):
+    def send_email(email: Email):
         msg = MIMEMultipart("alternative")
         msg["From"] = email.sender
         msg["To"] = email.recipient

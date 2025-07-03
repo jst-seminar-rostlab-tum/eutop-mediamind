@@ -4,8 +4,9 @@ from fastapi import APIRouter, Header, HTTPException
 from pydantic import BaseModel
 
 from app.core.config import configs
-from app.services.email_service import EmailSchedule, EmailService
+from app.services.email_service import EmailService
 from app.services.user_service import UserService
+from app.models.email import Email
 
 router = APIRouter(
     prefix="/chats",
@@ -62,7 +63,8 @@ async def receive_chat(
             detail=f"User with email {sender_email} not found.",
         )
 
-    email_schedule = EmailSchedule(
+    email = Email(
+        sender=configs.SMTP_USER,
         recipient=user.email,
         subject=f"[MEDIAMIND] RE: {chat.subject}",
         content_type="text/HTML",
@@ -82,8 +84,8 @@ async def receive_chat(
         """,
     )
 
-    await EmailService.schedule_email(email_schedule)
-    await EmailService.send_scheduled_emails()
+    # Send the email (synchronously)
+    EmailService.send_email(email)
 
     return {
         "message": f"Chat received and reply sent to {sender_email}.",
