@@ -19,8 +19,7 @@ class NewsItem:
     newspaper: Optional[str] = None
     keywords: Optional[List[str]] = None
     image_url: Optional[str] = None
-    people: Optional[List] = None
-    companies: Optional[List] = None
-    politicians: Optional[List] = None
+    persons: Optional[List] = None
+    organizations: Optional[List] = None
     industries: Optional[List] = None
-    legislations: Optional[List] = None
+    events: Optional[List] = None

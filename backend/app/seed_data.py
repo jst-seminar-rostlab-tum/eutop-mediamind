@@ -1,6 +1,6 @@
 import asyncio
 
-from app.core.db import seed_data
+from app.services.seeding_service.seeding_service import seed_data
 
 
 async def main():

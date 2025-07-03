@@ -1,11 +1,15 @@
+import gettext
 import json
+import os
 import uuid
 from datetime import date, datetime
+from typing import Callable
 
 from langdetect import detect
 
 from app.core.logger import get_logger
 from app.repositories.article_repository import ArticleRepository
+from app.repositories.entity_repository import ArticleEntityRepository
 from app.services.llm_service.llm_client import LLMClient, LLMModels
 
 logger = get_logger(__name__)
@@ -15,14 +19,68 @@ base_prompt = (
     "without adding or removing meaning. Do not "
     "assume facts not present in the original "
     "text. Keep the translation as neutral and "
-    "faithful as possible.\n\n{content}"
+    "faithful as possible. If the input is a single word "
+    "already in {target_lang}, just return "
+    "the word as is:\n\n{content}"
 )
 
 
 class ArticleTranslationService:
+    _translators_cache = {}
 
     @staticmethod
-    def prepare_translation_batch(
+    def get_translator(language: str) -> Callable[[str], str]:
+        """
+        Returns the gettext translator function for the given language.
+
+        Args:
+            language (str): language code
+
+        Returns:
+            Callable[[str], str]: a function that receives a string
+            (translation key) and returns its translated string in the
+            specified language. If no translation is available, it returns
+            the original string.
+        """
+        if language not in ArticleTranslationService._translators_cache:
+            locale_dir = os.path.join(os.path.dirname(__file__), "locales")
+            lang = gettext.translation(
+                "translations",
+                localedir=locale_dir,
+                languages=[language],
+                fallback=True,
+            )
+            ArticleTranslationService._translators_cache[language] = (
+                lang.gettext
+            )
+
+        return ArticleTranslationService._translators_cache[language]
+
+    @staticmethod
+    async def _process_fields(items, field_name):
+        """
+        Prepares the specified field from a list of items for translation.
+
+        Args:
+            items (list): List of objects to translate
+            field_name: Specific field of the item to translate
+
+        Returns:
+            tuple[list[str], list[str]]: A tuple containing:
+                - all_ids: List of identifiers in format "itemID_fieldName"
+                - all_texts: List of corresponding text values
+        """
+        all_ids = []
+        all_texts = []
+
+        for item in items:
+            all_ids.append(f"{item.id}_{field_name}")
+            all_texts.append(getattr(item, field_name))
+
+        return all_ids, all_texts
+
+    @staticmethod
+    def _prepare_translation_batch(
         ids: list[str], texts: list[str]
     ) -> tuple[list[str], list[str], list[dict]]:
         """
@@ -75,7 +133,7 @@ class ArticleTranslationService:
         return custom_ids, prompts, auto_responses
 
     @staticmethod
-    async def execute_translation_batch(
+    async def _execute_translation_batch(
         custom_ids: list[str], prompts: list[str], auto_responses: list[dict]
     ) -> list[dict]:
         """
@@ -108,54 +166,47 @@ class ArticleTranslationService:
         return batch_responses + auto_responses
 
     @staticmethod
-    async def translate_all_fields(articles):
+    async def _translate_all_fields(ids: list[str], texts: list[str]):
         """
-        Prepares and translates all fields (title, content, summary)
-        from a list of articles.
+        Translates all texts from the input using the batch API
 
         Args:
-            articles (list[Article]): List of article objects to be translated.
+            ids (list[str]): unique identifiers for each text.
+            texts (list[str]): list of raw texts to translate.
 
         Returns:
             list[dict]: List of translation responses.
         """
-        all_ids = []
-        all_texts = []
-
-        all_ids.extend([f"{a.id}_title" for a in articles])
-        all_texts.extend([a.title for a in articles])
-
-        all_ids.extend([f"{a.id}_content" for a in articles])
-        all_texts.extend([a.content for a in articles])
-
-        all_ids.extend([f"{a.id}_summary" for a in articles])
-        all_texts.extend([a.summary for a in articles])
-
         custom_ids, prompts, auto_responses = (
-            ArticleTranslationService.prepare_translation_batch(
-                all_ids, all_texts
-            )
+            ArticleTranslationService._prepare_translation_batch(ids, texts)
         )
-        responses = await ArticleTranslationService.execute_translation_batch(
+        responses = await ArticleTranslationService._execute_translation_batch(
             custom_ids, prompts, auto_responses
         )
 
         return responses
 
     @staticmethod
-    async def store_translations(responses):
+    async def _parse_translation_responses(responses):
         """
-        Parses and stores translation responses back into the database.
+        Parses a list of translation responses from a batch API request
+        and organizes them into a nested dictionary structure.
 
         Args:
-            responses (list[dict]): List of responses from the batch API.
+            responses (List[Dict]): responses from the batch API
 
         Returns:
-            list[Article]: List of updated articles.
+            Dict[UUID, Dict[str, Dict[str, str]]]: A nested dictionary
+            structured as:
+                {
+                    object_id (UUID): {
+                        lang (str): {
+                            field (str): translated_content (str)
+                        }
+                    }
+                }
         """
-        total_updates = []
-
-        article_map: dict[uuid.UUID, dict[str, dict[str, str]]] = {}
+        translations_map = {}
 
         for parsed in responses:
             try:
@@ -170,51 +221,55 @@ class ArticleTranslationService:
                     logger.warning(f"Invalid custom_id format: {custom_id}")
                     continue
 
-                article_id_str = parts[0]
+                object_id_str = parts[0]
                 field = parts[1]
                 lang = parts[2]
-                article_id = uuid.UUID(article_id_str)
+                object_id = uuid.UUID(object_id_str)
                 content = response["body"]["choices"][0]["message"]["content"]
 
-                if article_id not in article_map:
-                    article_map[article_id] = {}
+                if object_id not in translations_map:
+                    translations_map[object_id] = {}
 
-                if lang not in article_map[article_id]:
-                    article_map[article_id][lang] = {}
+                if lang not in translations_map[object_id]:
+                    translations_map[object_id][lang] = {}
 
-                article_map[article_id][lang][field] = content
+                translations_map[object_id][lang][field] = content
 
             except Exception as e:
                 logger.exception(f"Error processing batch response: {e}")
 
-        for article_id, langs in article_map.items():
+        return translations_map
+
+    @staticmethod
+    async def _store_translations(translations_map, repository):
+        """
+        Stores translation responses back into the database.
+
+        Args:
+            translations_map (dict): Dictionary with
+            structure {id: {lang: {field: value}}}
+            repository: Repository class with update method
+        """
+        for object_id, langs in translations_map.items():
             for lang_code, fields in langs.items():
                 translated_fields = {
                     f"{field}_{lang_code}": value
                     for field, value in fields.items()
                 }
-
-                article = await ArticleRepository.update_article_translations(
-                    article_id, **translated_fields
+                await repository.update_translations(
+                    object_id, **translated_fields
                 )
-                logger.info(
-                    f"Article {article_id} updated with "
-                    f"{lang_code} translation."
-                )
-                total_updates.append(article)
-
-        return total_updates
 
     @staticmethod
     async def run(
         page_size: int = 300,
-        date_start: datetime = datetime.combine(
+        datetime_start: datetime = datetime.combine(
             date.today(), datetime.min.time()
         ),
-        date_end: datetime = datetime.now(),
+        datetime_end: datetime = datetime.now(),
     ):
         """
-        Orchestrates the full translation pipeline in batches.
+        Orchestrates the full articles translation pipeline in batches.
 
         Args:
             limit (int, optional): Number of articles to process per batch.
@@ -225,8 +280,8 @@ class ArticleTranslationService:
             articles = (
                 await ArticleRepository.get_articles_without_translations(
                     limit=page_size,
-                    date_start=date_start,
-                    date_end=date_end,
+                    datetime_start=datetime_start,
+                    datetime_end=datetime_end,
                 )
             )
             while articles:
@@ -235,32 +290,100 @@ class ArticleTranslationService:
                     f"{len(articles)} articles"
                 )
 
+                article_ids = []
+                article_texts = []
+                fields_to_translate = ["title", "content", "summary"]
+                for field in fields_to_translate:
+                    ids, texts = (
+                        await ArticleTranslationService._process_fields(
+                            articles, field
+                        )
+                    )
+                    article_ids.extend(ids)
+                    article_texts.extend(texts)
+
                 responses = (
-                    await ArticleTranslationService.translate_all_fields(
-                        articles
+                    await ArticleTranslationService._translate_all_fields(
+                        article_ids, article_texts
                     )
                 )
                 if not responses:
                     logger.error(f"Translation failed for page {page + 1}")
                     break
 
-                updated = await ArticleTranslationService.store_translations(
-                    responses
+                parse = ArticleTranslationService._parse_translation_responses
+                articles_map = await parse(responses)
+
+                await ArticleTranslationService._store_translations(
+                    articles_map, ArticleRepository
                 )
-                if not updated:
-                    logger.error("No articles updated.")
-                    break
 
                 page += 1
 
                 articles = (
                     await ArticleRepository.get_articles_without_translations(
                         limit=page_size,
-                        date_start=date_start,
-                        date_end=date_end,
+                        datetime_start=datetime_start,
+                        datetime_end=datetime_end,
                     )
                 )
+            logger.info("No more articles without translation found")
 
         except Exception as e:
             logger.exception(f"Error running translation workflow: {e}")
+            return None
+
+    @staticmethod
+    async def run_for_entities(limit: int = 100):
+        """
+        Orchestrates the full entity translation pipeline in batches.
+
+        Args:
+            limit (int, optional): Number of entities to process per batch.
+        """
+        try:
+            page = 0
+            offset = 0
+
+            get = ArticleEntityRepository.get_entities_without_translations
+            entities = await get(limit=limit, offset=offset)
+
+            while entities:
+                logger.info(
+                    f"Translating page {page + 1} with "
+                    f"{len(entities)} entities"
+                )
+
+                entity_ids, entity_texts = (
+                    await ArticleTranslationService._process_fields(
+                        entities, "value"
+                    )
+                )
+
+                responses = (
+                    await ArticleTranslationService._translate_all_fields(
+                        entity_ids, entity_texts
+                    )
+                )
+
+                if not responses:
+                    logger.error(f"Translation failed for page {page + 1}")
+                    break
+
+                parse = ArticleTranslationService._parse_translation_responses
+                entities_map = await parse(responses)
+
+                await ArticleTranslationService._store_translations(
+                    entities_map, ArticleEntityRepository
+                )
+
+                page += 1
+                offset = page * limit
+
+                entities = await get(limit=limit, offset=offset)
+
+            logger.info("No more entities without translation found")
+
+        except Exception as e:
+            logger.exception(f"Error running entity translation workflow: {e}")
             return None
