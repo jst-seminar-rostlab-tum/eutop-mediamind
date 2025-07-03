@@ -103,6 +103,9 @@ class Configs(BaseSettings):
     SMTP_USER: EmailStr
     SMTP_PASSWORD: str
 
+    # Chatbot
+    CHAT_API_KEY: str
+
     @computed_field
     @property
     def SQLALCHEMY_DATABASE_URI(self) -> PostgresDsn:
@@ -174,6 +177,8 @@ class Configs(BaseSettings):
         self._check_default_secret("SMTP_SERVER", self.SMTP_SERVER)
         self._check_default_secret("SMTP_USER", self.SMTP_USER)
         self._check_default_secret("SMTP_PASSWORD", self.SMTP_PASSWORD)
+
+        self._check_default_secret("CHAT_API_KEY", self.CHAT_API_KEY)
 
         return self
 
