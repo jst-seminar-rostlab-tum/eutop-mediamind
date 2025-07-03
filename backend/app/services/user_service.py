@@ -45,6 +45,18 @@ class UserService:
             )
 
     @staticmethod
+    async def get_by_email(
+        email: str,
+    ) -> Optional[UserEntity]:
+        """
+        Fetch a user by email, return UserEntity or None.
+        """
+        async with async_session() as session:
+            return await UserRepository.get_user_by_email(
+                email=email, session=session
+            )
+
+    @staticmethod
     async def create_user_from_clerk(
         clerk_id: str,
         email: Optional[str],
