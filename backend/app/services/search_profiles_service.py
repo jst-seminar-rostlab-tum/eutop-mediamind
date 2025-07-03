@@ -9,15 +9,18 @@ from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 
 from app.core.db import async_session
-from app.models import SearchProfile, Topic, User
+from app.core.logger import get_logger
+from app.models import SearchProfile, Topic
 from app.models.match import Match
 from app.repositories.article_repository import ArticleRepository
 from app.repositories.email_repository import EmailRepository
 from app.repositories.keyword_repository import KeywordRepository
 from app.repositories.match_repository import MatchRepository
+from app.repositories.report_repository import ReportRepository
 from app.repositories.search_profile_repository import SearchProfileRepository
 from app.repositories.subscription_repository import SubscriptionRepository
 from app.repositories.topics_repository import TopicsRepository
+from app.repositories.user_repository import UserRepository
 from app.schemas.articles_schemas import (
     ArticleOverviewResponse,
     MatchArticleOverviewContent,
@@ -29,6 +32,7 @@ from app.schemas.articles_schemas import (
 from app.schemas.match_schemas import MatchFeedbackRequest, MatchFilterRequest
 from app.schemas.search_profile_schemas import (
     KeywordSuggestionResponse,
+    KeywordSuggestionTopic,
     SearchProfileCreateRequest,
     SearchProfileDetailResponse,
     SearchProfileUpdateRequest,
@@ -42,6 +46,12 @@ from app.schemas.user_schema import UserEntity
 from app.services.article_vector_service import ArticleVectorService
 from app.services.llm_service.llm_client import LLMClient
 from app.services.llm_service.llm_models import LLMModels
+from app.services.llm_service.prompts.keyword_suggestion_prompts import (
+    KEYWORD_SUGGESTION_PROMPT_DE,
+    KEYWORD_SUGGESTION_PROMPT_EN,
+)
+
+logger = get_logger(__name__)
 
 
 class SearchProfileService:
@@ -526,30 +536,100 @@ class SearchProfileService:
 
     @staticmethod
     async def get_keyword_suggestions(
-        user: User, suggestions: List[str]
+        search_profile_name: str,
+        search_profile_language: str,
+        related_topics: List[KeywordSuggestionTopic],
+        selected_topic: KeywordSuggestionTopic,
     ) -> KeywordSuggestionResponse:
-        # Avoid useless LLM calls if no topics are available
-        if len(suggestions) == 0:
-            return KeywordSuggestionResponse(suggestions=[])
-
-        prompt = """
-        I will give you a list related keywords. Please add 5
-        new relevant keywords. Don't include synonyms, but suggest
-        words to pin down the topic more exactly with your added
-        relevant keywords.\n
+        """
+        Generate keyword suggestions based on the
+        search profile information
         """
 
-        prompt += "Keywords: " + ", ".join(suggestions) + "\n\n"
+        def format_related_topics(topics: List[KeywordSuggestionTopic]) -> str:
+            if not topics:
+                return "--"
+            return "\n".join(
+                f"{topic.topic_name}: {', '.join(topic.keywords)}"
+                for topic in topics
+            )
 
-        lhm_client = LLMClient(LLMModels.openai_4o)
+        prompt: str
+        if search_profile_language == "de":
+            prompt = KEYWORD_SUGGESTION_PROMPT_DE
+        elif search_profile_language == "en":
+            prompt = KEYWORD_SUGGESTION_PROMPT_EN
+        else:
+            raise HTTPException(
+                status_code=400,
+                detail="Unsupported language for keyword suggestions",
+            )
 
-        response = lhm_client.generate_typed_response(
+        prompt = prompt.format(
+            search_profile_name=search_profile_name,
+            selected_topic_name=selected_topic.topic_name,
+            selected_topic_keywords=", ".join(selected_topic.keywords),
+            related_topics=format_related_topics(related_topics),
+        )
+
+        llm = LLMClient(LLMModels.openai_4o)
+
+        response = llm.generate_typed_response(
             prompt, KeywordSuggestionResponse
         )
+
         if not response:
+            logger.error(
+                f"Failed to generate keyword "
+                f"suggestions from LLM "
+                f"for profile {search_profile_name}"
+            )
             raise HTTPException(
                 status_code=500,
                 detail="Failed to generate keyword suggestions from LLM",
             )
 
         return response
+
+    @staticmethod
+    async def delete_search_profile(
+        profile_id: UUID, current_user: UserEntity
+    ) -> None:
+        search_profile = (
+            await SearchProfileRepository.get_search_profile_by_id(profile_id)
+        )
+        if current_user.id != search_profile.owner_id:
+            raise
+        async with async_session() as session:
+            try:
+                # begin a transaction
+                async with session.begin():
+                    # delete dependent records
+                    await MatchRepository.delete_for_search_profile(
+                        session, profile_id
+                    )
+                    await ReportRepository.delete_for_search_profile(
+                        session, profile_id
+                    )
+                    await SubscriptionRepository.delete_links_for_search_profile(  # noqa: E501
+                        session, profile_id
+                    )
+                    await UserRepository.delete_links_for_search_profile(
+                        session, profile_id
+                    )
+
+                    topic_ids = [topic.id for topic in search_profile.topics]
+                    await TopicsRepository.delete_keyword_links_for_search_profile(  # noqa: E501
+                        session, topic_ids
+                    )
+                    await TopicsRepository.delete_for_search_profile(
+                        session, profile_id
+                    )
+
+                    # finally, delete the profile itself
+                    await SearchProfileRepository.delete_by_id(
+                        session, profile_id
+                    )
+            except Exception:
+                # transaction is rolled back automatically on exception
+                raise

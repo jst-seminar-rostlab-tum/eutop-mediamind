@@ -7,6 +7,8 @@ from app.models import Article
 from app.repositories.article_repository import ArticleRepository
 from app.services.article_vector_service import ArticleVectorService
 
+import asyncio
+
 
 def make_article(
     id: uuid.UUID = None,
@@ -60,7 +62,7 @@ def test_add_articles_and_count(qdrant_client, service):
 
     # add 3 articles
     articles = [make_article() for _ in range(3)]
-    service.add_articles(articles)
+    asyncio.run(service.add_articles(articles))
 
     # now there should be 3 points in Qdrant
     cnt = qdrant_client.count(collection_name=service.collection_name).count
@@ -99,16 +101,23 @@ async def test_index_summarized_articles_and_count(
     page1 = [make_article(summary=f"page1-{i}") for i in range(2)]
     page2 = [make_article(summary=f"page2-{i}") for i in range(2)]
 
-    async def fake_list(limit: int, offset: int):
-        if offset == 0:
-            return page1
-        if offset == 2:
-            return page2
+    async def fake_list(limit: int, date_start=None, date_end=None):
+        if not hasattr(fake_list, "call_count"):
+            fake_list.call_count = 0
+        fake_list.call_count += 1
+
+        if fake_list.call_count == 1:
+            return page1 + page2
         return []
+
+    async def fake_update(article):
+        # Mock update to avoid database access
+        pass
 
     monkeypatch.setattr(
         ArticleRepository, "list_articles_with_summary", fake_list
     )
+    monkeypatch.setattr(ArticleRepository, "update_article", fake_update)
 
     # previously 0
     assert (
