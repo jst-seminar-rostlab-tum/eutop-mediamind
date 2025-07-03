@@ -64,7 +64,10 @@
     "Rights": "Rechte",
     "read": "lesen",
     "edit": "bearbeiten",
-    "user_already_added": "Dieser Benutzer ist bereits teil des Profils"
+    "user_already_added": "Dieser Benutzer ist bereits teil des Profils",
+    "Username": "Benutzername",
+    "Email": "Email",
+    "Users": "Benutzer"
   },
 
   "topics": {

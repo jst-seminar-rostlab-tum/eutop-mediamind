@@ -11,7 +11,7 @@ import { Trash } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { Checkbox } from "~/components/ui/checkbox";
 import { useTranslation } from "react-i18next";
-import type { UserWithRole } from "./general";
+import type { UserWithRole } from "../../admin-settings/data-table-users";
 
 export function getUserColumns(
   onRoleChange: (index: number, role: "read" | "edit") => void,
@@ -42,8 +42,18 @@ export function getUserColumns(
       enableHiding: false,
     },
     {
-      accessorKey: "name",
-      header: "User",
+      accessorKey: "email",
+      header: t("general.Email"),
+      filterFn: (row, _, filterValue: string) => {
+        const email = row.original.email?.toLowerCase() || "";
+        const username = row.original.Username?.toLowerCase() || "";
+        const value = filterValue.toLowerCase();
+        return email.includes(value) || username.includes(value);
+      },
+    },
+    {
+      accessorKey: "Username",
+      header: t("general.Username"),
     },
     {
       accessorKey: "rights",

@@ -28,6 +28,7 @@ import {
   type UserWithRole,
 } from "~/custom-components/admin-settings/data-table-users";
 import { getUserColumns } from "./columns";
+import type { Row } from "@tanstack/react-table";
 
 export interface GeneralProps {
   profile: Profile;
@@ -79,7 +80,8 @@ export function General({ profile, setProfile }: GeneralProps) {
         if (!user) return null;
         return {
           id: user.id,
-          name: user.email,
+          email: user.email,
+          Username: user.first_name + " " + user.last_name,
           rights,
         };
       })
@@ -145,6 +147,7 @@ export function General({ profile, setProfile }: GeneralProps) {
     const user = users.find((u) => u.email === email);
     if (!user) return;
 
+    // check for duplicates
     const alreadyExists = usersWithRoles.some((u) => u.id === user.id);
     if (alreadyExists) {
       toast.error(t("general.user_already_added"));
@@ -153,16 +156,15 @@ export function General({ profile, setProfile }: GeneralProps) {
 
     const newUser: UserWithRole = {
       id: user.id,
-      name: user.email,
+      email: user.email,
+      Username: user.first_name + user.last_name,
       rights: "read", // default rights: read
     };
 
     // update local state
-    setUsersWithRoles(
-      (prev) => [...prev, newUser], // prevent duplicates in local state
-    );
+    setUsersWithRoles((prev) => [...prev, newUser]);
 
-    // add new id to read ids, prevent duplicates in profile
+    // add new id to read ids
     if (!profile.can_read_user_ids.includes(user.id)) {
       setProfile({
         ...profile,
@@ -188,6 +190,29 @@ export function General({ profile, setProfile }: GeneralProps) {
       can_edit_user_ids: profile.can_edit_user_ids.filter(
         (id) => id !== userToRemove.id,
       ),
+    });
+  };
+
+  const handleBunchDelete = (selectedRows: Row<UserWithRole>[]) => {
+    const usersToRemove = selectedRows.map((row) => row.original);
+
+    // Update usersWithRoles
+    setUsersWithRoles((prev) =>
+      prev.filter((user) => !usersToRemove.some((r) => r.id === user.id)),
+    );
+
+    // Update profile
+    const newReadIds = profile.can_read_user_ids.filter(
+      (id) => !usersToRemove.some((user) => user.id === id),
+    );
+    const newEditIds = profile.can_edit_user_ids.filter(
+      (id) => !usersToRemove.some((user) => user.id === id),
+    );
+
+    setProfile({
+      ...profile,
+      can_read_user_ids: newReadIds,
+      can_edit_user_ids: newEditIds,
     });
   };
 
@@ -278,6 +303,7 @@ export function General({ profile, setProfile }: GeneralProps) {
           data={usersWithRoles}
           onAdd={createAndAddNewUser}
           users={users}
+          onBunchDelete={handleBunchDelete}
         />
       </div>
     </div>

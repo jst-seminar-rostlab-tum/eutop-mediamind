@@ -5,6 +5,7 @@ import {
   useReactTable,
   type ColumnDef,
   type ColumnFiltersState,
+  type Row,
 } from "@tanstack/react-table";
 import { Check, ChevronsUpDown, Plus, Trash2 } from "lucide-react";
 import React from "react";
@@ -38,7 +39,8 @@ import { cn } from "~/lib/utils";
 
 export type UserWithRole = {
   id: string;
-  name: string; //name is users email here
+  email: string;
+  Username: string;
   rights: "read" | "edit";
 };
 
@@ -47,6 +49,7 @@ interface DataTableProps<TData, TValue> {
   data: TData[];
   onAdd: (email: string) => void;
   users: MediamindUser[];
+  onBunchDelete: (selectedRows: Row<TData>[]) => void;
 }
 
 export function DataTableUsers<TData, TValue>({
@@ -54,6 +57,7 @@ export function DataTableUsers<TData, TValue>({
   data,
   onAdd,
   users,
+  onBunchDelete,
 }: DataTableProps<TData, TValue>) {
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     [],
@@ -71,15 +75,6 @@ export function DataTableUsers<TData, TValue>({
     },
   });
 
-  const handleDeleteSelected = () => {
-    // you can call a prop like onDeleteMany if you implement one
-    const selectedRows = table.getSelectedRowModel().rows;
-    console.log(
-      "To delete:",
-      selectedRows.map((r) => r.original),
-    );
-  };
-
   const [open, setOpen] = React.useState(false);
 
   const { t } = useTranslation();
@@ -88,10 +83,10 @@ export function DataTableUsers<TData, TValue>({
     <>
       <div className="flex justify-between gap-4">
         <Input
-          placeholder={"Filter Emails..."}
-          value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
+          placeholder={"Filter " + t("general.Users")}
+          value={(table.getColumn("email")?.getFilterValue() as string) ?? ""}
           onChange={(event) => {
-            table.getColumn("name")?.setFilterValue(event.target.value);
+            table.getColumn("email")?.setFilterValue(event.target.value);
           }}
           className="max-w-1/2"
         />
@@ -136,7 +131,7 @@ export function DataTableUsers<TData, TValue>({
                               table
                                 .getRowModel()
                                 .rows.some(
-                                  (row) => row.getValue("name") === user.email,
+                                  (row) => row.getValue("email") === user.email,
                                 )
                                 ? "opacity-100"
                                 : "opacity-0",
@@ -165,7 +160,9 @@ export function DataTableUsers<TData, TValue>({
           <Button
             className=""
             variant="destructive"
-            onClick={handleDeleteSelected}
+            onClick={() => {
+              onBunchDelete(table.getSelectedRowModel().rows);
+            }}
           >
             <Trash2 className="h-4 w-4" />
             {t("Delete")}

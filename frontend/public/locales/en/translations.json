@@ -64,7 +64,10 @@
     "Rights": "Rights",
     "read": "read",
     "edit": "edit",
-    "user_already_added": "This user is already in the profile"
+    "user_already_added": "This user is already in the profile",
+    "Username": "Username",
+    "Email": "Email",
+    "Users": "Users"
   },
 
   "topics": {
