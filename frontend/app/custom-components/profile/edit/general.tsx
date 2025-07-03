@@ -216,127 +216,143 @@ export function General({ profile, setProfile }: GeneralProps) {
       can_edit_user_ids: newEditIds,
     });
   };
-    
+
   const languages = [
     { value: "en", label: "English" },
     { value: "de", label: "Deutsch" },
   ];
 
-
   return (
     <div>
       <h2 className="font-bold pt-3 pb-3">{t("general.ownership")}</h2>
-      <Label className="text-gray-400 font-normal pb-3">
-        {t("general.ownership_text")}
-      </Label>
-      <div className="pb-3">
-        <Popover open={open} onOpenChange={setOpen}>
-          <PopoverTrigger asChild>
-            <Button
-              variant="outline"
-              role="combobox"
-              aria-expanded={open}
-              className=" justify-between"
-              disabled={isLoading}
-            >
-              {selectedUserLabel}
-              <ChevronsUpDown className="opacity-50" />
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-full p-0">
-            <Command>
-              <CommandInput
-                placeholder={t("edit_profile.search_user")}
-                className="h-9"
-              />
-              <CommandList>
-                {isLoading ? (
-                  <div className="p-4 text-sm text-center">
-                    {t("edit_profile.loading")}
-                  </div>
-                ) : (
-                  <>
-                    <CommandEmpty>{t("edit_profile.no_user")}</CommandEmpty>
-                    <CommandGroup>
-                      {users.map((user) => (
-                        <CommandItem
-                          key={user.id}
-                          value={user.id}
-                          onSelect={(currentValue) => {
-                            setProfile({ ...profile, owner_id: currentValue });
-                            setOpen(false);
-                          }}
-                        >
-                          {`${user.first_name} ${user.last_name}`}
-                          <Check
-                            className={cn(
-                              "ml-auto",
-                              profile.owner_id === user.id
-                                ? "opacity-100"
-                                : "opacity-0",
-                            )}
-                          />
-                        </CommandItem>
-                      ))}
-                    </CommandGroup>
-                  </>
-                )}
-              </CommandList>
-            </Command>
-          </PopoverContent>
-        </Popover>
+      <div className="pl-3">
+        <Label className="text-gray-400 font-normal pb-3">
+          {t("general.ownership_text")}
+        </Label>
+        <div className="pb-3">
+          <Popover open={open} onOpenChange={setOpen}>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                role="combobox"
+                aria-expanded={open}
+                className=" justify-between"
+                disabled={isLoading}
+              >
+                {selectedUserLabel}
+                <ChevronsUpDown className="opacity-50" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-full p-0">
+              <Command>
+                <CommandInput
+                  placeholder={t("edit_profile.search_user")}
+                  className="h-9"
+                />
+                <CommandList>
+                  {isLoading ? (
+                    <div className="p-4 text-sm text-center">
+                      {t("edit_profile.loading")}
+                    </div>
+                  ) : (
+                    <>
+                      <CommandEmpty>{t("edit_profile.no_user")}</CommandEmpty>
+                      <CommandGroup>
+                        {users.map((user) => (
+                          <CommandItem
+                            key={user.id}
+                            value={user.id}
+                            onSelect={(currentValue) => {
+                              setProfile({
+                                ...profile,
+                                owner_id: currentValue,
+                              });
+                              setOpen(false);
+                            }}
+                          >
+                            {`${user.first_name} ${user.last_name}`}
+                            <Check
+                              className={cn(
+                                "ml-auto",
+                                profile.owner_id === user.id
+                                  ? "opacity-100"
+                                  : "opacity-0",
+                              )}
+                            />
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    </>
+                  )}
+                </CommandList>
+              </Command>
+            </PopoverContent>
+          </Popover>
+        </div>
       </div>
 
-      <Separator />
+      <Separator className="my-2" />
 
       <h2 className="font-bold pt-3 pb-3">{t("general.visibility")}</h2>
-      <div className="flex gap-3 items-center pb-3">
-        <Label className="text-gray-400 font-normal">
-          {t("general.public")}
+      <div className="pl-3">
+        <Label className="text-gray-400 font-light pb-3">
+          {t("general.public_text")}
         </Label>
-        <Switch
-          checked={profile.is_public}
-          onCheckedChange={(e) => setProfile({ ...profile, is_public: e })}
-        />
+        <div className="flex gap-3 items-center pb-3">
+          <Label className="text-gray-400 font-normal">
+            {t("general.public")}
+          </Label>
+          <Switch
+            checked={profile.is_public}
+            onCheckedChange={(e) => setProfile({ ...profile, is_public: e })}
+          />
+        </div>
       </div>
-      <Label className="text-gray-400 font-light pb-3">
-        {t("general.public_text")}
-      </Label>
 
-      <Separator />
+      <Separator className="my-2" />
 
       <h2 className="font-bold pt-3 pb-3">{t("general.language")}</h2>
-      <div className="pb-3">
-        <Select
-          value={profile.language}
-          onValueChange={(value) => setProfile({ ...profile, language: value })}
-        >
-          <SelectTrigger className="w-[200px]">
-            <SelectValue placeholder={t("general.select_language")} />
-          </SelectTrigger>
-          <SelectContent>
-            {languages.map((lang) => (
-              <SelectItem key={lang.value} value={lang.value}>
-                {lang.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+      <div className="pl-3">
+        <Label className="text-gray-400 font-light pb-3 leading-[120%]">
+          {t("general.language_text")}
+        </Label>
+        <div className="pb-3">
+          <Select
+            value={profile.language}
+            onValueChange={(value) =>
+              setProfile({ ...profile, language: value })
+            }
+          >
+            <SelectTrigger className="w-[200px]">
+              <SelectValue placeholder={t("general.select_language")} />
+            </SelectTrigger>
+            <SelectContent>
+              {languages.map((lang) => (
+                <SelectItem key={lang.value} value={lang.value}>
+                  {lang.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
       </div>
-      <Label className="text-gray-400 font-light pb-3 leading-[120%]">
-        {t("general.language_text")}
-      </Label>
 
-      <Separator />
-      
-       <div className="mt-4">
-        <DataTableUsers
-          columns={getUserColumns(handleRoleChange, handleUserDelete)}
-          data={usersWithRoles}
-          onAdd={createAndAddNewUser}
-          users={users}
-          onBunchDelete={handleBunchDelete}
-        />
+      <Separator className="my-2" />
+
+      <h2 className="font-bold pt-3 pb-3">{t("general.Users_header")}</h2>
+      <div className="pl-3">
+        <Label className="text-gray-400 font-light pb-3 leading-[120%]">
+          {t("general.users_text")}
+        </Label>
+        <div>
+          <DataTableUsers
+            columns={getUserColumns(handleRoleChange, handleUserDelete)}
+            data={usersWithRoles}
+            onAdd={createAndAddNewUser}
+            users={users}
+            onBunchDelete={handleBunchDelete}
+          />
+        </div>
       </div>
     </div>
   );

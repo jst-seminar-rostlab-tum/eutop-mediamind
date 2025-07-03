@@ -72,6 +72,8 @@
     "Username": "Benutzername",
     "Email": "Email",
     "Users": "Benutzer",
+    "Users_header": "Benutzer und Rechte",
+    "users_text": "Fügen sie Benutzer hinzu und legen sie deren Rechte fest",
     "language": "Sprache",
     "language_text": "Legt die Sprache des Reports und von Topic & Keywords fest. Wenn die Sprache geändert wird, sollten auch die inhaltlichen Einstellungen des Profils angepasst werden."
   },
