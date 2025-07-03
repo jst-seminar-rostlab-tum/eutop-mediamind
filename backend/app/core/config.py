@@ -1,4 +1,3 @@
-import json
 import warnings
 from typing import Annotated, Any, Literal
 
@@ -9,7 +8,6 @@ from pydantic import (
     HttpUrl,
     PostgresDsn,
     computed_field,
-    field_validator,
     model_validator,
 )
 from pydantic_core import MultiHostUrl
@@ -105,9 +103,6 @@ class Configs(BaseSettings):
     SMTP_USER: EmailStr
     SMTP_PASSWORD: str
 
-    # Subscription accounts
-    SUBSCRIPTION_ACCOUNTS: dict | None
-
     @computed_field
     @property
     def SQLALCHEMY_DATABASE_URI(self) -> PostgresDsn:
@@ -145,16 +140,6 @@ class Configs(BaseSettings):
                 warnings.warn(message)
             else:
                 raise ValueError(message)
-
-    @field_validator("SUBSCRIPTION_ACCOUNTS", mode="before")
-    @classmethod
-    def parse_subscription_accounts(cls, v):
-        if isinstance(v, str):
-            try:
-                return json.loads(v)
-            except json.JSONDecodeError as e:
-                warnings.warn(f"Failed to parse SUBSCRIPTION_ACCOUNTS: {e}. ")
-        return v
 
     @model_validator(mode="after")
     def _enforce_non_default_secrets(self) -> Self:
