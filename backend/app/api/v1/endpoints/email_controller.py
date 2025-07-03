@@ -1,6 +1,7 @@
 # flake8: noqa: E501
 from uuid import UUID
 
+
 """
 NOTE:
 This is just a testing controller for sending emails and creating PDFs.
@@ -13,6 +14,7 @@ from time import gmtime, strftime
 from fastapi import APIRouter, HTTPException, Query
 from fastapi.params import Depends
 
+from app.services.scheduler.scheduler_service import SchedulerService
 from app.services.email_service import EmailSchedule, EmailService
 from app.services.report_service import ReportService
 from app.services.s3_service import S3Service, get_s3_service
@@ -37,8 +39,13 @@ async def trigger_email_sending(recipient_email: str):
         ),
     )
 
-    await EmailService.schedule_email(email_schedule)
-    await EmailService.send_scheduled_emails()
+    SchedulerService.schedule(
+        "email_queue",
+        lambda: print("hello world"),
+    )
+
+    #await EmailService.schedule_email(email_schedule)
+    #await EmailService.send_scheduled_emails()
     return {"message": "Email scheduled and sent successfully."}
 
 
