@@ -39,7 +39,7 @@ jobs:
         run: cp .env.example .env
 
       - name: Run Alembic upgrade
-        run:  alembic upgrade head
+        run: alembic upgrade head
         env:
           POSTGRES_SERVER: ${{ secrets.DB_SERVER }}
           POSTGRES_PORT: ${{ secrets.DB_PORT }}
