@@ -18,6 +18,9 @@ if TYPE_CHECKING:
 class ArticleStatus(str, Enum):
     NEW = "new"
     SCRAPED = "scraped"
+    SUMMARIZED = "summarized"
+    TRANSLATED = "translated"
+    EMBEDDED = "embedded"
     ERROR = "error"
 
 
@@ -93,6 +96,9 @@ class Article(SQLModel, table=True):
     scraped_at: Optional[datetime] = Field(
         sa_column=Column(TIMESTAMP(timezone=True), nullable=True)
     )
+
+    # Contains a note or error message related to the article
+    note: Optional[str] = Field(default=None, nullable=True)
 
     # vector_embedding
     subscription_id: uuid.UUID = Field(

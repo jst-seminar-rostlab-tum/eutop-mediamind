@@ -23,6 +23,7 @@ def create_driver(headless: bool = True):
         "--enable-features=NetworkService,NetworkServiceInProcess"
     )
     chrome_options.add_argument("--disable-gpu")
+    chrome_options.set_capability("goog:loggingPrefs", {"performance": "ALL"})
     chrome_options.add_argument(f"--user-agent={UserAgent().random}")
 
     driver = webdriver.Chrome(options=chrome_options)
@@ -169,17 +170,10 @@ def insert_credential(driver, wait, credential, input_selector, input_name):
         return False
 
 
-def get_account_credentials(accounts, subscription):
-    account = accounts.get(subscription.name)
-    if not account:
-        logger.error(f"No account found for subscription: {subscription.name}")
-        return None
-    username = account.get("user_email")
-    password = account.get("password")
+def get_account_credentials(subscription):
+    username = subscription.username
+    password = subscription.secrets
     if not username or not password:
-        logger.error(
-            f"No credentials found for subscription: {subscription.name}."
-        )
         return None
     return username, password
 
@@ -281,13 +275,11 @@ def submit_login_credentials(driver, wait, paper, username, password):
 
 def hardcoded_login(driver, wait, subscription: Subscription):
     # Load newspapers accounts
-    with open(
-        "app/services/web_harvester/utils/newspapers_accounts.json", "r"
-    ) as f:
-        accounts = json.load(f)
-
-    credentials = get_account_credentials(accounts, subscription)
+    credentials = get_account_credentials(subscription)
     if credentials is None:
+        logger.error(
+            f"No credentials found for subscription: {subscription.name}."
+        )
         return False
     else:
         username, password = credentials
@@ -335,3 +327,25 @@ def hardcoded_logout(driver, wait, subscription: Subscription):
         return True
 
     return False
+
+
+def get_response_code(driver, url):
+    """
+    Get the HTTP response code of the main page after loading it in the
+    browser. This function uses the performance logs to find the response
+    code of the main page.
+    """
+    logs = driver.get_log("performance")
+    main_page_status = 404
+
+    for log in logs:
+        message = json.loads(log["message"])
+        if message["message"]["method"] == "Network.responseReceived":
+            response = message["message"]["params"]["response"]
+            response_url = response["url"]
+
+            # Check if this is the main page (exact match or main document)
+            if response_url == url or response["mimeType"] == "text/html":
+                main_page_status = response["status"]
+                break
+    return main_page_status
