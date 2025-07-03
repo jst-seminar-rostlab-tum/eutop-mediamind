@@ -2,7 +2,7 @@ import uuid
 from datetime import datetime, timezone
 from typing import TYPE_CHECKING, List
 
-from sqlalchemy import TIMESTAMP, Column
+from sqlalchemy import TIMESTAMP, Column, func
 from sqlmodel import Field, Relationship, SQLModel
 
 if TYPE_CHECKING:
@@ -32,7 +32,7 @@ class EmailConversation(SQLModel, table=True):
             TIMESTAMP(timezone=True),
             nullable=False,
             default=datetime.now(timezone.utc),
-            onupdate=datetime.now(timezone.utc),
+            onupdate=func.now(),
         )
     )
     messages: List["ChatMessage"] = Relationship(back_populates="conversation")
