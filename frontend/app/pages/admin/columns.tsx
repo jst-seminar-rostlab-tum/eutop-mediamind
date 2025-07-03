@@ -5,7 +5,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "~/components/ui/select";
-import type { Organization, Subscription, User, DeleteTarget } from "./types";
+import type { User, DeleteTarget } from "./types";
 import type { ColumnDef } from "@tanstack/react-table";
 import {
   DropdownMenu,
@@ -17,6 +17,7 @@ import { MoreHorizontal, SquarePen, Trash, Trash2 } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { Checkbox } from "~/components/ui/checkbox";
 import { useTranslation } from "react-i18next";
+import type { Organization, Subscription } from "../../../types/model";
 
 export function getOrgaColumns(
   handleEdit: (name: string) => void,
@@ -43,7 +44,9 @@ export function getOrgaColumns(
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => handleEdit(orgName)}>
+              <DropdownMenuItem
+                onClick={() => handleEdit(row.original, row.index)}
+              >
                 <SquarePen className="text-primary" />
                 {t("Edit")}
               </DropdownMenuItem>

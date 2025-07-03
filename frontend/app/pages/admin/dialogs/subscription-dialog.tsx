@@ -10,7 +10,7 @@ import { Input } from "~/components/ui/input";
 import { Button } from "~/components/ui/button";
 import React, { useEffect, useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
-import type { Subscription } from "../types";
+import type { Subscription } from "types/model";
 import { useTranslation } from "react-i18next";
 import { ConfirmationDialog } from "~/custom-components/confirmation-dialog";
 import {

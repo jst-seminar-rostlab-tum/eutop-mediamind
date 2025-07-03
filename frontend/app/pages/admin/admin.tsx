@@ -8,8 +8,8 @@ import {
 import { DataTableSubscriptions } from "~/custom-components/admin-settings/data-table-subs";
 import Layout from "~/custom-components/layout";
 import Text from "~/custom-components/text";
-import React from "react";
-import type { Organization, Subscription, User } from "./types";
+import React, { useEffect } from "react";
+import type { User } from "./types";
 import { getOrgaColumns, getSubsColumns } from "./columns";
 import { OrganizationDialog } from "./dialogs/organization-dialog";
 import { SubscriptionDialog } from "./dialogs/subscription-dialog";
@@ -27,115 +27,32 @@ import { ConfirmationDialog } from "~/custom-components/confirmation-dialog";
 import { Building2, Newspaper } from "lucide-react";
 import { DataTableOrganizations } from "~/custom-components/admin-settings/data-table-orgas";
 import { Link } from "react-router";
+import { useQuery } from "types/api";
+import type { Organization, Subscription } from "../../../types/model";
 
-// Fetch Orgas
-async function getOrgaData(): Promise<Organization[]> {
-  // Fetch data from your API here
-  return [
-    {
-      name: "BMW",
-      users: [
-        { name: "jonathan@bmw.com", role: "admin" },
-        { name: "rafael@bmw.com", role: "user" },
-        { name: "leo@bmw.com", role: "user" },
-      ],
-    },
-    {
-      name: "Allianz",
-      users: [{ name: "leo@allianz.com", role: "user" }],
-    },
-    {
-      name: "EUTOP",
-      users: [{ name: "leo@eutop.com", role: "user" }],
-    },
-    {
-      name: "ADAC",
-      users: [{ name: "leo@adac.com", role: "user" }],
-    },
-    {
-      name: "Audi",
-      users: [{ name: "leo@adac.com", role: "user" }],
-    },
-    {
-      name: "TUM",
-      users: [{ name: "leo@adac.com", role: "user" }],
-    },
-    {
-      name: "Mercedes",
-      users: [{ name: "leo@adac.com", role: "user" }],
-    },
-    {
-      name: "Dell",
-      users: [{ name: "leo@adac.com", role: "user" }],
-    },
-    {
-      name: "Facebook",
-      users: [{ name: "leo@adac.com", role: "user" }],
-    },
-    {
-      name: "Google",
-      users: [{ name: "leo@adac.com", role: "user" }],
-    },
-  ];
-}
-
-//Fetch Subs
-async function getSubsData(): Promise<Subscription[]> {
-  // Fetch data from your API here
-  return [
-    {
-      name: "Spiegel",
-      url: "spiegel-online.de",
-      username: "Test_123",
-      password: "Spiegel_123",
-    },
-    {
-      name: "SZ",
-      url: "sz.de",
-      username: "Test_456",
-      password: "SZ_123",
-    },
-    {
-      name: "Spiegel",
-      url: "spiegel-online.de",
-      username: "Test_123",
-      password: "Spiegel_123",
-    },
-    {
-      name: "SZ",
-      url: "sz.de",
-      username: "Test_456",
-      password: "SZ_123",
-    },
-    {
-      name: "Spiegel",
-      url: "spiegel-online.de",
-      username: "Test_123",
-      password: "Spiegel_123",
-    },
-    {
-      name: "SZ",
-      url: "sz.de",
-      username: "Test_456",
-      password: "SZ_123",
-    },
-  ];
-}
+const suppressSWRReloading = {
+  refreshInterval: 0,
+  refreshWhenHidden: false,
+  revalidateOnFocus: false,
+  refreshWhenOffline: false,
+  revalidateIfStale: false,
+  revalidateOnReconnect: false,
+};
 
 export function AdminPage() {
   //Organizations
   const [orgaData, setOrgaData] = React.useState<Organization[]>([]);
+  const [editedOrga, setEditedOrga] = React.useState<Organization>();
   const [showOrgaDialog, setShowOrgaDialog] = React.useState(false);
-  const [initialOrgaName, setInitialOrgaName] = React.useState("");
   const [isEditOrgaMode, setIsEditOrgaMode] = React.useState(false);
   const [editingOrgIndex, setEditingOrgIndex] = React.useState<number | null>(
     null,
   );
-  const [editingUserData, setEditingUserData] = React.useState<User[]>([]);
+  const [editedUserData, setEditedUserData] = React.useState<User[]>([]);
 
   // Subscriptions
   const [subsData, setSubsData] = React.useState<Subscription[]>([]);
-  const [initialSub, setInitialSub] = React.useState<Subscription>();
+  //const [editedSub, setEditedSub] = React.useState<Subscription>();
   const [showSubsDialog, setShowSubsDialog] = React.useState(false);
   const [isEditSubsMode, setIsEditSubsMode] = React.useState(false);
   const [editingSubsIndex, setEditingSubsIndex] = React.useState<number | null>(
@@ -149,41 +66,40 @@ export function AdminPage() {
     identifier: string | number; // name for org, index for sub
   } | null>(null);
 
-  React.useEffect(() => {
-    async function fetchData() {
-      const data = await getOrgaData();
-      setOrgaData(data);
-    }
-    fetchData();
-  }, []);
 
-  React.useEffect(() => {
-    async function fetchData() {
-      const data = await getSubsData();
-      setSubsData(data);
-    }
-    fetchData();
-  }, []);
+  const {
+    data: organizations,
+    // isLoading: orgasLoading,
+    // error : orgasError,
+    // mutate : mutateOrgas,
+  } = useQuery("/api/v1/organizations", undefined, suppressSWRReloading);
+
+      const {
+    data: subscriptions,
+    // isLoading: subsLoading,
+    // error: subsError,
+    // mutate: mutateSubs,
+  } = useQuery("/api/v1/subscriptions", undefined, suppressSWRReloading);
+
+
+
+  // Organization Functions
 
   function handleDeleteOrganization(name: string) {
     setOrgaData((prev) => prev.filter((org) => org.name !== name));
   }
 
-  function handleEditOrganization(name: string) {
-    // set false on open for safety
-    setUnsavedEdits(false);
-    const index = orgaData.findIndex((org) => org.name === name);
-    if (index !== -1) {
-      setInitialOrgaName(orgaData[index].name); // to catch edge case if you edit back to initial name as no changes
+  function handleEditOrganization(orga: Organization, index: number) {
+
+      setEditedOrga(orga);
       setEditingOrgIndex(index);
       setIsEditOrgaMode(true);
+}
 
-      // call api here to get the actual users of this org
-      const usersForOrg = orgaData[index].users ?? [];
-      setEditingUserData(usersForOrg);
+      setEditedUserData(usersForOrg);
 
       setShowOrgaDialog(true);
-    }
+    
   }
 
   function handleSaveOrganization(data: { name: string }) {
@@ -300,11 +216,9 @@ export function AdminPage() {
                   setDeleteTarget,
                   setOpenDeleteDialog,
                 )}
-                data={orgaData}
+                data={organizations ?? []}
                 onAdd={() => {
                   setIsEditOrgaMode(false);
-                  setEditingOrgIndex(null);
-                  setEditingUserData([]);
                   setShowOrgaDialog(true);
                 }}
               />
@@ -326,10 +240,10 @@ export function AdminPage() {
                   setDeleteTarget,
                   setOpenDeleteDialog,
                 )}
-                data={subsData}
+                data={subscriptions ?? []}
                 onAdd={() => {
                   setIsEditSubsMode(false);
-                  setEditingSubsIndex(null);
+                  setEditingSubsIndex(null); // check if needed
                   setShowSubsDialog(true);
                 }}
               />
@@ -341,20 +255,16 @@ export function AdminPage() {
           open={showOrgaDialog}
           onOpenChange={setShowOrgaDialog}
           isEdit={isEditOrgaMode}
-          users={editingUserData}
-          setUsers={setEditingUserData}
+          orga={editedOrga}
           onSave={handleSaveOrganization}
-          unsavedEdits={unsavedEdits}
-          setUnsavedEdits={setUnsavedEdits}
-          initialOrgaName={initialOrgaName}
         />
 
         <SubscriptionDialog
           open={showSubsDialog}
           onOpenChange={setShowSubsDialog}
           isEdit={isEditSubsMode}
+          sub={editedSubscription}
           onSave={handleSaveSubscription}
-          initialSub={initialSub}
         />
 
         <ConfirmationDialog

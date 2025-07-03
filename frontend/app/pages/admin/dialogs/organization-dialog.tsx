@@ -9,9 +9,7 @@ import {
 import { Input } from "~/components/ui/input";
 import { Button } from "~/components/ui/button";
 import { getUserColumns } from "../columns";
-import type { User } from "../types";
-import React, { useEffect } from "react";
-
+import { useEffect, useState } from "react";
 import { DataTableUsers } from "~/custom-components/admin-settings/data-table-users";
 import { useTranslation } from "react-i18next";
 import { ConfirmationDialog } from "~/custom-components/confirmation-dialog";
@@ -26,6 +24,8 @@ import {
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import type { Organization } from "types/model";
+import { cloneDeep, isEqual } from "lodash-es";
 
 const FormSchema = z.object({
   name: z
@@ -43,72 +43,123 @@ type Props = {
   open: boolean;
   onOpenChange: (value: boolean) => void;
   isEdit: boolean;
-  users: User[];
-  setUsers: (users: User[]) => void;
+  orga: Organization;
   onSave: (data: FormValues) => void;
-  unsavedEdits: boolean;
-  setUnsavedEdits: (val: boolean) => void;
-  initialOrgaName: string;
+};
+
+type TableUser = {
+  email: string;
+  name: string;
+  role: "admin" | "user";
 };
 
 export function OrganizationDialog({
   open,
   onOpenChange,
   isEdit,
-  users,
-  setUsers,
+  orga,
   onSave,
-  unsavedEdits,
-  setUnsavedEdits,
-  initialOrgaName,
 }: Props) {
-  const [showLeaveConfirm, setShowLeaveConfirm] = React.useState(false);
+  const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
+  const [tableUsers, setTableUsers] = useState<TableUser[]>([]);
 
-  const handleRoleChange = (index: number, newRole: "admin" | "user") => {
-    setUsers(users.map((u, i) => (i === index ? { ...u, role: newRole } : u)));
-    setUnsavedEdits(true);
-  };
-
-  const handleUserDelete = (index: number) => {
-    setUsers(users.filter((_, i) => i !== index));
-    setUnsavedEdits(true);
-  };
-
-  const handleAddNewUser = (email: string) => {
-    setUsers([...users, { name: email, role: "user" }]);
-    setUnsavedEdits(true);
+  const initialOrga: Organization = {
+    name: "",
+    email: "",
+    id: "",
+    users: [],
   };
 
   const { t } = useTranslation();
 
+  const [editedOrga, setEditedOrga] = useState<Organization>(
+    cloneDeep(orga ?? initialOrga),
+  );
+
+  // prepare user data
+  useEffect(() => {
+    if (!orga?.users) return;
+
+    const mappedUsers: TableUser[] = orga.users.map((user) => ({
+      email: user.email,
+      name: user.first_name + " " + user.last_name,
+      role: user.is_superuser ? "admin" : "user",
+    }));
+
+    setTableUsers(mappedUsers);
+  }, [orga]);
+
+  const handleRoleChange = (index: number, newRole: "admin" | "user") => {
+    setTableUsers((prev) =>
+      prev.map((user, i) => (i === index ? { ...user, role: newRole } : user)),
+    );
+  };
+
+  const handleUserDelete = (index: number) => {
+    setTableUsers((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handleAddNewUser = (email: string) => {
+    // merge user rights table first
+  };
+
+  // prepare data
+  const onSubmit = (values: FormValues) => {
+    const updatedOrga: Organization = {
+      ...editedOrga,
+      name: values.name.trim(),
+
+      users: tableUsers.map((user) => ({
+        // get the actual user for this table users email
+        email: "",
+        first_name: "",
+        last_name: "",
+        is_superuser: user.role === "admin",
+        language: "en", // default or get from somewhere
+        clerk_id: "",
+      })),
+    };
+
+    onSave(updatedOrga);
+  };
+
+  // react hook form
   const form = useForm<FormValues>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
-      name: initialOrgaName,
+      name: orga.name,
     },
   });
 
   useEffect(() => {
-    form.reset({ name: initialOrgaName });
-  }, [initialOrgaName, open]);
+    form.reset({ name: orga.name });
+  }, [orga, open]);
 
   return (
     <>
       <Dialog
         open={open}
         onOpenChange={(isOpen) => {
-          const nameChanged = initialOrgaName !== form.getValues("name");
-
-          if (!isOpen && (unsavedEdits || nameChanged)) {
-            setShowLeaveConfirm(true); // show AlertDialog instead
+          if (isEdit) {
+            // nothing changed while editing
+            if (isEqual(orga, editedOrga)) {
+              onOpenChange(isOpen); // normal open/close
+            } else {
+              setShowLeaveConfirm(true); // show AlertDialog instead
+            }
           } else {
-            onOpenChange(isOpen); // normal open/close
+            // nothing changed while creating
+            if (isEqual(initialOrga, editedOrga)) {
+              onOpenChange(isOpen); // normal open/close
+            } else {
+              setShowLeaveConfirm(true); // show AlertDialog instead
+            }
           }
         }}
       >
         <DialogContent className="min-w-[700px]">
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSave)} className="space-y-4">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
               <DialogHeader>
                 <DialogTitle>
                   {isEdit
@@ -144,7 +195,7 @@ export function OrganizationDialog({
               <div>
                 <DataTableUsers
                   columns={getUserColumns(handleRoleChange, handleUserDelete)}
-                  data={users}
+                  data={tableUsers}
                   onAdd={handleAddNewUser}
                 />
               </div>
