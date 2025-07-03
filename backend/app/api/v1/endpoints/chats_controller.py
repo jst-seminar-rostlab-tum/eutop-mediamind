@@ -1,8 +1,3 @@
-"""
-NOTE:
-This is just a testing controller for the chatbot.
-"""
-
 import re
 
 from fastapi import APIRouter, Header, HTTPException
@@ -67,14 +62,13 @@ async def receive_chat(
             detail=f"User with email {sender_email} not found.",
         )
 
-    # Send a reply email to the user
-    # flake8: noqa: E501
     email_schedule = EmailSchedule(
         recipient=user.email,
         subject=f"[MEDIAMIND] RE: {chat.subject}",
         content_type="text/HTML",
         content=f"""<p>Hi {user.first_name},</p>
-        Congratulations on using the slowest, most unsecure and least scalable web chatbot in the world!</p>
+        Congratulations on using the slowest, most unsecure and least
+        scalable web chatbot in the world!</p>
         <p><strong>Subject:</strong> {chat.subject}</p>
         <p><strong>Message:</strong> {chat.body}</p>
         Plese use chatgpt, claude, or any other AI chatbot instead:
@@ -83,7 +77,8 @@ async def receive_chat(
         <a href="https://www.bing.com/chat">Bing Chat</a></p>
         <p>Best regards,<br>
         MediaMind Team</p>
-        <p><small>This is an automated reply. Please do not reply to this email.</small></p>
+        <p><small>This is an automated reply. Please do not reply to
+        this email.</small></p>
         """,
     )
 
