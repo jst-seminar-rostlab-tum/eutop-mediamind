@@ -64,9 +64,8 @@ async def receive_chat(
         )
 
     email = Email(
-        sender=configs.SMTP_USER,
         recipient=user.email,
-        subject=f"[MEDIAMIND] RE: {chat.subject}",
+        subject=f"[MEDIAMIND]: {chat.subject}",
         content_type="text/HTML",
         content=f"""<p>Hi {user.first_name},</p>
         Congratulations on using the slowest, most unsecure and least
@@ -85,7 +84,7 @@ async def receive_chat(
     )
 
     # Send the email (synchronously)
-    EmailService.send_email(email)
+    EmailService.send_ses_email(email)
 
     return {
         "message": f"Chat received and reply sent to {sender_email}.",
