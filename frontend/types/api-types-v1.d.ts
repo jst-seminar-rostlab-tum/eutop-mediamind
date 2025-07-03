@@ -589,6 +589,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/chats/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Receive Chat */
+        post: operations["receive_chat_api_v1_chats__post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/organizations": {
         parameters: {
             query?: never;
@@ -683,6 +700,19 @@ export interface components {
             news: components["schemas"]["BreakingNewsItem"][];
             /** Total Count */
             total_count: number;
+        };
+        /** ChatRequest */
+        ChatRequest: {
+            /** Sender */
+            sender: string;
+            /** Subject */
+            subject: string;
+            /** Body */
+            body: string;
+            /** S3 Key */
+            s3_key: string;
+            /** Bucket */
+            bucket: string;
         };
         /** FeedbackResponse */
         FeedbackResponse: {
@@ -2344,6 +2374,41 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ReportDetailResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    receive_chat_api_v1_chats__post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "x-api-key"?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ChatRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
                 };
             };
             /** @description Validation Error */
