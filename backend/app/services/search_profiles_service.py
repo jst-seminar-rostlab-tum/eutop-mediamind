@@ -546,7 +546,7 @@ class SearchProfileService:
         search profile information
         """
 
-        articel_vector_service = ArticleVectorService()
+        article_vector_service = ArticleVectorService()
 
         def format_related_topics(topics: List[KeywordSuggestionTopic]) -> str:
             if not topics:
@@ -592,16 +592,14 @@ class SearchProfileService:
             )
 
         suggestions_map = []
-        logger.info(str(response.suggestions))
 
         for suggestion in response.suggestions:
-            docs = await articel_vector_service.retrieve_by_similarity(
+            docs = await article_vector_service.retrieve_by_similarity(
                 query=suggestion, score_threshold=0.5
             )
             suggestions_map.append((suggestion, len(docs)))
 
         suggestions_map.sort(key=lambda x: x[1], reverse=True)
-        logger.info(suggestions_map)
         suggestions = [item[0] for item in suggestions_map[:5]]
 
         return KeywordSuggestionResponse(suggestions=suggestions)
