@@ -12,7 +12,7 @@ import { Button } from "~/components/ui/button";
 import { KeywordField } from "~/custom-components/profile/edit/keyword-field";
 import { Label } from "~/components/ui/label";
 import { Input } from "~/components/ui/input";
-import { Sparkles, Trash2 } from "lucide-react";
+import { RefreshCcw, Sparkles, Trash2 } from "lucide-react";
 import { AiSuggestionTag } from "~/custom-components/profile/edit/ai-suggestion-tag";
 import type { Profile } from "../../../../types/model";
 import { client } from "../../../../types/api";
@@ -190,11 +190,26 @@ export function Topics({ profile, setProfile }: TopicsProps) {
               <div className="flex gap-2 items-center pb-2">
                 <Sparkles className={"w-4 h-4"} />
                 <h2>{t("topics.AI_header")}</h2>
+                {aiSuggestions.length > 0 && (
+                  <Button
+                    variant={"secondary"}
+                    className={"h-8 w-8"}
+                    onClick={() => {
+                      getSuggestions(selectedTopicKeywords);
+                    }}
+                  >
+                    <RefreshCcw />
+                  </Button>
+                )}
                 {isLoadingSuggestions && (
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
                 )}
               </div>
-
+              {aiSuggestions.length === 0 && (
+                <p className={"text-gray-400 text-sm"}>
+                  {t("edit_profile.suggestions_text")}
+                </p>
+              )}
               <div className={"flex flex-wrap gap-2 pb-2"}>
                 {aiSuggestions.map((suggestion) => (
                   <AiSuggestionTag
