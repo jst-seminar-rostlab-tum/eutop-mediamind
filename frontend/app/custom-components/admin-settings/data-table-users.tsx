@@ -77,6 +77,8 @@ export function DataTableUsers<TData, TValue>({
 
   const [open, setOpen] = React.useState(false);
 
+  const canDelete = table.getFilteredSelectedRowModel().rows.length > 0;
+
   const { t } = useTranslation();
 
   return (
@@ -158,14 +160,15 @@ export function DataTableUsers<TData, TValue>({
           </div>
 
           <Button
-            className=""
+            disabled={!canDelete}
+            className={!canDelete ? "cursor-not-allowed opacity-50" : ""}
             variant="destructive"
             onClick={() => {
               onBunchDelete(table.getSelectedRowModel().rows);
             }}
           >
             <Trash2 className="h-4 w-4" />
-            {t("Delete")}
+            {t("Delete")} ({table.getFilteredSelectedRowModel().rows.length})
           </Button>
         </div>
       </div>
