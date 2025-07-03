@@ -1,6 +1,7 @@
 import asyncio
 import gettext
-import json
+
+# import json
 import os
 import uuid
 from datetime import date, datetime
@@ -144,7 +145,7 @@ class ArticleTranslationService:
             async with ArticleTranslationService._semaphore:
                 content = await asyncio.to_thread(
                     ArticleTranslationService._llm_client.generate_response,
-                    prompt
+                    prompt,
                 )
 
             async with ArticleTranslationService._completed_count_lock:
@@ -158,10 +159,8 @@ class ArticleTranslationService:
             return {
                 "custom_id": custom_id,
                 "response": {
-                    "body": {
-                        "choices": [{"message": {"content": content}}]
-                    }
-                }
+                    "body": {"choices": [{"message": {"content": content}}]}
+                },
             }
         except Exception as e:
             logger.exception(f"Translation failed for {custom_id}: {e}")
