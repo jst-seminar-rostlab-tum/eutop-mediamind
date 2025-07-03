@@ -4,9 +4,9 @@ from fastapi import APIRouter, Header, HTTPException
 from pydantic import BaseModel
 
 from app.core.config import configs
+from app.models.email import Email
 from app.services.email_service import EmailService
 from app.services.user_service import UserService
-from app.models.email import Email
 
 router = APIRouter(
     prefix="/chats",
