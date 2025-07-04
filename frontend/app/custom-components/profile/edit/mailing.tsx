@@ -15,6 +15,7 @@ export function Mailing({ profile, setProfile }: MailingProps): JSX.Element {
 
   const setInternalMails = (emails: string[]) =>
     setProfile({ ...profile, organization_emails: emails });
+
   const setExternalMails = (emails: string[]) =>
     setProfile({ ...profile, profile_emails: emails });
 

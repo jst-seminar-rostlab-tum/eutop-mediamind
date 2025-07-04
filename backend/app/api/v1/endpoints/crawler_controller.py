@@ -7,6 +7,7 @@ Once we have a proper scheduler, we can remove this controller.
 import asyncio
 from datetime import date
 from datetime import date as Date
+from datetime import datetime
 
 from fastapi import APIRouter
 
@@ -15,6 +16,7 @@ from app.schemas.breaking_news_schemas import (
     BreakingNewsItem,
     BreakingNewsResponse,
 )
+from app.services import pipeline
 from app.services.web_harvester.breaking_news_crawler import (
     fetch_breaking_news_newsapi,
     get_all_breaking_news,
@@ -67,3 +69,23 @@ async def get_breaking_news():
     breaking_news = get_all_breaking_news()
     news_items = [BreakingNewsItem.from_entity(news) for news in breaking_news]
     return BreakingNewsResponse(news=news_items, total_count=len(news_items))
+
+
+@router.post("/trigger_pipeline")
+async def trigger_pipeline(
+    datetime_start: datetime = datetime.combine(
+        date.today(), datetime.min.time()
+    ),
+    datetime_end: datetime = datetime.now(),
+    language: str = "en",
+):
+
+    logger.info(f"Triggering pipeline from {datetime_start} to {datetime_end}")
+    asyncio.create_task(
+        pipeline.run(
+            datetime_start=datetime_start,
+            datetime_end=datetime_end,
+            language=language,
+        )
+    )
+    return {"message": "Pipeline triggered successfully"}
