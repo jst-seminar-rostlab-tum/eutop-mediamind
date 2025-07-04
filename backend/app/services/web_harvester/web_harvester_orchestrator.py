@@ -2,7 +2,7 @@ import asyncio
 import random
 import time
 from concurrent.futures import ThreadPoolExecutor
-from datetime import date
+from datetime import date, datetime
 
 from app.models.article import Article, ArticleStatus
 from app.models.crawl_stats import CrawlStats
@@ -25,8 +25,8 @@ from app.services.web_harvester.utils.web_utils import (
 
 async def run_crawler(
     crawler: CrawlerType,
-    date_start: date = date.today(),
-    date_end: date = date.today(),
+    date_start: datetime = datetime.combine(date.today(), datetime.min.time()),
+    date_end: datetime = datetime.now(),
 ):
     subscriptions = await get_subscriptions_with_crawlers(crawler)
 
@@ -49,7 +49,7 @@ async def run_crawler(
 
 async def run_scraper():
     subscriptions = await get_subscriptions_with_scrapers()
-    executor = ThreadPoolExecutor(max_workers=8)
+    executor = ThreadPoolExecutor(max_workers=10)
 
     tasks = [
         _scrape_articles_for_subscription(sub, executor)

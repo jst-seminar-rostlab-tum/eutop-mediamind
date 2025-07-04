@@ -123,11 +123,11 @@ export function EditProfile({
         is_public: editedProfile.is_public,
         organization_emails: editedProfile.organization_emails,
         profile_emails: editedProfile.profile_emails,
+        can_read_user_ids: editedProfile.can_read_user_ids,
+        can_edit_user_ids: editedProfile.can_edit_user_ids,
         subscriptions: editedProfile.subscriptions,
         topics: editedProfile.topics,
         owner_id: editedProfile.owner_id,
-        can_read_user_ids: [],
-        can_edit_user_ids: [],
         language: editedProfile.language,
       };
 
@@ -248,8 +248,8 @@ export function EditProfile({
                   </Button>
                 </div>
               ) : (
-                <div className="flex items-center gap-2">
-                  <DialogTitle className={"text-xl"}>
+                <div className="flex items-center gap-2 w-full">
+                  <DialogTitle className={"text-xl break-all"}>
                     {isCreating
                       ? t("edit_profile.create")
                       : t("edit_profile.edit")}
