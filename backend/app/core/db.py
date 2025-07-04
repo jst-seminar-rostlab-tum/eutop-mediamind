@@ -20,13 +20,24 @@ async_session: AsyncSession = async_sessionmaker(
     engine, expire_on_commit=False
 )
 
-redis_engine = redis.Redis(
-    host=configs.REDIS_HOST,
-    port=configs.REDIS_PORT,
-    db=configs.REDIS_DB,
-    decode_responses=True,
-    password=getattr(configs, "REDIS_PASSWORD", None),
-)
+
+def get_redis_connection() -> redis.Redis:
+    """
+    Initializes and returns a Redis client.
+    """
+    try:
+        client = redis.from_url(configs.REDIS_URL)
+        # Test connection
+        client.ping()
+        logger.info("Redis client initialized successfully.")
+        return client
+    except Exception as err:
+        msg = f"Failed to initialize Redis client: {err}"
+        logger.error(msg)
+        raise RuntimeError(msg) from err
+
+
+redis_engine = get_redis_connection()
 
 
 def get_postgresql_connection() -> PgConnection:
