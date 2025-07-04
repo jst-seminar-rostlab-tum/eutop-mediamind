@@ -6,11 +6,6 @@ from pydantic import BaseModel, EmailStr
 from app.models.user import UserRole
 
 
-class UserUpdate(BaseModel):
-    first_name: Optional[str] = None
-    last_name: Optional[str] = None
-
-
 class UserEntity(BaseModel):
     id: uuid.UUID
     clerk_id: str
