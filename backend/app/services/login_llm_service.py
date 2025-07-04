@@ -10,11 +10,15 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
+from app.core.db import async_session
 from app.core.logger import get_logger
+from app.models.subscription import Subscription
+from app.repositories.subscription_repository import SubscriptionRepository
 from app.services.llm_service.llm_client import LLMClient, LLMModels
 from app.services.web_harvester.utils.web_utils import (
     change_frame,
     click_element,
+    get_account_credentials,
     insert_credential,
     scroll_to_element,
 )
@@ -106,21 +110,20 @@ class LoginLLM:
             return None
 
     @staticmethod
-    def _add_new_keys_to_newspaper(new_keys, newspaper):
+    def _add_new_keys_to_config(new_keys, config):
         if new_keys:
             for key, value in new_keys.items():
-                if value is not None and key not in ["name", "link"]:
-                    if key in newspaper:
-                        if isinstance(newspaper[key], list):
-                            newspaper[key].append(value)
+                if value is not None:
+                    if key in config:
+                        if isinstance(config[key], list):
+                            config[key].append(value)
                         else:
-                            existing_value = newspaper[key]
-                            newspaper[key] = [existing_value, value]
+                            existing_value = config[key]
+                            config[key] = [existing_value, value]
                     else:
-                        newspaper[key] = value
-
+                        config[key] = value
             logger.info("Successfully added new keys.")
-            return newspaper
+            return config
         else:
             logger.error("Failed to add new keys.")
             return None
@@ -138,6 +141,44 @@ class LoginLLM:
             else:
                 scroll_to_element(driver, wait, selectors, key)
                 if click_element(driver, wait, selectors, key):
+                    return True
+        return False
+
+    @staticmethod
+    def _change_to_correct_iframe(driver, wait, newspaper, key):
+        selectors = newspaper.get(key)
+        if selectors:
+            if isinstance(selectors, list):
+                for xpath in selectors:
+                    if change_frame(driver, wait, xpath, key):
+                        newspaper[key] = xpath
+                        break
+            else:
+                change_frame(driver, wait, selectors, key)
+
+    @staticmethod
+    def _find_correct_input_element(driver, wait, newspaper, key, credential):
+        selectors = newspaper.get(key)
+        if selectors:
+            if isinstance(selectors, list):
+                for xpath in selectors:
+                    if click_element(
+                        driver, wait, xpath, key
+                    ) and insert_credential(
+                        driver,
+                        wait,
+                        credential,
+                        xpath,
+                        key,
+                    ):
+                        newspaper[key] = xpath
+                        return True
+            else:
+                if click_element(
+                    driver, wait, selectors, key
+                ) and insert_credential(
+                    driver, wait, credential, selectors, key
+                ):
                     return True
         return False
 
@@ -219,127 +260,6 @@ class LoginLLM:
         return False
 
     @staticmethod
-    def _change_to_correct_iframe(driver, wait, newspaper, key):
-        selectors = newspaper.get(key)
-        if selectors:
-            if isinstance(selectors, list):
-                for xpath in selectors:
-                    if change_frame(driver, wait, xpath, key):
-                        newspaper[key] = xpath
-                        break
-            else:
-                change_frame(driver, wait, selectors, key)
-
-    @staticmethod
-    def _find_correct_input_element(driver, wait, newspaper, key, credential):
-        selectors = newspaper.get(key)
-        if selectors:
-            if isinstance(selectors, list):
-                for xpath in selectors:
-                    if click_element(
-                        driver, wait, xpath, key
-                    ) and insert_credential(
-                        driver,
-                        wait,
-                        credential,
-                        xpath,
-                        key,
-                    ):
-                        newspaper[key] = xpath
-                        return True
-            else:
-                if click_element(
-                    driver, wait, selectors, key
-                ) and insert_credential(
-                    driver, wait, credential, selectors, key
-                ):
-                    return True
-        return False
-
-    @staticmethod
-    def _call_LLM(
-        html: str,
-        instructions: str,
-        response_schema: str,
-        image_url: str,
-    ):
-        try:
-            prompt = (
-                f"{instructions}\n\n{response_schema}\n\n"
-                f"HTML Content:\n{html}\n"
-            )
-            client = LLMClient(LLMModels.openai_4o)
-            response = client.generate_response(prompt, 0.1, image_url)
-
-            return response
-
-        except Exception as e:
-            logger.error(f"Error while calling LLMClient: {e}")
-            return None
-
-    @staticmethod
-    async def _extract_and_merge_dynamic_content(driver, html):
-        soup = BeautifulSoup(html, "html.parser")
-
-        # Extract the content of each iframe
-        iframe_contents = {}
-        for i, iframe in enumerate(soup.find_all("iframe")):
-            iframe_id = iframe.get("id")
-            if iframe_id:
-                try:
-                    driver.switch_to.frame(iframe_id)
-                    iframe_html = driver.page_source
-                    iframe_contents[iframe_id] = iframe_html
-                    driver.switch_to.default_content()
-                except Exception as e:
-                    logger.warning(f"Error accessing iframe {iframe_id}: {e}")
-                    driver.switch_to.default_content()
-
-        # Extract shadow roots content
-        shadow_contents = {}
-        shadow_hosts = driver.execute_script(
-            """
-            return Array.from(document.querySelectorAll('*'))
-                .filter(el => el.shadowRoot)
-                .map(el => {
-                    return {
-                        id: el.id || null,
-                        tag: el.tagName,
-                        classes: el.className || null,
-                        shadowHtml: el.shadowRoot.innerHTML
-                    };
-                });
-        """
-        )
-        for host in shadow_hosts:
-            identifier = host["id"]
-            shadow_contents[identifier] = host["shadowHtml"]
-
-        # Insert iframe content in original html
-        soup_final = BeautifulSoup(html, "html.parser")
-        for iframe in soup_final.find_all("iframe"):
-            iframe_id = iframe.get("id")
-            if iframe_id and iframe_id in iframe_contents:
-                extracted_html = BeautifulSoup(
-                    iframe_contents[iframe_id], "html.parser"
-                )
-                inner_content = extracted_html.find().decode_contents()
-                iframe.append(BeautifulSoup(inner_content, "html.parser"))
-
-        # Insert shadow roots content in original html
-        for element in soup_final.find_all(True):
-            if element.get("id") and element.get("id") in shadow_contents:
-                shadow_html = shadow_contents[element.get("id")]
-                shadow_root_tag = soup_final.new_tag("div")
-                shadow_root_tag["data-shadow-host"] = element.get("id")
-                shadow_inner_soup = BeautifulSoup(shadow_html, "html.parser")
-                for child in shadow_inner_soup.find_all(recursive=False):
-                    shadow_root_tag.append(child)
-                element.append(shadow_root_tag)
-
-        return soup_final.prettify()
-
-    @staticmethod
     def _custom_clean_html(raw_html):
         soup = BeautifulSoup(raw_html, "html.parser")
 
@@ -361,44 +281,114 @@ class LoginLLM:
         return str(target)
 
     @staticmethod
-    async def _find_elements_with_LLM(
-        driver, instructions, response_schema, newspaper
-    ):
-        html = driver.page_source
-        html = await LoginLLM._extract_and_merge_dynamic_content(driver, html)
-        html = LoginLLM._custom_clean_html(html)
-        time.sleep(3)
-        website_image = LoginLLM._take_screenshot(driver)
-        LLM_result_raw = LoginLLM._call_LLM(
-            html, instructions, response_schema, website_image
+    async def _extract_and_merge_shadow_roots(driver, html):
+        # Extract shadow roots content
+        shadow_contents = {}
+        shadow_hosts = driver.execute_script(
+            """
+            return Array.from(document.querySelectorAll('*'))
+                .filter(el => el.shadowRoot)
+                .map(el => {
+                    return {
+                        id: el.id || null,
+                        tag: el.tagName,
+                        classes: el.className || null,
+                        shadowHtml: el.shadowRoot.innerHTML
+                    };
+                });
+        """
         )
-        LLM_result = LoginLLM._llm_response_to_json(LLM_result_raw)
-        updated_newspaper = LoginLLM._add_new_keys_to_newspaper(
-            LLM_result, newspaper
-        )
-        return updated_newspaper
+        for host in shadow_hosts:
+            identifier = host["id"]
+            shadow_contents[identifier] = host["shadowHtml"]
+
+        # Insert shadow roots content in original html
+        soup_final = BeautifulSoup(html, "html.parser")
+        for element in soup_final.find_all(True):
+            if element.get("id") and element.get("id") in shadow_contents:
+                shadow_html = shadow_contents[element.get("id")]
+                shadow_root_tag = soup_final.new_tag("div")
+                shadow_root_tag["data-shadow-host"] = element.get("id")
+                shadow_inner_soup = BeautifulSoup(shadow_html, "html.parser")
+                for child in shadow_inner_soup.find_all(recursive=False):
+                    shadow_root_tag.append(child)
+                element.append(shadow_root_tag)
+
+        return soup_final.prettify()
 
     @staticmethod
-    async def _execute_attempt_login(
-        driver, wait, newspaper, username, password
-    ):
-        instructions = instructions_login
-        response_schema = login_schema
-        updated_neswspaper = await LoginLLM._find_elements_with_LLM(
-            driver,
-            instructions,
-            response_schema,
-            newspaper,
+    async def _extract_and_merge_iframes(driver, html):
+        soup = BeautifulSoup(html, "html.parser")
+
+        # Extract the content of each iframe
+        iframe_contents = {}
+        for i, iframe in enumerate(soup.find_all("iframe")):
+            iframe_id = iframe.get("id")
+            if iframe_id:
+                try:
+                    driver.switch_to.frame(iframe_id)
+                    iframe_html = driver.page_source
+                    iframe_contents[iframe_id] = iframe_html
+                    driver.switch_to.default_content()
+                except Exception as e:
+                    logger.warning(f"Error accessing iframe {iframe_id}: {e}")
+                    driver.switch_to.default_content()
+
+        # Insert iframe content in original html
+        soup_final = BeautifulSoup(html, "html.parser")
+        for iframe in soup_final.find_all("iframe"):
+            iframe_id = iframe.get("id")
+            if iframe_id and iframe_id in iframe_contents:
+                extracted_html = BeautifulSoup(
+                    iframe_contents[iframe_id], "html.parser"
+                )
+                inner_content = extracted_html.find().decode_contents()
+                iframe.append(BeautifulSoup(inner_content, "html.parser"))
+
+        return soup_final.prettify()
+
+    @staticmethod
+    async def _find_elements_with_LLM(driver, login_config):
+        html = driver.page_source
+        html = LoginLLM._custom_clean_html(html)
+        html = await LoginLLM._extract_and_merge_iframes(driver, html)
+        html = await LoginLLM._extract_and_merge_shadow_roots(driver, html)
+        time.sleep(3)
+        website_image = LoginLLM._take_screenshot(driver)
+        try:
+            prompt = (
+                f"{instructions_login}\n\n{login_schema}\n\n"
+                f"HTML Content:\n{html}\n"
+            )
+            client = LLMClient(LLMModels.openai_4o)
+            response = client.generate_response(prompt, 0.1, website_image)
+        except Exception as e:
+            logger.error(f"Error while calling LLMClient: {e}")
+            return
+        LLM_result = LoginLLM._llm_response_to_json(response)
+        updated_config = LoginLLM._add_new_keys_to_config(
+            LLM_result, login_config
         )
+        return updated_config
+
+    @staticmethod
+    async def _execute_login_attempt(
+        driver, wait, login_config, username, password
+    ):
+        updated_config = await LoginLLM._find_elements_with_LLM(
+            driver,
+            login_config,
+        )
+
         logged_in = False
 
         # Accept cookies in shadow root
         cookies_accepted = False
-        if updated_neswspaper.get("shadow_host_cookies"):
+        if updated_config.get("shadow_host_cookies"):
             cookies_accepted = LoginLLM._click_shadow_root_element(
                 driver,
                 wait,
-                updated_neswspaper,
+                updated_config,
                 "shadow_host_cookies",
                 "cookies_button",
             )
@@ -407,45 +397,45 @@ class LoginLLM:
         if not cookies_accepted:
             # Change to cookies iframe
             LoginLLM._change_to_correct_iframe(
-                driver, wait, updated_neswspaper, "iframe_cookies"
+                driver, wait, updated_config, "iframe_cookies"
             )
             # Click cookies button
             LoginLLM._find_correct_clickable_element(
-                driver, wait, updated_neswspaper, "cookies_button"
+                driver, wait, updated_config, "cookies_button"
             )
         driver.switch_to.default_content()
 
         # Remove notifications window
         LoginLLM._find_correct_clickable_element(
-            driver, wait, updated_neswspaper, "refuse_notifications"
+            driver, wait, updated_config, "refuse_notifications"
         )
 
         # Go to section containing login element
         LoginLLM._find_correct_clickable_element(
-            driver, wait, updated_neswspaper, "path_to_login_button"
+            driver, wait, updated_config, "path_to_login_button"
         )
 
         # Open login form
         LoginLLM._find_correct_clickable_element(
-            driver, wait, updated_neswspaper, "login_button"
+            driver, wait, updated_config, "login_button"
         )
 
         # We check if the login form is in this scraped page
-        if updated_neswspaper.get("submit_button"):
+        if updated_config.get("submit_button"):
             # Change to credentials iframe
             LoginLLM._change_to_correct_iframe(
-                driver, wait, updated_neswspaper, "iframe_credentials"
+                driver, wait, updated_config, "iframe_credentials"
             )
             # Insert credentials
             user_inserted = LoginLLM._find_correct_input_element(
-                driver, wait, updated_neswspaper, "user_input", username
+                driver, wait, updated_config, "user_input", username
             )
             password_inserted = LoginLLM._find_correct_input_element(
-                driver, wait, updated_neswspaper, "password_input", password
+                driver, wait, updated_config, "password_input", password
             )
             # Submit credentials
             submitted = LoginLLM._find_correct_clickable_element(
-                driver, wait, updated_neswspaper, "submit_button"
+                driver, wait, updated_config, "submit_button"
             )
             driver.switch_to.default_content()
 
@@ -455,40 +445,40 @@ class LoginLLM:
         return logged_in
 
     @staticmethod
-    async def add_page(name, url, username, password):
-        # Obtain file with current registered newspapers
-        try:
-            with open("app/services/newspapers_data.json", "r") as file:
-                newspapers = json.load(file)
-        except FileNotFoundError:
-            logger.error("Newspapers data .json not found")
+    async def add_page(subscription: Subscription):
+        credentials = get_account_credentials(subscription)
+        if credentials is None:
+            logger.error(
+                f"No credentials found for subscription: {subscription.name}."
+            )
             return False
-
-        # Create the new newspaper JSON object
-        new_key = f"newspaper{len(newspapers['newspapers'])+1}"
-        newspapers["newspapers"][new_key] = {"name": name, "link": url}
-        new_newspaper = newspapers["newspapers"][new_key]
+        else:
+            username, password = credentials
 
         # Initialize Selenium
         chrome_options = Options()
         chrome_options.add_argument("--disable-notifications")
         driver = webdriver.Chrome(options=chrome_options)
         wait = WebDriverWait(driver, 5)
-        driver.get(url)
+        driver.get(subscription.domain)
         time.sleep(3)
 
         # Variables to control login flow
         max_attempts = 8
         attempt = 0
         logged_in = False
+        login_config = {}
 
-        logger.info(f"Initializing LLM login process for newspaper: {name}")
+        logger.info(
+            f"Initializing LLM login process for "
+            f"newspaper: {subscription.name}"
+        )
         while attempt < max_attempts and not logged_in:
             attempt += 1
             logger.info(f"Login attempt {attempt}/{max_attempts}")
             try:
-                logged_in = await LoginLLM._execute_attempt_login(
-                    driver, wait, new_newspaper, username, password
+                logged_in = await LoginLLM._execute_login_attempt(
+                    driver, wait, login_config, username, password
                 )
                 if logged_in:
                     logger.info(f"Login completed at attempt {attempt}")
@@ -500,22 +490,17 @@ class LoginLLM:
 
         driver.quit()
 
-        # Save the new newspaper in the JSON
         if logged_in:
-            try:
-                with open(
-                    "app/services/updated_newspapers_data.json",
-                    "w",
-                    encoding="utf-8",
-                ) as file:
-                    json.dump(newspapers, file, indent=4, ensure_ascii=False)
-                logger.info(
-                    f"Login elements from newspaper {name} successfully added"
+            async with async_session() as session:
+                db_subscription = await SubscriptionRepository.get_by_id(
+                    session, subscription.id
                 )
+                db_subscription.login_config = login_config
+                await SubscriptionRepository.update(session, db_subscription)
+                logger.info(f"Login config updated for {db_subscription.name}")
                 return True
-            except Exception:
-                logger.error(f"Error at adding newspaper {name}")
-                return False
         else:
-            logger.error(f"Login was not possible on newspaper {name}")
+            logger.error(
+                f"Login was not possible on newspaper {subscription.name}"
+            )
             return False
