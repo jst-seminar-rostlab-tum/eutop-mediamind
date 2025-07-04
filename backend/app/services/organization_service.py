@@ -108,6 +108,7 @@ class OrganizationService:
                 )
                 for user in users:
                     user.organization_id = organization.id
+                    user.role = user.role or UserRole.member
                     await UserRepository.update_organization(user, session)
 
             await session.commit()
