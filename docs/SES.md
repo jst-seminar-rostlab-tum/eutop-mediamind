@@ -56,10 +56,10 @@ To enable this flow, follow these steps to configure AWS resources:
 
 - **Verify your domain or email address** in SES.
 - **Create a receipt rule** to handle incoming emails:
-  - Go to SES > Email Receiving > Rule Sets.
+  - Go to ___SES___ > ___Configuration___ > ___Email receiving___ > _Receipt rule sets_.
   - Create a new rule:
     - Add a recipient (the email address you want to use).
-    - Add an action: **S3** (choose or create a bucket to store emails).
+    - Add an action: ___Deliver to Amazon S3 bucket___ (choose or create a bucket to store emails).
     - (Optional) Add an SNS notification action for debugging.
     - Finish and enable the rule set.
 
@@ -67,7 +67,6 @@ To enable this flow, follow these steps to configure AWS resources:
 
 - Create an S3 bucket (if not already done).
 - Ensure SES has permission to write to the bucket (SES will create a policy automatically if you use the console).
-- (Optional) Enable versioning or lifecycle rules as needed.
 
 ### 3. **Create the Lambda Function**
 
@@ -75,15 +74,15 @@ To enable this flow, follow these steps to configure AWS resources:
 - Upload your `trigger_chat.py` code (or use the inline editor).
 - Set environment variables, especially `CHAT_API_KEY`.
 - Add the necessary IAM permissions:
-  - **s3:GetObject** for the S3 bucket.
-  - (Optional) **logs:CreateLogGroup**, **logs:CreateLogStream**, **logs:PutLogEvents** for CloudWatch logging.
+  - ___s3:GetObject___ for the S3 bucket.
+  - (Optional) ___logs:CreateLogGroup___, ___logs:CreateLogStream___, ___logs:PutLogEvents___ for CloudWatch logging.
 
 ### 4. **Configure S3 Event Notification**
 
-- In the S3 bucket, go to **Properties > Event notifications**.
+- In the S3 bucket, go to ___Properties___ > ___Event notifications___.
 - Add a new event notification:
-  - Event type: **All object create events** (or filter for the SES prefix).
-  - Destination: **Lambda function** (select your Lambda).
+  - Event type: ___All object create events___ (or filter for the SES prefix).
+  - Destination: ___Lambda function___ (select your Lambda).
 - Save the notification.
 
 ### 5. **(Optional) Test the Setup**
@@ -95,5 +94,5 @@ To enable this flow, follow these steps to configure AWS resources:
 
 ### 6. **Backend Configuration**
 
-- Ensure the `/api/v1/chats` endpoint is deployed and accessible.
+- Ensure the `/api/v1/chatbot` endpoint is deployed and accessible.
 - The API key used by Lambda must match the backend configuration.
