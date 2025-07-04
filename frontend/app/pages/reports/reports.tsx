@@ -10,13 +10,12 @@ import {
   BreadcrumbSeparator,
 } from "~/components/ui/breadcrumb";
 import { Link, useParams } from "react-router";
-import { truncateAtWord } from "~/lib/utils";
-import React from "react";
+import React, { useState, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import Text from "~/custom-components/text";
 import { useQuery } from "../../../types/api";
-import { id } from "date-fns/locale";
 import { ErrorPage } from "~/pages/error/error";
+import "./reports.css";
 import {
   Pagination,
   PaginationContent,
@@ -28,18 +27,12 @@ import {
 } from "~/components/ui/pagination";
 import { ScrollArea } from "~/components/ui/scroll-area";
 
-// interface ReportsPageProps{
-//   searchProfileId: string;
-//   searchProfileName: string;
-// }
-
 export function ReportsPage() {
   const { searchProfileId } = useParams();
   const { t } = useTranslation();
 
-  if (!searchProfileId) {
-    return <ErrorPage />;
-  }
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 30;
 
   const {
     data: profile,
@@ -47,14 +40,50 @@ export function ReportsPage() {
     error,
     mutate,
   } = useQuery("/api/v1/search-profiles/{search_profile_id}", {
-    params: { path: { search_profile_id: searchProfileId } },
+    params: { path: { search_profile_id: searchProfileId || "" } }
   });
 
-  if (!profile) {
+  const reports = getReports();
+
+  const totalItems = reports.reports.length;
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+
+  const currentReports = useMemo(() => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    return reports.reports.slice(startIndex, endIndex);
+  }, [reports.reports, currentPage, itemsPerPage]);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const getPageNumbers = () => {
+    const pages = [];
+    const maxVisiblePages = 5;
+
+    if (totalPages <= maxVisiblePages) {
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      if (currentPage <= 3) {
+        pages.push(1, 2, 3, 4, '...', totalPages);
+      } else if (currentPage >= totalPages - 2) {
+        pages.push(1, '...', totalPages - 3, totalPages - 2, totalPages - 1, totalPages);
+      } else {
+        pages.push(1, '...', currentPage - 1, currentPage, currentPage + 1, '...', totalPages);
+      }
+    }
+
+    return pages;
+  };
+
+  if (!searchProfileId || !profile) {
     return <ErrorPage />;
   }
 
-  const reports = getReports();
   return (
     <Layout>
       <Breadcrumb>
@@ -67,7 +96,9 @@ export function ReportsPage() {
           <BreadcrumbSeparator />
           <BreadcrumbItem>
             <BreadcrumbLink asChild>
-              <Link to={`/dashboard/${searchProfileId}`}>{profile.name}</Link>
+              <Link to={`/dashboard/${searchProfileId}`}>
+                {profile.name}
+              </Link>
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
@@ -76,11 +107,53 @@ export function ReportsPage() {
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
+
       <Text hierachy={2}>Report Download Center</Text>
-      <div className={"space-y-4"}>
-        {reports.reports.map((report) => (
-          <ReportCard report={report} />
+
+      <div className="grid-report-cards mt-4">
+        {currentReports.map((report, index) => (
+          <ReportCard key={report.id || index} report={report} />
         ))}
+      </div>
+
+      {totalPages > 1 && (
+        <Pagination className="mt-8">
+          <PaginationContent>
+            <PaginationItem>
+              <PaginationPrevious
+                onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
+                className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+              />
+            </PaginationItem>
+
+            {getPageNumbers().map((page, index) => (
+              <PaginationItem key={index}>
+                {page === '...' ? (
+                  <PaginationEllipsis />
+                ) : (
+                  <PaginationLink
+                    onClick={() => handlePageChange(page as number)}
+                    isActive={currentPage === page}
+                    className="cursor-pointer"
+                  >
+                    {page}
+                  </PaginationLink>
+                )}
+              </PaginationItem>
+            ))}
+
+            <PaginationItem>
+              <PaginationNext
+                onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
+                className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+              />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
+      )}
+
+      <div className="text-sm text-muted-foreground mt-4 text-center">
+        Showing {((currentPage - 1) * itemsPerPage) + 1} to {Math.min(currentPage * itemsPerPage, totalItems)} of {totalItems} reports
       </div>
     </Layout>
   );

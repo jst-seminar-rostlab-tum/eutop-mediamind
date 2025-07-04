@@ -1,11 +1,11 @@
 import type { ReportOverview } from "../../../types/model";
-import { formatDate } from "~/lib/utils";
+import { getDateComponents } from "~/lib/utils";
 import { Button } from "~/components/ui/button";
-import { Download, File } from "lucide-react";
-import { useQuery } from "../../../types/api";
+import { Calendar, Download } from "lucide-react";
 import { ErrorPage } from "~/pages/error/error";
 import React from "react";
 import { getReport } from "~/pages/reports/reports-dummy-data";
+import { RoleBadge } from "~/custom-components/dashboard/role-badge";
 
 interface ReportCardProps {
   report: ReportOverview;
@@ -16,25 +16,51 @@ export function ReportCard({ report }: ReportCardProps) {
   //   data: fullReport,
   //   error,
   // } = useQuery("/api/v1/reports/{report_id}", { params: { path: { report_id: report.id } } });
-  const fullReport = getReport("550e8400-e29b-41d4-a716-446655440001");
+  const fullReport = getReport();
 
   if (!fullReport) {
     return <ErrorPage />;
   }
 
+  const dateComponents = getDateComponents(report.created_at);
+
   return (
-    <div className="bg-gray-100 rounded-lg flex items-center justify-between px-2 py-1">
-      <div className={"flex gap-2 items-center"}>
-        <File className="w-5 h-5" />
-        <p className={"font-semibold"}>{formatDate(report.created_at)}</p>
+    <div className="shadow-lg border-2 rounded-2xl p-4 h-40 w-50 space-y-1 flex flex-col justify-between">
+      <div className={"flex items-center gap-2"}>
+        <Calendar className="w-6 h-6" />
+        <div className={"flex items-baseline space-x-2"}>
+          <span className={"font-semibold text-2xl"}>{dateComponents.day}</span>
+          <div className={"flex space-x-1"}>
+            <span>{dateComponents.month}</span>
+            <span>{dateComponents.year}</span>
+          </div>
+        </div>
+
       </div>
-      {fullReport.s3_url && (
+      <div className={"flex gap-2 items-center"}>
+        <div>
+          {fullReport.language === "us" ? <RoleBadge variant={"en"} /> : <RoleBadge variant={"de"} />}
+        </div>
+        <div>
+          {fullReport.time_slot === "morning" ? (
+            <RoleBadge variant={"morning"} />
+          ) : fullReport.time_slot === "evening" ? (
+            <RoleBadge variant={"evening"} />
+          ) : (
+            <RoleBadge variant={"afternoon"} />
+          )}
+        </div>
+
+      </div>
+
+
+      <Button asChild>
         <a href={fullReport.s3_url} download>
-          <Button variant={"ghost"} asChild>
-            <Download />
-          </Button>
+          Download
+          <Download />
         </a>
-      )}
+      </Button>
+
     </div>
   );
 }
