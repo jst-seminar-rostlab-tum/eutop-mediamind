@@ -10,7 +10,7 @@ from app.models.user import UserRole
 # Shared properties
 class OrganizationBase(BaseModel):
     name: str
-    email: EmailStr
+    email: EmailStr or None
 
 
 class CreateRequestUser(BaseModel):
@@ -27,8 +27,3 @@ class OrganizationCreateOrUpdate(OrganizationBase):
 class OrganizationResponse(OrganizationBase):
     id: uuid.UUID
     users: List[User] = []
-
-
-# Properties to return
-class OrganizationsResponse(BaseModel):
-    organizations: List[OrganizationResponse]

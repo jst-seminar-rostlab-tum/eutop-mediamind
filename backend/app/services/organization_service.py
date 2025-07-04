@@ -77,7 +77,8 @@ class OrganizationService:
 
             # Update basic fields
             organization.name = update_request.name
-            organization.email = update_request.email
+            if update_request.email:
+                organization.email = update_request.email
             session.add(organization)
 
             # Get current users assigned to the organization
