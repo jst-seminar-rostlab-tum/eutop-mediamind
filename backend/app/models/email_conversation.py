@@ -19,7 +19,7 @@ class EmailConversation(SQLModel, table=True):
 
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     subject: str = Field(max_length=500, nullable=False)
-    customer_email: str = Field(max_length=255, nullable=False, index=True)
+    user_email: str = Field(max_length=255, nullable=False, index=True)
     created_at: datetime = Field(
         sa_column=Column(
             TIMESTAMP(timezone=True),

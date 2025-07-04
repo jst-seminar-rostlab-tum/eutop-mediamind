@@ -104,7 +104,7 @@ class ChatbotService:
         )
         await ChatbotRepository.add_message(
             email_conversation_id=email_conversation.id,
-            role=MessageRole.CUSTOMER,
+            role=MessageRole.USER,
             content=chat.body,
         )
         chatbot_response = (

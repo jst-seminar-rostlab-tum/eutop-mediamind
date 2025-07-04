@@ -12,16 +12,16 @@ from app.models.email_conversation import EmailConversation
 class ChatbotRepository:
     @staticmethod
     async def get_conversation_by_email_and_subject(
-        customer_email: str, subject: str
+        user_email: str, subject: str
     ) -> Optional[EmailConversation]:
         """
-        Find existing conversation by customer email and subject.
+        Find existing conversation by user email and subject.
         """
         query = (
             select(EmailConversation)
             .options(selectinload(EmailConversation.messages))
             .where(
-                EmailConversation.customer_email == customer_email,
+                EmailConversation.user_email == user_email,
                 EmailConversation.subject == subject,
             )
         )
@@ -31,13 +31,13 @@ class ChatbotRepository:
 
     @staticmethod
     async def create_conversation(
-        customer_email: str, subject: str
+        user_email: str, subject: str
     ) -> EmailConversation:
         """
         Create a new email conversation.
         """
         new_email_conversation = EmailConversation(
-            customer_email=customer_email,
+            user_email=user_email,
             subject=subject,
         )
         async with async_session() as session:

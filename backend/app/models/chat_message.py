@@ -11,14 +11,14 @@ if TYPE_CHECKING:
 
 
 class MessageRole(Enum):
-    CUSTOMER = "customer"  # User messages
+    USER = "user"  # User messages
     ASSISTANT = "assistant"  # AI messages
 
 
 class ChatMessage(SQLModel, table=True):
     """
     Represents individual messages in an email conversation.
-    Stores both customer messages and AI responses.
+    Stores both user messages and AI responses.
     """
 
     __tablename__ = "chat_messages"
