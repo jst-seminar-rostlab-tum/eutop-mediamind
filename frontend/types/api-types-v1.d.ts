@@ -781,6 +781,8 @@ export interface components {
             /** Categories */
             categories?: string[] | null;
             status?: components["schemas"]["ArticleStatus"] | null;
+            /** Language */
+            language?: string | null;
         };
         /** MatchDetailResponse */
         MatchDetailResponse: {
