@@ -97,8 +97,3 @@ sequenceDiagram
     Backend->>LLM: Query
     Backend->>User: Send reply email
 ```
-
-## Security
-
-The /api/v1/chats endpoint is protected by an API key to ensure only authorized Lambda functions can trigger chatbot conversations.
-For more details, see the code in `trigger_chat.py` and the backend `/api/v1/chatbot` implementation.
