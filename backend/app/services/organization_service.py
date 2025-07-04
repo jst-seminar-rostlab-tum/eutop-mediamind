@@ -34,10 +34,9 @@ class OrganizationService:
                 organization, session=session
             )
 
+            user_ids: list = {u.id for u in create_request.users}
             if create_request.users:
-                users = await UserRepository.get_by_ids(
-                    create_request.user_ids, session
-                )
+                users = await UserRepository.get_by_ids(user_ids, session)
 
                 # Create mapping from user_id to role
                 role_map = {u.id: u.role for u in create_request.users}
@@ -87,8 +86,11 @@ class OrganizationService:
                     organization_id, session
                 )
             )
+
             organization_users_ids = {user.id for user in organization_users}
-            new_user_ids = set(update_request.user_ids or [])
+            new_user_ids = {u.id for u in update_request.users}
+
+            role_map = {u.id: u.role for u in update_request.users}
 
             # Determine which users to remove and which to add
             users_to_remove = organization_users_ids - new_user_ids
@@ -100,6 +102,7 @@ class OrganizationService:
                 )
                 for user in users:
                     user.organization_id = None
+                    user.role = UserRole.member
                     await UserRepository.update_organization(user, session)
 
             if users_to_add:
@@ -108,7 +111,7 @@ class OrganizationService:
                 )
                 for user in users:
                     user.organization_id = organization.id
-                    user.role = user.role or UserRole.member
+                    user.role = role_map.get(user.id, UserRole.member)
                     await UserRepository.update_organization(user, session)
 
             await session.commit()
