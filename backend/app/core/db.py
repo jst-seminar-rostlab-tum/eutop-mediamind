@@ -41,9 +41,6 @@ def get_redis_connection() -> redis.Redis:
         raise RuntimeError(msg) from err
 
 
-redis_engine = get_redis_connection()
-
-
 def get_postgresql_connection() -> PgConnection:
     if not configs.DATABASE_URL:
         logger.error("DATABASE_URL not set in config.")
