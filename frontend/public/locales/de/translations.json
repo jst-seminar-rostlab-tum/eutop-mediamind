@@ -54,7 +54,8 @@
     "creating": "Erstellen...",
     "saving": "Speichern...",
     "save_create": "Profil erstellen",
-    "save_changes": "Änderungen speichern"
+    "save_changes": "Änderungen speichern",
+    "suggestions_text": "Füge ein Schlagwort hinzu, um AI-Vorschläge zu erhalten."
   },
 
   "general": {

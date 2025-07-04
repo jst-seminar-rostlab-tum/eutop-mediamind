@@ -54,7 +54,8 @@
     "creating": "Creating...",
     "saving": "Saving...",
     "save_create": "Create Profile",
-    "save_changes": "Save Changes"
+    "save_changes": "Save Changes",
+    "suggestions_text": "Enter a keyword to get AI suggestions."
   },
 
   "general": {
