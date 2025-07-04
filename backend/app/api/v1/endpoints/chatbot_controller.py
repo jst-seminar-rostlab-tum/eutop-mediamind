@@ -56,7 +56,7 @@ async def receive_chat(
         )
 
     try:
-        await ChatbotService.send_response(user, chat)
+        await ChatbotService.generate_and_send_email_response(user, chat)
         return {"status": "ok"}
     except Exception as e:
         raise HTTPException(

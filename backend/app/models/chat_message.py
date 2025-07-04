@@ -27,7 +27,7 @@ class ChatMessage(SQLModel, table=True):
     email_conversation_id: uuid.UUID = Field(
         foreign_key="email_conversations.id"
     )
-    role: MessageRole = Field(nullable=False)
+    role: MessageRole
     content: str = Field(
         sa_column=Column(Text, nullable=False),
     )
