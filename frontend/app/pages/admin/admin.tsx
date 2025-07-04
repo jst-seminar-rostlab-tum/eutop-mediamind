@@ -103,7 +103,7 @@ export function AdminPage() {
     try {
       const requestData = {
         name: orga.name,
-        email: orga.email,
+        email: "test@email.com", // field maybe outdated
         user_ids: orga.users.map((user) => user.id ?? ""),
       };
 
