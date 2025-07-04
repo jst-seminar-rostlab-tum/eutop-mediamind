@@ -8,9 +8,9 @@ import {
 } from "~/components/ui/dialog";
 import { Input } from "~/components/ui/input";
 import { Button } from "~/components/ui/button";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
-import type { Subscription } from "types/model";
+import type { SubscriptionResponse, Subscription } from "types/model";
 import { useTranslation } from "react-i18next";
 import { ConfirmationDialog } from "~/custom-components/confirmation-dialog";
 import {
@@ -24,6 +24,15 @@ import {
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { client, useQuery } from "types/api";
+import { cloneDeep, isEqual } from "lodash-es";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "~/components/ui/select";
 
 const FormSchema = z.object({
   name: z
@@ -37,6 +46,8 @@ const FormSchema = z.object({
   url: z
     .string()
     .url({ message: "Must be a valid URL (e.g., https://example.com)" }),
+
+  paywall: z.boolean(),
 
   username: z
     .string()
@@ -63,56 +74,121 @@ type Props = {
   open: boolean;
   onOpenChange: (value: boolean) => void;
   isEdit: boolean;
+  sub: Subscription | null;
   onSave: (data: FormValues) => void;
-  initialSub?: Subscription;
 };
 
 export function SubscriptionDialog({
   open,
   onOpenChange,
   isEdit,
+  sub,
   onSave,
-  initialSub,
 }: Props) {
+  const [subData, setSubData] = useState<SubscriptionResponse | null>(null);
   const [visible, setVisible] = useState(false);
   const [showLeaveConfirm, setShowLeaveConfirm] = React.useState(false);
 
   const { t } = useTranslation();
 
+  const initialSub = {
+    id: "",
+    name: "",
+    domain: "",
+    paywall: false,
+    username: "",
+  };
+
+  const { data: fetchedSubData } = useQuery(
+    "/api/v1/subscriptions/{subscription_id}",
+    sub
+      ? { params: { path: { subscription_id: sub.id } } }
+      : {
+          // fallback
+          params: { path: { subscription_id: "" } },
+        },
+  );
+
+  //console.log(fetchedSubData);
+
+  /*
+  useEffect(() => {
+    async function fetchSubData() {
+      try {
+        if (sub && isEdit) {
+          const result = await client.GET(
+            "/api/v1/subscriptions/{subscription_id}",
+            {
+              params: { path: { subscription_id: sub.id } },
+            },
+          );
+          if (result.error) {
+            throw new Error(result.error as string);
+          }
+          setSubData(result.data ?? null);
+        } else {
+          setSubData(initialSub);
+        }
+      } catch (error) {
+        console.error(error);
+        toast.error(t("Error fetching subscription details"));
+      }
+    }
+
+    fetchSubData();
+  }, [sub?.id]);
+  */
+
+  /*
+  // set edited orga either to orga for edit or initialOrga for create
+  const editedSub = useMemo(() => {
+    return cloneDeep(isEdit && subData ? subData : initialSub);
+  }, [isEdit, subData]);
+  */
+
   const form = useForm<FormValues>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
-      name: initialSub ? initialSub.name : "",
-      url: initialSub ? initialSub.url : "",
-      username: initialSub ? initialSub.username : "",
-      password: initialSub ? initialSub.password : "",
+      name: subData ? subData.name : "",
+      url: subData ? subData.domain : "",
+      paywall: subData ? subData.paywall : false,
+      username: subData ? subData.username : "",
+      password: "",
     },
   });
 
   useEffect(() => {
     form.reset({
-      name: initialSub ? initialSub.name : "",
-      url: initialSub ? initialSub.url : "",
-      username: initialSub ? initialSub.username : "",
-      password: initialSub ? initialSub.password : "",
+      name: subData ? subData.name : "",
+      url: subData ? subData.domain : "",
+      paywall: subData ? subData.paywall : false,
+      username: subData ? subData.username : "",
+      password: "",
     });
-  }, [initialSub, open]);
+  }, [subData, open]);
+
+  const checkEqual = (isEdit: boolean) => {
+    const base = isEdit ? subData : initialSub;
+
+    const updated = {
+      ...base, // just id
+      // get current name input
+      name: form.getValues().name,
+      domain: form.getValues().url,
+      paywall: form.getValues().paywall,
+      username: form.getValues().username,
+    };
+
+    return isEqual(updated, base);
+  };
 
   return (
     <>
       <Dialog
         open={open}
         onOpenChange={(isOpen) => {
-          let subChanged = false;
-          if (initialSub) {
-            subChanged =
-              form.getValues("name") !== initialSub.name ||
-              form.getValues("url") !== initialSub.url ||
-              form.getValues("username") !== initialSub.username ||
-              form.getValues("password") !== initialSub.password;
-          }
-          if (!isOpen && subChanged) {
-            setShowLeaveConfirm(true); // show AlertDialog instead
+          if (!checkEqual(isEdit)) {
+            setShowLeaveConfirm(true); // if changes, show AlertDialog
           } else {
             onOpenChange(isOpen); // normal open/close
           }
@@ -169,6 +245,39 @@ export function SubscriptionDialog({
                           placeholder={t("subscription-dialog.URL")}
                           {...field}
                         />
+                      </FormControl>
+                      <FormMessage className="col-span-3 col-start-2" />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <div className="mx-4">
+                <FormField<FormValues, "paywall">
+                  control={form.control}
+                  name="paywall"
+                  render={({ field }) => (
+                    <FormItem className="grid grid-cols-4 items-center gap-4">
+                      <FormLabel className="col-span-1 flex justify-end">
+                        {t("subscription-dialog.Paywall")}
+                      </FormLabel>
+                      <FormControl className="col-span-3">
+                        <Select
+                          value={field.value ? "true" : "false"}
+                          onValueChange={(value) =>
+                            field.onChange(value === "true")
+                          }
+                        >
+                          <SelectTrigger className="w-full">
+                            <SelectValue
+                              placeholder={t("subscription-dialog.Paywall")}
+                            />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="true">{t("Yes")}</SelectItem>
+                            <SelectItem value="false">{t("No")}</SelectItem>
+                          </SelectContent>
+                        </Select>
                       </FormControl>
                       <FormMessage className="col-span-3 col-start-2" />
                     </FormItem>

@@ -8,8 +8,7 @@ import {
 import { DataTableSubscriptions } from "~/custom-components/admin-settings/data-table-subs";
 import Layout from "~/custom-components/layout";
 import Text from "~/custom-components/text";
-import React, { useEffect } from "react";
-import type { User } from "./types";
+import React from "react";
 import { getOrgaColumns, getSubsColumns } from "./columns";
 import { OrganizationDialog } from "./dialogs/organization-dialog";
 import { SubscriptionDialog } from "./dialogs/subscription-dialog";
@@ -27,8 +26,9 @@ import { ConfirmationDialog } from "~/custom-components/confirmation-dialog";
 import { Building2, Newspaper } from "lucide-react";
 import { DataTableOrganizations } from "~/custom-components/admin-settings/data-table-orgas";
 import { Link } from "react-router";
-import { useQuery } from "types/api";
+import { client, useQuery } from "types/api";
 import type { Organization, Subscription } from "../../../types/model";
+import { toast } from "sonner";
 
 const suppressSWRReloading = {
   refreshInterval: 0,
@@ -41,146 +41,193 @@ const suppressSWRReloading = {
 
 export function AdminPage() {
   //Organizations
-  const [orgaData, setOrgaData] = React.useState<Organization[]>([]);
-  const [editedOrga, setEditedOrga] = React.useState<Organization>();
+  const [editedOrga, setEditedOrga] = React.useState<Organization | null>(null);
   const [showOrgaDialog, setShowOrgaDialog] = React.useState(false);
   const [isEditOrgaMode, setIsEditOrgaMode] = React.useState(false);
-  const [editingOrgIndex, setEditingOrgIndex] = React.useState<number | null>(
-    null,
-  );
-  const [editedUserData, setEditedUserData] = React.useState<User[]>([]);
 
   // Subscriptions
-  const [subsData, setSubsData] = React.useState<Subscription[]>([]);
-  //const [editedSub, setEditedSub] = React.useState<Subscription>();
+  const [editedSub, setEditedSub] = React.useState<Subscription | null>(null);
   const [showSubsDialog, setShowSubsDialog] = React.useState(false);
   const [isEditSubsMode, setIsEditSubsMode] = React.useState(false);
-  const [editingSubsIndex, setEditingSubsIndex] = React.useState<number | null>(
-    null,
-  );
 
-  const [unsavedEdits, setUnsavedEdits] = React.useState(false);
   const [openDeleteDialog, setOpenDeleteDialog] = React.useState(false);
   const [deleteTarget, setDeleteTarget] = React.useState<{
     type: "organization" | "subscription";
-    identifier: string | number; // name for org, index for sub
+    data: Organization | Subscription;
   } | null>(null);
 
+  const { t } = useTranslation();
 
   const {
     data: organizations,
     // isLoading: orgasLoading,
     // error : orgasError,
-    // mutate : mutateOrgas,
+    mutate: mutateOrgas,
   } = useQuery("/api/v1/organizations", undefined, suppressSWRReloading);
 
-      const {
+  const {
     data: subscriptions,
     // isLoading: subsLoading,
     // error: subsError,
-    // mutate: mutateSubs,
+    mutate: mutateSubs,
   } = useQuery("/api/v1/subscriptions", undefined, suppressSWRReloading);
-
-
 
   // Organization Functions
 
-  function handleDeleteOrganization(name: string) {
-    setOrgaData((prev) => prev.filter((org) => org.name !== name));
-  }
-
-  function handleEditOrganization(orga: Organization, index: number) {
-
-      setEditedOrga(orga);
-      setEditingOrgIndex(index);
-      setIsEditOrgaMode(true);
-}
-
-      setEditedUserData(usersForOrg);
-
-      setShowOrgaDialog(true);
-    
-  }
-
-  function handleSaveOrganization(data: { name: string }) {
-    const trimmedName = data.name.trim();
-
-    if (!trimmedName) {
-      return;
-    }
-
-    if (isEditOrgaMode && editingOrgIndex !== null) {
-      setOrgaData((prev) =>
-        prev.map((org, i) =>
-          i === editingOrgIndex
-            ? { ...org, name: trimmedName, users: editingUserData }
-            : org,
-        ),
+  async function handleDeleteOrganization(orga: Organization) {
+    try {
+      const result = await client.DELETE(
+        "/api/v1/organizations/{organization_id}",
+        {
+          params: { path: { organization_id: orga.id } },
+        },
       );
-    } else {
-      setOrgaData((prev) => [
-        ...prev,
-        { name: trimmedName, users: editingUserData },
-      ]);
+      if (result.error) {
+        throw new Error(result.error as string);
+      }
+      await mutateOrgas();
+      toast.success(t("organization-dialog.delete_success"));
+    } catch (error) {
+      console.error(error);
+      toast.error(t("organization-dialog.delete_failed"));
     }
-
-    setShowOrgaDialog(false);
-    setIsEditOrgaMode(false);
-    setEditingOrgIndex(null);
-    setUnsavedEdits(false);
   }
 
-  // Subscriptions Functions
+  function handleEditOrganization(orga: Organization) {
+    setEditedOrga(orga);
+    setIsEditOrgaMode(true);
+    setShowOrgaDialog(true);
+  }
 
-  function handleSaveSubscription(data: {
+  const handleSaveOrganization = async (orga: Organization) => {
+    try {
+      const requestData = {
+        name: orga.name,
+        email: orga.email,
+        user_ids: orga.users.map((user) => user.id ?? ""),
+      };
+
+      if (!isEditOrgaMode) {
+        const result = await client.POST("/api/v1/organizations", {
+          body: requestData,
+        });
+        if (result.error) {
+          throw new Error(result.error as string);
+        }
+        await mutateOrgas();
+        toast.success(t("organization-dialog.create_success"));
+      } else {
+        const result = await client.PUT(
+          "/api/v1/organizations/{organization_id}",
+          {
+            params: { path: { organization_id: orga.id } },
+            body: requestData,
+          },
+        );
+        if (result.error) {
+          throw new Error(result.error as string);
+        }
+        mutateOrgas();
+        toast.success(t("organization-dialog.update_success"));
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error(
+        isEditOrgaMode
+          ? t("organization-dialog.edit_failed")
+          : t("organization-dialog.create_failed"),
+      );
+    } finally {
+      setShowOrgaDialog(false);
+      setIsEditOrgaMode(false);
+    }
+  };
+
+  /*
+  Subscriptions Functions
+  */
+
+  async function handleSaveSubscription(data: {
     name: string;
     url: string;
+    paywall: boolean;
     username: string;
     password: string;
   }) {
-    if (
-      !data.name.trim() ||
-      !data.url.trim() ||
-      !data.username.trim() ||
-      !data.password.trim()
-    ) {
-      return;
-    }
-    const newSubs = {
-      name: data.name.trim(),
-      url: data.url.trim(),
-      username: data.username.trim(),
-      password: data.password.trim(),
-    };
+    try {
+      const requestData = {
+        name: data.name,
+        domain: data.url,
+        paywall: data.paywall,
+        username: data.username,
+        password: data.password,
+      };
+      if (!isEditSubsMode) {
+        const result = await client.POST("/api/v1/subscriptions", {
+          body: requestData,
+        });
+        if (result.error) {
+          throw new Error(result.error as string);
+        }
+        mutateSubs();
+        toast.success(t("subscription-dialog.create_success"));
+      } else {
+        const existing = subscriptions?.find((s) => s.name === data.name);
 
-    if (isEditSubsMode && editingSubsIndex !== null) {
-      setSubsData((prev) =>
-        prev.map((sub, i) => (i === editingSubsIndex ? newSubs : sub)),
+        if (!existing) {
+          toast.error(t("subscription-dialog.sub_not_found"));
+          return;
+        }
+        const result = await client.PUT(
+          "/api/v1/subscriptions/{subscription_id}",
+          {
+            params: { path: { subscription_id: existing.id } },
+            body: requestData,
+          },
+        );
+        if (result.error) {
+          throw new Error(result.error as string);
+        }
+        mutateSubs();
+        toast.success(t("subscription-dialog.update_success"));
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error(
+        isEditSubsMode
+          ? t("subscription-dialog.edit_failed")
+          : t("subscription-dialog.create_failed"),
       );
-    } else {
-      setSubsData((prev) => [...prev, newSubs]);
+    } finally {
+      setIsEditSubsMode(false);
+      setShowSubsDialog(false);
     }
-    setIsEditSubsMode(false);
-    setEditingSubsIndex(null);
-    setShowSubsDialog(false);
-
-    setUnsavedEdits(false);
   }
 
-  function handleEditSubscription(index: number) {
-    const sub = subsData[index];
-    setInitialSub(sub);
-
-    setEditingSubsIndex(index);
+  function handleEditSubscription(sub: Subscription) {
+    setEditedSub(sub);
     setIsEditSubsMode(true);
     setShowSubsDialog(true);
   }
 
-  function handleDeleteSubscription(index: number) {
-    setSubsData((prev) => prev.filter((_, i) => i !== index));
+  async function handleDeleteSubscription(sub: Subscription) {
+    try {
+      const result = await client.DELETE(
+        "/api/v1/subscriptions/{subscription_id}",
+        {
+          params: { path: { subscription_id: sub.id } },
+        },
+      );
+      if (result.error) {
+        throw new Error(result.error as string);
+      }
+      await mutateSubs();
+      toast.success(t("subscription-dialog.delete_success"));
+    } catch (error) {
+      console.error(error);
+      toast.error(t("subscription-dialog.delete_failed"));
+    }
   }
-
-  const { t } = useTranslation();
 
   return (
     <>
@@ -218,6 +265,7 @@ export function AdminPage() {
                 )}
                 data={organizations ?? []}
                 onAdd={() => {
+                  setEditedOrga(null);
                   setIsEditOrgaMode(false);
                   setShowOrgaDialog(true);
                 }}
@@ -242,8 +290,8 @@ export function AdminPage() {
                 )}
                 data={subscriptions ?? []}
                 onAdd={() => {
+                  setEditedSub(null);
                   setIsEditSubsMode(false);
-                  setEditingSubsIndex(null); // check if needed
                   setShowSubsDialog(true);
                 }}
               />
@@ -263,7 +311,7 @@ export function AdminPage() {
           open={showSubsDialog}
           onOpenChange={setShowSubsDialog}
           isEdit={isEditSubsMode}
-          sub={editedSubscription}
+          sub={editedSub}
           onSave={handleSaveSubscription}
         />
 
@@ -274,9 +322,11 @@ export function AdminPage() {
           action={() => {
             if (deleteTarget) {
               if (deleteTarget.type === "organization") {
-                handleDeleteOrganization(deleteTarget.identifier as string);
+                const orga = deleteTarget.data as Organization;
+                handleDeleteOrganization(orga);
               } else if (deleteTarget.type === "subscription") {
-                handleDeleteSubscription(deleteTarget.identifier as number);
+                const sub = deleteTarget.data as Subscription;
+                handleDeleteSubscription(sub);
               }
             }
           }}

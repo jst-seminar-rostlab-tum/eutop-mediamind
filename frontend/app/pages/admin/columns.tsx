@@ -5,7 +5,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "~/components/ui/select";
-import type { User, DeleteTarget } from "./types";
 import type { ColumnDef } from "@tanstack/react-table";
 import {
   DropdownMenu,
@@ -18,10 +17,16 @@ import { Button } from "~/components/ui/button";
 import { Checkbox } from "~/components/ui/checkbox";
 import { useTranslation } from "react-i18next";
 import type { Organization, Subscription } from "../../../types/model";
+import type { TableUser } from "../admin/dialogs/organization-dialog";
 
 export function getOrgaColumns(
-  handleEdit: (name: string) => void,
-  setDeleteTarget: (target: DeleteTarget) => void,
+  handleEdit: (org: Organization) => void,
+  setDeleteTarget: React.Dispatch<
+    React.SetStateAction<{
+      type: "organization" | "subscription";
+      data: Organization | Subscription;
+    } | null>
+  >,
   setOpenDeleteDialog: React.Dispatch<React.SetStateAction<boolean>>,
 ): ColumnDef<Organization>[] {
   const { t } = useTranslation();
@@ -34,7 +39,6 @@ export function getOrgaColumns(
       id: "actions",
       header: "Options",
       cell: ({ row }) => {
-        const orgName = row.getValue("name") as string;
         return (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -44,9 +48,7 @@ export function getOrgaColumns(
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem
-                onClick={() => handleEdit(row.original, row.index)}
-              >
+              <DropdownMenuItem onClick={() => handleEdit(row.original)}>
                 <SquarePen className="text-primary" />
                 {t("Edit")}
               </DropdownMenuItem>
@@ -54,7 +56,7 @@ export function getOrgaColumns(
                 onClick={() => {
                   setDeleteTarget({
                     type: "organization",
-                    identifier: orgName,
+                    data: row.original,
                   });
                   setOpenDeleteDialog(true);
                 }}
@@ -72,8 +74,13 @@ export function getOrgaColumns(
 }
 
 export function getSubsColumns(
-  onEdit: (index: number) => void,
-  setDeleteTarget: (target: DeleteTarget) => void,
+  handleEdit: (sub: Subscription) => void,
+  setDeleteTarget: React.Dispatch<
+    React.SetStateAction<{
+      type: "organization" | "subscription";
+      data: Organization | Subscription;
+    } | null>
+  >,
   setOpenDeleteDialog: React.Dispatch<React.SetStateAction<boolean>>,
 ): ColumnDef<Subscription>[] {
   const { t } = useTranslation();
@@ -83,14 +90,9 @@ export function getSubsColumns(
       header: "Name",
     },
     {
-      accessorKey: "url",
-      header: "URL",
-    },
-    {
       id: "actions",
       header: "Options",
       cell: ({ row }) => {
-        const index = row.index;
         return (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -100,13 +102,13 @@ export function getSubsColumns(
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => onEdit(index)}>
+              <DropdownMenuItem onClick={() => handleEdit(row.original)}>
                 <SquarePen className="text-primary" />
                 {t("Edit")}
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => {
-                  setDeleteTarget({ type: "subscription", identifier: index });
+                  setDeleteTarget({ type: "subscription", data: row.original });
                   setOpenDeleteDialog(true);
                 }}
                 className="text-red-500 focus:text-red-500"
@@ -125,7 +127,7 @@ export function getSubsColumns(
 export function getUserColumns(
   onRoleChange: (index: number, role: "admin" | "user") => void,
   onDelete: (index: number) => void,
-): ColumnDef<User>[] {
+): ColumnDef<TableUser>[] {
   const { t } = useTranslation();
   return [
     {
@@ -151,8 +153,18 @@ export function getUserColumns(
       enableHiding: false,
     },
     {
-      accessorKey: "name",
-      header: "User",
+      accessorKey: "email",
+      header: t("general.Email"),
+      filterFn: (row, _, filterValue: string) => {
+        const email = row.original.email?.toLowerCase() || "";
+        const username = row.original.username?.toLowerCase() || "";
+        const value = filterValue.toLowerCase();
+        return email.includes(value) || username.includes(value);
+      },
+    },
+    {
+      accessorKey: "username",
+      header: t("general.Username"),
     },
     {
       accessorKey: "role",

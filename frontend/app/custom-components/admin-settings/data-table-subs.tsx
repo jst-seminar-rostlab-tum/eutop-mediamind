@@ -86,8 +86,8 @@ export function DataTableSubscriptions<TData, TValue>({
                     key={header.id}
                     className={cn(
                       "flex items-center",
-                      header.id === "name" || header.id === "url"
-                        ? "col-span-3"
+                      header.id === "name" || header.id === "domain"
+                        ? "col-span-6"
                         : "col-span-1",
                     )}
                   >
@@ -120,7 +120,7 @@ export function DataTableSubscriptions<TData, TValue>({
                       key={cell.id}
                       className={cn(
                         "flex items-center",
-                        idx === 0 || idx === 1 ? "col-span-3" : "col-span-1",
+                        idx === 0 ? "col-span-6" : "col-span-1",
                       )}
                     >
                       {flexRender(

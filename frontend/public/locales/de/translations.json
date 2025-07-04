@@ -146,7 +146,14 @@
     "no_results": "Keine Ergebnisse.",
     "New_Organization": "Neue Organisation",
     "admin": "Admin",
-    "user": "Benutzer"
+    "user": "Benutzer",
+    "user_already_added": "Dieser Benutzer ist bereits teil der Organisation",
+    "delete_success": "Organisation erfolgreich gelöscht",
+    "delete_failed": "Organisation konnte nicht gelöscht werden",
+    "create_success": "Organisation erfolgreich erstellt",
+    "create_failed": "Organisation konnte nicht erstellt werden",
+    "update_success": "Organisation erfolgreich geupdated",
+    "update_failed": "Organisation konnte nicht geupdated werden"
   },
 
   "subscription-dialog": {
@@ -159,7 +166,14 @@
     "Name": "Name",
     "URL": "URL",
     "Username": "Benutzername",
-    "Password": "Passwort"
+    "Password": "Passwort",
+    "Paywall": "Paywall",
+    "delete_success": "Abonnement erfolgreich gelöscht",
+    "delete_failed": "Abonnement konnte nicht gelöscht werden",
+    "create_success": "Abonnement erfolgreich erstellt",
+    "create_failed": "Abonnement konnte nicht erstellt werden",
+    "update_success": "Abonnement erfolgreich geupdated",
+    "update_failed": "Abonnement konnte nicht geupdated werden"
   },
 
   "search_profile": {

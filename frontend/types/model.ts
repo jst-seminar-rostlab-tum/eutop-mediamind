@@ -18,3 +18,6 @@ export type MatchesResponse =
 export type BreakingNewsItem = components["schemas"]["BreakingNewsItem"];
 
 export type ArticleMatch = components["schemas"]["MatchDetailResponse"];
+
+export type SubscriptionResponse =
+  paths["/api/v1/subscriptions/{subscription_id}"]["get"]["responses"]["200"]["content"]["application/json"];

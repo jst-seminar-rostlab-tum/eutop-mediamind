@@ -9,7 +9,7 @@ import {
 import { Input } from "~/components/ui/input";
 import { Button } from "~/components/ui/button";
 import { getUserColumns } from "../columns";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { DataTableUsers } from "~/custom-components/admin-settings/data-table-users";
 import { useTranslation } from "react-i18next";
 import { ConfirmationDialog } from "~/custom-components/confirmation-dialog";
@@ -24,8 +24,11 @@ import {
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import type { Organization } from "types/model";
+import type { MediamindUser, Organization } from "types/model";
 import { cloneDeep, isEqual } from "lodash-es";
+import type { Row } from "@tanstack/react-table";
+import { useQuery } from "types/api";
+import { toast } from "sonner";
 
 const FormSchema = z.object({
   name: z
@@ -43,13 +46,14 @@ type Props = {
   open: boolean;
   onOpenChange: (value: boolean) => void;
   isEdit: boolean;
-  orga: Organization;
-  onSave: (data: FormValues) => void;
+  orga: Organization | null;
+  onSave: (orga: Organization) => void;
 };
 
-type TableUser = {
+export type TableUser = {
+  id: string;
   email: string;
-  name: string;
+  username: string;
   role: "admin" | "user";
 };
 
@@ -60,9 +64,22 @@ export function OrganizationDialog({
   orga,
   onSave,
 }: Props) {
+  const {
+    data: userData,
+    // isLoading: usersLoading,
+    // error: usersError,
+  } = useQuery("/api/v1/users");
+
+  const allUsers: MediamindUser[] = useMemo(() => {
+    if (!userData) return [];
+    return Array.isArray(userData) ? userData : [userData];
+  }, [userData]);
+
   const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
   const [tableUsers, setTableUsers] = useState<TableUser[]>([]);
+  const { t } = useTranslation();
 
+  // initial orga for creation mode
   const initialOrga: Organization = {
     name: "",
     email: "",
@@ -70,24 +87,33 @@ export function OrganizationDialog({
     users: [],
   };
 
-  const { t } = useTranslation();
+  // set edited orga either to orga for edit or initialOrga for create
+  const editedOrga = useMemo(() => {
+    return cloneDeep(isEdit && orga ? orga : initialOrga);
+  }, [isEdit, orga]);
 
-  const [editedOrga, setEditedOrga] = useState<Organization>(
-    cloneDeep(orga ?? initialOrga),
-  );
-
-  // prepare user data
+  /* 
+  User Table functions
+  */
   useEffect(() => {
-    if (!orga?.users) return;
+    if (open && !isEdit) {
+      setTableUsers([]);
+    }
+  }, [open, isEdit]);
 
-    const mappedUsers: TableUser[] = orga.users.map((user) => ({
-      email: user.email,
-      name: user.first_name + " " + user.last_name,
-      role: user.is_superuser ? "admin" : "user",
-    }));
+  // prepare user data for table
+  useEffect(() => {
+    if (isEdit && orga?.users) {
+      const mappedUsers: TableUser[] = orga.users.map((user) => ({
+        id: user.id ?? "",
+        email: user.email,
+        username: `${user.first_name} ${user.last_name}`,
+        role: user.is_superuser ? "admin" : "user",
+      }));
 
-    setTableUsers(mappedUsers);
-  }, [orga]);
+      setTableUsers(mappedUsers);
+    }
+  }, [isEdit, orga]);
 
   const handleRoleChange = (index: number, newRole: "admin" | "user") => {
     setTableUsers((prev) =>
@@ -99,25 +125,54 @@ export function OrganizationDialog({
     setTableUsers((prev) => prev.filter((_, i) => i !== index));
   };
 
-  const handleAddNewUser = (email: string) => {
-    // merge user rights table first
+  const handleBunchDelete = (selectedRows: Row<TableUser>[]) => {
+    const usersToRemove = selectedRows.map((row) => row.original);
+    // Update usersWithRoles
+    setTableUsers((prev) =>
+      prev.filter((user) => !usersToRemove.some((r) => r.id === user.id)),
+    );
   };
 
-  // prepare data
+  const handleAddNewUser = (email: string) => {
+    const user = allUsers.find((user) => user.email === email);
+    // safety check
+    if (!user) {
+      return;
+    }
+    // prevent duplicates
+    if (tableUsers.some((u) => u.email === user.email)) {
+      toast.error(t("organization-dialog.user_already_added"));
+      return;
+    }
+    // create new table user
+    const tableUser: TableUser = {
+      id: user.id,
+      email: user.email,
+      username: `${user.first_name} ${user.last_name}`,
+      role: user.is_superuser ? "admin" : "user",
+    };
+    // add to tableUsers
+    setTableUsers((prev) => [...prev, tableUser]);
+  };
+
+  // prepare data and call onSave
   const onSubmit = (values: FormValues) => {
     const updatedOrga: Organization = {
       ...editedOrga,
+
       name: values.name.trim(),
 
-      users: tableUsers.map((user) => ({
-        // get the actual user for this table users email
-        email: "",
-        first_name: "",
-        last_name: "",
-        is_superuser: user.role === "admin",
-        language: "en", // default or get from somewhere
-        clerk_id: "",
-      })),
+      users: tableUsers
+        .map((tableUser) => {
+          const fullUser = allUsers.find((u) => u.email === tableUser.email);
+          if (!fullUser) return null;
+
+          return {
+            ...fullUser,
+            is_superuser: tableUser.role === "admin",
+          };
+        })
+        .filter((u): u is NonNullable<typeof u> => u !== null), // Remove unmatched users
     };
 
     onSave(updatedOrga);
@@ -127,37 +182,57 @@ export function OrganizationDialog({
   const form = useForm<FormValues>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
-      name: orga.name,
+      name: editedOrga.name,
     },
   });
 
   useEffect(() => {
-    form.reset({ name: orga.name });
-  }, [orga, open]);
+    form.reset({ name: editedOrga.name });
+  }, [editedOrga, open]);
+
+  const checkEqual = (isEdit: boolean) => {
+    const base = isEdit ? orga : initialOrga;
+
+    const updated = {
+      ...base,
+      // get current name input
+      name: form.getValues().name.trim(),
+      //get current users table
+      users: tableUsers
+        .map((tableUser) => {
+          const fullUser = allUsers.find((u) => u.email === tableUser.email);
+          if (!fullUser) return null;
+          return {
+            id: fullUser.id,
+            clerk_id: fullUser.clerk_id,
+            email: fullUser.email,
+            first_name: fullUser.first_name,
+            last_name: fullUser.last_name,
+            language: fullUser.language,
+            organization_id: fullUser.organization_id,
+            is_superuser: tableUser.role === "admin",
+          };
+        })
+        .filter((u): u is NonNullable<typeof u> => u !== null),
+    };
+    console.log("updated", updated);
+    console.log("base", base);
+    return isEqual(updated, base);
+  };
 
   return (
     <>
       <Dialog
         open={open}
         onOpenChange={(isOpen) => {
-          if (isEdit) {
-            // nothing changed while editing
-            if (isEqual(orga, editedOrga)) {
-              onOpenChange(isOpen); // normal open/close
-            } else {
-              setShowLeaveConfirm(true); // show AlertDialog instead
-            }
+          if (!checkEqual(isEdit)) {
+            setShowLeaveConfirm(true); // if changes, show AlertDialog
           } else {
-            // nothing changed while creating
-            if (isEqual(initialOrga, editedOrga)) {
-              onOpenChange(isOpen); // normal open/close
-            } else {
-              setShowLeaveConfirm(true); // show AlertDialog instead
-            }
+            onOpenChange(isOpen); // normal open/close
           }
         }}
       >
-        <DialogContent className="min-w-[700px]">
+        <DialogContent className="min-w-[850px]">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
               <DialogHeader>
@@ -197,6 +272,8 @@ export function OrganizationDialog({
                   columns={getUserColumns(handleRoleChange, handleUserDelete)}
                   data={tableUsers}
                   onAdd={handleAddNewUser}
+                  users={allUsers}
+                  onBunchDelete={handleBunchDelete}
                 />
               </div>
 

@@ -38,13 +38,6 @@ import {
 } from "~/components/ui/table";
 import { cn } from "~/lib/utils";
 
-export type UserWithRole = {
-  id: string;
-  email: string;
-  Username: string;
-  rights: "read" | "edit";
-};
-
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
@@ -155,7 +148,8 @@ export function DataTableUsers<TData, TValue>({
             <Button
               className={"rounded-l-none"}
               variant={"secondary"}
-              onClick={() => {
+              onClick={(e) => {
+                e.preventDefault();
                 onAdd(selectedEmail);
                 setSelectedEmail("");
               }}
@@ -169,7 +163,8 @@ export function DataTableUsers<TData, TValue>({
             disabled={!canDelete}
             className={!canDelete ? "cursor-not-allowed opacity-50" : ""}
             variant="destructive"
-            onClick={() => {
+            onClick={(e) => {
+              e.preventDefault();
               onBunchDelete(table.getSelectedRowModel().rows);
             }}
           >
@@ -181,10 +176,20 @@ export function DataTableUsers<TData, TValue>({
       <Table>
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
-            <TableRow key={headerGroup.id}>
+            <TableRow key={headerGroup.id} className="grid grid-cols-20">
               {headerGroup.headers.map((header) => {
                 return (
-                  <TableHead key={header.id}>
+                  <TableHead
+                    key={header.id}
+                    className={cn(
+                      "flex items-center",
+                      header.index === 0 || header.index === 4
+                        ? "col-span-1 justify-center"
+                        : header.index === 3
+                          ? "col-span-4"
+                          : "col-span-7",
+                    )}
+                  >
                     {header.isPlaceholder
                       ? null
                       : flexRender(
@@ -207,9 +212,20 @@ export function DataTableUsers<TData, TValue>({
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
+                  className="grid grid-cols-20"
                 >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
+                  {row.getVisibleCells().map((cell, idx) => (
+                    <TableCell
+                      key={cell.id}
+                      className={cn(
+                        "flex items-center",
+                        idx === 0 || idx === 4
+                          ? "col-span-1 justify-center"
+                          : idx === 3
+                            ? "col-span-4"
+                            : "col-span-7",
+                      )}
+                    >
                       {flexRender(
                         cell.column.columnDef.cell,
                         cell.getContext(),

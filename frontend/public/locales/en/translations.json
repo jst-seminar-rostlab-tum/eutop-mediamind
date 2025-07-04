@@ -150,7 +150,14 @@
     "no_results": "No results.",
     "New_Organization": "New Organization",
     "admin": "admin",
-    "user": "user"
+    "user": "user",
+    "user_already_added": "This user is already part of the Organization",
+    "delete_success": "Organization deleted successfully",
+    "delete_failed": "Organization could not be delete",
+    "create_success": "Organization created successfully",
+    "create_failed": "Organization could not be created",
+    "update_success": "Organization updated successfully",
+    "update_failed": "Organization could not be updated"
   },
 
   "subscription-dialog": {
@@ -163,7 +170,14 @@
     "Name": "Name",
     "URL": "URL",
     "Username": "Username",
-    "Password": "Password"
+    "Password": "Password",
+    "Paywall": "Paywall",
+    "delete_success": "Subscription deleted successfully",
+    "delete_failed": "Subscription could not be delete",
+    "create_success": "Subscription created successfully",
+    "create_failed": "Subscription could not be created",
+    "update_success": "Subscription updated successfully",
+    "update_failed": "Subscription could not be updated"
   },
 
   "search_profile": {
