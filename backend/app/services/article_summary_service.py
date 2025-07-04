@@ -1,3 +1,4 @@
+import asyncio
 import json
 import uuid
 from datetime import date, datetime
@@ -14,6 +15,8 @@ logger = get_logger(__name__)
 
 
 class ArticleSummaryService:
+    _semaphore = asyncio.Semaphore(50)
+    _llm_client = LLMClient(LLMModels.openai_4o)
 
     @staticmethod
     def build_prompt(article: Article) -> str:
@@ -133,6 +136,41 @@ class ArticleSummaryService:
                 )
 
     @staticmethod
+    async def summarize_and_store(article: Article) -> None:
+        prompt = ArticleSummaryService.build_prompt(article)
+        async with ArticleSummaryService._semaphore:
+            try:
+                content = await asyncio.to_thread(
+                    ArticleSummaryService._llm_client.generate_response, prompt
+                )
+                if content.startswith("```json"):
+                    content = content[len("```json") :].strip()
+                if content.endswith("```"):
+                    content = content[: -len("```")].strip()
+                data = json.loads(content)
+
+                summary = data.get("summary", "")
+                persons = data.get("persons", [])
+                industries = data.get("industries", [])
+                events = data.get("events", [])
+                organizations = data.get("organizations", [])
+
+                await ArticleRepository.update_article_summary(
+                    article.id, summary
+                )
+                await ArticleEntityRepository.add_entities(
+                    article.id,
+                    persons=persons,
+                    industries=industries,
+                    events=events,
+                    organizations=organizations,
+                )
+                logger.info(f"Processed article {article.id}")
+
+            except Exception as e:
+                logger.error(f"Error processing article {article.id}: {e}")
+
+    @staticmethod
     async def run(
         page_size: int = 300,
         datetime_start: datetime = datetime.combine(
@@ -143,9 +181,6 @@ class ArticleSummaryService:
         """
         Main entry point to summarize a list of articles and
         store their extracted entities.
-
-        Args:
-            articles (list[Article]): a list of Article objects to process.
         """
 
         while True:
@@ -157,8 +192,14 @@ class ArticleSummaryService:
             if not articles:
                 break
 
-            logger.info(f"Processing batch with {len(articles)} articles")
-
+            # logger.info(f"Processing batch with {len(articles)} articles")
+            logger.info(f"Processing {len(articles)} articles concurrently")
+            tasks = [
+                ArticleSummaryService.summarize_and_store(article)
+                for article in articles
+            ]
+            await asyncio.gather(*tasks, return_exceptions=True)
+            """
             batch_path = ArticleSummaryService.generate_summary_batch_file(
                 articles=articles,
                 model=LLMModels.openai_4o.value,
@@ -177,3 +218,5 @@ class ArticleSummaryService:
             await ArticleSummaryService.store_summaries_and_entities(
                 output_lines
             )
+            """
+        logger.info("No more articles to summarize")
