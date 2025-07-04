@@ -24,6 +24,10 @@ async_session: AsyncSession = async_sessionmaker(
 def get_redis_connection() -> redis.Redis:
     """
     Initializes and returns a Redis client.
+
+    Raises:
+        ValueError: If REDIS_URL is not set in the configuration.
+        RuntimeError: If the client initialization fails.
     """
     try:
         client = redis.from_url(configs.REDIS_URL)
