@@ -99,6 +99,7 @@ export function SubscriptionDialog({
     username: "",
   };
 
+  // Endpoint no working
   const { data: fetchedSubData } = useQuery(
     "/api/v1/subscriptions/{subscription_id}",
     sub
@@ -111,6 +112,7 @@ export function SubscriptionDialog({
 
   //console.log(fetchedSubData);
 
+  // also not working
   /*
   useEffect(() => {
     async function fetchSubData() {
