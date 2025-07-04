@@ -29,6 +29,25 @@
 6. **Backend sends a reply email**
    - The backend sends a reply email to the original sender.
 
+## Sequence Diagram
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant SES
+    participant S3
+    participant Lambda
+    participant Backend
+
+    User->>SES: Send email
+    SES->>S3: Store email in bucket
+    S3->>Lambda: Trigger on new object
+    Lambda->>S3: Download email
+    Lambda->>Backend: POST /api/v1/chatbot (API key, email data)
+    Backend->>LLM: Query
+    Backend->>User: Send reply email
+```
+
 ## AWS Setup Guide
 
 To enable this flow, follow these steps to configure AWS resources:
@@ -78,22 +97,3 @@ To enable this flow, follow these steps to configure AWS resources:
 
 - Ensure the `/api/v1/chats` endpoint is deployed and accessible.
 - The API key used by Lambda must match the backend configuration.
-
-## Sequence Diagram
-
-```mermaid
-sequenceDiagram
-    participant User
-    participant SES
-    participant S3
-    participant Lambda
-    participant Backend
-
-    User->>SES: Send email
-    SES->>S3: Store email in bucket
-    S3->>Lambda: Trigger on new object
-    Lambda->>S3: Download email
-    Lambda->>Backend: POST /api/v1/chatbot (API key, email data)
-    Backend->>LLM: Query
-    Backend->>User: Send reply email
-```
