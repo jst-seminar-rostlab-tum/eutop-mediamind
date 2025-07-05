@@ -75,5 +75,5 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         }
     except Exception as e:
         print(e)
-        print(f"Error getting object {key} from bucket {bucket}.")
+        print(f"Error getting object {key} from bucket {bucket}:\n{e}")
         raise e
