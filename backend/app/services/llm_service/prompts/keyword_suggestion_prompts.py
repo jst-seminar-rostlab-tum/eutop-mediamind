@@ -12,7 +12,7 @@ Related topics:
 {related_topics}
 
 Task:
-Suggest exactly five new keywords that
+Suggest exactly 10 new keywords that
 1. Do not appear in “Already used keywords.”
 2. Are optimal for the search profile name, topic, and “Already used keywords.”
 3. Are not synonyms of the existing keywords.
@@ -36,7 +36,7 @@ Verwandte Themen:
 {related_topics}
 
 Aufgabe:
-Schlage genau fünf neue Keywords vor, die
+Schlage genau 10 neue Keywords vor, die
 1. Nicht in „Bereits verwendete Keywords“ vorkommen.
 2. Optimal zu Suchprofilname, Thema und "Bereits verwendete Keywords" passen.
 3. Keine Synonyme der vorhandenen Keywords sind.
