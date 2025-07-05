@@ -4,7 +4,6 @@ from typing import Any, Dict
 
 from sqlalchemy.future import select
 
-from app.core.config import configs
 from app.core.db import async_session
 from app.core.logger import get_logger
 from app.models.subscription import Subscription
@@ -77,7 +76,7 @@ async def seed_credentials_from_env() -> None:
     Seed subscription credentials.
     This is used in production deployments.
     """
-    subscription_accounts = configs.SUBSCRIPTION_ACCOUNTS
+    subscription_accounts = None
     if not subscription_accounts:
         logger.info("No SUBSCRIPTION_ACCOUNTS environment variable found")
         return
