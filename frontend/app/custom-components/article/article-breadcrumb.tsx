@@ -34,7 +34,7 @@ export function ArticleBreadcrumb({
         <BreadcrumbSeparator />
         <BreadcrumbItem>
           <BreadcrumbLink asChild>
-            <Link to={`/dashboard/${searchProfileId}`}>
+            <Link to={`/search-profile/${searchProfileId}`}>
               {searchProfileName}
             </Link>
           </BreadcrumbLink>
