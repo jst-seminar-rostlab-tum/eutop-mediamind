@@ -1,3 +1,4 @@
+import asyncio
 import base64
 import json
 import re
@@ -96,6 +97,19 @@ class LoginLLM:
             return image_url
         except Exception:
             logger.error("Error at taking the screenshot")
+
+    @staticmethod
+    def _wait_for_page_change(driver, old_url):
+        try:
+            WebDriverWait(driver, 10).until(
+                lambda d: (
+                    d.current_url != old_url
+                )
+            )
+            return True
+        except Exception:
+            logger.error("The page did not change, still not logged in")
+            return False
 
     @staticmethod
     def _llm_response_to_json(raw_response: str) -> str:
@@ -353,7 +367,7 @@ class LoginLLM:
         html = LoginLLM._custom_clean_html(html)
         html = await LoginLLM._extract_and_merge_iframes(driver, html)
         html = await LoginLLM._extract_and_merge_shadow_roots(driver, html)
-        time.sleep(3)
+        await asyncio.sleep(3)
         website_image = LoginLLM._take_screenshot(driver)
         try:
             prompt = (
@@ -433,13 +447,16 @@ class LoginLLM:
             password_inserted = LoginLLM._find_correct_input_element(
                 driver, wait, updated_config, "password_input", password
             )
+            url = driver.current_url
             # Submit credentials
             submitted = LoginLLM._find_correct_clickable_element(
                 driver, wait, updated_config, "submit_button"
             )
             driver.switch_to.default_content()
 
-        if user_inserted and password_inserted and submitted:
+        page_changed = LoginLLM._wait_for_page_change(driver, url)
+
+        if user_inserted and password_inserted and submitted and page_changed:
             logged_in = True
 
         return logged_in
