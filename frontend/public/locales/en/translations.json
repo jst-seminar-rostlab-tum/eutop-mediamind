@@ -207,6 +207,7 @@
   },
 
   "reports": {
+    "reports": "Reports",
     "header": "Report Download Center",
     "pagination": "Showing {{from}} to {{to}} of {{total}} reports",
     "download_unavailable": "Unavailable",

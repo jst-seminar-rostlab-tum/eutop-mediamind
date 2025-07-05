@@ -136,7 +136,7 @@ export function ReportsPage() {
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbPage>Reports</BreadcrumbPage>
+            <BreadcrumbPage>{t("reports.reports")}</BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>

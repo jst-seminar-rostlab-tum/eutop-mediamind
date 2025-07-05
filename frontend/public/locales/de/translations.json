@@ -207,6 +207,7 @@
   },
 
   "reports": {
+    "reports": "Berichte",
     "header": "Bericht Download Center",
     "pagination": "Zeige {{from}} bis {{to}} von {{total}} Berichten",
     "download_unavailable": "Nicht verfügbar",
