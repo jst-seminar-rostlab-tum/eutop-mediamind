@@ -2,8 +2,10 @@
 from .article import Article
 from .associations import ArticleKeywordLink
 from .auth import Message, NewPassword, Token, TokenPayload
+from .chat_message import ChatMessage
 from .crawl_stats import CrawlStats
 from .email import Email
+from .email_conversation import EmailConversation
 from .entity import ArticleEntity
 from .keyword import Keyword
 from .match import Match
@@ -18,8 +20,10 @@ from .user import User, UserPublic
 __all__ = [
     "Article",
     "ArticleKeywordLink",
+    "ChatMessage",
     "CrawlStats",
     "Email",
+    "EmailConversation",
     "Message",
     "Keyword",
     "Match",

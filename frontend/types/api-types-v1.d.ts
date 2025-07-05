@@ -589,7 +589,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/chats/": {
+    "/api/v1/chatbot": {
         parameters: {
             query?: never;
             header?: never;
@@ -599,7 +599,7 @@ export interface paths {
         get?: never;
         put?: never;
         /** Receive Chat */
-        post: operations["receive_chat_api_v1_chats__post"];
+        post: operations["receive_chat_api_v1_chatbot_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -2387,7 +2387,7 @@ export interface operations {
             };
         };
     };
-    receive_chat_api_v1_chats__post: {
+    receive_chat_api_v1_chatbot_post: {
         parameters: {
             query?: never;
             header?: {
@@ -2408,7 +2408,9 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": unknown;
+                    "application/json": {
+                        [key: string]: string;
+                    };
                 };
             };
             /** @description Validation Error */
