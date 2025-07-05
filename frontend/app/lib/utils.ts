@@ -49,7 +49,7 @@ export function getDateComponents(dateString: string) {
         formatted: "Invalid Date",
         day: null,
         month: null,
-        year: null
+        year: null,
       };
     }
 
@@ -69,7 +69,7 @@ export function getDateComponents(dateString: string) {
       formatted,
       day: formattedDay,
       month: month,
-      year: year
+      year: year,
     };
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (error) {
@@ -77,11 +77,10 @@ export function getDateComponents(dateString: string) {
       formatted: dateString,
       day: null,
       month: null,
-      year: null
+      year: null,
     };
   }
 }
-
 
 export function getLocalizedContent(content: { [key: string]: string }) {
   if (content[i18n.language]) {

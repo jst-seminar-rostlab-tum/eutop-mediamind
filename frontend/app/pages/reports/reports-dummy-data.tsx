@@ -54,7 +54,7 @@ const mockReports: ProfileReports = {
       time_slot: "evening",
       language: "de",
       s3_key: "reports/2025/06/02/report_006.pdf",
-      status: "processing",
+      status: "uploaded",
     },
     {
       id: "550e8400-e29b-41d4-a716-446655440007",
@@ -108,7 +108,7 @@ const mockReports: ProfileReports = {
       time_slot: "afternoon",
       language: "de",
       s3_key: "reports/2025/05/27/report_012.pdf",
-      status: "processing",
+      status: "uploaded",
     },
     {
       id: "550e8400-e29b-41d4-a716-446655440013",
@@ -201,7 +201,7 @@ const mockReportDetails: Record<string, Report> = {
     time_slot: "evening",
     language: "de",
     s3_key: "reports/2025/06/02/report_006.pdf",
-    status: "processing",
+    status: "uploaded",
     s3_url: null,
   },
   "550e8400-e29b-41d4-a716-446655440007": {
@@ -264,7 +264,7 @@ const mockReportDetails: Record<string, Report> = {
     time_slot: "afternoon",
     language: "de",
     s3_key: "reports/2025/05/27/report_012.pdf",
-    status: "processing",
+    status: "failed",
     s3_url: null,
   },
   "550e8400-e29b-41d4-a716-446655440013": {

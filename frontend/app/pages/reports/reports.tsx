@@ -35,14 +35,12 @@ export function ReportsPage() {
   const [languageFilter, setLanguageFilter] = useState<string>("");
   const itemsPerPage = 30;
 
-  const {
-    data: profile,
-    isLoading,
-    error,
-    mutate,
-  } = useQuery("/api/v1/search-profiles/{search_profile_id}", {
-    params: { path: { search_profile_id: searchProfileId || "" } },
-  });
+  const { data: profile } = useQuery(
+    "/api/v1/search-profiles/{search_profile_id}",
+    {
+      params: { path: { search_profile_id: searchProfileId || "" } },
+    },
+  );
 
   const reports = getReports();
 
@@ -90,9 +88,24 @@ export function ReportsPage() {
       if (currentPage <= 3) {
         pages.push(1, 2, 3, 4, "...", totalPages);
       } else if (currentPage >= totalPages - 2) {
-        pages.push(1, "...", totalPages - 3, totalPages - 2, totalPages - 1, totalPages);
+        pages.push(
+          1,
+          "...",
+          totalPages - 3,
+          totalPages - 2,
+          totalPages - 1,
+          totalPages,
+        );
       } else {
-        pages.push(1, "...", currentPage - 1, currentPage, currentPage + 1, "...", totalPages);
+        pages.push(
+          1,
+          "...",
+          currentPage - 1,
+          currentPage,
+          currentPage + 1,
+          "...",
+          totalPages,
+        );
       }
     }
 
@@ -143,7 +156,11 @@ export function ReportsPage() {
             <PaginationItem>
               <PaginationPrevious
                 onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
-                className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                className={
+                  currentPage === 1
+                    ? "pointer-events-none opacity-50"
+                    : "cursor-pointer"
+                }
               />
             </PaginationItem>
 
@@ -165,8 +182,14 @@ export function ReportsPage() {
 
             <PaginationItem>
               <PaginationNext
-                onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
-                className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                onClick={() =>
+                  handlePageChange(Math.min(totalPages, currentPage + 1))
+                }
+                className={
+                  currentPage === totalPages
+                    ? "pointer-events-none opacity-50"
+                    : "cursor-pointer"
+                }
               />
             </PaginationItem>
           </PaginationContent>
@@ -175,7 +198,8 @@ export function ReportsPage() {
 
       <div className="text-sm text-muted-foreground mt-4 text-center">
         Showing {totalItems > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0} to{" "}
-        {Math.min(currentPage * itemsPerPage, totalItems)} of {totalItems} reports
+        {Math.min(currentPage * itemsPerPage, totalItems)} of {totalItems}{" "}
+        reports
       </div>
     </Layout>
   );

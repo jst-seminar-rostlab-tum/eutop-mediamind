@@ -1,4 +1,11 @@
-import { Select, SelectContent, SelectGroup, SelectLabel, SelectTrigger, SelectValue } from "~/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "~/components/ui/select";
 import { RoleBadge } from "~/custom-components/dashboard/role-badge";
 import { SelectItem } from "@radix-ui/react-select";
 import { Button } from "~/components/ui/button";
@@ -11,17 +18,22 @@ interface ReportFilterBarProps {
   onReset: () => void;
 }
 
-export function ReportFilterBar({ language, onLanguageChange, onReset }: ReportFilterBarProps) {
-  const {t} = useTranslation();
-  return(
+export function ReportFilterBar({
+  language,
+  onLanguageChange,
+  onReset,
+}: ReportFilterBarProps) {
+  const { t } = useTranslation();
+  return (
     <div className="flex items-center gap-2">
-      <Select
-        value={language}
-        onValueChange={onLanguageChange}
-      >
+      <Select value={language} onValueChange={onLanguageChange}>
         <SelectTrigger className="w-[180px] rounded-xl">
           <SelectValue placeholder={<RoleBadge variant={"language"} />}>
-              {language ? <RoleBadge variant={language as "de" | "en"} /> : <RoleBadge variant="language" />}
+            {language ? (
+              <RoleBadge variant={language as "de" | "en"} />
+            ) : (
+              <RoleBadge variant="language" />
+            )}
           </SelectValue>
         </SelectTrigger>
         <SelectContent>

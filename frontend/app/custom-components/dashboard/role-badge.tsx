@@ -3,7 +3,11 @@ import { cva, type VariantProps } from "class-variance-authority";
 import {
   Crown,
   Eye,
-  EyeOff, Globe, Moon, Sun, Sunrise,
+  EyeOff,
+  Globe,
+  Moon,
+  Sun,
+  Sunrise,
   UserCheck,
   UserPen,
   UserRoundCog,
@@ -31,7 +35,7 @@ const roleBadgeVariants = cva(
         morning: "border text-gray-900",
         afternoon: "border text-gray-900",
         evening: "border text-gray-900",
-        language: "bg-blue-100 text-blue-900"
+        language: "bg-blue-100 text-blue-900",
       },
     },
   },
@@ -92,8 +96,8 @@ const roleConfig = {
   },
   language: {
     icon: Globe,
-    label: "Language"
-  }
+    label: "Language",
+  },
 } as const;
 
 type RoleVariant = keyof typeof roleConfig;

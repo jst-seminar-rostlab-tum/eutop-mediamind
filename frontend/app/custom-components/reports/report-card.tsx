@@ -35,11 +35,14 @@ export function ReportCard({ report }: ReportCardProps) {
             <span>{dateComponents.year}</span>
           </div>
         </div>
-
       </div>
       <div className={"flex gap-2 items-center"}>
         <div>
-          {fullReport.language === "us" ? <RoleBadge variant={"en"} /> : <RoleBadge variant={"de"} />}
+          {fullReport.language === "us" ? (
+            <RoleBadge variant={"en"} />
+          ) : (
+            <RoleBadge variant={"de"} />
+          )}
         </div>
         <div>
           {fullReport.time_slot === "morning" ? (
@@ -50,17 +53,21 @@ export function ReportCard({ report }: ReportCardProps) {
             <RoleBadge variant={"afternoon"} />
           )}
         </div>
-
       </div>
 
-
-      <Button asChild>
-        <a href={fullReport.s3_url} download>
-          Download
+      {fullReport.s3_url ? (
+        <Button asChild>
+          <a href={fullReport.s3_url} download>
+            Download
+            <Download />
+          </a>
+        </Button>
+      ) : (
+        <Button disabled>
+          Download Unavailable
           <Download />
-        </a>
-      </Button>
-
+        </Button>
+      )}
     </div>
   );
 }
