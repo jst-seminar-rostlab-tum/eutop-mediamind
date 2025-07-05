@@ -7,7 +7,14 @@ import os
 from typing import Any, Dict
 
 S3_CLIENT = boto3.client("s3")
-API_URL = "https://api.mediamind.csee.tech/api/v1/chatbot/"
+API_HOST = os.environ.get("API_HOST")
+if not API_HOST:
+    raise RuntimeError("API_HOST environment variable is not set.")
+API_URL = f"{API_HOST.rstrip('/')}/api/v1/chatbot/"
+
+API_KEY = os.environ.get("CHAT_API_KEY")
+if not API_KEY:
+    raise RuntimeError("CHAT_API_KEY environment variable is not set.")
 
 
 def get_email_body(msg: email.message.Message) -> str:
@@ -47,9 +54,6 @@ def call_api(
 
 def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     print("Received event: " + json.dumps(event, indent=2))
-    api_key = os.environ.get("CHAT_API_KEY")
-    if not api_key:
-        raise RuntimeError("CHAT_API_KEY environment variable is not set.")
 
     record = event["Records"][0]
     bucket = record["s3"]["bucket"]["name"]
@@ -67,7 +71,7 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         print(f"Subject: {subject}")
         print(f"Body (first 500 chars): {body[:500]}")
 
-        call_api(sender, subject, body, key, bucket, api_key)
+        call_api(sender, subject, body, key, bucket, API_KEY)
 
         return {
             "statusCode": 200,
