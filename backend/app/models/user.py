@@ -19,9 +19,6 @@ if TYPE_CHECKING:
 class UserRole(str, Enum):
     maintainer = "maintainer"
     member = "member"
-    # Easily extendable in the future, e.g.:
-    # admin = "admin"
-    # viewer = "viewer"
 
 
 # Shared properties
@@ -54,7 +51,6 @@ class UserBase(SQLModel):
             nullable=False,
             server_default=UserRole.member.value,
         ),
-        default=UserRole.member,
     )
 
 

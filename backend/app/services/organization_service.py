@@ -26,27 +26,32 @@ class OrganizationService:
             raise HTTPException(
                 status_code=403, detail="Insufficient privileges"
             )
+
         async with async_session() as session:
             organization = Organization(
-                name=create_request.name, email=create_request.email
+                name=create_request.name,
+                email=create_request.email,
             )
             organization = await OrganizationRepository.create(
                 organization, session=session
             )
 
-            user_ids: list = {u.id for u in create_request.users}
-            if create_request.users:
-                users = await UserRepository.get_by_ids(user_ids, session)
-
-                # Create mapping from user_id to role
+            # Only process if there are user assignments
+            if len(create_request.users) > 0:
+                # Build mapping of user IDs to roles in one pass
                 role_map = {u.id: u.role for u in create_request.users}
+                user_ids = list(role_map.keys())
 
+                # Fetch and update each user
+                users = await UserRepository.get_by_ids(user_ids, session)
                 for user in users:
                     user.organization_id = organization.id
                     user.role = role_map.get(user.id, UserRole.member)
                     await UserRepository.update_organization(user, session)
+
             await session.commit()
             await session.refresh(organization)
+
             users = await UserRepository.get_users_by_organization(
                 organization.id, session
             )
@@ -81,35 +86,33 @@ class OrganizationService:
                 organization.email = update_request.email
             session.add(organization)
 
-            # Get current users assigned to the organization
-            organization_users = (
-                await UserRepository.get_users_by_organization(
-                    organization_id, session
-                )
+            # Get current users in the organization
+            existing_users = await UserRepository.get_users_by_organization(
+                organization_id, session
             )
+            existing_ids = {u.id for u in existing_users}
 
-            organization_users_ids = {user.id for user in organization_users}
-            new_user_ids = {u.id for u in update_request.users}
-
+            # Build mapping of new user IDs to roles in one pass
             role_map = {u.id: u.role for u in update_request.users}
+            new_ids = set(role_map.keys())
 
-            # Determine which users to remove and which to add
-            users_to_remove = organization_users_ids - new_user_ids
-            users_to_add = new_user_ids - organization_users_ids
+            # Determine removals and additions
+            to_remove = existing_ids - new_ids
+            to_add = new_ids - existing_ids
 
-            if users_to_remove:
+            # Remove users no longer assigned
+            if to_remove:
                 users = await UserRepository.get_by_ids(
-                    list(users_to_remove), session
+                    list(to_remove), session
                 )
                 for user in users:
                     user.organization_id = None
                     user.role = UserRole.member
                     await UserRepository.update_organization(user, session)
 
-            if users_to_add:
-                users = await UserRepository.get_by_ids(
-                    list(users_to_add), session
-                )
+            # Add new users
+            if to_add:
+                users = await UserRepository.get_by_ids(list(to_add), session)
                 for user in users:
                     user.organization_id = organization.id
                     user.role = role_map.get(user.id, UserRole.member)
@@ -117,6 +120,7 @@ class OrganizationService:
 
             await session.commit()
             await session.refresh(organization)
+
             users = await UserRepository.get_users_by_organization(
                 organization.id, session
             )

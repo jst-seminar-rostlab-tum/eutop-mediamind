@@ -1,3 +1,4 @@
+# flake8: noqa: E501
 import uuid
 from collections import defaultdict
 from datetime import datetime, timedelta, timezone
@@ -267,7 +268,7 @@ class SearchProfileService:
                     status_code=404, detail="Profile not found"
                 )
 
-            if not (
+            allow_edit = (
                 current_user.is_superuser
                 or db_profile.created_by_id == current_user.id
                 or (
@@ -279,7 +280,9 @@ class SearchProfileService:
                     and db_profile.organization_id
                     == current_user.organization_id
                 )
-            ):
+            )
+
+            if not allow_edit:
                 raise HTTPException(
                     status_code=403, detail="Not allowed to edit this profile"
                 )
@@ -603,21 +606,27 @@ class SearchProfileService:
     async def delete_search_profile(
         profile_id: UUID, current_user: UserEntity
     ) -> None:
-        search_profile = (
-            await SearchProfileRepository.get_search_profile_by_id(profile_id)
-        )
-        if (
-            current_user.id != search_profile.owner_id
-            and not current_user.is_superuser
-            and not (
+        search_profile = SearchProfileRepository.get_by_id(profile_id)
+        # Permit deletion if user is owner, superuser, or maintainer of the same org
+        allow_delete = (
+            current_user.id == search_profile.owner_id
+            or current_user.is_superuser
+            or (
                 current_user.role == UserRole.maintainer
                 and current_user.organization_id
                 == search_profile.organization_id
             )
-        ):
+        )
+
+        search_profile = (
+            await SearchProfileRepository.get_search_profile_by_id(profile_id)
+        )
+
+        if not allow_delete:
             raise HTTPException(
                 status_code=403, detail="Not allowed to delete this profile"
             )
+
         async with async_session() as session:
             try:
                 # begin a transaction
@@ -629,7 +638,7 @@ class SearchProfileService:
                     await ReportRepository.delete_for_search_profile(
                         session, profile_id
                     )
-                    await SubscriptionRepository.delete_links_for_search_profile(  # noqa: E501
+                    await SubscriptionRepository.delete_links_for_search_profile(
                         session, profile_id
                     )
                     await UserRepository.delete_links_for_search_profile(
@@ -637,7 +646,7 @@ class SearchProfileService:
                     )
 
                     topic_ids = [topic.id for topic in search_profile.topics]
-                    await TopicsRepository.delete_keyword_links_for_search_profile(  # noqa: E501
+                    await TopicsRepository.delete_keyword_links_for_search_profile(
                         session, topic_ids
                     )
                     await TopicsRepository.delete_for_search_profile(
