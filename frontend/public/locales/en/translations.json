@@ -183,7 +183,13 @@
     "shared": "Shared",
     "private": "Private",
     "ownership": "Access rights",
-    "visibility": "Visibility"
+    "visibility": "Visibility",
+    "de": "DE",
+    "en": "EN",
+    "morning": "Morning",
+    "afternoon": "Afternoon",
+    "evening": "Evening",
+    "language": "Language"
   },
 
   "sr-only": {
@@ -198,5 +204,12 @@
     "show_less": "Show less",
     "show_more": "Show more",
     "original": "Original"
+  },
+
+  "reports": {
+    "header": "Report Download Center",
+    "pagination": "Showing {{from}} to {{to}} of {{total}} reports",
+    "download_unavailable": "Unavailable",
+    "download": "Download"
   }
 }

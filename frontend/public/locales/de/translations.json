@@ -183,7 +183,13 @@
     "shared": "Geteilt",
     "private": "Privat",
     "ownership": "Berechtigung",
-    "visibility": "Sichtbarkeit"
+    "visibility": "Sichtbarkeit",
+    "de": "DE",
+    "en": "EN",
+    "morning": "Morgen",
+    "afternoon": "Nachmittag",
+    "evening": "Abend",
+    "language": "Sprache"
   },
 
   "sr-only": {
@@ -198,5 +204,12 @@
     "show_less": "Weniger anzeigen",
     "show_more": "Mehr anzeigen",
     "original": "Original"
+  },
+
+  "reports": {
+    "header": "Bericht Download Center",
+    "pagination": "Zeige {{from}} bis {{to}} von {{total}} Berichten",
+    "download_unavailable": "Nicht verfügbar",
+    "download": "Herunterladen"
   }
 }

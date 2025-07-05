@@ -76,27 +76,27 @@ const roleConfig = {
   },
   de: {
     icon: Globe,
-    label: "DE",
+    label: "role-badge.de",
   },
   en: {
     icon: Globe,
-    label: "EN",
+    label: "role-badge.en",
   },
   morning: {
     icon: Sunrise,
-    label: "Morning",
+    label: "role-badge.morning",
   },
   afternoon: {
     icon: Sun,
-    label: "Afternoon",
+    label: "role-badge.afternoon",
   },
   evening: {
     icon: Moon,
-    label: "Evening",
+    label: "role-badge.evening",
   },
   language: {
     icon: Globe,
-    label: "Language",
+    label: "role-badge.language",
   },
 } as const;
 

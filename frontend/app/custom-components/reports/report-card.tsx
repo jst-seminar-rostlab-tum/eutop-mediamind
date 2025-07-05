@@ -6,6 +6,7 @@ import { ErrorPage } from "~/pages/error/error";
 import React from "react";
 import { getReport } from "~/pages/reports/reports-dummy-data";
 import { RoleBadge } from "~/custom-components/dashboard/role-badge";
+import { useTranslation } from "react-i18next";
 
 interface ReportCardProps {
   report: ReportOverview;
@@ -17,7 +18,7 @@ export function ReportCard({ report }: ReportCardProps) {
   //   error,
   // } = useQuery("/api/v1/reports/{report_id}", { params: { path: { report_id: report.id } } });
   const fullReport = getReport();
-
+  const { t } = useTranslation();
   if (!fullReport) {
     return <ErrorPage />;
   }
@@ -58,13 +59,13 @@ export function ReportCard({ report }: ReportCardProps) {
       {fullReport.s3_url ? (
         <Button asChild>
           <a href={fullReport.s3_url} download>
-            Download
+            {t("reports.download")}
             <Download />
           </a>
         </Button>
       ) : (
         <Button disabled>
-          Download Unavailable
+          {t("reports.download_unavailable")}
           <Download />
         </Button>
       )}

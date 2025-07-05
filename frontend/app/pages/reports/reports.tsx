@@ -116,6 +116,9 @@ export function ReportsPage() {
     return <ErrorPage />;
   }
 
+  const from = totalItems > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0;
+  const to = Math.min(currentPage * itemsPerPage, totalItems);
+
   return (
     <Layout>
       <Breadcrumb>
@@ -138,7 +141,7 @@ export function ReportsPage() {
         </BreadcrumbList>
       </Breadcrumb>
 
-      <Text hierachy={2}>Report Download Center</Text>
+      <Text hierachy={2}>{t("reports.header")}</Text>
       <ReportFilterBar
         language={languageFilter}
         onLanguageChange={handleLanguageChange}
@@ -197,9 +200,7 @@ export function ReportsPage() {
       )}
 
       <div className="text-sm text-muted-foreground mt-4 text-center">
-        Showing {totalItems > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0} to{" "}
-        {Math.min(currentPage * itemsPerPage, totalItems)} of {totalItems}{" "}
-        reports
+        {t("reports.pagination", { from, to, total: totalItems })}
       </div>
     </Layout>
   );
