@@ -19,12 +19,12 @@
       }
     },
     "scrapers": {
-     "TrafilaturaScraper": {
+      "TrafilaturaScraper": {
         "trafilatura_kwargs": {
           "prune_xpath": "//div[@data-module='accordion'] | //h2"
         }
-     }
-   }
+      }
+    }
   },
   {
     "name": "Financial Times - Onlinezugang / ePaper",
@@ -71,12 +71,12 @@
       }
     },
     "scrapers": {
-     "TrafilaturaScraper": {
+      "TrafilaturaScraper": {
         "trafilatura_kwargs": {
           "prune_xpath": "//div[@data-testid='teaser']"
         }
-     }
-   }
+      }
+    }
   },
   {
     "name": "Börsen-Zeitung E-Paper",
@@ -99,9 +99,8 @@
       }
     },
     "scrapers": {
-     "TrafilaturaScraper": {
-     }
-   }
+      "TrafilaturaScraper": {}
+    }
   },
   {
     "name": "Bild & Bild+",
@@ -148,12 +147,12 @@
       }
     },
     "scrapers": {
-     "TrafilaturaScraper": {
+      "TrafilaturaScraper": {
         "trafilatura_kwargs": {
           "prune_xpath": "//h2 | //p[@class='article-content-user-report']"
         }
-     }
-   }
+      }
+    }
   },
   {
     "name": "FOCUS ePaper",
@@ -188,13 +187,13 @@
       }
     },
     "scrapers": {
-     "TrafilaturaScraper": {
+      "TrafilaturaScraper": {
         "trafilatura_kwargs": {
           "prune_xpath": "//h2 | //section[@data-area='related_articles']",
           "author_blacklist": ["Manager Magazin"]
         }
-     }
-   }
+      }
+    }
   },
   {
     "name": "Spiegel - ePaper",
@@ -224,6 +223,18 @@
       "user_input": "//input[@name='login' and @type='email']",
       "password_input": "//input[@name='password' and @type='password']",
       "submit_button": "//button[@type='submit' and contains(text(), 'Anmelden')]"
+    },
+    "crawlers": {
+      "RSSFeedCrawler": {
+        "feed_urls": [
+          "https://www.wiwo.de/contentexport/feed/rss/schlagzeilen",
+          "https://www.wiwo.de/contentexport/feed/rss/unternehmen",
+          "https://www.wiwo.de/contentexport/feed/rss/finanzen",
+          "https://www.wiwo.de/contentexport/feed/rss/politik",
+          "https://www.wiwo.de/contentexport/feed/rss/technologie"
+        ],
+        "language": "de"
+      }
     }
   },
   {
@@ -259,12 +270,12 @@
       }
     },
     "scrapers": {
-     "TrafilaturaScraper": {
+      "TrafilaturaScraper": {
         "trafilatura_kwargs": {
           "prune_xpath": "//div[@id='comments']"
         }
-     }
-   }
+      }
+    }
   },
   {
     "name": "Chemical Watch - Onlinezugang",
@@ -292,6 +303,12 @@
       "submit_button": "//button[@id='btn__login' and @type='submit']",
       "logout_trigger": "//button[@aria-label='Toggle profile menu' and contains(@class, 'navigation-mini__toggle')]",
       "logout_button": "//a[contains(@href, 'action=logout') and span[contains(text(), 'Sign Out')]]"
+    },
+    "crawlers": {
+      "RSSFeedCrawler": {
+        "feed_urls": ["https://www.politico.eu/feed/"],
+        "language": "en"
+      }
     }
   },
   {
@@ -314,13 +331,12 @@
       }
     },
     "scrapers": {
-     "TrafilaturaScraper": {
+      "TrafilaturaScraper": {
         "trafilatura_kwargs": {
           "prune_xpath": "//h4[text()='Author Bio']/following-sibling::div[1]"
         }
-     }
-   }
-    
+      }
+    }
   },
   {
     "name": "Tagesspiegel",
@@ -430,12 +446,12 @@
       }
     },
     "scrapers": {
-     "TrafilaturaScraper": {
+      "TrafilaturaScraper": {
         "trafilatura_kwargs": {
           "prune_xpath": "//div[@class='bi-bulletpoints__text']"
         }
-     }
-   }
+      }
+    }
   },
   {
     "name": "Genios",
@@ -502,13 +518,13 @@
       }
     },
     "scrapers": {
-     "TrafilaturaScraper": {
+      "TrafilaturaScraper": {
         "trafilatura_kwargs": {
           "prune_xpath": "//div[contains(@class, 'ArticleCopy')]/h3[contains(@class, 'ArticleCopy_galleryTitle')]/..",
           "author_blacklist": ["Meedia De"]
         }
-     }
-   }
+      }
+    }
   },
   {
     "name": "Mace Magazine",
@@ -551,13 +567,13 @@
       }
     },
     "scrapers": {
-     "TrafilaturaScraper": {
+      "TrafilaturaScraper": {
         "trafilatura_kwargs": {
           "prune_xpath": "//div[contains(@class, 'background-grey')]",
           "author_blacklist": ["Meedia De"]
         }
-     }
-   }
+      }
+    }
   },
   {
     "name": "Platow Brief",
@@ -573,6 +589,18 @@
       "profile_section": "//a[contains(@href, 'profil')]",
       "iframe_logout": "//iframe[@id='plenigoFramesnippetsplenigoLogin']",
       "logout_button": "//a[contains(text(), 'Logout')]"
+    },
+    "crawlers": {
+      "RSSFeedCrawler": {
+        "feed_urls": [
+          "https://www.wiwo.de/contentexport/feed/rss/schlagzeilen",
+          "https://www.wiwo.de/contentexport/feed/rss/unternehmen",
+          "https://www.wiwo.de/contentexport/feed/rss/finanzen",
+          "https://www.wiwo.de/contentexport/feed/rss/politik",
+          "https://www.wiwo.de/contentexport/feed/rss/technologie"
+        ],
+        "language": "de"
+      }
     }
   },
   {
@@ -587,12 +615,12 @@
       }
     },
     "scrapers": {
-     "TrafilaturaScraper": {
+      "TrafilaturaScraper": {
         "trafilatura_kwargs": {
           "prune_xpath": "//div[@class='article__more ']"
         }
-     }
-   }
+      }
+    }
   },
   {
     "name": "EU Matrix",
@@ -617,9 +645,9 @@
         "sourceUri": "merkur.de"
       }
     },
-   "scrapers": {
-     "TrafilaturaScraper": {}
-   }
+    "scrapers": {
+      "TrafilaturaScraper": {}
+    }
   },
   {
     "name": "Top Agrar",
