@@ -102,9 +102,7 @@ class LoginLLM:
     def _wait_for_page_change(driver, old_url):
         try:
             WebDriverWait(driver, 10).until(
-                lambda d: (
-                    d.current_url != old_url
-                )
+                lambda d: (d.current_url != old_url)
             )
             return True
         except Exception:
