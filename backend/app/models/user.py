@@ -13,7 +13,6 @@ from app.models.associations import UserSearchProfileLink
 from .organization import Organization
 
 if TYPE_CHECKING:
-
     from app.models.search_profile import SearchProfile
 
 

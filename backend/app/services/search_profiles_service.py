@@ -615,7 +615,9 @@ class SearchProfileService:
                 == search_profile.organization_id
             )
         ):
-            raise
+            raise HTTPException(
+                status_code=403, detail="Not allowed to delete this profile"
+            )
         async with async_session() as session:
             try:
                 # begin a transaction
