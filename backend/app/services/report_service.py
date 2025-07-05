@@ -103,10 +103,10 @@ class ReportService:
     @staticmethod
     async def run(
         timeslot: str,
-        language: str,
+        languages: List[str],
     ):
         """
-        Run the report generation process for a specific timeslot and language
+        Run the report generation process for a specific timeslot
         in the pipeline.
         """
         s3_service = get_s3_service()
@@ -115,28 +115,26 @@ class ReportService:
             await SearchProfileRepository.fetch_all_search_profiles()
         )
         for search_profile in search_profiles:
-            logger.info(
-                f"Generating {timeslot} report ({language}) for profile "
-                f"{search_profile.id}"
-            )
-            report = await ReportService.get_or_create_report(
-                search_profile.id, timeslot, language, s3_service
-            )
+            for lang in languages:
+                report = await ReportService.get_or_create_report(
+                    search_profile.id, timeslot, lang, s3_service
+                )
 
-            # For email generation
-            presigned_url = s3_service.generate_presigned_url(
-                key=report.s3_key, expires_in=604800  # 7 days
-            )
-            dashboard_url = (
-                f"https://mediamind.csee.tech/dashboard/reports/{report.id}"
-            )
+                # For email generation
+                presigned_url = s3_service.generate_presigned_url(
+                    key=report.s3_key, expires_in=604800  # 7 days
+                )
+                dashboard_url = (
+                    "https://mediamind.csee.tech/dashboard/reports/"
+                    f"{report.id}"
+                )
 
-            reports.append(
-                {
-                    "report": report,
-                    "presigned_url": presigned_url,
-                    "dashboard_url": dashboard_url,
-                    "search_profile": search_profile,
-                }
-            )
+                reports.append(
+                    {
+                        "report": report,
+                        "presigned_url": presigned_url,
+                        "dashboard_url": dashboard_url,
+                        "search_profile": search_profile,
+                    }
+                )
         return reports
