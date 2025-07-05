@@ -5,6 +5,7 @@ from fastapi import HTTPException
 
 from app.core.db import async_session
 from app.models import Organization
+from app.models.user import UserRole
 from app.repositories.organization_repository import OrganizationRepository
 from app.repositories.user_repository import UserRepository
 from app.schemas.organization_schemas import (
@@ -25,23 +26,32 @@ class OrganizationService:
             raise HTTPException(
                 status_code=403, detail="Insufficient privileges"
             )
+
         async with async_session() as session:
             organization = Organization(
-                name=create_request.name, email=create_request.email
+                name=create_request.name,
+                email=create_request.email,
             )
             organization = await OrganizationRepository.create(
                 organization, session=session
             )
 
-            if create_request.user_ids:
-                users = await UserRepository.get_by_ids(
-                    create_request.user_ids, session
-                )
+            # Only process if there are user assignments
+            if len(create_request.users) > 0:
+                # Build mapping of user IDs to roles in one pass
+                role_map = {u.id: u.role for u in create_request.users}
+                user_ids = list(role_map.keys())
+
+                # Fetch and update each user
+                users = await UserRepository.get_by_ids(user_ids, session)
                 for user in users:
                     user.organization_id = organization.id
+                    user.role = role_map.get(user.id, UserRole.member)
                     await UserRepository.update_organization(user, session)
+
             await session.commit()
             await session.refresh(organization)
+
             users = await UserRepository.get_users_by_organization(
                 organization.id, session
             )
@@ -72,40 +82,45 @@ class OrganizationService:
 
             # Update basic fields
             organization.name = update_request.name
-            organization.email = update_request.email
+            if update_request.email:
+                organization.email = update_request.email
             session.add(organization)
 
-            # Get current users assigned to the organization
-            organization_users = (
-                await UserRepository.get_users_by_organization(
-                    organization_id, session
-                )
+            # Get current users in the organization
+            existing_users = await UserRepository.get_users_by_organization(
+                organization_id, session
             )
-            organization_users_ids = {user.id for user in organization_users}
-            new_user_ids = set(update_request.user_ids or [])
+            existing_ids = {u.id for u in existing_users}
 
-            # Determine which users to remove and which to add
-            users_to_remove = organization_users_ids - new_user_ids
-            users_to_add = new_user_ids - organization_users_ids
+            # Build mapping of new user IDs to roles in one pass
+            role_map = {u.id: u.role for u in update_request.users}
+            new_ids = set(role_map.keys())
 
-            if users_to_remove:
+            # Determine removals and additions
+            to_remove = existing_ids - new_ids
+            to_add = new_ids - existing_ids
+
+            # Remove users no longer assigned
+            if to_remove:
                 users = await UserRepository.get_by_ids(
-                    list(users_to_remove), session
+                    list(to_remove), session
                 )
                 for user in users:
                     user.organization_id = None
+                    user.role = UserRole.member
                     await UserRepository.update_organization(user, session)
 
-            if users_to_add:
-                users = await UserRepository.get_by_ids(
-                    list(users_to_add), session
-                )
+            # Add new users
+            if to_add:
+                users = await UserRepository.get_by_ids(list(to_add), session)
                 for user in users:
                     user.organization_id = organization.id
+                    user.role = role_map.get(user.id, UserRole.member)
                     await UserRepository.update_organization(user, session)
 
             await session.commit()
             await session.refresh(organization)
+
             users = await UserRepository.get_users_by_organization(
                 organization.id, session
             )

@@ -22,6 +22,7 @@ def _to_user_entity(user: User | UserEntity) -> UserEntity:
         language=user.language,
         is_superuser=user.is_superuser,
         organization_id=user.organization_id,
+        role=user.role,
         organization_name=(
             user.organization_name  # already present if it's a UserEntity
             if isinstance(user, UserEntity)

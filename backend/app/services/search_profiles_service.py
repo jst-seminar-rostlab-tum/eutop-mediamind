@@ -1,3 +1,4 @@
+# flake8: noqa: E501
 import uuid
 from collections import defaultdict
 from datetime import datetime, timedelta, timezone
@@ -12,6 +13,7 @@ from app.core.db import async_session
 from app.core.logger import get_logger
 from app.models import SearchProfile, Topic
 from app.models.match import Match
+from app.models.user import UserRole
 from app.repositories.article_repository import ArticleRepository
 from app.repositories.email_repository import EmailRepository
 from app.repositories.keyword_repository import KeywordRepository
@@ -147,10 +149,13 @@ class SearchProfileService:
     @staticmethod
     async def get_available_search_profiles(
         current_user: UserEntity,
-    ) -> list[SearchProfileDetailResponse]:
+    ) -> List[SearchProfileDetailResponse]:
         accessible_profiles = (
             await SearchProfileRepository.get_accessible_profiles(
-                current_user.id, current_user.organization_id
+                current_user.id,
+                current_user.organization_id,
+                current_user.role,
+                current_user.is_superuser,
             )
         )
 
@@ -263,15 +268,21 @@ class SearchProfileService:
                     status_code=404, detail="Profile not found"
                 )
 
-            if not (
+            allow_edit = (
                 current_user.is_superuser
                 or db_profile.created_by_id == current_user.id
+                or (
+                    db_profile.organization_id == current_user.organization_id
+                    and current_user.role == UserRole.maintainer
+                )
                 or (
                     db_profile.is_public
                     and db_profile.organization_id
                     == current_user.organization_id
                 )
-            ):
+            )
+
+            if not allow_edit:
                 raise HTTPException(
                     status_code=403, detail="Not allowed to edit this profile"
                 )
@@ -595,14 +606,27 @@ class SearchProfileService:
     async def delete_search_profile(
         profile_id: UUID, current_user: UserEntity
     ) -> None:
+        search_profile = SearchProfileRepository.get_by_id(profile_id)
+        # Permit deletion if user is owner, superuser, or maintainer of the same org
+        allow_delete = (
+            current_user.id == search_profile.owner_id
+            or current_user.is_superuser
+            or (
+                current_user.role == UserRole.maintainer
+                and current_user.organization_id
+                == search_profile.organization_id
+            )
+        )
+
         search_profile = (
             await SearchProfileRepository.get_search_profile_by_id(profile_id)
         )
-        if not (
-            current_user.is_superuser
-            or current_user.id == search_profile.owner_id
-        ):
-            raise
+
+        if not allow_delete:
+            raise HTTPException(
+                status_code=403, detail="Not allowed to delete this profile"
+            )
+
         async with async_session() as session:
             try:
                 # begin a transaction
@@ -614,7 +638,7 @@ class SearchProfileService:
                     await ReportRepository.delete_for_search_profile(
                         session, profile_id
                     )
-                    await SubscriptionRepository.delete_links_for_search_profile(  # noqa: E501
+                    await SubscriptionRepository.delete_links_for_search_profile(
                         session, profile_id
                     )
                     await UserRepository.delete_links_for_search_profile(
@@ -622,7 +646,7 @@ class SearchProfileService:
                     )
 
                     topic_ids = [topic.id for topic in search_profile.topics]
-                    await TopicsRepository.delete_keyword_links_for_search_profile(  # noqa: E501
+                    await TopicsRepository.delete_keyword_links_for_search_profile(
                         session, topic_ids
                     )
                     await TopicsRepository.delete_for_search_profile(

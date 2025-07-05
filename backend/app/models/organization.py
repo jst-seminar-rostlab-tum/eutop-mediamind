@@ -18,7 +18,7 @@ class Organization(SQLModel, table=True):
     # Attributes
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     name: str = Field(max_length=255, unique=True, index=True)
-    email: EmailStr = Field(max_length=255, index=True)
+    email: EmailStr = Field(max_length=255, index=True, nullable=True)
     vault_path: str | None = Field(default=None, max_length=255)
     # Relationships
     users: List["User"] = Relationship(back_populates="organization")
