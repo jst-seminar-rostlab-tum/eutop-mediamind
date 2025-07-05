@@ -1,10 +1,12 @@
-import json
-import urllib.parse
-import boto3
 import email
-import urllib.request
+import json
 import os
+import urllib.parse
+import urllib.request
+from email.message import Message
 from typing import Any, Dict
+
+import boto3
 
 S3_CLIENT = boto3.client("s3")
 API_HOST = os.environ.get("API_HOST")
@@ -17,18 +19,23 @@ if not API_KEY:
     raise RuntimeError("CHAT_API_KEY environment variable is not set.")
 
 
-def get_email_body(msg: email.message.Message) -> str:
+def get_email_body(msg: Message) -> str:
     if msg.is_multipart():
         for part in msg.walk():
             content_type = part.get_content_type()
             content_disposition = str(part.get("Content-Disposition"))
-            if content_type == "text/plain" and "attachment" not in content_disposition:
+            if (
+                content_type == "text/plain"
+                and "attachment" not in content_disposition
+            ):
                 return part.get_payload(decode=True).decode(
-                    part.get_content_charset() or "utf-8", errors="replace"
+                    part.get_content_charset() or "utf-8",
+                    errors="replace",
                 )
     else:
         return msg.get_payload(decode=True).decode(
-            msg.get_content_charset() or "utf-8", errors="replace"
+            msg.get_content_charset() or "utf-8",
+            errors="replace",
         )
     return ""
 
@@ -45,8 +52,13 @@ def call_api(
             "bucket": bucket,
         }
     ).encode("utf-8")
-    headers = {"Content-Type": "application/json", "x-api-key": api_key}
-    req = urllib.request.Request(API_URL, data=payload, headers=headers, method="POST")
+    headers = {
+        "Content-Type": "application/json",
+        "x-api-key": api_key,
+    }
+    req = urllib.request.Request(
+        API_URL, data=payload, headers=headers, method="POST"
+    )
     with urllib.request.urlopen(req) as resp:
         resp_body = resp.read().decode()
         print(f"API response: {resp.status} {resp_body}")
@@ -57,8 +69,9 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
 
     record = event["Records"][0]
     bucket = record["s3"]["bucket"]["name"]
-    key = urllib.parse.unquote_plus(record["s3"]["object"]["key"], encoding="utf-8")
-
+    key = urllib.parse.unquote_plus(
+        record["s3"]["object"]["key"], encoding="utf-8"
+    )
     try:
         response = S3_CLIENT.get_object(Bucket=bucket, Key=key)
         raw_email = response["Body"].read().decode("utf-8", errors="replace")
