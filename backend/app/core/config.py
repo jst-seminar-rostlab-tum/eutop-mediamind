@@ -68,9 +68,7 @@ class Configs(BaseSettings):
     SENTRY_DSN: HttpUrl | None
 
     # Redis
-    REDIS_HOST: str
-    REDIS_PORT: int
-    REDIS_DB: int
+    REDIS_URL: str | None
 
     # Qdrant
     QDRANT_URL: str | None
@@ -174,6 +172,7 @@ class Configs(BaseSettings):
         self._check_default_secret(
             "AWS_S3_BUCKET_NAME", self.AWS_S3_BUCKET_NAME
         )
+        self._check_default_secret("REDIS_URL", self.REDIS_URL)
         self._check_default_secret("QDRANT_URL", self.QDRANT_URL)
         self._check_default_secret("QDRANT_API_KEY", self.QDRANT_API_KEY)
         self._check_default_secret(
