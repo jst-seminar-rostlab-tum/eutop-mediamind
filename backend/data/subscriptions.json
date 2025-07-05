@@ -538,6 +538,14 @@
       "submit_button": "//input[@id='wp-submit']",
       "profile_section": "//a[contains(@href, 'profil')]",
       "logout_button": "//a[contains(@href, 'logout')]"
+    },
+    "crawlers": {
+      "RSSFeedCrawler": {
+        "feed_urls": [
+          "https://macemagazine.com/feed/"
+        ],
+        "language": "en"
+      }
     }
   },
   {
@@ -654,5 +662,24 @@
     "domain": "https://www.topagrar.com",
     "paywall": true,
     "is_active": false
+  },
+  {
+    "name": "Digitalfernsehen",
+    "domain": "https://www.digitalfernsehen.de/",
+    "paywall": false,
+    "is_active": false,
+    "crawlers": {
+      "RSSFeedCrawler": {
+        "feed_urls": [
+          "https://www.digitalfernsehen.de/news/feed/"
+        ],
+        "language": "de"
+      }
+    },
+    "scrapers": {
+      "TrafilaturaScraper": {
+        "trafilatura_kwargs": {}
+      }
+    }
   }
 ]

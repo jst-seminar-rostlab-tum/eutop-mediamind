@@ -52,15 +52,20 @@ async def trigger_crawling(
 
 @router.post("/trigger_rss_crawling")
 async def trigger_rss_crawling(
-    date_start: Date = date.today(), date_end: Date = date.today()
+    datetime_start: datetime = datetime.combine(
+        date.today(), datetime.min.time()
+    ),
+    datetime_end: datetime = datetime.now(),
 ):
-    logger.info(f"Triggering RSS crawling from {date_start} to {date_end}")
+    logger.info(
+        f"Triggering RSS crawling from {datetime_start} to {datetime_end}"
+    )
     asyncio.create_task(
         run_crawler(
             CrawlerType.RSSFeedCrawler,
-            date_start=date_start,
-            date_end=date_end,
-            limit=-1
+            date_start=datetime_start,
+            date_end=datetime_end,
+            limit=-1,
         )
     )
     return {"message": "RSS Crawling triggered successfully"}
