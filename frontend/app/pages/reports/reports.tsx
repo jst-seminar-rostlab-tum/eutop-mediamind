@@ -25,13 +25,14 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "~/components/ui/pagination";
-import { ScrollArea } from "~/components/ui/scroll-area";
+import { ReportFilterBar } from "~/custom-components/reports/reports-filter-bar";
 
 export function ReportsPage() {
   const { searchProfileId } = useParams();
   const { t } = useTranslation();
 
   const [currentPage, setCurrentPage] = useState(1);
+  const [languageFilter, setLanguageFilter] = useState<string>("");
   const itemsPerPage = 30;
 
   const {
@@ -40,23 +41,41 @@ export function ReportsPage() {
     error,
     mutate,
   } = useQuery("/api/v1/search-profiles/{search_profile_id}", {
-    params: { path: { search_profile_id: searchProfileId || "" } }
+    params: { path: { search_profile_id: searchProfileId || "" } },
   });
 
   const reports = getReports();
 
-  const totalItems = reports.reports.length;
+  const filteredReports = useMemo(() => {
+    if (!languageFilter) {
+      return reports.reports;
+    }
+    const langToFilter = languageFilter === "en" ? "us" : "de";
+    return reports.reports.filter((report) => report.language === langToFilter);
+  }, [reports.reports, languageFilter]);
+
+  const totalItems = filteredReports.length;
   const totalPages = Math.ceil(totalItems / itemsPerPage);
 
   const currentReports = useMemo(() => {
     const startIndex = (currentPage - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
-    return reports.reports.slice(startIndex, endIndex);
-  }, [reports.reports, currentPage, itemsPerPage]);
+    return filteredReports.slice(startIndex, endIndex);
+  }, [filteredReports, currentPage, itemsPerPage]);
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handleLanguageChange = (language: string) => {
+    setLanguageFilter(language);
+    setCurrentPage(1);
+  };
+
+  const handleResetFilters = () => {
+    setLanguageFilter("");
+    setCurrentPage(1);
   };
 
   const getPageNumbers = () => {
@@ -69,11 +88,11 @@ export function ReportsPage() {
       }
     } else {
       if (currentPage <= 3) {
-        pages.push(1, 2, 3, 4, '...', totalPages);
+        pages.push(1, 2, 3, 4, "...", totalPages);
       } else if (currentPage >= totalPages - 2) {
-        pages.push(1, '...', totalPages - 3, totalPages - 2, totalPages - 1, totalPages);
+        pages.push(1, "...", totalPages - 3, totalPages - 2, totalPages - 1, totalPages);
       } else {
-        pages.push(1, '...', currentPage - 1, currentPage, currentPage + 1, '...', totalPages);
+        pages.push(1, "...", currentPage - 1, currentPage, currentPage + 1, "...", totalPages);
       }
     }
 
@@ -96,9 +115,7 @@ export function ReportsPage() {
           <BreadcrumbSeparator />
           <BreadcrumbItem>
             <BreadcrumbLink asChild>
-              <Link to={`/dashboard/${searchProfileId}`}>
-                {profile.name}
-              </Link>
+              <Link to={`/dashboard/${searchProfileId}`}>{profile.name}</Link>
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
@@ -109,7 +126,11 @@ export function ReportsPage() {
       </Breadcrumb>
 
       <Text hierachy={2}>Report Download Center</Text>
-
+      <ReportFilterBar
+        language={languageFilter}
+        onLanguageChange={handleLanguageChange}
+        onReset={handleResetFilters}
+      />
       <div className="grid-report-cards mt-4">
         {currentReports.map((report, index) => (
           <ReportCard key={report.id || index} report={report} />
@@ -128,7 +149,7 @@ export function ReportsPage() {
 
             {getPageNumbers().map((page, index) => (
               <PaginationItem key={index}>
-                {page === '...' ? (
+                {page === "..." ? (
                   <PaginationEllipsis />
                 ) : (
                   <PaginationLink
@@ -153,7 +174,8 @@ export function ReportsPage() {
       )}
 
       <div className="text-sm text-muted-foreground mt-4 text-center">
-        Showing {((currentPage - 1) * itemsPerPage) + 1} to {Math.min(currentPage * itemsPerPage, totalItems)} of {totalItems} reports
+        Showing {totalItems > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0} to{" "}
+        {Math.min(currentPage * itemsPerPage, totalItems)} of {totalItems} reports
       </div>
     </Layout>
   );

@@ -31,6 +31,7 @@ const roleBadgeVariants = cva(
         morning: "border text-gray-900",
         afternoon: "border text-gray-900",
         evening: "border text-gray-900",
+        language: "bg-blue-100 text-blue-900"
       },
     },
   },
@@ -89,6 +90,10 @@ const roleConfig = {
     icon: Moon,
     label: "Evening",
   },
+  language: {
+    icon: Globe,
+    label: "Language"
+  }
 } as const;
 
 type RoleVariant = keyof typeof roleConfig;
