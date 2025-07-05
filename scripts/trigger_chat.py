@@ -88,7 +88,7 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
 
         return {
             "statusCode": 200,
-            "body": json.dumps("Email processed and sent to API."),
+            "body": json.dumps({"status": "ok"}),
         }
     except Exception as e:
         print(e)
