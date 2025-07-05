@@ -24,7 +24,6 @@ def upgrade():
     user_role_enum = sa.Enum("maintainer", "member", name="user_role_enum")
     user_role_enum.create(op.get_bind())
 
-    # 2. Neue Spalte mit Enum-Typ hinzufügen
     op.add_column(
         "users",
         sa.Column(
@@ -34,9 +33,7 @@ def upgrade():
 
 
 def downgrade():
-    # 1. Spalte löschen
     op.drop_column("users", "role")
 
-    # 2. Enum-Typ aus PostgreSQL löschen
     user_role_enum = sa.Enum("maintainer", "member", name="user_role_enum")
     user_role_enum.drop(op.get_bind())
