@@ -1,6 +1,3 @@
-from unittest.mock import patch
-
-import litellm.exceptions
 import pytest
 
 from app.services.llm_service.llm_client import LLMClient
