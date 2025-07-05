@@ -80,7 +80,7 @@ class ChatbotService:
         email = Email(
             sender=configs.SMTP_USER,
             recipient=user_email,
-            subject=f"[MEDIAMIND]: {subject}",
+            subject=subject,
             content_type="text/HTML",
             content=content,
         )

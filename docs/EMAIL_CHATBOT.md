@@ -1,10 +1,105 @@
-# Email Chatbot
+# MediaMind Chatbot Email Flow
 
-## Workflow
-1. When user emails arrive, create an `EmailConversation` with subject and user email
-2. Store the original user message as a `ChatMessage` with role=USER
-3. Store AI responses as `ChatMessage` with role=ASSISTANT
-4. Messages are linked by `email_conversation_id` and ordered by `created_at`
+## How it Works
+
+1. **User sends an email**
+
+   - The user sends an email to a designated address.
+
+2. **Amazon SES receives and stores the email**
+
+   - Amazon SES receives the email and stores the full message in an S3 bucket.
+   - _Note: SES notifications do not include the full message body; the email must be retrieved from S3._
+
+3. **S3 triggers an AWS Lambda function**
+
+   - When a new email file is uploaded to S3, it triggers a Lambda function.
+
+4. **Lambda function processes the email**
+
+   - The Lambda function:
+     - Downloads the email from S3.
+     - Extracts the sender’s address, subject, and message body.
+     - Sends a POST request to the `/api/v1/chatbot` endpoint, authenticated with an API key, containing the extracted email data.
+
+5. **Backend receives and processes the request**
+
+   - The backend receives the POST request.
+   - It gets an existing or creates a new `EmailConversation` entry with the subject and user email.
+   - The original user message is stored as a `ChatMessage` with role=USER.
+   - The entire `EmailConversation` history is loaded, including the new user message, and passed to an LLM.
+   - The LLM response is stored as a `ChatMessage` with role=ASSISTANT.
+
+6. **Backend sends a reply email**
+   - The backend sends a reply email to the original sender.
+
+## Sequence Diagram
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant SES
+    participant S3
+    participant Lambda
+    participant Backend
+
+    User->>SES: Send email
+    SES->>S3: Store email in bucket
+    S3->>Lambda: Trigger on new object
+    Lambda->>S3: Download email
+    Lambda->>Backend: POST /api/v1/chatbot (API key, email data)
+    Backend->>LLM: Query
+    Backend->>User: Send reply email
+```
+
+## AWS Setup Guide
+
+To enable this flow, follow these steps to configure AWS resources:
+
+### 1. **Set Up Amazon SES**
+
+- **Verify your domain or email address** in SES.
+- **Create a receipt rule** to handle incoming emails:
+  - Go to ___SES___ > ___Configuration___ > ___Email receiving___ > _Receipt rule sets_.
+  - Create a new rule:
+    - Add a recipient (the email address you want to use).
+    - Add an action: ___Deliver to Amazon S3 bucket___ (choose or create a bucket to store emails).
+    - (Optional) Add an SNS notification action for debugging.
+    - Finish and enable the rule set.
+
+### 2. **Set Up the S3 Bucket**
+
+- Create an S3 bucket (if not already done).
+- Ensure SES has permission to write to the bucket (SES will create a policy automatically if you use the console).
+
+### 3. **Create the Lambda Function**
+
+- Create a new Lambda function (Python 3.x runtime).
+- Upload your `trigger_chat.py` code (or use the inline editor).
+- Set environment variables, especially `CHAT_API_KEY`.
+- Add the necessary IAM permissions:
+  - ___s3:GetObject___ for the S3 bucket.
+  - (Optional) ___logs:CreateLogGroup___, ___logs:CreateLogStream___, ___logs:PutLogEvents___ for CloudWatch logging.
+
+### 4. **Configure S3 Event Notification**
+
+- In the S3 bucket, go to ___Properties___ > ___Event notifications___.
+- Add a new event notification:
+  - Event type: ___All object create events___ (or filter for the SES prefix).
+  - Destination: ___Lambda function___ (select your Lambda).
+- Save the notification.
+
+### 5. **(Optional) Test the Setup**
+
+- Send a test email to your SES-verified address.
+- Check S3 for the stored email.
+- Check Lambda logs in CloudWatch for processing.
+- Confirm the backend receives the POST request.
+
+### 6. **Backend Configuration**
+
+- Ensure the `/api/v1/chatbot` endpoint is deployed and accessible.
+- The API key used by Lambda must match the backend configuration.
 
 ## Database Tables
 
