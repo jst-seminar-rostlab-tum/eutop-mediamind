@@ -58,7 +58,6 @@ class ChatbotService:
         conversation_context = await ChatbotService.load_conversation_context(
             email_conversation_id
         )
-        print(f"Conversation context: {conversation_context}")
         prompt = f"""You are a professional customer support assistant for \
 MediaMind, responding to user emails. Your tone must always be polite, \
 empathetic, and solution-oriented. Your task is to provide a concise, \
@@ -95,7 +94,6 @@ resolve the user's query."""
         prompt = await ChatbotService.create_prompt_from_context(
             email_conversation_id=email_conversation_id, chat_body=chat.body
         )
-        print(f"Prompt for LLM: {prompt}")
 
         llm_client = LLMClient(LLMModels.openai_4o_mini)
         try:
