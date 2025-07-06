@@ -133,7 +133,9 @@
     "user": "user",
     "add_user": "Add User...",
     "no_user": "No user found.",
-    "no_results": "No results."
+    "no_results": "No results.",
+    "orgas_error": "Failed to fetch organizations",
+    "subs_error": "Failed to fetch subscriptions"
   },
 
   "organization-dialog": {
@@ -157,7 +159,10 @@
     "create_success": "Organization created successfully",
     "create_failed": "Organization could not be created",
     "update_success": "Organization updated successfully",
-    "update_failed": "Organization could not be updated"
+    "update_failed": "Organization could not be updated",
+    "name_required": "Name is required",
+    "name_length": "Max length is 20 characters",
+    "name_regex": "Only letters and numbers are allowed"
   },
 
   "subscription-dialog": {
@@ -177,7 +182,14 @@
     "create_success": "Subscription created successfully",
     "create_failed": "Subscription could not be created",
     "update_success": "Subscription updated successfully",
-    "update_failed": "Subscription could not be updated"
+    "update_failed": "Subscription could not be updated",
+    "name_required": "Name is required",
+    "name_length": "Max length is 20 characters",
+    "name_regex": "Only letters and numbers are allowed",
+    "url_valid": "Must be a valid URL, e.g. https://example.com",
+    "username_min": "Username must be at least 2 characters",
+    "username_max": "Username must be at most 30 characters.",
+    "username_regex": "Username may only contain letters, numbers, dots, dashes, or underscores."
   },
 
   "search_profile": {

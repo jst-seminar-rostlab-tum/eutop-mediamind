@@ -10,7 +10,7 @@ import { Input } from "~/components/ui/input";
 import { Button } from "~/components/ui/button";
 import React, { useEffect, useMemo, useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
-import type { SubscriptionResponse, Subscription } from "types/model";
+import type { Subscription } from "types/model";
 import { useTranslation } from "react-i18next";
 import { ConfirmationDialog } from "~/custom-components/confirmation-dialog";
 import {
@@ -24,7 +24,7 @@ import {
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { client, useQuery } from "types/api";
+import { useQuery } from "types/api";
 import { cloneDeep, isEqual } from "lodash-es";
 import {
   Select,
@@ -33,42 +33,39 @@ import {
   SelectTrigger,
   SelectValue,
 } from "~/components/ui/select";
+import type { TFunction } from "i18next";
 
-const FormSchema = z.object({
-  name: z
-    .string()
-    .min(1, { message: "Name is required." })
-    .max(20, { message: "Max length is 20 characters." })
-    .regex(/^[a-zA-Z0-9]+$/, {
-      message: "Only letters and numbers are allowed.",
-    }),
+const createFormSchema = (t: TFunction) =>
+  z.object({
+    name: z
+      .string()
+      .min(1, { message: t("subscription-dialog.name_required") })
+      .max(20, { message: t("subscription-dialog.name_length") })
+      .regex(/^[a-zA-Z0-9]+$/, {
+        message: t("subscription-dialog.name_regex"),
+      }),
+    url: z.string().url({ message: t("subscription-dialog.url_valid") }),
+    paywall: z.boolean(),
+    username: z
+      .string()
+      .min(2, { message: t("subscription-dialog.username_min") })
+      .max(30, { message: t("subscription-dialog.username_max") })
+      .regex(/^[a-zA-Z0-9_.-]+$/, {
+        message: t("subscription-dialog.username_regex"),
+      }),
+    password: z
+      .string()
+      .min(8, { message: "Password must be at least 8 characters." })
+      .max(50, { message: "Password must be at most 50 characters." })
+      .regex(/[a-z]/, { message: "Password must include a lowercase letter." })
+      .regex(/[A-Z]/, { message: "Password must include an uppercase letter." })
+      .regex(/[0-9]/, { message: "Password must include a number." })
+      .regex(/[\W_]/, {
+        message: "Password must include a special character.",
+      }),
+  });
 
-  url: z
-    .string()
-    .url({ message: "Must be a valid URL (e.g., https://example.com)" }),
-
-  paywall: z.boolean(),
-
-  username: z
-    .string()
-    .min(2, { message: "Username must be at least 2 characters." })
-    .max(30, { message: "Username must be at most 30 characters." })
-    .regex(/^[a-zA-Z0-9_.-]+$/, {
-      message:
-        "Username may only contain letters, numbers, dots, dashes, or underscores.",
-    }),
-
-  password: z
-    .string()
-    .min(8, { message: "Password must be at least 8 characters." })
-    .max(50, { message: "Password must be at most 50 characters." })
-    .regex(/[a-z]/, { message: "Password must include a lowercase letter." })
-    .regex(/[A-Z]/, { message: "Password must include an uppercase letter." })
-    .regex(/[0-9]/, { message: "Password must include a number." })
-    .regex(/[\W_]/, { message: "Password must include a special character." }),
-});
-
-type FormValues = z.infer<typeof FormSchema>;
+export type FormValues = z.infer<ReturnType<typeof createFormSchema>>;
 
 type Props = {
   open: boolean;
@@ -85,11 +82,11 @@ export function SubscriptionDialog({
   sub,
   onSave,
 }: Props) {
-  const [subData, setSubData] = useState<SubscriptionResponse | null>(null);
+  const { t } = useTranslation();
+  const formSchema = useMemo(() => createFormSchema(t), [t]);
+
   const [visible, setVisible] = useState(false);
   const [showLeaveConfirm, setShowLeaveConfirm] = React.useState(false);
-
-  const { t } = useTranslation();
 
   const initialSub = {
     id: "",
@@ -141,15 +138,12 @@ export function SubscriptionDialog({
   }, [sub?.id]);
   */
 
-  /*
-  // set edited orga either to orga for edit or initialOrga for create
-  const editedSub = useMemo(() => {
-    return cloneDeep(isEdit && subData ? subData : initialSub);
-  }, [isEdit, subData]);
-  */
+  const subData = useMemo(() => {
+    return cloneDeep(isEdit && fetchedSubData ? fetchedSubData : initialSub);
+  }, [isEdit, fetchedSubData]);
 
   const form = useForm<FormValues>({
-    resolver: zodResolver(FormSchema),
+    resolver: zodResolver(formSchema),
     defaultValues: {
       name: subData ? subData.name : "",
       url: subData ? subData.domain : "",
@@ -217,7 +211,7 @@ export function SubscriptionDialog({
                   control={form.control}
                   name="name"
                   render={({ field }) => (
-                    <FormItem className="grid grid-cols-4 items-center gap-x-4">
+                    <FormItem className="grid grid-cols-4 items-center gap-x-4 gap-y-1">
                       <FormLabel className="col-span-1 flex justify-end">
                         {t("subscription-dialog.Name")}
                       </FormLabel>
@@ -238,7 +232,7 @@ export function SubscriptionDialog({
                   control={form.control}
                   name="url"
                   render={({ field }) => (
-                    <FormItem className="grid grid-cols-4 items-center gap-4">
+                    <FormItem className="grid grid-cols-4 items-center gap-x-4 gap-y-1">
                       <FormLabel className="col-span-1 flex justify-end">
                         {t("subscription-dialog.URL")}
                       </FormLabel>
@@ -259,7 +253,7 @@ export function SubscriptionDialog({
                   control={form.control}
                   name="paywall"
                   render={({ field }) => (
-                    <FormItem className="grid grid-cols-4 items-center gap-4">
+                    <FormItem className="grid grid-cols-4 items-center gap-x-4 gap-y-1">
                       <FormLabel className="col-span-1 flex justify-end">
                         {t("subscription-dialog.Paywall")}
                       </FormLabel>
@@ -292,7 +286,7 @@ export function SubscriptionDialog({
                   control={form.control}
                   name="username"
                   render={({ field }) => (
-                    <FormItem className="grid grid-cols-4 items-center gap-4">
+                    <FormItem className="grid grid-cols-4 items-center gap-x-4 gap-y-1">
                       <FormLabel className="col-span-1 flex justify-end">
                         {t("subscription-dialog.Username")}
                       </FormLabel>
@@ -313,7 +307,7 @@ export function SubscriptionDialog({
                   control={form.control}
                   name="password"
                   render={({ field }) => (
-                    <FormItem className="grid grid-cols-4 gap-4">
+                    <FormItem className="grid grid-cols-4 gap-x-4 gap-y-1">
                       <FormLabel className="col-span-1 flex justify-end">
                         {t("subscription-dialog.Password")}
                       </FormLabel>

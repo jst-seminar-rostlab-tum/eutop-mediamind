@@ -61,16 +61,24 @@ export function AdminPage() {
   const {
     data: organizations,
     // isLoading: orgasLoading,
-    // error : orgasError,
+    error: orgasError,
     mutate: mutateOrgas,
   } = useQuery("/api/v1/organizations", undefined, suppressSWRReloading);
 
   const {
     data: subscriptions,
     // isLoading: subsLoading,
-    // error: subsError,
+    error: subsError,
     mutate: mutateSubs,
   } = useQuery("/api/v1/subscriptions", undefined, suppressSWRReloading);
+
+  if (orgasError) {
+    toast.success(t("admin.orgas_error"));
+  }
+
+  if (subsError) {
+    toast.success(t("admin.subs_error"));
+  }
 
   // Organization Functions
 

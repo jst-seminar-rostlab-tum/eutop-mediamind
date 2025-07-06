@@ -30,18 +30,6 @@ import type { Row } from "@tanstack/react-table";
 import { useQuery } from "types/api";
 import { toast } from "sonner";
 
-const FormSchema = z.object({
-  name: z
-    .string()
-    .min(1, { message: "Name is required." })
-    .max(20, { message: "Max length is 20 characters." })
-    .regex(/^[a-zA-Z0-9]+$/, {
-      message: "Only letters and numbers are allowed.",
-    }),
-});
-
-type FormValues = z.infer<typeof FormSchema>;
-
 type Props = {
   open: boolean;
   onOpenChange: (value: boolean) => void;
@@ -64,6 +52,20 @@ export function OrganizationDialog({
   orga,
   onSave,
 }: Props) {
+  const { t } = useTranslation();
+
+  const FormSchema = z.object({
+    name: z
+      .string()
+      .min(1, { message: t("organization-dialog.name_required") })
+      .max(20, { message: "Max length is 20 characters." })
+      .regex(/^[a-zA-Z0-9]+$/, {
+        message: "Only letters and numbers are allowed.",
+      }),
+  });
+
+  type FormValues = z.infer<typeof FormSchema>;
+
   const {
     data: userData,
     // isLoading: usersLoading,
@@ -77,7 +79,6 @@ export function OrganizationDialog({
 
   const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
   const [tableUsers, setTableUsers] = useState<TableUser[]>([]);
-  const { t } = useTranslation();
 
   // initial orga for creation mode
   const initialOrga: Organization = {
@@ -215,8 +216,6 @@ export function OrganizationDialog({
         })
         .filter((u): u is NonNullable<typeof u> => u !== null),
     };
-    console.log("updated", updated);
-    console.log("base", base);
     return isEqual(updated, base);
   };
 
@@ -252,7 +251,7 @@ export function OrganizationDialog({
                   control={form.control}
                   name="name"
                   render={({ field }) => (
-                    <FormItem className="flex">
+                    <FormItem className="flex items-center">
                       <FormLabel>{t("organization-dialog.Name")}</FormLabel>
                       <FormControl>
                         <Input
@@ -262,7 +261,7 @@ export function OrganizationDialog({
                           {...field}
                         />
                       </FormControl>
-                      <FormMessage />
+                      <FormMessage className="pl-2 w-full items-center " />
                     </FormItem>
                   )}
                 />

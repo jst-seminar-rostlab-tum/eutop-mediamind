@@ -133,7 +133,9 @@
     "user": "Benutzer",
     "add_user": "Benutzer hinzufügen...",
     "no_user": "Keine Benutzer gefunden.",
-    "no_results": "Keine Ergebnisse."
+    "no_results": "Keine Ergebnisse.",
+    "orgas_error": "Laden der Organisationen fehlgeschlagen",
+    "subs_error": "Laden der Abonnements fehlgeschlagen"
   },
 
   "organization-dialog": {
@@ -153,7 +155,10 @@
     "create_success": "Organisation erfolgreich erstellt",
     "create_failed": "Organisation konnte nicht erstellt werden",
     "update_success": "Organisation erfolgreich geupdated",
-    "update_failed": "Organisation konnte nicht geupdated werden"
+    "update_failed": "Organisation konnte nicht geupdated werden",
+    "name_required": "Name ist gefordert",
+    "name_length": "Maximale länge sind 20 Zeichen",
+    "name_regex": "Nur Buchstaben und Zahlen sind erlaubt"
   },
 
   "subscription-dialog": {
@@ -173,7 +178,14 @@
     "create_success": "Abonnement erfolgreich erstellt",
     "create_failed": "Abonnement konnte nicht erstellt werden",
     "update_success": "Abonnement erfolgreich geupdated",
-    "update_failed": "Abonnement konnte nicht geupdated werden"
+    "update_failed": "Abonnement konnte nicht geupdated werden",
+    "name_required": "Name ist gefordert",
+    "name_length": "Maximale länge sind 20 Zeichen",
+    "name_regex": "Nur Buchstaben und Zahlen sind erlaubt",
+    "url_valid": "Muss eine valide URL sein, z.b. https://beispiel.de",
+    "username_min": "Benutzername muss mindestens 2 Zeichen lang sein",
+    "username_max": "Benutzername darf maximal 30 Zeichen lang sein",
+    "username_regex": "Benutzername darf nur aus Buchstaben, Zahlen, Punkten, Strichen oder Unterstrichen bestehen."
   },
 
   "search_profile": {

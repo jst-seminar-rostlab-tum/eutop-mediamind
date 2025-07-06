@@ -137,7 +137,7 @@ export function DataTableSubscriptions<TData, TValue>({
                   colSpan={columns.length}
                   className="h-24 text-center"
                 >
-                  No results.
+                  {t("admin.no_results")}
                 </TableCell>
               </TableRow>
             )}
