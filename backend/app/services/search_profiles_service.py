@@ -598,7 +598,10 @@ class SearchProfileService:
         search_profile = (
             await SearchProfileRepository.get_search_profile_by_id(profile_id)
         )
-        if current_user.id != search_profile.owner_id:
+        if not (
+            current_user.is_superuser
+            or current_user.id == search_profile.owner_id
+        ):
             raise
         async with async_session() as session:
             try:

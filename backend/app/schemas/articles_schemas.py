@@ -19,6 +19,7 @@ class MatchArticleOverviewContent(BaseModel):
     authors: List[str] | None = None
     categories: List[str] | None = None
     status: ArticleStatus | None = None
+    language: str | None = None
 
 
 class MatchTopicItem(BaseModel):
