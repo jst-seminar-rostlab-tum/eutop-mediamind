@@ -53,7 +53,7 @@ class ChatbotService:
 
     @staticmethod
     async def create_prompt_from_context(
-        email_conversation_id: UUID, chat_body: str
+        email_conversation_id: UUID, subject: str, chat_body: str
     ) -> str:
         conversation_context = await ChatbotService.load_conversation_context(
             email_conversation_id
@@ -67,6 +67,8 @@ Below is the complete conversation history so far. Messages are labelled as \
 "user" (for user messages) and "assistant" (for your responses):
 
 ---
+Subject: <{subject}>
+
 {conversation_context}
 ---
 
@@ -94,7 +96,9 @@ resolve the user's query."""
         chat_body: str,
     ) -> str:
         prompt = await ChatbotService.create_prompt_from_context(
-            email_conversation_id=email_conversation_id, chat_body=chat_body
+            email_conversation_id=email_conversation_id,
+            subject=subject,
+            chat_body=chat_body,
         )
 
         llm_client = LLMClient(LLMModels.openai_4o_mini)
