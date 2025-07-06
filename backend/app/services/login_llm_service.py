@@ -4,6 +4,7 @@ import json
 import re
 import time
 
+import tiktoken
 from bs4 import BeautifulSoup, Comment
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
@@ -84,6 +85,23 @@ Use the following schema:\n
 
 
 class LoginLLM:
+    cookies_accepted = False
+    notifications_removed = False
+    login_button_visible = False
+    login_section_opened = False
+    user_inserted = False
+    password_inserted = False
+    submitted = False
+
+    @staticmethod
+    def _reset_flags():
+        LoginLLM.cookies_accepted = False
+        LoginLLM.notifications_removed = False
+        LoginLLM.login_button_visible = False
+        LoginLLM.login_section_opened = False
+        LoginLLM.user_inserted = False
+        LoginLLM.password_inserted = False
+        LoginLLM.submitted = False
 
     @staticmethod
     def _take_screenshot(driver):
@@ -141,18 +159,25 @@ class LoginLLM:
             return None
 
     @staticmethod
-    def _find_correct_clickable_element(driver, wait, newspaper, key):
+    def _find_correct_clickable_element(
+        driver, wait, newspaper, key, second_button=None
+    ):
         selectors = newspaper.get(key)
         if selectors:
             if isinstance(selectors, list):
                 for xpath in selectors:
                     scroll_to_element(driver, wait, xpath, key)
                     if click_element(driver, wait, xpath, key):
-                        newspaper[key] = xpath
+                        if second_button:
+                            newspaper[second_button] = xpath
+                        else:
+                            newspaper[key] = xpath
                         return True
             else:
                 scroll_to_element(driver, wait, selectors, key)
                 if click_element(driver, wait, selectors, key):
+                    if second_button:
+                        newspaper[second_button] = selectors
                     return True
         return False
 
@@ -360,11 +385,18 @@ class LoginLLM:
         return soup_final.prettify()
 
     @staticmethod
+    def _count_tokens(text):
+        enc = tiktoken.encoding_for_model(LLMModels.openai_4o.value)
+        return len(enc.encode(text))
+
+    @staticmethod
     async def _find_elements_with_LLM(driver, login_config):
         html = driver.page_source
-        html = LoginLLM._custom_clean_html(html)
         html = await LoginLLM._extract_and_merge_iframes(driver, html)
         html = await LoginLLM._extract_and_merge_shadow_roots(driver, html)
+        html = LoginLLM._custom_clean_html(html)
+        tokens = LoginLLM._count_tokens(html)
+        logger.info(f"Html tokens to be sent to the LLM: {tokens}")
         await asyncio.sleep(3)
         website_image = LoginLLM._take_screenshot(driver)
         try:
@@ -395,9 +427,8 @@ class LoginLLM:
         logged_in = False
 
         # Accept cookies in shadow root
-        cookies_accepted = False
         if updated_config.get("shadow_host_cookies"):
-            cookies_accepted = LoginLLM._click_shadow_root_element(
+            LoginLLM.cookies_accepted = LoginLLM._click_shadow_root_element(
                 driver,
                 wait,
                 updated_config,
@@ -406,56 +437,88 @@ class LoginLLM:
             )
 
         # Accept cookies
-        if not cookies_accepted:
+        if not LoginLLM.cookies_accepted:
             # Change to cookies iframe
             LoginLLM._change_to_correct_iframe(
                 driver, wait, updated_config, "iframe_cookies"
             )
             # Click cookies button
-            LoginLLM._find_correct_clickable_element(
-                driver, wait, updated_config, "cookies_button"
+            LoginLLM.cookies_accepted = (
+                LoginLLM._find_correct_clickable_element(
+                    driver, wait, updated_config, "cookies_button"
+                )
             )
         driver.switch_to.default_content()
 
         # Remove notifications window
-        LoginLLM._find_correct_clickable_element(
-            driver, wait, updated_config, "refuse_notifications"
-        )
+        if not LoginLLM.notifications_removed:
+            LoginLLM.notifications_removed = (
+                LoginLLM._find_correct_clickable_element(
+                    driver, wait, updated_config, "refuse_notifications"
+                )
+            )
 
-        # Go to section containing login element
-        LoginLLM._find_correct_clickable_element(
-            driver, wait, updated_config, "path_to_login_button"
-        )
+        # Go to section containing login section trigger
+        if not LoginLLM.login_button_visible:
+            LoginLLM.login_button_visible = (
+                LoginLLM._find_correct_clickable_element(
+                    driver, wait, updated_config, "path_to_login_button"
+                )
+            )
 
         # Open login form
-        LoginLLM._find_correct_clickable_element(
-            driver, wait, updated_config, "login_button"
+        if not LoginLLM.login_section_opened:
+            LoginLLM.login_section_opened = (
+                LoginLLM._find_correct_clickable_element(
+                    driver, wait, updated_config, "login_button"
+                )
+            )
+
+        # Change to credentials iframe
+        LoginLLM._change_to_correct_iframe(
+            driver, wait, updated_config, "iframe_credentials"
         )
 
-        # We check if the login form is in this scraped page
-        if updated_config.get("submit_button"):
-            # Change to credentials iframe
-            LoginLLM._change_to_correct_iframe(
-                driver, wait, updated_config, "iframe_credentials"
-            )
-            # Insert credentials
-            user_inserted = LoginLLM._find_correct_input_element(
-                driver, wait, updated_config, "user_input", username
-            )
-            password_inserted = LoginLLM._find_correct_input_element(
+        # Insert and submit credentials
+        if LoginLLM.user_inserted and LoginLLM.submitted:
+            LoginLLM.password_inserted = LoginLLM._find_correct_input_element(
                 driver, wait, updated_config, "password_input", password
             )
             url = driver.current_url
             # Submit credentials
-            submitted = LoginLLM._find_correct_clickable_element(
+            LoginLLM.submitted = LoginLLM._find_correct_clickable_element(
+                driver, wait, updated_config,
+                "submit_button", second_button="second_submit_button"
+            )
+            driver.switch_to.default_content()
+        else:
+            # Insert credentials
+            if not LoginLLM.user_inserted:
+                LoginLLM.user_inserted = LoginLLM._find_correct_input_element(
+                    driver, wait, updated_config, "user_input", username
+                )
+            if not LoginLLM.password_inserted:
+                LoginLLM.password_inserted = (
+                    LoginLLM._find_correct_input_element(
+                        driver, wait, updated_config,
+                        "password_input", password
+                    )
+                )
+            url = driver.current_url
+            # Submit credentials
+            LoginLLM.submitted = LoginLLM._find_correct_clickable_element(
                 driver, wait, updated_config, "submit_button"
             )
             driver.switch_to.default_content()
 
-        page_changed = LoginLLM._wait_for_page_change(driver, url)
-
-        if user_inserted and password_inserted and submitted and page_changed:
-            logged_in = True
+        if (
+            LoginLLM.user_inserted
+            and LoginLLM.password_inserted
+            and LoginLLM.submitted
+        ):
+            page_changed = LoginLLM._wait_for_page_change(driver, url)
+            if page_changed:
+                logged_in = True
 
         return logged_in
 
@@ -504,6 +567,8 @@ class LoginLLM:
                 continue
 
         driver.quit()
+
+        LoginLLM._reset_flags()
 
         if logged_in:
             async with async_session() as session:
