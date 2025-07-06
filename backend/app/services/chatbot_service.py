@@ -86,7 +86,8 @@ Instructions:
 - If you do not know the answer, reply that to the user and politely ask for \
 more context.
 - Focus on providing accurate, actionable, and relevant information to \
-resolve the user's query."""
+resolve the user's query.
+- Always answer in the language of the user's last message."""
         return prompt
 
     @staticmethod
