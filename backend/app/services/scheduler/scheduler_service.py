@@ -1,53 +1,65 @@
-from collections.abc import Callable
-from datetime import datetime
+from typing import Callable, List, Optional, Any
 from redis import Redis
-from rq import Queue, Repeat
+from datetime import timedelta, datetime, timezone
 
-class _Scheduler:
+from rq_scheduler import Scheduler
 
-    def __init__(self, redis: Redis):
-        self._redis = redis
-        self._queues = {}
-
-
-    def schedule(self, queue: str, task: Callable, *args, **kwargs):
-        return self._get_queue(queue).enqueue(task, args, kwargs)
-
-    def schedule_repeated(self, queue: str, repeat: Repeat, task: Callable, *args, **kwargs):
-        return self._get_queue(queue).enqueue(task, args, kwargs, repeat=repeat)
-
-    def schedule_at(self, queue: str, when: datetime, task: Callable , *args, **kwargs):
-        return self._get_queue(queue).enqueue_at(when, task, args, kwargs)
-
-    def _get_queue(self, queue: str) -> Queue:
-        if queue not in self._queues:
-            self._queues[queue] = Queue(queue, connection=self._redis)
-        return self._queues[queue]
 
 class SchedulerService:
-    _scheduler = None
+    _scheduler: Optional[Scheduler] = None
+    _redis: Optional[Redis]= None
 
     @staticmethod
-    def _get_scheduler() -> _Scheduler:
-        global _scheduler
-        if _scheduler is None:
-            raise RuntimeError("Scheduler not initialized. Call init_scheduler first.")
-        return _scheduler
-
-    # Initialize the scheduler with a Redis connection
-    @staticmethod
-    def init_scheduler(redis: Redis):
-        global _scheduler
-        _scheduler = _Scheduler(redis)
+    def _get_scheduler() -> Scheduler:
+        if SchedulerService._scheduler is None:
+            raise RuntimeError("Scheduler not initialized")
+        return SchedulerService._scheduler
 
     @staticmethod
-    def schedule(queue: str, task: Callable, *args, **kwargs):
-        return SchedulerService._get_scheduler().schedule(queue, task, args, kwargs)
+    def init_scheduler(redis: Redis) -> None:
+        SchedulerService._redis = redis
+        SchedulerService._scheduler = Scheduler(connection=redis, queue_name="q2")
 
     @staticmethod
-    def schedule_repeated(queue: str, repeat: Repeat, task: Callable, *args, **kwargs):
-        return SchedulerService._get_scheduler().schedule_repeated(queue, repeat, task, args, kwargs)
+    def schedule(func: Callable, args: Optional[List[Any]]=None) -> None:
+        """
+        Schedule a task for a single, immediate execution.
+        :param func: The function to be executed.
+        :param args: Arguments to pass to the function.
+        """
+        # Add one seccond buffer just in case
+        execution_time = datetime.now(timezone.utc) + timedelta(seconds=1)
+        SchedulerService.schedule_at(execution_time, func=func, args=args)
 
     @staticmethod
-    def schedule_at(queue: str, when: datetime, task: Callable, *args, **kwargs):
-        return SchedulerService._get_scheduler().schedule_at(queue, when, task, args, kwargs)
+    def schedule_at(execution_time: datetime, func: Callable, args: Optional[List[Any]]=None) -> None:
+        """
+        Schedule a task to run at a specific time.
+        :param scheduled_time: The time at which the task should be executed.
+        :param func: The function to be executed.
+        :param args: Arguments to pass to the function.
+        """
+        s = SchedulerService._get_scheduler()
+        s.schedule(
+            scheduled_time=execution_time,
+            func=func,
+            args=args,
+            repeat=1,
+            interval=1,
+        )
+
+    @staticmethod
+    def schedule_periodic(every_seconds: int, func: Callable, args: Optional[List[Any]]=None) -> None:
+        """
+        Schedule a periodic task.
+        :param every_seconds: Interval in seconds between executions.
+        :param func: The function to be executed periodically.
+        :param args: Arguments to pass to the function.
+        """
+        s = SchedulerService._get_scheduler()
+        s.schedule(
+            scheduled_time=datetime.now(),
+            func=func,
+            args=args,
+            interval=every_seconds,
+        )

@@ -52,7 +52,16 @@ class EmailService:
         return await EmailRepository.add_email(email)
 
     @staticmethod
+    def email_job():
+        from asyncio import get_event_loop
+        loop = get_event_loop()
+        coro = EmailService.send_scheduled_emails()
+        loop.create_task(coro)
+
+    @staticmethod
     async def send_scheduled_emails():
+        print("AAAAAAAAAAAAASending scheduled emails...")  # Debugging line
+        pass
         emails = await EmailRepository.get_all_unsent_emails()
 
         for email in emails:

@@ -3,11 +3,13 @@ from fastapi import FastAPI, Request
 from sqlalchemy.exc import SQLAlchemyError
 from starlette.middleware.cors import CORSMiddleware
 from starlette.responses import JSONResponse
+from rq_dashboard_fast import RedisQueueDashboard
 
 from app.api.v1.routes import routers as v1_routers
 from app.core.config import configs
 from app.core.logger import get_logger
-from app.core.db import redis_engine
+from app.core.db import get_redis_url, redis_engine
+from app.services.scheduler.periodic_tasks import register_periodic_tasks
 from app.services.scheduler.scheduler_service import SchedulerService
 
 logger = get_logger(__name__)
@@ -95,10 +97,17 @@ class AppCreator:
         self.app.include_router(v1_routers, prefix="/api/v1")
 
     def _init_scheduler(self):
+
         SchedulerService.init_scheduler(redis_engine)
+        register_periodic_tasks()
+
+        dashboard = RedisQueueDashboard(get_redis_url(), "/rq")
+        print("Redis URL:", get_redis_url())
+
+        self.app.mount("/rq", dashboard)
+
         logger.info("Scheduler initialized successfully.")
 
-
-# App exposure for uvicorn
+# App exposure for Uvicorn
 app_creator = AppCreator()
 app = app_creator.app

@@ -24,7 +24,7 @@ redis_engine = redis.Redis(
     host=configs.REDIS_HOST,
     port=configs.REDIS_PORT,
     db=configs.REDIS_DB,
-    decode_responses=True,
+#    decode_responses=True,
     password=getattr(configs, "REDIS_PASSWORD", None),
 )
 
@@ -66,3 +66,21 @@ def get_qdrant_connection() -> QdrantClient:
         msg = f"Failed to initialize Qdrant client: {err}"
         logger.error(msg)
         raise RuntimeError(msg) from err
+
+def get_redis_url() -> str:
+    from urllib.parse import quote
+
+    host = redis_engine.connection_pool.connection_kwargs.get("host")
+    port = redis_engine.connection_pool.connection_kwargs.get("port")
+    db = redis_engine.connection_pool.connection_kwargs.get("db")
+    username = redis_engine.connection_pool.connection_kwargs.get("username")
+    password = redis_engine.connection_pool.connection_kwargs.get("password")
+
+    if username and password:
+        url = f"redis://{quote(username)}:{quote(password)}@{host}:{port}/{db}"
+    elif password:
+        url = f"redis://:{quote(password)}@{host}:{port}/{db}"
+    else:
+        url = f"redis://{host}:{port}/{db}"
+
+    return url

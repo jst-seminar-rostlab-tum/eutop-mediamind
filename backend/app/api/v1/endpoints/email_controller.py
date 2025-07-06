@@ -1,6 +1,7 @@
 # flake8: noqa: E501
-from uuid import UUID
+from datetime import timedelta
 
+from typing import List, Dict
 
 """
 NOTE:
@@ -27,27 +28,13 @@ router = APIRouter(
     tags=["emails"],
 )
 
+def test_email_job():
+    print("Test email job executed at: ", strftime("%Y-%m-%d %H:%M:%S", gmtime()))
 
 @router.get("/send/{recipient_email}")
 async def trigger_email_sending(recipient_email: str):
-    email_schedule = EmailSchedule(
-        recipient=recipient_email,
-        subject="[MEDIAMIND] Your daily report",
-        content_type="text/HTML",
-        content=build_email_content(
-            "<test_s3_link>", "<test_dashboard_link>", "<Test Search Profile>"
-        ),
-    )
-
-    SchedulerService.schedule(
-        "email_queue",
-        lambda: print("hello world"),
-    )
-
-    #await EmailService.schedule_email(email_schedule)
-    #await EmailService.send_scheduled_emails()
-    return {"message": "Email scheduled and sent successfully."}
-
+    SchedulerService.schedule(test_email_job) 
+    return {"message": "job scheduled."}
 
 @router.get("/test")
 async def send_report_email(
