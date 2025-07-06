@@ -89,10 +89,12 @@ resolve the user's query."""
 
     @staticmethod
     async def generate_llm_response(
-        email_conversation_id: UUID, chat: ChatRequest
-    ) -> str | None:
+        email_conversation_id: UUID,
+        subject: str,
+        chat_body: str,
+    ) -> str:
         prompt = await ChatbotService.create_prompt_from_context(
-            email_conversation_id=email_conversation_id, chat_body=chat.body
+            email_conversation_id=email_conversation_id, chat_body=chat_body
         )
 
         llm_client = LLMClient(LLMModels.openai_4o_mini)
@@ -105,7 +107,9 @@ resolve the user's query."""
                 f"Error generating Chatbot response for email_conversation "
                 f"with id={email_conversation_id} response: {str(e)}"
             )
-            llm_response = None
+            llm_response = f"""Thank you for your message regarding "\
+{subject}". Unfortunately, we ran into a probelm generating a response. \
+Please try again later or contact us."""
         return llm_response
 
     @staticmethod
@@ -163,21 +167,16 @@ resolve the user's query."""
     async def generate_and_send_email_response(
         user: UserEntity, chat: ChatRequest
     ):
+        subject = chat.subject or "MediaMind Email-Chatbot"
         email_conversation: EmailConversation = (
             await ChatbotService.get_or_create_conversation(user, chat)
         )
         llm_response = await ChatbotService.generate_llm_response(
             email_conversation_id=email_conversation.id,
-            chat=chat,
+            subject=subject,
+            chat_body=chat.body,
         )
 
-        subject = chat.subject or "MediaMind Email-Chatbot"
-        llm_response = (
-            llm_response
-            or f"""\
-Thank you for your message regarding "{subject}". Unfortunately, we ran \
-into a probelm generating a response. Please try again later or contact us."""
-        )
         await ChatbotService.store_chat_messages(
             email_conversation.id, chat.body, llm_response
         )
