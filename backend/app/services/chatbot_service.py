@@ -18,16 +18,16 @@ logger = get_logger(__name__)
 class ChatbotService:
     @staticmethod
     async def get_or_create_conversation(
-        user: UserEntity, chat: ChatRequest
+        user_email: str, subject: str
     ) -> EmailConversation:
         email_conversation = (
             await ChatbotRepository.get_conversation_by_email_and_subject(
-                user.email, chat.subject
+                user_email, subject
             )
         )
         if not email_conversation:
             email_conversation = await ChatbotRepository.create_conversation(
-                user.email, chat.subject
+                user_email, subject
             )
         return email_conversation
 
@@ -170,10 +170,12 @@ resolve the user's query."""
             email_conversation_id=email_conversation.id,
             chat=chat,
         )
+
+        subject = chat.subject or "MediaMind Email-Chatbot"
         llm_response = (
             llm_response
             or f"""\
-Thank you for your message regarding "{chat.subject}". Unfortunately, we ran \
+Thank you for your message regarding "{subject}". Unfortunately, we ran \
 into a probelm generating a response. Please try again later or contact us."""
         )
         await ChatbotService.store_chat_messages(
@@ -185,6 +187,6 @@ into a probelm generating a response. Please try again later or contact us."""
         await ChatbotService.send_email_response(
             email_conversation_id=email_conversation.id,
             user_email=user.email,
-            subject=chat.subject,
+            subject=subject,
             content=llm_response_as_html,
         )
