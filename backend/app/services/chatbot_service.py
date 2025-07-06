@@ -89,7 +89,7 @@ resolve the user's query."""
 
     @staticmethod
     async def generate_llm_response(
-        email_conversation_id: UUID, user_first_name: str, chat: ChatRequest
+        email_conversation_id: UUID, chat: ChatRequest
     ) -> str | None:
         prompt = await ChatbotService.create_prompt_from_context(
             email_conversation_id=email_conversation_id, chat_body=chat.body
@@ -101,7 +101,10 @@ resolve the user's query."""
                 prompt, temperature=0.7
             )
         except Exception as e:
-            logger.error(f"Error generating Chatbot response: {str(e)}")
+            logger.error(
+                f"Error generating Chatbot response for email_conversation "
+                f"with id={email_conversation_id} response: {str(e)}"
+            )
             llm_response = None
         return llm_response
 
@@ -121,10 +124,14 @@ resolve the user's query."""
             EmailService.send_ses_email(email)
             logger.info(
                 f"Chat response sent to {user_email} for "
-                f"email_conversation {email_conversation_id}"
+                f"email_conversation with id={email_conversation_id}"
             )
         except Exception as e:
-            logger.error(f"Failed to send email to {user_email}: {str(e)}")
+            logger.error(
+                f"Failed to send email to {user_email} for "
+                f"email_conversation with id={email_conversation_id}: "
+                f"{str(e)}"
+            )
             raise e
 
     @staticmethod
@@ -161,7 +168,6 @@ resolve the user's query."""
         )
         llm_response = await ChatbotService.generate_llm_response(
             email_conversation_id=email_conversation.id,
-            user_first_name=user.first_name,
             chat=chat,
         )
         llm_response = (
