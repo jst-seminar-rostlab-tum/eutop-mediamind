@@ -35,12 +35,8 @@ class AppCreator:
             },
             servers=[
                 {
-                    "url": "https://api.mediamind.csee.tech",
-                    "description": "Production",
-                },
-                {
-                    "url": "https://mediamind.csee.tech",
-                    "description": "Production (Proxy)",
+                    "url": "http://localhost:8000",
+                    "description": "Local",
                 },
                 {
                     "url": "https://dev.api.mediamind.csee.tech",
@@ -51,8 +47,12 @@ class AppCreator:
                     "description": "Development / Staging (Proxy)",
                 },
                 {
-                    "url": "http://localhost:8000",
-                    "description": "Local",
+                    "url": "https://mediamind.csee.tech",
+                    "description": "Production (Proxy)",
+                },
+                {
+                    "url": "https://api.mediamind.csee.tech",
+                    "description": "Production",
                 },
             ],
         )
