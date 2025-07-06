@@ -28,13 +28,12 @@ router = APIRouter(
     tags=["emails"],
 )
 
-def test_email_job():
-    print("Test email job executed at: ", strftime("%Y-%m-%d %H:%M:%S", gmtime()))
+def test_job(name: str):
+    print(f"Test job executed at {strftime('%Y-%m-%d %H:%M:%S', gmtime())} with name: {name}")
 
-@router.get("/send/{recipient_email}")
-async def trigger_email_sending(recipient_email: str):
-    SchedulerService.schedule(test_email_job) 
-    return {"message": "job scheduled."}
+@router.get("/create-job")
+async def create_job():
+    SchedulerService.schedule(test_job, args=["spera di vedere questo parametro"])
 
 @router.get("/test")
 async def send_report_email(

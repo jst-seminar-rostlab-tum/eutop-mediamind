@@ -24,7 +24,6 @@ redis_engine = redis.Redis(
     host=configs.REDIS_HOST,
     port=configs.REDIS_PORT,
     db=configs.REDIS_DB,
-#    decode_responses=True,
     password=getattr(configs, "REDIS_PASSWORD", None),
 )
 
@@ -68,6 +67,9 @@ def get_qdrant_connection() -> QdrantClient:
         raise RuntimeError(msg) from err
 
 def get_redis_url() -> str:
+    """
+    Constructs a Redis URL from the connection pool parameters.
+    """
     from urllib.parse import quote
 
     host = redis_engine.connection_pool.connection_kwargs.get("host")
