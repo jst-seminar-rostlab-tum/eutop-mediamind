@@ -24,33 +24,22 @@ class AppCreator:
 
         logger.info("Starting FastAPI app initialization.")
 
+        # Dynamically set servers based on .env/configs
+        servers = configs.API_SERVERS
+        if not servers:
+            servers = [
+                {
+                    "url": "http://localhost:8000",
+                    "description": "Local",
+                },
+            ]
+
         self.app = FastAPI(
             title=configs.PROJECT_NAME,
             openapi_url="/api/openapi.json",
             docs_url="/api/docs",
             version="0.0.1",
-            servers=[
-                {
-                    "url": "https://api.mediamind.csee.tech",
-                    "description": "Production",
-                },
-                {
-                    "url": "https://mediamind.csee.tech",
-                    "description": "Production (Proxy)",
-                },
-                {
-                    "url": "https://dev.api.mediamind.csee.tech",
-                    "description": "Development / Staging",
-                },
-                {
-                    "url": "https://mediamind.csee.tech/dev",
-                    "description": "Development / Staging (Proxy)",
-                },
-                {
-                    "url": "http://localhost:8000",
-                    "description": "Local",
-                },
-            ],
+            servers=servers,
         )
 
         self._register_exception_handlers()

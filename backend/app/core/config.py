@@ -1,3 +1,4 @@
+import json
 import warnings
 from typing import Annotated, Any, Literal
 
@@ -108,6 +109,26 @@ class Configs(BaseSettings):
     CHAT_SMTP_USER: str
     CHAT_SMTP_FROM: EmailStr
     CHAT_SMTP_PASSWORD: str
+
+    # API server infos for OpenAPI documentation
+    API_SERVER_INFOS: str = "[]"
+
+    @computed_field
+    @property
+    def API_SERVERS(self) -> list[dict[str, str]]:
+        try:
+            servers = json.loads(self.API_SERVER_INFOS)
+            if isinstance(servers, list):
+                return [
+                    s
+                    for s in servers
+                    if isinstance(s, dict)
+                    and "url" in s
+                    and "description" in s
+                ]
+            return []
+        except Exception:
+            return []
 
     @computed_field
     @property
