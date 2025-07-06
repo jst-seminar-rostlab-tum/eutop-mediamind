@@ -1,5 +1,7 @@
 from uuid import UUID
 
+import markdown
+
 from app.core.config import configs
 from app.core.logger import get_logger
 from app.models.chat_message import MessageRole
@@ -145,7 +147,9 @@ Please try again later or contact us."""
 
     @staticmethod
     def format_llm_response(llm_response: str, user_first_name: str) -> str:
-        llm_response_as_html = llm_response.replace("\n", "</p><p>")
+        llm_response_as_html = markdown.markdown(
+            llm_response, extensions=["extra"]
+        )
         email_as_html = f"""<p>Hi {user_first_name},</p>
             <p>{llm_response_as_html}</p>
             <p>Best regards,<br>
@@ -174,7 +178,9 @@ Please try again later or contact us."""
     ):
         subject = chat.subject or "MediaMind Email-Chatbot"
         email_conversation: EmailConversation = (
-            await ChatbotService.get_or_create_conversation(user, chat)
+            await ChatbotService.get_or_create_conversation(
+                user_email=user.email, subject=chat.subject
+            )
         )
         llm_response = await ChatbotService.generate_llm_response(
             email_conversation_id=email_conversation.id,
