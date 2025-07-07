@@ -14,7 +14,11 @@ import { Card, CardTitle } from "~/components/ui/card";
 import { Input } from "~/components/ui/input";
 import Layout from "~/custom-components/layout";
 import Text from "~/custom-components/text";
-import { getLocalizedContent, getPercentage, truncateAtWord } from "~/lib/utils";
+import {
+  getLocalizedContent,
+  getPercentage,
+  truncateAtWord,
+} from "~/lib/utils";
 import { useNavigate } from "react-router";
 import { SidebarFilter } from "./sidebar-filter";
 import { ScrollArea } from "~/components/ui/scroll-area";
