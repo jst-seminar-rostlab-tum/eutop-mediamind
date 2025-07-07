@@ -422,9 +422,7 @@ class LoginLLM:
         chunks = [
             html[i : i + chunk_size] for i in range(0, len(html), chunk_size)
         ]
-        logger.info(
-            f"Split HTML into {len(chunks)} chunks"
-        )
+        logger.info(f"Split HTML into {len(chunks)} chunks")
         return chunks
 
     @staticmethod
