@@ -53,16 +53,7 @@ const createFormSchema = (t: TFunction) =>
       .regex(/^[a-zA-Z0-9_.-]+$/, {
         message: t("subscription-dialog.username_regex"),
       }),
-    password: z
-      .string()
-      .min(8, { message: "Password must be at least 8 characters." })
-      .max(50, { message: "Password must be at most 50 characters." })
-      .regex(/[a-z]/, { message: "Password must include a lowercase letter." })
-      .regex(/[A-Z]/, { message: "Password must include an uppercase letter." })
-      .regex(/[0-9]/, { message: "Password must include a number." })
-      .regex(/[\W_]/, {
-        message: "Password must include a special character.",
-      }),
+    password: z.string(),
   });
 
 export type FormValues = z.infer<ReturnType<typeof createFormSchema>>;
