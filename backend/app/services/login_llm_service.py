@@ -27,7 +27,7 @@ from app.services.web_harvester.utils.web_utils import (
     scroll_to_element,
 )
 
-MAX_TOKENS = 120000
+MAX_TOKENS = 100000
 MAX_CONCURRENCY = 10
 
 logger = get_logger(__name__)
@@ -92,8 +92,6 @@ Use the following schema:\n
 class LoginLLM:
     cookies_accepted = False
     notifications_removed = False
-    login_button_visible = False
-    login_section_opened = False
     user_inserted = False
     password_inserted = False
     submitted = False
@@ -103,8 +101,6 @@ class LoginLLM:
     def _reset_flags():
         LoginLLM.cookies_accepted = False
         LoginLLM.notifications_removed = False
-        LoginLLM.login_button_visible = False
-        LoginLLM.login_section_opened = False
         LoginLLM.user_inserted = False
         LoginLLM.password_inserted = False
         LoginLLM.submitted = False
@@ -399,16 +395,22 @@ class LoginLLM:
     async def _send_chunk_to_llm(
         client, html_chunk, website_image, login_config
     ):
-        async with LoginLLM.semaphore:
-            prompt = (
-                f"{instructions_login}\n\n{login_schema}\n\n"
-                f"Do not repeat xpaths and css selectors already stored "
-                f"in this JSON:\n{login_config}\n\n"
-                f"HTML Content:\n{html_chunk}\n"
-            )
-            return await asyncio.to_thread(
-                client.generate_response, prompt, 0.1, website_image
-            )
+        try:
+            async with LoginLLM.semaphore:
+                prompt = (
+                    f"{instructions_login}\n\n{login_schema}\n\n"
+                    f"Avoid the following existing values: "
+                    f"\n{login_config}\n"
+                    f"These values have been tested already and do not "
+                    f"work, return new and different ones.\n\n"
+                    f"\nHTML Content:\n{html_chunk}\n"
+                )
+                return await asyncio.to_thread(
+                    client.generate_response, prompt, 0.1, website_image
+                )
+        except Exception as e:
+            logger.error(f"LLM call failed for chunk: {e}")
+            return None
 
     @staticmethod
     def _split_html(html: str, max_tokens: int) -> list[str]:
@@ -421,7 +423,7 @@ class LoginLLM:
             html[i : i + chunk_size] for i in range(0, len(html), chunk_size)
         ]
         logger.info(
-            f"Token limit exceeded, split HTML into {len(chunks)} chunks"
+            f"Split HTML into {len(chunks)} chunks"
         )
         return chunks
 
@@ -448,6 +450,9 @@ class LoginLLM:
             updated_config = login_config
             for resp in responses:
                 LLM_result = LoginLLM._llm_response_to_json(resp)
+                if LLM_result is None:
+                    logger.error("Skipping response due to JSON parse error.")
+                    continue
                 updated_config = LoginLLM._add_new_keys_to_config(
                     LLM_result, updated_config
                 )
@@ -468,7 +473,10 @@ class LoginLLM:
         logged_in = False
 
         # Accept cookies in shadow root
-        if updated_config.get("shadow_host_cookies"):
+        if (
+            updated_config.get("shadow_host_cookies")
+            and not LoginLLM.cookies_accepted
+        ):
             LoginLLM.cookies_accepted = LoginLLM._click_shadow_root_element(
                 driver,
                 wait,
@@ -500,20 +508,14 @@ class LoginLLM:
             )
 
         # Go to section containing login section trigger
-        if not LoginLLM.login_button_visible:
-            LoginLLM.login_button_visible = (
-                LoginLLM._find_correct_clickable_element(
-                    driver, wait, updated_config, "path_to_login_button"
-                )
-            )
+        LoginLLM._find_correct_clickable_element(
+            driver, wait, updated_config, "path_to_login_button"
+        )
 
         # Open login form
-        if not LoginLLM.login_section_opened:
-            LoginLLM.login_section_opened = (
-                LoginLLM._find_correct_clickable_element(
-                    driver, wait, updated_config, "login_button"
-                )
-            )
+        LoginLLM._find_correct_clickable_element(
+            driver, wait, updated_config, "login_button"
+        )
 
         # Change to credentials iframe
         LoginLLM._change_to_correct_iframe(
