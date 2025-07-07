@@ -36,10 +36,14 @@ class AppCreator:
 
         self.app = FastAPI(
             title=configs.PROJECT_NAME,
-            openapi_url="/api/openapi.json",
+            openapi_url="/api/v1/openapi.json",
             docs_url="/api/docs",
             version="0.0.1",
             servers=servers,
+            swagger_ui_parameters={
+                "tagsSorter": "alpha",
+                "operationsSorter": "alpha",
+            },
         )
 
         self._register_exception_handlers()
