@@ -30,13 +30,16 @@ from app.repositories.article_repository import ArticleRepository
 from app.repositories.entity_repository import ArticleEntityRepository
 from app.services.translation_service import ArticleTranslationService
 
-#PDFService uses split modules
+
+# PDFService uses split modules
 from ...repositories.search_profile_repository import SearchProfileRepository
 from .colors import pdf_colors
 from .fonts import register_fonts
 from .news_item import NewsItem
 from .styles import get_pdf_styles
 from .utils import calculate_reading_time
+from .utils import markdown_to_html
+
 
 logger = get_logger(__name__)
 
@@ -599,10 +602,10 @@ class PDFService:
             )
             read_summary_para = Paragraph(
                 f"""
-                <para alignment=\"right\">
+                <para alignment=\"right\">\n
                     <a href=\"#toc_summary_{i}\">\n
                     <u><font>{translator('Back to Summary List')}</font></u>\n
-                    </a>
+                    </a>\n
                 </para>
                 """,
                 PDFService.styles["link_style"],
@@ -628,8 +631,8 @@ class PDFService:
             )
             story.append(reading_time_box)
 
-            # Content #TODO: Check if I write this in the parser mit die <h> tags
-            content_text = news.content.replace("\n", "<br/>")
+            # Content with Markdown to HTML
+            content_text = markdown_to_html(news.content)
             story.append(
                 Paragraph(content_text, PDFService.styles["content_style"])
             )
