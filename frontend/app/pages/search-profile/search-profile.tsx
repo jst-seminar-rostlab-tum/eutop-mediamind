@@ -14,7 +14,11 @@ import { Card, CardTitle } from "~/components/ui/card";
 import { Input } from "~/components/ui/input";
 import Layout from "~/custom-components/layout";
 import Text from "~/custom-components/text";
-import { truncateAtWord } from "~/lib/utils";
+import {
+  getLocalizedContent,
+  getPercentage,
+  truncateAtWord,
+} from "~/lib/utils";
 import { useNavigate } from "react-router";
 import { SidebarFilter } from "./sidebar-filter";
 import { ScrollArea } from "~/components/ui/scroll-area";
@@ -235,20 +239,25 @@ export function SearchProfileOverview() {
                               {match.article.headline["en"]}
                             </CardTitle>
                             <p>
-                              {truncateAtWord(match.article.summary["en"], 190)}
+                              {truncateAtWord(
+                                getLocalizedContent(match.article.summary),
+                                190,
+                              )}
                             </p>
                             <div className="flex gap-3 items-center">
                               <div
                                 className={`rounded-lg py-1 px-2 ${bgColor}`}
                               >
-                                Relevance: {relevance}
+                                Relevance: {getPercentage(relevance)}
                               </div>
                               {match.topics.map((topic) => (
                                 <div
                                   className="bg-secondary rounded-lg py-1 px-2"
                                   key={topic.id}
                                 >
-                                  {topic.score + " " + topic.name}
+                                  {getPercentage(topic.score) +
+                                    " " +
+                                    topic.name}
                                 </div>
                               ))}
                             </div>

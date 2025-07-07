@@ -38,26 +38,55 @@ class LLMClient:
         self.model = model.value
         self.api_key = configs.OPENAI_API_KEY
 
-    def generate_response(self, prompt: str, temperature: float = 0.1) -> str:
-        return self.__prompt(prompt, temperature=temperature)
+    def generate_response(
+        self, prompt: str, temperature: float = 0.1, image_url: str = None
+    ) -> str:
+        return self.__prompt(
+            prompt, temperature=temperature, image_url=image_url
+        )
 
     T = TypeVar("T")
 
     def generate_typed_response(
-        self, prompt: str, resp_format_type: Type[T], temperature: float = 0.1
+        self,
+        prompt: str,
+        resp_format_type: Type[T],
+        temperature: float = 0.1,
+        image_url: str = None,
     ) -> T:
         output = self.__prompt(
-            prompt, resp_format=resp_format_type, temperature=temperature
+            prompt,
+            resp_format=resp_format_type,
+            temperature=temperature,
+            image_url=image_url,
         )
         data = json.loads(output)
         return resp_format_type(**data)
 
     def __prompt(
-        self, prompt: str, resp_format=None, temperature: float = 0.1
+        self,
+        prompt: str,
+        resp_format=None,
+        temperature: float = 0.1,
+        image_url: str = None,
     ):
+        messages = []
+        if image_url:
+            messages.append(
+                {
+                    "role": "user",
+                    "content": [
+                        {"type": "text", "text": prompt},
+                        {"type": "image_url", "image_url": {"url": image_url}},
+                    ],
+                }
+            )
+        else:
+            messages.append({"role": "user", "content": prompt})
+
         kwargs = {
             "model": self.model,
-            "messages": [{"role": "user", "content": prompt}],
+            "messages": messages,
             "temperature": temperature,
         }
 

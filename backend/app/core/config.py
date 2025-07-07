@@ -68,9 +68,7 @@ class Configs(BaseSettings):
     SENTRY_DSN: HttpUrl | None
 
     # Redis
-    REDIS_HOST: str
-    REDIS_PORT: int
-    REDIS_DB: int
+    REDIS_URL: str | None
 
     # Qdrant
     QDRANT_URL: str | None
@@ -102,6 +100,14 @@ class Configs(BaseSettings):
     SMTP_PORT: int
     SMTP_USER: EmailStr
     SMTP_PASSWORD: str
+
+    # Chatbot
+    CHAT_API_KEY: str
+    CHAT_SMTP_SERVER: str
+    CHAT_SMTP_PORT: int
+    CHAT_SMTP_USER: str
+    CHAT_SMTP_FROM: EmailStr
+    CHAT_SMTP_PASSWORD: str
 
     @computed_field
     @property
@@ -166,6 +172,7 @@ class Configs(BaseSettings):
         self._check_default_secret(
             "AWS_S3_BUCKET_NAME", self.AWS_S3_BUCKET_NAME
         )
+        self._check_default_secret("REDIS_URL", self.REDIS_URL)
         self._check_default_secret("QDRANT_URL", self.QDRANT_URL)
         self._check_default_secret("QDRANT_API_KEY", self.QDRANT_API_KEY)
         self._check_default_secret(
@@ -174,6 +181,14 @@ class Configs(BaseSettings):
         self._check_default_secret("SMTP_SERVER", self.SMTP_SERVER)
         self._check_default_secret("SMTP_USER", self.SMTP_USER)
         self._check_default_secret("SMTP_PASSWORD", self.SMTP_PASSWORD)
+
+        self._check_default_secret("CHAT_API_KEY", self.CHAT_API_KEY)
+        self._check_default_secret("CHAT_SMTP_SERVER", self.CHAT_SMTP_SERVER)
+        self._check_default_secret("CHAT_SMTP_USER", self.CHAT_SMTP_USER)
+        self._check_default_secret("CHAT_SMTP_FROM", self.CHAT_SMTP_FROM)
+        self._check_default_secret(
+            "CHAT_SMTP_PASSWORD", self.CHAT_SMTP_PASSWORD
+        )
 
         return self
 

@@ -1,8 +1,11 @@
 import uuid
+from enum import Enum
 from typing import TYPE_CHECKING, List
 
 from pydantic import BaseModel, EmailStr
-from sqlalchemy import CheckConstraint, Column, String
+from sqlalchemy import CheckConstraint, Column
+from sqlalchemy import Enum as SqlAlchemyEnum
+from sqlalchemy import String
 from sqlmodel import Field, Relationship, SQLModel
 
 from app.models.associations import UserSearchProfileLink
@@ -10,8 +13,12 @@ from app.models.associations import UserSearchProfileLink
 from .organization import Organization
 
 if TYPE_CHECKING:
-
     from app.models.search_profile import SearchProfile
+
+
+class UserRole(str, Enum):
+    maintainer = "maintainer"
+    member = "member"
 
 
 # Shared properties
@@ -38,6 +45,13 @@ class UserBase(SQLModel):
         ),
         description="Language code, must be 'en' or 'de'",
     )
+    role: UserRole = Field(
+        sa_column=Column(
+            SqlAlchemyEnum(UserRole, name="user_role_enum"),
+            nullable=False,
+            server_default=UserRole.member.value,
+        ),
+    )
 
 
 class UserCreate(BaseModel):
@@ -48,6 +62,7 @@ class UserCreate(BaseModel):
     is_superuser: bool = False
     organization_id: uuid.UUID | None = None
     language: str = "en"
+    role: UserRole = UserRole.member
 
 
 # Database model, table inferred from class name
@@ -61,13 +76,3 @@ class User(UserBase, table=True):
         back_populates="users",
         link_model=UserSearchProfileLink,
     )
-
-
-# Properties to return via API, id is always required
-class UserPublic(UserBase):
-    id: uuid.UUID
-
-
-class UsersPublic(SQLModel):
-    data: list[UserPublic]
-    count: int
