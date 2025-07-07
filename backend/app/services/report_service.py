@@ -5,6 +5,7 @@ from uuid import UUID
 
 from app.core.config import configs
 from app.core.logger import get_logger
+from app.core.languages import Language
 from app.models.report import Report, ReportStatus
 from app.repositories.report_repository import ReportRepository
 from app.repositories.search_profile_repository import SearchProfileRepository
@@ -103,7 +104,7 @@ class ReportService:
     @staticmethod
     async def run(
         timeslot: str,
-        languages: List[str],
+        languages: List[Language],
     ):
         """
         Run the report generation process for a specific timeslot
@@ -117,7 +118,7 @@ class ReportService:
         for search_profile in search_profiles:
             for lang in languages:
                 report = await ReportService.get_or_create_report(
-                    search_profile.id, timeslot, lang, s3_service
+                    search_profile.id, timeslot, lang.value, s3_service
                 )
 
                 # For email generation

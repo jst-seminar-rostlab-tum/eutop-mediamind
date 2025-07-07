@@ -1,5 +1,6 @@
 from datetime import datetime
 
+from app.core.languages import Language
 from app.core.logger import get_logger
 from app.services.article_matching_service import ArticleMatchingService
 from app.services.article_summary_service import ArticleSummaryService
@@ -52,7 +53,7 @@ async def run(datetime_start: datetime, datetime_end: datetime):
     logger.info("Report generation")
     # returns the Report, presigned URL, dashboard URL and search profile
     reports_info = await ReportService.run(
-        timeslot="morning", languages=["en", "de"]
+        timeslot="morning", languages=[Language.EN, Language.DE]
     )
     logger.info(f"Generated {len(reports_info)} reports")
 
