@@ -16,6 +16,7 @@ from app.core.config import configs
 from app.core.logger import BufferedLogger, get_logger
 from app.models.article import Article
 from app.models.subscription import Subscription
+from app.services.web_harvester.crawlers.ft_crawler import FtCrawler
 
 logger = get_logger(__name__)
 
@@ -273,10 +274,12 @@ class NewsAPICrawler(Crawler):
 
 class CrawlerType(Enum):
     NewsAPICrawler = "NewsAPICrawler"
+    FtCrawler = "FtCrawler"
 
 
 CRAWLER_CLASS_REGISTRY = {
     CrawlerType.NewsAPICrawler: NewsAPICrawler,
+    CrawlerType.FtCrawler: FtCrawler,
 }
 
 
