@@ -59,7 +59,7 @@ class EmailService:
         for email in emails:
             try:
                 email.attempts += 1
-                EmailService.__send_email(email)
+                EmailService.send_ses_email(email)
                 email.state = EmailState.SENT
                 await EmailRepository.update_email(email)
             except Exception as e:
@@ -128,7 +128,7 @@ class EmailService:
             raise
 
     @staticmethod
-    def _build_email_content(
+    def build_email_content(
         s3_link: str,
         dashboard_link: str,
         profile_name: str,
@@ -238,7 +238,7 @@ class EmailService:
                         recipient=email,
                         subject=subject,
                         content_type="text/HTML",
-                        content=EmailService._build_email_content(
+                        content=EmailService.build_email_content(
                             presigned_url,
                             dashboard_url,
                             search_profile.name,

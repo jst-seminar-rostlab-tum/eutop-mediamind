@@ -32,8 +32,11 @@ async def trigger_email_sending(recipient_email: str):
         recipient=recipient_email,
         subject="[MEDIAMIND] Your daily report",
         content_type="text/HTML",
-        content=build_email_content(
-            "<test_s3_link>", "<test_dashboard_link>", "<Test Search Profile>"
+        content=EmailService.build_email_content(
+            "<test_s3_link>",
+            "<test_dashboard_link>",
+            "<Test Search Profile>",
+            "<Test Last Name>",
         ),
     )
 
