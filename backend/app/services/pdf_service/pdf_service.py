@@ -483,7 +483,6 @@ class PDFService:
         dimensions: tuple[float, float],
         translator: Callable[[str], str],
     ) -> List["Flowable"]:
-        width, height = dimensions  # TODO
         story = []
         for i, news in enumerate(news_items):
             story.append(AnchorFlowable(f"toc_summary_{i}"))
