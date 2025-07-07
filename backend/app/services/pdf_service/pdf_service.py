@@ -38,7 +38,7 @@ from .fonts import register_fonts
 from .news_item import NewsItem
 from .styles import get_pdf_styles
 from .utils import calculate_reading_time
-from .utils import markdown_to_html
+from .markdown_utils import markdown_blocks_to_paragraphs
 
 
 logger = get_logger(__name__)
@@ -631,11 +631,9 @@ class PDFService:
             )
             story.append(reading_time_box)
 
-            # Content with Markdown to HTML
-            content_text = markdown_to_html(news.content)
-            story.append(
-                Paragraph(content_text, PDFService.styles["content_style"])
-            )
+            # Translating Content Markdown to Reportlab Paragraphs
+            for para in markdown_blocks_to_paragraphs(news.content, PDFService.styles):
+                story.append(para)
             story.append(Spacer(1, 0.3 * inch))
 
             # Metadata Box
