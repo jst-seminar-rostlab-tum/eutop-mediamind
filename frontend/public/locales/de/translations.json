@@ -1,8 +1,6 @@
 {
   "login": "Login",
-  "edit": "bearbeiten",
   "Edit": "Bearbeiten",
-  "delete": "löschen",
   "back": "zurück",
   "leave": "verlassen",
   "Back": "Zurück",
@@ -169,7 +167,9 @@
     "To": "Bis",
     "articles": "Artikel",
     "Relevance": "Relevanz",
-    "No_articles": "Keine Artikel gefunden"
+    "No_articles": "Keine Artikel gefunden",
+    "delete_error": "Fehler beim Löschen des Suchprofils",
+    "delete_success": "Suchprofil erfolgreich gelöscht"
   },
 
   "article-page": {
