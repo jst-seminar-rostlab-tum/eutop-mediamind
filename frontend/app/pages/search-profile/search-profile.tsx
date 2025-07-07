@@ -17,7 +17,7 @@ import Text from "~/custom-components/text";
 import { truncateAtWord } from "~/lib/utils";
 import { useNavigate } from "react-router";
 import { SidebarFilter } from "./sidebar-filter";
-import { ScrollArea } from "~/components/ui/scroll-area";
+import { ScrollArea, ScrollBar } from "~/components/ui/scroll-area";
 import { SearchProfileSkeleton } from "./search-profile-skeleton";
 import { useTranslation } from "react-i18next";
 import { Button } from "~/components/ui/button";
@@ -163,22 +163,23 @@ export function SearchProfileOverview() {
             <Text hierachy={2}>{profile?.name}</Text>
           </div>
           <div className="flex items-center justify-between mb-4 gap-10">
-            <div
-              className={
-                "flex p-1 rounded-lg items-center gap-2 overflow-x-auto"
-              }
-            >
-              <div className={"flex items-center gap-1"}>
-                <Book size={20} />
-                <p className={"font-bold"}>{t("search_profile.Topics")}</p>
-              </div>
-
-              {profile?.topics?.map((topic, idx) => (
-                <div className="bg-gray-200 rounded-lg py-1 px-2" key={idx}>
-                  {topic.name}
+            <ScrollArea className="w-280 whitespace-nowrap rounded-md pb-1.5">
+              <div className="flex w-max space-x-2 p-1">
+                <div className="flex items-center gap-1 shrink-0">
+                  <Book size={20} />
+                  <p className="font-bold">{t("search_profile.Topics")}</p>
                 </div>
-              ))}
-            </div>
+                {profile?.topics?.map((topic, idx) => (
+                  <div
+                    className="bg-gray-200 rounded-lg py-1 px-2 shrink-0"
+                    key={idx}
+                  >
+                    {topic.name}
+                  </div>
+                ))}
+              </div>
+              <ScrollBar orientation="horizontal" />
+            </ScrollArea>
             <Button
               onClick={() => navigate(`${window.location.pathname}/reports`)}
             >

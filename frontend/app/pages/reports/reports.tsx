@@ -141,7 +141,9 @@ export function ReportsPage() {
           <BreadcrumbSeparator />
           <BreadcrumbItem>
             <BreadcrumbLink asChild>
-              <Link to={`/dashboard/${searchProfileId}`}>{profile.name}</Link>
+              <Link to={`/search-profile/${searchProfileId}`}>
+                {profile.name}
+              </Link>
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />

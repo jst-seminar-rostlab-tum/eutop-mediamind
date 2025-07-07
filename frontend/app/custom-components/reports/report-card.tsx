@@ -15,13 +15,12 @@ export function ReportCard({ report }: ReportCardProps) {
   const { data: fullReport, error } = useQuery("/api/v1/reports/{report_id}", {
     params: { path: { report_id: report.id } },
   });
+  const dateComponents = getDateComponents(report.created_at);
 
   const { t } = useTranslation();
   if (!fullReport || error) {
     return <div></div>;
   }
-
-  const dateComponents = getDateComponents(report.created_at);
 
   return (
     <div className="shadow-lg border-2 rounded-2xl p-4 h-40 w-50 space-y-1 flex flex-col justify-between">
