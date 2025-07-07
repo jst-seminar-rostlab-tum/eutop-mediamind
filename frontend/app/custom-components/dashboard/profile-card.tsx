@@ -4,6 +4,7 @@ import {
   OctagonAlert,
   MoreVertical,
   ChevronRight,
+  Loader2,
   FileText,
 } from "lucide-react";
 import type { KeyedMutator } from "swr";
@@ -36,7 +37,9 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "~/components/ui/tooltip";
-import { useNavigate } from "react-router";
+import { Link } from "react-router";
+import { client } from "types/api";
+import { toast } from "sonner";
 
 interface ProfileCardProps {
   profile: Profile;
@@ -49,13 +52,13 @@ export function ProfileCard({
   mutateDashboard,
   profile_id,
 }: ProfileCardProps) {
+  const [isDeleting, setIsDeleting] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [isTruncated, setIsTruncated] = useState(false);
   const titleRef = useRef<HTMLHeadingElement>(null);
 
   const { t } = useTranslation();
-  const navigate = useNavigate();
 
   useEffect(() => {
     const element = titleRef.current;
@@ -100,6 +103,25 @@ export function ProfileCard({
     }
 
     return <RoleBadge variant={"shared"} />;
+  };
+
+  const deleteProfile = async () => {
+    try {
+      setIsDeleting(true);
+      await client.DELETE("/api/v1/search-profiles/{search_profile_id}", {
+        params: { path: { search_profile_id: profile.id } },
+      });
+      mutateDashboard(
+        (profiles) => profiles?.filter((p) => p.id !== profile.id) || [],
+      );
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (error) {
+      toast.error(t("search_profile.delete_error"));
+    } finally {
+      setIsDeleting(false);
+      setShowDeleteDialog(false);
+      toast.success(t("search_profile.delete_success"));
+    }
   };
 
   const totalKeywords = profile.topics.flatMap(
@@ -156,13 +178,11 @@ export function ProfileCard({
                     <SquarePen className="text-primary" />
                     {t("Edit")}
                   </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={() =>
-                      navigate(`/search-profile/${profile.id}/reports`)
-                    }
-                  >
-                    <FileText className="text-primary" />
-                    {t("search_profile.reports")}
+                  <DropdownMenuItem asChild>
+                    <Link to="/search-profile/${profile.id}/reports">
+                      <FileText className="text-primary" />
+                      {t("search_profile.reports")}
+                    </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     onClick={() => {
@@ -182,36 +202,26 @@ export function ProfileCard({
             </div>
             <div className={"mt-2 mb-2"}>
               <div className={"flex items-center gap-1"}>
-                <div
-                  className={
-                    "bg-gray-100 px-1 py-0.5 text-sm rounded-sm text-gray-700 flex gap-1"
-                  }
-                >
+                <div className="bg-gray-100 px-1 py-0.5 text-sm rounded-sm text-gray-700 flex gap-1">
                   <span className={"font-bold"}>{profile.topics.length}</span>
                   {t("search_profile.Topics")}
                 </div>
-                <div
-                  className={
-                    "bg-gray-100 px-1 py-0.5 text-sm rounded-sm text-gray-700 flex gap-1"
-                  }
-                >
+                <div className="bg-gray-100 px-1 py-0.5 text-sm rounded-sm text-gray-700 flex gap-1">
                   <span className={"font-bold"}>{totalKeywords}</span>
                   {t("search_profile.Keywords")}
                 </div>
               </div>
             </div>
           </div>
-          <div
-            className={
-              "w-full h-18 bg-gray-100 items-center flex justify-center rounded-2xl hover:bg-gray-200 hover:cursor-pointer transition-background duration-300"
-            }
-            onClick={() => navigate(`/search-profile/${profile.id}`)}
+          <Link
+            to={`/search-profile/${profile.id}`}
+            className="w-full h-20 bg-gray-100 items-center flex justify-center rounded-2xl hover:bg-gray-200 transition-background duration-300"
           >
             <span className={"text-gray-700"}>
               {t("search_profile.Explore")}
             </span>
             <ChevronRight className="w-7 h-7" />
-          </div>
+          </Link>
         </div>
       </div>
 
@@ -230,13 +240,13 @@ export function ProfileCard({
             <AlertDialogCancel>{t("Back")}</AlertDialogCancel>
             <AlertDialogAction
               className="bg-destructive text-white shadow-xs hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60"
-              onClick={() => {
-                setShowDeleteDialog(false);
-                console.log("Delete: ", profile.name);
-                //call delete endpoint here
-              }}
+              onClick={() => deleteProfile()}
             >
-              <Trash2 />
+              {isDeleting ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <Trash2 />
+              )}
               {t("Delete")}
             </AlertDialogAction>
           </AlertDialogFooter>

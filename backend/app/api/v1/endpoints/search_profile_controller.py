@@ -222,7 +222,7 @@ async def get_reports(
 
 
 @router.delete(
-    "/search-profiles/{search_profile_id}",
+    "/{search_profile_id}",
     status_code=status.HTTP_204_NO_CONTENT,
 )
 async def delete_search_profile(
