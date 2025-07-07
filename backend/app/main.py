@@ -26,9 +26,13 @@ class AppCreator:
 
         self.app = FastAPI(
             title=configs.PROJECT_NAME,
-            openapi_url="/api/openapi.json",
+            openapi_url="/api/v1/openapi.json",
             docs_url="/api/docs",
             version="0.0.1",
+            swagger_ui_parameters={
+                "tagsSorter": "alpha",
+                "operationsSorter": "alpha",
+            },
             servers=[
                 {
                     "url": "https://api.mediamind.csee.tech",
