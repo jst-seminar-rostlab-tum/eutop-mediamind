@@ -212,7 +212,7 @@ export function SearchProfileOverview() {
                 <ScrollArea className="h-[755px] p-4">
                   {matches?.matches.length === 0 ? (
                     <p className="text-muted-foreground text-sm text-center pt-2 italic">
-                      No matches found.
+                      {t("search_profile.No_articles")}
                     </p>
                   ) : (
                     matches?.matches.map((match) => {
@@ -232,7 +232,7 @@ export function SearchProfileOverview() {
                             key={match.id}
                           >
                             <CardTitle className="text-xl">
-                              {match.article.headline["en"]}
+                              {getLocalizedContent(match.article.headline)}
                             </CardTitle>
                             <p>
                               {truncateAtWord(
@@ -244,7 +244,7 @@ export function SearchProfileOverview() {
                               <div
                                 className={`rounded-lg py-1 px-2 ${bgColor}`}
                               >
-                                Relevance: {relevance}
+                                {t("search_profile.Relevance")} {relevance}
                               </div>
                               {match.topics.map((topic) => (
                                 <div
