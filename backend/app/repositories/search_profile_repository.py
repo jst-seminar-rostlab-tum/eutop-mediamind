@@ -162,7 +162,9 @@ class SearchProfileRepository:
             .options(*_base_load_options())
             .where(
                 SearchProfile.id == search_profile_id,
-                _user_access_filter(user_id, organization_id, user_role, is_superuser),
+                _user_access_filter(
+                    user_id, organization_id, user_role, is_superuser
+                ),
             )
         )
         result = await session.execute(query)
