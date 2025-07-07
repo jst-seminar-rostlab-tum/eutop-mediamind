@@ -186,3 +186,6 @@ output.pdf
 # Translation file for batch api
 openai_batch_translation.jsonl
 summary_batch.jsonl
+
+# Crawl4ai chromium browser data
+.browser_data/
