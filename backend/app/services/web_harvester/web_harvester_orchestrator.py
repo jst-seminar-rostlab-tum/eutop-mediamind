@@ -49,7 +49,7 @@ async def run_crawler(
 
 async def run_scraper():
     subscriptions = await get_subscriptions_with_scrapers()
-    executor = ThreadPoolExecutor(max_workers=10)
+    executor = ThreadPoolExecutor(max_workers=5)
 
     tasks = [
         _scrape_articles_for_subscription(sub, executor)
