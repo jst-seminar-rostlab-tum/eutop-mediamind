@@ -153,7 +153,7 @@ export function ProfileCard({
                 <DropdownMenuContent align="center">
                   <DropdownMenuItem onClick={() => setShowEditDialog(true)}>
                     <SquarePen className="text-primary" />
-                    {t("edit")}
+                    {t("Edit")}
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     onClick={() => {
@@ -162,7 +162,7 @@ export function ProfileCard({
                     className="text-red-500 focus:text-red-500"
                   >
                     <Trash2 className="text-red-500" />
-                    {t("delete")}
+                    {t("Delete")}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
