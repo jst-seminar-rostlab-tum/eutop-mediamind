@@ -4,8 +4,8 @@ from typing import List, Optional
 from uuid import UUID
 
 from app.core.config import configs
-from app.core.logger import get_logger
 from app.core.languages import Language
+from app.core.logger import get_logger
 from app.models.report import Report, ReportStatus
 from app.repositories.report_repository import ReportRepository
 from app.repositories.search_profile_repository import SearchProfileRepository
