@@ -10,6 +10,7 @@ import { Badge } from "~/components/ui/badge";
 import { useTranslation } from "react-i18next";
 import { Button } from "~/components/ui/button";
 import { ExternalLink } from "lucide-react";
+import { getLocalizedContent } from "~/lib/utils";
 
 interface ArticleSidebarProps {
   article: ArticleMatch;
@@ -42,9 +43,8 @@ export function ArticleSidebar({ article }: ArticleSidebarProps) {
               className={"text-gray-800 pb-4 whitespace-pre-wrap"}
             >
               <p>
-                {article.article.summary["en"]
-                  ? article.article.summary["en"]
-                  : article.article.summary["de"]}
+                {getLocalizedContent(article.article.summary) ||
+                  t("article-page.no_summary")}
               </p>
             </AccordionContent>
           </AccordionItem>
