@@ -282,6 +282,7 @@ def _get_crawler_class(crawler_type: CrawlerType):
         return NewsAPICrawler
     elif crawler_type == CrawlerType.FtCrawler:
         from app.services.web_harvester.crawlers.ft_crawler import FtCrawler
+
         return FtCrawler
     else:
         raise ValueError(f"Unknown crawler type: {crawler_type}")
@@ -295,7 +296,7 @@ def get_crawlers(subscription: Subscription):
         except ValueError:
             logger.error(f"Unknown crawler: {class_name}")
             raise ValueError(f"Unknown crawler: {class_name}")
-        
+
         cls = _get_crawler_class(crawler_type)
         if cls:
             crawlers[class_name] = cls(subscription=subscription, **config)
