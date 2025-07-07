@@ -13,6 +13,7 @@
   "Cancel": "Cancel",
   "save_changes": "Save Changes",
   "Search": "Search",
+  "select_date": "Select Date",
 
   "breadcrumb_home": "Home",
 
@@ -207,5 +208,16 @@
     "show_less": "Show less",
     "show_more": "Show more",
     "original": "Original"
+  },
+
+  "crawler_stats": {
+    "title": "Crawler Stats",
+    "subscription": "Subscription",
+    "date": "Date",
+    "successful": "Successful",
+    "attempted": "Attempted",
+    "notes": "Notes",
+    "error": "Error loading crawler stats.",
+    "no_stats": "No Stats found."
   }
 }

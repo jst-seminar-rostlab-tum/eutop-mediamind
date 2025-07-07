@@ -16,3 +16,5 @@ export type MatchesResponse =
 export type BreakingNewsItem = components["schemas"]["BreakingNewsItem"];
 
 export type ArticleMatch = components["schemas"]["MatchDetailResponse"];
+
+export type Stat = components["schemas"]["CrawlStatsItem"];
