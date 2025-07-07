@@ -36,6 +36,52 @@ export function formatDate(dateString: string) {
   }
 }
 
+export function getDateComponents(dateString: string) {
+  const { i18n } = useTranslation();
+
+  const locale = i18n.language == "de" ? "de-DE" : "en-US";
+
+  try {
+    const date = new Date(dateString);
+
+    if (isNaN(date.getTime())) {
+      return {
+        formatted: "Invalid Date",
+        day: null,
+        month: null,
+        year: null,
+      };
+    }
+
+    const day = date.getDate();
+    const month = date.toLocaleDateString(locale, { month: "long" });
+    const year = date.getFullYear();
+
+    const formattedDay = day < 10 ? `0${day}` : day.toString();
+
+    const formatted = date.toLocaleDateString(locale, {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+
+    return {
+      formatted,
+      day: formattedDay,
+      month: month,
+      year: year,
+    };
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  } catch (error) {
+    return {
+      formatted: dateString,
+      day: null,
+      month: null,
+      year: null,
+    };
+  }
+}
+
 export function getLocalizedContent(content: { [key: string]: string }) {
   if (content[i18n.language]) {
     return content[i18n.language];
@@ -48,4 +94,8 @@ export function getLocalizedContent(content: { [key: string]: string }) {
     return content["de"];
   }
   return "Error";
+}
+
+export function getPercentage(decimal_percentage: number) {
+  return Math.round(decimal_percentage * 100).toFixed(0) + "%";
 }

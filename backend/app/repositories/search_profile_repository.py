@@ -2,13 +2,14 @@ from typing import List, Optional
 from uuid import UUID
 
 from pydantic import EmailStr
-from sqlalchemy import and_, delete, or_, update
+from sqlalchemy import and_, delete, or_, true, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 from sqlmodel import select
 
 from app.core.db import async_session
 from app.models import SearchProfile, Topic, User
+from app.models.user import UserRole
 from app.repositories.subscription_repository import SubscriptionRepository
 from app.repositories.topics_repository import TopicsRepository
 from app.schemas.search_profile_schemas import SearchProfileUpdateRequest
@@ -17,7 +18,16 @@ from app.schemas.topic_schemas import TopicCreateOrUpdateRequest
 from app.schemas.user_schema import UserEntity
 
 
-def _public_or_user_filter(user_id: UUID, organization_id: UUID):
+def _user_access_filter(
+    user_id: UUID, organization_id: UUID, role: UserRole, is_superuser: bool
+):
+    if is_superuser:
+        return true()  # SQLAlchemy "always true" condition
+
+    if role == UserRole.maintainer:
+        return SearchProfile.organization_id == organization_id
+
+    # default: owned, subscribed, public in org
     return or_(
         SearchProfile.created_by_id == user_id,
         SearchProfile.users.any(User.id == user_id),
@@ -109,18 +119,28 @@ class SearchProfileRepository:
 
     @staticmethod
     async def get_accessible_profiles(
-        user_id: UUID, organization_id: UUID
+        user_id: UUID,
+        organization_id: UUID,
+        role: UserRole,
+        is_superuser: bool,
     ) -> List[SearchProfile]:
         """
-        Return all profiles that the user can access
-        (created, subscribed, or public).
+        Return all profiles that the user can access:
+        - owned or subscribed
+        - public in org
+        - if superuser: all
+        - if maintainer: all in org
         """
         async with async_session() as session:
             query = (
                 select(SearchProfile)
                 .distinct()
                 .options(*_base_load_options())
-                .where(_public_or_user_filter(user_id, organization_id))
+                .where(
+                    _user_access_filter(
+                        user_id, organization_id, role, is_superuser
+                    )
+                )
             )
             result = await session.execute(query)
             return result.unique().scalars().all()
@@ -129,6 +149,8 @@ class SearchProfileRepository:
     async def get_accessible_profile_by_id(
         search_profile_id: UUID,
         user_id: UUID,
+        user_role: UserRole,
+        is_superuser: bool,
         organization_id: UUID,
         session,
     ) -> Optional[SearchProfile]:
@@ -140,7 +162,9 @@ class SearchProfileRepository:
             .options(*_base_load_options())
             .where(
                 SearchProfile.id == search_profile_id,
-                _public_or_user_filter(user_id, organization_id),
+                _user_access_filter(
+                    user_id, organization_id, user_role, is_superuser
+                ),
             )
         )
         result = await session.execute(query)
