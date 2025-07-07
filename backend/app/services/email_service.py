@@ -145,8 +145,11 @@ class EmailService:
         today = f"{month_translated} {int(day)}, {year}"
 
         greeting = translator("Good morning")
-        title = translator("Mr./Ms.")
-        salutation = f"{greeting}, {title} {last_name}"
+        if last_name:
+            title = translator("Mr./Ms.")
+            salutation = f"{greeting}, {title} {last_name}"
+        else:
+            salutation = f"{greeting},"
 
         context = {
             "s3_link": s3_link,

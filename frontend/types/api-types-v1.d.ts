@@ -714,6 +714,15 @@ export interface components {
             /** Bucket */
             bucket: string;
         };
+        /** CreateRequestUser */
+        CreateRequestUser: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            role: components["schemas"]["UserRole"];
+        };
         /** FeedbackResponse */
         FeedbackResponse: {
             /** Status */
@@ -781,6 +790,8 @@ export interface components {
             /** Categories */
             categories?: string[] | null;
             status?: components["schemas"]["ArticleStatus"] | null;
+            /** Language */
+            language?: string | null;
         };
         /** MatchDetailResponse */
         MatchDetailResponse: {
@@ -876,8 +887,8 @@ export interface components {
              * Format: email
              */
             email: string;
-            /** User Ids */
-            user_ids: string[];
+            /** Users */
+            users: components["schemas"]["CreateRequestUser"][];
         };
         /** OrganizationResponse */
         OrganizationResponse: {
@@ -1200,6 +1211,7 @@ export interface components {
              * @default en
              */
             language: string;
+            role: components["schemas"]["UserRole"];
             /**
              * Id
              * Format: uuid
@@ -1231,11 +1243,18 @@ export interface components {
              * @default en
              */
             language: string;
+            /** @default member */
+            role: components["schemas"]["UserRole"];
             /** Organization Id */
             organization_id?: string | null;
             /** Organization Name */
             organization_name?: string | null;
         };
+        /**
+         * UserRole
+         * @enum {string}
+         */
+        UserRole: "maintainer" | "member";
         /** ValidationError */
         ValidationError: {
             /** Location */

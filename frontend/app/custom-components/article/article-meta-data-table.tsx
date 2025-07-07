@@ -35,12 +35,14 @@ export function ArticleMetaDataTable({ article }: ArticleMetaDataTableProps) {
             </TableCell>
           </TableRow>
 
-          <TableRow>
-            <TableCell>{t("article-page.meta_data_language")}</TableCell>
-            <TableCell className="text-right">
-              {article.article.text["en"] ? "en" : "de"}
-            </TableCell>
-          </TableRow>
+          {article.article.language && (
+            <TableRow>
+              <TableCell>{t("article-page.meta_data_language")}</TableCell>
+              <TableCell className="text-right">
+                {article.article.language}
+              </TableCell>
+            </TableRow>
+          )}
 
           {article.article.status && (
             <TableRow>

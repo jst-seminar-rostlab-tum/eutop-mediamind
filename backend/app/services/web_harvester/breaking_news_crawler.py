@@ -7,7 +7,7 @@ import requests
 from eventregistry import EventRegistry
 
 from app.core.config import configs
-from app.core.db import redis_engine
+from app.core.db import get_redis_connection
 from app.core.logger import BufferedLogger
 from app.models.breaking_news import BreakingNews
 
@@ -210,7 +210,7 @@ def fetch_breaking_news_newsapi():
     """
     crawler = BreakingNewsNewsAPICrawler()
     new_articles = crawler.fetch_breaking_news()
-
+    redis_engine = get_redis_connection()
     stored_articles = []
 
     for article in new_articles:
@@ -243,6 +243,8 @@ def get_all_breaking_news() -> List[BreakingNews]:
     :return: List of BreakingNews objects.
     """
     try:
+        redis_engine = get_redis_connection()
+
         keys = redis_engine.keys("breaking_news:*")
         articles = []
 
