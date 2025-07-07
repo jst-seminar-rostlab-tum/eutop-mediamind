@@ -229,8 +229,7 @@
     "failed": "Fehlgeschlagen",
     "notes": "Notizen",
     "error": "Fehler beim Laden der Crawler Statistiken."
-},
-
+  },
 
   "reports": {
     "reports": "Berichte",
