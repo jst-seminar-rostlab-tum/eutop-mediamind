@@ -216,6 +216,12 @@
       "second_submit_button": "//button[@id='submit' and @name='loginform:submit']",
       "profile_section": "//a[@href='https://www.spiegel.de/fuermich/']",
       "logout_button": "//a[normalize-space(text())='Abmelden']"
+    },
+    "crawlers": {
+      "RSSFeedCrawler": {
+        "feed_urls": ["https://www.spiegel.de/international/index.rss"],
+        "language": "en"
+      }
     }
   },
   {
