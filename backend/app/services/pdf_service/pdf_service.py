@@ -23,15 +23,16 @@ from app.services.translation_service import ArticleTranslationService
 # PDFService uses split modules
 from ...repositories.search_profile_repository import SearchProfileRepository
 from .colors import pdf_colors
+from .fonts import register_fonts
+from .styles import get_pdf_styles
+from .news_item import NewsItem
 
 # Connect the external functions as a static methods of PDFService
 from .cover_elements import draw_cover_elements as _draw_cover_elements
-from .fonts import register_fonts
 from .full_articles_elements import create_full_articles_elements
 from .header_footer import draw_header_footer as _draw_header_footer
-from .news_item import NewsItem
-from .styles import get_pdf_styles
 from .summaries_elements import create_summaries_elements
+from .original_elements import create_original_articles_elements
 
 logger = get_logger(__name__)
 
@@ -54,7 +55,7 @@ class PDFService:
                 " 'evening']"
             )
         elif timeslot == "morning":
-            match_start_time = match_stop_time - timedelta(hours=700)
+            match_start_time = match_stop_time - timedelta(hours=200)
         elif timeslot == "afternoon":
             match_start_time = match_stop_time - timedelta(hours=8)
         elif timeslot == "evening":
@@ -125,16 +126,11 @@ class PDFService:
                 events=events,
             )
             news_items.append(news_item)
-        search_profile = (
-            await SearchProfileRepository.get_search_profile_by_id(
-                search_profile_id
-            )
-        )
-        return PDFService.draw_pdf(search_profile, news_items, translator)
+
+        return PDFService.draw_pdf(news_items, translator)
 
     @staticmethod
     def draw_pdf(
-        search_profile: SearchProfile,
         news_items: List[NewsItem],
         translator: Callable[[str], str],
     ) -> bytes:
@@ -150,7 +146,7 @@ class PDFService:
 
         # Prepare all flowable elements for the PDF
         cover_elements = PDFService.__draw_cover_elements(
-            search_profile, news_items, dimensions, translator
+            news_items, dimensions, translator
         )
         summaries_elements = PDFService.__create_summaries_elements(
             news_items, dimensions, translator
