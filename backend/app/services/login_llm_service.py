@@ -396,10 +396,14 @@ class LoginLLM:
         return len(enc.encode(text))
 
     @staticmethod
-    async def _send_chunk_to_llm(client, html_chunk, website_image):
+    async def _send_chunk_to_llm(
+        client, html_chunk, website_image, login_config
+    ):
         async with LoginLLM.semaphore:
             prompt = (
                 f"{instructions_login}\n\n{login_schema}\n\n"
+                f"Do not repeat xpaths and css selectors already stored "
+                f"in this JSON:\n{login_config}\n\n"
                 f"HTML Content:\n{html_chunk}\n"
             )
             return await asyncio.to_thread(
@@ -435,7 +439,9 @@ class LoginLLM:
             client = LLMClient(LLMModels.openai_4o)
             html_chunks = LoginLLM._split_html(html, MAX_TOKENS)
             tasks = [
-                LoginLLM._send_chunk_to_llm(client, chunk, website_image)
+                LoginLLM._send_chunk_to_llm(
+                    client, chunk, website_image, login_config
+                )
                 for chunk in html_chunks
             ]
             responses = await asyncio.gather(*tasks)
