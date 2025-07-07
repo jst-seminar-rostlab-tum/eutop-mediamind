@@ -1,4 +1,4 @@
-import { Book, Search } from "lucide-react";
+import { Book, FileText, Search } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router";
 import { client, useQuery } from "types/api";
@@ -161,15 +161,30 @@ export function SearchProfileOverview() {
           </Breadcrumb>
           <div className="flex gap-8">
             <Text hierachy={2}>{profile?.name}</Text>
-            <div className="flex gap-3 items-center">
-              <Book size={20} />
-              <p>{t("search_profile.Topics")}</p>
+          </div>
+          <div className="flex items-center justify-between mb-4 gap-10">
+            <div
+              className={
+                "flex p-1 rounded-lg items-center gap-2 overflow-x-auto"
+              }
+            >
+              <div className={"flex items-center gap-1"}>
+                <Book size={20} />
+                <p className={"font-bold"}>{t("search_profile.Topics")}</p>
+              </div>
+
               {profile?.topics?.map((topic, idx) => (
-                <div className="bg-secondary rounded-lg py-1 px-2" key={idx}>
+                <div className="bg-gray-200 rounded-lg py-1 px-2" key={idx}>
                   {topic.name}
                 </div>
               ))}
             </div>
+            <Button
+              onClick={() => navigate(`${window.location.pathname}/reports`)}
+            >
+              <FileText />
+              Reports
+            </Button>
           </div>
 
           <div className="w-full grid grid-cols-6 mt-2 gap-8">

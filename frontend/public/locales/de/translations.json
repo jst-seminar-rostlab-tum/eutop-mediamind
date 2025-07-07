@@ -152,6 +152,7 @@
 
   "search_profile": {
     "Topics": "Themen",
+    "Keywords": "Schlüsselwörter",
     "Sorting": "Sortierung",
     "Sources": "Quellen",
     "Date": "Datum",
@@ -159,7 +160,9 @@
     "To": "Bis",
     "articles": "Artikel",
     "Relevance": "Relevanz",
-    "No_articles": "Keine Artikel gefunden"
+    "No_articles": "Keine Artikel gefunden",
+    "reports": "Berichte",
+    "Explore": "Erkunden"
   },
 
   "article-page": {
@@ -211,6 +214,8 @@
     "header": "Bericht Download Center",
     "pagination": "Zeige {{from}} bis {{to}} von {{total}} Berichten",
     "download_unavailable": "Nicht verfügbar",
-    "download": "Herunterladen"
+    "download": "Herunterladen",
+    "no_reports_found": "Keine Berichte gefunden.",
+    "loading": "Reports are loading."
   }
 }

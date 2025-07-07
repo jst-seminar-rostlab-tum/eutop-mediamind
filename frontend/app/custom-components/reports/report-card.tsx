@@ -2,9 +2,8 @@ import type { ReportOverview } from "../../../types/model";
 import { getDateComponents } from "~/lib/utils";
 import { Button } from "~/components/ui/button";
 import { Calendar, Download } from "lucide-react";
-import { ErrorPage } from "~/pages/error/error";
 import React from "react";
-import { getReport } from "~/pages/reports/reports-dummy-data";
+import { useQuery } from "types/api";
 import { RoleBadge } from "~/custom-components/dashboard/role-badge";
 import { useTranslation } from "react-i18next";
 
@@ -13,14 +12,13 @@ interface ReportCardProps {
 }
 
 export function ReportCard({ report }: ReportCardProps) {
-  // const {
-  //   data: fullReport,
-  //   error,
-  // } = useQuery("/api/v1/reports/{report_id}", { params: { path: { report_id: report.id } } });
-  const fullReport = getReport();
+  const { data: fullReport, error } = useQuery("/api/v1/reports/{report_id}", {
+    params: { path: { report_id: report.id } },
+  });
+
   const { t } = useTranslation();
-  if (!fullReport) {
-    return <ErrorPage />;
+  if (!fullReport || error) {
+    return <div></div>;
   }
 
   const dateComponents = getDateComponents(report.created_at);
