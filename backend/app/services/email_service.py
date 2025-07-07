@@ -73,6 +73,31 @@ class EmailService:
                 )
 
     @staticmethod
+    def send_ses_email(email: Email):
+        """
+        Send an email using AWS SES SMTP credentials from the chatbot config.
+        """
+        msg = MIMEMultipart("alternative")
+        msg["From"] = configs.CHAT_SMTP_FROM
+        msg["To"] = email.recipient
+        msg["Subject"] = email.subject
+
+        html = MIMEText(email.content, "html")
+        msg.attach(html)
+
+        with smtplib.SMTP_SSL(
+            configs.CHAT_SMTP_SERVER, configs.CHAT_SMTP_PORT
+        ) as smtp_server:
+            smtp_server.login(
+                configs.CHAT_SMTP_USER, configs.CHAT_SMTP_PASSWORD
+            )
+            ok = smtp_server.sendmail(
+                configs.CHAT_SMTP_FROM, email.recipient, msg.as_string()
+            )
+            if not (ok == {}):
+                raise Exception(f"Error sending SES email: {ok}")
+
+    @staticmethod
     def __send_email(email: Email):
         msg = MIMEMultipart("alternative")
         msg["From"] = email.sender
@@ -119,8 +144,11 @@ class EmailService:
         today = f"{month_translated} {int(day)}, {year}"
 
         greeting = translator("Good morning")
-        title = translator("Mr./Ms.")
-        salutation = f"{greeting}, {title} {last_name}"
+        if last_name:
+            title = translator("Mr./Ms.")
+            salutation = f"{greeting}, {title} {last_name}"
+        else:
+            salutation = f"{greeting},"
 
         context = {
             "s3_link": s3_link,

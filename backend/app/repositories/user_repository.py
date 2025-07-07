@@ -22,6 +22,7 @@ def _to_user_entity(user: User | UserEntity) -> UserEntity:
         language=user.language,
         is_superuser=user.is_superuser,
         organization_id=user.organization_id,
+        role=user.role,
         organization_name=(
             user.organization_name  # already present if it's a UserEntity
             if isinstance(user, UserEntity)
@@ -85,6 +86,24 @@ class UserRepository:
         stmt = select(User).where(User.id.in_(ids))
         result = await session.execute(stmt)
         return result.scalars().all()
+
+    @staticmethod
+    async def get_user_by_email(
+        email: str, session: AsyncSession
+    ) -> Optional[UserEntity]:
+        """
+        Fetch a user by email and return as UserEntity
+        including organization name.
+        """
+        query = (
+            select(User)
+            .options(selectinload(User.organization))
+            .where(User.email == email)
+        )
+        result = await session.execute(query)
+        user = result.scalar_one_or_none()
+
+        return _to_user_entity(user) if user else None
 
     @staticmethod
     async def create_user(

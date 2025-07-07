@@ -95,3 +95,7 @@ export function getLocalizedContent(content: { [key: string]: string }) {
   }
   return "Error";
 }
+
+export function getPercentage(decimal_percentage: number) {
+  return Math.round(decimal_percentage * 100).toFixed(0) + "%";
+}

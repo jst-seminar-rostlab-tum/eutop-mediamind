@@ -589,6 +589,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/chatbot": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Receive Chat */
+        post: operations["receive_chat_api_v1_chatbot_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/organizations": {
         parameters: {
             query?: never;
@@ -684,6 +701,28 @@ export interface components {
             /** Total Count */
             total_count: number;
         };
+        /** ChatRequest */
+        ChatRequest: {
+            /** Sender */
+            sender: string;
+            /** Subject */
+            subject: string;
+            /** Body */
+            body: string;
+            /** S3 Key */
+            s3_key: string;
+            /** Bucket */
+            bucket: string;
+        };
+        /** CreateRequestUser */
+        CreateRequestUser: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            role: components["schemas"]["UserRole"];
+        };
         /** FeedbackResponse */
         FeedbackResponse: {
             /** Status */
@@ -751,6 +790,8 @@ export interface components {
             /** Categories */
             categories?: string[] | null;
             status?: components["schemas"]["ArticleStatus"] | null;
+            /** Language */
+            language?: string | null;
         };
         /** MatchDetailResponse */
         MatchDetailResponse: {
@@ -846,8 +887,8 @@ export interface components {
              * Format: email
              */
             email: string;
-            /** User Ids */
-            user_ids: string[];
+            /** Users */
+            users: components["schemas"]["CreateRequestUser"][];
         };
         /** OrganizationResponse */
         OrganizationResponse: {
@@ -1170,6 +1211,7 @@ export interface components {
              * @default en
              */
             language: string;
+            role: components["schemas"]["UserRole"];
             /**
              * Id
              * Format: uuid
@@ -1201,11 +1243,18 @@ export interface components {
              * @default en
              */
             language: string;
+            /** @default member */
+            role: components["schemas"]["UserRole"];
             /** Organization Id */
             organization_id?: string | null;
             /** Organization Name */
             organization_name?: string | null;
         };
+        /**
+         * UserRole
+         * @enum {string}
+         */
+        UserRole: "maintainer" | "member";
         /** ValidationError */
         ValidationError: {
             /** Location */
@@ -2344,6 +2393,43 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ReportDetailResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    receive_chat_api_v1_chatbot_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "x-api-key"?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ChatRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: string;
+                    };
                 };
             };
             /** @description Validation Error */
