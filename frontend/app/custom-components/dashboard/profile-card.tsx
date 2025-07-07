@@ -4,6 +4,7 @@ import {
   OctagonAlert,
   MoreVertical,
   ChevronRight,
+  FileText,
 } from "lucide-react";
 import type { KeyedMutator } from "swr";
 import { useState, useRef, useEffect } from "react";
@@ -153,7 +154,15 @@ export function ProfileCard({
                 <DropdownMenuContent align="center">
                   <DropdownMenuItem onClick={() => setShowEditDialog(true)}>
                     <SquarePen className="text-primary" />
-                    {t("edit")}
+                    {t("Edit")}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() =>
+                      navigate(`/search-profile/${profile.id}/reports`)
+                    }
+                  >
+                    <FileText className="text-primary" />
+                    {t("search_profile.reports")}
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     onClick={() => {
@@ -162,7 +171,7 @@ export function ProfileCard({
                     className="text-red-500 focus:text-red-500"
                   >
                     <Trash2 className="text-red-500" />
-                    {t("delete")}
+                    {t("Delete")}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -179,7 +188,7 @@ export function ProfileCard({
                   }
                 >
                   <span className={"font-bold"}>{profile.topics.length}</span>
-                  Topics
+                  {t("search_profile.Topics")}
                 </div>
                 <div
                   className={
@@ -187,18 +196,20 @@ export function ProfileCard({
                   }
                 >
                   <span className={"font-bold"}>{totalKeywords}</span>
-                  Keywords
+                  {t("search_profile.Keywords")}
                 </div>
               </div>
             </div>
           </div>
           <div
             className={
-              "w-full h-20 bg-gray-100 items-center flex justify-center rounded-2xl hover:bg-gray-200 hover:cursor-pointer transition-background duration-300"
+              "w-full h-18 bg-gray-100 items-center flex justify-center rounded-2xl hover:bg-gray-200 hover:cursor-pointer transition-background duration-300"
             }
             onClick={() => navigate(`/search-profile/${profile.id}`)}
           >
-            <span className={"text-gray-700"}>Explore</span>
+            <span className={"text-gray-700"}>
+              {t("search_profile.Explore")}
+            </span>
             <ChevronRight className="w-7 h-7" />
           </div>
         </div>

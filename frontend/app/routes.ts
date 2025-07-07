@@ -9,4 +9,5 @@ export default [
   route("error/:code", "routes/error.tsx"),
   route("search-profile/:id", "routes/search-profile.tsx"),
   route("dashboard/breaking", "routes/breaking-news.tsx"),
+  route("search-profile/:searchProfileId/reports", "routes/reports.tsx"),
 ] satisfies RouteConfig;

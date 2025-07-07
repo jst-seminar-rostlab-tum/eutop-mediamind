@@ -2,8 +2,9 @@ import {
   ArrowDownNarrowWide,
   Award,
   CalendarFold,
+  ChevronDownIcon,
+  File,
   Search,
-  StickyNote,
   Tag,
 } from "lucide-react";
 import { Card, CardTitle } from "~/components/ui/card";
@@ -102,7 +103,7 @@ export function SidebarFilter({
       </Select>
 
       <CardTitle className="mt-4 flex items-center gap-2">
-        <StickyNote /> {t("search_profile.Sources")}
+        <File /> {t("search_profile.Sources")}
       </CardTitle>
       <div className="relative w-full flex">
         <Input
