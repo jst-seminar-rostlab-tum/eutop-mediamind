@@ -236,10 +236,3 @@ class UserRepository:
             await session.refresh(db_user)
 
             return _to_user_entity(db_user)
-
-    @staticmethod
-    async def get_last_name_by_email(email: str) -> Optional[str]:
-        async with async_session() as session:
-            stmt = select(User.last_name).where(User.email == email)
-            result = await session.execute(stmt)
-            return result.scalar_one_or_none()

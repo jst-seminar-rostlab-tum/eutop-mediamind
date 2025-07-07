@@ -1,5 +1,6 @@
 from datetime import datetime
 
+from app.core.languages import Language
 from app.core.logger import get_logger
 from app.services.article_matching_service import ArticleMatchingService
 from app.services.article_summary_service import ArticleSummaryService
@@ -16,9 +17,7 @@ from app.services.web_harvester.web_harvester_orchestrator import (
 logger = get_logger(__name__)
 
 
-async def run(
-    datetime_start: datetime, datetime_end: datetime, language: str = "en"
-):
+async def run(datetime_start: datetime, datetime_end: datetime):
     """Run a pipeline for the given date range."""
     # print(f"Started Pi: {span_start}, Span end: {span_end}")
     logger.info(f"Running pipeline from {datetime_start} to {datetime_end}")
@@ -54,7 +53,7 @@ async def run(
     logger.info("Report generation")
     # returns the Report, presigned URL, dashboard URL and search profile
     reports_info = await ReportService.run(
-        timeslot="morning", language=language
+        timeslot="morning", languages=[Language.EN, Language.DE]
     )
     logger.info(f"Generated {len(reports_info)} reports")
 
