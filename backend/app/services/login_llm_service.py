@@ -1,8 +1,10 @@
 import asyncio
 import base64
 import json
+import math
 import re
 import time
+from asyncio import Semaphore
 
 import tiktoken
 from bs4 import BeautifulSoup, Comment
@@ -24,6 +26,9 @@ from app.services.web_harvester.utils.web_utils import (
     insert_credential,
     scroll_to_element,
 )
+
+MAX_TOKENS = 120000
+MAX_CONCURRENCY = 10
 
 logger = get_logger(__name__)
 
@@ -92,6 +97,7 @@ class LoginLLM:
     user_inserted = False
     password_inserted = False
     submitted = False
+    semaphore = Semaphore(MAX_CONCURRENCY)
 
     @staticmethod
     def _reset_flags():
@@ -390,6 +396,32 @@ class LoginLLM:
         return len(enc.encode(text))
 
     @staticmethod
+    async def _send_chunk_to_llm(client, html_chunk, website_image):
+        async with LoginLLM.semaphore:
+            prompt = (
+                f"{instructions_login}\n\n{login_schema}\n\n"
+                f"HTML Content:\n{html_chunk}\n"
+            )
+            return await asyncio.to_thread(
+                client.generate_response, prompt, 0.1, website_image
+            )
+
+    @staticmethod
+    def _split_html(html: str, max_tokens: int) -> list[str]:
+        tokens = LoginLLM._count_tokens(html)
+        if tokens <= max_tokens:
+            return [html]
+
+        chunk_size = len(html) // math.ceil(tokens / max_tokens)
+        chunks = [
+            html[i : i + chunk_size] for i in range(0, len(html), chunk_size)
+        ]
+        logger.info(
+            f"Token limit exceeded, split HTML into {len(chunks)} chunks"
+        )
+        return chunks
+
+    @staticmethod
     async def _find_elements_with_LLM(driver, login_config):
         html = driver.page_source
         html = await LoginLLM._extract_and_merge_iframes(driver, html)
@@ -400,20 +432,23 @@ class LoginLLM:
         await asyncio.sleep(3)
         website_image = LoginLLM._take_screenshot(driver)
         try:
-            prompt = (
-                f"{instructions_login}\n\n{login_schema}\n\n"
-                f"HTML Content:\n{html}\n"
-            )
             client = LLMClient(LLMModels.openai_4o)
-            response = client.generate_response(prompt, 0.1, website_image)
+            html_chunks = LoginLLM._split_html(html, MAX_TOKENS)
+            tasks = [
+                LoginLLM._send_chunk_to_llm(client, chunk, website_image)
+                for chunk in html_chunks
+            ]
+            responses = await asyncio.gather(*tasks)
+            updated_config = login_config
+            for resp in responses:
+                LLM_result = LoginLLM._llm_response_to_json(resp)
+                updated_config = LoginLLM._add_new_keys_to_config(
+                    LLM_result, updated_config
+                )
+            return updated_config
         except Exception as e:
             logger.error(f"Error while calling LLMClient: {e}")
             return
-        LLM_result = LoginLLM._llm_response_to_json(response)
-        updated_config = LoginLLM._add_new_keys_to_config(
-            LLM_result, login_config
-        )
-        return updated_config
 
     @staticmethod
     async def _execute_login_attempt(
@@ -487,8 +522,11 @@ class LoginLLM:
             url = driver.current_url
             # Submit credentials
             LoginLLM.submitted = LoginLLM._find_correct_clickable_element(
-                driver, wait, updated_config,
-                "submit_button", second_button="second_submit_button"
+                driver,
+                wait,
+                updated_config,
+                "submit_button",
+                second_button="second_submit_button",
             )
             driver.switch_to.default_content()
         else:
@@ -500,8 +538,11 @@ class LoginLLM:
             if not LoginLLM.password_inserted:
                 LoginLLM.password_inserted = (
                     LoginLLM._find_correct_input_element(
-                        driver, wait, updated_config,
-                        "password_input", password
+                        driver,
+                        wait,
+                        updated_config,
+                        "password_input",
+                        password,
                     )
                 )
             url = driver.current_url
