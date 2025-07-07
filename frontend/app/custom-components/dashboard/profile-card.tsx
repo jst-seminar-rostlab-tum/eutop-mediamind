@@ -5,6 +5,7 @@ import {
   MoreVertical,
   ChevronRight,
   Loader2,
+  FileText,
 } from "lucide-react";
 import type { KeyedMutator } from "swr";
 import { useState, useRef, useEffect } from "react";
@@ -178,6 +179,12 @@ export function ProfileCard({
                     <SquarePen className="text-primary" />
                     {t("Edit")}
                   </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/search-profile/${profile.id}/reports">
+                      <FileText className="text-primary" />
+                      {t("search_profile.reports")}
+                    </Link>
+                  </DropdownMenuItem>
                   <DropdownMenuItem
                     onClick={() => {
                       setShowDeleteDialog(true);
@@ -198,11 +205,11 @@ export function ProfileCard({
               <div className={"flex items-center gap-1"}>
                 <div className="bg-gray-100 px-1 py-0.5 text-sm rounded-sm text-gray-700 flex gap-1">
                   <span className={"font-bold"}>{profile.topics.length}</span>
-                  Topics
+                  {t("search_profile.Topics")}
                 </div>
                 <div className="bg-gray-100 px-1 py-0.5 text-sm rounded-sm text-gray-700 flex gap-1">
                   <span className={"font-bold"}>{totalKeywords}</span>
-                  Keywords
+                  {t("search_profile.Keywords")}
                 </div>
               </div>
             </div>
@@ -211,7 +218,9 @@ export function ProfileCard({
             to={`/search-profile/${profile.id}`}
             className="w-full h-20 bg-gray-100 items-center flex justify-center rounded-2xl hover:bg-gray-200 transition-background duration-300"
           >
-            <span className={"text-gray-700"}>Explore</span>
+            <span className={"text-gray-700"}>
+              {t("search_profile.Explore")}
+            </span>
             <ChevronRight className="w-7 h-7" />
           </Link>
         </div>
