@@ -55,7 +55,7 @@ class PDFService:
                 " 'evening']"
             )
         elif timeslot == "morning":
-            match_start_time = match_stop_time - timedelta(hours=200)
+            match_start_time = match_stop_time - timedelta(hours=9)
         elif timeslot == "afternoon":
             match_start_time = match_stop_time - timedelta(hours=8)
         elif timeslot == "evening":
@@ -154,6 +154,10 @@ class PDFService:
         full_articles_elements = PDFService.__create_full_articles_elements(
             news_items, dimensions, translator, PDFService.styles
         )
+        # Add appendix with original articles
+        original_elements = PDFService._PDFService__create_original_elements(
+            news_items, PDFService.styles, translator
+        )
         # Combine all elements
         all_elements = []
         all_elements.append(NextPageTemplate("Cover"))
@@ -166,6 +170,8 @@ class PDFService:
         all_elements.append(NextPageTemplate("FullArticles"))
         all_elements.append(PageBreak())
         all_elements.extend(full_articles_elements)
+        # Add appendix with original articles
+        all_elements.extend(original_elements)
 
         buffer = BytesIO()
         width, height = dimensions
@@ -244,4 +250,10 @@ PDFService._PDFService__create_summaries_elements = staticmethod(
 
 PDFService._PDFService__create_full_articles_elements = staticmethod(
     create_full_articles_elements
+)
+
+PDFService._PDFService__create_original_elements = staticmethod(
+    lambda news_items, styles, translator: create_original_articles_elements(
+        news_items, styles, translator
+    )
 )
