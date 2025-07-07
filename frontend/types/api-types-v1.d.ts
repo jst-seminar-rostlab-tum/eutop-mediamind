@@ -170,7 +170,8 @@ export interface paths {
          */
         put: operations["update_search_profile_api_v1_search_profiles__search_profile_id__put"];
         post?: never;
-        delete?: never;
+        /** Delete Search Profile */
+        delete: operations["delete_search_profile_api_v1_search_profiles__search_profile_id__delete"];
         options?: never;
         head?: never;
         patch?: never;
@@ -232,23 +233,6 @@ export interface paths {
         put?: never;
         post?: never;
         delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/search-profiles/search-profiles/{search_profile_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        /** Delete Search Profile */
-        delete: operations["delete_search_profile_api_v1_search_profiles_search_profiles__search_profile_id__delete"];
         options?: never;
         head?: never;
         patch?: never;
@@ -714,6 +698,15 @@ export interface components {
             /** Bucket */
             bucket: string;
         };
+        /** CreateRequestUser */
+        CreateRequestUser: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            role: components["schemas"]["UserRole"];
+        };
         /** FeedbackResponse */
         FeedbackResponse: {
             /** Status */
@@ -878,8 +871,8 @@ export interface components {
              * Format: email
              */
             email: string;
-            /** User Ids */
-            user_ids: string[];
+            /** Users */
+            users: components["schemas"]["CreateRequestUser"][];
         };
         /** OrganizationResponse */
         OrganizationResponse: {
@@ -1202,6 +1195,7 @@ export interface components {
              * @default en
              */
             language: string;
+            role: components["schemas"]["UserRole"];
             /**
              * Id
              * Format: uuid
@@ -1233,11 +1227,18 @@ export interface components {
              * @default en
              */
             language: string;
+            /** @default member */
+            role: components["schemas"]["UserRole"];
             /** Organization Id */
             organization_id?: string | null;
             /** Organization Name */
             organization_name?: string | null;
         };
+        /**
+         * UserRole
+         * @enum {string}
+         */
+        UserRole: "maintainer" | "member";
         /** ValidationError */
         ValidationError: {
             /** Location */
@@ -1562,6 +1563,35 @@ export interface operations {
             };
         };
     };
+    delete_search_profile_api_v1_search_profiles__search_profile_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                search_profile_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     get_search_profile_overview_api_v1_search_profiles__search_profile_id__matches_post: {
         parameters: {
             query?: never;
@@ -1684,35 +1714,6 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["ReportListResponse"];
                 };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    delete_search_profile_api_v1_search_profiles_search_profiles__search_profile_id__delete: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                search_profile_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
             };
             /** @description Validation Error */
             422: {
