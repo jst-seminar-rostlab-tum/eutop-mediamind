@@ -18,17 +18,6 @@ from app.schemas.topic_schemas import TopicCreateOrUpdateRequest
 from app.schemas.user_schema import UserEntity
 
 
-def _public_or_user_filter(user_id: UUID, organization_id: UUID):
-    return or_(
-        SearchProfile.created_by_id == user_id,
-        SearchProfile.users.any(User.id == user_id),
-        and_(
-            SearchProfile.organization_id == organization_id,
-            SearchProfile.is_public,
-        ),
-    )
-
-
 def _user_access_filter(
     user_id: UUID, organization_id: UUID, role: UserRole, is_superuser: bool
 ):
@@ -160,6 +149,8 @@ class SearchProfileRepository:
     async def get_accessible_profile_by_id(
         search_profile_id: UUID,
         user_id: UUID,
+        user_role: UserRole,
+        is_superuser: bool,
         organization_id: UUID,
         session,
     ) -> Optional[SearchProfile]:
@@ -171,7 +162,7 @@ class SearchProfileRepository:
             .options(*_base_load_options())
             .where(
                 SearchProfile.id == search_profile_id,
-                _public_or_user_filter(user_id, organization_id),
+                _user_access_filter(user_id, organization_id, user_role, is_superuser),
             )
         )
         result = await session.execute(query)
