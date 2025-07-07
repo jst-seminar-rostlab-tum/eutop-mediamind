@@ -197,6 +197,7 @@ export function Topics({ profile, setProfile }: TopicsProps) {
                     onClick={() => {
                       getSuggestions(selectedTopicKeywords);
                     }}
+                    disabled={isLoadingSuggestions}
                   >
                     <RefreshCcw />
                   </Button>
