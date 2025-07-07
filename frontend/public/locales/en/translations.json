@@ -162,6 +162,7 @@
 
   "search_profile": {
     "Topics": "Topics",
+    "Keywords": "Keywords",
     "Sorting": "Sorting",
     "Sources": "Sources",
     "Date": "Date",
@@ -169,7 +170,9 @@
     "To": "To",
     "articles": "Articles",
     "Relevance": "Relevance",
-    "No_articles": "No articles found."
+    "No_articles": "No articles found.",
+    "reports": "Reports",
+    "Explore": "Explore"
   },
 
   "article-page": {
@@ -193,7 +196,13 @@
     "shared": "Shared",
     "private": "Private",
     "ownership": "Access rights",
-    "visibility": "Visibility"
+    "visibility": "Visibility",
+    "de": "DE",
+    "en": "EN",
+    "morning": "Morning",
+    "afternoon": "Afternoon",
+    "evening": "Evening",
+    "language": "Language"
   },
 
   "sr-only": {
@@ -208,5 +217,15 @@
     "show_less": "Show less",
     "show_more": "Show more",
     "original": "Original"
+  },
+
+  "reports": {
+    "reports": "Reports",
+    "header": "Report Download Center",
+    "pagination": "Showing {{from}} to {{to}} of {{total}} reports",
+    "download_unavailable": "Unavailable",
+    "download": "Download",
+    "no_reports_found": "No reports found.",
+    "loading": "Berichte werden geladen."
   }
 }
