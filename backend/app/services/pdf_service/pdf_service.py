@@ -59,7 +59,7 @@ class PDFService:
                 " 'evening']"
             )
         elif timeslot == "morning":
-            match_start_time = match_stop_time - timedelta(hours=700)
+            match_start_time = match_stop_time - timedelta(hours=24)
         elif timeslot == "afternoon":
             match_start_time = match_stop_time - timedelta(hours=8)
         elif timeslot == "evening":
