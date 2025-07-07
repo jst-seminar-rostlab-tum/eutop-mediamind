@@ -30,22 +30,20 @@ from app.repositories.article_repository import ArticleRepository
 from app.repositories.entity_repository import ArticleEntityRepository
 from app.services.translation_service import ArticleTranslationService
 
-
 # PDFService uses split modules
 from ...repositories.search_profile_repository import SearchProfileRepository
 from .colors import pdf_colors
 from .fonts import register_fonts
+from .markdown_utils import markdown_blocks_to_paragraphs
 from .news_item import NewsItem
 from .styles import get_pdf_styles
 from .utils import calculate_reading_time
-from .markdown_utils import markdown_blocks_to_paragraphs
-
 
 logger = get_logger(__name__)
 
 
 class PDFService:
-    #Loading Our custom fonts
+    # Loading Our custom fonts
     styles = get_pdf_styles(register_fonts())
 
     @staticmethod
@@ -632,7 +630,9 @@ class PDFService:
             story.append(reading_time_box)
 
             # Translating Content Markdown to Reportlab Paragraphs
-            for para in markdown_blocks_to_paragraphs(news.content, PDFService.styles):
+            for para in markdown_blocks_to_paragraphs(
+                news.content, PDFService.styles
+            ):
                 story.append(para)
             story.append(Spacer(1, 0.3 * inch))
 

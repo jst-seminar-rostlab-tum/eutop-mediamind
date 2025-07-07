@@ -1,9 +1,9 @@
 # This file contains the font registration logic for the PDF service.
 import os
 
+from reportlab.lib.fonts import addMapping
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
-from reportlab.lib.fonts import addMapping
 
 from app.core.logger import get_logger
 
@@ -32,7 +32,7 @@ def register_fonts():
                 f"Font file '{font_path}' not found. Some styles may "
                 f"not display correctly."
             )
-    #Add Mapping converts the html <bold> <italic> tags to the font styles
+    # Add Mapping converts the html <bold> <italic> tags to the font styles
     addMapping("DVS", 0, 0, "DVS")
     addMapping("DVS", 1, 0, "DVS-Bold")
     addMapping("DVS", 0, 1, "DVS-Oblique")

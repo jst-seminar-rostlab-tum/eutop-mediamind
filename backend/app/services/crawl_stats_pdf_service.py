@@ -14,6 +14,7 @@ from reportlab.platypus import (
 
 from app.repositories.crawl_stats_repository import CrawlStatsRepository
 
+
 # The PDF is stored inside the backend directory
 async def generate_crawl_stats_pdf(filename: str = "crawl_stats_report.pdf"):
     # Fetch crawl stats for the last day
