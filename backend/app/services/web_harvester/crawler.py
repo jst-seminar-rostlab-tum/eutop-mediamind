@@ -16,7 +16,6 @@ from app.core.config import configs
 from app.core.logger import BufferedLogger, get_logger
 from app.models.article import Article
 from app.models.subscription import Subscription
-from app.services.web_harvester.crawlers.ft_crawler import FtCrawler
 
 logger = get_logger(__name__)
 
@@ -277,10 +276,15 @@ class CrawlerType(Enum):
     FtCrawler = "FtCrawler"
 
 
-CRAWLER_CLASS_REGISTRY = {
-    CrawlerType.NewsAPICrawler: NewsAPICrawler,
-    CrawlerType.FtCrawler: FtCrawler,
-}
+def _get_crawler_class(crawler_type: CrawlerType):
+    """Lazy import crawler classes to avoid circular imports."""
+    if crawler_type == CrawlerType.NewsAPICrawler:
+        return NewsAPICrawler
+    elif crawler_type == CrawlerType.FtCrawler:
+        from app.services.web_harvester.crawlers.ft_crawler import FtCrawler
+        return FtCrawler
+    else:
+        raise ValueError(f"Unknown crawler type: {crawler_type}")
 
 
 def get_crawlers(subscription: Subscription):
@@ -291,7 +295,8 @@ def get_crawlers(subscription: Subscription):
         except ValueError:
             logger.error(f"Unknown crawler: {class_name}")
             raise ValueError(f"Unknown crawler: {class_name}")
-        cls = CRAWLER_CLASS_REGISTRY.get(crawler_type)
+        
+        cls = _get_crawler_class(crawler_type)
         if cls:
             crawlers[class_name] = cls(subscription=subscription, **config)
         else:
