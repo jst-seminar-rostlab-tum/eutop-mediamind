@@ -118,7 +118,7 @@ export function ReportsPage() {
     return pages;
   };
 
-  if (profileLoading) {
+  if (profileLoading || isLoading) {
     return <></>;
   }
 

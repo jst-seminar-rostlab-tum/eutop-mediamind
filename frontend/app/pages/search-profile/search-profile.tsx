@@ -184,11 +184,11 @@ export function SearchProfileOverview() {
               </div>
               <ScrollBar orientation="horizontal" />
             </ScrollArea>
-            <Button
-              onClick={() => navigate(`${window.location.pathname}/reports`)}
-            >
-              <FileText />
-              Reports
+            <Button asChild>
+              <Link to="reports">
+                <FileText />
+                {t("reports.reports")}
+              </Link>
             </Button>
           </div>
 
