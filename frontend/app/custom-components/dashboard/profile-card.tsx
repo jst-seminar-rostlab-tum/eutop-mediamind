@@ -108,10 +108,9 @@ export function ProfileCard({
   const deleteProfile = async () => {
     try {
       setIsDeleting(true);
-      await client.DELETE(
-        "/api/v1/search-profiles/{search_profile_id}",
-        { params: { path: { search_profile_id: profile.id } } },
-      );
+      await client.DELETE("/api/v1/search-profiles/{search_profile_id}", {
+        params: { path: { search_profile_id: profile.id } },
+      });
       mutateDashboard(
         (profiles) => profiles?.filter((p) => p.id !== profile.id) || [],
       );
