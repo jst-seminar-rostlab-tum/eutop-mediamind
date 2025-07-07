@@ -216,8 +216,8 @@
     "date": "Datum",
     "successful": "Erfolgreich",
     "attempted": "Versucht",
+    "failed": "Fehlgeschlagen",
     "notes": "Notizen",
-    "error": "Fehler beim Laden der Crawler Statistiken.",
-    "no_stats": "Keine Statistiken verfügbar."
+    "error": "Fehler beim Laden der Crawler Statistiken."
   }
 }

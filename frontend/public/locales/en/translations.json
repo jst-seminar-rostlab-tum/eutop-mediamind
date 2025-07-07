@@ -216,8 +216,8 @@
     "date": "Date",
     "successful": "Successful",
     "attempted": "Attempted",
+    "failed": "Failed",
     "notes": "Notes",
-    "error": "Error loading crawler stats.",
-    "no_stats": "No Stats found."
+    "error": "Error loading crawler stats."
   }
 }

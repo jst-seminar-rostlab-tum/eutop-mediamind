@@ -15,33 +15,16 @@ import {
   BreadcrumbSeparator,
 } from "~/components/ui/breadcrumb";
 import { Link } from "react-router";
-import {
-  useReactTable,
-  getCoreRowModel,
-  type ColumnDef,
-  getSortedRowModel,
-  flexRender,
-  type SortingState,
-} from "@tanstack/react-table";
-import {
-  Table,
-  TableHeader,
-  TableBody,
-  TableRow,
-  TableHead,
-  TableCell,
-} from "~/components/ui/table";
-import { Skeleton } from "~/components/ui/skeleton";
-import { ArrowDownUp, SortAsc, SortDesc } from "lucide-react";
+import { type ColumnDef } from "@tanstack/react-table";
 import type { Stat } from "types/model";
+import { DataTable } from "~/custom-components/admin-settings/data-table";
 
 export const CrawlerStatsPage = () => {
   const { t } = useTranslation();
   const [startDate, setStartDate] = useState<Date | undefined>(new Date());
   const [endDate, setEndDate] = useState<Date | undefined>(new Date());
-  const [sorting, setSorting] = useState<SortingState>([]);
 
-  const { data, error, isLoading } = useQuery("/api/v1/crawler/stats", {
+  const { data, error } = useQuery("/api/v1/crawler/stats", {
     params: {
       query: {
         date_start: startDate?.toISOString().split("T")[0],
@@ -80,42 +63,32 @@ export const CrawlerStatsPage = () => {
         enableSorting: true,
       },
       {
+        accessorFn: (row) => row.total_attempted - row.total_successful,
+        id: "total_failed",
+        header: t("crawler_stats.failed"),
+        enableSorting: true,
+        cell: (info) => (
+          <span className={info.getValue() ? "text-destructive" : ""}>
+            {info.getValue() ? (info.getValue() as string) : ""}
+          </span>
+        ),
+      },
+      {
         accessorKey: "notes",
         header: t("crawler_stats.notes"),
-        cell: (info) => info.getValue() ?? "-",
+        cell: (info) => info.getValue() ?? "",
         enableSorting: false,
       },
     ],
     [t],
   );
 
-  const tableData = useMemo<Stat[]>(
-    () =>
-      data?.stats.map((stat) => ({
-        subscription_name: stat.subscription_name,
-        crawl_date: stat.crawl_date?.toString() ?? "",
-        total_successful: stat.total_successful,
-        total_attempted: stat.total_attempted,
-        notes: stat.notes ?? "",
-      })) ?? [],
-    [data],
-  );
-
-  const table = useReactTable({
-    data: tableData,
-    columns,
-    state: { sorting },
-    onSortingChange: setSorting,
-    getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-  });
-
   return (
     <Layout>
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
-            <BreadcrumbLink>
+            <BreadcrumbLink asChild>
               <Link to="/dashboard">{t("breadcrumb_home")}</Link>
             </BreadcrumbLink>
           </BreadcrumbItem>
@@ -134,76 +107,11 @@ export const CrawlerStatsPage = () => {
         setEndDate={setEndDate}
       />
       <div className="space-y-6 p-6">
-        <Table>
-          {table.getHeaderGroups().map((headerGroup) => (
-            <TableHeader key={headerGroup.id}>
-              <TableRow>
-                {headerGroup.headers.map((header) => {
-                  const canSort = header.column.getCanSort();
-                  const sortingState = header.column.getIsSorted();
-                  return (
-                    <TableHead
-                      key={header.id}
-                      onClick={
-                        canSort
-                          ? header.column.getToggleSortingHandler()
-                          : undefined
-                      }
-                      className={
-                        canSort ? "cursor-pointer select-none" : undefined
-                      }
-                    >
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext(),
-                          )}
-                      {sortingState === "asc" ? (
-                        <SortAsc className="ms-1 inline size-4" />
-                      ) : sortingState === "desc" ? (
-                        <SortDesc className="ms-1 inline size-4" />
-                      ) : canSort ? (
-                        <ArrowDownUp className="ms-1 inline size-4 opacity-50" />
-                      ) : null}
-                    </TableHead>
-                  );
-                })}
-              </TableRow>
-            </TableHeader>
-          ))}
-
-          <TableBody>
-            {isLoading
-              ? Array.from({ length: 5 }).map((_, idx) => (
-                  <TableRow key={idx}>
-                    {columns.map((col, i) => (
-                      <TableCell key={i}>
-                        <Skeleton className="h-4 w-full" />
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                ))
-              : table.getRowModel().rows.map((row) => (
-                  <TableRow key={row.id}>
-                    {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id}>
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext(),
-                        )}
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                ))}
-          </TableBody>
-        </Table>
-
-        {!isLoading && tableData.length === 0 && (
-          <div className="w-full flex justify-center">
-            {t("crawler_stats.no_stats")}
-          </div>
-        )}
+        <DataTable
+          columns={columns}
+          data={data?.stats ?? []}
+          searchField="subscription_name"
+        />
       </div>
     </Layout>
   );
