@@ -1,4 +1,3 @@
-# Refactored PDFService to use split modules
 import uuid
 from datetime import datetime, timedelta
 from functools import partial
@@ -31,6 +30,7 @@ from app.repositories.article_repository import ArticleRepository
 from app.repositories.entity_repository import ArticleEntityRepository
 from app.services.translation_service import ArticleTranslationService
 
+#PDFService uses split modules
 from ...repositories.search_profile_repository import SearchProfileRepository
 from .colors import pdf_colors
 from .fonts import register_fonts
@@ -42,8 +42,8 @@ logger = get_logger(__name__)
 
 
 class PDFService:
-    _fonts_registered = register_fonts()
-    styles = get_pdf_styles(_fonts_registered)
+    #Loading Our custom fonts
+    styles = get_pdf_styles(register_fonts())
 
     @staticmethod
     async def create_pdf(
@@ -629,7 +629,7 @@ class PDFService:
             )
             story.append(reading_time_box)
 
-            # Content
+            # Content #TODO: Check if I write this in the parser mit die <h> tags
             content_text = news.content.replace("\n", "<br/>")
             story.append(
                 Paragraph(content_text, PDFService.styles["content_style"])
