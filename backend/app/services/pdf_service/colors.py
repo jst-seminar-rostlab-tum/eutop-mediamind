@@ -6,7 +6,7 @@ pdf_colors = {
     "blue": colors.HexColor("#164194"),
     "electricBlue": colors.HexColor("#393be7"),
     "yellow": colors.HexColor("#FFED00"),
-    "darkGrey": colors.HexColor("#525252"),
+    "darkGrey": colors.HexColor("#222020"),
     "gray": colors.HexColor("#888888"),
     "lightgrey": colors.HexColor("#D3D3D3"),
     "white": colors.HexColor("#FFFFFF"),

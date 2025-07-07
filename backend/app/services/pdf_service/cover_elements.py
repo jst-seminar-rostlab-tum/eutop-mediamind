@@ -13,19 +13,17 @@ from reportlab.platypus import (
 )
 from reportlab.platypus.flowables import AnchorFlowable
 
-from app.models.search_profile import SearchProfile
-
 from .colors import pdf_colors
 from .utils import calculate_reading_time
 
 
 def draw_cover_elements(
-    search_profile: SearchProfile,  # TODO are they needed
     news_items: List,
     dimensions: tuple[float, float],
     styles,
-) -> List[Flowable]:
-    width, height = dimensions  # TODO are they needed
+    translator,
+):
+    width, height = dimensions
     toc_entry_style = ParagraphStyle(
         name="TOCEntry",
         fontName="DVS-Bold",
@@ -51,13 +49,17 @@ def draw_cover_elements(
     story = []
     story.append(
         Paragraph(
-            "<b>\n<font size=36>Daily News Report</font>\n</b>",
+            f"<b> <font size=36>{translator('Daily News Report')}</font></b>",
             styles["title_style"],
         )
     )
-
     story.append(Spacer(1, 0.3 * 72))
-    now_str = datetime.today().strftime("%d %B %Y – %H:%M")
+    now = datetime.today()
+    month = now.strftime("%B")
+    now_str = (
+        f"{now.strftime('%d')} {translator(month)} {now.strftime('%Y')} – "
+        f"{now.strftime('%H:%M')}"
+    )
     story.append(
         Paragraph(
             f"<b><font size=16>{now_str}</font></b>",
@@ -80,7 +82,7 @@ def draw_cover_elements(
             canvas = self.canv
             canvas.setFont("DVS", 12)
             canvas.setFillColor(pdf_colors["darkgreen"])
-            label = "Estimated Reading Time: "
+            label = translator("Estimated Reading Time") + ": "
             canvas.drawString(0, 0, label)
             label_width = canvas.stringWidth(label, "DVS", 12)
             canvas.setFont("DVS-Bold", 12)
@@ -88,14 +90,14 @@ def draw_cover_elements(
             label_width += canvas.stringWidth(
                 str(self.estimated_minutes), "DVS-Bold", 12
             )
-            canvas.drawString(label_width, 0, " min")
+            canvas.drawString(label_width, 0, f" {translator('min')}")
 
     story.append(EstimatedReadingTimeFlowable(total_minutes))
     story.append(Spacer(1, 0.3 * 72))
     story.append(Spacer(1, 12))
     story.append(
         Paragraph(
-            "Table of Contents",
+            translator("Table of Contents"),
             ParagraphStyle(
                 name="TOCHeader",
                 fontName="DVS-Bold",
@@ -131,14 +133,24 @@ def draw_cover_elements(
             """,
             metadata_style,
         )
+        summary_link = (
+            f'<a href="#toc_summary_{i}">'
+            f'&nbsp;{translator("Summary")}&nbsp;'
+            "</a>"
+        )
+        full_article_link = (
+            f'<a href="#toc_article_{i}">'
+            f'&nbsp;{translator("Full Article")}&nbsp;'
+            "</a>"
+        )
         button_para = Paragraph(
             f"""
             <font backColor="{pdf_colors["lightgrey"]}" size="9">
-                <a href="#toc_summary_{i}">&nbsp;Summary&nbsp;</a>
+                {summary_link}
             </font>
             &nbsp;&nbsp;
             <font backColor="{pdf_colors["lightgrey"]}" size="9">
-                <a href="#toc_article_{i}">&nbsp;Full Article&nbsp;</a>
+                {full_article_link}
             </font>
             """,
             styles["button_style"],
