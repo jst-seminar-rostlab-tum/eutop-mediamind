@@ -2,7 +2,6 @@ import {
   ArrowDownNarrowWide,
   Award,
   CalendarFold,
-  ChevronDownIcon,
   File,
   Search,
   Tag,
