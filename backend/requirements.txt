@@ -60,4 +60,5 @@ Babel==2.17.0
 Jinja2==3.1.6
 langdetect==1.0.9
 scrapy==2.13.3
-feedparser==6.0.10
+feedparser==6.0.11
+selenium-wire==5.1.0

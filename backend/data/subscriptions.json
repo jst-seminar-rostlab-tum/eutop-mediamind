@@ -38,6 +38,12 @@
       "password_input": "//input[@id='enter-password']",
       "submit_button": "//button[@id='enter-email-next']",
       "second_submit_button": "//button[@id='sign-in-button']"
+    },
+    "RSSFeedCrawler": {
+      "feed_urls": [
+        "https://www.ft.com/myft/following/19e98bc8-b78e-4dd5-936d-f58e9cb66459.rss"
+      ],
+      "language": "en"
     }
   },
   {
@@ -541,9 +547,7 @@
     },
     "crawlers": {
       "RSSFeedCrawler": {
-        "feed_urls": [
-          "https://macemagazine.com/feed/"
-        ],
+        "feed_urls": ["https://macemagazine.com/feed/"],
         "language": "en"
       }
     }
@@ -597,18 +601,6 @@
       "profile_section": "//a[contains(@href, 'profil')]",
       "iframe_logout": "//iframe[@id='plenigoFramesnippetsplenigoLogin']",
       "logout_button": "//a[contains(text(), 'Logout')]"
-    },
-    "crawlers": {
-      "RSSFeedCrawler": {
-        "feed_urls": [
-          "https://www.wiwo.de/contentexport/feed/rss/schlagzeilen",
-          "https://www.wiwo.de/contentexport/feed/rss/unternehmen",
-          "https://www.wiwo.de/contentexport/feed/rss/finanzen",
-          "https://www.wiwo.de/contentexport/feed/rss/politik",
-          "https://www.wiwo.de/contentexport/feed/rss/technologie"
-        ],
-        "language": "de"
-      }
     }
   },
   {
@@ -670,9 +662,7 @@
     "is_active": false,
     "crawlers": {
       "RSSFeedCrawler": {
-        "feed_urls": [
-          "https://www.digitalfernsehen.de/news/feed/"
-        ],
+        "feed_urls": ["https://www.digitalfernsehen.de/news/feed/"],
         "language": "de"
       }
     },
