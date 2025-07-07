@@ -1,8 +1,6 @@
 {
   "login": "Login",
-  "edit": "edit",
   "Edit": "Edit",
-  "delete": "delete",
   "back": "back",
   "leave": "leave",
   "Back": "Back",
@@ -171,6 +169,8 @@
     "articles": "Articles",
     "Relevance": "Relevance",
     "No_articles": "No articles found.",
+    "delete_error": "Error deleting search profile",
+    "delete_success": "Search profile successfully deleted",
     "reports": "Reports",
     "Explore": "Explore"
   },
