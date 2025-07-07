@@ -693,10 +693,6 @@ export interface components {
             subject: string;
             /** Body */
             body: string;
-            /** S3 Key */
-            s3_key: string;
-            /** Bucket */
-            bucket: string;
         };
         /** CreateRequestUser */
         CreateRequestUser: {
