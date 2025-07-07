@@ -248,7 +248,7 @@ export function SearchProfileOverview() {
                               <div
                                 className={`rounded-lg py-1 px-2 ${bgColor}`}
                               >
-                                Relevance: {relevance}
+                                Relevance: {getPercentage(relevance)}
                               </div>
                               {match.topics.map((topic) => (
                                 <div
