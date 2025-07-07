@@ -146,7 +146,7 @@ export function ProfileCard({
               />
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="secondary" className="h-8 w-8 p-0 ">
+                  <Button variant="ghost" className="h-8 w-8 p-0 ">
                     <span className="sr-only">{t("sr-only.open_menu")}</span>
                     <MoreVertical className="h-4 w-4" />
                   </Button>
