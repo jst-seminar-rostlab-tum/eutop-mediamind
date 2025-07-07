@@ -108,7 +108,7 @@ export function ProfileCard({
     try {
       setIsDeleting(true);
       await client.DELETE(
-        "/api/v1/search-profiles/search-profiles/{search_profile_id}",
+        "/api/v1/search-profiles/{search_profile_id}",
         { params: { path: { search_profile_id: profile.id } } },
       );
       mutateDashboard(
