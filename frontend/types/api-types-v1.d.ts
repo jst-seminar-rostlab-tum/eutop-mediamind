@@ -556,6 +556,28 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/crawler/stats": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Crawl Stats
+         * @description Get crawler statistics based on date criteria.
+         *     - If `date_start` and `date_end` are provided, returns stats for that range
+         *     - If no parameters are provided, returns stats for today
+         */
+        get: operations["get_crawl_stats_api_v1_crawler_stats_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/reports/{report_id}": {
         parameters: {
             query?: never;
@@ -693,6 +715,44 @@ export interface components {
             subject: string;
             /** Body */
             body: string;
+        };
+        /**
+         * CrawlStatsItem
+         * @description Base schema for crawl stats with common fields.
+         */
+        CrawlStatsItem: {
+            /** Subscription Name */
+            subscription_name: string;
+            /**
+             * Total Successful
+             * @description Number of successfully crawled articles
+             */
+            total_successful: number;
+            /**
+             * Total Attempted
+             * @description Total number of articles attempted to crawl
+             */
+            total_attempted: number;
+            /**
+             * Crawl Date
+             * Format: date
+             */
+            crawl_date?: string;
+            /**
+             * Notes
+             * @description Additional notes about the crawl
+             */
+            notes?: string | null;
+        };
+        /**
+         * CrawlStatsResponse
+         * @description Response schema for crawl stats.
+         */
+        CrawlStatsResponse: {
+            /** Stats */
+            stats: components["schemas"]["CrawlStatsItem"][];
+            /** Total Count */
+            total_count: number;
         };
         /** CreateRequestUser */
         CreateRequestUser: {
@@ -2342,6 +2402,40 @@ export interface operations {
                 };
                 content: {
                     "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_crawl_stats_api_v1_crawler_stats_get: {
+        parameters: {
+            query?: {
+                /** @description Start date for date range query (YYYY-MM-DD) */
+                date_start?: string | null;
+                /** @description End date for date range query (YYYY-MM-DD) */
+                date_end?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CrawlStatsResponse"];
                 };
             };
             /** @description Validation Error */

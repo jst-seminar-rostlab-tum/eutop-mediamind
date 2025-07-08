@@ -6,7 +6,14 @@ import {
   SignUp,
 } from "@clerk/react-router";
 import { Link, useLocation, useSearchParams } from "react-router";
-import { Building2, Globe, Settings, User } from "lucide-react";
+import {
+  BarChart2,
+  Building2,
+  Globe,
+  MoreVertical,
+  Settings,
+  User,
+} from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { useAuthorization } from "~/hooks/use-authorization";
 import {
@@ -136,11 +143,29 @@ export default function Header() {
         </SignedIn>
 
         {isSignedIn && user?.is_superuser && (
-          <Link to="/admin">
-            <Button variant="outline">
-              <Settings />
-            </Button>
-          </Link>
+          <>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="icon">
+                  <MoreVertical className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem asChild>
+                  <Link to="/admin" className="flex items-center">
+                    <Settings className="mr-2 h-4 w-4" />
+                    Admin-{t("admin.settings")}
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/crawler-stats" className="flex items-center">
+                    <BarChart2 className="mr-2 h-4 w-4" />
+                    {t("crawler_stats.title")}
+                  </Link>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </>
         )}
       </div>
     </div>
