@@ -101,6 +101,9 @@ class AppCreator:
         self.app.include_router(v1_routers, prefix="/api/v1")
 
     def _init_scheduler(self):
+        if not configs.SCHEDULER_ENABLED:
+            return
+
         SchedulerService.init_scheduler(get_redis_connection())
         register_periodic_tasks()
 
@@ -108,7 +111,8 @@ class AppCreator:
             dashboard = RedisQueueDashboard(configs.REDIS_URL, "/rq")
             self.app.mount("/rq", dashboard)
 
-        logger.info("Scheduler initialized successfully.")
+
+        logger.info("Scheduler started successfully")
 
 
 # App exposure for Uvicorn

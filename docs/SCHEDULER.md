@@ -7,12 +7,7 @@ Job scheduling is relying on the [rq](https://github.com/rq/rq) and
 To schedule jobs, you can use the `SchedulerService` class, which is a wrapper 
 around the `rq-scheduler` package.
 
-_Note:_ for the scheduler to work, you need to have 
-- A Redis server running; and
-- The Scheduler and Worker processes running:
-   ```bash
-   python worker.py
-   ```
+_Note:_ for the scheduler to work, you need to have a Redis server running.
 
 Jobs are simple Python functions, that could take any number of arguments:
 ```python
@@ -99,7 +94,3 @@ The flow is as follows:
    scheduled jobs. When it finds a job that is due to be executed, it moves the
     job to another Redis queue, containing jobs that are ready to be executed.
 3.  Finally, the worker consumes the jobs from the execution queue and executes them.
-
-Scheduler and Worker are run as separate processes, so you need to start them.
-They are condensed in the `worker.py` file, which runs both of them in a separate
-process.

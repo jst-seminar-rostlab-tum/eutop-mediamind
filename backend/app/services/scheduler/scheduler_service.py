@@ -1,11 +1,17 @@
+from os import wait
+from signal import raise_signal
 from typing import Callable, List, Optional, Any
+import uuid
 from redis import Redis
 from datetime import timedelta, datetime, timezone
 
+from rq import Worker
 from rq_scheduler import Scheduler
+from multiprocessing import Process
 
 
 class SchedulerService:
+    _queue_name: str = "queued-jobs"
     _scheduler: Optional[Scheduler] = None
     _redis: Optional[Redis]= None
 
@@ -16,9 +22,14 @@ class SchedulerService:
         return SchedulerService._scheduler
 
     @staticmethod
-    def init_scheduler(redis: Redis) -> None:
+    def init_scheduler(redis: Redis, refresh_interval: int=30) -> None:
         SchedulerService._redis = redis
-        SchedulerService._scheduler = Scheduler(connection=redis, queue_name="q2")
+
+        # Scheduler 
+        SchedulerService._scheduler = Scheduler(
+            connection=redis,
+            queue_name=SchedulerService._queue_name,
+        )
 
     @staticmethod
     def schedule(func: Callable, args: Optional[List[Any]]=None) -> None:
@@ -49,15 +60,17 @@ class SchedulerService:
         )
 
     @staticmethod
-    def schedule_periodic(every_seconds: int, func: Callable, args: Optional[List[Any]]=None) -> None:
+    def schedule_periodic(id: uuid.UUID, every_seconds: int, func: Callable, args: Optional[List[Any]]=None) -> None:
         """
         Schedule a periodic task.
+        :param id: Unique identifier for the task.
         :param every_seconds: Interval in seconds between executions.
         :param func: The function to be executed periodically.
         :param args: Arguments to pass to the function.
         """
         s = SchedulerService._get_scheduler()
         s.schedule(
+            id=str(id),
             scheduled_time=datetime.now(),
             func=func,
             args=args,
