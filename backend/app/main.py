@@ -8,7 +8,7 @@ from rq_dashboard_fast import RedisQueueDashboard
 from app.api.v1.routes import routers as v1_routers
 from app.core.config import configs
 from app.core.logger import get_logger
-from app.core.db import get_redis_url, redis_engine
+from app.core.db import get_redis_connection
 from app.services.scheduler.periodic_tasks import register_periodic_tasks
 from app.services.scheduler.scheduler_service import SchedulerService
 
@@ -30,9 +30,13 @@ class AppCreator:
 
         self.app = FastAPI(
             title=configs.PROJECT_NAME,
-            openapi_url="/api/openapi.json",
+            openapi_url="/api/v1/openapi.json",
             docs_url="/api/docs",
             version="0.0.1",
+            swagger_ui_parameters={
+                "tagsSorter": "alpha",
+                "operationsSorter": "alpha",
+            },
             servers=[
                 {
                     "url": "https://api.mediamind.csee.tech",
@@ -97,11 +101,11 @@ class AppCreator:
         self.app.include_router(v1_routers, prefix="/api/v1")
 
     def _init_scheduler(self):
-        SchedulerService.init_scheduler(redis_engine)
+        SchedulerService.init_scheduler(get_redis_connection())
         register_periodic_tasks()
 
-        if configs.ENVIRONMENT == "local":
-            dashboard = RedisQueueDashboard(get_redis_url(), "/rq")
+        if configs.ENVIRONMENT == "local" and configs.REDIS_URL:
+            dashboard = RedisQueueDashboard(configs.REDIS_URL, "/rq")
             self.app.mount("/rq", dashboard)
 
         logger.info("Scheduler initialized successfully.")

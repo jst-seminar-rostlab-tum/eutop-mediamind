@@ -20,12 +20,25 @@ async_session: AsyncSession = async_sessionmaker(
     engine, expire_on_commit=False
 )
 
-redis_engine = redis.Redis(
-    host=configs.REDIS_HOST,
-    port=configs.REDIS_PORT,
-    db=configs.REDIS_DB,
-    password=getattr(configs, "REDIS_PASSWORD", None),
-)
+
+def get_redis_connection() -> redis.Redis:
+    """
+    Initializes and returns a Redis client.
+
+    Raises:
+        ValueError: If REDIS_URL is not set in the configuration.
+        RuntimeError: If the client initialization fails.
+    """
+    try:
+        client = redis.from_url(configs.REDIS_URL)
+        # Test connection
+        client.ping()
+        logger.info("Redis client initialized successfully.")
+        return client
+    except Exception as err:
+        msg = f"Failed to initialize Redis client: {err}"
+        logger.error(msg)
+        raise RuntimeError(msg) from err
 
 
 def get_postgresql_connection() -> PgConnection:
@@ -65,24 +78,3 @@ def get_qdrant_connection() -> QdrantClient:
         msg = f"Failed to initialize Qdrant client: {err}"
         logger.error(msg)
         raise RuntimeError(msg) from err
-
-def get_redis_url() -> str:
-    """
-    Constructs a Redis URL from the connection pool parameters.
-    """
-    from urllib.parse import quote
-
-    host = redis_engine.connection_pool.connection_kwargs.get("host")
-    port = redis_engine.connection_pool.connection_kwargs.get("port")
-    db = redis_engine.connection_pool.connection_kwargs.get("db")
-    username = redis_engine.connection_pool.connection_kwargs.get("username")
-    password = redis_engine.connection_pool.connection_kwargs.get("password")
-
-    if username and password:
-        url = f"redis://{quote(username)}:{quote(password)}@{host}:{port}/{db}"
-    elif password:
-        url = f"redis://:{quote(password)}@{host}:{port}/{db}"
-    else:
-        url = f"redis://{host}:{port}/{db}"
-
-    return url

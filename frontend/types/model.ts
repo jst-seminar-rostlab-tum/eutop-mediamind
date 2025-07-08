@@ -16,3 +16,11 @@ export type MatchesResponse =
 export type BreakingNewsItem = components["schemas"]["BreakingNewsItem"];
 
 export type ArticleMatch = components["schemas"]["MatchDetailResponse"];
+
+export type Stat = components["schemas"]["CrawlStatsItem"];
+
+export type ProfileReports = components["schemas"]["ReportListResponse"];
+
+export type ReportOverview = components["schemas"]["ReportRead"];
+
+export type Report = components["schemas"]["ReportDetailResponse"];
