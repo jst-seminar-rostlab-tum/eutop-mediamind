@@ -29,7 +29,7 @@ class ArticleSummaryService:
             f"- Industries mentioned\n"
             f"- Events mentioned\n"
             f"- Organizations mentioned\n"
-            f"- Citations (references to other works, articles, or studies)\n"
+            f"- Citations in academic reference format present in the text\n"
             f"\nArticle content:\n{article.content}\n\n"
             f"Return your answer as a JSON object with the "
             f"following structure:\n"
