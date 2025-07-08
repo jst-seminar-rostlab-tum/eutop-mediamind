@@ -11,6 +11,7 @@
   "Cancel": "Abbruch",
   "save_changes": "Änderungen speichern",
   "Search": "Suche",
+  "select_date": "Datum auswählen",
 
   "breadcrumb_home": "Home",
 
@@ -217,6 +218,17 @@
     "show_less": "Weniger anzeigen",
     "show_more": "Mehr anzeigen",
     "original": "Original"
+  },
+
+  "crawler_stats": {
+    "title": "Crawler Statistiken",
+    "subscription": "Subscription",
+    "date": "Datum",
+    "successful": "Erfolgreich",
+    "attempted": "Versucht",
+    "failed": "Fehlgeschlagen",
+    "notes": "Notizen",
+    "error": "Fehler beim Laden der Crawler Statistiken."
   },
 
   "reports": {
