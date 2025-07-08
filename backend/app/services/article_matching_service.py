@@ -215,7 +215,7 @@ class ArticleMatchingService:
             inserted_count = 0
             skipped_count = 0
 
-            for order, (art_id, topic_id, score) in enumerate(matches):
+            for _, (art_id, topic_id, score) in enumerate(matches):
                 # Check if match already exists for this profile and article
                 if await MatchRepository.match_exists(
                     session, profile_id, art_id
@@ -232,7 +232,7 @@ class ArticleMatchingService:
                     article_id=art_id,
                     search_profile_id=profile_id,
                     topic_id=topic_id,
-                    sorting_order=order,
+                    sorting_order=inserted_count,
                     comment=json.dumps(entry, default=str),
                     score=score,
                     matching_run_id=matching_run.id,
