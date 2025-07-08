@@ -66,7 +66,7 @@ class PDFService:
             match_start_time = match_stop_time - timedelta(hours=7)
 
         articles = await ArticleRepository.get_matched_articles_for_profile(
-            search_profile_id, match_start_time, match_stop_time
+            search_profile_id
         )
 
         translator = ArticleTranslationService.get_translator(language)

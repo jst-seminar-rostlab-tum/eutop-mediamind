@@ -42,4 +42,4 @@ class MatchingRunRepository:
             .limit(1)
         )
         result = await session.execute(statement)
-        return result.first()
+        return result.scalars().first()
