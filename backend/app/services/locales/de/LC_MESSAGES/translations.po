@@ -70,6 +70,9 @@ msgstr "Branchen"
 msgid "Events"
 msgstr "Ereignisse"
 
+msgid "Citations"
+msgstr "Zitationen"
+
 msgid "Read Article at Newspaper"
 msgstr "Artikel bei der Zeitung lesen"
 

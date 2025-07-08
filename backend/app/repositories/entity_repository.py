@@ -37,12 +37,8 @@ class ArticleEntityRepository:
             )
             entities = result.scalars().all()
 
-            grouped_entities = {
-                "person": [],
-                "industry": [],
-                "event": [],
-                "organization": [],
-            }
+            grouped_entities = {e.value: [] for e in EntityType}
+
             for entity in entities:
                 value = (
                     getattr(entity, f"value_{language}", None) or entity.value

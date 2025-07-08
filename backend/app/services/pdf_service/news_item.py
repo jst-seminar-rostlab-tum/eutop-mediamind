@@ -23,3 +23,4 @@ class NewsItem:
     organizations: Optional[List] = None
     industries: Optional[List] = None
     events: Optional[List] = None
+    citations: Optional[List] = None

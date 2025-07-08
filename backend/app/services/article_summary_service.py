@@ -23,7 +23,7 @@ class ArticleSummaryService:
         return (
             f"Summarize the following article in a clear, neutral, "
             f"and informative tone, covering all major points without "
-            f"omitting key details. "
+            f"omitting key details. Make the summary in the article's language"
             f"Then, extract and list separately:\n"
             f"- Persons mentioned\n"
             f"- Industries mentioned\n"
