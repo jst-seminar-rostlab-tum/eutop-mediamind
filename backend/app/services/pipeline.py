@@ -17,7 +17,9 @@ from app.services.web_harvester.web_harvester_orchestrator import (
 logger = get_logger(__name__)
 
 
-async def run(datetime_start: datetime, datetime_end: datetime, language: Language):
+async def run(
+    datetime_start: datetime, datetime_end: datetime, language: Language
+):
     """Run a pipeline for the given date range."""
     # print(f"Started Pi: {span_start}, Span end: {span_end}")
     logger.info(f"Running pipeline from {datetime_start} to {datetime_end}")
@@ -27,17 +29,17 @@ async def run(datetime_start: datetime, datetime_end: datetime, language: Langua
         CrawlerType.NewsAPICrawler,
         date_start=datetime_start,
         date_end=datetime_end,
-     )
+    )
     await run_scraper()
 
     logger.info("Running Summarization and Entity Extraction")
     await ArticleSummaryService.run(
-       datetime_start=datetime_start, datetime_end=datetime_end
+        datetime_start=datetime_start, datetime_end=datetime_end
     )
 
     logger.info("Running Translation")
     await ArticleTranslationService.run(
-       datetime_start=datetime_start, datetime_end=datetime_end
+        datetime_start=datetime_start, datetime_end=datetime_end
     )
 
     logger.info("Running Embedding")
