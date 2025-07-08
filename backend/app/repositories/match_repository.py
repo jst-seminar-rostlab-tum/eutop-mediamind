@@ -129,3 +129,22 @@ class MatchRepository:
     ) -> None:
         stmt = delete(Match).where(Match.search_profile_id == profile_id)
         await session.execute(stmt)
+
+    @staticmethod
+    async def match_exists(
+        session: AsyncSession,
+        search_profile_id: UUID,
+        article_id: UUID,
+    ) -> bool:
+        """
+        Check if a match already exists for the given search_profile_id and article_id combination.
+        """
+        result = await session.execute(
+            select(Match)
+            .where(
+                Match.search_profile_id == search_profile_id,
+                Match.article_id == article_id,
+            )
+            .limit(1)
+        )
+        return result.scalars().first() is not None
