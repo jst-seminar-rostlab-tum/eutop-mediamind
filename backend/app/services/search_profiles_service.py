@@ -623,7 +623,7 @@ class SearchProfileService:
     async def delete_search_profile(
         profile_id: UUID, current_user: UserEntity
     ) -> None:
-        search_profile = SearchProfileRepository.get_by_id(profile_id)
+        search_profile = await SearchProfileRepository.get_by_id(profile_id)
         # Permit deletion if user is owner, superuser, or maintainer of the same org
         allow_delete = (
             current_user.id == search_profile.owner_id

@@ -1,5 +1,7 @@
 from uuid import UUID
 
+import markdown
+
 from app.core.config import configs
 from app.core.logger import get_logger
 from app.models.chat_message import MessageRole
@@ -9,6 +11,8 @@ from app.repositories.chatbot_repository import ChatbotRepository
 from app.schemas.chatbot_schemas import ChatRequest
 from app.schemas.user_schema import UserEntity
 from app.services.email_service import EmailService
+from app.services.llm_service.llm_client import LLMClient
+from app.services.llm_service.llm_models import LLMModels
 
 logger = get_logger(__name__)
 
@@ -16,21 +20,23 @@ logger = get_logger(__name__)
 class ChatbotService:
     @staticmethod
     async def get_or_create_conversation(
-        user: UserEntity, chat: ChatRequest
+        user_email: str, subject: str
     ) -> EmailConversation:
         email_conversation = (
             await ChatbotRepository.get_conversation_by_email_and_subject(
-                user.email, chat.subject
+                user_email, subject
             )
         )
         if not email_conversation:
             email_conversation = await ChatbotRepository.create_conversation(
-                user.email, chat.subject
+                user_email, subject
             )
         return email_conversation
 
     @staticmethod
-    async def load_conversation_context(email_conversation_id: UUID) -> str:
+    async def load_conversation_context(
+        email_conversation_id: UUID,
+    ) -> str | None:
         conversation_history = (
             await ChatbotRepository.get_conversation_history(
                 email_conversation_id
@@ -43,35 +49,75 @@ class ChatbotService:
         conversation_context = (
             "\n\n".join(context_messages)
             if len(context_messages) > 0
-            else "No previous messages"
+            else None
         )
         return conversation_context
 
     @staticmethod
-    async def generate_and_add_assistant_message(
-        email_conversation_id: UUID, user_first_name: str, chat: ChatRequest
+    async def create_prompt_from_context(
+        email_conversation_id: UUID, subject: str, chat_body: str
     ) -> str:
         conversation_context = await ChatbotService.load_conversation_context(
             email_conversation_id
         )
-        chatbot_response = f"""<p>Hi {user_first_name},</p>
-            <div style="background-color: #f5f5f5; padding: 10px;
-                margin: 10px 0;">
-                <strong>Conversation History:</strong><br>
-                <pre>{conversation_context}</pre>
-            </div>
-            <p><strong>Your latest message:</strong> {chat.body}</p>
-            <p><strong>Subject:</strong> {chat.subject}</p>
-            <p>This is a mock response.</p>
-            <p>Best regards,<br>
-            MediaMind Team</p>
-            """
-        await ChatbotRepository.add_message(
+        prompt = f"""You are a professional customer support assistant for \
+MediaMind, responding to user emails. Your tone must always be polite, \
+empathetic, and solution-oriented. Your task is to provide a concise, \
+professional, and helpful reply to the user's latest message.
+
+Below is the complete conversation history so far. Messages are labelled as \
+"user" (for user messages) and "assistant" (for your responses):
+
+---
+Subject: <{subject}>
+
+{conversation_context}
+---
+
+The user's latest message is:
+---
+{chat_body}
+---
+
+Instructions:
+- Respond only with the body of your reply, in clear and concise paragraphs.
+- Do not include greetings, salutations, subject lines, or closing statements.
+- Do not repeat or quote the user's message.
+- Do not use emojis or informal language.
+- If the user's message is unclear, politely ask for clarification.
+- If you do not know the answer, reply that to the user and politely ask for \
+more context.
+- Focus on providing accurate, actionable, and relevant information to \
+resolve the user's query.
+- Always answer in the language of the user's last message."""
+        return prompt
+
+    @staticmethod
+    async def generate_llm_response(
+        email_conversation_id: UUID,
+        subject: str,
+        chat_body: str,
+    ) -> str:
+        prompt = await ChatbotService.create_prompt_from_context(
             email_conversation_id=email_conversation_id,
-            role=MessageRole.ASSISTANT,
-            content=chatbot_response,
+            subject=subject,
+            chat_body=chat_body,
         )
-        return chatbot_response
+
+        llm_client = LLMClient(LLMModels.openai_4o_mini)
+        try:
+            llm_response = llm_client.generate_response(
+                prompt, temperature=0.7
+            )
+        except Exception as e:
+            logger.error(
+                f"Error generating Chatbot response for email_conversation "
+                f"with id={email_conversation_id} response: {str(e)}"
+            )
+            llm_response = f"""Thank you for your message regarding "\
+{subject}". Unfortunately, we ran into a probelm generating a response. \
+Please try again later or contact us."""
+        return llm_response
 
     @staticmethod
     async def send_email_response(
@@ -89,34 +135,68 @@ class ChatbotService:
             EmailService.send_ses_email(email)
             logger.info(
                 f"Chat response sent to {user_email} for "
-                f"email_conversation {email_conversation_id}"
+                f"email_conversation with id={email_conversation_id}"
             )
         except Exception as e:
-            logger.error(f"Failed to send email to {user_email}: {str(e)}")
+            logger.error(
+                f"Failed to send email to {user_email} for "
+                f"email_conversation with id={email_conversation_id}: "
+                f"{str(e)}"
+            )
             raise e
+
+    @staticmethod
+    def format_llm_response(llm_response: str, user_first_name: str) -> str:
+        llm_response_as_html = markdown.markdown(
+            llm_response, extensions=["extra"]
+        )
+        email_as_html = f"""<p>Hi {user_first_name},</p>
+            <p>{llm_response_as_html}</p>
+            <p>Best regards,<br>
+            MediaMind Team</p>
+            """
+        return email_as_html
+
+    @staticmethod
+    async def store_chat_messages(
+        email_conversation_id: UUID, chat_body: str, llm_response: str
+    ):
+        await ChatbotRepository.add_message(
+            email_conversation_id=email_conversation_id,
+            role=MessageRole.USER,
+            content=chat_body,
+        )
+        await ChatbotRepository.add_message(
+            email_conversation_id=email_conversation_id,
+            role=MessageRole.ASSISTANT,
+            content=llm_response,
+        )
 
     @staticmethod
     async def generate_and_send_email_response(
         user: UserEntity, chat: ChatRequest
     ):
+        subject = chat.subject or "MediaMind Email-Chatbot"
         email_conversation: EmailConversation = (
-            await ChatbotService.get_or_create_conversation(user, chat)
-        )
-        await ChatbotRepository.add_message(
-            email_conversation_id=email_conversation.id,
-            role=MessageRole.USER,
-            content=chat.body,
-        )
-        chatbot_response = (
-            await ChatbotService.generate_and_add_assistant_message(
-                email_conversation_id=email_conversation.id,
-                user_first_name=user.first_name,
-                chat=chat,
+            await ChatbotService.get_or_create_conversation(
+                user_email=user.email, subject=chat.subject
             )
+        )
+        llm_response = await ChatbotService.generate_llm_response(
+            email_conversation_id=email_conversation.id,
+            subject=subject,
+            chat_body=chat.body,
+        )
+
+        await ChatbotService.store_chat_messages(
+            email_conversation.id, chat.body, llm_response
+        )
+        llm_response_as_html = ChatbotService.format_llm_response(
+            llm_response, user.first_name
         )
         await ChatbotService.send_email_response(
             email_conversation_id=email_conversation.id,
             user_email=user.email,
-            subject=chat.subject,
-            content=chatbot_response,
+            subject=subject,
+            content=llm_response_as_html,
         )
