@@ -207,7 +207,9 @@ class ArticleMatchingService:
         matching_run: MatchingRun,
     ):
         """
-        Insert new ones in sorted order, but skip articles that are already matched to this profile.
+        Insert new ones in sorted order,
+        but skip articles that are already matched
+        to this profile.
         """
         async with async_session() as session:
             inserted_count = 0
@@ -220,7 +222,8 @@ class ArticleMatchingService:
                 ):
                     skipped_count += 1
                     self.logger.debug(
-                        f"Skipping article {art_id} for profile {profile_id} - match already exists"
+                        f"Skipping article {art_id} for "
+                        f"profile {profile_id} - match already exists"
                     )
                     continue
 
@@ -238,7 +241,8 @@ class ArticleMatchingService:
                 inserted_count += 1
 
             self.logger.info(
-                f"Profile {profile_id}: Inserted {inserted_count} new matches, "
+                f"Profile {profile_id}: "
+                f"Inserted {inserted_count} new matches, "
                 f"skipped {skipped_count} existing matches"
             )
 

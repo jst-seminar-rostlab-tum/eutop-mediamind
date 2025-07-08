@@ -137,7 +137,9 @@ class MatchRepository:
         article_id: UUID,
     ) -> bool:
         """
-        Check if a match already exists for the given search_profile_id and article_id combination.
+        Check if a match already exists
+        for the given search_profile_id
+        and article_id combination.
         """
         result = await session.execute(
             select(Match)
