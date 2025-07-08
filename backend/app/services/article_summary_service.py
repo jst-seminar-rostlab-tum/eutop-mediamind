@@ -89,9 +89,9 @@ class ArticleSummaryService:
         """
         try:
             if content.startswith("```json"):
-                content = content[len("```json"):].strip()
+                content = content[len("```json") :].strip()
             if content.endswith("```"):
-                content = content[:-len("```")].strip()
+                content = content[: -len("```")].strip()
 
             data = json.loads(content)
 
@@ -166,7 +166,7 @@ class ArticleSummaryService:
             date.today(), datetime.min.time()
         ),
         datetime_end: datetime = datetime.now(),
-        use_batch_api: bool = False
+        use_batch_api: bool = False,
     ) -> None:
         """
         Main entry point to summarize a list of articles and

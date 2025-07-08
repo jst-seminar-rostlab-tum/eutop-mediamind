@@ -133,7 +133,7 @@ class ArticleEntityRepository:
                         ArticleEntity(
                             article_id=article_id,
                             entity_type=EntityType.EVENT,
-                            value=e
+                            value=e,
                         )
                         for e in events
                     ]
