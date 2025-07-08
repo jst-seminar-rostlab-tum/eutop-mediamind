@@ -4,7 +4,7 @@ from uuid import UUID
 from sqlalchemy import and_, or_, select
 
 from app.core.db import async_session
-from app.models.entity import ArticleEntity
+from app.models.entity import ArticleEntity, EntityType
 
 
 class ArticleEntityRepository:
@@ -105,6 +105,7 @@ class ArticleEntityRepository:
         industries: Optional[List[str]] = None,
         events: Optional[List[str]] = None,
         organizations: Optional[List[str]] = None,
+        citations: Optional[List[str]] = None,
     ) -> None:
         async with async_session() as session:
             entities = []
@@ -113,7 +114,7 @@ class ArticleEntityRepository:
                     [
                         ArticleEntity(
                             article_id=article_id,
-                            entity_type="person",
+                            entity_type=EntityType.PERSON,
                             value=p,
                         )
                         for p in persons
@@ -124,7 +125,7 @@ class ArticleEntityRepository:
                     [
                         ArticleEntity(
                             article_id=article_id,
-                            entity_type="industry",
+                            entity_type=EntityType.INDUSTRY,
                             value=i,
                         )
                         for i in industries
@@ -134,7 +135,9 @@ class ArticleEntityRepository:
                 entities.extend(
                     [
                         ArticleEntity(
-                            article_id=article_id, entity_type="event", value=e
+                            article_id=article_id,
+                            entity_type=EntityType.EVENT,
+                            value=e
                         )
                         for e in events
                     ]
@@ -144,10 +147,21 @@ class ArticleEntityRepository:
                     [
                         ArticleEntity(
                             article_id=article_id,
-                            entity_type="organization",
+                            entity_type=EntityType.ORGANIZATION,
                             value=o,
                         )
                         for o in organizations
+                    ]
+                )
+            if citations:
+                entities.extend(
+                    [
+                        ArticleEntity(
+                            article_id=article_id,
+                            entity_type=EntityType.CITATION,
+                            value=c,
+                        )
+                        for c in citations
                     ]
                 )
 
