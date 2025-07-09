@@ -239,5 +239,18 @@
     "download": "Download",
     "no_reports_found": "No reports found.",
     "loading": "Berichte werden geladen."
+  },
+
+  "personal_settings": {
+    "title": "Personal Settings",
+    "language": "Language",
+    "gender": "Gender",
+    "update_language": "Update Language",
+    "update_gender": "Update Gender",
+    "male": "Male",
+    "female": "Female",
+    "divers": "Divers",
+    "language_update_error": "Error updating the language",
+    "gender_update_error": "Error updating the gender"
   }
 }
