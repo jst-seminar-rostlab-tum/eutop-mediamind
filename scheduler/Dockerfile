@@ -46,8 +46,16 @@ RUN mkdir -p /app/logs && \
 # Copy application code
 COPY . .
 
+# Copy entrypoint and set permissions
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+    
 # Set permissions and switch to non-root user
 RUN chown -R appuser:appuser /app
 USER appuser
 
-CMD ["python", "main.py"]
+# Expose port if needed (e.g. for web app)
+EXPOSE 8000
+
+ENTRYPOINT ["/entrypoint.sh"]
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]

@@ -16,12 +16,13 @@ from app.services.web_harvester.web_harvester_orchestrator import (
 
 logger = get_logger(__name__)
 
+def pipeline_job(datetime_start: datetime, datetime_end: datetime):
+    from asyncio import get_event_loop
+    loop = get_event_loop()
+    loop.create_task(run(datetime_start, datetime_end))
 
 async def run(datetime_start: datetime, datetime_end: datetime):
     """Run a pipeline for the given date range."""
-    # print(f"Started Pi: {span_start}, Span end: {span_end}")
-    logger.info(f"Running pipeline from {datetime_start} to {datetime_end}")
-
     logger.info("Running crawler and scraper")
     await run_crawler(
         CrawlerType.NewsAPICrawler,

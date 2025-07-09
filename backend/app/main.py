@@ -8,9 +8,6 @@ from rq_dashboard_fast import RedisQueueDashboard
 from app.api.v1.routes import routers as v1_routers
 from app.core.config import configs
 from app.core.logger import get_logger
-from app.core.db import get_redis_connection
-from app.services.scheduler.periodic_tasks import register_periodic_tasks
-from app.services.scheduler.scheduler_service import SchedulerService
 
 logger = get_logger(__name__)
 
@@ -64,7 +61,6 @@ class AppCreator:
         self._register_exception_handlers()
         self._configure_cors()
         self._include_routes()
-        self._init_scheduler()
 
         logger.info("FastAPI app initialized successfully.")
 
@@ -99,21 +95,6 @@ class AppCreator:
 
     def _include_routes(self):
         self.app.include_router(v1_routers, prefix="/api/v1")
-
-    def _init_scheduler(self):
-        if not configs.SCHEDULER_ENABLED:
-            return
-
-        SchedulerService.init_scheduler(get_redis_connection())
-        register_periodic_tasks()
-
-        if configs.ENVIRONMENT == "local" and configs.REDIS_URL:
-            dashboard = RedisQueueDashboard(configs.REDIS_URL, "/rq")
-            self.app.mount("/rq", dashboard)
-
-
-        logger.info("Scheduler started successfully")
-
 
 # App exposure for Uvicorn
 app_creator = AppCreator()

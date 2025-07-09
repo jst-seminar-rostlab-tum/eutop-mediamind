@@ -53,18 +53,6 @@ class EmailService:
         return await EmailRepository.add_email(email)
 
     @staticmethod
-    def email_job():
-        """
-        This method is intended to be called by a scheduler to send emails.
-        It retrieves unsent emails from the repository and attempts to send them.
-        """
-
-        from asyncio import get_event_loop
-        loop = get_event_loop()
-        coro = EmailService.send_scheduled_emails()
-        loop.create_task(coro)
-
-    @staticmethod
     async def send_scheduled_emails():
         emails = await EmailRepository.get_all_unsent_emails()
 
