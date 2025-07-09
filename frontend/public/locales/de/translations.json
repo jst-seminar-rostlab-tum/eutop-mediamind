@@ -1,8 +1,6 @@
 {
   "login": "Login",
-  "edit": "bearbeiten",
   "Edit": "Bearbeiten",
-  "delete": "löschen",
   "back": "zurück",
   "leave": "verlassen",
   "Back": "Zurück",
@@ -13,6 +11,7 @@
   "Cancel": "Abbruch",
   "save_changes": "Änderungen speichern",
   "Search": "Suche",
+  "select_date": "Datum auswählen",
 
   "breadcrumb_home": "Home",
 
@@ -54,7 +53,8 @@
     "creating": "Erstellen...",
     "saving": "Speichern...",
     "save_create": "Profil erstellen",
-    "save_changes": "Änderungen speichern"
+    "save_changes": "Änderungen speichern",
+    "suggestions_text": "Füge ein Schlagwort hinzu, um AI-Vorschläge zu erhalten."
   },
 
   "general": {
@@ -161,6 +161,7 @@
 
   "search_profile": {
     "Topics": "Themen",
+    "Keywords": "Schlüsselwörter",
     "Sorting": "Sortierung",
     "Sources": "Quellen",
     "Date": "Datum",
@@ -168,7 +169,11 @@
     "To": "Bis",
     "articles": "Artikel",
     "Relevance": "Relevanz",
-    "No_articles": "Keine Artikel gefunden"
+    "No_articles": "Keine Artikel gefunden",
+    "delete_error": "Fehler beim Löschen des Suchprofils",
+    "delete_success": "Suchprofil erfolgreich gelöscht",
+    "reports": "Berichte",
+    "Explore": "Erkunden"
   },
 
   "article-page": {
@@ -192,7 +197,13 @@
     "shared": "Geteilt",
     "private": "Privat",
     "ownership": "Berechtigung",
-    "visibility": "Sichtbarkeit"
+    "visibility": "Sichtbarkeit",
+    "de": "DE",
+    "en": "EN",
+    "morning": "Morgen",
+    "afternoon": "Nachmittag",
+    "evening": "Abend",
+    "language": "Sprache"
   },
 
   "sr-only": {
@@ -207,5 +218,39 @@
     "show_less": "Weniger anzeigen",
     "show_more": "Mehr anzeigen",
     "original": "Original"
+  },
+
+  "crawler_stats": {
+    "title": "Crawler Statistiken",
+    "subscription": "Subscription",
+    "date": "Datum",
+    "successful": "Erfolgreich",
+    "attempted": "Versucht",
+    "failed": "Fehlgeschlagen",
+    "notes": "Notizen",
+    "error": "Fehler beim Laden der Crawler Statistiken."
+  },
+
+  "reports": {
+    "reports": "Berichte",
+    "header": "Bericht Download Center",
+    "pagination": "Zeige {{from}} bis {{to}} von {{total}} Berichten",
+    "download_unavailable": "Nicht verfügbar",
+    "download": "Herunterladen",
+    "no_reports_found": "Keine Berichte gefunden.",
+    "loading": "Reports are loading."
+  },
+
+  "personal_settings": {
+    "title": "Persönliche Einstellungen",
+    "language": "Sprache",
+    "gender": "Geschlecht",
+    "update_language": "Sprache aktualisieren",
+    "update_gender": "Geschlecht aktualisieren",
+    "male": "Männlich",
+    "female": "Weiblich",
+    "divers": "Divers",
+    "language_update_error": "Fehler beim Aktualisieren der Sprache",
+    "gender_update_error": "Fehler beim Aktualisieren des Geschlechts"
   }
 }

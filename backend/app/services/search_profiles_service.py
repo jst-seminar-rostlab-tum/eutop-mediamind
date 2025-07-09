@@ -130,6 +130,8 @@ class SearchProfileService:
                 await SearchProfileRepository.get_accessible_profile_by_id(
                     search_profile_id=search_profile_id,
                     user_id=current_user.id,
+                    user_role=current_user.role,
+                    is_superuser=current_user.is_superuser,
                     organization_id=current_user.organization_id,
                     session=session,
                 )
@@ -258,6 +260,8 @@ class SearchProfileService:
                 await SearchProfileRepository.get_accessible_profile_by_id(
                     search_profile_id=search_profile_id,
                     user_id=current_user.id,
+                    user_role=current_user.role,
+                    is_superuser=current_user.is_superuser,
                     organization_id=current_user.organization_id,
                     session=session,
                 )
@@ -619,7 +623,7 @@ class SearchProfileService:
     async def delete_search_profile(
         profile_id: UUID, current_user: UserEntity
     ) -> None:
-        search_profile = SearchProfileRepository.get_by_id(profile_id)
+        search_profile = await SearchProfileRepository.get_by_id(profile_id)
         # Permit deletion if user is owner, superuser, or maintainer of the same org
         allow_delete = (
             current_user.id == search_profile.owner_id

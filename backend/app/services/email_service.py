@@ -14,6 +14,7 @@ from app.models.email import Email, EmailState
 from app.repositories.email_repository import EmailRepository
 from app.repositories.user_repository import UserRepository
 from app.services.translation_service import ArticleTranslationService
+from app.services.user_service import UserService
 
 logger = get_logger(__name__)
 
@@ -189,19 +190,42 @@ class EmailService:
         return EmailService._render_email_template(template_name, context)
 
     @staticmethod
+    def _get_report_in_user_language(reports, user):
+        english_report = None
+        for report in reports:
+            if report["report"].language == user.language:
+                return report
+            if report["report"].language == "en":
+                english_report = report
+        # If there is no report in the user language
+        return english_report
+
+    @staticmethod
     async def run(reports_infos: List[dict]):
-        for reports_info in reports_infos:
-            report = reports_info["report"]
-            presigned_url = reports_info["presigned_url"]
-            dashboard_url = reports_info["dashboard_url"]
-            search_profile = reports_info["search_profile"]
+        grouped_reports = {}
+        for report in reports_infos:
+            search_profile_id = report["search_profile"].id
+            if search_profile_id not in grouped_reports:
+                grouped_reports[search_profile_id] = []
+            grouped_reports[search_profile_id].append(report)
+
+        for search_profile_id, reports in grouped_reports.items():
+            search_profile = reports[0]["search_profile"]
             try:
                 for email in search_profile.organization_emails:
-                    user_last_name = (
-                        await UserRepository.get_last_name_by_email(email)
+                    user = await UserService.get_by_email(email)
+                    report_in_user_lang = (
+                        EmailService._get_report_in_user_language(
+                            reports, user
+                        )
                     )
+
+                    report = report_in_user_lang["report"]
+                    presigned_url = report_in_user_lang["presigned_url"]
+                    dashboard_url = report_in_user_lang["dashboard_url"]
+
                     translator = ArticleTranslationService.get_translator(
-                        search_profile.language
+                        user.language
                     )
                     time_slot_translated = translator(
                         report.time_slot.capitalize()
@@ -218,8 +242,8 @@ class EmailService:
                             presigned_url,
                             dashboard_url,
                             search_profile.name,
-                            user_last_name,
-                            search_profile.language,
+                            user.last_name,
+                            user.language,
                         ),
                     )
 

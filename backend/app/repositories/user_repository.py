@@ -20,6 +20,7 @@ def _to_user_entity(user: User | UserEntity) -> UserEntity:
         first_name=user.first_name,
         last_name=user.last_name,
         language=user.language,
+        gender=user.gender,
         is_superuser=user.is_superuser,
         organization_id=user.organization_id,
         role=user.role,
@@ -39,6 +40,7 @@ def _to_user_base(user: User | UserEntity) -> User:
         first_name=user.first_name,
         last_name=user.last_name,
         language=user.language,
+        gender=user.gender,
         is_superuser=user.is_superuser,
         organization_id=user.organization_id,
     )
@@ -238,8 +240,18 @@ class UserRepository:
             return _to_user_entity(db_user)
 
     @staticmethod
-    async def get_last_name_by_email(email: str) -> Optional[str]:
+    async def update_gender(user: UserEntity, gender: str) -> UserEntity:
         async with async_session() as session:
-            stmt = select(User.last_name).where(User.email == email)
-            result = await session.execute(stmt)
-            return result.scalar_one_or_none()
+            result = await session.execute(
+                select(User)
+                .options(selectinload(User.organization))
+                .where(User.id == user.id)
+            )
+            db_user = result.scalar_one_or_none()
+
+            db_user.gender = gender
+            session.add(db_user)
+            await session.commit()
+            await session.refresh(db_user)
+
+            return _to_user_entity(db_user)

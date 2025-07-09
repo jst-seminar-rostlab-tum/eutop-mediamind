@@ -4,6 +4,10 @@ import {
   Crown,
   Eye,
   EyeOff,
+  Globe,
+  Moon,
+  Sun,
+  Sunrise,
   UserCheck,
   UserPen,
   UserRoundCog,
@@ -26,6 +30,12 @@ const roleBadgeVariants = cva(
         private: "bg-gray-100 text-gray-900",
         ownership: "bg-blue-100 text-blue-900",
         visibility: "bg-blue-100 text-blue-900",
+        de: "bg-purple-200 text-purple-900",
+        en: "bg-blue-200 text-blue-900",
+        morning: "border text-gray-900",
+        afternoon: "border text-gray-900",
+        evening: "border text-gray-900",
+        language: "bg-blue-100 text-blue-900",
       },
     },
   },
@@ -63,6 +73,30 @@ const roleConfig = {
   visibility: {
     icon: Eye,
     label: "role-badge.visibility",
+  },
+  de: {
+    icon: Globe,
+    label: "role-badge.de",
+  },
+  en: {
+    icon: Globe,
+    label: "role-badge.en",
+  },
+  morning: {
+    icon: Sunrise,
+    label: "role-badge.morning",
+  },
+  afternoon: {
+    icon: Sun,
+    label: "role-badge.afternoon",
+  },
+  evening: {
+    icon: Moon,
+    label: "role-badge.evening",
+  },
+  language: {
+    icon: Globe,
+    label: "role-badge.language",
   },
 } as const;
 

@@ -11,6 +11,7 @@ from app.core.db import async_session
 from app.core.logger import get_logger
 from app.models.article import Article, ArticleStatus
 from app.models.match import Match
+from app.repositories.matching_run_repository import MatchingRunRepository
 
 logger = get_logger(__name__)
 
@@ -207,11 +208,15 @@ class ArticleRepository:
     @staticmethod
     async def get_matched_articles_for_profile(
         search_profile_id: uuid.UUID,
-        match_start_time: datetime,
-        match_stop_time: datetime,
         limit: int = 100,
     ) -> List[Article]:
         async with async_session() as session:
+            last_matching_run = (
+                await MatchingRunRepository.get_last_matching_run(session)
+            )
+            if not last_matching_run:
+                return []
+
             query = (
                 select(Match)
                 .options(
@@ -221,12 +226,8 @@ class ArticleRepository:
                     selectinload(Match.article).selectinload(Article.keywords),
                 )
                 .where(
+                    Match.matching_run_id == last_matching_run.id,
                     Match.search_profile_id == search_profile_id,
-                    Match.article.has(
-                        Article.published_at.between(
-                            match_start_time, match_stop_time
-                        )
-                    ),
                 )
                 .order_by(Match.sorting_order.asc())
                 .limit(limit)
