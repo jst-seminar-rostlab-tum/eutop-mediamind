@@ -2,7 +2,6 @@ import { useEffect, useState, useMemo } from "react";
 import { useQuery } from "types/api";
 import Layout from "~/custom-components/layout";
 import Text from "~/custom-components/text";
-import { formatDate } from "~/lib/utils";
 import { DatePicker } from "~/custom-components/date-picker/date-picker";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
@@ -18,6 +17,7 @@ import { Link } from "react-router";
 import { type ColumnDef } from "@tanstack/react-table";
 import type { Stat } from "types/model";
 import { DataTable } from "~/custom-components/admin-settings/data-table";
+import { format } from "date-fns";
 
 export const CrawlerStatsPage = () => {
   const { t } = useTranslation();
@@ -49,7 +49,7 @@ export const CrawlerStatsPage = () => {
       {
         accessorKey: "crawl_date",
         header: t("crawler_stats.date"),
-        cell: (info) => formatDate(info.getValue() as string),
+        cell: (info) => format(info.getValue() as Date, "yyyy-MM-dd HH:mm:ss"),
         enableSorting: true,
       },
       {
