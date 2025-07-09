@@ -264,7 +264,8 @@ export function SearchProfileOverview() {
                               <div
                                 className={`rounded-lg py-1 px-2 ${bgColor}`}
                               >
-                                {t("search_profile.Relevance")} {getPercentage(relevance)}
+                                {t("search_profile.Relevance")}{" "}
+                                {getPercentage(relevance)}
                               </div>
                               {match.topics.map((topic) => (
                                 <div
