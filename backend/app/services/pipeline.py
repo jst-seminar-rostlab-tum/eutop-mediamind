@@ -58,12 +58,3 @@ async def run(datetime_start: datetime, datetime_end: datetime):
 
     logger.info("Sending emails")
     await EmailService.run(reports_info)
-
-if __name__ == "__main__":
-    import asyncio
-
-    # Example usage
-    start_time = datetime(2023, 10, 1)
-    end_time = datetime(2023, 10, 2)
-
-    asyncio.run(run(datetime_start=start_time, datetime_end=end_time))

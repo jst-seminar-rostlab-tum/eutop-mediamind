@@ -28,7 +28,7 @@ class SearchProfile(SQLModel, table=True):
     organization: Organization = Relationship(back_populates="search_profiles")
     organization_emails: List[str] = Field(
         default_factory=list,
-        sa_column=Column(ARRAY(String), server_default="{}")
+        sa_column=Column(ARRAY(String), server_default="{}"),
     )
     profile_emails: List[str] = Field(sa_column=Column(ARRAY(String)))
     can_read_user_ids: List[uuid.UUID] = Field(
