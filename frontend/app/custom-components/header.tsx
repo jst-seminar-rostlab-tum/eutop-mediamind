@@ -66,7 +66,7 @@ export default function Header() {
   const changeLanguage = (lng: string) => {
     i18n.changeLanguage(lng);
     if (user) {
-      client.PUT("/api/v1/users", { params: { query: { language: lng } } });
+      client.PUT("/api/v1/users/language", { params: { query: { language: lng } } });
     }
   };
 
