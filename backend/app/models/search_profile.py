@@ -26,7 +26,10 @@ class SearchProfile(SQLModel, table=True):
     owner_id: uuid.UUID = Field(default=None, foreign_key="users.id")
     organization_id: uuid.UUID = Field(foreign_key="organizations.id")
     organization: Organization = Relationship(back_populates="search_profiles")
-    organization_emails: List[str] = Field(sa_column=Column(ARRAY(String)))
+    organization_emails: List[str] = Field(
+        default_factory=list,
+        sa_column=Column(ARRAY(String), server_default="{}")
+    )
     profile_emails: List[str] = Field(sa_column=Column(ARRAY(String)))
     can_read_user_ids: List[uuid.UUID] = Field(
         default_factory=list,

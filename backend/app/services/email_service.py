@@ -191,14 +191,16 @@ class EmailService:
 
     @staticmethod
     def _get_report_in_user_language(reports, user):
-        english_report = None
+        if user:
+            for report in reports:
+                if report["report"].language == user.language:
+                    return report
+        # If there is no user or no report in user language, return the English report if available
         for report in reports:
-            if report["report"].language == user.language:
-                return report
             if report["report"].language == "en":
-                english_report = report
-        # If there is no report in the user language
-        return english_report
+                return report
+        # If no English report is found, return first available report
+        return reports[0] if reports else None
 
     @staticmethod
     async def run(reports_infos: List[dict]):
@@ -219,13 +221,12 @@ class EmailService:
                             reports, user
                         )
                     )
-
                     report = report_in_user_lang["report"]
                     presigned_url = report_in_user_lang["presigned_url"]
                     dashboard_url = report_in_user_lang["dashboard_url"]
 
                     translator = ArticleTranslationService.get_translator(
-                        user.language
+                        user.language if user else "en"
                     )
                     time_slot_translated = translator(
                         report.time_slot.capitalize()
@@ -242,8 +243,8 @@ class EmailService:
                             presigned_url,
                             dashboard_url,
                             search_profile.name,
-                            user.last_name,
-                            user.language,
+                            user.last_name if user else None,
+                            user.language if user else "en",
                         ),
                     )
 

@@ -19,7 +19,6 @@ logger = get_logger(__name__)
 
 async def run(datetime_start: datetime, datetime_end: datetime):
     """Run a pipeline for the given date range."""
-    # print(f"Started Pi: {span_start}, Span end: {span_end}")
     logger.info(f"Running pipeline from {datetime_start} to {datetime_end}")
 
     logger.info("Running crawler and scraper")
@@ -51,7 +50,7 @@ async def run(datetime_start: datetime, datetime_end: datetime):
     await matching_service.run()
 
     logger.info("Report generation")
-    # returns the Report, presigned URL, dashboard URL and search profile
+    # returns the Report, presigned URL, dashboard URL and search profile"""
     reports_info = await ReportService.run(
         timeslot="morning", languages=[Language.EN, Language.DE]
     )
@@ -59,3 +58,12 @@ async def run(datetime_start: datetime, datetime_end: datetime):
 
     logger.info("Sending emails")
     await EmailService.run(reports_info)
+
+if __name__ == "__main__":
+    import asyncio
+
+    # Example usage
+    start_time = datetime(2023, 10, 1)
+    end_time = datetime(2023, 10, 2)
+
+    asyncio.run(run(datetime_start=start_time, datetime_end=end_time))
