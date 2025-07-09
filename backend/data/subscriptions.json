@@ -39,11 +39,13 @@
       "submit_button": "//button[@id='enter-email-next']",
       "second_submit_button": "//button[@id='sign-in-button']"
     },
-    "RSSFeedCrawler": {
-      "feed_urls": [
-        "https://www.ft.com/myft/following/19e98bc8-b78e-4dd5-936d-f58e9cb66459.rss"
-      ],
-      "language": "en"
+    "crawlers": {
+      "RSSFeedCrawler": {
+        "feed_urls": [
+          "https://www.ft.com/myft/following/19e98bc8-b78e-4dd5-936d-f58e9cb66459.rss"
+        ],
+        "language": "en"
+      }
     }
   },
   {
@@ -205,7 +207,7 @@
     "name": "Spiegel - ePaper",
     "domain": "https://www.spiegel.de/international/",
     "paywall": false,
-    "is_active": false,
+    "is_active": true,
     "login_config": {
       "cookies_button": "//button[@title='Consent and continue' and contains(@class, 'sp_choice_type_11')]",
       "login_button": "//a[contains(@href, 'gruppenkonto.spiegel.de/authenticate') and span[contains(text(), 'Anmelden')]]",
@@ -222,6 +224,13 @@
         "feed_urls": ["https://www.spiegel.de/international/index.rss"],
         "language": "en"
       }
+    },
+    "scrapers": {
+      "TrafilaturaScraper": {
+        "trafilatura_kwargs": {
+          "prune_xpath": "//h2"
+        }
+      }
     }
   },
   {
@@ -232,9 +241,9 @@
     "login_config": {
       "cookies_button": "//button[@title='ZUSTIMMEN' and contains(@class, 'sp_choice_type_11')]",
       "iframe": "",
-      "user_input": "//input[@name='login' and @type='email']",
-      "password_input": "//input[@name='password' and @type='password']",
-      "submit_button": "//button[@type='submit' and contains(text(), 'Anmelden')]"
+      "user_input": "//input[@type='email']",
+      "password_input": "//input[@type='password']",
+      "submit_button": "//button[@type='submit']"
     },
     "crawlers": {
       "RSSFeedCrawler": {
@@ -246,6 +255,13 @@
           "https://www.wiwo.de/contentexport/feed/rss/technologie"
         ],
         "language": "de"
+      }
+    },
+    "scrapers": {
+      "TrafilaturaScraper": {
+        "trafilatura_kwargs": {
+          "prune_xpath": "//h2"
+        }
       }
     }
   },
@@ -306,7 +322,7 @@
     "name": "Politico",
     "domain": "https://www.politico.eu",
     "paywall": false,
-    "is_active": false,
+    "is_active": true,
     "login_config": {
       "login_button": "//a[contains(@href, '/login/') and span[contains(text(), 'Log In')]]",
       "iframe": "",
@@ -320,6 +336,11 @@
       "RSSFeedCrawler": {
         "feed_urls": ["https://www.politico.eu/feed/"],
         "language": "en"
+      }
+    },
+    "scrapers": {
+      "Newspaper4kScraper": {
+        "newspaper_kwargs": {}
       }
     }
   },
@@ -665,7 +686,7 @@
     "name": "Digitalfernsehen",
     "domain": "https://www.digitalfernsehen.de/",
     "paywall": false,
-    "is_active": false,
+    "is_active": true,
     "crawlers": {
       "RSSFeedCrawler": {
         "feed_urls": ["https://www.digitalfernsehen.de/news/feed/"],
