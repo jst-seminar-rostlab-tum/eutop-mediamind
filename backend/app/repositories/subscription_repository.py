@@ -7,7 +7,10 @@ from sqlalchemy.orm import aliased
 
 from app.core.db import async_session
 from app.models import Article, Subscription
-from app.models.associations import SearchProfileSubscriptionLink
+from app.models.associations import (
+    OrganizationSubscriptionLink,
+    SearchProfileSubscriptionLink,
+)
 from app.schemas.subscription_schemas import (
     SubscriptionRead,
     SubscriptionSummary,
@@ -102,6 +105,18 @@ class SubscriptionRepository:
 
     @staticmethod
     async def delete(session, subscription_id: UUID):
+        await session.execute(
+            delete(SearchProfileSubscriptionLink).where(
+                SearchProfileSubscriptionLink.subscription_id
+                == subscription_id
+            )
+        )
+        await session.execute(
+            delete(OrganizationSubscriptionLink).where(
+                OrganizationSubscriptionLink.subscription_id == subscription_id
+            )
+        )
+
         await session.execute(
             delete(Subscription).where(Subscription.id == subscription_id)
         )
