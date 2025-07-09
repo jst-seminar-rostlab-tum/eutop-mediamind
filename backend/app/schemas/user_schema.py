@@ -3,7 +3,7 @@ from typing import Optional
 
 from pydantic import BaseModel, EmailStr
 
-from app.models.user import UserRole, Gender
+from app.models.user import Gender, UserRole
 
 
 class UserEntity(BaseModel):

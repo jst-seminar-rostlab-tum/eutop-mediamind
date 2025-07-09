@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from app.core.auth import get_authenticated_user, get_sync_user
 from app.core.languages import Language
 from app.core.logger import get_logger
-from app.models.user import User, Gender
+from app.models.user import Gender, User
 from app.schemas.request_response import FeedbackResponse
 from app.schemas.user_schema import UserEntity
 from app.services.user_service import UserService

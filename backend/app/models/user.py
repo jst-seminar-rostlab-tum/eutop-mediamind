@@ -20,6 +20,7 @@ class UserRole(str, Enum):
     maintainer = "maintainer"
     member = "member"
 
+
 class Gender(str, Enum):
     male = "male"
     female = "female"
