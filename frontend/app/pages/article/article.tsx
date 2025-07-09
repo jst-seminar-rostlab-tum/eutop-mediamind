@@ -39,6 +39,7 @@ export function ArticlePage({
             {...(article.article.authors?.length
               ? { author: article.article.authors.join(", ") }
               : {})}
+            imageUrl={article.article.image_urls?.[0]}
           />
         </div>
         <div className="w-1/3">
