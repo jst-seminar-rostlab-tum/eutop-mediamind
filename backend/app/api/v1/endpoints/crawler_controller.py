@@ -108,8 +108,7 @@ async def trigger_pipeline(
     asyncio.create_task(
         pipeline.run(
             datetime_start=datetime_start,
-            datetime_end=datetime_end,
-            language=language,
+            datetime_end=datetime_end
         )
     )
     return {"message": "Pipeline triggered successfully"}
