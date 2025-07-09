@@ -95,17 +95,3 @@ body {
     @apply bg-background text-foreground;
   }
 }
-
-/* Remove Clerk Watermarks */
-.cl-navbar > :first-child,
-.cl-navbar > :nth-child(3) {
-  display: none;
-}
-
-.cl-footer div[class^="cl-internal-"] {
-  display: none;
-}
-
-.cl-userButtonPopoverFooter {
-  display: none;
-}

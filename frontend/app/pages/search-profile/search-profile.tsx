@@ -167,7 +167,7 @@ export function SearchProfileOverview() {
             <Text hierachy={2}>{profile?.name}</Text>
           </div>
           <div className="flex items-center justify-between mb-4 gap-10">
-            <ScrollArea className="w-280 whitespace-nowrap rounded-md pb-1.5">
+            <ScrollArea className="grow overflow-x-hidden whitespace-nowrap rounded-md pb-1.5">
               <div className="flex w-max space-x-2 p-1">
                 <div className="flex items-center gap-1 shrink-0">
                   <Book size={20} />

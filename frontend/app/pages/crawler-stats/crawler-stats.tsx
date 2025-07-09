@@ -78,6 +78,9 @@ export const CrawlerStatsPage = () => {
         header: t("crawler_stats.notes"),
         cell: (info) => info.getValue() ?? "",
         enableSorting: false,
+        meta: {
+          className: "max-w-[400px] whitespace-normal break-words",
+        },
       },
     ],
     [t],
