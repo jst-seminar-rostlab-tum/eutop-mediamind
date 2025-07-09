@@ -180,8 +180,12 @@ cython_debug/
 
 # For Testing Scrapers:
 newspapers_accounts.json
+newspapers_data.json
 output.pdf
 
 # Translation file for batch api
 openai_batch_translation.jsonl
 summary_batch.jsonl
+
+# Crawl4ai chromium cache
+.browser_data

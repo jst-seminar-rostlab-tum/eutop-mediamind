@@ -1,4 +1,4 @@
-import { Book, Search } from "lucide-react";
+import { Book, FileText, Search } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router";
 import { client, useQuery } from "types/api";
@@ -14,10 +14,14 @@ import { Card, CardTitle } from "~/components/ui/card";
 import { Input } from "~/components/ui/input";
 import Layout from "~/custom-components/layout";
 import Text from "~/custom-components/text";
-import { getLocalizedContent, truncateAtWord } from "~/lib/utils";
+import {
+  getLocalizedContent,
+  getPercentage,
+  truncateAtWord,
+} from "~/lib/utils";
 import { useNavigate } from "react-router";
 import { SidebarFilter } from "./sidebar-filter";
-import { ScrollArea } from "~/components/ui/scroll-area";
+import { ScrollArea, ScrollBar } from "~/components/ui/scroll-area";
 import { SearchProfileSkeleton } from "./search-profile-skeleton";
 import { useTranslation } from "react-i18next";
 import { Button } from "~/components/ui/button";
@@ -161,15 +165,31 @@ export function SearchProfileOverview() {
           </Breadcrumb>
           <div className="flex gap-8">
             <Text hierachy={2}>{profile?.name}</Text>
-            <div className="flex gap-3 items-center">
-              <Book size={20} />
-              <p>{t("search_profile.Topics")}</p>
-              {profile?.topics?.map((topic, idx) => (
-                <div className="bg-secondary rounded-lg py-1 px-2" key={idx}>
-                  {topic.name}
+          </div>
+          <div className="flex items-center justify-between mb-4 gap-10">
+            <ScrollArea className="w-280 whitespace-nowrap rounded-md pb-1.5">
+              <div className="flex w-max space-x-2 p-1">
+                <div className="flex items-center gap-1 shrink-0">
+                  <Book size={20} />
+                  <p className="font-bold">{t("search_profile.Topics")}</p>
                 </div>
-              ))}
-            </div>
+                {profile?.topics?.map((topic, idx) => (
+                  <div
+                    className="bg-gray-200 rounded-lg py-1 px-2 shrink-0"
+                    key={idx}
+                  >
+                    {topic.name}
+                  </div>
+                ))}
+              </div>
+              <ScrollBar orientation="horizontal" />
+            </ScrollArea>
+            <Button asChild>
+              <Link to="reports">
+                <FileText />
+                {t("reports.reports")}
+              </Link>
+            </Button>
           </div>
 
           <div className="w-full grid grid-cols-6 mt-2 gap-8">
@@ -244,14 +264,16 @@ export function SearchProfileOverview() {
                               <div
                                 className={`rounded-lg py-1 px-2 ${bgColor}`}
                               >
-                                {t("search_profile.Relevance")} {relevance}
+                                {t("search_profile.Relevance")} {getPercentage(relevance)}
                               </div>
                               {match.topics.map((topic) => (
                                 <div
                                   className="bg-secondary rounded-lg py-1 px-2"
                                   key={topic.id}
                                 >
-                                  {topic.score + " " + topic.name}
+                                  {getPercentage(topic.score) +
+                                    " " +
+                                    topic.name}
                                 </div>
                               ))}
                             </div>

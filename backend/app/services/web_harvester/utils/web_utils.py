@@ -1,21 +1,48 @@
 import json
 import logging
 import time
+import urllib.request
 
 from fake_useragent import UserAgent
-from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
+from seleniumwire import webdriver
 
+from app.core.config import configs
+from app.core.logger import get_logger
 from app.models.subscription import Subscription
 
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
+
+# Suppress Selenium Wire INFO logs
+logging.getLogger("seleniumwire").setLevel(logging.WARNING)
 
 
-def create_driver(headless: bool = True):
+def check_proxy_availability(proxy_url: str) -> bool:
+    """
+    Check if the proxy URL is available.
+    Returns True if the proxy is available, False otherwise.
+    """
+    url = "http://httpbin.org/ip"
+
+    opener = urllib.request.build_opener(
+        urllib.request.ProxyHandler({"https": proxy_url, "http": proxy_url})
+    )
+
+    try:
+        opener.open(url, timeout=10)
+        return True
+    except Exception as e:
+        logger.warning(
+            f"Proxy {proxy_url} is not available: {e}"
+            "Using direct connection instead."
+        )
+        return False
+
+
+def create_driver(headless: bool = True, use_proxy: bool = False):
     chrome_options = Options()
     if headless:
         chrome_options.add_argument("--headless=new")
@@ -26,8 +53,24 @@ def create_driver(headless: bool = True):
     chrome_options.set_capability("goog:loggingPrefs", {"performance": "ALL"})
     chrome_options.add_argument(f"--user-agent={UserAgent().random}")
 
-    driver = webdriver.Chrome(options=chrome_options)
+    # Configure selenium-wire options for proxy
+    seleniumwire_options = {}
+    if use_proxy and check_proxy_availability(configs.PROXY_URL):
+        seleniumwire_options = {
+            "proxy": {
+                "http": configs.PROXY_URL,
+                "https": configs.PROXY_URL,
+                "no_proxy": "localhost,127.0.0.1",
+            },
+            "connection_timeout": 15,
+            "read_timeout": 15,
+        }
+
+    driver = webdriver.Chrome(
+        options=chrome_options, seleniumwire_options=seleniumwire_options
+    )
     driver.set_window_size(1920, 1080)
+    driver.set_page_load_timeout(10)  # Set a timeout for page loading
     wait = WebDriverWait(driver, 5)
     return driver, wait
 
