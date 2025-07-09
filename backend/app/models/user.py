@@ -20,6 +20,11 @@ class UserRole(str, Enum):
     maintainer = "maintainer"
     member = "member"
 
+class Gender(str, Enum):
+    male = "male"
+    female = "female"
+    divers = "divers"
+
 
 # Shared properties
 class UserBase(SQLModel):
@@ -52,6 +57,14 @@ class UserBase(SQLModel):
             server_default=UserRole.member.value,
         ),
     )
+    gender: Gender | None = Field(
+        default=Gender.male,
+        sa_column=Column(
+            SqlAlchemyEnum(Gender, name="gender_enum"),
+            nullable=True,
+            server_default=Gender.male.value,
+        ),
+    )
 
 
 class UserCreate(BaseModel):
@@ -63,6 +76,7 @@ class UserCreate(BaseModel):
     organization_id: uuid.UUID | None = None
     language: str = "en"
     role: UserRole = UserRole.member
+    gender: Gender | None = Gender.male
 
 
 # Database model, table inferred from class name

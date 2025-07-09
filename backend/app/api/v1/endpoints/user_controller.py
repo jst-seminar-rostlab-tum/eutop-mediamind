@@ -1,10 +1,11 @@
 from typing import List, Union
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 
 from app.core.auth import get_authenticated_user, get_sync_user
+from app.core.languages import Language
 from app.core.logger import get_logger
-from app.models.user import User
+from app.models.user import User, Gender
 from app.schemas.request_response import FeedbackResponse
 from app.schemas.user_schema import UserEntity
 from app.services.user_service import UserService
@@ -77,9 +78,18 @@ async def sync_user(
     return synced_user
 
 
-@router.put("", response_model=UserEntity)
-async def update_language(language: str, user=Depends(get_sync_user)):
+@router.put("/language", response_model=UserEntity)
+async def update_language(
+    language: Language = Query(...), user=Depends(get_sync_user)
+):
     return await UserService.update_user_language(language, user)
+
+
+@router.put("/gender", response_model=UserEntity)
+async def update_gender(
+    gender: Gender = Query(...), user=Depends(get_sync_user)
+):
+    return await UserService.update_gender(gender, user)
 
 
 @router.delete("", response_model=FeedbackResponse)
