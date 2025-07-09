@@ -41,7 +41,6 @@ router_list = [
     report_router,
     chatbot_router,
     organization_router,
-    cleanup_router,
 ]
 
 
