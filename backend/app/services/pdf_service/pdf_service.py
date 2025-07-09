@@ -645,7 +645,6 @@ class PDFService:
             organizations_str = ", ".join(f"{i}" for i in news.organizations)
             industries_str = ", ".join(f"{i}" for i in news.industries)
             events_str = ", ".join(f"{i}" for i in news.events)
-            citations_str = ", ".join(f"{i}" for i in news.citations)
 
             # Prepare metadata as label-value pairs for two columns
             metadata_rows = [
@@ -782,20 +781,6 @@ class PDFService:
                     ),
                     Paragraph(
                         events_str if events_str else translator("None"),
-                        PDFService.styles["metadata_style"],
-                    ),
-                ],
-                [
-                    Paragraph(
-                        f"<b>{translator('Citations')}:</b>",
-                        PDFService.styles["metadata_style"],
-                    ),
-                    Paragraph(
-                        (
-                            citations_str
-                            if citations_str
-                            else translator("None")
-                        ),
                         PDFService.styles["metadata_style"],
                     ),
                 ],
