@@ -4,2807 +4,2797 @@
  */
 
 export interface paths {
-  "/api/v1/healthcheck": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/api/v1/healthcheck": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Healthcheck */
+        get: operations["healthcheck_api_v1_healthcheck_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    /** Healthcheck */
-    get: operations["healthcheck_api_v1_healthcheck_get"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/users": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/api/v1/users": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Users
+         * @description List all users visible (same organization) to the current user or
+         *     return the single user if restricted.
+         */
+        get: operations["get_users_api_v1_users_get"];
+        put?: never;
+        post?: never;
+        /**
+         * Delete Current User
+         * @description Delete the authenticated user's account.
+         */
+        delete: operations["delete_current_user_api_v1_users_delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    /**
-     * Get Users
-     * @description List all users visible (same organization) to the current user or
-     *     return the single user if restricted.
-     */
-    get: operations["get_users_api_v1_users_get"];
-    put?: never;
-    post?: never;
-    /**
-     * Delete Current User
-     * @description Delete the authenticated user's account.
-     */
-    delete: operations["delete_current_user_api_v1_users_delete"];
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/users/all": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/api/v1/users/all": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get All Users
+         * @description List all users visible to the current user or
+         *     return the single user if restricted.
+         */
+        get: operations["get_all_users_api_v1_users_all_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    /**
-     * Get All Users
-     * @description List all users visible to the current user or
-     *     return the single user if restricted.
-     */
-    get: operations["get_all_users_api_v1_users_all_get"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/users/me": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/api/v1/users/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Current User Info
+         * @description Retrieve the authenticated user's profile information.
+         */
+        get: operations["get_current_user_info_api_v1_users_me_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    /**
-     * Get Current User Info
-     * @description Retrieve the authenticated user's profile information.
-     */
-    get: operations["get_current_user_info_api_v1_users_me_get"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/users/sync": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/api/v1/users/sync": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Sync User
+         * @description Synchronize the current user with the external Clerk service.
+         */
+        post: operations["sync_user_api_v1_users_sync_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    get?: never;
-    put?: never;
-    /**
-     * Sync User
-     * @description Synchronize the current user with the external Clerk service.
-     */
-    post: operations["sync_user_api_v1_users_sync_post"];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/users/language": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/api/v1/users/language": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Update Language */
+        put: operations["update_language_api_v1_users_language_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    get?: never;
-    /** Update Language */
-    put: operations["update_language_api_v1_users_language_put"];
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/users/gender": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/api/v1/users/gender": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Update Gender */
+        put: operations["update_gender_api_v1_users_gender_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    get?: never;
-    /** Update Gender */
-    put: operations["update_gender_api_v1_users_gender_put"];
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/search-profiles": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/api/v1/search-profiles": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Available Search Profiles
+         * @description Retrieve all search profiles available to the current user.
+         */
+        get: operations["get_available_search_profiles_api_v1_search_profiles_get"];
+        put?: never;
+        /**
+         * Create Search Profile
+         * @description Create a new search profile for the current user.
+         */
+        post: operations["create_search_profile_api_v1_search_profiles_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    /**
-     * Get Available Search Profiles
-     * @description Retrieve all search profiles available to the current user.
-     */
-    get: operations["get_available_search_profiles_api_v1_search_profiles_get"];
-    put?: never;
-    /**
-     * Create Search Profile
-     * @description Create a new search profile for the current user.
-     */
-    post: operations["create_search_profile_api_v1_search_profiles_post"];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/search-profiles/keywords/suggestions": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/api/v1/search-profiles/keywords/suggestions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Get Keyword Suggestions
+         * @description Return keyword suggestions based on a list of input keywords.
+         */
+        post: operations["get_keyword_suggestions_api_v1_search_profiles_keywords_suggestions_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    get?: never;
-    put?: never;
-    /**
-     * Get Keyword Suggestions
-     * @description Return keyword suggestions based on a list of input keywords.
-     */
-    post: operations["get_keyword_suggestions_api_v1_search_profiles_keywords_suggestions_post"];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/search-profiles/{search_profile_id}": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/api/v1/search-profiles/{search_profile_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Search Profile
+         * @description Retrieve a specific search profile by its UUID.
+         */
+        get: operations["get_search_profile_api_v1_search_profiles__search_profile_id__get"];
+        /**
+         * Update Search Profile
+         * @description Update an existing search profile by its UUID.
+         */
+        put: operations["update_search_profile_api_v1_search_profiles__search_profile_id__put"];
+        post?: never;
+        /** Delete Search Profile */
+        delete: operations["delete_search_profile_api_v1_search_profiles__search_profile_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    /**
-     * Get Search Profile
-     * @description Retrieve a specific search profile by its UUID.
-     */
-    get: operations["get_search_profile_api_v1_search_profiles__search_profile_id__get"];
-    /**
-     * Update Search Profile
-     * @description Update an existing search profile by its UUID.
-     */
-    put: operations["update_search_profile_api_v1_search_profiles__search_profile_id__put"];
-    post?: never;
-    /** Delete Search Profile */
-    delete: operations["delete_search_profile_api_v1_search_profiles__search_profile_id__delete"];
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/search-profiles/{search_profile_id}/matches": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/api/v1/search-profiles/{search_profile_id}/matches": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Get Search Profile Overview
+         * @description Retrieve an overview of articles for a given search profile.
+         */
+        post: operations["get_search_profile_overview_api_v1_search_profiles__search_profile_id__matches_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    get?: never;
-    put?: never;
-    /**
-     * Get Search Profile Overview
-     * @description Retrieve an overview of articles for a given search profile.
-     */
-    post: operations["get_search_profile_overview_api_v1_search_profiles__search_profile_id__matches_post"];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/search-profiles/{search_profile_id}/article/{match_id}": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/api/v1/search-profiles/{search_profile_id}/article/{match_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Match Detail
+         * @description Retrieve detailed match information for a specific article match.
+         */
+        get: operations["get_match_detail_api_v1_search_profiles__search_profile_id__article__match_id__get"];
+        /**
+         * Update Match Feedback
+         * @description Update feedback for a specific match within a search profile.
+         */
+        put: operations["update_match_feedback_api_v1_search_profiles__search_profile_id__article__match_id__put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    /**
-     * Get Match Detail
-     * @description Retrieve detailed match information for a specific article match.
-     */
-    get: operations["get_match_detail_api_v1_search_profiles__search_profile_id__article__match_id__get"];
-    /**
-     * Update Match Feedback
-     * @description Update feedback for a specific match within a search profile.
-     */
-    put: operations["update_match_feedback_api_v1_search_profiles__search_profile_id__article__match_id__put"];
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/search-profiles/{search_profile_id}/reports": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/api/v1/search-profiles/{search_profile_id}/reports": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Reports */
+        get: operations["get_reports_api_v1_search_profiles__search_profile_id__reports_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    /** Get Reports */
-    get: operations["get_reports_api_v1_search_profiles__search_profile_id__reports_get"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/subscriptions": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/api/v1/subscriptions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get All Subscriptions */
+        get: operations["get_all_subscriptions_api_v1_subscriptions_get"];
+        put?: never;
+        /** Create Subscription */
+        post: operations["create_subscription_api_v1_subscriptions_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    /** Get All Subscriptions */
-    get: operations["get_all_subscriptions_api_v1_subscriptions_get"];
-    put?: never;
-    /** Create Subscription */
-    post: operations["create_subscription_api_v1_subscriptions_post"];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/subscriptions/{subscription_id}": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/api/v1/subscriptions/{subscription_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Subscription */
+        get: operations["get_subscription_api_v1_subscriptions__subscription_id__get"];
+        /** Update Subscription */
+        put: operations["update_subscription_api_v1_subscriptions__subscription_id__put"];
+        post?: never;
+        /** Delete Subscription */
+        delete: operations["delete_subscription_api_v1_subscriptions__subscription_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    /** Get Subscription */
-    get: operations["get_subscription_api_v1_subscriptions__subscription_id__get"];
-    /** Update Subscription */
-    put: operations["update_subscription_api_v1_subscriptions__subscription_id__put"];
-    post?: never;
-    /** Delete Subscription */
-    delete: operations["delete_subscription_api_v1_subscriptions__subscription_id__delete"];
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/emails/send/{recipient_email}": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/api/v1/emails/send/{recipient_email}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Trigger Email Sending */
+        get: operations["trigger_email_sending_api_v1_emails_send__recipient_email__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    /** Trigger Email Sending */
-    get: operations["trigger_email_sending_api_v1_emails_send__recipient_email__get"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/emails/test": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/api/v1/emails/test": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Send Report Email */
+        get: operations["send_report_email_api_v1_emails_test_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    /** Send Report Email */
-    get: operations["send_report_email_api_v1_emails_test_get"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/vector-store/add-articles": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/api/v1/vector-store/add-articles": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Add Articles To Vector Store
+         * @description Add a list of articles to the vector store.
+         */
+        post: operations["add_articles_to_vector_store_api_v1_vector_store_add_articles_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    get?: never;
-    put?: never;
-    /**
-     * Add Articles To Vector Store
-     * @description Add a list of articles to the vector store.
-     */
-    post: operations["add_articles_to_vector_store_api_v1_vector_store_add_articles_post"];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/article-matching/": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/api/v1/article-matching/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Create Article Matching */
+        post: operations["create_article_matching_api_v1_article_matching__post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    get?: never;
-    put?: never;
-    /** Create Article Matching */
-    post: operations["create_article_matching_api_v1_article_matching__post"];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/articles/summarize-all": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/api/v1/articles/summarize-all": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Summarize All Articles
+         * @description Summarize all articles in the database.
+         */
+        post: operations["summarize_all_articles_api_v1_articles_summarize_all_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    get?: never;
-    put?: never;
-    /**
-     * Summarize All Articles
-     * @description Summarize all articles in the database.
-     */
-    post: operations["summarize_all_articles_api_v1_articles_summarize_all_post"];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/articles/pdf": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/api/v1/articles/pdf": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Trigger Pdf Creation */
+        get: operations["trigger_pdf_creation_api_v1_articles_pdf_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    /** Trigger Pdf Creation */
-    get: operations["trigger_pdf_creation_api_v1_articles_pdf_get"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/topics": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/api/v1/topics": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Topics By Search Profile
+         * @description Get topics by search profile ID.
+         */
+        get: operations["get_topics_by_search_profile_api_v1_topics_get"];
+        put?: never;
+        /**
+         * Create Topic By Search Profile
+         * @description Create a topic by search profile ID.
+         */
+        post: operations["create_topic_by_search_profile_api_v1_topics_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    /**
-     * Get Topics By Search Profile
-     * @description Get topics by search profile ID.
-     */
-    get: operations["get_topics_by_search_profile_api_v1_topics_get"];
-    put?: never;
-    /**
-     * Create Topic By Search Profile
-     * @description Create a topic by search profile ID.
-     */
-    post: operations["create_topic_by_search_profile_api_v1_topics_post"];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/topics/{topic_id}": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/api/v1/topics/{topic_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Delete Topic
+         * @description Delete a topic by ID.
+         */
+        delete: operations["delete_topic_api_v1_topics__topic_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    get?: never;
-    put?: never;
-    post?: never;
-    /**
-     * Delete Topic
-     * @description Delete a topic by ID.
-     */
-    delete: operations["delete_topic_api_v1_topics__topic_id__delete"];
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/keywords": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/api/v1/keywords": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Keywords By Topic Id
+         * @description Get keywords by topic ID.
+         */
+        get: operations["get_keywords_by_topic_id_api_v1_keywords_get"];
+        put?: never;
+        /**
+         * Create Keyword By Topic Id
+         * @description Create a keyword by topic ID.
+         */
+        post: operations["create_keyword_by_topic_id_api_v1_keywords_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    /**
-     * Get Keywords By Topic Id
-     * @description Get keywords by topic ID.
-     */
-    get: operations["get_keywords_by_topic_id_api_v1_keywords_get"];
-    put?: never;
-    /**
-     * Create Keyword By Topic Id
-     * @description Create a keyword by topic ID.
-     */
-    post: operations["create_keyword_by_topic_id_api_v1_keywords_post"];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/keywords/assign-keywords-to-articles": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/api/v1/keywords/assign-keywords-to-articles": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Assign Keywords To Articles
+         * @description Assign keywords to articles in the background.
+         */
+        post: operations["assign_keywords_to_articles_api_v1_keywords_assign_keywords_to_articles_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    get?: never;
-    put?: never;
-    /**
-     * Assign Keywords To Articles
-     * @description Assign keywords to articles in the background.
-     */
-    post: operations["assign_keywords_to_articles_api_v1_keywords_assign_keywords_to_articles_post"];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/crawler/trigger_crawling": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/api/v1/crawler/trigger_crawling": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Trigger Crawling */
+        post: operations["trigger_crawling_api_v1_crawler_trigger_crawling_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    get?: never;
-    put?: never;
-    /** Trigger Crawling */
-    post: operations["trigger_crawling_api_v1_crawler_trigger_crawling_post"];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/crawler/trigger_rss_crawling": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/api/v1/crawler/trigger_rss_crawling": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Trigger Rss Crawling */
+        post: operations["trigger_rss_crawling_api_v1_crawler_trigger_rss_crawling_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    get?: never;
-    put?: never;
-    /** Trigger Rss Crawling */
-    post: operations["trigger_rss_crawling_api_v1_crawler_trigger_rss_crawling_post"];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/crawler/trigger_scraping": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/api/v1/crawler/trigger_scraping": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Trigger Scraping */
+        post: operations["trigger_scraping_api_v1_crawler_trigger_scraping_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    get?: never;
-    put?: never;
-    /** Trigger Scraping */
-    post: operations["trigger_scraping_api_v1_crawler_trigger_scraping_post"];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/crawler/trigger_breaking_news_crawling": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/api/v1/crawler/trigger_breaking_news_crawling": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Trigger Newsapi Crawling */
+        post: operations["trigger_newsapi_crawling_api_v1_crawler_trigger_breaking_news_crawling_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    get?: never;
-    put?: never;
-    /** Trigger Newsapi Crawling */
-    post: operations["trigger_newsapi_crawling_api_v1_crawler_trigger_breaking_news_crawling_post"];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/crawler/get_breaking_news": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/api/v1/crawler/get_breaking_news": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Breaking News */
+        get: operations["get_breaking_news_api_v1_crawler_get_breaking_news_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    /** Get Breaking News */
-    get: operations["get_breaking_news_api_v1_crawler_get_breaking_news_get"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/crawler/trigger_pipeline": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/api/v1/crawler/trigger_pipeline": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Trigger Pipeline */
+        post: operations["trigger_pipeline_api_v1_crawler_trigger_pipeline_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    get?: never;
-    put?: never;
-    /** Trigger Pipeline */
-    post: operations["trigger_pipeline_api_v1_crawler_trigger_pipeline_post"];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/crawler/stats": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/api/v1/crawler/stats": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Crawl Stats
+         * @description Get crawler statistics based on date criteria.
+         *     - If `date_start` and `date_end` are provided, returns stats for that range
+         *     - If no parameters are provided, returns stats for today
+         */
+        get: operations["get_crawl_stats_api_v1_crawler_stats_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    /**
-     * Get Crawl Stats
-     * @description Get crawler statistics based on date criteria.
-     *     - If `date_start` and `date_end` are provided, returns stats for that range
-     *     - If no parameters are provided, returns stats for today
-     */
-    get: operations["get_crawl_stats_api_v1_crawler_stats_get"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/reports/{report_id}": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/api/v1/reports/{report_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Report By Id */
+        get: operations["get_report_by_id_api_v1_reports__report_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    /** Get Report By Id */
-    get: operations["get_report_by_id_api_v1_reports__report_id__get"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/chatbot": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/api/v1/chatbot": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Receive Chat */
+        post: operations["receive_chat_api_v1_chatbot_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    get?: never;
-    put?: never;
-    /** Receive Chat */
-    post: operations["receive_chat_api_v1_chatbot_post"];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/organizations": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/api/v1/organizations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get All Organizations With Users */
+        get: operations["get_all_organizations_with_users_api_v1_organizations_get"];
+        put?: never;
+        /** Create Organization With Users */
+        post: operations["create_organization_with_users_api_v1_organizations_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    /** Get All Organizations With Users */
-    get: operations["get_all_organizations_with_users_api_v1_organizations_get"];
-    put?: never;
-    /** Create Organization With Users */
-    post: operations["create_organization_with_users_api_v1_organizations_post"];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/organizations/{organization_id}": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/api/v1/organizations/{organization_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Update Organization With Users */
+        put: operations["update_organization_with_users_api_v1_organizations__organization_id__put"];
+        post?: never;
+        /** Delete Organization */
+        delete: operations["delete_organization_api_v1_organizations__organization_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    get?: never;
-    /** Update Organization With Users */
-    put: operations["update_organization_with_users_api_v1_organizations__organization_id__put"];
-    post?: never;
-    /** Delete Organization */
-    delete: operations["delete_organization_api_v1_organizations__organization_id__delete"];
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/organizations/{organization_id}/subscriptions": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/api/v1/organizations/{organization_id}/subscriptions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Set Organization Subscriptions */
+        put: operations["set_organization_subscriptions_api_v1_organizations__organization_id__subscriptions_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    get?: never;
-    /** Set Organization Subscriptions */
-    put: operations["set_organization_subscriptions_api_v1_organizations__organization_id__subscriptions_put"];
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
 }
 export type webhooks = Record<string, never>;
 export interface components {
-  schemas: {
-    /** ArticleOverviewResponse */
-    ArticleOverviewResponse: {
-      /** Matches */
-      matches: components["schemas"]["MatchItem"][];
+    schemas: {
+        /** ArticleOverviewResponse */
+        ArticleOverviewResponse: {
+            /** Matches */
+            matches: components["schemas"]["MatchItem"][];
+        };
+        /**
+         * ArticleStatus
+         * @enum {string}
+         */
+        ArticleStatus: "new" | "scraped" | "summarized" | "translated" | "embedded" | "error";
+        /** Body_get_keyword_suggestions_api_v1_search_profiles_keywords_suggestions_post */
+        Body_get_keyword_suggestions_api_v1_search_profiles_keywords_suggestions_post: {
+            /** Related Topics */
+            related_topics: components["schemas"]["KeywordSuggestionTopic"][];
+            selected_topic: components["schemas"]["KeywordSuggestionTopic"];
+        };
+        /** BreakingNewsItem */
+        BreakingNewsItem: {
+            /** Id */
+            id: string;
+            /** Title */
+            title: string | null;
+            /** Summary */
+            summary: string | null;
+            /** Image Url */
+            image_url: string | null;
+            /** Url */
+            url: string | null;
+            /** Published At */
+            published_at: string | null;
+        };
+        /** BreakingNewsResponse */
+        BreakingNewsResponse: {
+            /** News */
+            news: components["schemas"]["BreakingNewsItem"][];
+            /** Total Count */
+            total_count: number;
+        };
+        /** ChatRequest */
+        ChatRequest: {
+            /** Sender */
+            sender: string;
+            /** Subject */
+            subject: string;
+            /** Body */
+            body: string;
+        };
+        /**
+         * CrawlStatsItem
+         * @description Base schema for crawl stats with common fields.
+         */
+        CrawlStatsItem: {
+            /** Subscription Name */
+            subscription_name: string;
+            /**
+             * Total Successful
+             * @description Number of successfully crawled articles
+             */
+            total_successful: number;
+            /**
+             * Total Attempted
+             * @description Total number of articles attempted to crawl
+             */
+            total_attempted: number;
+            /**
+             * Crawl Date
+             * Format: date
+             */
+            crawl_date?: string;
+            /**
+             * Notes
+             * @description Additional notes about the crawl
+             */
+            notes?: string | null;
+        };
+        /**
+         * CrawlStatsResponse
+         * @description Response schema for crawl stats.
+         */
+        CrawlStatsResponse: {
+            /** Stats */
+            stats: components["schemas"]["CrawlStatsItem"][];
+            /** Total Count */
+            total_count: number;
+        };
+        /** CreateRequestUser */
+        CreateRequestUser: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            role: components["schemas"]["UserRole"];
+        };
+        /** FeedbackResponse */
+        FeedbackResponse: {
+            /** Status */
+            status: string;
+        };
+        /**
+         * Gender
+         * @enum {string}
+         */
+        Gender: "male" | "female" | "divers";
+        /** HTTPValidationError */
+        HTTPValidationError: {
+            /** Detail */
+            detail?: components["schemas"]["ValidationError"][];
+        };
+        /** Keyword */
+        Keyword: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id?: string;
+            /** Name */
+            name: string;
+        };
+        /** KeywordSuggestionResponse */
+        KeywordSuggestionResponse: {
+            /** Suggestions */
+            suggestions: string[];
+        };
+        /** KeywordSuggestionTopic */
+        KeywordSuggestionTopic: {
+            /** Topic Name */
+            topic_name: string;
+            /** Keywords */
+            keywords: string[];
+        };
+        /**
+         * Language
+         * @enum {string}
+         */
+        Language: "en" | "de";
+        /** MatchArticleOverviewContent */
+        MatchArticleOverviewContent: {
+            /** Article Url */
+            article_url: string;
+            /** Headline */
+            headline: {
+                [key: string]: string;
+            };
+            /** Summary */
+            summary: {
+                [key: string]: string;
+            };
+            /** Text */
+            text: {
+                [key: string]: string;
+            };
+            /** Image Urls */
+            image_urls: string[];
+            /**
+             * Published
+             * Format: date-time
+             */
+            published: string;
+            /**
+             * Crawled
+             * Format: date-time
+             */
+            crawled: string;
+            /** Newspaper Id */
+            newspaper_id?: string | null;
+            /** Authors */
+            authors?: string[] | null;
+            /** Categories */
+            categories?: string[] | null;
+            status?: components["schemas"]["ArticleStatus"] | null;
+            /** Language */
+            language?: string | null;
+        };
+        /** MatchDetailResponse */
+        MatchDetailResponse: {
+            /**
+             * Match Id
+             * Format: uuid
+             */
+            match_id: string;
+            /** Topics */
+            topics: components["schemas"]["MatchTopicItem"][];
+            search_profile: components["schemas"]["MatchProfileInfo"] | null;
+            article: components["schemas"]["MatchArticleOverviewContent"];
+        };
+        /** MatchFeedbackRequest */
+        MatchFeedbackRequest: {
+            /** Comment */
+            comment: string;
+            /**
+             * Reason
+             * @enum {string}
+             */
+            reason: "bad source" | "false" | "no good matching" | "other";
+            /** Ranking */
+            ranking: number;
+        };
+        /** MatchFilterRequest */
+        MatchFilterRequest: {
+            /**
+             * Startdate
+             * Format: date
+             */
+            startDate: string;
+            /**
+             * Enddate
+             * Format: date
+             */
+            endDate: string;
+            /**
+             * Sorting
+             * @enum {string}
+             */
+            sorting: "DATE" | "RELEVANCE";
+            /** Searchterm */
+            searchTerm?: string | null;
+            /** Topics */
+            topics?: string[] | null;
+            /** Subscriptions */
+            subscriptions?: string[] | null;
+        };
+        /** MatchItem */
+        MatchItem: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Relevance */
+            relevance: number;
+            /** Topics */
+            topics: components["schemas"]["MatchTopicItem"][];
+            article: components["schemas"]["MatchArticleOverviewContent"];
+        };
+        /** MatchProfileInfo */
+        MatchProfileInfo: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Name */
+            name: string;
+        };
+        /** MatchTopicItem */
+        MatchTopicItem: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Name */
+            name: string;
+            /** Score */
+            score: number;
+            /** Keywords */
+            keywords?: string[] | null;
+        };
+        /** OrganizationCreateOrUpdate */
+        OrganizationCreateOrUpdate: {
+            /** Name */
+            name: string;
+            /**
+             * Email
+             * Format: email
+             */
+            email: string;
+            /** Users */
+            users: components["schemas"]["CreateRequestUser"][];
+        };
+        /** OrganizationResponse */
+        OrganizationResponse: {
+            /** Name */
+            name: string;
+            /**
+             * Email
+             * Format: email
+             */
+            email: string;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Users
+             * @default []
+             */
+            users: components["schemas"]["User"][];
+        };
+        /** ReportDetailResponse */
+        ReportDetailResponse: {
+            /**
+             * Search Profile Id
+             * Format: uuid
+             */
+            search_profile_id: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Time Slot */
+            time_slot?: string | null;
+            /** Language */
+            language: string;
+            /** S3 Key */
+            s3_key: string;
+            /** @default pending */
+            status: components["schemas"]["ReportStatus"];
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** S3 Url */
+            s3_url?: string | null;
+        };
+        /** ReportListResponse */
+        ReportListResponse: {
+            /** Reports */
+            reports: components["schemas"]["ReportRead"][];
+        };
+        /** ReportRead */
+        ReportRead: {
+            /**
+             * Search Profile Id
+             * Format: uuid
+             */
+            search_profile_id: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Time Slot */
+            time_slot?: string | null;
+            /** Language */
+            language: string;
+            /** S3 Key */
+            s3_key: string;
+            /** @default pending */
+            status: components["schemas"]["ReportStatus"];
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+        };
+        /**
+         * ReportStatus
+         * @enum {string}
+         */
+        ReportStatus: "pending" | "uploaded" | "failed";
+        /** SearchProfileCreateRequest */
+        SearchProfileCreateRequest: {
+            /** Name */
+            name: string;
+            /** Is Public */
+            is_public: boolean;
+            /**
+             * Organization Emails
+             * @default []
+             */
+            organization_emails: string[];
+            /**
+             * Profile Emails
+             * @default []
+             */
+            profile_emails: string[];
+            /**
+             * Can Edit User Ids
+             * @default []
+             */
+            can_edit_user_ids: string[];
+            /**
+             * Can Read User Ids
+             * @default []
+             */
+            can_read_user_ids: string[];
+            /** Subscriptions */
+            subscriptions: components["schemas"]["SubscriptionSummary"][];
+            /**
+             * Owner Id
+             * Format: uuid
+             */
+            owner_id: string;
+            /**
+             * Language
+             * @default en
+             */
+            language: string;
+            /** Topics */
+            topics: components["schemas"]["TopicCreateOrUpdateRequest"][];
+        };
+        /** SearchProfileDetailResponse */
+        SearchProfileDetailResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Name */
+            name: string;
+            /** Is Public */
+            is_public: boolean;
+            /** Organization Emails */
+            organization_emails: string[];
+            /** Profile Emails */
+            profile_emails: string[];
+            /** Can Read User Ids */
+            can_read_user_ids: string[];
+            /** Is Reader */
+            is_reader: boolean;
+            /** Can Edit User Ids */
+            can_edit_user_ids: string[];
+            /** Is Editor */
+            is_editor: boolean;
+            /**
+             * Owner Id
+             * Format: uuid
+             */
+            owner_id: string;
+            /** Is Owner */
+            is_owner: boolean;
+            /**
+             * Language
+             * @default en
+             */
+            language: string;
+            /** Topics */
+            topics: components["schemas"]["TopicResponse"][];
+            /** Subscriptions */
+            subscriptions: components["schemas"]["SubscriptionSummary"][];
+            /** New Articles Count */
+            new_articles_count: number;
+        };
+        /** SearchProfileUpdateRequest */
+        SearchProfileUpdateRequest: {
+            /** Name */
+            name: string;
+            /** Is Public */
+            is_public: boolean;
+            /**
+             * Organization Emails
+             * @default []
+             */
+            organization_emails: string[];
+            /**
+             * Profile Emails
+             * @default []
+             */
+            profile_emails: string[];
+            /**
+             * Can Edit User Ids
+             * @default []
+             */
+            can_edit_user_ids: string[];
+            /**
+             * Can Read User Ids
+             * @default []
+             */
+            can_read_user_ids: string[];
+            /** Subscriptions */
+            subscriptions: components["schemas"]["SubscriptionSummary"][];
+            /**
+             * Owner Id
+             * Format: uuid
+             */
+            owner_id: string;
+            /**
+             * Language
+             * @default en
+             */
+            language: string;
+            /** Topics */
+            topics: components["schemas"]["TopicCreateOrUpdateRequest"][];
+        };
+        /** SetOrganizationSubscriptionsRequest */
+        SetOrganizationSubscriptionsRequest: {
+            /**
+             * Organization Id
+             * Format: uuid
+             */
+            organization_id: string;
+            /** Subscriptions */
+            subscriptions: components["schemas"]["SubscriptionSummary"][];
+        };
+        /** SubscriptionCreateOrUpdate */
+        SubscriptionCreateOrUpdate: {
+            /** Name */
+            name: string;
+            /** Domain */
+            domain: string;
+            /** Paywall */
+            paywall: boolean;
+            /** Username */
+            username: string;
+            /** Password */
+            password: string;
+        };
+        /** SubscriptionRead */
+        SubscriptionRead: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Name */
+            name: string;
+            /** Domain */
+            domain: string;
+            /** Paywall */
+            paywall: boolean;
+            /** Username */
+            username: string;
+        };
+        /** SubscriptionSummary */
+        SubscriptionSummary: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Name */
+            name: string;
+            /** Is Subscribed */
+            is_subscribed: boolean;
+        };
+        /** Topic */
+        Topic: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id?: string;
+            /** Name */
+            name: string;
+            /** Description */
+            description?: string | null;
+            /**
+             * Search Profile Id
+             * Format: uuid
+             */
+            search_profile_id: string;
+        };
+        /** TopicCreateOrUpdateRequest */
+        TopicCreateOrUpdateRequest: {
+            /** Name */
+            name: string;
+            /** Keywords */
+            keywords: string[];
+        };
+        /** TopicResponse */
+        TopicResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Name */
+            name: string;
+            /** Keywords */
+            keywords: string[];
+        };
+        /** User */
+        User: {
+            /** Clerk Id */
+            clerk_id: string;
+            /**
+             * Email
+             * Format: email
+             */
+            email: string;
+            /** First Name */
+            first_name: string;
+            /** Last Name */
+            last_name: string;
+            /**
+             * Is Superuser
+             * @default false
+             */
+            is_superuser: boolean;
+            /** Organization Id */
+            organization_id?: string | null;
+            /**
+             * Language
+             * @description Language code, must be 'en' or 'de'
+             * @default en
+             */
+            language: string;
+            role: components["schemas"]["UserRole"];
+            /** @default male */
+            gender: components["schemas"]["Gender"] | null;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id?: string;
+        };
+        /** UserEntity */
+        UserEntity: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Clerk Id */
+            clerk_id: string;
+            /**
+             * Email
+             * Format: email
+             */
+            email: string;
+            /** First Name */
+            first_name: string;
+            /** Last Name */
+            last_name: string;
+            /** Is Superuser */
+            is_superuser: boolean;
+            /**
+             * Language
+             * @default en
+             */
+            language: string;
+            gender?: components["schemas"]["Gender"] | null;
+            /** @default member */
+            role: components["schemas"]["UserRole"];
+            /** Organization Id */
+            organization_id?: string | null;
+            /** Organization Name */
+            organization_name?: string | null;
+        };
+        /**
+         * UserRole
+         * @enum {string}
+         */
+        UserRole: "maintainer" | "member";
+        /** ValidationError */
+        ValidationError: {
+            /** Location */
+            loc: (string | number)[];
+            /** Message */
+            msg: string;
+            /** Error Type */
+            type: string;
+        };
     };
-    /**
-     * ArticleStatus
-     * @enum {string}
-     */
-    ArticleStatus:
-      | "new"
-      | "scraped"
-      | "summarized"
-      | "translated"
-      | "embedded"
-      | "error";
-    /** Body_get_keyword_suggestions_api_v1_search_profiles_keywords_suggestions_post */
-    Body_get_keyword_suggestions_api_v1_search_profiles_keywords_suggestions_post: {
-      /** Related Topics */
-      related_topics: components["schemas"]["KeywordSuggestionTopic"][];
-      selected_topic: components["schemas"]["KeywordSuggestionTopic"];
-    };
-    /** BreakingNewsItem */
-    BreakingNewsItem: {
-      /** Id */
-      id: string;
-      /** Title */
-      title: string | null;
-      /** Summary */
-      summary: string | null;
-      /** Image Url */
-      image_url: string | null;
-      /** Url */
-      url: string | null;
-      /** Published At */
-      published_at: string | null;
-    };
-    /** BreakingNewsResponse */
-    BreakingNewsResponse: {
-      /** News */
-      news: components["schemas"]["BreakingNewsItem"][];
-      /** Total Count */
-      total_count: number;
-    };
-    /** ChatRequest */
-    ChatRequest: {
-      /** Sender */
-      sender: string;
-      /** Subject */
-      subject: string;
-      /** Body */
-      body: string;
-    };
-    /**
-     * CrawlStatsItem
-     * @description Base schema for crawl stats with common fields.
-     */
-    CrawlStatsItem: {
-      /** Subscription Name */
-      subscription_name: string;
-      /**
-       * Total Successful
-       * @description Number of successfully crawled articles
-       */
-      total_successful: number;
-      /**
-       * Total Attempted
-       * @description Total number of articles attempted to crawl
-       */
-      total_attempted: number;
-      /**
-       * Crawl Date
-       * Format: date
-       */
-      crawl_date?: string;
-      /**
-       * Notes
-       * @description Additional notes about the crawl
-       */
-      notes?: string | null;
-    };
-    /**
-     * CrawlStatsResponse
-     * @description Response schema for crawl stats.
-     */
-    CrawlStatsResponse: {
-      /** Stats */
-      stats: components["schemas"]["CrawlStatsItem"][];
-      /** Total Count */
-      total_count: number;
-    };
-    /** CreateRequestUser */
-    CreateRequestUser: {
-      /**
-       * Id
-       * Format: uuid
-       */
-      id: string;
-      role: components["schemas"]["UserRole"];
-    };
-    /** FeedbackResponse */
-    FeedbackResponse: {
-      /** Status */
-      status: string;
-    };
-    /**
-     * Gender
-     * @enum {string}
-     */
-    Gender: "male" | "female" | "divers";
-    /** HTTPValidationError */
-    HTTPValidationError: {
-      /** Detail */
-      detail?: components["schemas"]["ValidationError"][];
-    };
-    /** Keyword */
-    Keyword: {
-      /**
-       * Id
-       * Format: uuid
-       */
-      id?: string;
-      /** Name */
-      name: string;
-    };
-    /** KeywordSuggestionResponse */
-    KeywordSuggestionResponse: {
-      /** Suggestions */
-      suggestions: string[];
-    };
-    /** KeywordSuggestionTopic */
-    KeywordSuggestionTopic: {
-      /** Topic Name */
-      topic_name: string;
-      /** Keywords */
-      keywords: string[];
-    };
-    /**
-     * Language
-     * @enum {string}
-     */
-    Language: "en" | "de";
-    /** MatchArticleOverviewContent */
-    MatchArticleOverviewContent: {
-      /** Article Url */
-      article_url: string;
-      /** Headline */
-      headline: {
-        [key: string]: string;
-      };
-      /** Summary */
-      summary: {
-        [key: string]: string;
-      };
-      /** Text */
-      text: {
-        [key: string]: string;
-      };
-      /** Image Urls */
-      image_urls: string[];
-      /**
-       * Published
-       * Format: date-time
-       */
-      published: string;
-      /**
-       * Crawled
-       * Format: date-time
-       */
-      crawled: string;
-      /** Newspaper Id */
-      newspaper_id?: string | null;
-      /** Authors */
-      authors?: string[] | null;
-      /** Categories */
-      categories?: string[] | null;
-      status?: components["schemas"]["ArticleStatus"] | null;
-      /** Language */
-      language?: string | null;
-    };
-    /** MatchDetailResponse */
-    MatchDetailResponse: {
-      /**
-       * Match Id
-       * Format: uuid
-       */
-      match_id: string;
-      /** Topics */
-      topics: components["schemas"]["MatchTopicItem"][];
-      search_profile: components["schemas"]["MatchProfileInfo"] | null;
-      article: components["schemas"]["MatchArticleOverviewContent"];
-    };
-    /** MatchFeedbackRequest */
-    MatchFeedbackRequest: {
-      /** Comment */
-      comment: string;
-      /**
-       * Reason
-       * @enum {string}
-       */
-      reason: "bad source" | "false" | "no good matching" | "other";
-      /** Ranking */
-      ranking: number;
-    };
-    /** MatchFilterRequest */
-    MatchFilterRequest: {
-      /**
-       * Startdate
-       * Format: date
-       */
-      startDate: string;
-      /**
-       * Enddate
-       * Format: date
-       */
-      endDate: string;
-      /**
-       * Sorting
-       * @enum {string}
-       */
-      sorting: "DATE" | "RELEVANCE";
-      /** Searchterm */
-      searchTerm?: string | null;
-      /** Topics */
-      topics?: string[] | null;
-      /** Subscriptions */
-      subscriptions?: string[] | null;
-    };
-    /** MatchItem */
-    MatchItem: {
-      /**
-       * Id
-       * Format: uuid
-       */
-      id: string;
-      /** Relevance */
-      relevance: number;
-      /** Topics */
-      topics: components["schemas"]["MatchTopicItem"][];
-      article: components["schemas"]["MatchArticleOverviewContent"];
-    };
-    /** MatchProfileInfo */
-    MatchProfileInfo: {
-      /**
-       * Id
-       * Format: uuid
-       */
-      id: string;
-      /** Name */
-      name: string;
-    };
-    /** MatchTopicItem */
-    MatchTopicItem: {
-      /**
-       * Id
-       * Format: uuid
-       */
-      id: string;
-      /** Name */
-      name: string;
-      /** Score */
-      score: number;
-      /** Keywords */
-      keywords?: string[] | null;
-    };
-    /** OrganizationCreateOrUpdate */
-    OrganizationCreateOrUpdate: {
-      /** Name */
-      name: string;
-      /**
-       * Email
-       * Format: email
-       */
-      email: string;
-      /** Users */
-      users: components["schemas"]["CreateRequestUser"][];
-    };
-    /** OrganizationResponse */
-    OrganizationResponse: {
-      /** Name */
-      name: string;
-      /**
-       * Email
-       * Format: email
-       */
-      email: string;
-      /**
-       * Id
-       * Format: uuid
-       */
-      id: string;
-      /**
-       * Users
-       * @default []
-       */
-      users: components["schemas"]["User"][];
-    };
-    /** ReportDetailResponse */
-    ReportDetailResponse: {
-      /**
-       * Search Profile Id
-       * Format: uuid
-       */
-      search_profile_id: string;
-      /**
-       * Created At
-       * Format: date-time
-       */
-      created_at: string;
-      /** Time Slot */
-      time_slot?: string | null;
-      /** Language */
-      language: string;
-      /** S3 Key */
-      s3_key: string;
-      /** @default pending */
-      status: components["schemas"]["ReportStatus"];
-      /**
-       * Id
-       * Format: uuid
-       */
-      id: string;
-      /** S3 Url */
-      s3_url?: string | null;
-    };
-    /** ReportListResponse */
-    ReportListResponse: {
-      /** Reports */
-      reports: components["schemas"]["ReportRead"][];
-    };
-    /** ReportRead */
-    ReportRead: {
-      /**
-       * Search Profile Id
-       * Format: uuid
-       */
-      search_profile_id: string;
-      /**
-       * Created At
-       * Format: date-time
-       */
-      created_at: string;
-      /** Time Slot */
-      time_slot?: string | null;
-      /** Language */
-      language: string;
-      /** S3 Key */
-      s3_key: string;
-      /** @default pending */
-      status: components["schemas"]["ReportStatus"];
-      /**
-       * Id
-       * Format: uuid
-       */
-      id: string;
-    };
-    /**
-     * ReportStatus
-     * @enum {string}
-     */
-    ReportStatus: "pending" | "uploaded" | "failed";
-    /** SearchProfileCreateRequest */
-    SearchProfileCreateRequest: {
-      /** Name */
-      name: string;
-      /** Is Public */
-      is_public: boolean;
-      /**
-       * Organization Emails
-       * @default []
-       */
-      organization_emails: string[];
-      /**
-       * Profile Emails
-       * @default []
-       */
-      profile_emails: string[];
-      /**
-       * Can Edit User Ids
-       * @default []
-       */
-      can_edit_user_ids: string[];
-      /**
-       * Can Read User Ids
-       * @default []
-       */
-      can_read_user_ids: string[];
-      /** Subscriptions */
-      subscriptions: components["schemas"]["SubscriptionSummary"][];
-      /**
-       * Owner Id
-       * Format: uuid
-       */
-      owner_id: string;
-      /**
-       * Language
-       * @default en
-       */
-      language: string;
-      /** Topics */
-      topics: components["schemas"]["TopicCreateOrUpdateRequest"][];
-    };
-    /** SearchProfileDetailResponse */
-    SearchProfileDetailResponse: {
-      /**
-       * Id
-       * Format: uuid
-       */
-      id: string;
-      /** Name */
-      name: string;
-      /** Is Public */
-      is_public: boolean;
-      /** Organization Emails */
-      organization_emails: string[];
-      /** Profile Emails */
-      profile_emails: string[];
-      /** Can Read User Ids */
-      can_read_user_ids: string[];
-      /** Is Reader */
-      is_reader: boolean;
-      /** Can Edit User Ids */
-      can_edit_user_ids: string[];
-      /** Is Editor */
-      is_editor: boolean;
-      /**
-       * Owner Id
-       * Format: uuid
-       */
-      owner_id: string;
-      /** Is Owner */
-      is_owner: boolean;
-      /**
-       * Language
-       * @default en
-       */
-      language: string;
-      /** Topics */
-      topics: components["schemas"]["TopicResponse"][];
-      /** Subscriptions */
-      subscriptions: components["schemas"]["SubscriptionSummary"][];
-      /** New Articles Count */
-      new_articles_count: number;
-    };
-    /** SearchProfileUpdateRequest */
-    SearchProfileUpdateRequest: {
-      /** Name */
-      name: string;
-      /** Is Public */
-      is_public: boolean;
-      /**
-       * Organization Emails
-       * @default []
-       */
-      organization_emails: string[];
-      /**
-       * Profile Emails
-       * @default []
-       */
-      profile_emails: string[];
-      /**
-       * Can Edit User Ids
-       * @default []
-       */
-      can_edit_user_ids: string[];
-      /**
-       * Can Read User Ids
-       * @default []
-       */
-      can_read_user_ids: string[];
-      /** Subscriptions */
-      subscriptions: components["schemas"]["SubscriptionSummary"][];
-      /**
-       * Owner Id
-       * Format: uuid
-       */
-      owner_id: string;
-      /**
-       * Language
-       * @default en
-       */
-      language: string;
-      /** Topics */
-      topics: components["schemas"]["TopicCreateOrUpdateRequest"][];
-    };
-    /** SetOrganizationSubscriptionsRequest */
-    SetOrganizationSubscriptionsRequest: {
-      /**
-       * Organization Id
-       * Format: uuid
-       */
-      organization_id: string;
-      /** Subscriptions */
-      subscriptions: components["schemas"]["SubscriptionSummary"][];
-    };
-    /** SubscriptionCreateOrUpdate */
-    SubscriptionCreateOrUpdate: {
-      /** Name */
-      name: string;
-      /** Domain */
-      domain: string;
-      /** Paywall */
-      paywall: boolean;
-      /** Username */
-      username: string;
-      /** Password */
-      password: string;
-    };
-    /** SubscriptionRead */
-    SubscriptionRead: {
-      /**
-       * Id
-       * Format: uuid
-       */
-      id: string;
-      /** Name */
-      name: string;
-      /** Domain */
-      domain: string;
-      /** Paywall */
-      paywall: boolean;
-      /** Username */
-      username: string;
-    };
-    /** SubscriptionSummary */
-    SubscriptionSummary: {
-      /**
-       * Id
-       * Format: uuid
-       */
-      id: string;
-      /** Name */
-      name: string;
-      /** Is Subscribed */
-      is_subscribed: boolean;
-    };
-    /** Topic */
-    Topic: {
-      /**
-       * Id
-       * Format: uuid
-       */
-      id?: string;
-      /** Name */
-      name: string;
-      /** Description */
-      description?: string | null;
-      /**
-       * Search Profile Id
-       * Format: uuid
-       */
-      search_profile_id: string;
-    };
-    /** TopicCreateOrUpdateRequest */
-    TopicCreateOrUpdateRequest: {
-      /** Name */
-      name: string;
-      /** Keywords */
-      keywords: string[];
-    };
-    /** TopicResponse */
-    TopicResponse: {
-      /**
-       * Id
-       * Format: uuid
-       */
-      id: string;
-      /** Name */
-      name: string;
-      /** Keywords */
-      keywords: string[];
-    };
-    /** User */
-    User: {
-      /** Clerk Id */
-      clerk_id: string;
-      /**
-       * Email
-       * Format: email
-       */
-      email: string;
-      /** First Name */
-      first_name: string;
-      /** Last Name */
-      last_name: string;
-      /**
-       * Is Superuser
-       * @default false
-       */
-      is_superuser: boolean;
-      /** Organization Id */
-      organization_id?: string | null;
-      /**
-       * Language
-       * @description Language code, must be 'en' or 'de'
-       * @default en
-       */
-      language: string;
-      role: components["schemas"]["UserRole"];
-      /** @default male */
-      gender: components["schemas"]["Gender"] | null;
-      /**
-       * Id
-       * Format: uuid
-       */
-      id?: string;
-    };
-    /** UserEntity */
-    UserEntity: {
-      /**
-       * Id
-       * Format: uuid
-       */
-      id: string;
-      /** Clerk Id */
-      clerk_id: string;
-      /**
-       * Email
-       * Format: email
-       */
-      email: string;
-      /** First Name */
-      first_name: string;
-      /** Last Name */
-      last_name: string;
-      /** Is Superuser */
-      is_superuser: boolean;
-      /**
-       * Language
-       * @default en
-       */
-      language: "en" | "de";
-      gender?: components["schemas"]["Gender"] | null;
-      /** @default member */
-      role: components["schemas"]["UserRole"];
-      /** Organization Id */
-      organization_id?: string | null;
-      /** Organization Name */
-      organization_name?: string | null;
-    };
-    /**
-     * UserRole
-     * @enum {string}
-     */
-    UserRole: "maintainer" | "member";
-    /** ValidationError */
-    ValidationError: {
-      /** Location */
-      loc: (string | number)[];
-      /** Message */
-      msg: string;
-      /** Error Type */
-      type: string;
-    };
-  };
-  responses: never;
-  parameters: never;
-  requestBodies: never;
-  headers: never;
-  pathItems: never;
+    responses: never;
+    parameters: never;
+    requestBodies: never;
+    headers: never;
+    pathItems: never;
 }
 export type $defs = Record<string, never>;
 export interface operations {
-  healthcheck_api_v1_healthcheck_get: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": unknown;
-        };
-      };
-    };
-  };
-  get_users_api_v1_users_get: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json":
-            | components["schemas"]["UserEntity"][]
-            | components["schemas"]["UserEntity"];
-        };
-      };
-    };
-  };
-  delete_current_user_api_v1_users_delete: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["FeedbackResponse"];
-        };
-      };
-    };
-  };
-  get_all_users_api_v1_users_all_get: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json":
-            | components["schemas"]["UserEntity"][]
-            | components["schemas"]["UserEntity"];
-        };
-      };
-    };
-  };
-  get_current_user_info_api_v1_users_me_get: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["UserEntity"];
-        };
-      };
-    };
-  };
-  sync_user_api_v1_users_sync_post: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["UserEntity"];
-        };
-      };
-    };
-  };
-  update_language_api_v1_users_language_put: {
-    parameters: {
-      query: {
-        language: components["schemas"]["Language"];
-      };
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["UserEntity"];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  update_gender_api_v1_users_gender_put: {
-    parameters: {
-      query: {
-        gender: components["schemas"]["Gender"];
-      };
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["UserEntity"];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  get_available_search_profiles_api_v1_search_profiles_get: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["SearchProfileDetailResponse"][];
-        };
-      };
-    };
-  };
-  create_search_profile_api_v1_search_profiles_post: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["SearchProfileCreateRequest"];
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["SearchProfileDetailResponse"];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  get_keyword_suggestions_api_v1_search_profiles_keywords_suggestions_post: {
-    parameters: {
-      query: {
-        search_profile_name: string;
-        search_profile_language: string;
-      };
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["Body_get_keyword_suggestions_api_v1_search_profiles_keywords_suggestions_post"];
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["KeywordSuggestionResponse"];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  get_search_profile_api_v1_search_profiles__search_profile_id__get: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        search_profile_id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["SearchProfileDetailResponse"];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  update_search_profile_api_v1_search_profiles__search_profile_id__put: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        search_profile_id: string;
-      };
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["SearchProfileUpdateRequest"];
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["SearchProfileDetailResponse"];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  delete_search_profile_api_v1_search_profiles__search_profile_id__delete: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        search_profile_id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successful Response */
-      204: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  get_search_profile_overview_api_v1_search_profiles__search_profile_id__matches_post: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        search_profile_id: string;
-      };
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["MatchFilterRequest"];
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["ArticleOverviewResponse"];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  get_match_detail_api_v1_search_profiles__search_profile_id__article__match_id__get: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        search_profile_id: string;
-        match_id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["MatchDetailResponse"];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  update_match_feedback_api_v1_search_profiles__search_profile_id__article__match_id__put: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        search_profile_id: string;
-        match_id: string;
-      };
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["MatchFeedbackRequest"];
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["FeedbackResponse"];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  get_reports_api_v1_search_profiles__search_profile_id__reports_get: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        search_profile_id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["ReportListResponse"];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  get_all_subscriptions_api_v1_subscriptions_get: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["SubscriptionSummary"][];
-        };
-      };
-    };
-  };
-  create_subscription_api_v1_subscriptions_post: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["SubscriptionCreateOrUpdate"];
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["SubscriptionRead"];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  get_subscription_api_v1_subscriptions__subscription_id__get: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        subscription_id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["SubscriptionRead"];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  update_subscription_api_v1_subscriptions__subscription_id__put: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        subscription_id: string;
-      };
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["SubscriptionCreateOrUpdate"];
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["SubscriptionRead"];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  delete_subscription_api_v1_subscriptions__subscription_id__delete: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        subscription_id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": {
-            [key: string]: unknown;
-          };
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  trigger_email_sending_api_v1_emails_send__recipient_email__get: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        recipient_email: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": unknown;
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  send_report_email_api_v1_emails_test_get: {
-    parameters: {
-      query: {
-        /** @description Clerk User ID */
-        clerk_id: string;
-        /** @description Search Profile UUID */
-        search_profile_id: string;
-      };
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": unknown;
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  add_articles_to_vector_store_api_v1_vector_store_add_articles_post: {
-    parameters: {
-      query?: {
-        page_size?: number;
-      };
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": unknown;
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  create_article_matching_api_v1_article_matching__post: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": unknown;
-        };
-      };
-    };
-  };
-  summarize_all_articles_api_v1_articles_summarize_all_post: {
-    parameters: {
-      query?: {
-        page_size?: number;
-      };
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": unknown;
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  trigger_pdf_creation_api_v1_articles_pdf_get: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": unknown;
-        };
-      };
-    };
-  };
-  get_topics_by_search_profile_api_v1_topics_get: {
-    parameters: {
-      query: {
-        search_profile_id: string;
-      };
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": unknown;
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  create_topic_by_search_profile_api_v1_topics_post: {
-    parameters: {
-      query: {
-        search_profile_id: string;
-        topic_name: string;
-      };
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["Topic"];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  delete_topic_api_v1_topics__topic_id__delete: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        topic_id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": unknown;
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  get_keywords_by_topic_id_api_v1_keywords_get: {
-    parameters: {
-      query: {
-        topic_id: string;
-      };
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["Keyword"][];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  create_keyword_by_topic_id_api_v1_keywords_post: {
-    parameters: {
-      query: {
-        topic_id: string;
-        keyword_name: string;
-      };
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["Keyword"];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  assign_keywords_to_articles_api_v1_keywords_assign_keywords_to_articles_post: {
-    parameters: {
-      query?: {
-        page_size?: number;
-        score_threshold?: number;
-      };
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": unknown;
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  trigger_crawling_api_v1_crawler_trigger_crawling_post: {
-    parameters: {
-      query?: {
-        date_start?: string;
-        date_end?: string;
-      };
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": unknown;
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  trigger_rss_crawling_api_v1_crawler_trigger_rss_crawling_post: {
-    parameters: {
-      query?: {
-        datetime_start?: string;
-        datetime_end?: string;
-      };
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": unknown;
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  trigger_scraping_api_v1_crawler_trigger_scraping_post: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": unknown;
-        };
-      };
-    };
-  };
-  trigger_newsapi_crawling_api_v1_crawler_trigger_breaking_news_crawling_post: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": unknown;
-        };
-      };
-    };
-  };
-  get_breaking_news_api_v1_crawler_get_breaking_news_get: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["BreakingNewsResponse"];
-        };
-      };
-    };
-  };
-  trigger_pipeline_api_v1_crawler_trigger_pipeline_post: {
-    parameters: {
-      query?: {
-        datetime_start?: string;
-        datetime_end?: string;
-        language?: string;
-      };
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": unknown;
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  get_crawl_stats_api_v1_crawler_stats_get: {
-    parameters: {
-      query?: {
-        /** @description Start date for date range query (YYYY-MM-DD) */
-        date_start?: string | null;
-        /** @description End date for date range query (YYYY-MM-DD) */
-        date_end?: string | null;
-      };
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["CrawlStatsResponse"];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  get_report_by_id_api_v1_reports__report_id__get: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        report_id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["ReportDetailResponse"];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  receive_chat_api_v1_chatbot_post: {
-    parameters: {
-      query?: never;
-      header?: {
-        "x-api-key"?: string;
-      };
-      path?: never;
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["ChatRequest"];
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": {
-            [key: string]: string;
-          };
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  get_all_organizations_with_users_api_v1_organizations_get: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["OrganizationResponse"][];
-        };
-      };
-    };
-  };
-  create_organization_with_users_api_v1_organizations_post: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["OrganizationCreateOrUpdate"];
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["OrganizationResponse"];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  update_organization_with_users_api_v1_organizations__organization_id__put: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        organization_id: string;
-      };
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["OrganizationCreateOrUpdate"];
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["OrganizationResponse"];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  delete_organization_api_v1_organizations__organization_id__delete: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        organization_id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["FeedbackResponse"];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  set_organization_subscriptions_api_v1_organizations__organization_id__subscriptions_put: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        organization_id: string;
-      };
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["SetOrganizationSubscriptionsRequest"];
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["SubscriptionSummary"][];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
+    healthcheck_api_v1_healthcheck_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+        };
+    };
+    get_users_api_v1_users_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserEntity"][] | components["schemas"]["UserEntity"];
+                };
+            };
+        };
+    };
+    delete_current_user_api_v1_users_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FeedbackResponse"];
+                };
+            };
+        };
+    };
+    get_all_users_api_v1_users_all_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserEntity"][] | components["schemas"]["UserEntity"];
+                };
+            };
+        };
+    };
+    get_current_user_info_api_v1_users_me_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserEntity"];
+                };
+            };
+        };
+    };
+    sync_user_api_v1_users_sync_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserEntity"];
+                };
+            };
+        };
+    };
+    update_language_api_v1_users_language_put: {
+        parameters: {
+            query: {
+                language: components["schemas"]["Language"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserEntity"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_gender_api_v1_users_gender_put: {
+        parameters: {
+            query: {
+                gender: components["schemas"]["Gender"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserEntity"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_available_search_profiles_api_v1_search_profiles_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SearchProfileDetailResponse"][];
+                };
+            };
+        };
+    };
+    create_search_profile_api_v1_search_profiles_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SearchProfileCreateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SearchProfileDetailResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_keyword_suggestions_api_v1_search_profiles_keywords_suggestions_post: {
+        parameters: {
+            query: {
+                search_profile_name: string;
+                search_profile_language: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["Body_get_keyword_suggestions_api_v1_search_profiles_keywords_suggestions_post"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["KeywordSuggestionResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_search_profile_api_v1_search_profiles__search_profile_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                search_profile_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SearchProfileDetailResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_search_profile_api_v1_search_profiles__search_profile_id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                search_profile_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SearchProfileUpdateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SearchProfileDetailResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_search_profile_api_v1_search_profiles__search_profile_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                search_profile_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_search_profile_overview_api_v1_search_profiles__search_profile_id__matches_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                search_profile_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MatchFilterRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ArticleOverviewResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_match_detail_api_v1_search_profiles__search_profile_id__article__match_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                search_profile_id: string;
+                match_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MatchDetailResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_match_feedback_api_v1_search_profiles__search_profile_id__article__match_id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                search_profile_id: string;
+                match_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MatchFeedbackRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FeedbackResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_reports_api_v1_search_profiles__search_profile_id__reports_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                search_profile_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReportListResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_all_subscriptions_api_v1_subscriptions_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SubscriptionSummary"][];
+                };
+            };
+        };
+    };
+    create_subscription_api_v1_subscriptions_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SubscriptionCreateOrUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SubscriptionRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_subscription_api_v1_subscriptions__subscription_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                subscription_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SubscriptionRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_subscription_api_v1_subscriptions__subscription_id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                subscription_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SubscriptionCreateOrUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SubscriptionRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_subscription_api_v1_subscriptions__subscription_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                subscription_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    trigger_email_sending_api_v1_emails_send__recipient_email__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                recipient_email: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    send_report_email_api_v1_emails_test_get: {
+        parameters: {
+            query: {
+                /** @description Clerk User ID */
+                clerk_id: string;
+                /** @description Search Profile UUID */
+                search_profile_id: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    add_articles_to_vector_store_api_v1_vector_store_add_articles_post: {
+        parameters: {
+            query?: {
+                page_size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_article_matching_api_v1_article_matching__post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+        };
+    };
+    summarize_all_articles_api_v1_articles_summarize_all_post: {
+        parameters: {
+            query?: {
+                page_size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    trigger_pdf_creation_api_v1_articles_pdf_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+        };
+    };
+    get_topics_by_search_profile_api_v1_topics_get: {
+        parameters: {
+            query: {
+                search_profile_id: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_topic_by_search_profile_api_v1_topics_post: {
+        parameters: {
+            query: {
+                search_profile_id: string;
+                topic_name: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Topic"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_topic_api_v1_topics__topic_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                topic_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_keywords_by_topic_id_api_v1_keywords_get: {
+        parameters: {
+            query: {
+                topic_id: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Keyword"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_keyword_by_topic_id_api_v1_keywords_post: {
+        parameters: {
+            query: {
+                topic_id: string;
+                keyword_name: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Keyword"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    assign_keywords_to_articles_api_v1_keywords_assign_keywords_to_articles_post: {
+        parameters: {
+            query?: {
+                page_size?: number;
+                score_threshold?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    trigger_crawling_api_v1_crawler_trigger_crawling_post: {
+        parameters: {
+            query?: {
+                date_start?: string;
+                date_end?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    trigger_rss_crawling_api_v1_crawler_trigger_rss_crawling_post: {
+        parameters: {
+            query?: {
+                datetime_start?: string;
+                datetime_end?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    trigger_scraping_api_v1_crawler_trigger_scraping_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+        };
+    };
+    trigger_newsapi_crawling_api_v1_crawler_trigger_breaking_news_crawling_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+        };
+    };
+    get_breaking_news_api_v1_crawler_get_breaking_news_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BreakingNewsResponse"];
+                };
+            };
+        };
+    };
+    trigger_pipeline_api_v1_crawler_trigger_pipeline_post: {
+        parameters: {
+            query?: {
+                datetime_start?: string;
+                datetime_end?: string;
+                language?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_crawl_stats_api_v1_crawler_stats_get: {
+        parameters: {
+            query?: {
+                /** @description Start date for date range query (YYYY-MM-DD) */
+                date_start?: string | null;
+                /** @description End date for date range query (YYYY-MM-DD) */
+                date_end?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CrawlStatsResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_report_by_id_api_v1_reports__report_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                report_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReportDetailResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    receive_chat_api_v1_chatbot_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "x-api-key"?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ChatRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: string;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_all_organizations_with_users_api_v1_organizations_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrganizationResponse"][];
+                };
+            };
+        };
+    };
+    create_organization_with_users_api_v1_organizations_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OrganizationCreateOrUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrganizationResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_organization_with_users_api_v1_organizations__organization_id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                organization_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OrganizationCreateOrUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrganizationResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_organization_api_v1_organizations__organization_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                organization_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FeedbackResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    set_organization_subscriptions_api_v1_organizations__organization_id__subscriptions_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                organization_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SetOrganizationSubscriptionsRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SubscriptionSummary"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
 }
