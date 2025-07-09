@@ -15,24 +15,22 @@ from reportlab.platypus import (
 )
 
 from app.core.logger import get_logger
-from app.models.search_profile import SearchProfile
 from app.repositories.article_repository import ArticleRepository
 from app.repositories.entity_repository import ArticleEntityRepository
 from app.services.translation_service import ArticleTranslationService
 
 # PDFService uses split modules
-from ...repositories.search_profile_repository import SearchProfileRepository
 from .colors import pdf_colors
-from .fonts import register_fonts
-from .styles import get_pdf_styles
-from .news_item import NewsItem
 
 # Connect the external functions as a static methods of PDFService
 from .cover_elements import draw_cover_elements as _draw_cover_elements
+from .fonts import register_fonts
 from .full_articles_elements import create_full_articles_elements
 from .header_footer import draw_header_footer as _draw_header_footer
-from .summaries_elements import create_summaries_elements
+from .news_item import NewsItem
 from .original_elements import create_original_articles_elements
+from .styles import get_pdf_styles
+from .summaries_elements import create_summaries_elements
 
 logger = get_logger(__name__)
 
@@ -92,15 +90,14 @@ class PDFService:
                     or article.title
                 ),
                 title_original=(
-                    getattr(article, f"title", None)
-                    or article.title
+                    getattr(article, "title_original", None) or article.title
                 ),
                 content=(
                     getattr(article, f"content_{language}", None)
                     or article.content
                 ),
                 content_original=(
-                    getattr(article, f"content", None)
+                    getattr(article, "content_original", None)
                     or article.content
                 ),
                 url=article.url,

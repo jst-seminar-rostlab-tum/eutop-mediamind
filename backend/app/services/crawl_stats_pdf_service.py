@@ -75,7 +75,7 @@ async def generate_crawl_stats_pdf(filename: str = "crawl_stats_report.pdf"):
     )
     elements.append(Spacer(1, 12))
     # Margins of the PDF to fit the table
-    page_width = A4[0] - doc.leftMargin/2 - doc.rightMargin/2
+    page_width = A4[0] - doc.leftMargin / 2 - doc.rightMargin / 2
     # The widths of each column to try to always fit one line per subscription
     col_widths = [
         page_width * 0.30,

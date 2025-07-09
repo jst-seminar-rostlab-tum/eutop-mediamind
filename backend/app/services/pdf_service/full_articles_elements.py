@@ -322,8 +322,10 @@ def create_full_articles_elements(news_items, dimensions, translator, styles):
         )
         story.append(button)
 
-        #TODO: Helper to add a link from the full article to the original
-        # Usage in full article: <a href="#original_article_{i}">{translator("See original article in appendix")}</a>
+        # Design: Helper to add a link
+        # from the full article to the original
+        # Usage in full article: <a href="#original_article_{i}">
+        # {translator("See original article in appendix")}</a>
 
         if i != len(news_items) - 1:
             story.append(PageBreak())
