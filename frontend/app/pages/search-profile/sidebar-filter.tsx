@@ -2,7 +2,6 @@ import {
   ArrowDownNarrowWide,
   Award,
   CalendarFold,
-  ChevronDownIcon,
   File,
   Search,
   Tag,
@@ -19,16 +18,8 @@ import {
   SelectValue,
 } from "~/components/ui/select";
 import { Checkbox } from "~/components/ui/checkbox";
-import { Button } from "~/components/ui/button";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "~/components/ui/popover";
-import { Calendar } from "~/components/ui/calendar";
-import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import i18n from "~/i18n";
+import { DatePicker } from "~/custom-components/date-picker/date-picker";
 
 interface SidebarFilterProps {
   sortBy: "relevance" | "date";
@@ -78,9 +69,6 @@ export function SidebarFilter({
   toDate,
   setToDate,
 }: SidebarFilterProps) {
-  const [openFromDate, setOpenFromDate] = useState(false);
-  const [openToDate, setOpenToDate] = useState(false);
-
   const { t } = useTranslation();
 
   const filteredSources = Sources.filter((source) =>
@@ -182,65 +170,12 @@ export function SidebarFilter({
       <CardTitle className="mt-4 flex items-center gap-2">
         <CalendarFold /> {t("search_profile.Date")}
       </CardTitle>
-      <div className="flex mx-2 flex-wrap gap-y-4 mb-2">
-        <div className="flex">
-          <Label htmlFor="date" className="pr-2">
-            {t("search_profile.From")}
-          </Label>
-          <Popover open={openFromDate} onOpenChange={setOpenFromDate}>
-            <PopoverTrigger asChild>
-              <Button
-                variant="outline"
-                id="date"
-                className="justify-between font-normal"
-              >
-                {fromDate ? fromDate.toLocaleDateString() : "Select date"}
-                <ChevronDownIcon />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent
-              className="w-auto overflow-hidden p-0"
-              align="start"
-            >
-              <Calendar
-                mode="single"
-                selected={fromDate}
-                captionLayout="dropdown"
-                onSelect={(date) => setFromDate(date)}
-              />
-            </PopoverContent>
-          </Popover>
-        </div>
-
-        <div className={i18n.language == "de" ? "flex ml-2" : "flex ml-4"}>
-          <Label htmlFor="date" className="pr-2">
-            {t("search_profile.To")}
-          </Label>
-          <Popover open={openToDate} onOpenChange={setOpenToDate}>
-            <PopoverTrigger asChild>
-              <Button
-                variant="outline"
-                id="date"
-                className="justify-between font-normal"
-              >
-                {toDate ? toDate.toLocaleDateString() : "Select date"}
-                <ChevronDownIcon />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent
-              className="w-auto overflow-hidden p-0"
-              align="start"
-            >
-              <Calendar
-                mode="single"
-                selected={toDate}
-                captionLayout="dropdown"
-                onSelect={(date) => setToDate(date)}
-              />
-            </PopoverContent>
-          </Popover>
-        </div>
-      </div>
+      <DatePicker
+        startDate={fromDate}
+        endDate={toDate}
+        setStartDate={(date) => setFromDate(date)}
+        setEndDate={(date) => setToDate(date)}
+      />
     </Card>
   );
 }

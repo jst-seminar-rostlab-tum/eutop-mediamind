@@ -34,8 +34,7 @@ export interface paths {
          *     return the single user if restricted.
          */
         get: operations["get_users_api_v1_users_get"];
-        /** Update Language */
-        put: operations["update_language_api_v1_users_put"];
+        put?: never;
         post?: never;
         /**
          * Delete Current User
@@ -102,6 +101,40 @@ export interface paths {
          * @description Synchronize the current user with the external Clerk service.
          */
         post: operations["sync_user_api_v1_users_sync_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/users/language": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Update Language */
+        put: operations["update_language_api_v1_users_language_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/users/gender": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Update Gender */
+        put: operations["update_gender_api_v1_users_gender_put"];
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -488,6 +521,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/crawler/trigger_rss_crawling": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Trigger Rss Crawling */
+        post: operations["trigger_rss_crawling_api_v1_crawler_trigger_rss_crawling_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/crawler/trigger_scraping": {
         parameters: {
             query?: never;
@@ -550,6 +600,28 @@ export interface paths {
         put?: never;
         /** Trigger Pipeline */
         post: operations["trigger_pipeline_api_v1_crawler_trigger_pipeline_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/crawler/stats": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Crawl Stats
+         * @description Get crawler statistics based on date criteria.
+         *     - If `date_start` and `date_end` are provided, returns stats for that range
+         *     - If no parameters are provided, returns stats for today
+         */
+        get: operations["get_crawl_stats_api_v1_crawler_stats_get"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -694,6 +766,44 @@ export interface components {
             /** Body */
             body: string;
         };
+        /**
+         * CrawlStatsItem
+         * @description Base schema for crawl stats with common fields.
+         */
+        CrawlStatsItem: {
+            /** Subscription Name */
+            subscription_name: string;
+            /**
+             * Total Successful
+             * @description Number of successfully crawled articles
+             */
+            total_successful: number;
+            /**
+             * Total Attempted
+             * @description Total number of articles attempted to crawl
+             */
+            total_attempted: number;
+            /**
+             * Crawl Date
+             * Format: date
+             */
+            crawl_date?: string;
+            /**
+             * Notes
+             * @description Additional notes about the crawl
+             */
+            notes?: string | null;
+        };
+        /**
+         * CrawlStatsResponse
+         * @description Response schema for crawl stats.
+         */
+        CrawlStatsResponse: {
+            /** Stats */
+            stats: components["schemas"]["CrawlStatsItem"][];
+            /** Total Count */
+            total_count: number;
+        };
         /** CreateRequestUser */
         CreateRequestUser: {
             /**
@@ -708,6 +818,11 @@ export interface components {
             /** Status */
             status: string;
         };
+        /**
+         * Gender
+         * @enum {string}
+         */
+        Gender: "male" | "female" | "divers";
         /** HTTPValidationError */
         HTTPValidationError: {
             /** Detail */
@@ -735,6 +850,11 @@ export interface components {
             /** Keywords */
             keywords: string[];
         };
+        /**
+         * Language
+         * @enum {string}
+         */
+        Language: "en" | "de";
         /** MatchArticleOverviewContent */
         MatchArticleOverviewContent: {
             /** Article Url */
@@ -1192,6 +1312,8 @@ export interface components {
              */
             language: string;
             role: components["schemas"]["UserRole"];
+            /** @default male */
+            gender: components["schemas"]["Gender"] | null;
             /**
              * Id
              * Format: uuid
@@ -1223,6 +1345,7 @@ export interface components {
              * @default en
              */
             language: string;
+            gender?: components["schemas"]["Gender"] | null;
             /** @default member */
             role: components["schemas"]["UserRole"];
             /** Organization Id */
@@ -1289,37 +1412,6 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["UserEntity"][] | components["schemas"]["UserEntity"];
-                };
-            };
-        };
-    };
-    update_language_api_v1_users_put: {
-        parameters: {
-            query: {
-                language: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["UserEntity"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };
@@ -1400,6 +1492,68 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["UserEntity"];
+                };
+            };
+        };
+    };
+    update_language_api_v1_users_language_put: {
+        parameters: {
+            query: {
+                language: components["schemas"]["Language"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserEntity"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_gender_api_v1_users_gender_put: {
+        parameters: {
+            query: {
+                gender: components["schemas"]["Gender"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserEntity"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };
@@ -2262,6 +2416,38 @@ export interface operations {
             };
         };
     };
+    trigger_rss_crawling_api_v1_crawler_trigger_rss_crawling_post: {
+        parameters: {
+            query?: {
+                datetime_start?: string;
+                datetime_end?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     trigger_scraping_api_v1_crawler_trigger_scraping_post: {
         parameters: {
             query?: never;
@@ -2342,6 +2528,40 @@ export interface operations {
                 };
                 content: {
                     "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_crawl_stats_api_v1_crawler_stats_get: {
+        parameters: {
+            query?: {
+                /** @description Start date for date range query (YYYY-MM-DD) */
+                date_start?: string | null;
+                /** @description End date for date range query (YYYY-MM-DD) */
+                date_end?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CrawlStatsResponse"];
                 };
             };
             /** @description Validation Error */

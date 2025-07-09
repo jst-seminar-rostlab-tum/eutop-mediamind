@@ -129,6 +129,8 @@ class Configs(BaseSettings):
             return []
         except Exception:
             return []
+    # Proxy
+    PROXY_URL: str | None
 
     @computed_field
     @property
