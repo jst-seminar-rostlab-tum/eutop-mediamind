@@ -22,7 +22,7 @@ def create_original_articles_elements(news_items, styles, translator):
         # Anchor for this original article
         elements.append(AnchorFlowable(f"original_article_{i}"))
         # Title in original language (not translated)
-        elements.append(Paragraph(f"<b>{news.title}</b>", styles["title_style"]))
+        elements.append(Paragraph(f"<b>{news.title_original}</b>", styles["title_style"]))
         # Link back to full article
         elements.append(Paragraph(
             f'<a href="#toc_article_{i}">{translator("Back to translated article")}</a>',
@@ -31,11 +31,11 @@ def create_original_articles_elements(news_items, styles, translator):
         elements.append(Spacer(1, 0.1 * inch))
         # Newspaper and date
         elements.append(Paragraph(
-            f'<font size="10">{news.newspaper.name if hasattr(news.newspaper, "name") else news.newspaper} | {news.published_at}</font>',
+            f'<font size="10">{news.newspaper.name} | {news.published_at}</font>',
             styles["metadata_style"]
         ))
         elements.append(Spacer(1, 0.1 * inch))
-        for para in markdown_blocks_to_paragraphs(news.content, styles):
+        for para in markdown_blocks_to_paragraphs(news.content_original, styles):
             elements.append(para)
         elements.append(Spacer(1, 0.2 * inch))
         # Link back to translated article

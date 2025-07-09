@@ -55,7 +55,7 @@ class PDFService:
                 " 'evening']"
             )
         elif timeslot == "morning":
-            match_start_time = match_stop_time - timedelta(hours=9)
+            match_start_time = match_stop_time - timedelta(hours=200)
         elif timeslot == "afternoon":
             match_start_time = match_stop_time - timedelta(hours=8)
         elif timeslot == "evening":
@@ -91,8 +91,16 @@ class PDFService:
                     getattr(article, f"title_{language}", None)
                     or article.title
                 ),
+                title_original=(
+                    getattr(article, f"title", None)
+                    or article.title
+                ),
                 content=(
                     getattr(article, f"content_{language}", None)
+                    or article.content
+                ),
+                content_original=(
+                    getattr(article, f"content", None)
                     or article.content
                 ),
                 url=article.url,
