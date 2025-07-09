@@ -49,7 +49,7 @@ def draw_cover_elements(
     story = []
     story.append(
         Paragraph(
-            f"<b> <font size=36>{translator('Daily News Report')}</font></b>",
+            f"<b> <font size=36>{translator('Current Press Report')}</font></b>",
             styles["title_style"],
         )
     )

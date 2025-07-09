@@ -28,7 +28,7 @@ def draw_header_footer(canvas, doc, translator):
     )
     data = [
         [
-            Paragraph(f"<b>{translator('Daily News Report')}</b>", style),
+            Paragraph(f"<b>{translator('Current Press Report')}</b>", style),
             Paragraph(f"<b>{now_str}</b>", style),
         ]
     ]

@@ -7,7 +7,7 @@ msgstr ""
 msgid "Page"
 msgstr "Seite"
 
-msgid "Daily News Report"
+msgid "Current Press Report"
 msgstr "Aktueller Pressespiegel"
 
 msgid "Estimated Reading Time"
@@ -20,7 +20,7 @@ msgid "Summary"
 msgstr "Zusammenfassung"
 
 msgid "Full Article"
-msgstr "Vollständiger Artikel"
+msgstr "Vollständigen Artikel"
 
 msgid "Read full article"
 msgstr "Vollständiger Artikel lesen"
