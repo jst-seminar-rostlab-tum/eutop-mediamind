@@ -14,6 +14,7 @@ class EntityType(str, Enum):
     INDUSTRY = "industry"
     EVENT = "event"
     ORGANIZATION = "organization"
+    CITATION = "citation"
 
 
 class ArticleEntity(SQLModel, table=True):
