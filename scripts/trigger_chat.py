@@ -41,15 +41,13 @@ def get_email_body(msg: Message) -> str:
 
 
 def call_api(
-    sender: str, subject: str, body: str, key: str, bucket: str, api_key: str
+    sender: str, subject: str, body: str, api_key: str
 ) -> None:
     payload = json.dumps(
         {
             "sender": sender,
             "subject": subject,
             "body": body,
-            "s3_key": key,
-            "bucket": bucket,
         }
     ).encode("utf-8")
     headers = {
@@ -84,7 +82,7 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         print(f"Subject: {subject}")
         print(f"Body (first 500 chars): {body[:500]}")
 
-        call_api(sender, subject, body, key, bucket, API_KEY)
+        call_api(sender, subject, body, API_KEY)
 
         return {
             "statusCode": 200,
