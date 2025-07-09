@@ -23,7 +23,7 @@ depends_on: Union[str, Sequence[str], None] = None
 class GenderEnum(str, Enum):
     male = "male"
     female = "female"
-    other = "other"
+    divers = "divers"
 
 
 gender_enum = sa.Enum(GenderEnum, name="gender_enum")
