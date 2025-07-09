@@ -3,7 +3,6 @@ from fastapi import FastAPI, Request
 from sqlalchemy.exc import SQLAlchemyError
 from starlette.middleware.cors import CORSMiddleware
 from starlette.responses import JSONResponse
-from rq_dashboard_fast import RedisQueueDashboard
 
 from app.api.v1.routes import routers as v1_routers
 from app.core.config import configs

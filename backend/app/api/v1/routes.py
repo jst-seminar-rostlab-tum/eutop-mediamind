@@ -23,6 +23,7 @@ from app.api.v1.endpoints.user_controller import router as user_router
 from app.api.v1.endpoints.vector_store_controller import (
     router as vector_store_router,
 )
+from app.api.v1.endpoints.job_controller import router as job_router
 
 routers = APIRouter()
 router_list = [
@@ -32,6 +33,7 @@ router_list = [
     vector_store_router,
     article_matching_router,
     article_router,
+    job_router,
     topic_router,
     keyword_router,
     crawler_router,
