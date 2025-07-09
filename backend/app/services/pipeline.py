@@ -67,5 +67,6 @@ async def run(datetime_start: datetime, datetime_end: datetime):
         days=180, batch_size=100, dry_run=False
     )
     logger.info(
-        f"Article cleanup completed: {cleanup_stats['articles_deleted']} articles deleted"
+        f"Article cleanup completed: "
+        f"{cleanup_stats['articles_deleted']} articles deleted"
     )

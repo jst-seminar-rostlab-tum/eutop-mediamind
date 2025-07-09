@@ -1,16 +1,17 @@
 """
 Article Cleanup Service
 
-This service is responsible for deleting articles older than a specified number of days
-along with all their related data to maintain database hygiene and manage storage costs.
+This service is responsible for deleting
+articles older than a specified number of days
+along with all their related data to maintain
+database hygiene and manage storage costs.
 """
 
 from datetime import datetime, timedelta
-from typing import List, Optional
+from typing import List
 from uuid import UUID
 
-from sqlalchemy import and_, delete, func, select
-from sqlalchemy.orm import selectinload
+from sqlalchemy import delete, select
 
 from app.core.db import async_session
 from app.core.logger import get_logger
@@ -33,11 +34,12 @@ class ArticleCleanupService:
         self, days: int = 180, batch_size: int = 100, dry_run: bool = False
     ) -> dict:
         """
-        Delete articles older than the specified number of days along with all related data.
+        Delete articles older than the specified
+        number of days along with all related data.
 
         Args:
-            days: Number of days to look back for article deletion (default: 180)
-            batch_size: Number of articles to process in each batch (default: 100)
+            days: Number of days to look back for article deletion
+            batch_size: Number of articles to process in each batch
             dry_run: If True, only count articles but don't delete them
 
         Returns:
@@ -76,7 +78,8 @@ class ArticleCleanupService:
             if dry_run:
                 stats["articles_processed"] = total_articles
                 logger.info(
-                    f"DRY RUN: Would delete {total_articles} articles and their related data"
+                    f"DRY RUN: Would delete {total_articles}"
+                    f" articles and their related data"
                 )
                 return stats
 
@@ -117,7 +120,8 @@ class ArticleCleanupService:
             raise
 
         logger.info(
-            f"Article cleanup completed. Stats: {stats['articles_deleted']} articles deleted, "
+            f"Article cleanup completed. "
+            f"Stats: {stats['articles_deleted']} articles deleted, "
             f"{stats['entities_deleted']} entities deleted, "
             f"{stats['keyword_links_deleted']} keyword links deleted, "
             f"{stats['matches_deleted']} matches deleted, "
@@ -285,103 +289,3 @@ class ArticleCleanupService:
 
         logger.debug(f"Deleted {deleted_count} articles")
         return deleted_count
-
-    async def get_cleanup_preview(self, days: int = 180) -> dict:
-        """
-        Get a preview of what would be deleted without actually deleting anything.
-
-        Args:
-            days: Number of days to look back for article deletion
-
-        Returns:
-            Dict with preview statistics
-        """
-        try:
-            cutoff_date = datetime.now() - timedelta(days=days)
-            logger.info(
-                f"Getting cleanup preview for articles older than {cutoff_date}"
-            )
-
-            async with async_session() as session:
-                # Count articles to be deleted
-                article_stmt = select(Article).where(
-                    Article.published_at < cutoff_date
-                )
-                article_result = await session.execute(article_stmt)
-                articles = article_result.scalars().all()
-                article_ids = [article.id for article in articles]
-
-                logger.debug(
-                    f"Found {len(articles)} articles older than {cutoff_date}"
-                )
-
-                # If no articles found, return early with zero counts
-                if not article_ids:
-                    logger.info("No articles found to delete")
-                    return {
-                        "cutoff_date": cutoff_date.isoformat(),
-                        "articles_to_delete": 0,
-                        "entities_to_delete": 0,
-                        "keyword_links_to_delete": 0,
-                        "matches_to_delete": 0,
-                        "oldest_article_date": None,
-                        "newest_article_date": None,
-                    }
-
-                # Count related entities
-                if article_ids:
-                    entity_stmt = select(func.count(ArticleEntity.id)).where(
-                        ArticleEntity.article_id.in_(article_ids)
-                    )
-                    entity_result = await session.execute(entity_stmt)
-                    entity_count = entity_result.scalar() or 0
-
-                    # Count keyword links
-                    keyword_stmt = select(
-                        func.count(ArticleKeywordLink.article_id)
-                    ).where(ArticleKeywordLink.article_id.in_(article_ids))
-                    keyword_result = await session.execute(keyword_stmt)
-                    keyword_count = keyword_result.scalar() or 0
-
-                    # Count matches
-                    match_stmt = select(func.count(Match.id)).where(
-                        Match.article_id.in_(article_ids)
-                    )
-                    match_result = await session.execute(match_stmt)
-                    match_count = match_result.scalar() or 0
-                else:
-                    entity_count = 0
-                    keyword_count = 0
-                    match_count = 0
-
-                # Get date range for the articles to be deleted
-                oldest_date = None
-                newest_date = None
-                if articles:
-                    valid_dates = [
-                        a.published_at
-                        for a in articles
-                        if a.published_at is not None
-                    ]
-                    if valid_dates:
-                        oldest_date = min(valid_dates).isoformat()
-                        newest_date = max(valid_dates).isoformat()
-
-                result = {
-                    "cutoff_date": cutoff_date.isoformat(),
-                    "articles_to_delete": len(articles),
-                    "entities_to_delete": entity_count,
-                    "keyword_links_to_delete": keyword_count,
-                    "matches_to_delete": match_count,
-                    "oldest_article_date": oldest_date,
-                    "newest_article_date": newest_date,
-                }
-
-                logger.info(
-                    f"Cleanup preview: {result['articles_to_delete']} articles, {result['entities_to_delete']} entities, {result['keyword_links_to_delete']} keyword links, {result['matches_to_delete']} matches"
-                )
-                return result
-
-        except Exception as e:
-            logger.error(f"Error getting cleanup preview: {e}")
-            raise
