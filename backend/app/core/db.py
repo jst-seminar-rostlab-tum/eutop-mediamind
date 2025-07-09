@@ -66,7 +66,10 @@ def get_qdrant_connection() -> QdrantClient:
 
     try:
         if configs.ENVIRONMENT == "local":
-            client = QdrantClient(host="localhost", port=6333)
+            client = QdrantClient(
+                url=configs.QDRANT_URL,
+                api_key=configs.QDRANT_API_KEY,
+            )
         else:
             client = QdrantClient(
                 url=configs.QDRANT_URL,
