@@ -27,7 +27,7 @@ async def run_crawler(
     crawler: CrawlerType,
     date_start: datetime = datetime.combine(date.today(), datetime.min.time()),
     date_end: datetime = datetime.now(),
-    limit: int = 100
+    limit: int = 100,
 ):
     subscriptions = await get_subscriptions_with_crawlers(crawler)
 
@@ -223,6 +223,6 @@ if __name__ == "__main__":
             CrawlerType.RSSFeedCrawler,
             date_start=datetime(2025, 1, 1),
             date_end=datetime(2025, 12, 31),
-            limit=-1
+            limit=-1,
         )
     )

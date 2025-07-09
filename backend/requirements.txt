@@ -62,3 +62,4 @@ langdetect==1.0.9
 scrapy==2.13.3
 feedparser==6.0.11
 selenium-wire==5.1.0
+blinker==1.7.0
