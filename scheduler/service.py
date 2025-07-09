@@ -54,8 +54,4 @@ class SchedulerService:
             func=func,
             args=args,
             interval=every_seconds,
-            on_failure=fail,
         )
-
-def fail():
-    print("porca maddonna")

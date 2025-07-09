@@ -1,5 +1,34 @@
 # Scheduler
 
+## Getting Started
+
+- Create a virtual environment:
+  ```bash
+  python -m venv venv
+  ```
+  Notes:
+  - On Windows: Use `python` or `py -3` if you have the Python Launcher
+  - On macOS/Linux: Use `python3` if `python` points to Python 2
+  - Alternative Windows command: `py -m venv venv`
+- Activate the virtual environment:
+  - On Windows:
+    ```bash
+    venv\Scripts\activate
+    ```
+  - On macOS and Linux:
+    ```bash
+    source venv/bin/activate
+    ```
+- Install dependencies:
+  ```bash
+  pip install -r requirements.txt
+  ```
+- Start the project:
+    ```bash
+    python main.py
+    ```
+
+## Scheduling jobs
 Job scheduling is relying on the [rq](https://github.com/rq/rq) and 
 [rq-scheduler](https://github.com/rq/rq-scheduler) packages.
 
