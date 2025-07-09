@@ -6,7 +6,6 @@ from app.api.v1.endpoints.article_matching_controller import (
     router as article_matching_router,
 )
 from app.api.v1.endpoints.chatbot_controller import router as chatbot_router
-from app.api.v1.endpoints.cleanup_controller import router as cleanup_router
 from app.api.v1.endpoints.crawler_controller import router as crawler_router
 from app.api.v1.endpoints.email_controller import router as email_router
 from app.api.v1.endpoints.keyword_controller import router as keyword_router
