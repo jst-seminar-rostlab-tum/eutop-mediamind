@@ -27,6 +27,7 @@ async def run_crawler(
     crawler: CrawlerType,
     date_start: datetime = datetime.combine(date.today(), datetime.min.time()),
     date_end: datetime = datetime.now(),
+    limit: int = 100,
 ):
     subscriptions = await get_subscriptions_with_crawlers(crawler)
 
@@ -35,7 +36,7 @@ async def run_crawler(
         articles = crawler.crawl_urls(
             date_start=date_start,
             date_end=date_end,
-            limit=100,
+            limit=limit,
         )
         await ArticleRepository.create_articles_batch(
             articles, logger=crawler.logger
@@ -213,3 +214,15 @@ def _scraper_error_handling(articles: list[Article], error: str):
         article.status = ArticleStatus.ERROR
         article.note = error
     return articles
+
+
+if __name__ == "__main__":
+    # Example usage
+    asyncio.run(
+        run_crawler(
+            CrawlerType.RSSFeedCrawler,
+            date_start=datetime(2025, 1, 1),
+            date_end=datetime(2025, 12, 31),
+            limit=-1,
+        )
+    )
