@@ -89,8 +89,8 @@ resource "aws_ecs_task_definition" "app" {
   family                   = var.service_name
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
-  cpu                      = "256"
-  memory                   = "2048"
+  cpu                      = "512"
+  memory                   = "4096"
   execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
   container_definitions = jsonencode([
     {
