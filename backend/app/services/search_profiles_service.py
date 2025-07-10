@@ -16,6 +16,7 @@ from app.models.match import Match
 from app.models.user import UserRole
 from app.repositories.article_repository import ArticleRepository
 from app.repositories.email_repository import EmailRepository
+from app.repositories.entity_repository import ArticleEntityRepository
 from app.repositories.keyword_repository import KeywordRepository
 from app.repositories.match_repository import MatchRepository
 from app.repositories.report_repository import ReportRepository
@@ -493,6 +494,10 @@ class SearchProfileService:
 
         topics = list(topic_items.values())
 
+        entities_dict = await ArticleEntityRepository.get_entities_by_article(
+            article.id
+        )
+
         return MatchDetailResponse(
             match_id=match.id,
             topics=topics,
@@ -520,6 +525,7 @@ class SearchProfileService:
                 language=article.language,
                 newspaper_id=article.subscription_id,
             ),
+            entities=entities_dict,
         )
 
     @staticmethod
