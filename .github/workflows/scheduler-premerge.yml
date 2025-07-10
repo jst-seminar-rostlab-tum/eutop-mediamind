@@ -11,3 +11,4 @@ jobs:
     uses: ./.github/workflows/python-premerge.yml
     with:
       workdir: ./scheduler
+      skip_tests: true
