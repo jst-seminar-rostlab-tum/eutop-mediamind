@@ -101,9 +101,11 @@ export function DataTable<TData, TValue>({
                         : undefined
                     }
                     className={
-                      header.column.getCanSort()
-                        ? "cursor-pointer select-none"
-                        : ""
+                      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                      ((header.column.columnDef.meta as any)?.className ?? "") +
+                      (header.column.getCanSort()
+                        ? " cursor-pointer select-none"
+                        : "")
                     }
                   >
                     {header.isPlaceholder ? null : (
@@ -140,7 +142,11 @@ export function DataTable<TData, TValue>({
                 data-state={row.getIsSelected() && "selected"}
               >
                 {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id}>
+                  <TableCell
+                    key={cell.id}
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    className={(cell.column.columnDef.meta as any)?.className}
+                  >
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </TableCell>
                 ))}
