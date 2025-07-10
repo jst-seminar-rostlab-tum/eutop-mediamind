@@ -474,19 +474,24 @@ class SearchProfileService:
             topic_ids
         )
 
-        topics = []
+        topic_items: dict[UUID, MatchTopicItem] = {}
+
         for m in all_matches:
             tid = m.topic_id
             if tid is None:
                 continue
-            topics.append(
-                MatchTopicItem(
+
+            score = round(m.score, 4)
+
+            if tid not in topic_items or score > topic_items[tid].score:
+                topic_items[tid] = MatchTopicItem(
                     id=tid,
                     name=topic_names.get(tid, ""),
-                    score=round(m.score, 4),
+                    score=score,
                     keywords=topic_keywords_map.get(tid, []),
                 )
-            )
+
+        topics = list(topic_items.values())
 
         return MatchDetailResponse(
             match_id=match.id,
