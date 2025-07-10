@@ -38,6 +38,14 @@
       "password_input": "//input[@id='enter-password']",
       "submit_button": "//button[@id='enter-email-next']",
       "second_submit_button": "//button[@id='sign-in-button']"
+    },
+    "crawlers": {
+      "RSSFeedCrawler": {
+        "feed_urls": [
+          "https://www.ft.com/myft/following/19e98bc8-b78e-4dd5-936d-f58e9cb66459.rss"
+        ],
+        "language": "en"
+      }
     }
   },
   {
@@ -199,7 +207,7 @@
     "name": "Spiegel - ePaper",
     "domain": "https://www.spiegel.de/international/",
     "paywall": false,
-    "is_active": false,
+    "is_active": true,
     "login_config": {
       "cookies_button": "//button[@title='Consent and continue' and contains(@class, 'sp_choice_type_11')]",
       "login_button": "//a[contains(@href, 'gruppenkonto.spiegel.de/authenticate') and span[contains(text(), 'Anmelden')]]",
@@ -210,6 +218,19 @@
       "second_submit_button": "//button[@id='submit' and @name='loginform:submit']",
       "profile_section": "//a[@href='https://www.spiegel.de/fuermich/']",
       "logout_button": "//a[normalize-space(text())='Abmelden']"
+    },
+    "crawlers": {
+      "RSSFeedCrawler": {
+        "feed_urls": ["https://www.spiegel.de/international/index.rss"],
+        "language": "en"
+      }
+    },
+    "scrapers": {
+      "TrafilaturaScraper": {
+        "trafilatura_kwargs": {
+          "prune_xpath": "//h2"
+        }
+      }
     }
   },
   {
@@ -220,9 +241,28 @@
     "login_config": {
       "cookies_button": "//button[@title='ZUSTIMMEN' and contains(@class, 'sp_choice_type_11')]",
       "iframe": "",
-      "user_input": "//input[@name='login' and @type='email']",
-      "password_input": "//input[@name='password' and @type='password']",
-      "submit_button": "//button[@type='submit' and contains(text(), 'Anmelden')]"
+      "user_input": "//input[@type='email']",
+      "password_input": "//input[@type='password']",
+      "submit_button": "//button[@type='submit']"
+    },
+    "crawlers": {
+      "RSSFeedCrawler": {
+        "feed_urls": [
+          "https://www.wiwo.de/contentexport/feed/rss/schlagzeilen",
+          "https://www.wiwo.de/contentexport/feed/rss/unternehmen",
+          "https://www.wiwo.de/contentexport/feed/rss/finanzen",
+          "https://www.wiwo.de/contentexport/feed/rss/politik",
+          "https://www.wiwo.de/contentexport/feed/rss/technologie"
+        ],
+        "language": "de"
+      }
+    },
+    "scrapers": {
+      "TrafilaturaScraper": {
+        "trafilatura_kwargs": {
+          "prune_xpath": "//h2"
+        }
+      }
     }
   },
   {
@@ -282,7 +322,7 @@
     "name": "Politico",
     "domain": "https://www.politico.eu",
     "paywall": false,
-    "is_active": false,
+    "is_active": true,
     "login_config": {
       "login_button": "//a[contains(@href, '/login/') and span[contains(text(), 'Log In')]]",
       "iframe": "",
@@ -291,6 +331,17 @@
       "submit_button": "//button[@id='btn__login' and @type='submit']",
       "logout_trigger": "//button[@aria-label='Toggle profile menu' and contains(@class, 'navigation-mini__toggle')]",
       "logout_button": "//a[contains(@href, 'action=logout') and span[contains(text(), 'Sign Out')]]"
+    },
+    "crawlers": {
+      "RSSFeedCrawler": {
+        "feed_urls": ["https://www.politico.eu/feed/"],
+        "language": "en"
+      }
+    },
+    "scrapers": {
+      "Newspaper4kScraper": {
+        "newspaper_kwargs": {}
+      }
     }
   },
   {
@@ -520,6 +571,12 @@
       "submit_button": "//input[@id='wp-submit']",
       "profile_section": "//a[contains(@href, 'profil')]",
       "logout_button": "//a[contains(@href, 'logout')]"
+    },
+    "crawlers": {
+      "RSSFeedCrawler": {
+        "feed_urls": ["https://macemagazine.com/feed/"],
+        "language": "en"
+      }
     }
   },
   {
@@ -624,5 +681,22 @@
     "domain": "https://www.topagrar.com",
     "paywall": true,
     "is_active": false
+  },
+  {
+    "name": "Digitalfernsehen",
+    "domain": "https://www.digitalfernsehen.de/",
+    "paywall": false,
+    "is_active": true,
+    "crawlers": {
+      "RSSFeedCrawler": {
+        "feed_urls": ["https://www.digitalfernsehen.de/news/feed/"],
+        "language": "de"
+      }
+    },
+    "scrapers": {
+      "TrafilaturaScraper": {
+        "trafilatura_kwargs": {}
+      }
+    }
   }
 ]

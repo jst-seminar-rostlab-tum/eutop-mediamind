@@ -21,3 +21,10 @@ export type ArticleMatch = components["schemas"]["MatchDetailResponse"];
 
 export type SubscriptionResponse =
   paths["/api/v1/subscriptions/{subscription_id}"]["get"]["responses"]["200"]["content"]["application/json"];
+export type Stat = components["schemas"]["CrawlStatsItem"];
+
+export type ProfileReports = components["schemas"]["ReportListResponse"];
+
+export type ReportOverview = components["schemas"]["ReportRead"];
+
+export type Report = components["schemas"]["ReportDetailResponse"];

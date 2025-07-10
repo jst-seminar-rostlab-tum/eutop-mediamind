@@ -6,7 +6,7 @@ export default function Layout({
 }: PropsWithChildren & HTMLAttributes<HTMLDivElement>): JSX.Element {
   return (
     <main
-      className={`${className} mx-auto w-full max-w-4xl  xl:max-w-7xl pt-8`}
+      className={`${className} mx-auto w-full max-w-10/12 xl:max-w-11/12 pt-8`}
     >
       {children}
     </main>

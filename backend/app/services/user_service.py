@@ -94,3 +94,14 @@ class UserService:
 
             # 2) update
             return await UserRepository.update_language(user, language)
+
+    @staticmethod
+    async def update_gender(gender, user):
+        async with async_session() as session:
+            # 1) fetch
+            user = await UserRepository.get_user_by_clerk_id(
+                clerk_id=user.clerk_id, session=session
+            )
+
+            # 2) update
+            return await UserRepository.update_gender(user, gender)
