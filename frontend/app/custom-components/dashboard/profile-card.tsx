@@ -179,7 +179,7 @@ export function ProfileCard({
                     {t("Edit")}
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
-                    <Link to="/search-profile/${profile.id}/reports">
+                    <Link to={`/search-profile/${profile.id}/reports`}>
                       <FileText className="text-primary" />
                       {t("search_profile.reports")}
                     </Link>
