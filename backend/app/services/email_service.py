@@ -1,9 +1,9 @@
 # flake8: noqa: E501
-from logging import error
 import os
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+from logging import error
 from time import gmtime, strftime
 from typing import List
 
@@ -69,7 +69,9 @@ class EmailService:
                 else:
                     email.state = EmailState.RETRY
                 await EmailRepository.update_email(email)
-                raise RuntimeError(f"Failed to send email to {email.recipient}: {str(e)}")
+                raise RuntimeError(
+                    f"Failed to send email to {email.recipient}: {str(e)}"
+                )
 
     @staticmethod
     def send_ses_email(email: Email):

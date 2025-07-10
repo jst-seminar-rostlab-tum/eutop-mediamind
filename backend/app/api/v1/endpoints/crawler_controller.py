@@ -4,6 +4,7 @@ This is just a testing controller for crawling and scraping.
 Once we have a proper scheduler, we can remove this controller.
 """
 
+import asyncio
 from datetime import date
 from datetime import date as Date
 from typing import Optional

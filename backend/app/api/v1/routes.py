@@ -7,6 +7,7 @@ from app.api.v1.endpoints.article_matching_controller import (
 )
 from app.api.v1.endpoints.chatbot_controller import router as chatbot_router
 from app.api.v1.endpoints.crawler_controller import router as crawler_router
+from app.api.v1.endpoints.jobs_controller import router as job_router
 from app.api.v1.endpoints.keyword_controller import router as keyword_router
 from app.api.v1.endpoints.organization_controller import (
     router as organization_router,
@@ -23,7 +24,6 @@ from app.api.v1.endpoints.user_controller import router as user_router
 from app.api.v1.endpoints.vector_store_controller import (
     router as vector_store_router,
 )
-from app.api.v1.endpoints.jobs_controller import router as job_router
 
 routers = APIRouter()
 router_list = [

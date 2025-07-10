@@ -16,6 +16,7 @@ from app.services.web_harvester.web_harvester_orchestrator import (
 
 logger = get_logger(__name__)
 
+
 async def run(datetime_start: datetime, datetime_end: datetime):
     """Run a pipeline for the given date range."""
     logger.info("Running crawler and scraper")

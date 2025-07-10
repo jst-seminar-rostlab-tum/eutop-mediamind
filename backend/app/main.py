@@ -95,6 +95,7 @@ class AppCreator:
     def _include_routes(self):
         self.app.include_router(v1_routers, prefix="/api/v1")
 
+
 # App exposure for Uvicorn
 app_creator = AppCreator()
 app = app_creator.app
