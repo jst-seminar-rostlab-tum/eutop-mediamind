@@ -26,6 +26,7 @@ from reportlab.platypus import (
 from reportlab.platypus.flowables import AnchorFlowable
 
 from app.core.logger import get_logger
+from app.models.entity import EntityType
 from app.models.search_profile import SearchProfile
 from app.repositories.article_repository import ArticleRepository
 from app.repositories.entity_repository import ArticleEntityRepository
@@ -75,10 +76,11 @@ class PDFService:
             entities = await ArticleEntityRepository.get_entities_by_article(
                 article.id, language
             )
-            persons = entities.get("person", [])
-            organizations = entities.get("organization", [])
-            industries = entities.get("industry", [])
-            events = entities.get("event", [])
+            persons = entities.get(EntityType.PERSON.value, [])
+            organizations = entities.get(EntityType.ORGANIZATION.value, [])
+            industries = entities.get(EntityType.INDUSTRY.value, [])
+            events = entities.get(EntityType.EVENT.value, [])
+            citations = entities.get(EntityType.CITATION.value, [])
             if article.published_at:
                 published_at_raw = article.published_at
                 month = published_at_raw.strftime("%B")
@@ -128,6 +130,7 @@ class PDFService:
                 organizations=organizations,
                 industries=industries,
                 events=events,
+                citations=citations,
             )
             news_items.append(news_item)
         search_profile = (

@@ -1,3 +1,4 @@
+import asyncio
 import json
 import uuid
 from datetime import date, datetime
@@ -14,37 +15,38 @@ logger = get_logger(__name__)
 
 
 class ArticleSummaryService:
+    _semaphore = asyncio.Semaphore(50)
+    _llm_client = LLMClient(LLMModels.openai_4o)
 
     @staticmethod
-    def build_prompt(article: Article) -> str:
+    def _build_prompt(article: Article) -> str:
         return (
             f"Summarize the following article in a clear, neutral, "
             f"and informative tone, covering all major points without "
-            f"omitting key details. "
+            f"omitting key details. Make the summary in the article's language"
             f"Then, extract and list separately:\n"
             f"- Persons mentioned\n"
             f"- Industries mentioned\n"
             f"- Events mentioned\n"
             f"- Organizations mentioned\n"
-            f"Article content:\n{article.content}\n\n"
-            f"Return your answer as a JSON object with the"
+            f"- Citations in academic reference format present in the text\n"
+            f"\nArticle content:\n{article.content}\n\n"
+            f"Return your answer as a JSON object with the "
             f"following structure:\n"
             f"{{\n"
             f'  "summary": "<summary text>",\n'
             f'  "persons": ["person1", "person2", ...],\n'
             f'  "industries": ["industry1", "industry2", ...],\n'
             f'  "events": ["event1", "event2", ...],\n'
-            f'  "organizations": ["org1", "org2", ...]\n'
+            f'  "organizations": ["org1", "org2", ...],\n'
+            f'  "citations": ["cit1", "cit2", ...]\n'
             f"}}\n"
             f"Make sure the JSON is valid and parsable."
         )
 
     @staticmethod
-    def generate_summary_batch_file(
+    def _generate_summary_batch_file(
         articles: Sequence[Article],
-        model: str,
-        temperature: float = 0.1,
-        output_filename: str = "summary_batch.jsonl",
     ) -> str | None:
         """
         Generates a .jsonl batch file containing prompts for summarizing
@@ -53,83 +55,108 @@ class ArticleSummaryService:
         Args:
             articles (Sequence[Article]): A list of articles to summarize
             and extract entities.
-            model (str): The llm model to use.
-            temperature (float): The temperature setting for the model.
-            output_filename (str): Filename for the output batch file.
 
         Returns:
             str | None: The path to the generated .jsonl batch file.
         """
         custom_ids = [str(article.id) for article in articles]
         prompts = [
-            ArticleSummaryService.build_prompt(article) for article in articles
+            ArticleSummaryService._build_prompt(article)
+            for article in articles
         ]
 
         batch_path = LLMClient.generate_batch(
             custom_ids=custom_ids,
             prompts=prompts,
-            model=model,
-            temperature=temperature,
-            output_filename=output_filename,
+            model=LLMModels.openai_4o.value,
+            temperature=0.1,
+            output_filename="summary_batch.jsonl",
         )
 
         if not batch_path:
-            logger.error("Could not generate .jsonl batch file")
             return None
 
         return batch_path
 
     @staticmethod
-    async def store_summaries_and_entities(output_lines: list[str]) -> None:
+    async def _process_and_store(article_id: uuid.UUID, content: str) -> None:
         """
-        Parses and stores summaries and extracted entities
-        from the batch model responses.
+        Parses content and stores summary and extracted entities.
 
         Args:
-            output_lines (list[str]): list of JSON-formatted strings,
-            each representing a model output.
+            article_id (UUID): ID of the article being processed.
+            content (str): JSON-formatted response from the llm model.
         """
+        try:
+            if content.startswith("```json"):
+                content = content[len("```json") :].strip()
+            if content.endswith("```"):
+                content = content[: -len("```")].strip()
+
+            data = json.loads(content)
+
+            summary = data.get("summary", "")
+            persons = data.get("persons", [])
+            industries = data.get("industries", [])
+            events = data.get("events", [])
+            organizations = data.get("organizations", [])
+            citations = data.get("citations", [])
+
+            await ArticleRepository.update_article_summary(article_id, summary)
+            await ArticleEntityRepository.add_entities(
+                article_id,
+                persons=persons,
+                industries=industries,
+                events=events,
+                organizations=organizations,
+                citations=citations,
+            )
+        except Exception as e:
+            logger.error(
+                f"Error processing and storing article {article_id}: {e}"
+            )
+
+    @staticmethod
+    async def _summarize_and_store_batch(articles: Sequence[Article]) -> None:
+        batch_path = ArticleSummaryService._generate_summary_batch_file(
+            articles=articles,
+        )
+        if not batch_path:
+            logger.error("Could not generate batch file")
+            return
+
+        output_lines = await LLMClient.run_batch_api(str(batch_path))
+
+        if not output_lines:
+            logger.error("Could not obtain results from batch output")
+            return
+
         for line in output_lines:
             try:
                 result = json.loads(line)
                 article_id = uuid.UUID(result["custom_id"])
                 response = result["response"]
                 content = response["body"]["choices"][0]["message"]["content"]
-                if content.startswith("```json"):
-                    content = content[len("```json") :].strip()
-                if content.endswith("```"):
-                    content = content[: -len("```")].strip()
-                data = json.loads(content)
-
-                summary = data.get("summary", "")
-                persons = data.get("persons", [])
-                industries = data.get("industries", [])
-                events = data.get("events", [])
-                organizations = data.get("organizations", [])
-
+                await ArticleSummaryService._process_and_store(
+                    article_id, content
+                )
             except Exception as e:
-                logger.error(f"Error parsing summary and entities: {e}")
-                continue
+                logger.error(f"Error storing data for line: {e}")
 
+    @staticmethod
+    async def _summarize_and_store_concurrently(article: Article) -> None:
+        prompt = ArticleSummaryService._build_prompt(article)
+        async with ArticleSummaryService._semaphore:
             try:
-                await ArticleRepository.update_article_summary(
-                    article_id, summary
+                content = await asyncio.to_thread(
+                    ArticleSummaryService._llm_client.generate_response, prompt
+                )
+                await ArticleSummaryService._process_and_store(
+                    article.id, content
                 )
             except Exception as e:
                 logger.error(
-                    f"Error updating article summary for {article_id}: {e}"
-                )
-            try:
-                await ArticleEntityRepository.add_entities(
-                    article_id,
-                    persons=persons,
-                    industries=industries,
-                    events=events,
-                    organizations=organizations,
-                )
-            except Exception as e:
-                logger.error(
-                    f"Error adding entities for article {article_id}: {e}"
+                    f"Error summarizing article {article.id} concurrently: {e}"
                 )
 
     @staticmethod
@@ -139,15 +166,12 @@ class ArticleSummaryService:
             date.today(), datetime.min.time()
         ),
         datetime_end: datetime = datetime.now(),
+        use_batch_api: bool = False,
     ) -> None:
         """
         Main entry point to summarize a list of articles and
         store their extracted entities.
-
-        Args:
-            articles (list[Article]): a list of Article objects to process.
         """
-
         while True:
             articles = await ArticleRepository.list_articles_without_summary(
                 limit=page_size,
@@ -155,25 +179,23 @@ class ArticleSummaryService:
                 datetime_end=datetime_end,
             )
             if not articles:
+                logger.info("No more articles to summarize")
                 break
 
-            logger.info(f"Processing batch with {len(articles)} articles")
+            if use_batch_api:
+                logger.info(f"Processing batch with {len(articles)} articles")
+                await ArticleSummaryService._summarize_and_store_batch(
+                    articles
+                )
 
-            batch_path = ArticleSummaryService.generate_summary_batch_file(
-                articles=articles,
-                model=LLMModels.openai_4o.value,
-                temperature=0.1,
-                output_filename="summary_batch.jsonl",
-            )
-            if not batch_path:
-                return
-
-            output_lines = await LLMClient.run_batch_api(str(batch_path))
-
-            if not output_lines:
-                logger.error("Could not obtain results from batch output")
-                return
-
-            await ArticleSummaryService.store_summaries_and_entities(
-                output_lines
-            )
+            else:
+                logger.info(
+                    f"Processing {len(articles)} articles concurrently"
+                )
+                tasks = [
+                    ArticleSummaryService._summarize_and_store_concurrently(
+                        article
+                    )
+                    for article in articles
+                ]
+                await asyncio.gather(*tasks, return_exceptions=True)

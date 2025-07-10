@@ -29,7 +29,8 @@ def test_name(request):
 @pytest.fixture(autouse=True)
 def disable_auth(monkeypatch):
     """
-    Force the real token-checking branch (so _extract_clerk_id runs verify_token).
+    Force the real token-checking branch
+    (so _extract_clerk_id runs verify_token).
     Otherwise the pytest won't run locally without changing it.
     """
     monkeypatch.setattr(configs, "DISABLE_AUTH", False)

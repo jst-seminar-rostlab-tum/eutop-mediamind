@@ -10,7 +10,6 @@ from app.core.db import engine
 from app.core.logger import get_logger
 from app.models import Subscription
 from app.services.seeding_service.seeding_credentials import (
-    seed_credentials_from_env,
     seed_credentials_from_file,
 )
 
@@ -29,7 +28,8 @@ async def seed_data():
             await seed_subscriptions(session)
 
     # Seed credentials after subscriptions are created
-    await seed_credentials_from_env()
+    # TBD: Not decided how to handle credentials
+    # await seed_credentials_from_env()
 
     # For local development, try to load from a local credentials file
     local_credentials_path = "./data/newspapers_accounts.json"

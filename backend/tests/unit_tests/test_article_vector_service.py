@@ -6,7 +6,6 @@ from langchain_core.documents import Document
 
 from app.models import Article
 from app.services.article_vector_service import ArticleVectorService
-import asyncio
 
 
 def make_article(

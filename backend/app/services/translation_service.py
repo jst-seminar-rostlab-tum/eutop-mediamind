@@ -1,3 +1,4 @@
+import asyncio
 import gettext
 import json
 import os
@@ -27,6 +28,11 @@ base_prompt = (
 
 class ArticleTranslationService:
     _translators_cache = {}
+    _llm_client = LLMClient(LLMModels.openai_4o)
+    _semaphore = asyncio.Semaphore(50)
+
+    _completed_count = 0
+    _completed_count_lock = asyncio.Lock()
 
     @staticmethod
     def get_translator(language: str) -> Callable[[str], str]:
@@ -80,7 +86,7 @@ class ArticleTranslationService:
         return all_ids, all_texts
 
     @staticmethod
-    def _prepare_translation_batch(
+    def _prepare_translation_content(
         ids: list[str], texts: list[str]
     ) -> tuple[list[str], list[str], list[dict]]:
         """
@@ -133,6 +139,33 @@ class ArticleTranslationService:
         return custom_ids, prompts, auto_responses
 
     @staticmethod
+    async def _translate_one(custom_id, prompt):
+        try:
+            async with ArticleTranslationService._semaphore:
+                content = await asyncio.to_thread(
+                    ArticleTranslationService._llm_client.generate_response,
+                    prompt,
+                )
+
+            async with ArticleTranslationService._completed_count_lock:
+                ArticleTranslationService._completed_count += 1
+            if ArticleTranslationService._completed_count % 50 == 0:
+                logger.info(
+                    f"Completed {ArticleTranslationService._completed_count} "
+                    f"translation calls."
+                )
+
+            return {
+                "custom_id": custom_id,
+                "response": {
+                    "body": {"choices": [{"message": {"content": content}}]}
+                },
+            }
+        except Exception as e:
+            logger.exception(f"Translation failed for {custom_id}: {e}")
+            return None
+
+    @staticmethod
     async def _execute_translation_batch(
         custom_ids: list[str], prompts: list[str], auto_responses: list[dict]
     ) -> list[dict]:
@@ -166,23 +199,62 @@ class ArticleTranslationService:
         return batch_responses + auto_responses
 
     @staticmethod
-    async def _translate_all_fields(ids: list[str], texts: list[str]):
+    async def _execute_concurrent_translations(
+        custom_ids: list[str], prompts: list[str], auto_responses: list[dict]
+    ) -> list[dict]:
+        """
+        Executes the translation process with concurrent calls and
+        combines results.
+
+        Args:
+            custom_ids (list[str]): identifiers for the translation requests.
+            prompts (list[str]): prompts to send to the model.
+            auto_responses (list[dict]): responses for texts already in the
+            target language.
+
+        Returns:
+            list[dict]: All responses, including LLM completions
+            and auto-responses.
+        """
+        tasks = [
+            ArticleTranslationService._translate_one(cid, prompt)
+            for cid, prompt in zip(custom_ids, prompts)
+        ]
+        llm_responses = await asyncio.gather(*tasks)
+
+        return [r for r in llm_responses if r] + auto_responses
+
+    @staticmethod
+    async def _translate_all_fields(
+        ids: list[str],
+        texts: list[str],
+        use_batch_api: bool,
+    ):
         """
         Translates all texts from the input using the batch API
+        or concurrent calls
 
         Args:
             ids (list[str]): unique identifiers for each text.
             texts (list[str]): list of raw texts to translate.
+            use_batch_api: indicates if run using batch api or
+            concurrent calls
 
         Returns:
             list[dict]: List of translation responses.
         """
         custom_ids, prompts, auto_responses = (
-            ArticleTranslationService._prepare_translation_batch(ids, texts)
+            ArticleTranslationService._prepare_translation_content(ids, texts)
         )
-        responses = await ArticleTranslationService._execute_translation_batch(
-            custom_ids, prompts, auto_responses
-        )
+        if use_batch_api:
+            responses = (
+                await ArticleTranslationService._execute_translation_batch(
+                    custom_ids, prompts, auto_responses
+                )
+            )
+        else:
+            concur = ArticleTranslationService._execute_concurrent_translations
+            responses = await concur(custom_ids, prompts, auto_responses)
 
         return responses
 
@@ -267,12 +339,13 @@ class ArticleTranslationService:
             date.today(), datetime.min.time()
         ),
         datetime_end: datetime = datetime.now(),
+        use_batch_api: bool = False,
     ):
         """
-        Orchestrates the full articles translation pipeline in batches.
+        Orchestrates the full articles translation pipeline.
 
         Args:
-            limit (int, optional): Number of articles to process per batch.
+            limit (int, optional): Number of articles to process per cycle.
         """
         try:
             page = 0
@@ -304,7 +377,7 @@ class ArticleTranslationService:
 
                 responses = (
                     await ArticleTranslationService._translate_all_fields(
-                        article_ids, article_texts
+                        article_ids, article_texts, use_batch_api
                     )
                 )
                 if not responses:
@@ -334,9 +407,9 @@ class ArticleTranslationService:
             return None
 
     @staticmethod
-    async def run_for_entities(limit: int = 100):
+    async def run_for_entities(limit: int = 100, use_batch_api: bool = False):
         """
-        Orchestrates the full entity translation pipeline in batches.
+        Orchestrates the full entity translation pipeline.
 
         Args:
             limit (int, optional): Number of entities to process per batch.
@@ -362,7 +435,7 @@ class ArticleTranslationService:
 
                 responses = (
                     await ArticleTranslationService._translate_all_fields(
-                        entity_ids, entity_texts
+                        entity_ids, entity_texts, use_batch_api
                     )
                 )
 

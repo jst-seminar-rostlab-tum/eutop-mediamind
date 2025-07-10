@@ -6,14 +6,6 @@ This directory contains infrastructure-as-code and configuration files for deplo
 
 To deploy or update infrastructure:
 
-0. Set Variables
-
-```sh
-touch infra/terraform.tfvars # Create a terraform.tfvars file if it doesn't exist.
-echo 'db_username = "your_db_username"' >> infra/terraform.tfvars
-echo 'db_password = "your_db_password"' >> infra/terraform.tfvars
-```
-
 1. Ensure you have the necessary AWS credentials configured.
 
 ```sh
@@ -48,6 +40,14 @@ aws ec2 describe-vpcs --query "Vpcs[?IsDefault].VpcId" --output text
 aws ec2 describe-subnets --query "Subnets[?VpcId=='<vpcId>'].SubnetId" --output text
 ```
 
+- Find ALB Certificate ARN:
+
+```sh
+aws acm list-certificates --region eu-central-1
+```
+
+Use the resulting ARNs to reference the ALB in `certificate_arn_prod` and `certificate_arn_dev` in `main.tf`.
+
 - Create secrets in AWS Secrets Manager:
 
 ```sh
@@ -56,12 +56,28 @@ aws secretsmanager create-secret \
   --secret-string file://secrets.json
 ```
 
+Use the resulting ARN to reference the secret in `secrets_arn` in `main.tf`.
+
+```sh
+aws secretsmanager create-secret \
+  --name mediamind/dev-env \
+  --secret-string file://secrets.json
+```
+
+Use the resulting ARN to reference the secret in `dev_secrets_arn` in `main.tf`.
+
 - Update secrets in AWS Secrets Manager:
 
 ```sh
 aws secretsmanager update-secret \
   --secret-id mediamind/app-env \
   --secret-string file://secrets.json
+```
+
+```sh
+aws secretsmanager update-secret \
+  --secret-id mediamind/dev-env \
+  --secret-string file://dev-secrets.json
 ```
 
 - Get IP addr of ECS task:

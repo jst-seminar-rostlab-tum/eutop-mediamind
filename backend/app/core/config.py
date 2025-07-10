@@ -109,6 +109,9 @@ class Configs(BaseSettings):
     CHAT_SMTP_FROM: EmailStr
     CHAT_SMTP_PASSWORD: str
 
+    # Proxy
+    PROXY_URL: str | None
+
     @computed_field
     @property
     def SQLALCHEMY_DATABASE_URI(self) -> PostgresDsn:

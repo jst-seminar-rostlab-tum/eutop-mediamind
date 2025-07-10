@@ -1,3 +1,4 @@
+import asyncio
 import uuid
 
 import pytest
@@ -6,8 +7,6 @@ from app.core.db import get_qdrant_connection
 from app.models import Article
 from app.repositories.article_repository import ArticleRepository
 from app.services.article_vector_service import ArticleVectorService
-
-import asyncio
 
 
 def make_article(

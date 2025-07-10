@@ -8,15 +8,18 @@ import asyncio
 from datetime import date
 from datetime import date as Date
 from datetime import datetime
+from typing import Optional
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Query
 
 from app.core.logger import get_logger
 from app.schemas.breaking_news_schemas import (
     BreakingNewsItem,
     BreakingNewsResponse,
 )
+from app.schemas.crawl_stats_schemas import CrawlStatsResponse
 from app.services import pipeline
+from app.services.crawl_stats_service import CrawlStatsService
 from app.services.web_harvester.breaking_news_crawler import (
     fetch_breaking_news_newsapi,
     get_all_breaking_news,
@@ -48,6 +51,27 @@ async def trigger_crawling(
         )
     )
     return {"message": "Crawling triggered successfully"}
+
+
+@router.post("/trigger_rss_crawling")
+async def trigger_rss_crawling(
+    datetime_start: datetime = datetime.combine(
+        date.today(), datetime.min.time()
+    ),
+    datetime_end: datetime = datetime.now(),
+):
+    logger.info(
+        f"Triggering RSS crawling from {datetime_start} to {datetime_end}"
+    )
+    asyncio.create_task(
+        run_crawler(
+            CrawlerType.RSSFeedCrawler,
+            date_start=datetime_start,
+            date_end=datetime_end,
+            limit=-1,
+        )
+    )
+    return {"message": "RSS Crawling triggered successfully"}
 
 
 @router.post("/trigger_scraping")
@@ -89,3 +113,36 @@ async def trigger_pipeline(
         )
     )
     return {"message": "Pipeline triggered successfully"}
+
+
+@router.get("/stats", response_model=CrawlStatsResponse)
+async def get_crawl_stats(
+    date_start: Optional[Date] = Query(
+        None, description="Start date for date range query (YYYY-MM-DD)"
+    ),
+    date_end: Optional[Date] = Query(
+        None, description="End date for date range query (YYYY-MM-DD)"
+    ),
+):
+    """
+    Get crawler statistics based on date criteria.
+    - If `date_start` and `date_end` are provided, returns stats for that range
+    - If no parameters are provided, returns stats for today
+    """
+    if date_start and date_end:
+        # Get stats for date range
+        stats = await CrawlStatsService.get_crawl_stats_by_date_range(
+            date_start, date_end
+        )
+        logger.info(
+            f"Retrieved crawl stats for range {date_start} to {date_end}"
+        )
+    else:
+        # Default to today
+        today = date.today()
+        stats = await CrawlStatsService.get_crawl_stats_by_date_range(
+            today, today
+        )
+        logger.info(f"Retrieved crawl stats for today ({today})")
+
+    return CrawlStatsResponse(stats=stats, total_count=len(stats))

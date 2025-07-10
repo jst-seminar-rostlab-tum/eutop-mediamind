@@ -4,6 +4,7 @@ from enum import Enum
 from typing import Any, List
 from urllib.parse import urlparse
 
+import feedparser
 import requests
 from eventregistry import (
     ArticleInfoFlags,
@@ -271,13 +272,103 @@ class NewsAPICrawler(Crawler):
         )
 
 
+class RSSFeedCrawler(Crawler):
+    """
+    A crawler that uses RSS feeds to extract article URLs
+    based on a subscription.
+    This crawler fetches articles from the RSS feed of the source URI.
+    This crawler should be scheduled to run periodically
+    to keep the articles up-to-date.
+    """
+
+    def __init__(
+        self, subscription: Subscription, feed_urls: List[str], language: str
+    ):
+        super().__init__(subscription)
+        self.feed_urls = feed_urls
+        self.language = language
+
+    def crawl_urls(
+        self,
+        date_start: datetime | None = None,
+        date_end: datetime | None = None,
+        limit: int = -1,
+    ) -> List[Article]:
+        articles: List[Article] = []
+
+        for feed_url in self.feed_urls:
+            feed = feedparser.parse(feed_url)
+            for entry in feed.entries:
+                if limit != -1 and len(articles) >= limit:
+                    break
+
+                published = None
+                if "published_parsed" in entry and entry.published_parsed:
+                    published = datetime(*entry.published_parsed[:6])
+                elif "updated_parsed" in entry and entry.updated_parsed:
+                    published = datetime(*entry.updated_parsed[:6])
+                else:
+                    # If no date, skip
+                    continue
+
+                # Filter by date range if specified
+                if date_start and published < date_start:
+                    continue
+                if date_end and published > date_end:
+                    continue
+
+                # Extract authors (if any)
+                authors = []
+                if "authors" in entry:
+                    authors = [
+                        author.name
+                        for author in entry.authors
+                        if hasattr(author, "name")
+                    ]
+                elif "author" in entry:
+                    authors = [entry.author]
+
+                # Extract categories/tags (if any)
+                categories = []
+                if "tags" in entry:
+                    categories = [
+                        tag.term for tag in entry.tags if hasattr(tag, "term")
+                    ]
+
+                article = Article(
+                    title=entry.title,
+                    url=entry.link,
+                    authors=authors if authors else None,
+                    published_at=published,
+                    language=self.language,
+                    categories=categories if categories else None,
+                    subscription_id=self.subscription.id,
+                )
+                articles.append(article)
+
+            if limit != -1 and len(articles) >= limit:
+                break
+        return articles
+
+
 class CrawlerType(Enum):
     NewsAPICrawler = "NewsAPICrawler"
+    RSSFeedCrawler = "RSSFeedCrawler"
+    FtCrawler = "FtCrawler"
 
 
-CRAWLER_CLASS_REGISTRY = {
-    CrawlerType.NewsAPICrawler: NewsAPICrawler,
-}
+def _get_crawler_class(crawler_type: CrawlerType):
+    """Lazy import crawler classes to avoid circular imports."""
+    if crawler_type == CrawlerType.NewsAPICrawler:
+        return NewsAPICrawler
+    elif crawler_type == CrawlerType.RSSFeedCrawler:
+        return RSSFeedCrawler
+    elif crawler_type == CrawlerType.FtCrawler:
+        from app.services.web_harvester.crawlers.ft_crawler import FtCrawler
+
+        return FtCrawler
+    else:
+        raise ValueError(f"Unknown crawler type: {crawler_type}")
 
 
 def get_crawlers(subscription: Subscription):
@@ -288,7 +379,8 @@ def get_crawlers(subscription: Subscription):
         except ValueError:
             logger.error(f"Unknown crawler: {class_name}")
             raise ValueError(f"Unknown crawler: {class_name}")
-        cls = CRAWLER_CLASS_REGISTRY.get(crawler_type)
+
+        cls = _get_crawler_class(crawler_type)
         if cls:
             crawlers[class_name] = cls(subscription=subscription, **config)
         else:

@@ -11,6 +11,7 @@
   "Cancel": "Abbruch",
   "save_changes": "Änderungen speichern",
   "Search": "Suche",
+  "select_date": "Datum auswählen",
 
   "breadcrumb_home": "Home",
 
@@ -219,6 +220,17 @@
     "original": "Original"
   },
 
+  "crawler_stats": {
+    "title": "Crawler Statistiken",
+    "subscription": "Subscription",
+    "date": "Datum",
+    "successful": "Erfolgreich",
+    "attempted": "Versucht",
+    "failed": "Fehlgeschlagen",
+    "notes": "Notizen",
+    "error": "Fehler beim Laden der Crawler Statistiken."
+  },
+
   "reports": {
     "reports": "Berichte",
     "header": "Bericht Download Center",
@@ -227,5 +239,18 @@
     "download": "Herunterladen",
     "no_reports_found": "Keine Berichte gefunden.",
     "loading": "Reports are loading."
+  },
+
+  "personal_settings": {
+    "title": "Persönliche Einstellungen",
+    "language": "Sprache",
+    "gender": "Geschlecht",
+    "update_language": "Sprache aktualisieren",
+    "update_gender": "Geschlecht aktualisieren",
+    "male": "Männlich",
+    "female": "Weiblich",
+    "divers": "Divers",
+    "language_update_error": "Fehler beim Aktualisieren der Sprache",
+    "gender_update_error": "Fehler beim Aktualisieren des Geschlechts"
   }
 }

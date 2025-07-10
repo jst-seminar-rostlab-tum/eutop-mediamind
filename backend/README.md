@@ -245,6 +245,6 @@ Decrypted secret: password123
 
 ## Linting and Formatting
 
-- **Black**: Code formatter (run `black app` to format the code)
-- **Isort**: Import sorter (run `isort app` to sort imports)
-- **Flake8**: Linter (run `flake8` to check for linting issues)
+- **Black**: Code formatter (run `black app` to format the code and also `black tests` if you added tests)
+- **Isort**: Import sorter (run `isort app` to sort imports and also `black tests` if you added tests)
+- **Flake8**: Linter (run `flake8` to check for linting issues (will check for all files in app and tests))

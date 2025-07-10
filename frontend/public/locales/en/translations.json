@@ -11,6 +11,7 @@
   "Cancel": "Cancel",
   "save_changes": "Save Changes",
   "Search": "Search",
+  "select_date": "Select Date",
 
   "breadcrumb_home": "Home",
 
@@ -219,6 +220,17 @@
     "original": "Original"
   },
 
+  "crawler_stats": {
+    "title": "Crawler Stats",
+    "subscription": "Subscription",
+    "date": "Date",
+    "successful": "Successful",
+    "attempted": "Attempted",
+    "failed": "Failed",
+    "notes": "Notes",
+    "error": "Error loading crawler stats."
+  },
+
   "reports": {
     "reports": "Reports",
     "header": "Report Download Center",
@@ -227,5 +239,18 @@
     "download": "Download",
     "no_reports_found": "No reports found.",
     "loading": "Berichte werden geladen."
+  },
+
+  "personal_settings": {
+    "title": "Personal Settings",
+    "language": "Language",
+    "gender": "Gender",
+    "update_language": "Update Language",
+    "update_gender": "Update Gender",
+    "male": "Male",
+    "female": "Female",
+    "divers": "Divers",
+    "language_update_error": "Error updating the language",
+    "gender_update_error": "Error updating the gender"
   }
 }

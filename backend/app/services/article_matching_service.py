@@ -53,8 +53,8 @@ class ArticleMatchingService:
             search_profile_id, final_matches, match_payloads, matching_run
         )
         self.logger.info(
-            f"Found {len(final_matches)} matches "
-            f"for search profile {search_profile_id}"
+            f"Processing completed for search profile {search_profile_id} "
+            f"with {len(final_matches)} potential matches"
         )
 
     async def _load_search_profile(self, profile_id: UUID) -> SearchProfile:
@@ -207,22 +207,44 @@ class ArticleMatchingService:
         matching_run: MatchingRun,
     ):
         """
-        Insert new ones in sorted order.
+        Insert new ones in sorted order,
+        but skip articles that are already matched
+        to this profile.
         """
         async with async_session() as session:
+            inserted_count = 0
+            skipped_count = 0
 
-            for order, (art_id, topic_id, score) in enumerate(matches):
+            for _, (art_id, topic_id, score) in enumerate(matches):
+                # Check if match already exists for this profile and article
+                if await MatchRepository.match_exists(
+                    session, profile_id, art_id
+                ):
+                    skipped_count += 1
+                    self.logger.debug(
+                        f"Skipping article {art_id} for "
+                        f"profile {profile_id} - match already exists"
+                    )
+                    continue
+
                 entry = next(r for r in results if r["article_id"] == art_id)
                 match = Match(
                     article_id=art_id,
                     search_profile_id=profile_id,
                     topic_id=topic_id,
-                    sorting_order=order,
+                    sorting_order=inserted_count,
                     comment=json.dumps(entry, default=str),
                     score=score,
                     matching_run_id=matching_run.id,
                 )
                 await MatchRepository.insert_match(match, session)
+                inserted_count += 1
+
+            self.logger.info(
+                f"Profile {profile_id}: "
+                f"Inserted {inserted_count} new matches, "
+                f"skipped {skipped_count} existing matches"
+            )
 
     async def run(self, batch_size: int = 100) -> None:
         """
