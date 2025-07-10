@@ -24,6 +24,7 @@ def main():
     cfg = Config()
 
     redis = Redis.from_url(cfg.REDIS_URL)
+    redis.ping()  # Check if Redis is reachable
     logger.info(f"Connected to Redis at {cfg.REDIS_URL}")
 
     service = SchedulerService(redis)
