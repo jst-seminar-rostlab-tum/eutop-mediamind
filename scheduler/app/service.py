@@ -15,7 +15,11 @@ class SchedulerService:
 
         self._scheduler = Scheduler(connection=redis)
 
-    def schedule(self, func: Callable, args: Optional[List[Any]]=None) -> None:
+    def schedule(
+            self,
+            func: Callable,
+            args: Optional[List[Any]] = None,
+    ) -> None:
         """
         Schedule a task for a single, immediate execution.
         :param func: The function to be executed.
@@ -25,7 +29,12 @@ class SchedulerService:
         execution_time = datetime.now(timezone.utc) + timedelta(seconds=1)
         self.schedule_at(execution_time, func=func, args=args)
 
-    def schedule_at(self, execution_time: datetime, func: Callable, args: Optional[List[Any]]=None) -> None:
+    def schedule_at(
+        self,
+        execution_time: datetime,
+        func: Callable,
+        args: Optional[List[Any]] = None,
+    ) -> None:
         """
         Schedule a task to run at a specific time.
         :param scheduled_time: The time at which the task should be executed.
@@ -40,7 +49,13 @@ class SchedulerService:
             interval=1,
         )
 
-    def schedule_periodic(self, id: uuid.UUID, every_seconds: int, func: Callable, args: Optional[List[Any]]=None) -> None:
+    def schedule_periodic(
+        self,
+        id: uuid.UUID,
+        every_seconds: int,
+        func: Callable,
+        args: Optional[List[Any]] = None,
+    ) -> None:
         """
         Schedule a periodic task.
         :param id: Unique identifier for the task.
