@@ -96,14 +96,11 @@ export function OrganizationDialog({
   /* 
   User Table functions
   */
-  useEffect(() => {
-    if (open && !isEdit) {
-      setTableUsers([]);
-    }
-  }, [open, isEdit]);
 
   // prepare user data for table
   useEffect(() => {
+    if (!open) return;
+
     if (isEdit && orga?.users) {
       const mappedUsers: TableUser[] = orga.users.map((user) => ({
         id: user.id ?? "",
@@ -113,8 +110,10 @@ export function OrganizationDialog({
       }));
 
       setTableUsers(mappedUsers);
+    } else {
+      setTableUsers([]); // in creation mode
     }
-  }, [isEdit, orga]);
+  }, [open]);
 
   const handleRoleChange = (
     index: number,
@@ -153,7 +152,7 @@ export function OrganizationDialog({
       id: user.id,
       email: user.email,
       username: `${user.first_name} ${user.last_name}`,
-      role: user.role,
+      role: user.role ?? "member", // default to member
     };
     // add to tableUsers
     setTableUsers((prev) => [...prev, tableUser]);

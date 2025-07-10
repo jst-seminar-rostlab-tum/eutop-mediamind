@@ -166,6 +166,7 @@ export function DataTableUsers<TData, TValue>({
             onClick={(e) => {
               e.preventDefault();
               onBunchDelete(table.getSelectedRowModel().rows);
+              setRowSelection({});
             }}
           >
             <Trash2 className="h-4 w-4" />
