@@ -1,31 +1,48 @@
 from fastapi.routing import APIRouter
 from app.core.logger import get_logger
-from datetime import datetime, date
+from app.schemas.job_schemas import JobResponse, PipelineJobRequest, JobStatus
 from app.services import pipeline
 import asyncio
 
 from app.services.email_service import EmailService
 
 
-
 router = APIRouter(prefix="/jobs", tags=["jobs"])
 
 logger = get_logger(__name__)
 
-@router.get("/email")
-async def email_job():
-    await EmailService.send_scheduled_emails()
-
-@router.get("/pipeline")
-async def trigger_pipeline():
-    datetime_start: datetime = datetime.combine(date.today(), datetime.min.time())
-    datetime_end: datetime = datetime.now()
-
-    logger.info(f"Triggering pipeline from {datetime_start} to {datetime_end}")
-    asyncio.create_task(
-        pipeline.run(
-            datetime_start=datetime_start,
-            datetime_end=datetime_end,
+@router.post("/email")
+async def email_job() -> JobResponse:
+    try:
+        await EmailService.send_scheduled_emails()
+    except Exception as e:
+        return JobResponse(
+            JobStatus.FAILED,
+            message=f"Failed to send scheduled emails: {str(e)}"
         )
+    return JobResponse(
+        JobStatus.COMPLETED,
+        message="Email job has been completed successfully."
+    )
+
+@router.post("/pipeline")
+async def trigger_pipeline(req: PipelineJobRequest = PipelineJobRequest()) -> JobResponse:
+    logger.info(f"Triggering pipeline from {req.start} to {req.end}")
+    try:
+        asyncio.create_task(
+            pipeline.run(
+                datetime_start=req.start,
+                datetime_end=req.end,
+            )
+        )
+    except Exception as e:
+        return JobResponse(
+            JobStatus.FAILED,
+            message=f"Failed to trigger pipeline: {str(e)}"
+        )
+
+    return JobResponse(
+        JobStatus.COMPLETED,
+        message="Pipeline job has been triggered successfully."
     )
 

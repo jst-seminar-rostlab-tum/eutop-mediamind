@@ -24,9 +24,9 @@ def schedule_jobs(service: SchedulerService, cfg: Config) -> None:
     )
 
 
-def job_request(url: str):
-    req = requests.get(url)
+def job_request(url: str, body: dict|None = None) -> None:
+    req = requests.post(url, json=body)
     if req.status_code == 200:
-        logger.info(f"Job triggered successfully for: {url}")
+        logger.info(f"Job status for {url}: {req.json()}")
     else:
         logger.error(f"Job failed for: {url} with status code {req.status_code}")
