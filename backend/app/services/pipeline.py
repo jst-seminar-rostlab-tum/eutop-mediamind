@@ -19,7 +19,6 @@ logger = get_logger(__name__)
 
 async def run(datetime_start: datetime, datetime_end: datetime):
     """Run a pipeline for the given date range."""
-    # print(f"Started Pi: {span_start}, Span end: {span_end}")
     logger.info(f"Running pipeline from {datetime_start} to {datetime_end}")
 
     logger.info("Running crawler and scraper")
