@@ -113,7 +113,7 @@ class OrganizationRepository:
 
         responses = []
         for org in organizations:
-            subscriptions = await SubscriptionRepository.get_all_subscriptions_with_organization(
+            subscriptions = await SubscriptionRepository.get_all_subscriptions_with_organization(  # noqa: E501
                 session, org.id
             )
 
