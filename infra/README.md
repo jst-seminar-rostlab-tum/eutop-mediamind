@@ -65,7 +65,6 @@ aws secretsmanager update-secret \
 ```
 
 - Get IP addr of ECS task:
-
   - Get ECS cluster name:
 
   ```sh
@@ -97,6 +96,7 @@ aws ecs describe-tasks \
   --query "tasks[0].attachments[0].details[?name=='networkInterfaceId'].value" \
   --output text
 ```
+
 ```sh
 aws ec2 describe-network-interfaces \
   --network-interface-ids <eni-id> \

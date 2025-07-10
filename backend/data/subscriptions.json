@@ -19,12 +19,12 @@
       }
     },
     "scrapers": {
-     "TrafilaturaScraper": {
+      "TrafilaturaScraper": {
         "trafilatura_kwargs": {
           "prune_xpath": "//div[@data-module='accordion'] | //h2"
         }
-     }
-   }
+      }
+    }
   },
   {
     "name": "Financial Times - Onlinezugang / ePaper",
@@ -71,12 +71,12 @@
       }
     },
     "scrapers": {
-     "TrafilaturaScraper": {
+      "TrafilaturaScraper": {
         "trafilatura_kwargs": {
           "prune_xpath": "//div[@data-testid='teaser']"
         }
-     }
-   }
+      }
+    }
   },
   {
     "name": "Börsen-Zeitung E-Paper",
@@ -99,9 +99,8 @@
       }
     },
     "scrapers": {
-     "TrafilaturaScraper": {
-     }
-   }
+      "TrafilaturaScraper": {}
+    }
   },
   {
     "name": "Bild & Bild+",
@@ -148,12 +147,12 @@
       }
     },
     "scrapers": {
-     "TrafilaturaScraper": {
+      "TrafilaturaScraper": {
         "trafilatura_kwargs": {
           "prune_xpath": "//h2 | //p[@class='article-content-user-report']"
         }
-     }
-   }
+      }
+    }
   },
   {
     "name": "FOCUS ePaper",
@@ -188,13 +187,13 @@
       }
     },
     "scrapers": {
-     "TrafilaturaScraper": {
+      "TrafilaturaScraper": {
         "trafilatura_kwargs": {
           "prune_xpath": "//h2 | //section[@data-area='related_articles']",
           "author_blacklist": ["Manager Magazin"]
         }
-     }
-   }
+      }
+    }
   },
   {
     "name": "Spiegel - ePaper",
@@ -259,12 +258,12 @@
       }
     },
     "scrapers": {
-     "TrafilaturaScraper": {
+      "TrafilaturaScraper": {
         "trafilatura_kwargs": {
           "prune_xpath": "//div[@id='comments']"
         }
-     }
-   }
+      }
+    }
   },
   {
     "name": "Chemical Watch - Onlinezugang",
@@ -314,13 +313,12 @@
       }
     },
     "scrapers": {
-     "TrafilaturaScraper": {
+      "TrafilaturaScraper": {
         "trafilatura_kwargs": {
           "prune_xpath": "//h4[text()='Author Bio']/following-sibling::div[1]"
         }
-     }
-   }
-    
+      }
+    }
   },
   {
     "name": "Tagesspiegel",
@@ -430,12 +428,12 @@
       }
     },
     "scrapers": {
-     "TrafilaturaScraper": {
+      "TrafilaturaScraper": {
         "trafilatura_kwargs": {
           "prune_xpath": "//div[@class='bi-bulletpoints__text']"
         }
-     }
-   }
+      }
+    }
   },
   {
     "name": "Genios",
@@ -502,13 +500,13 @@
       }
     },
     "scrapers": {
-     "TrafilaturaScraper": {
+      "TrafilaturaScraper": {
         "trafilatura_kwargs": {
           "prune_xpath": "//div[contains(@class, 'ArticleCopy')]/h3[contains(@class, 'ArticleCopy_galleryTitle')]/..",
           "author_blacklist": ["Meedia De"]
         }
-     }
-   }
+      }
+    }
   },
   {
     "name": "Mace Magazine",
@@ -551,13 +549,13 @@
       }
     },
     "scrapers": {
-     "TrafilaturaScraper": {
+      "TrafilaturaScraper": {
         "trafilatura_kwargs": {
           "prune_xpath": "//div[contains(@class, 'background-grey')]",
           "author_blacklist": ["Meedia De"]
         }
-     }
-   }
+      }
+    }
   },
   {
     "name": "Platow Brief",
@@ -587,12 +585,12 @@
       }
     },
     "scrapers": {
-     "TrafilaturaScraper": {
+      "TrafilaturaScraper": {
         "trafilatura_kwargs": {
           "prune_xpath": "//div[@class='article__more ']"
         }
-     }
-   }
+      }
+    }
   },
   {
     "name": "EU Matrix",
@@ -617,9 +615,9 @@
         "sourceUri": "merkur.de"
       }
     },
-   "scrapers": {
-     "TrafilaturaScraper": {}
-   }
+    "scrapers": {
+      "TrafilaturaScraper": {}
+    }
   },
   {
     "name": "Top Agrar",

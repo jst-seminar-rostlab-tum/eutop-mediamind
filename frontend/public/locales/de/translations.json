@@ -179,6 +179,7 @@
     "create_failed": "Abonnement konnte nicht erstellt werden",
     "update_success": "Abonnement erfolgreich geupdated",
     "update_failed": "Abonnement konnte nicht geupdated werden",
+    "sub_not_found": "Abonnement nicht gefunden",
     "name_required": "Name ist gefordert",
     "name_length": "Maximale länge sind 20 Zeichen",
     "name_regex": "Nur Buchstaben und Zahlen sind erlaubt",

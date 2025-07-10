@@ -34,9 +34,11 @@ import {
   SelectValue,
 } from "~/components/ui/select";
 import type { TFunction } from "i18next";
+import { Skeleton } from "~/components/ui/skeleton";
 
 const createFormSchema = (t: TFunction) =>
   z.object({
+    id: z.string(),
     name: z
       .string()
       .min(1, { message: t("subscription-dialog.name_required") })
@@ -46,13 +48,7 @@ const createFormSchema = (t: TFunction) =>
       }),
     url: z.string().url({ message: t("subscription-dialog.url_valid") }),
     paywall: z.boolean(),
-    username: z
-      .string()
-      .min(2, { message: t("subscription-dialog.username_min") })
-      .max(30, { message: t("subscription-dialog.username_max") })
-      .regex(/^[a-zA-Z0-9_.-]+$/, {
-        message: t("subscription-dialog.username_regex"),
-      }),
+    username: z.string(),
     password: z.string(),
   });
 
@@ -87,47 +83,34 @@ export function SubscriptionDialog({
     username: "",
   };
 
-  // Endpoint no working
-  const { data: fetchedSubData } = useQuery(
+  // Get subscription if editing
+  const {
+    data: fetchedSubData,
+    isLoading: subLoading,
+    mutate: mutateFetchedSubData,
+  } = useQuery(
     "/api/v1/subscriptions/{subscription_id}",
     sub
       ? { params: { path: { subscription_id: sub.id } } }
       : {
-          // fallback
           params: { path: { subscription_id: "" } },
         },
   );
 
-  //console.log(fetchedSubData);
+  const [loadingFreshSub, setLoadingFreshSub] = useState(false);
 
-  // also not working
-  /*
   useEffect(() => {
-    async function fetchSubData() {
-      try {
-        if (sub && isEdit) {
-          const result = await client.GET(
-            "/api/v1/subscriptions/{subscription_id}",
-            {
-              params: { path: { subscription_id: sub.id } },
-            },
-          );
-          if (result.error) {
-            throw new Error(result.error as string);
-          }
-          setSubData(result.data ?? null);
-        } else {
-          setSubData(initialSub);
-        }
-      } catch (error) {
-        console.error(error);
-        toast.error(t("Error fetching subscription details"));
+    const revalidate = async () => {
+      if (open && isEdit && sub?.id && mutateFetchedSubData) {
+        setLoadingFreshSub(true);
+        await mutateFetchedSubData();
+        setLoadingFreshSub(false);
       }
-    }
+    };
+    revalidate();
+  }, [open, isEdit, sub?.id, mutateFetchedSubData]);
 
-    fetchSubData();
-  }, [sub?.id]);
-  */
+  console.log(fetchedSubData);
 
   const subData = useMemo(() => {
     return cloneDeep(isEdit && fetchedSubData ? fetchedSubData : initialSub);
@@ -136,6 +119,7 @@ export function SubscriptionDialog({
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      id: subData ? subData.id : "", // info: id is part of form but can't be edited in the dialog
       name: subData ? subData.name : "",
       url: subData ? subData.domain : "",
       paywall: subData ? subData.paywall : false,
@@ -146,6 +130,7 @@ export function SubscriptionDialog({
 
   useEffect(() => {
     form.reset({
+      id: subData ? subData.id : "", // info: id is part of form but can't be edited in the dialog
       name: subData ? subData.name : "",
       url: subData ? subData.domain : "",
       paywall: subData ? subData.paywall : false,
@@ -168,6 +153,8 @@ export function SubscriptionDialog({
 
     return isEqual(updated, base);
   };
+
+  const paywall = form.watch("paywall");
 
   return (
     <>
@@ -207,10 +194,14 @@ export function SubscriptionDialog({
                         {t("subscription-dialog.Name")}
                       </FormLabel>
                       <FormControl className="col-span-3">
-                        <Input
-                          placeholder={t("subscription-dialog.Name")}
-                          {...field}
-                        />
+                        {loadingFreshSub || subLoading ? (
+                          <Skeleton className="h-9 w-full rounded-md" />
+                        ) : (
+                          <Input
+                            placeholder={t("subscription-dialog.Name")}
+                            {...field}
+                          />
+                        )}
                       </FormControl>
                       <FormMessage className="col-span-3 col-start-2" />
                     </FormItem>
@@ -228,10 +219,14 @@ export function SubscriptionDialog({
                         {t("subscription-dialog.URL")}
                       </FormLabel>
                       <FormControl className="col-span-3">
-                        <Input
-                          placeholder={t("subscription-dialog.URL")}
-                          {...field}
-                        />
+                        {loadingFreshSub || subLoading ? (
+                          <Skeleton className="h-9 w-full rounded-md" />
+                        ) : (
+                          <Input
+                            placeholder={t("subscription-dialog.URL")}
+                            {...field}
+                          />
+                        )}
                       </FormControl>
                       <FormMessage className="col-span-3 col-start-2" />
                     </FormItem>
@@ -249,87 +244,105 @@ export function SubscriptionDialog({
                         {t("subscription-dialog.Paywall")}
                       </FormLabel>
                       <FormControl className="col-span-3">
-                        <Select
-                          value={field.value ? "true" : "false"}
-                          onValueChange={(value) =>
-                            field.onChange(value === "true")
-                          }
-                        >
-                          <SelectTrigger className="w-full">
-                            <SelectValue
-                              placeholder={t("subscription-dialog.Paywall")}
-                            />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="true">{t("Yes")}</SelectItem>
-                            <SelectItem value="false">{t("No")}</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </FormControl>
-                      <FormMessage className="col-span-3 col-start-2" />
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              <div className="mx-4">
-                <FormField
-                  control={form.control}
-                  name="username"
-                  render={({ field }) => (
-                    <FormItem className="grid grid-cols-4 items-center gap-x-4 gap-y-1">
-                      <FormLabel className="col-span-1 flex justify-end">
-                        {t("subscription-dialog.Username")}
-                      </FormLabel>
-                      <FormControl className="col-span-3">
-                        <Input
-                          placeholder={t("subscription-dialog.Username")}
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage className="col-span-3 col-start-2" />
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              <div className="mx-4">
-                <FormField
-                  control={form.control}
-                  name="password"
-                  render={({ field }) => (
-                    <FormItem className="grid grid-cols-4 gap-x-4 gap-y-1">
-                      <FormLabel className="col-span-1 flex justify-end">
-                        {t("subscription-dialog.Password")}
-                      </FormLabel>
-                      <FormControl className="col-span-3">
-                        <div className="relative">
-                          <Input
-                            type={visible ? "text" : "password"}
-                            placeholder={t("subscription-dialog.Password")}
-                            className="pr-10" // add padding so text doesn't collide with button
-                            {...field}
-                          />
-                          <Button
-                            type="button"
-                            variant="ghostNoHover"
-                            size="icon"
-                            className="absolute right-2 top-1/2 -translate-y-1/2"
-                            onClick={() => setVisible((v) => !v)}
+                        {loadingFreshSub || subLoading ? (
+                          <Skeleton className="h-9 w-[30%] rounded-md" />
+                        ) : (
+                          <Select
+                            value={field.value ? "true" : "false"}
+                            onValueChange={(value) =>
+                              field.onChange(value === "true")
+                            }
                           >
-                            {visible ? (
-                              <EyeOff className="h-4 w-4 " />
-                            ) : (
-                              <Eye className="h-4 w-4" />
-                            )}
-                          </Button>
-                        </div>
+                            <SelectTrigger className="w-full">
+                              <SelectValue
+                                placeholder={t("subscription-dialog.Paywall")}
+                              />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="true">{t("Yes")}</SelectItem>
+                              <SelectItem value="false">{t("No")}</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        )}
                       </FormControl>
                       <FormMessage className="col-span-3 col-start-2" />
                     </FormItem>
                   )}
                 />
               </div>
+
+              {paywall && (
+                <>
+                  <div className="mx-4">
+                    <FormField
+                      control={form.control}
+                      name="username"
+                      render={({ field }) => (
+                        <FormItem className="grid grid-cols-4 items-center gap-x-4 gap-y-1">
+                          <FormLabel className="col-span-1 flex justify-end">
+                            {t("subscription-dialog.Username")}
+                          </FormLabel>
+                          <FormControl className="col-span-3">
+                            {loadingFreshSub || subLoading ? (
+                              <Skeleton className="h-9 w-full rounded-md" />
+                            ) : (
+                              <Input
+                                placeholder={t("subscription-dialog.Username")}
+                                {...field}
+                              />
+                            )}
+                          </FormControl>
+                          <FormMessage className="col-span-3 col-start-2" />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  <div className="mx-4">
+                    <FormField
+                      control={form.control}
+                      name="password"
+                      render={({ field }) => (
+                        <FormItem className="grid grid-cols-4 gap-x-4 gap-y-1">
+                          <FormLabel className="col-span-1 flex justify-end">
+                            {t("subscription-dialog.Password")}
+                          </FormLabel>
+                          <FormControl className="col-span-3">
+                            {loadingFreshSub || subLoading ? (
+                              <Skeleton className="h-9 w-full rounded-md" />
+                            ) : (
+                              <div className="relative">
+                                <Input
+                                  type={visible ? "text" : "password"}
+                                  placeholder={t(
+                                    "subscription-dialog.Password",
+                                  )}
+                                  className="pr-10"
+                                  {...field}
+                                />
+                                <Button
+                                  type="button"
+                                  variant="ghostNoHover"
+                                  size="icon"
+                                  className="absolute right-2 top-1/2 -translate-y-1/2"
+                                  onClick={() => setVisible((v) => !v)}
+                                >
+                                  {visible ? (
+                                    <EyeOff className="h-4 w-4 " />
+                                  ) : (
+                                    <Eye className="h-4 w-4" />
+                                  )}
+                                </Button>
+                              </div>
+                            )}
+                          </FormControl>
+                          <FormMessage className="col-span-3 col-start-2" />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </>
+              )}
 
               <DialogFooter>
                 <Button type="submit">{t("save_changes")}</Button>

@@ -80,7 +80,9 @@ export function AdminPage() {
     toast.success(t("admin.subs_error"));
   }
 
-  // Organization Functions
+  /*
+  Organization Functions
+  */
 
   async function handleDeleteOrganization(orga: Organization) {
     try {
@@ -142,7 +144,7 @@ export function AdminPage() {
       console.error(error);
       toast.error(
         isEditOrgaMode
-          ? t("organization-dialog.edit_failed")
+          ? t("organization-dialog.update_failed")
           : t("organization-dialog.create_failed"),
       );
     } finally {
@@ -156,6 +158,7 @@ export function AdminPage() {
   */
 
   async function handleSaveSubscription(data: {
+    id: string;
     name: string;
     url: string;
     paywall: boolean;
@@ -180,16 +183,10 @@ export function AdminPage() {
         mutateSubs();
         toast.success(t("subscription-dialog.create_success"));
       } else {
-        const existing = subscriptions?.find((s) => s.name === data.name);
-
-        if (!existing) {
-          toast.error(t("subscription-dialog.sub_not_found"));
-          return;
-        }
         const result = await client.PUT(
           "/api/v1/subscriptions/{subscription_id}",
           {
-            params: { path: { subscription_id: existing.id } },
+            params: { path: { subscription_id: data.id } },
             body: requestData,
           },
         );
@@ -203,7 +200,7 @@ export function AdminPage() {
       console.error(error);
       toast.error(
         isEditSubsMode
-          ? t("subscription-dialog.edit_failed")
+          ? t("subscription-dialog.update_failed")
           : t("subscription-dialog.create_failed"),
       );
     } finally {
