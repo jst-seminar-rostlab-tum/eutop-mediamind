@@ -16,9 +16,9 @@ class SchedulerService:
         self._scheduler = Scheduler(connection=redis)
 
     def schedule(
-            self,
-            func: Callable,
-            args: Optional[List[Any]] = None,
+        self,
+        func: Callable,
+        args: Optional[List[Any]] = None,
     ) -> None:
         """
         Schedule a task for a single, immediate execution.
