@@ -36,7 +36,7 @@ export function ReportCard({ report }: ReportCardProps) {
       </div>
       <div className={"flex gap-2 items-center"}>
         <div>
-          {fullReport.language === "us" ? (
+          {fullReport.language === "en" ? (
             <RoleBadge variant={"en"} />
           ) : (
             <RoleBadge variant={"de"} />
