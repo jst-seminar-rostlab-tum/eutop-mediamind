@@ -1,3 +1,4 @@
+import asyncio
 import json
 from datetime import date as Date
 from datetime import datetime, timedelta, timezone
@@ -10,6 +11,8 @@ from app.core.config import configs
 from app.core.db import get_redis_connection
 from app.core.logger import BufferedLogger
 from app.models.breaking_news import BreakingNews
+from app.repositories.user_repository import UserRepository
+from app.services.email_service import EmailSchedule, EmailService
 
 
 class BreakingNewsNewsAPICrawler:
@@ -78,12 +81,14 @@ class BreakingNewsNewsAPICrawler:
                 elif "deu" in summaries:
                     summary = summaries["deu"]
 
+                relevance_score = event.get("breakingScore", 0.0)
                 # The API does not return datetime published_at
                 breaking_news = BreakingNews(
                     id=event.get("uri"),
                     title=title,
                     image_url=image,
                     summary=summary,
+                    relevance_score=relevance_score,
                 )
                 breaking_news_list.append(breaking_news)
 
@@ -200,7 +205,7 @@ class BreakingNewsNewsAPICrawler:
         return breaking_news
 
 
-def fetch_breaking_news_newsapi():
+async def fetch_breaking_news_newsapi():
     """
     Fetches breaking news articles using the BreakingNewsNewsAPICrawler.
     Stores each article in Redis individually, skipping duplicates based on ID.
@@ -219,6 +224,31 @@ def fetch_breaking_news_newsapi():
         if not redis_engine.exists(redis_key):
             article = crawler.get_breaking_news_detail(article)
             try:
+                # if the article has high relevance score, send emails
+                if article.relevance_score > 0.8:
+                    crawler.logger.info(
+                        f"Sending breaking news alert for article {article.id}"
+                    )
+
+                    email_content = (
+                        EmailService._build_breaking_news_email_content(
+                            article
+                        )
+                    )
+
+                    users = await UserRepository.get_all_users()
+                    for user in users:
+                        email_schedule = EmailSchedule(
+                            user.email,
+                            f"Breaking News Alert: {article.title}",
+                            "text/plain",
+                            email_content,
+                        )
+                        # Schedule the email
+                        await EmailService.schedule_email(email_schedule)
+                        await EmailService.send_scheduled_emails()
+
+                # Store the article in Redis
                 redis_engine.set(
                     redis_key,
                     json.dumps(article.model_dump()),
@@ -264,5 +294,5 @@ def get_all_breaking_news() -> List[BreakingNews]:
 
 
 if __name__ == "__main__":
-    breaking_news = get_all_breaking_news()
-    print(breaking_news)
+    asyncio.run(fetch_breaking_news_newsapi())
+    # print(breaking_news)
