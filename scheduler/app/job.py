@@ -1,8 +1,10 @@
+import logging
+from uuid import UUID
+
 import requests
+
 from config import Config
 from service import SchedulerService
-from uuid import UUID
-import logging
 
 logger = logging.getLogger(__name__)
 

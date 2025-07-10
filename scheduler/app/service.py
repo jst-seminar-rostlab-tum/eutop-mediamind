@@ -1,8 +1,8 @@
-from typing import Callable, List, Optional, Any
 import uuid
-from redis import Redis
-from datetime import timedelta, datetime, timezone
+from datetime import datetime, timedelta, timezone
+from typing import Any, Callable, List, Optional
 
+from redis import Redis
 from rq_scheduler import Scheduler
 
 

@@ -1,11 +1,14 @@
-from redis import Redis, from_url as redis_from_url
-from rq_scheduler import Scheduler
-from rq import Worker
-from multiprocessing import Process
-from service import SchedulerService
-from job import schedule_jobs
-from config import Config
 import logging
+from multiprocessing import Process
+
+from redis import Redis
+from redis import from_url as redis_from_url
+from rq import Worker
+from rq_scheduler import Scheduler
+
+from config import Config
+from job import schedule_jobs
+from service import SchedulerService
 
 logger = logging.getLogger(__name__)
 

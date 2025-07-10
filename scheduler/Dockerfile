@@ -45,4 +45,4 @@ USER appuser
 # Expose port if needed (e.g. for web app)
 EXPOSE 8001
 
-CMD ["python", "main.py"]
+CMD ["python", "app/main.py"]

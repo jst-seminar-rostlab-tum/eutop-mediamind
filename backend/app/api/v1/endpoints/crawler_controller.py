@@ -7,6 +7,7 @@ Once we have a proper scheduler, we can remove this controller.
 import asyncio
 from datetime import date
 from datetime import date as Date
+from datetime import datetime
 from typing import Optional
 
 from fastapi import APIRouter, Query
@@ -91,6 +92,7 @@ async def get_breaking_news():
     breaking_news = get_all_breaking_news()
     news_items = [BreakingNewsItem.from_entity(news) for news in breaking_news]
     return BreakingNewsResponse(news=news_items, total_count=len(news_items))
+
 
 @router.get("/stats", response_model=CrawlStatsResponse)
 async def get_crawl_stats(
