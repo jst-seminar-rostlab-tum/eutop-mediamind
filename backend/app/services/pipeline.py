@@ -19,6 +19,11 @@ logger = get_logger(__name__)
 
 async def run(datetime_start: datetime, datetime_end: datetime):
     """Run a pipeline for the given date range."""
+<<<<<<< HEAD
+=======
+    logger.info(f"Running pipeline from {datetime_start} to {datetime_end}")
+
+>>>>>>> origin/master
     logger.info("Running crawler and scraper")
     await run_crawler(
         CrawlerType.NewsAPICrawler,

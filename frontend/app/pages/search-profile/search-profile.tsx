@@ -167,7 +167,7 @@ export function SearchProfileOverview() {
             <Text hierachy={2}>{profile?.name}</Text>
           </div>
           <div className="flex items-center justify-between mb-4 gap-10">
-            <ScrollArea className="w-280 whitespace-nowrap rounded-md pb-1.5">
+            <ScrollArea className="grow overflow-x-hidden whitespace-nowrap rounded-md pb-1.5">
               <div className="flex w-max space-x-2 p-1">
                 <div className="flex items-center gap-1 shrink-0">
                   <Book size={20} />
@@ -232,7 +232,7 @@ export function SearchProfileOverview() {
                 <ScrollArea className="h-[755px] p-4">
                   {matches?.matches.length === 0 ? (
                     <p className="text-muted-foreground text-sm text-center pt-2 italic">
-                      No matches found.
+                      {t("search_profile.No_articles")}
                     </p>
                   ) : (
                     matches?.matches.map((match) => {
@@ -252,7 +252,7 @@ export function SearchProfileOverview() {
                             key={match.id}
                           >
                             <CardTitle className="text-xl">
-                              {match.article.headline["en"]}
+                              {getLocalizedContent(match.article.headline)}
                             </CardTitle>
                             <p>
                               {truncateAtWord(
@@ -264,7 +264,8 @@ export function SearchProfileOverview() {
                               <div
                                 className={`rounded-lg py-1 px-2 ${bgColor}`}
                               >
-                                Relevance: {getPercentage(relevance)}
+                                {t("search_profile.Relevance")}{" "}
+                                {getPercentage(relevance)}
                               </div>
                               {match.topics.map((topic) => (
                                 <div

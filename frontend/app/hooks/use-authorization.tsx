@@ -15,6 +15,7 @@ type UseAuthorizationReturn = {
   isLoaded: boolean;
   isSignedIn: boolean;
   user?: MediamindUser;
+  setMediamindUser?: (user: MediamindUser) => void;
 };
 
 const initialValue: UseAuthorizationReturn = {
@@ -75,6 +76,7 @@ export const AuthorizationContextProvider = ({
     isLoaded,
     isSignedIn: Boolean(isSignedIn),
     user: mediamindUser,
+    setMediamindUser,
   };
   return (
     <AuthorizationContext.Provider value={authorizationHookReturnValue}>
