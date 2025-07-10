@@ -209,8 +209,6 @@ class UserRepository:
     @staticmethod
     async def update_organization(user: User, session) -> User:
         session.add(user)
-        await session.commit()
-        await session.refresh(user)
         return _to_user_base(user)
 
     @staticmethod
