@@ -5,6 +5,7 @@ from pydantic import BaseModel, EmailStr
 
 from app.models import User
 from app.models.user import UserRole
+from app.schemas.subscription_schemas import SubscriptionSummary
 
 
 # Shared properties
@@ -27,3 +28,4 @@ class OrganizationCreateOrUpdate(OrganizationBase):
 class OrganizationResponse(OrganizationBase):
     id: uuid.UUID
     users: List[User] = []
+    subscriptions: List[SubscriptionSummary] = []
