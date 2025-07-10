@@ -113,10 +113,15 @@ export function AdminPage() {
     try {
       const requestData = {
         name: orga.name,
-        email: "test@email.com", // field maybe outdated
-        user_ids: orga.users.map((user) => user.id ?? ""),
+        email: "test@email.com", // field outdated
+        users: orga.users
+          .filter((user) => user.id !== undefined) // remove users without id (possibly never the case)
+          .map((user) => ({
+            id: user.id as string,
+            role: user.role,
+          })),
       };
-
+      console.log(requestData);
       if (!isEditOrgaMode) {
         const result = await client.POST("/api/v1/organizations", {
           body: requestData,

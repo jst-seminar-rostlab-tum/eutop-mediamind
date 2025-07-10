@@ -125,7 +125,7 @@ export function getSubsColumns(
 }
 
 export function getUserColumns(
-  onRoleChange: (index: number, role: "admin" | "user") => void,
+  onRoleChange: (index: number, role: "maintainer" | "member") => void,
   onDelete: (index: number) => void,
 ): ColumnDef<TableUser>[] {
   const { t } = useTranslation();
@@ -170,25 +170,25 @@ export function getUserColumns(
       accessorKey: "role",
       header: t("organization-dialog.role"),
       cell: ({ row }) => {
-        const role = row.getValue("role") as "admin" | "user";
+        const role = row.getValue("role") as "maintainer" | "member";
         const index = row.index;
 
         return (
           <Select
             value={role}
             onValueChange={(newRole) => {
-              onRoleChange(index, newRole as "admin" | "user");
+              onRoleChange(index, newRole as "maintainer" | "member");
             }}
           >
             <SelectTrigger className="w-[120px]">
               <SelectValue placeholder="Select role" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="admin">
-                {t("organization-dialog.admin")}
+              <SelectItem value="maintainer">
+                {t("organization-dialog.maintainer")}
               </SelectItem>
-              <SelectItem value="user">
-                {t("organization-dialog.user")}
+              <SelectItem value="member">
+                {t("organization-dialog.member")}
               </SelectItem>
             </SelectContent>
           </Select>

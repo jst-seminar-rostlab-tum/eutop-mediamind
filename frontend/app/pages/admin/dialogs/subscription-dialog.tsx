@@ -110,8 +110,6 @@ export function SubscriptionDialog({
     revalidate();
   }, [open, isEdit, sub?.id, mutateFetchedSubData]);
 
-  console.log(fetchedSubData);
-
   const subData = useMemo(() => {
     return cloneDeep(isEdit && fetchedSubData ? fetchedSubData : initialSub);
   }, [isEdit, fetchedSubData]);

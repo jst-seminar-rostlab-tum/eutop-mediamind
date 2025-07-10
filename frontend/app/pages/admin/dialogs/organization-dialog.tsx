@@ -42,7 +42,7 @@ export type TableUser = {
   id: string;
   email: string;
   username: string;
-  role: "admin" | "user";
+  role: "maintainer" | "member";
 };
 
 export function OrganizationDialog({
@@ -109,14 +109,17 @@ export function OrganizationDialog({
         id: user.id ?? "",
         email: user.email,
         username: `${user.first_name} ${user.last_name}`,
-        role: user.is_superuser ? "admin" : "user",
+        role: user.role,
       }));
 
       setTableUsers(mappedUsers);
     }
   }, [isEdit, orga]);
 
-  const handleRoleChange = (index: number, newRole: "admin" | "user") => {
+  const handleRoleChange = (
+    index: number,
+    newRole: "maintainer" | "member",
+  ) => {
     setTableUsers((prev) =>
       prev.map((user, i) => (i === index ? { ...user, role: newRole } : user)),
     );
@@ -150,7 +153,7 @@ export function OrganizationDialog({
       id: user.id,
       email: user.email,
       username: `${user.first_name} ${user.last_name}`,
-      role: user.is_superuser ? "admin" : "user",
+      role: user.role,
     };
     // add to tableUsers
     setTableUsers((prev) => [...prev, tableUser]);
@@ -159,18 +162,22 @@ export function OrganizationDialog({
   // prepare data and call onSave
   const onSubmit = (values: FormValues) => {
     const updatedOrga: Organization = {
+      // get email and id
       ...editedOrga,
-
+      // get name from form
       name: values.name.trim(),
-
       users: tableUsers
         .map((tableUser) => {
-          const fullUser = allUsers.find((u) => u.email === tableUser.email);
+          // get fullUser by id
+          const fullUser = allUsers.find((u) => u.id === tableUser.id);
           if (!fullUser) return null;
-
           return {
+            // take all attributes from fullUser
             ...fullUser,
-            is_superuser: tableUser.role === "admin",
+            // except take role from tableUser
+            role: tableUser.role,
+            // set gender null if its undefined to prevent error
+            gender: fullUser.gender ?? null,
           };
         })
         .filter((u): u is NonNullable<typeof u> => u !== null), // Remove unmatched users
@@ -195,8 +202,9 @@ export function OrganizationDialog({
     const base = isEdit ? orga : initialOrga;
 
     const updated = {
+      // get id and email
       ...base,
-      // get current name input
+      // get current name input to check name change
       name: form.getValues().name.trim(),
       //get current users table
       users: tableUsers
@@ -204,14 +212,10 @@ export function OrganizationDialog({
           const fullUser = allUsers.find((u) => u.email === tableUser.email);
           if (!fullUser) return null;
           return {
-            id: fullUser.id,
-            clerk_id: fullUser.clerk_id,
-            email: fullUser.email,
-            first_name: fullUser.first_name,
-            last_name: fullUser.last_name,
-            language: fullUser.language,
-            organization_id: fullUser.organization_id,
-            is_superuser: tableUser.role === "admin",
+            // get all form fullUser
+            ...fullUser,
+            // get role form table user to check if edited
+            role: tableUser.role,
           };
         })
         .filter((u): u is NonNullable<typeof u> => u !== null),
