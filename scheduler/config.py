@@ -1,11 +1,7 @@
 from pydantic_settings import BaseSettings
-from typing import Optional
 
 class Config(BaseSettings):
-    REDIS_HOST: str
-    REDIS_PORT: int
-    REDIS_DB: int
-    REDIS_PASSWORD: Optional[str] = None
+    REDIS_URL: str
 
     QUEUE_NAME: str 
 

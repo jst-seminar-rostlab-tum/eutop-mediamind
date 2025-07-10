@@ -23,8 +23,8 @@ def main():
     logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     cfg = Config()
 
-    redis = Redis(host=cfg.REDIS_HOST, port=cfg.REDIS_PORT, db=cfg.REDIS_DB, password=cfg.REDIS_PASSWORD)
-    logger.info(f"Connected to Redis at {cfg.REDIS_HOST}:{cfg.REDIS_PORT}")
+    redis = Redis.from_url(cfg.REDIS_URL)
+    logger.info(f"Connected to Redis at {cfg.REDIS_URL}")
 
     service = SchedulerService(redis)
 
