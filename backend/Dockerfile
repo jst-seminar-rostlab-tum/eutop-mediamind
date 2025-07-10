@@ -38,11 +38,6 @@ RUN apt-get update && \
 # Copy installed Python packages from builder
 COPY --from=builder /install /usr/local
 
-# Create logs directory and set proper permissions
-RUN mkdir -p /app/logs && \
-    chown -R appuser:appuser /app && \
-    chmod -R 755 /app/logs
-
 # Copy application code
 COPY . .
 

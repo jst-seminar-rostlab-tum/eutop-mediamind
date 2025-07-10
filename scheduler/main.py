@@ -1,4 +1,4 @@
-from redis import Redis
+from redis import Redis, from_url as redis_from_url
 from rq_scheduler import Scheduler
 from rq import Worker
 from multiprocessing import Process
@@ -8,6 +8,7 @@ from config import Config
 import logging
 
 logger = logging.getLogger(__name__)
+
 
 def _start_worker(redis: Redis, queue: str) -> None:
     logger.info(f"Starting worker for queue: {queue}")
@@ -23,7 +24,7 @@ def main():
     logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     cfg = Config()
 
-    redis = Redis.from_url(cfg.REDIS_URL)
+    redis = redis_from_url(cfg.REDIS_URL)
     redis.ping()  # Check if Redis is reachable
     logger.info(f"Connected to Redis at {cfg.REDIS_URL}")
 

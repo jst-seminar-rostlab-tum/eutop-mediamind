@@ -14,10 +14,6 @@ logger = get_logger(__name__)
 
 @router.get("/email")
 async def email_job():
-    """
-    This endpoint is a placeholder for an email job.
-    It currently does nothing but can be extended to send emails.
-    """
     await EmailService.send_scheduled_emails()
 
 @router.get("/pipeline")

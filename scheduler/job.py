@@ -7,7 +7,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 def schedule_jobs(service: SchedulerService, cfg: Config) -> None:
-    print("Scheduling jobs...", cfg.EMAIL_JOB_INTERVAL)
+    logger.info("Scheduling jobs...", cfg.EMAIL_JOB_INTERVAL)
 
     service.schedule_periodic(
         id = UUID("f47ac10b-58cc-4372-a567-0e02b2c3d479"),
