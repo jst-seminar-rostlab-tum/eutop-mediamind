@@ -115,7 +115,7 @@ export function SidebarFilter({
           className="absolute right-3 top-2 text-muted-foreground"
         />
       </div>
-      <ScrollArea className="h-40 rounded-md border p-2">
+      <ScrollArea className="h-50 rounded-md border p-2">
         {filteredSources.map((source) => (
           <div key={source.id} className="flex items-center gap-2 p-2">
             <Checkbox
@@ -148,7 +148,7 @@ export function SidebarFilter({
           className="absolute right-3 top-2 text-muted-foreground"
         />
       </div>
-      <ScrollArea className="h-40 rounded-md border p-2">
+      <ScrollArea className="h-50 rounded-md border p-2">
         {filteredTopics.map((topic) => (
           <div key={topic.id} className="flex items-center gap-2 p-2">
             <Checkbox

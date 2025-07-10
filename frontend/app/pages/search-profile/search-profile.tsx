@@ -145,11 +145,11 @@ export function SearchProfileOverview() {
   const Topics = profile ? profile.topics : [];
 
   return (
-    <Layout>
+    <Layout className="overflow-hidden flex justify-center">
       {!profile || isProfileLoading ? (
         <SearchProfileSkeleton />
       ) : (
-        <>
+        <div>
           <Breadcrumb>
             <BreadcrumbList>
               <BreadcrumbItem>
@@ -166,7 +166,7 @@ export function SearchProfileOverview() {
           <div className="flex gap-8">
             <Text hierachy={2}>{profile?.name}</Text>
           </div>
-          <div className="flex items-center justify-between mb-4 gap-10">
+          <div className="flex items-center justify-between mb-4 gap-10 w-[1250px]">
             <ScrollArea className="grow overflow-x-hidden whitespace-nowrap rounded-md pb-1.5">
               <div className="flex w-max space-x-2 p-1">
                 <div className="flex items-center gap-1 shrink-0">
@@ -192,7 +192,7 @@ export function SearchProfileOverview() {
             </Button>
           </div>
 
-          <div className="w-full grid grid-cols-6 mt-2 gap-8">
+          <div className="grid grid-cols-6 mt-2 gap-8">
             <div className="col-span-2">
               <SidebarFilter
                 sortBy={sortBy}
@@ -228,8 +228,8 @@ export function SearchProfileOverview() {
                   <Search />
                 </Button>
               </div>
-              <div className="bg-card rounded-xl border shadow-sm">
-                <ScrollArea className="h-[755px] p-4">
+              <div className="bg-card rounded-xl border shadow-sm h-[calc(100vh-350px)]">
+                <ScrollArea className="p-4">
                   {matches?.matches.length === 0 ? (
                     <p className="text-muted-foreground text-sm text-center pt-2 italic">
                       {t("search_profile.No_articles")}
@@ -287,7 +287,7 @@ export function SearchProfileOverview() {
               </div>
             </div>
           </div>
-        </>
+        </div>
       )}
     </Layout>
   );
