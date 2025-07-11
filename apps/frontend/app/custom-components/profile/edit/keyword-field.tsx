@@ -55,7 +55,7 @@ export function KeywordField({
   };
 
   return (
-    <Card className="rounded-3xl shadow-none">
+    <Card className="rounded-xl shadow-none">
       <CardHeader>
         <CardTitle>{t("keyword-field.header")}</CardTitle>
       </CardHeader>

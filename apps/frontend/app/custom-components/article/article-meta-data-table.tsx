@@ -17,7 +17,7 @@ export function ArticleMetaDataTable({ article }: ArticleMetaDataTableProps) {
   const { t } = useTranslation();
 
   return (
-    <div className="border border-gray-200 rounded-3xl p-3">
+    <div className="border border-gray-200 rounded-xl p-3">
       <Table>
         <TableHead>{t("article-page.meta_data_header")}</TableHead>
         <TableBody>

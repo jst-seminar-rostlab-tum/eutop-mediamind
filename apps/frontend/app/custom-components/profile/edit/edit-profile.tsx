@@ -208,7 +208,7 @@ export function EditProfile({
         }}
       >
         <DialogContent
-          className={"flex flex-col gap-8 min-w-1/2 rounded-3xl h-3/4"}
+          className={"flex flex-col gap-8 min-w-1/2 rounded-xl h-3/4"}
         >
           <DialogHeader className="flex-none">
             <div className={"flex items-center gap-3"}>
@@ -348,7 +348,7 @@ export function EditProfile({
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center">
-              <OctagonAlert size={20} className="text-red-500 mr-2" />
+              <OctagonAlert size={20} className="text-destructive mr-2" />
               {t("confirmation_dialog.title")}
             </AlertDialogTitle>
             <AlertDialogDescription>

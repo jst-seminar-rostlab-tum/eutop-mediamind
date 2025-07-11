@@ -2,7 +2,7 @@ import { Skeleton } from "~/components/ui/skeleton";
 
 export function ProfileCardSkeleton() {
   return (
-    <div className="p-6 bg-white border rounded-2xl shadow-sm animate-pulse">
+    <div className="p-6 bg-white border rounded-xl shadow-sm animate-pulse">
       <div className="flex justify-between items-center mb-4">
         <Skeleton className="h-6 w-20" />
         <div className="flex space-x-2">
