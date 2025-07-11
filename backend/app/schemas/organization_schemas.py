@@ -11,6 +11,7 @@ from app.models.user import UserRole
 class OrganizationBase(BaseModel):
     name: str
     email: EmailStr or None
+    pdf_as_link: bool
 
 
 class CreateRequestUser(BaseModel):

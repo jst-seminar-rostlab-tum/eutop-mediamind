@@ -115,6 +115,7 @@ class OrganizationRepository:
                 id=org.id,
                 name=org.name,
                 email=org.email,
+                pdf_as_link=org.pdf_as_link,
                 users=org.users,
             )
             for org in organizations

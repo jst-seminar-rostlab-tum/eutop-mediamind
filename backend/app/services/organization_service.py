@@ -31,6 +31,7 @@ class OrganizationService:
             organization = Organization(
                 name=create_request.name,
                 email=create_request.email,
+                pdf_as_link=create_request.pdf_as_link,
             )
             organization = await OrganizationRepository.create(
                 organization, session=session
@@ -59,6 +60,7 @@ class OrganizationService:
                 id=organization.id,
                 name=organization.name,
                 email=organization.email,
+                pdf_as_link=organization.pdf_as_link,
                 users=users,
             )
 
@@ -84,6 +86,7 @@ class OrganizationService:
             organization.name = update_request.name
             if update_request.email:
                 organization.email = update_request.email
+            organization.pdf_as_link = update_request.pdf_as_link
             session.add(organization)
 
             # Get current users in the organization
@@ -128,6 +131,7 @@ class OrganizationService:
                 id=organization.id,
                 name=organization.name,
                 email=organization.email,
+                pdf_as_link=organization.pdf_as_link,
                 users=users,
             )
 
