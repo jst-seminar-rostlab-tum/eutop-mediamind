@@ -14,8 +14,8 @@ jobs:
     with:
       image_name: ecr-mediamind
       image_tag: latest
-      dockerfile_path: ./scheduler/Dockerfile
-      context: ./scheduler
+      dockerfile_path: ./apps/scheduler/Dockerfile
+      context: ./apps/scheduler
       aws_region: eu-central-1
       ecr_registry: 313193269185.dkr.ecr.eu-central-1.amazonaws.com
     secrets:

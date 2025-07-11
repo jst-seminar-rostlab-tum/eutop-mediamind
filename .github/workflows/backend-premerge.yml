@@ -3,21 +3,21 @@ name: Backend pre-merge
 on:
   pull_request:
     paths:
-      - "backend/**"
+      - "apps/api/**"
   workflow_call:
 
 jobs:
   python-premerge:
     uses: ./.github/workflows/python-premerge.yml
     with:
-      workdir: ./backend
+      workdir: ./apps/api
 
   check-alembic:
     needs: python-premerge
     runs-on: ubuntu-24.04
     defaults:
       run:
-        working-directory: ./backend
+        working-directory: ./apps/api
     steps:
       - name: Checkout code
         uses: actions/checkout@v4

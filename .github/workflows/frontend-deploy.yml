@@ -6,8 +6,8 @@ on:
       - master
 env:
   DOCKER_IMAGE: eutop/frontend
-  DOCKERFILE_PATH: ./frontend/Dockerfile
-  DOCKER_CONTEXT: ./frontend
+  DOCKERFILE_PATH: ./apps/frontend/Dockerfile
+  DOCKER_CONTEXT: ./apps/frontend
 
 jobs:
   frontend-premerge:
