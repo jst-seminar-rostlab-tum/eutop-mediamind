@@ -102,6 +102,19 @@ module "ecs_dev" {
   alb_security_group_id = module.alb.alb_security_group_id
 }
 
+module "scheduler" {
+  source                = "./modules/scheduler"
+  service_name          = "mediamind-service-scheduler-dev"
+  cluster_name          = local.cluster_name
+  container_image       = module.ecr.repository_url
+  redis_endpoint        = module.redis.endpoint
+  subnet_ids            = data.aws_subnets.selected.ids
+  vpc_id                = data.aws_vpc.selected.id
+  secrets_arn           = local.dev_secrets_arn
+  s3_backend_bucket     = module.s3.bucket
+  region                = "eu-central-1"
+}
+
 module "qdrant" {
   source         = "./modules/qdrant"
   service_name   = "mediamind"
