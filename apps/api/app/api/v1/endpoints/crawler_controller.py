@@ -18,7 +18,6 @@ from app.schemas.breaking_news_schemas import (
     BreakingNewsResponse,
 )
 from app.schemas.crawl_stats_schemas import CrawlStatsResponse
-from app.services import pipeline
 from app.services.crawl_stats_service import CrawlStatsService
 from app.services.web_harvester.breaking_news_crawler import (
     fetch_breaking_news_newsapi,
@@ -93,22 +92,6 @@ async def get_breaking_news():
     breaking_news = get_all_breaking_news()
     news_items = [BreakingNewsItem.from_entity(news) for news in breaking_news]
     return BreakingNewsResponse(news=news_items, total_count=len(news_items))
-
-
-@router.post("/trigger_pipeline")
-async def trigger_pipeline(
-    datetime_start: datetime = datetime.combine(
-        date.today(), datetime.min.time()
-    ),
-    datetime_end: datetime = datetime.now(),
-    language: str = "en",
-):
-
-    logger.info(f"Triggering pipeline from {datetime_start} to {datetime_end}")
-    asyncio.create_task(
-        pipeline.run(datetime_start=datetime_start, datetime_end=datetime_end)
-    )
-    return {"message": "Pipeline triggered successfully"}
 
 
 @router.get("/stats", response_model=CrawlStatsResponse)
