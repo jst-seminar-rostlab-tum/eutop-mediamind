@@ -49,9 +49,9 @@ export function ArticleBody({
           {readingTime}
         </div>
       </div>
-      <article className={"prose prose-gray max-w-none"}>
+      <section className={"markdown"}>
         <ReactMarkdown>{content}</ReactMarkdown>
-      </article>
+      </section>
     </div>
   );
 }
