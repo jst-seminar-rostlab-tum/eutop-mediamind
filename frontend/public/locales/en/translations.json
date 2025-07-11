@@ -183,7 +183,7 @@
     "meta_data_header": "Meta Data",
     "meta_data_published": "Published",
     "meta_data_crawled": "Crawled",
-    "meta_data_language": "Language",
+    "meta_data_language": "Original language",
     "meta_data_status": "Status",
     "meta_data_category": "Category",
     "keywords_text": "Displays matched profile topics with keywords, and a score indicating topic relevance to the article."
