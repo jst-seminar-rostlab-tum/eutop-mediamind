@@ -108,7 +108,7 @@ export function ArticleSidebar({ article }: ArticleSidebarProps) {
                 >
                   {isExpanded ? (
                     <>
-                      Show less
+                      {t("article-page.show_less")}
                       <ChevronUp size={14} />
                     </>
                   ) : (
