@@ -82,7 +82,7 @@ export default function Header() {
     <div className="p-4 w-full flex justify-between items-center">
       <div className="flex items-center gap-8">
         <Link to="/" className="mt-[0.3rem]">
-          <img src="/MediaMind_Logo.svg" alt="MediaMind Logo" width={140} />
+          <img src="/MediaMind_Logo.svg" alt="MediaMind Logo" width={180} />
         </Link>
         {isSignedIn && user?.organization_name && (
           <div className="flex items-center gap-2">

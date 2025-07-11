@@ -4,9 +4,10 @@ import Text from "~/custom-components/text";
 import { useAuthorization } from "~/hooks/use-authorization";
 import { useTranslation } from "react-i18next";
 import { motion } from "framer-motion";
-import { FeatureCarousel } from "./feature-carousel";
 import { Button } from "~/components/ui/button";
 import { SquareArrowOutUpRight } from "lucide-react";
+import { Card } from "~/components/ui/card";
+import { MockedDashboardPage } from "./mocked-dashboard";
 
 export function Welcome() {
   const { isSignedIn, user } = useAuthorization();
@@ -40,7 +41,7 @@ export function Welcome() {
   return (
     <>
       <div
-        className="relative h-[500px] w-full bg-cover bg-center overflow-hidden"
+        className="relative h-[50vh] w-full bg-cover bg-center overflow-hidden"
         style={{
           backgroundImage: "url('/press_wallpaper.jpg')",
         }}
@@ -67,141 +68,50 @@ export function Welcome() {
           ))}
         </div>
       </div>
-      <div className="bg-muted">
-        <div className="w-[80%] mx-auto">
-          <FeatureCarousel />
-        </div>
-      </div>
-      <div className="w-[60%] mx-auto">
-        <div className="grid grid-cols-3 place-items-center mt-16 mb-6">
-          <img src="/EUTOP_Logo.png" alt="EUTOP_Logo" width={"200px"} />
-          <img src="/TUM_Logo.svg" alt="TUM_Logo" />
-          <img src="/csee-logo.webp" alt="CSEE Logo" className="h-20" />
-        </div>
-        <div>
-          <Text className="text-center">{t("landing_page.credits")}</Text>
+      <div className="pt-10 bg-[linear-gradient(to_bottom,_#3a4a5a_0%,_#dcdcdc_20%,_#f8f9fa_30%,_#f8f9fa_70%,_#dcdcdc_80%,_#556270_100%)]">
+        {/* Features Section */}
+        <div className="flex flex-col justify-center">
+          <div className="w-[80%] p-20 mx-auto flex items-center gap-30 justify-center">
+            <div className="w-170">
+              <p className="text-4xl md:text-5xl font-semibold leading-tight mb-2">
+                Manage your Search Profiles
+              </p>
+              <p className="text-2xl md:text-3xl font-medium leading-tight mb-2">
+                Clean interface to manage all profiles in one Dashboard
+              </p>
+            </div>
+            <Card
+              key="dashboard-prev"
+              className="transform scale-100 w-170 h-195 border-8 pt-0"
+            >
+              <MockedDashboardPage />
+            </Card>
+          </div>
         </div>
 
-        <div className="m-6 flex justify-center">
-          <Button asChild variant="link">
-            <span>
-              <SquareArrowOutUpRight />
-              <a href="https://www.eutop.com/de/" target="_blank">
-                Visit EUTOP
-              </a>
-            </span>
-          </Button>
+        {/* Footer Section */}
+        <div className="w-[60%] mx-auto pt-10 pb-4">
+          <div className="grid grid-cols-3 place-items-center mt-16 mb-6">
+            <img src="/EUTOP_Logo.png" alt="EUTOP_Logo" width={"200px"} />
+            <img src="/TUM_Logo.svg" alt="TUM_Logo" />
+            <img src="/csee-logo.webp" alt="CSEE Logo" className="h-20" />
+          </div>
+          <div>
+            <Text className="text-center">{t("landing_page.credits")}</Text>
+          </div>
+
+          <div className="m-6 flex justify-center">
+            <Button asChild variant="link">
+              <span>
+                <SquareArrowOutUpRight />
+                <a href="https://www.eutop.com/de/" target="_blank">
+                  Visit EUTOP
+                </a>
+              </span>
+            </Button>
+          </div>
         </div>
       </div>
     </>
   );
-}
-{
-  /*
-    <>
-      <img
-        src="Eutop_Wallpaper.svg"
-        alt="Wallpaper"
-        className="w-full object-cover"
-      />
-
-      <Layout className="flex flex-col items-center">
-        <Text className="mt-6" hierachy={1}>
-          {t("landing_page.welcome")}
-        </Text>
-        <Text className="text-center">{t("landing_page.welcome_text")}</Text>
-      </Layout>
-
-      <div className="grid grid-cols-3 mx-auto max-w-7xl gap-6 my-16">
-        <Card>
-          <CardHeader>
-            <CardTitle>Automated Content Ingestion</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Text>
-              Contiously scan hundreds of vetted sources - news sites, wire
-              services, industry puplications, and especially newsletters - to
-              capture every mention of your topics. Articles are anonymized and
-              de-duplicated on the fly
-            </Text>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Dynamic Keyword Optimization</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Text>
-              Our Machine Learning engine learns form past searches, your
-              internal documents and live web trends to refine and expand your
-              keyword sets - uncovering new angles, niche outlets and evolving
-              terminology.
-            </Text>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>AI Powered Relevance Scoring</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Text>
-              Each article is rated against your objectives. MediaMind provides
-              a transparent relevance score, a concise summary and an impact
-              callout. Therefore you can prioritize high-value insighst at a
-              glance.
-            </Text>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Custom Daily Briefings</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Text>
-              Receive a consolidated PDF report every morning - complete with
-              source citiations, direct links and sectional organization -
-              tailored to each user's profile and workflow
-            </Text>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Scalable & Low-Maintenance</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Text>
-              Built for efficiency with core monitoring tasks running
-              automatically. This way your analysts can focus on interpretation
-              and outreach rather than manual data collection.
-            </Text>
-          </CardContent>
-        </Card>
-      </div>
-
-      <Layout className="grid grid-cols-3 place-items-center mt-16 mb-6">
-        <img src="/EUTOP_Logo.png" alt="EUTOP_Logo" width={"200px"} />
-        <img src="/TUM_Logo.svg" alt="TUM_Logo" />
-        <img src="/csee-logo.webp" alt="CSEE Logo" className="h-20" />
-      </Layout>
-      <div>
-        <Text className="text-center">{t("landing_page.credits")}</Text>
-      </div>
-
-      <Layout className="m-6 flex justify-center">
-        <Button asChild variant="link">
-          <span>
-            <SquareArrowOutUpRight />
-            <a href="https://www.eutop.com/de/" target="_blank">
-              Visit EUTOP
-            </a>
-          </span>
-        </Button>
-      </Layout>
-    </>
-      );
-    */
 }
