@@ -26,6 +26,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "~/components/ui/popover";
+import { ScrollArea } from "~/components/ui/scroll-area";
 
 import {
   Table,
@@ -36,13 +37,6 @@ import {
   TableRow,
 } from "~/components/ui/table";
 import { cn } from "~/lib/utils";
-
-export type UserWithRole = {
-  id: string;
-  email: string;
-  Username: string;
-  rights: "read" | "edit";
-};
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -64,14 +58,19 @@ export function DataTableUsers<TData, TValue>({
   );
   const [selectedEmail, setSelectedEmail] = React.useState<string>("");
 
+  const [rowSelection, setRowSelection] = React.useState({});
+
   const table = useReactTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
     onColumnFiltersChange: setColumnFilters,
     getFilteredRowModel: getFilteredRowModel(),
+    enableRowSelection: true,
+    onRowSelectionChange: setRowSelection,
     state: {
       columnFilters,
+      rowSelection,
     },
   });
 
@@ -149,7 +148,8 @@ export function DataTableUsers<TData, TValue>({
             <Button
               className={"rounded-l-none"}
               variant={"secondary"}
-              onClick={() => {
+              onClick={(e) => {
+                e.preventDefault();
                 onAdd(selectedEmail);
                 setSelectedEmail("");
               }}
@@ -163,8 +163,10 @@ export function DataTableUsers<TData, TValue>({
             disabled={!canDelete}
             className={!canDelete ? "cursor-not-allowed opacity-50" : ""}
             variant="destructive"
-            onClick={() => {
+            onClick={(e) => {
+              e.preventDefault();
               onBunchDelete(table.getSelectedRowModel().rows);
+              setRowSelection({});
             }}
           >
             <Trash2 className="h-4 w-4" />
@@ -175,10 +177,20 @@ export function DataTableUsers<TData, TValue>({
       <Table>
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
-            <TableRow key={headerGroup.id}>
+            <TableRow key={headerGroup.id} className="grid grid-cols-20">
               {headerGroup.headers.map((header) => {
                 return (
-                  <TableHead key={header.id}>
+                  <TableHead
+                    key={header.id}
+                    className={cn(
+                      "flex items-center",
+                      header.index === 0 || header.index === 4
+                        ? "col-span-1 justify-center"
+                        : header.index === 3
+                          ? "col-span-4"
+                          : "col-span-7",
+                    )}
+                  >
                     {header.isPlaceholder
                       ? null
                       : flexRender(
@@ -191,29 +203,51 @@ export function DataTableUsers<TData, TValue>({
             </TableRow>
           ))}
         </TableHeader>
-        <TableBody>
-          {table.getRowModel().rows?.length ? (
-            table.getRowModel().rows.map((row) => (
-              <TableRow
-                key={row.id}
-                data-state={row.getIsSelected() && "selected"}
-              >
-                {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id}>
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </TableCell>
-                ))}
-              </TableRow>
-            ))
-          ) : (
-            <TableRow>
-              <TableCell colSpan={columns.length} className="h-24 text-center">
-                {t("admin.no_results")}
-              </TableCell>
-            </TableRow>
-          )}
-        </TableBody>
       </Table>
+
+      <ScrollArea className="h-[200px]">
+        <Table>
+          <TableBody>
+            {table.getRowModel().rows?.length ? (
+              table.getRowModel().rows.map((row) => (
+                <TableRow
+                  key={row.id}
+                  data-state={row.getIsSelected() && "selected"}
+                  className="grid grid-cols-20"
+                >
+                  {row.getVisibleCells().map((cell, idx) => (
+                    <TableCell
+                      key={cell.id}
+                      className={cn(
+                        "flex items-center",
+                        idx === 0 || idx === 4
+                          ? "col-span-1 justify-center"
+                          : idx === 3
+                            ? "col-span-4"
+                            : "col-span-7",
+                      )}
+                    >
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext(),
+                      )}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell
+                  colSpan={columns.length}
+                  className="h-24 text-center"
+                >
+                  {t("organization-dialog.no_results")}
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </ScrollArea>
     </>
   );
 }
