@@ -1,4 +1,5 @@
 import { Calendar, FileClock, User } from "lucide-react";
+import ReactMarkdown from "react-markdown";
 
 interface ArticleBodyProps {
   title: string;
@@ -48,8 +49,8 @@ export function ArticleBody({
           {readingTime}
         </div>
       </div>
-      <article className={"text-gray-800 whitespace-pre-wrap"}>
-        {content}
+      <article className={"prose prose-gray max-w-none"}>
+        <ReactMarkdown>{content}</ReactMarkdown>
       </article>
     </div>
   );
