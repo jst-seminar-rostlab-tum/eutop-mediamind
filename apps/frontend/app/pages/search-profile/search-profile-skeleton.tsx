@@ -37,7 +37,7 @@ export function SearchProfileSkeleton() {
         <div className="col-span-4 space-y-6">
           <Skeleton className="h-10 w-full rounded-md" />
           {[...Array(4)].map((_, i) => (
-            <div key={i} className="p-4 border rounded-xl space-y-3">
+            <div key={i} className="p-4 border rounded-lg space-y-3">
               <Skeleton className="h-6 w-3/4" />
               <Skeleton className="h-4 w-full" />
               <Skeleton className="h-4 w-5/6" />

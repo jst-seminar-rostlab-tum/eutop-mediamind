@@ -228,7 +228,7 @@ export function SearchProfileOverview() {
                   <Search />
                 </Button>
               </div>
-              <div className="bg-card rounded-xl border shadow-sm">
+              <div className="bg-card rounded-lg border shadow-sm">
                 <ScrollArea className="h-[755px] p-4">
                   {matches?.matches.length === 0 ? (
                     <p className="text-muted-foreground text-sm text-center pt-2 italic">

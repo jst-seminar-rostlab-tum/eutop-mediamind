@@ -215,12 +215,12 @@ export function ProfileCard({
           </div>
           <Link
             to={`/search-profile/${profile.id}`}
-            className="w-full h-20 bg-gray-100 items-center flex justify-center rounded-xl hover:bg-accent transition-background duration-300"
+            className="w-full h-10 mt-10 bg-gray-100 items-center flex justify-center rounded-lg hover:bg-accent transition-background duration-300"
           >
             <span className={"text-gray-700"}>
               {t("search_profile.Explore")}
             </span>
-            <ChevronRight className="w-7 h-7" />
+            <ChevronRight className="size-5" />
           </Link>
         </div>
       </div>

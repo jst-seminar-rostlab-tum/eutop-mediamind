@@ -27,7 +27,7 @@ export function ReportFilterBar({
   return (
     <div className="flex items-center gap-2">
       <Select value={language} onValueChange={onLanguageChange}>
-        <SelectTrigger className="w-[180px] rounded-xl">
+        <SelectTrigger className="w-[180px] rounded-lg">
           <SelectValue placeholder={<RoleBadge variant={"language"} />}>
             {language ? (
               <RoleBadge variant={language as "de" | "en"} />
@@ -53,7 +53,7 @@ export function ReportFilterBar({
         size="sm"
         onClick={onReset}
         disabled={!language}
-        className="h-9 w-9 p-0 rounded-xl"
+        className="h-9 w-9 p-0 rounded-lg"
       >
         <RotateCcw className="h-4 w-4" />
       </Button>

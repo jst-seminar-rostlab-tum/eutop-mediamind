@@ -208,7 +208,7 @@ export function EditProfile({
         }}
       >
         <DialogContent
-          className={"flex flex-col gap-8 min-w-1/2 rounded-xl h-3/4"}
+          className={"flex flex-col gap-8 min-w-1/2 rounded-lg h-3/4"}
         >
           <DialogHeader className="flex-none">
             <div className={"flex items-center gap-3"}>

@@ -23,7 +23,7 @@ export function ReportCard({ report }: ReportCardProps) {
   }
 
   return (
-    <div className="shadow-lg border-2 rounded-xl p-4 h-40 w-50 space-y-1 flex flex-col justify-between">
+    <div className="shadow-lg border-2 rounded-lg p-4 h-40 w-50 space-y-1 flex flex-col justify-between">
       <div className={"flex items-center gap-2"}>
         <Calendar className="w-6 h-6" />
         <div className={"flex items-baseline space-x-2"}>
