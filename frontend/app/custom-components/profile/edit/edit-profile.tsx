@@ -327,7 +327,11 @@ export function EditProfile({
           </Tabs>
 
           <div className="flex flex-none justify-end">
-            <Button type="button" disabled={!isValid} onClick={handleSave}>
+            <Button
+              type="button"
+              disabled={!isValid || isSaving}
+              onClick={handleSave}
+            >
               {isSaving
                 ? isCreating
                   ? t("edit_profile.creating")
