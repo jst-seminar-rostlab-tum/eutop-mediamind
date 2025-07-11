@@ -28,7 +28,8 @@
     "breaking_news": "Aktuelle Schlagzeile",
     "read_more": "Weiter lesen",
     "loading_failed": "Profile konnten nicht geladen werden.",
-    "only_updated": "Nur aktualisierte anzeigen"
+    "only_updated": "Nur aktualisierte anzeigen",
+    "no_matched_profiles": "Keine passenden Profile für die aktuellen Filter"
   },
 
   "confirmation_dialog": {
@@ -82,12 +83,13 @@
     "AI_error": "Failed to get AI suggestions.",
     "topic_error": "Can't add the same topic twice",
     "header": "Themen und Schlagwörter",
-    "info": "Organisieren sie ihre Themen und Schlüsselwörter für die Nachrichten Extrahierung",
+    "info": "Organisieren sie ihre Themen und Schlagwörter für die Nachrichten Extrahierung",
     "select_topic": "Thema auswählen",
     "label": "Thema: ",
     "add": "+ Thema hinzufügen",
     "AI_header": "AI Schlagwörter Vorschläge",
-    "no_suggestions": "Keine neuen Vorschläge verfügbar"
+    "no_suggestions": "Keine neuen Vorschläge verfügbar",
+    "delete_topic": "Thema löschen"
   },
 
   "keyword-field": {
@@ -161,7 +163,7 @@
 
   "search_profile": {
     "Topics": "Themen",
-    "Keywords": "Schlüsselwörter",
+    "Keywords": "Schlagwörter",
     "Sorting": "Sortierung",
     "Sources": "Quellen",
     "Date": "Datum",
@@ -179,14 +181,14 @@
   "article-page": {
     "summary_header": "Zusammenfassung",
     "original_header": "Original",
-    "keywords_header": "Schlüsselwörter",
+    "keywords_header": "Schlagwörter",
     "meta_data_header": "Metadaten",
     "meta_data_published": "Veröffentlicht",
     "meta_data_crawled": "Gecrawlt",
-    "meta_data_language": "Sprache",
+    "meta_data_language": "Originalsprache",
     "meta_data_status": "Status",
     "meta_data_category": "Kategorie",
-    "keywords_text": "Zeigt übereinstimmende Themen mit Schlüsselwörtern und einer Bewertung an, die die Themenrelevanz für den Artikel angibt."
+    "keywords_text": "Zeigt übereinstimmende Themen mit Schlagwörtern und einer Bewertung an, die die Themenrelevanz für den Artikel angibt."
   },
 
   "role-badge": {

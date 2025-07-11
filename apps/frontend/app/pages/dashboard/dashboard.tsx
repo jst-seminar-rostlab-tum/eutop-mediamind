@@ -158,7 +158,7 @@ export function DashboardPage() {
       {!isLoading && filteredAndSortedProfiles?.length === 0 ? (
         <div className="flex items-center justify-center py-8">
           <span className="text-gray-400">
-            No matched profiles for current filters
+            {t("dashboard.no_matched_profiles")}
           </span>
         </div>
       ) : (
