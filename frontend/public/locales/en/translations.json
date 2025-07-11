@@ -28,7 +28,8 @@
     "breaking_news": "Breaking News",
     "read_more": "Read more",
     "loading_failed": "Failed to load profiles.",
-    "only_updated": "Only show updated"
+    "only_updated": "Only show updated",
+    "no_matched_profiles": "No matched profiles for current filters"
   },
 
   "confirmation_dialog": {
