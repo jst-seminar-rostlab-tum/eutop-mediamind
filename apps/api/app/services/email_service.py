@@ -3,6 +3,7 @@ import os
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+from logging import error
 from time import gmtime, strftime
 from typing import List
 
@@ -12,7 +13,6 @@ from app.core.config import configs
 from app.core.logger import get_logger
 from app.models.email import Email, EmailState
 from app.repositories.email_repository import EmailRepository
-from app.repositories.user_repository import UserRepository
 from app.services.translation_service import ArticleTranslationService
 from app.services.user_service import UserService
 
@@ -53,7 +53,7 @@ class EmailService:
         return await EmailRepository.add_email(email)
 
     @staticmethod
-    async def send_scheduled_emails():
+    async def send_scheduled_emails() -> None:
         emails = await EmailRepository.get_all_unsent_emails()
 
         for email in emails:
@@ -69,7 +69,7 @@ class EmailService:
                 else:
                     email.state = EmailState.RETRY
                 await EmailRepository.update_email(email)
-                raise Exception(
+                raise RuntimeError(
                     f"Failed to send email to {email.recipient}: {str(e)}"
                 )
 

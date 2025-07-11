@@ -85,6 +85,6 @@ class AppCreator:
         self.app.include_router(v1_routers, prefix="/api/v1")
 
 
-# App exposure for uvicorn
+# App exposure for Uvicorn
 app_creator = AppCreator()
 app = app_creator.app
