@@ -223,7 +223,7 @@ export function Topics({ profile, setProfile }: TopicsProps) {
                   selectedTopicKeywords.length > 0 &&
                   !isLoadingSuggestions && (
                     <Label className="text-gray-500 italic">
-                      {t("topcs.no_suggestions")}
+                      {t("topics.no_suggestions")}
                     </Label>
                   )}
               </div>
