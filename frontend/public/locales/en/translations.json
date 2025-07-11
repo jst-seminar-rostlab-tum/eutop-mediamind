@@ -87,7 +87,8 @@
     "label": "Topic: ",
     "add": "+ Add topic",
     "AI_header": "AI Keyword Suggestions",
-    "no_suggestions": "No new suggestions available"
+    "no_suggestions": "No new suggestions available",
+    "delete_topic": "Delete topic"
   },
 
   "keyword-field": {

@@ -87,7 +87,8 @@
     "label": "Thema: ",
     "add": "+ Thema hinzufügen",
     "AI_header": "AI Schlagwörter Vorschläge",
-    "no_suggestions": "Keine neuen Vorschläge verfügbar"
+    "no_suggestions": "Keine neuen Vorschläge verfügbar",
+    "delete_topic": "Thema löschen"
   },
 
   "keyword-field": {
