@@ -18,6 +18,7 @@ class ArticleEntityRepository:
     - industry
     - event
     - organization
+    - citation
     """
 
     @staticmethod

@@ -20,6 +20,7 @@ class MatchArticleOverviewContent(BaseModel):
     categories: List[str] | None = None
     status: ArticleStatus | None = None
     language: str | None = None
+    citations: List[str] | None = None
 
 
 class MatchTopicItem(BaseModel):

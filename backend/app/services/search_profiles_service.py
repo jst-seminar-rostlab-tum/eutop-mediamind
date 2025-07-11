@@ -12,6 +12,7 @@ from sqlalchemy.orm import selectinload
 from app.core.db import async_session
 from app.core.logger import get_logger
 from app.models import SearchProfile, Topic
+from app.models.entity import EntityType
 from app.models.match import Match
 from app.models.user import UserRole
 from app.repositories.article_repository import ArticleRepository
@@ -488,6 +489,12 @@ class SearchProfileService:
                 )
             )
 
+        entities = article.entities
+        citations = []
+        for e in entities:
+            if e.entity_type == EntityType.CITATION.value:
+                citations.append(e.value)
+
         return MatchDetailResponse(
             match_id=match.id,
             topics=topics,
@@ -514,6 +521,7 @@ class SearchProfileService:
                 categories=article.categories or [],
                 language=article.language,
                 newspaper_id=article.subscription_id,
+                citations=citations,
             ),
         )
 

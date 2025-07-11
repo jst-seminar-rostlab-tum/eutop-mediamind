@@ -50,7 +50,9 @@ class MatchRepository:
         async with async_session() as session:
             matches = await session.execute(
                 select(Match)
-                .options(selectinload(Match.article))
+                .options(
+                    selectinload(Match.article).selectinload(Article.entities)
+                )
                 .where(
                     Match.id == match_id,
                     Match.search_profile_id == search_profile_id,
