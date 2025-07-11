@@ -13,6 +13,7 @@ import { ErrorPage } from "~/pages/error/error";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router";
 import Text from "~/custom-components/text";
+import { sortBy } from "lodash-es";
 
 export function BreakingNews() {
   const {
@@ -35,6 +36,8 @@ export function BreakingNews() {
     return <ErrorPage />;
   }
 
+  const sortedNews = sortBy(breakingNews?.news ?? [], "created_at").reverse();
+
   return (
     <Layout>
       <Breadcrumb>
@@ -51,12 +54,12 @@ export function BreakingNews() {
         </BreadcrumbList>
       </Breadcrumb>
       <Text hierachy={2}>{t("breaking-news.header")}</Text>
-      {!breakingNews || !breakingNews.news || breakingNews.news.length === 0 ? (
+      {sortedNews.length === 0 ? (
         <div className={"text-gray-400"}>{t("breaking-news.no_news")}</div>
       ) : (
         <>
           <div className="space-y-4">
-            {breakingNews.news.map((news) => (
+            {sortedNews.map((news) => (
               <BreakingNewsCard key={news.id} news={news} />
             ))}
           </div>
