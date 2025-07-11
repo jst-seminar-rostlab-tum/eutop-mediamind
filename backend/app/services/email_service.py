@@ -9,6 +9,7 @@ from typing import List
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 from app.core.config import configs
+from app.core.languages import Language
 from app.core.logger import get_logger
 from app.models.email import Email, EmailState
 from app.repositories.email_repository import EmailRepository
@@ -133,7 +134,7 @@ class EmailService:
         dashboard_link: str,
         profile_name: str,
         last_name: str,
-        language: str = "en",
+        language: str = Language.EN.value,
     ) -> str:
         translator = ArticleTranslationService.get_translator(language)
 
@@ -195,7 +196,7 @@ class EmailService:
         for report in reports:
             if report["report"].language == user.language:
                 return report
-            if report["report"].language == "en":
+            if report["report"].language == Language.EN.value:
                 english_report = report
         # If there is no report in the user language
         return english_report

@@ -101,7 +101,6 @@ async def trigger_pipeline(
         date.today(), datetime.min.time()
     ),
     datetime_end: datetime = datetime.now(),
-    language: str = "en",
 ):
 
     logger.info(f"Triggering pipeline from {datetime_start} to {datetime_end}")

@@ -19,6 +19,7 @@ from crawl4ai import (
 )
 from playwright.async_api import BrowserContext, Page
 
+from app.core.languages import Language
 from app.core.logger import get_logger
 from app.models.article import Article, ArticleStatus
 
@@ -41,7 +42,7 @@ class EuramsCrawler:
         date_start: Optional[date] = None,
         date_end: Optional[date] = None,
         limit: int = -1,
-        language: str = "de",
+        language: str = Language.DE.value,
     ):
         self.subscription_id = subscription_id
         self.date_start = date_start
@@ -346,7 +347,7 @@ if __name__ == "__main__":
         date_start=date(2025, 6, 15),
         date_end=None,
         limit=50,
-        language="de",
+        language=Language.DE.value,
     )
 
     articles = asyncio.run(crawler.crawl_urls_async())
