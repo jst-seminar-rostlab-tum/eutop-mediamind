@@ -21,7 +21,7 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - ../backend:/app
+      - ../apps/api:/app
     logging:
       driver: json-file
       options:
@@ -31,7 +31,7 @@ services:
   scheduler:
     container_name: scheduler 
     build:
-      context: ../scheduler
+      context: ../apps/scheduler
       dockerfile: Dockerfile
     restart: always
     depends_on:

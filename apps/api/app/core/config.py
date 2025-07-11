@@ -43,7 +43,7 @@ from the `.env.example` file, as well as from the validation checks.
 
 class Configs(BaseSettings):
     model_config = SettingsConfigDict(
-        # Use top level .env file (one level above ./backend/)
+        # Use top level .env file (one level above ./api/)
         env_file=".env",
         env_ignore_empty=True,
         extra="ignore",

@@ -42,7 +42,4 @@ COPY . .
 RUN chown -R appuser:appuser /app
 USER appuser
 
-# Expose port if needed (e.g. for web app)
-EXPOSE 8001
-
 CMD ["python", "app/main.py"]
