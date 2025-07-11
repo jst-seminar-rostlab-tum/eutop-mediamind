@@ -42,7 +42,7 @@ export function FeatureCarousel() {
   }, [controls]);
 
   return (
-    <div className="overflow-hidden w-full border-t border-b border-muted py-6 bg-muted">
+    <div className="overflow-hidden w-full border-t border-b border-muted py-8 bg-muted">
       <motion.div animate={controls} className="flex gap-6 w-max">
         {/* Duplicate cards to create seamless looping */}
         {[...features, ...features].map((feature, index) => (
