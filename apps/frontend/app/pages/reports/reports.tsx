@@ -1,4 +1,5 @@
 import { ReportCard } from "~/custom-components/reports/report-card";
+import { ReportCardSkeleton } from "~/custom-components/reports/report-card-skeleton";
 import Layout from "~/custom-components/layout";
 import {
   Breadcrumb,
@@ -118,7 +119,7 @@ export function ReportsPage() {
     return pages;
   };
 
-  if (profileLoading || isLoading) {
+  if (profileLoading) {
     return <></>;
   }
 
@@ -156,12 +157,18 @@ export function ReportsPage() {
       <Text hierachy={2}>{t("reports.header")}</Text>
 
       {isLoading ? (
-        <div className="flex items-center justify-center min-h-[400px]">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto mb-4"></div>
-            <p>{t("reports.loading")}</p>
+        <>
+          <ReportFilterBar
+            language={languageFilter}
+            onLanguageChange={handleLanguageChange}
+            onReset={handleResetFilters}
+          />
+          <div className="grid-report-cards mt-4">
+            {Array.from({ length: 12 }).map((_, index) => (
+              <ReportCardSkeleton key={index} />
+            ))}
           </div>
-        </div>
+        </>
       ) : !reports || !reports.reports || reports.reports.length === 0 ? (
         <div className="text-center py-8">
           <p className="text-muted-foreground">
