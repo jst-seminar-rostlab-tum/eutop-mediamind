@@ -9,9 +9,9 @@ services:
       - qdrant_data:/qdrant/storage
 
   backend:
-    container_name: backend
+    container_name: api
     build:
-      context: ../backend
+      context: ../apps/api
       dockerfile: Dockerfile
     restart: always
     depends_on:
