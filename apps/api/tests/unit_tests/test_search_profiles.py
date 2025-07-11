@@ -55,6 +55,7 @@ def test_get_article_overview(
             "language": "en",
             "subscription_id": uuid4(),
             "status": "scraped",
+            "entities": [],
         },
     )()
 
@@ -121,6 +122,7 @@ def test_get_match_detail_success():
             "language": "en",
             "subscription_id": uuid4(),
             "status": "scraped",
+            "entities": [],
         },
     )()
 
