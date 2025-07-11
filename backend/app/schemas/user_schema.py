@@ -18,3 +18,4 @@ class UserEntity(BaseModel):
     role: UserRole = UserRole.member
     organization_id: Optional[uuid.UUID] = None
     organization_name: Optional[str] = None
+    breaking_news: bool = True
