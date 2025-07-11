@@ -17,7 +17,9 @@ Install the required extensions:
   * [Flake8](https://marketplace.visualstudio.com/items?itemName=ms-python.flake8)
   * [isort](https://marketplace.visualstudio.com/items?itemName=ms-python.isort)
 
-Change the settings in VSCode to look for the config files of Linter and Formatter in the `backend/` or `frontend/` directory of the project, respectively. Then turn on “format on save”, also in the settings.
+Change the settings in VSCode to look for the config files of Linter and 
+Formatter in the `api/`, `scheduler/` or `frontend/` directory of the project,
+respectively. Then turn on “format on save”, also in the settings.
 
 ### PyCharm
 
@@ -46,7 +48,9 @@ Each group should be separated by a blank line.
 
 ### Comments & Docstrings
 
-* **Docstrings**: Use triple double quotes (`"""`) for module, class, and function docstrings. Follow the [PEP 257](https://peps.python.org/pep-0257/) conventions.  
+* **Docstrings**: Use triple double quotes (`"""`) for module, class, and
+    function docstrings. Follow the [PEP 257](https://peps.python.org/pep-0257/)
+    conventions.  
 * **Inline Comments**:  
   * Use sparingly to explain non-obvious code.  
   * Separate inline comments by at least two spaces from the statement.  
@@ -55,9 +59,12 @@ Each group should be separated by a blank line.
 
 ### Testing
 
-* **Framework**: Use [pytest](https://docs.pytest.org/) for writing and running tests.  
-* **Test Structure**: Place tests in a `tests/` in the `backend/` directory, mirroring the structure of it.  
-* **Test Naming**: Prefix test functions with `test_` and use descriptive names to indicate their purpose.
+* **Framework**: Use [pytest](https://docs.pytest.org/) for writing and running 
+    tests.  
+* **Test Structure**: Place tests in a `tests/` in the `api/` directory,
+    mirroring the structure of it.  
+* **Test Naming**: Prefix test functions with `test_` and use descriptive names 
+    to indicate their purpose.
 
 ## Frontend
 

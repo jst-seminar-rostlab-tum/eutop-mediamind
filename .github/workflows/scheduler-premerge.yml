@@ -1,0 +1,14 @@
+name: Scheduler pre-merge
+
+on:
+  pull_request:
+    paths:
+      - "apps/scheduler/**"
+  workflow_call:
+
+jobs:
+  python-premerge:
+    uses: ./.github/workflows/python-premerge.yml
+    with:
+      workdir: ./apps/scheduler
+      skip_tests: true
