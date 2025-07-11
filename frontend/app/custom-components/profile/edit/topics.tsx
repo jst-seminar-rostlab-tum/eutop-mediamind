@@ -167,7 +167,7 @@ export function Topics({ profile, setProfile }: TopicsProps) {
               }}
             >
               <Trash2 />
-              {selectedTopic}
+              {t("topics.delete_topic")}
             </Button>
           )}
           <Input
