@@ -233,17 +233,6 @@ class EmailService:
             try:
                 for email in search_profile.organization_emails:
                     user = await UserService.get_by_email(email)
-                    user_language = (
-                        user.language
-                        if user is not None and hasattr(user, "language")
-                        else "en"
-                    )
-                    user_lastname = (
-                        user.last_name
-                        if user is not None and hasattr(user, "last_name")
-                        else None
-                    )
-
                     report_in_user_lang = (
                         EmailService._get_report_in_user_language(
                             reports, user, search_profile.language
