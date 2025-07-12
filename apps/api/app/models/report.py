@@ -36,7 +36,7 @@ class Report(SQLModel, table=True):
     s3_key: str = Field(max_length=512, nullable=False)
     status: ReportStatus = Field(default=ReportStatus.PENDING, nullable=False)
     matching_run_id: Optional[uuid.UUID] = Field(
-        foreign_key="matching_runs.id", nullable=True
+        foreign_key="matching_runs.id", nullable=True, default=None
     )
     language: str = Field(max_length=255, nullable=False, default="en")
 
