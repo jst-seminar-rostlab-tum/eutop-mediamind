@@ -24,6 +24,7 @@ def _to_user_entity(user: User | UserEntity) -> UserEntity:
         is_superuser=user.is_superuser,
         organization_id=user.organization_id,
         role=user.role,
+        breaking_news=user.breaking_news,
         organization_name=(
             user.organization_name  # already present if it's a UserEntity
             if isinstance(user, UserEntity)
@@ -43,6 +44,8 @@ def _to_user_base(user: User | UserEntity) -> User:
         gender=user.gender,
         is_superuser=user.is_superuser,
         organization_id=user.organization_id,
+        breaking_news=user.breaking_news,
+        role=user.role,
     )
 
 
@@ -250,6 +253,25 @@ class UserRepository:
             db_user = result.scalar_one_or_none()
 
             db_user.gender = gender
+            session.add(db_user)
+            await session.commit()
+            await session.refresh(db_user)
+
+            return _to_user_entity(db_user)
+
+    @staticmethod
+    async def update_breaking_news(
+        user: UserEntity, breaking_news: bool
+    ) -> UserEntity:
+        async with async_session() as session:
+            result = await session.execute(
+                select(User)
+                .options(selectinload(User.organization))
+                .where(User.id == user.id)
+            )
+            db_user = result.scalar_one_or_none()
+
+            db_user.breaking_news = breaking_news
             session.add(db_user)
             await session.commit()
             await session.refresh(db_user)
