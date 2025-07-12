@@ -355,6 +355,7 @@ class CrawlerType(Enum):
     NewsAPICrawler = "NewsAPICrawler"
     RSSFeedCrawler = "RSSFeedCrawler"
     FtCrawler = "FtCrawler"
+    HandelsblattCrawler = "HandelsblattCrawler"
 
 
 def _get_crawler_class(crawler_type: CrawlerType):
@@ -363,6 +364,12 @@ def _get_crawler_class(crawler_type: CrawlerType):
         return NewsAPICrawler
     elif crawler_type == CrawlerType.RSSFeedCrawler:
         return RSSFeedCrawler
+    elif crawler_type == CrawlerType.HandelsblattCrawler:
+        from app.services.web_harvester.crawlers.handelsblatt_crawler import (
+            HandelsblattCrawler,
+        )
+
+        return HandelsblattCrawler
     elif crawler_type == CrawlerType.FtCrawler:
         from app.services.web_harvester.crawlers.ft_crawler import FtCrawler
 
