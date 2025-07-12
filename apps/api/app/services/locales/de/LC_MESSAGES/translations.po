@@ -130,8 +130,11 @@ msgstr "Suchprofil"
 msgid "Good morning"
 msgstr "Guten Morgen"
 
-msgid "Mr./Ms."
-msgstr "Herr/Frau"
+msgid "Mr."
+msgstr "Herr"
+
+msgid "Ms."
+msgstr "Frau"
 
 msgid "This is your daily news report, carefully picked to match your specific interests and search criteria. Our system has identified the most relevant developments in your field, ensuring you stay informed with the insights that matter to your business"
 msgstr "Dies ist Ihr täglicher Nachrichtenbericht, sorgfältig ausgewählt, um Ihren spezifischen Interessen und Suchkriterien zu entsprechen. Unser System hat die relevantesten Entwicklungen in Ihrem Bereich identifiziert, damit Sie mit den Informationen, die für Ihr Unternehmen wichtig sind, stets auf dem Laufenden bleiben"
