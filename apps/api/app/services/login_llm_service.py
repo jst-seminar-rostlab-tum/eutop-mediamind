@@ -48,7 +48,7 @@ instructions_login = (
     "3. 'cookies_button' - Xpath of the accept cookies element itself "
     "(provide CSS Selector instead of Xpath only if this element is inside "
     "a shadow DOM)\n"
-    "4. 'refuse_notifications' - Xpath of the refuse notifications element\n"
+    "4. 'refuse_notifications' - Xpath to refuse notifications or remove ads\n"
     "5. 'path_to_login_button' - Xpath of the element that triggers the "
     "login element (for example, xpath of dropdown menu containing login "
     "button/link)\n"
@@ -119,14 +119,21 @@ class LoginLLM:
             logger.error("Error at taking the screenshot")
 
     @staticmethod
-    def _wait_for_page_change(driver, old_url):
+    def _wait_for_page_change(driver):
+        time.sleep(5)
         try:
-            WebDriverWait(driver, 10).until(
-                lambda d: (d.current_url != old_url)
-            )
-            return True
+            logs = driver.get_log("performance")
+            for entry in logs:
+                message = entry["message"]
+                if (
+                    '"Network.responseReceived"' in message
+                    and '"status":200' in message
+                ):
+                    logger.info("200 OK response after submitting credentials")
+                    return True
+            logger.info("No 200 OK response, still not logged in")
         except Exception:
-            logger.error("The page did not change, still not logged in")
+            logger.error("Error at accessing network logs")
             return False
 
     @staticmethod
@@ -316,6 +323,10 @@ class LoginLLM:
             string=lambda text: isinstance(text, Comment)
         ):
             comment.decompose()
+        # Eliminate SVG instructions
+        for path_tag in target.find_all("path"):
+            if "d" in path_tag.attrs:
+                del path_tag.attrs["d"]
 
         return str(target)
 
@@ -444,9 +455,12 @@ class LoginLLM:
                 )
                 for chunk in html_chunks
             ]
-            responses = await asyncio.gather(*tasks)
+            responses = await asyncio.gather(*tasks, return_exceptions=True)
             updated_config = login_config
             for resp in responses:
+                if isinstance(resp, Exception):
+                    logger.error(f"Concurrent call failed: {resp}")
+                    continue
                 LLM_result = LoginLLM._llm_response_to_json(resp)
                 if LLM_result is None:
                     logger.error("Skipping response due to JSON parse error.")
@@ -469,6 +483,8 @@ class LoginLLM:
         )
 
         logged_in = False
+        if not LoginLLM.user_inserted:
+            LoginLLM.password_inserted = False
 
         # Accept cookies in shadow root
         if (
@@ -525,7 +541,8 @@ class LoginLLM:
             LoginLLM.password_inserted = LoginLLM._find_correct_input_element(
                 driver, wait, updated_config, "password_input", password
             )
-            url = driver.current_url
+            # Clean the network logs
+            _ = driver.get_log("performance")
             # Submit credentials
             LoginLLM.submitted = LoginLLM._find_correct_clickable_element(
                 driver,
@@ -551,7 +568,8 @@ class LoginLLM:
                         password,
                     )
                 )
-            url = driver.current_url
+            # Clean the network logs
+            _ = driver.get_log("performance")
             # Submit credentials
             LoginLLM.submitted = LoginLLM._find_correct_clickable_element(
                 driver, wait, updated_config, "submit_button"
@@ -563,10 +581,9 @@ class LoginLLM:
             and LoginLLM.password_inserted
             and LoginLLM.submitted
         ):
-            page_changed = LoginLLM._wait_for_page_change(driver, url)
+            page_changed = LoginLLM._wait_for_page_change(driver)
             if page_changed:
                 logged_in = True
-
         return logged_in
 
     @staticmethod
@@ -583,6 +600,9 @@ class LoginLLM:
         # Initialize Selenium
         chrome_options = Options()
         chrome_options.add_argument("--disable-notifications")
+        chrome_options.set_capability(
+            "goog:loggingPrefs", {"performance": "ALL"}
+        )
         driver = webdriver.Chrome(options=chrome_options)
         wait = WebDriverWait(driver, 5)
         driver.get(subscription.domain)
