@@ -241,9 +241,13 @@ class UserRepository:
             return _to_user_entity(db_user)
 
     @staticmethod
-    async def get_all_users() -> List[UserEntity]:
+    async def get_all_users_breaking_news() -> List[UserEntity]:
         async with async_session() as session:
-            stmt = select(User).options(selectinload(User.organization))
+            stmt = (
+                select(User)
+                .options(selectinload(User.organization))
+                .where(User.breaking_news.is_(True))
+            )
             result = await session.execute(stmt)
             users = result.scalars().all()
             return [_to_user_entity(u) for u in users]

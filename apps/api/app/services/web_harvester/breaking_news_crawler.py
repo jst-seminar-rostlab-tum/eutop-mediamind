@@ -237,7 +237,7 @@ async def fetch_breaking_news_newsapi():
                         )
                     )
 
-                    users = await UserRepository.get_all_users()
+                    users = await UserRepository.get_all_users_breaking_news()
                     emails = [user.email for user in users]
                     email = EmailService.create_email(
                         recipient="",
@@ -290,9 +290,3 @@ def get_all_breaking_news() -> List[BreakingNews]:
         logger = BufferedLogger("BreakingNewsRedisReader")
         logger.error(f"Failed to fetch breaking news from Redis: {e}")
         return []
-
-
-if __name__ == "__main__":
-    import asyncio
-
-    asyncio.run(fetch_breaking_news_newsapi())
