@@ -292,7 +292,3 @@ def get_all_breaking_news() -> List[BreakingNews]:
         logger.error(f"Failed to fetch breaking news from Redis: {e}")
         return []
 
-
-if __name__ == "__main__":
-    asyncio.run(fetch_breaking_news_newsapi())
-    # print(breaking_news)
