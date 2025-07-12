@@ -238,7 +238,6 @@ class EmailService:
                             reports, user, search_profile.language
                         )
                     )
-
                     report = report_in_user_lang["report"]
                     presigned_url = report_in_user_lang["presigned_url"]
                     dashboard_url = report_in_user_lang["dashboard_url"]

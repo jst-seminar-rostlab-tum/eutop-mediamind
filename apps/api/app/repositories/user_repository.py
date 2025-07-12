@@ -100,7 +100,7 @@ class UserRepository:
         query = (
             select(User)
             .options(selectinload(User.organization))
-            .where(User.email == email)
+            .where(User.email == email, User.organization_id.isnot(None))
         )
         result = await session.execute(query)
         user = result.scalar_one_or_none()
