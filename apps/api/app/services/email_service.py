@@ -1,6 +1,7 @@
 # flake8: noqa: E501
 import os
 import smtplib
+from datetime import datetime, timezone
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from logging import error
@@ -12,6 +13,7 @@ from jinja2 import Environment, FileSystemLoader, select_autoescape
 from app.core.config import configs
 from app.core.languages import Language
 from app.core.logger import get_logger
+from app.models.breaking_news import BreakingNews
 from app.models.email import Email, EmailState
 from app.models.user import Gender
 from app.repositories.email_repository import EmailRepository
@@ -44,14 +46,29 @@ class EmailSchedule:
 class EmailService:
 
     @staticmethod
-    async def schedule_email(schedule: EmailSchedule) -> Email:
-        email = Email()
-        email.sender = configs.SMTP_USER
-        email.recipient = schedule.recipient
-        email.subject = schedule.subject
-        email.content_type = schedule.content_type
-        email.content = schedule.content
+    def create_email(
+        recipient: str,
+        subject: str,
+        content_type: str,
+        content: str,
+    ) -> Email:
+        email = Email(
+            sender=configs.SMTP_USER,
+            recipient=recipient,
+            subject=subject,
+            content_type=content_type,
+            content=content,
+        )
+        return email
 
+    @staticmethod
+    async def schedule_email(schedule: EmailSchedule) -> Email:
+        email = EmailService.create_email(
+            recipient=schedule.recipient,
+            subject=schedule.subject,
+            content_type=schedule.content_type,
+            content=schedule.content,
+        )
         return await EmailRepository.add_email(email)
 
     @staticmethod
@@ -61,7 +78,7 @@ class EmailService:
         for email in emails:
             try:
                 email.attempts += 1
-                EmailService.__send_email(email)
+                EmailService.send_email(email)
                 email.state = EmailState.SENT
                 await EmailRepository.update_email(email)
             except Exception as e:
@@ -101,24 +118,36 @@ class EmailService:
                 raise Exception(f"Error sending SES email: {ok}")
 
     @staticmethod
-    def __send_email(email: Email):
+    def send_email(email: Email, bcc_recipients: List[str] = None):
         msg = MIMEMultipart("alternative")
         msg["From"] = email.sender
         msg["To"] = email.recipient
         msg["Subject"] = email.subject
 
+        # BCC recipients are not added to the message headers for privacy
+        # They are only included in the sendmail call
         html = MIMEText(email.content, "html")
         msg.attach(html)
+
+        # Only add BCC if there are recipients
+        all_recipients = []
+        if bcc_recipients:
+            all_recipients.extend(bcc_recipients)
+        else:
+            all_recipients.append(email.recipient)
 
         with smtplib.SMTP_SSL(
             configs.SMTP_SERVER, configs.SMTP_PORT
         ) as smtp_server:
             smtp_server.login(configs.SMTP_USER, configs.SMTP_PASSWORD)
             ok = smtp_server.sendmail(
-                email.sender, email.recipient, msg.as_string()
+                email.sender, all_recipients, msg.as_string()
             )
             if not (ok == {}):
-                raise Exception(f"Error sending email: {ok}")
+                error_msg = "Error sending email"
+                if bcc_recipients:
+                    error_msg += " with BCC"
+                raise Exception(f"{error_msg}: {ok}")
 
     @staticmethod
     def _render_email_template(template_name: str, context: dict) -> str:
@@ -194,6 +223,56 @@ class EmailService:
         }
 
         template_name = "email_template.html"
+
+        return EmailService._render_email_template(template_name, context)
+
+    @staticmethod
+    def _build_breaking_news_email_content(news: BreakingNews) -> str:
+        published_at_utc = news.published_at
+        if isinstance(published_at_utc, str):
+            published_at_utc = datetime.fromisoformat(published_at_utc)
+        if published_at_utc.tzinfo is None:
+            published_at_utc = published_at_utc.replace(tzinfo=timezone.utc)
+        else:
+            published_at_utc = published_at_utc.astimezone(timezone.utc)
+
+        published_at = published_at_utc.strftime("%d.%m.%Y, %H:%M")
+        current_time = datetime.now(timezone.utc).strftime("%d.%m.%Y, %H:%M")
+
+        context = {
+            "news_title": news.title,
+            "news_summary": news.summary,
+            "news_date": published_at,
+            "news_url": news.url,
+            "date_time": current_time,
+        }
+
+        template_name = "breaking_news_template.html"
+
+        return EmailService._render_email_template(template_name, context)
+
+    @staticmethod
+    def _build_breaking_news_email_content(news: BreakingNews) -> str:
+        published_at_utc = news.published_at
+        if isinstance(published_at_utc, str):
+            published_at_utc = datetime.fromisoformat(published_at_utc)
+        if published_at_utc.tzinfo is None:
+            published_at_utc = published_at_utc.replace(tzinfo=timezone.utc)
+        else:
+            published_at_utc = published_at_utc.astimezone(timezone.utc)
+
+        published_at = published_at_utc.strftime("%d.%m.%Y, %H:%M")
+        current_time = datetime.now(timezone.utc).strftime("%d.%m.%Y, %H:%M")
+
+        context = {
+            "news_title": news.title,
+            "news_summary": news.summary,
+            "news_date": published_at,
+            "news_url": news.url,
+            "date_time": current_time,
+        }
+
+        template_name = "breaking_news_template.html"
 
         return EmailService._render_email_template(template_name, context)
 
