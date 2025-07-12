@@ -5,6 +5,7 @@ from enum import Enum
 import trafilatura
 from newspaper import Article as NewspaperArticle
 
+from app.core.languages import Language
 from app.core.logger import BufferedLogger, get_logger
 from app.models.article import Article
 from app.models.subscription import Subscription
@@ -144,7 +145,7 @@ class Newspaper4kScraper(Scraper):
         self.newspaper_kwargs = newspaper_kwargs
 
         default_newspaper_kwargs = {
-            "language": "en",  # Default language
+            "language": Language.EN.value,  # Default language
             "memoize_articles": False,
             "fetch_images": True,
         }
