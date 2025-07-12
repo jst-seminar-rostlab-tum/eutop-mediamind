@@ -12,6 +12,8 @@
   "save_changes": "Save Changes",
   "Search": "Search",
   "select_date": "Select Date",
+  "yes": "Yes",
+  "no": "No",
 
   "breadcrumb_home": "Home",
 
@@ -188,7 +190,9 @@
     "meta_data_language": "Original language",
     "meta_data_status": "Status",
     "meta_data_category": "Category",
-    "keywords_text": "Displays matched profile topics with keywords, and a score indicating topic relevance to the article."
+    "keywords_text": "Displays matched profile topics with keywords, and a score indicating topic relevance to the article.",
+    "show_more": "Show more",
+    "show_less": "Show less"
   },
 
   "role-badge": {
@@ -239,7 +243,6 @@
     "download_unavailable": "Unavailable",
     "download": "Download",
     "no_reports_found": "No reports found.",
-    "loading": "Berichte werden geladen.",
     "no_reports_match_filter": "No reports found that match the filters."
   },
 
@@ -249,10 +252,14 @@
     "gender": "Gender",
     "update_language": "Update Language",
     "update_gender": "Update Gender",
+    "update_preference": "Update Preference",
     "male": "Male",
     "female": "Female",
     "divers": "Divers",
     "language_update_error": "Error updating the language",
-    "gender_update_error": "Error updating the gender"
+    "gender_update_error": "Error updating the gender",
+    "breaking_news_update_error": "Error updating the breaking news preference",
+    "breaking_news": "Receive Breaking News notifications via email",
+    "breaking_news_title": "Breaking News Notifications"
   }
 }

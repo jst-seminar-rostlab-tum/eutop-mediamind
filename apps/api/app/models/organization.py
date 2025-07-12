@@ -29,6 +29,7 @@ class Organization(SQLModel, table=True):
     subscriptions: List["Subscription"] = Relationship(
         back_populates="organizations", link_model=OrganizationSubscriptionLink
     )
+    pdf_as_link: bool = Field(default=True)
 
 
 # Pydantic schemas for API

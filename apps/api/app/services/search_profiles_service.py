@@ -10,6 +10,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 
 from app.core.db import async_session
+from app.core.languages import Language
 from app.core.logger import get_logger
 from app.models import SearchProfile, Topic
 from app.models.match import Match
@@ -583,9 +584,9 @@ class SearchProfileService:
             )
 
         prompt: str
-        if search_profile_language == "de":
+        if search_profile_language == Language.DE.value:
             prompt = KEYWORD_SUGGESTION_PROMPT_DE
-        elif search_profile_language == "en":
+        elif search_profile_language == Language.EN.value:
             prompt = KEYWORD_SUGGESTION_PROMPT_EN
         else:
             raise HTTPException(
