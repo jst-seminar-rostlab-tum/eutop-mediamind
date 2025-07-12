@@ -10,13 +10,13 @@ from typing import List
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 from app.core.config import configs
-from app.core.logger import get_logger
 from app.core.languages import Language
+from app.core.logger import get_logger
 from app.models.email import Email, EmailState
+from app.models.user import Gender
 from app.repositories.email_repository import EmailRepository
 from app.services.translation_service import ArticleTranslationService
 from app.services.user_service import UserService
-from app.models.user import Gender
 
 logger = get_logger(__name__)
 
@@ -210,7 +210,7 @@ class EmailService:
             # English if none of the previous are available
             if report["report"].language == Language.EN.value:
                 english_report = report
-        
+
         if sp_language_report:
             return sp_language_report
         elif english_report:
