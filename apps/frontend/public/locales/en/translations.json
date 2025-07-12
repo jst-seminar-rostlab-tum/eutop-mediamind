@@ -12,6 +12,8 @@
   "save_changes": "Save Changes",
   "Search": "Search",
   "select_date": "Select Date",
+  "yes": "Yes",
+  "no": "No",
 
   "breadcrumb_home": "Home",
 
@@ -250,10 +252,14 @@
     "gender": "Gender",
     "update_language": "Update Language",
     "update_gender": "Update Gender",
+    "update_preference": "Update Preference",
     "male": "Male",
     "female": "Female",
     "divers": "Divers",
     "language_update_error": "Error updating the language",
-    "gender_update_error": "Error updating the gender"
+    "gender_update_error": "Error updating the gender",
+    "breaking_news_update_error": "Error updating the breaking news preference",
+    "breaking_news": "Receive Breaking News notifications via email",
+    "breaking_news_title": "Breaking News Notifications"
   }
 }
