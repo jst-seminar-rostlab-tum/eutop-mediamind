@@ -99,6 +99,34 @@ class OrganizationRepository:
             SubscriptionSummary(id=row[0], name=row[1], is_subscribed=row[2])
             for row in rows
         ]
+    
+    @staticmethod
+    async def get_with_users(
+        session: AsyncSession,
+        organization_id: UUID,
+    ) -> OrganizationResponse | None:
+        result = await session.execute(
+            select(Organization)
+            .where(Organization.id == organization_id)
+            .options(selectinload(Organization.users)) 
+        )
+        org = result.scalars().first()
+        if org is None:
+            return None
+
+        subscriptions = await SubscriptionRepository.get_all_subscriptions_with_organization(
+            session, org.id
+        )
+
+        return OrganizationResponse(
+            id=org.id,
+            name=org.name,
+            email=org.email,
+            pdf_as_link=org.pdf_as_link,
+            users=org.users,
+            subscriptions=subscriptions,
+        )
+
 
     @staticmethod
     async def get_all_with_users(

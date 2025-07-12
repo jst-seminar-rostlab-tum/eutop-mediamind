@@ -75,6 +75,15 @@ async def get_all_organizations_with_users(
 ) -> List[OrganizationResponse]:
     return await OrganizationService.get_all_with_users(current_user)
 
+@router.get("/{organization_id}", response_model=OrganizationResponse)
+async def get_organization_with_users(
+    organization_id: uuid.UUID,
+    current_user: UserEntity = Depends(get_authenticated_user),
+):
+    return await OrganizationService.get_with_users(
+        organization_id, current_user
+    )
+
 
 @router.delete("/{organization_id}", response_model=FeedbackResponse)
 async def delete_organization(
