@@ -18,7 +18,7 @@ export default function OrganisationSettings() {
   const { user } = useAuthorization();
 
   return (
-    <Layout className="overflow-hidden">
+    <Layout noOverflow={true}>
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>

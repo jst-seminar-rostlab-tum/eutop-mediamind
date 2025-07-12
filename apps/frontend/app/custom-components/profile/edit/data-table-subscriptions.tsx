@@ -271,7 +271,7 @@ export function DataTableSubscriptions({
           ) : (
             <TableRow>
               <TableCell colSpan={columns.length} className="h-24 text-center">
-                {t("data-table-subscriptions.no_results")}
+                {t("subscriptions.no_results")}
               </TableCell>
             </TableRow>
           )}
