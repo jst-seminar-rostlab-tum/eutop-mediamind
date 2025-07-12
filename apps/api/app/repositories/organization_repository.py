@@ -106,7 +106,7 @@ class OrganizationRepository:
     ) -> List[OrganizationResponse]:
         result = await session.execute(
             select(Organization).options(
-                selectinload(Organization.users),
+                selectinload(Organization.users)
             )  # eager load users
         )
         organizations = result.scalars().all()
@@ -122,6 +122,7 @@ class OrganizationRepository:
                     id=org.id,
                     name=org.name,
                     email=org.email,
+                    pdf_as_link=org.pdf_as_link,
                     users=org.users,
                     subscriptions=subscriptions,
                 )

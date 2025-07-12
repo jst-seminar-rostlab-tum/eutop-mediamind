@@ -12,6 +12,7 @@ from app.schemas.subscription_schemas import SubscriptionSummary
 class OrganizationBase(BaseModel):
     name: str
     email: EmailStr or None
+    pdf_as_link: bool
 
 
 class CreateRequestUser(BaseModel):
