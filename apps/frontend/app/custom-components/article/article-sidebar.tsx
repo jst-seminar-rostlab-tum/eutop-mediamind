@@ -39,7 +39,7 @@ export function ArticleSidebar({ article }: ArticleSidebarProps) {
           <ExternalLink />
         </a>
       </Button>
-      <div className={"rounded-3xl pl-4 pr-4 bg-gray-100"}>
+      <div className={"rounded-lg pl-4 pr-4 bg-gray-100"}>
         <Accordion
           type={"single"}
           collapsible
@@ -63,7 +63,7 @@ export function ArticleSidebar({ article }: ArticleSidebarProps) {
           </AccordionItem>
         </Accordion>
       </div>
-      <div className={"rounded-3xl border p-4 space-y-2"}>
+      <div className={"rounded-lg border p-4 space-y-2"}>
         <span className={"font-bold"}>{t("article-page.keywords_header")}</span>
         <p className={"text-sm text-gray-400"}>
           {t("article-page.keywords_text")}
@@ -79,7 +79,7 @@ export function ArticleSidebar({ article }: ArticleSidebarProps) {
           return (
             <div
               key={topicIndex}
-              className={"space-y-1 bg-gray-100 p-2 rounded-2xl"}
+              className={"space-y-1 bg-gray-100 p-2 rounded-lg"}
             >
               <div className={"flex items-center gap-2"}>
                 <p className={"font-bold text-gray-800"}>{topic.name}</p>

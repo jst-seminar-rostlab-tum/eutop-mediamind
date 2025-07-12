@@ -92,7 +92,7 @@ export function FilterBar({ onFiltersChange }: FilterBarProps) {
 
       <div className="flex items-center gap-2">
         <Select value={selectedRole} onValueChange={handleRoleChange}>
-          <SelectTrigger className="w-[180px] rounded-xl">
+          <SelectTrigger className="w-[180px] rounded-lg">
             <SelectValue placeholder={<RoleBadge variant={"ownership"} />}>
               {selectedRole && <RoleBadge variant={selectedRole} />}
             </SelectValue>
@@ -117,7 +117,7 @@ export function FilterBar({ onFiltersChange }: FilterBarProps) {
           size="sm"
           onClick={resetRole}
           disabled={isRoleDefault}
-          className="h-9 w-9 rounded-xl"
+          className="h-9 w-9 rounded-lg"
         >
           <RotateCcw className="h-4 w-4" />
         </Button>
@@ -128,7 +128,7 @@ export function FilterBar({ onFiltersChange }: FilterBarProps) {
           value={selectedVisibility}
           onValueChange={handleVisibilityChange}
         >
-          <SelectTrigger className="w-[180px] rounded-xl">
+          <SelectTrigger className="w-[180px] rounded-lg">
             <SelectValue placeholder={<RoleBadge variant={"visibility"} />}>
               {selectedVisibility && <RoleBadge variant={selectedVisibility} />}
             </SelectValue>
@@ -153,7 +153,7 @@ export function FilterBar({ onFiltersChange }: FilterBarProps) {
           size="sm"
           onClick={resetVisibility}
           disabled={isVisibilityDefault}
-          className="h-9 w-9 p-0 rounded-xl"
+          className="h-9 w-9 p-0 rounded-lg"
         >
           <RotateCcw className="h-4 w-4" />
         </Button>

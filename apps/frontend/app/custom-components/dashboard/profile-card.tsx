@@ -130,8 +130,8 @@ export function ProfileCard({
 
   return (
     <TooltipProvider>
-      <div className="w-[15.5rem] h-[14rem] rounded-3xl shadow-[2px_2px_15px_rgba(0,0,0,0.1)] p-5 ">
-        <div className="h-full flex-1 flex flex-col justify-between overflow-hidden">
+      <div className="w-[15.5rem] h-[14rem] rounded-xl shadow-[2px_2px_15px_rgba(0,0,0,0.1)] p-5 ">
+        <div className="h-full flex-1 flex flex-col justify-between">
           <div>
             <div className={"flex justify-between"}>
               <div className={"flex items-center gap-2"}>
@@ -168,12 +168,12 @@ export function ProfileCard({
               />
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="secondary" className="h-8 w-8 p-0 ">
+                  <Button variant="ghost" className="h-8 w-8 p-0 ">
                     <span className="sr-only">{t("sr-only.open_menu")}</span>
                     <MoreVertical className="h-4 w-4" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="center">
+                <DropdownMenuContent align="end">
                   <DropdownMenuItem onClick={() => setShowEditDialog(true)}>
                     <SquarePen className="text-primary" />
                     {t("Edit")}
@@ -188,9 +188,9 @@ export function ProfileCard({
                     onClick={() => {
                       setShowDeleteDialog(true);
                     }}
-                    className="text-red-500 focus:text-red-500"
+                    className="text-destructive focus:text-destructive"
                   >
-                    <Trash2 className="text-red-500" />
+                    <Trash2 className="text-destructive" />
                     {t("Delete")}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
@@ -215,12 +215,12 @@ export function ProfileCard({
           </div>
           <Link
             to={`/search-profile/${profile.id}`}
-            className="w-full h-20 bg-gray-100 items-center flex justify-center rounded-2xl hover:bg-gray-200 transition-background duration-300"
+            className="w-full h-10 mt-10 bg-gray-100 items-center flex justify-center rounded-lg hover:bg-accent transition-background duration-300"
           >
             <span className={"text-gray-700"}>
               {t("search_profile.Explore")}
             </span>
-            <ChevronRight className="w-7 h-7" />
+            <ChevronRight className="size-5" />
           </Link>
         </div>
       </div>
@@ -229,7 +229,7 @@ export function ProfileCard({
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center">
-              <OctagonAlert size={20} className="text-red-500 mr-2" />
+              <OctagonAlert size={20} className="text-destructive mr-2" />
               {t("confirmation_dialog.title")}
             </AlertDialogTitle>
             <AlertDialogDescription>

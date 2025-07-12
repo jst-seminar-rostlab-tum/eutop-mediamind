@@ -21,9 +21,9 @@ export function BreakingNewsCard({ news }: NewsCardProps) {
     : news.summary!.slice(0, maxLength) + (shouldTruncate ? "..." : "");
 
   return (
-    <div className="border p-3 w-full  rounded-3xl flex gap-4">
+    <div className="border p-3 w-full  rounded-lg flex gap-4">
       {news.image_url && (
-        <div className={"overflow-hidden rounded-2xl w-27 h-28 flex-shrink-0"}>
+        <div className={"overflow-hidden rounded-lg w-27 h-28 flex-shrink-0"}>
           <img src={news.image_url!} className="w-full h-full object-cover" />
         </div>
       )}

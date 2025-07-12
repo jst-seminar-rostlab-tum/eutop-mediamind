@@ -53,7 +53,7 @@ export function getOrgaColumns(
                   });
                   setOpenDeleteDialog(true);
                 }}
-                className="text-red-500"
+                className="text-destructive"
               >
                 {t("Delete")}
               </DropdownMenuItem>
@@ -95,7 +95,7 @@ export function getSubsColumns(
                   setDeleteTarget({ type: "subscription", identifier: index });
                   setOpenDeleteDialog(true);
                 }}
-                className="text-red-500"
+                className="text-destructive"
               >
                 {t("Delete")}
               </DropdownMenuItem>
@@ -170,7 +170,7 @@ export function getUserColumns(
         const index = row.index;
         return (
           <Button variant={"ghost"} onClick={() => onDelete(index)}>
-            <Trash className="text-red-500" />
+            <Trash className="text-destructive" />
           </Button>
         );
       },
