@@ -4,6 +4,8 @@ import time
 from concurrent.futures import ThreadPoolExecutor
 from datetime import date, datetime
 
+from selenium.webdriver.support.ui import WebDriverWait
+
 from app.models.article import Article, ArticleStatus
 from app.models.crawl_stats import CrawlStats
 from app.models.subscription import Subscription
@@ -167,7 +169,18 @@ def _scrape_articles(scraper, driver, new_articles):
                     f"Scraping article {idx + 1}/{len(new_articles)}"
                 )
                 scraper.logger.flush()
-            driver.get(article.url)
+            # Load the page with timeout handling
+            try:
+                driver.get(article.url)
+                # Wait for page to be fully loaded with increased timeout
+                WebDriverWait(driver, 30).until(
+                    lambda d: d.execute_script("return document.readyState")
+                    == "complete"
+                )
+            except Exception as load_error:
+                raise ValueError(
+                    f"Timeout loading page {article.url}: {load_error}"
+                )
 
             # Check response code of the main page
             response_code = get_response_code(driver, article.url)

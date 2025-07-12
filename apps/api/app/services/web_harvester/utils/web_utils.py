@@ -1,5 +1,6 @@
 import json
 import logging
+import tempfile
 import time
 import urllib.request
 
@@ -49,31 +50,71 @@ def create_driver(headless: bool = True, use_proxy: bool = False):
     chrome_options.add_argument(
         "--enable-features=NetworkService,NetworkServiceInProcess"
     )
+
+    # Essential Chrome options for Docker/containerized environments
+    chrome_options.add_argument("--no-sandbox")
+    chrome_options.add_argument("--disable-dev-shm-usage")
     chrome_options.add_argument("--disable-gpu")
+    chrome_options.add_argument("--disable-extensions")
+    chrome_options.add_argument("--disable-plugins")
+    chrome_options.add_argument("--disable-web-security")
+    chrome_options.add_argument("--disable-features=VizDisplayCompositor")
+    chrome_options.add_argument("--disable-background-timer-throttling")
+    chrome_options.add_argument("--disable-backgrounding-occluded-windows")
+    chrome_options.add_argument("--disable-renderer-backgrounding")
+    chrome_options.add_argument("--disable-features=TranslateUI")
+    chrome_options.add_argument("--disable-ipc-flooding-protection")
+    chrome_options.add_argument("--disable-default-apps")
+    chrome_options.add_argument("--disable-sync")
+    chrome_options.add_argument("--no-first-run")
+    chrome_options.add_argument("--no-default-browser-check")
+    chrome_options.add_argument("--disable-background-networking")
+
+    # Timeout and performance related options
+    chrome_options.add_argument("--timeout=30000")  # 30 second timeout
+    chrome_options.add_argument("--disable-hang-monitor")
+    chrome_options.add_argument("--disable-prompt-on-repost")
+    chrome_options.add_argument("--disable-client-side-phishing-detection")
+    chrome_options.add_argument("--disable-component-update")
+    chrome_options.add_argument("--disable-domain-reliability")
+
+    # Memory and resource management
+    chrome_options.add_argument("--memory-pressure-off")
+    chrome_options.add_argument("--max_old_space_size=4096")
+    chrome_options.add_argument("--aggressive-cache-discard")
+
+    temp_dir = tempfile.mkdtemp()
+    chrome_options.add_argument(f"--user-data-dir={temp_dir}")
     chrome_options.set_capability("goog:loggingPrefs", {"performance": "ALL"})
     chrome_options.add_argument(f"--user-agent={UserAgent().random}")
 
     # Configure selenium-wire options for proxy
-    seleniumwire_options = {}
+    seleniumwire_options = {
+        "connection_timeout": 30,  # Increased from 15 to 30 seconds
+        "read_timeout": 30,  # Increased from 15 to 30 seconds
+    }
+
     if use_proxy and check_proxy_availability(configs.PROXY_URL):
-        seleniumwire_options = {
-            "proxy": {
-                "http": configs.PROXY_URL,
-                "https": configs.PROXY_URL,
-                "no_proxy": "localhost,127.0.0.1",
-            },
-            "connection_timeout": 15,
-            "read_timeout": 15,
-        }
+        seleniumwire_options.update(
+            {
+                "proxy": {
+                    "http": configs.PROXY_URL,
+                    "https": configs.PROXY_URL,
+                    "no_proxy": "localhost,127.0.0.1",
+                }
+            }
+        )
 
     driver = webdriver.Chrome(
         options=chrome_options, seleniumwire_options=seleniumwire_options
     )
     driver.set_window_size(1920, 1080)
-    driver.set_page_load_timeout(10)  # Set a timeout for page loading
-    driver.command_executor.set_timeout(50)
+    driver.set_page_load_timeout(30)  # Increased from 10 to 30 seconds
+    driver.command_executor.set_timeout(
+        120
+    )  # Increased from 50 to 120 seconds
 
-    wait = WebDriverWait(driver, 5)
+    wait = WebDriverWait(driver, 15)  # Increased from 5 to 15 seconds
 
     return driver, wait
 
