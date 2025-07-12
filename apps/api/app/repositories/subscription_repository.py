@@ -51,6 +51,32 @@ class SubscriptionRepository:
             ]
 
     @staticmethod
+    async def get_all_subscriptions_with_organization(
+        session, organization_id
+    ) -> List[SubscriptionSummary]:
+        spsl = aliased(OrganizationSubscriptionLink)
+
+        stmt = select(
+            Subscription.id,
+            Subscription.name,
+            exists()
+            .where(
+                (spsl.organization_id == organization_id)
+                & (spsl.subscription_id == Subscription.id)
+            )
+            .label("is_subscribed"),
+        )
+
+        result = await session.execute(stmt)
+
+        return [
+            SubscriptionSummary(
+                id=row.id, name=row.name, is_subscribed=row.is_subscribed
+            )
+            for row in result
+        ]
+
+    @staticmethod
     async def get_all() -> list[SubscriptionSummary]:
         async with async_session() as session:
             stmt = select(Subscription.id, Subscription.name)

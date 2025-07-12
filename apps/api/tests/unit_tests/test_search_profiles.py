@@ -166,13 +166,17 @@ def test_get_match_detail_success():
             "app.repositories.keyword_repository.KeywordRepository.get_keywords_by_topic_ids",
             new_callable=AsyncMock,
         ) as mock_get_keywords,
+        patch(
+            "app.repositories.entity_repository.ArticleEntityRepository.get_entities_by_article",
+            new_callable=AsyncMock,
+        ) as mock_get_entities,
     ):
-
         mock_get_match.return_value = fake_match
         mock_get_matches.return_value = [fake_match]
         mock_get_profile.return_value = fake_profile
         mock_get_topic_names.return_value = {topic_id: "Environment"}
         mock_get_keywords.return_value = {topic_id: ["green"]}
+        mock_get_entities.return_value = {"de": ["DSGVO"], "en": ["GDPR"]}
 
         result: MatchDetailResponse = asyncio.run(
             SearchProfileService.get_match_detail(search_profile_id, match_id)
@@ -185,3 +189,4 @@ def test_get_match_detail_success():
     assert result.article.headline["en"] == "Title"
     assert result.article.article_url == fake_article.url
     assert result.search_profile.name == "My Profile"
+    assert result.entities == {"de": ["DSGVO"], "en": ["GDPR"]}
