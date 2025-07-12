@@ -26,6 +26,7 @@ import {
   PaginationPrevious,
 } from "~/components/ui/pagination";
 import { ReportFilterBar } from "~/custom-components/reports/reports-filter-bar";
+import { BreadcrumbSkeleton } from "~/custom-components/breadcrumb-skeleton";
 
 export function ReportsPage() {
   const { searchProfileId } = useParams();
@@ -119,11 +120,7 @@ export function ReportsPage() {
     return pages;
   };
 
-  if (profileLoading) {
-    return <></>;
-  }
-
-  if (!searchProfileId || !profile) {
+  if (!searchProfileId || (!profileLoading && !profile)) {
     return <ErrorPage />;
   }
 
@@ -141,11 +138,15 @@ export function ReportsPage() {
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbLink asChild>
-              <Link to={`/search-profile/${searchProfileId}`}>
-                {profile.name}
-              </Link>
-            </BreadcrumbLink>
+            {profileLoading ? (
+              <BreadcrumbSkeleton />
+            ) : (
+              <BreadcrumbLink asChild>
+                <Link to={`/search-profile/${searchProfileId}`}>
+                  {profile?.name}
+                </Link>
+              </BreadcrumbLink>
+            )}
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
@@ -156,7 +157,7 @@ export function ReportsPage() {
 
       <Text hierachy={2}>{t("reports.header")}</Text>
 
-      {isLoading ? (
+      {profileLoading || isLoading ? (
         <>
           <ReportFilterBar
             language={languageFilter}
