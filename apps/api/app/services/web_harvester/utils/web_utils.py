@@ -71,7 +71,10 @@ def create_driver(headless: bool = True, use_proxy: bool = False):
     )
     driver.set_window_size(1920, 1080)
     driver.set_page_load_timeout(10)  # Set a timeout for page loading
+    driver.command_executor.set_timeout(50)
+
     wait = WebDriverWait(driver, 5)
+
     return driver, wait
 
 
