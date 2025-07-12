@@ -1,4 +1,3 @@
-import asyncio
 import json
 from datetime import date as Date
 from datetime import datetime, timedelta, timezone
@@ -291,4 +290,3 @@ def get_all_breaking_news() -> List[BreakingNews]:
         logger = BufferedLogger("BreakingNewsRedisReader")
         logger.error(f"Failed to fetch breaking news from Redis: {e}")
         return []
-
