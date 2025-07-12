@@ -10,8 +10,10 @@ from typing import List
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 from app.core.config import configs
+from app.core.languages import Language
 from app.core.logger import get_logger
 from app.models.email import Email, EmailState
+from app.models.user import Gender
 from app.repositories.email_repository import EmailRepository
 from app.services.translation_service import ArticleTranslationService
 from app.services.user_service import UserService
@@ -133,6 +135,7 @@ class EmailService:
         dashboard_link: str,
         profile_name: str,
         last_name: str,
+        gender: Gender,
         language: str = "en",
     ) -> str:
         translator = ArticleTranslationService.get_translator(language)
@@ -145,11 +148,16 @@ class EmailService:
         today = f"{month_translated} {int(day)}, {year}"
 
         greeting = translator("Good morning")
-        if last_name:
-            title = translator("Mr./Ms.")
+        if last_name and gender:
+            if gender == Gender.male:
+                title = translator("Mr.")
+            elif gender == Gender.female:
+                title = translator("Ms.")
+            else:
+                title = "Mx."
             salutation = f"{greeting}, {title} {last_name}"
         else:
-            salutation = f"{greeting},"
+            salutation = f"{greeting}"
 
         context = {
             "s3_link": s3_link,
@@ -190,15 +198,26 @@ class EmailService:
         return EmailService._render_email_template(template_name, context)
 
     @staticmethod
-    def _get_report_in_user_language(reports, user):
+    def _get_report_in_user_language(reports, user, search_profile_language):
+        sp_language_report = None
         english_report = None
         for report in reports:
-            if report["report"].language == user.language:
+            if user and report["report"].language == user.language:
                 return report
-            if report["report"].language == "en":
+            # If user is not registered take the search profile language
+            if report["report"].language == search_profile_language:
+                sp_language_report = report
+            # English if none of the previous are available
+            if report["report"].language == Language.EN.value:
                 english_report = report
-        # If there is no report in the user language
-        return english_report
+
+        if sp_language_report:
+            return sp_language_report
+        elif english_report:
+            return english_report
+        else:
+            # Return the first report as last choice
+            return reports[0] if reports else None
 
     @staticmethod
     async def run(reports_infos: List[dict]):
@@ -216,7 +235,7 @@ class EmailService:
                     user = await UserService.get_by_email(email)
                     report_in_user_lang = (
                         EmailService._get_report_in_user_language(
-                            reports, user
+                            reports, user, search_profile.language
                         )
                     )
 
@@ -224,9 +243,15 @@ class EmailService:
                     presigned_url = report_in_user_lang["presigned_url"]
                     dashboard_url = report_in_user_lang["dashboard_url"]
 
+                    if user and user.language in Language._value2member_map_:
+                        translator_language = user.language
+                    else:
+                        translator_language = search_profile.language
+
                     translator = ArticleTranslationService.get_translator(
-                        user.language
+                        translator_language
                     )
+
                     time_slot_translated = translator(
                         report.time_slot.capitalize()
                     )
@@ -242,8 +267,9 @@ class EmailService:
                             presigned_url,
                             dashboard_url,
                             search_profile.name,
-                            user.last_name,
-                            user.language,
+                            user.last_name if user else None,
+                            user.gender if user else None,
+                            translator_language,
                         ),
                     )
 
