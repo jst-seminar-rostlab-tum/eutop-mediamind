@@ -218,7 +218,6 @@
 
   "breaking-news": {
     "header": "Breaking News",
-    "news_loading": "Loading breaking news...",
     "no_news": "No breaking news available.",
     "entry": "Click here to view the latest breaking news!",
     "show_less": "Show less",
@@ -244,7 +243,6 @@
     "download_unavailable": "Unavailable",
     "download": "Download",
     "no_reports_found": "No reports found.",
-    "loading": "Berichte werden geladen.",
     "no_reports_match_filter": "No reports found that match the filters."
   },
 
