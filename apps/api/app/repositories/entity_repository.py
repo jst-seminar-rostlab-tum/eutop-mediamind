@@ -4,6 +4,7 @@ from uuid import UUID
 from sqlalchemy import and_, or_, select
 
 from app.core.db import async_session
+from app.core.languages import Language
 from app.models.entity import ArticleEntity, EntityType
 
 
@@ -22,7 +23,7 @@ class ArticleEntityRepository:
 
     @staticmethod
     async def get_entities_by_article(
-        article_id: UUID, language: str = "en"
+        article_id: UUID, language: str = Language.EN.value
     ) -> dict:
         """
         Retrieves the entities associated with a given article,

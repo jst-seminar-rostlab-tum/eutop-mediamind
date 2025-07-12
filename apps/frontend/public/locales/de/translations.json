@@ -12,6 +12,8 @@
   "save_changes": "Änderungen speichern",
   "Search": "Suche",
   "select_date": "Datum auswählen",
+  "yes": "Ja",
+  "no": "Nein",
 
   "breadcrumb_home": "Home",
 
@@ -188,7 +190,9 @@
     "meta_data_language": "Originalsprache",
     "meta_data_status": "Status",
     "meta_data_category": "Kategorie",
-    "keywords_text": "Zeigt übereinstimmende Themen mit Schlagwörtern und einer Bewertung an, die die Themenrelevanz für den Artikel angibt."
+    "keywords_text": "Zeigt übereinstimmende Themen mit Schlagwörtern und einer Bewertung an, die die Themenrelevanz für den Artikel angibt.",
+    "show_more": "Mehr anzeigen",
+    "show_less": "Weniger anzeigen"
   },
 
   "role-badge": {
@@ -250,10 +254,14 @@
     "gender": "Geschlecht",
     "update_language": "Sprache aktualisieren",
     "update_gender": "Geschlecht aktualisieren",
+    "update_preference": "Auswahl aktualisieren",
     "male": "Männlich",
     "female": "Weiblich",
     "divers": "Divers",
     "language_update_error": "Fehler beim Aktualisieren der Sprache",
-    "gender_update_error": "Fehler beim Aktualisieren des Geschlechts"
+    "gender_update_error": "Fehler beim Aktualisieren des Geschlechts",
+    "breaking_news_update_error": "Fehler beim Aktualisieren der Breaking News Auswahl",
+    "breaking_news": "Breaking News Benachrichtigungen erhalten (Email)",
+    "breaking_news_title": "Breaking News Benachrichtigungen"
   }
 }

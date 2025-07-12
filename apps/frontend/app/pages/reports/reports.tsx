@@ -54,7 +54,7 @@ export function ReportsPage() {
     if (!languageFilter) {
       return reports.reports;
     }
-    const langToFilter = languageFilter === "en" ? "us" : "de";
+    const langToFilter = languageFilter === "en" ? "en" : "de";
     return reports.reports.filter((report) => report.language === langToFilter);
   }, [reports?.reports, languageFilter]);
 
@@ -168,12 +168,6 @@ export function ReportsPage() {
             {t("reports.no_reports_found")}
           </p>
         </div>
-      ) : filteredReports.length === 0 ? (
-        <div className="text-center py-8">
-          <p className="text-muted-foreground">
-            {t("reports.no_reports_match_filter")}
-          </p>
-        </div>
       ) : (
         <>
           <ReportFilterBar
@@ -181,63 +175,76 @@ export function ReportsPage() {
             onLanguageChange={handleLanguageChange}
             onReset={handleResetFilters}
           />
-          <div className="grid-report-cards mt-4">
-            {currentReports.map((report, index) => (
-              <ReportCard key={report.id || index} report={report} />
-            ))}
-          </div>
 
-          {totalPages > 1 && (
-            <Pagination className="mt-8">
-              <PaginationContent>
-                <PaginationItem>
-                  <PaginationPrevious
-                    onClick={() =>
-                      handlePageChange(Math.max(1, currentPage - 1))
-                    }
-                    className={
-                      currentPage === 1
-                        ? "pointer-events-none opacity-50"
-                        : "cursor-pointer"
-                    }
-                  />
-                </PaginationItem>
-
-                {getPageNumbers().map((page, index) => (
-                  <PaginationItem key={index}>
-                    {page === "..." ? (
-                      <PaginationEllipsis />
-                    ) : (
-                      <PaginationLink
-                        onClick={() => handlePageChange(page as number)}
-                        isActive={currentPage === page}
-                        className="cursor-pointer"
-                      >
-                        {page}
-                      </PaginationLink>
-                    )}
-                  </PaginationItem>
+          {filteredReports.length === 0 ? (
+            <div className="text-center py-8">
+              <p className="text-muted-foreground">
+                {t("reports.no_reports_match_filter")}
+              </p>
+            </div>
+          ) : (
+            <>
+              <div className="grid-report-cards mt-4">
+                {currentReports.map((report, index) => (
+                  <ReportCard key={report.id || index} report={report} />
                 ))}
+              </div>
 
-                <PaginationItem>
-                  <PaginationNext
-                    onClick={() =>
-                      handlePageChange(Math.min(totalPages, currentPage + 1))
-                    }
-                    className={
-                      currentPage === totalPages
-                        ? "pointer-events-none opacity-50"
-                        : "cursor-pointer"
-                    }
-                  />
-                </PaginationItem>
-              </PaginationContent>
-            </Pagination>
+              {totalPages > 1 && (
+                <Pagination className="mt-8">
+                  <PaginationContent>
+                    <PaginationItem>
+                      <PaginationPrevious
+                        onClick={() =>
+                          handlePageChange(Math.max(1, currentPage - 1))
+                        }
+                        className={
+                          currentPage === 1
+                            ? "pointer-events-none opacity-50"
+                            : "cursor-pointer"
+                        }
+                      />
+                    </PaginationItem>
+
+                    {getPageNumbers().map((page, index) => (
+                      <PaginationItem key={index}>
+                        {page === "..." ? (
+                          <PaginationEllipsis />
+                        ) : (
+                          <PaginationLink
+                            onClick={() => handlePageChange(page as number)}
+                            isActive={currentPage === page}
+                            className="cursor-pointer"
+                          >
+                            {page}
+                          </PaginationLink>
+                        )}
+                      </PaginationItem>
+                    ))}
+
+                    <PaginationItem>
+                      <PaginationNext
+                        onClick={() =>
+                          handlePageChange(
+                            Math.min(totalPages, currentPage + 1),
+                          )
+                        }
+                        className={
+                          currentPage === totalPages
+                            ? "pointer-events-none opacity-50"
+                            : "cursor-pointer"
+                        }
+                      />
+                    </PaginationItem>
+                  </PaginationContent>
+                </Pagination>
+              )}
+
+              <div className="text-sm text-muted-foreground mt-4 text-center">
+                {t("reports.pagination", { from, to, total: totalItems })}
+              </div>
+            </>
           )}
-
-          <div className="text-sm text-muted-foreground mt-4 text-center">
-            {t("reports.pagination", { from, to, total: totalItems })}
-          </div>
         </>
       )}
     </Layout>

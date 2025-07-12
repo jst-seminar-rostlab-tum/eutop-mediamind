@@ -165,7 +165,7 @@ class EmailService:
         profile_name: str,
         last_name: str,
         gender: Gender,
-        language: str = "en",
+        language: str = Language.EN.value,
     ) -> str:
         translator = ArticleTranslationService.get_translator(language)
 
