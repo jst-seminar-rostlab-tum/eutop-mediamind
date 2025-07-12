@@ -99,7 +99,7 @@ class OrganizationRepository:
             SubscriptionSummary(id=row[0], name=row[1], is_subscribed=row[2])
             for row in rows
         ]
-    
+
     @staticmethod
     async def get_with_users(
         session: AsyncSession,
@@ -108,7 +108,7 @@ class OrganizationRepository:
         result = await session.execute(
             select(Organization)
             .where(Organization.id == organization_id)
-            .options(selectinload(Organization.users)) 
+            .options(selectinload(Organization.users))
         )
         org = result.scalars().first()
         if org is None:
@@ -126,7 +126,6 @@ class OrganizationRepository:
             users=org.users,
             subscriptions=subscriptions,
         )
-
 
     @staticmethod
     async def get_all_with_users(

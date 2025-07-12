@@ -75,6 +75,7 @@ async def get_all_organizations_with_users(
 ) -> List[OrganizationResponse]:
     return await OrganizationService.get_all_with_users(current_user)
 
+
 @router.get("/{organization_id}", response_model=OrganizationResponse)
 async def get_organization_with_users(
     organization_id: uuid.UUID,
