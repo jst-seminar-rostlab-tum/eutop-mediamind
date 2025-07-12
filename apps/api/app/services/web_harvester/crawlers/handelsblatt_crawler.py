@@ -66,7 +66,6 @@ class HandelsblattCrawler(NewsAPICrawler):
                     await frame.click(
                         login_config.get("cookies_button"), timeout=3000
                     )
-                    logger.info("Cookie consent accepted")
                     return True
         except Exception as e:
             logger.warning(f"Cookie consent handling failed: {e}")
@@ -106,7 +105,7 @@ class HandelsblattCrawler(NewsAPICrawler):
         md_generator = DefaultMarkdownGenerator(content_filter=prune_filter)
 
         browser_config = BrowserConfig(
-            headless=False,
+            headless=True,
             verbose=True,
         )
 
@@ -136,9 +135,7 @@ class HandelsblattCrawler(NewsAPICrawler):
 
         crawler.crawler_strategy.set_hook("after_goto", login_wrapper)
         await crawler.arun(self.subscription.domain, config=config)
-        logger.info("Calling super().crawl_urls...")
         articles = super().crawl_urls(date_start, date_end, limit)
-        logger.info(f"Found {len(articles)} articles to enrich.")
         enriched_articles = []
         for article in articles:
             url = article.url
