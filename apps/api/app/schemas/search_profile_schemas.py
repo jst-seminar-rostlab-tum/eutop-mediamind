@@ -3,6 +3,7 @@ from uuid import UUID
 
 from pydantic import BaseModel, EmailStr
 
+from app.core.languages import Language
 from app.schemas.subscription_schemas import SubscriptionSummary
 from app.schemas.topic_schemas import TopicCreateOrUpdateRequest, TopicResponse
 
@@ -18,7 +19,7 @@ class SearchProfileBase(BaseModel):
     can_read_user_ids: List[UUID] = []
     subscriptions: List[SubscriptionSummary]
     owner_id: UUID
-    language: str = "en"
+    language: str = Language.EN.value
 
 
 # --- Request Models ---
@@ -47,7 +48,7 @@ class SearchProfileDetailBase(BaseModel):
     is_editor: bool
     owner_id: UUID
     is_owner: bool
-    language: str = "en"
+    language: str = Language.EN.value
     topics: List[TopicResponse]
 
 
