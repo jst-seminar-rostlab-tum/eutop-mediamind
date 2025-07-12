@@ -74,61 +74,82 @@ class OrganizationService:
             )
 
         async with async_session() as session:
+            # Fetch organization
             organization = await session.get(Organization, organization_id)
             if not organization:
                 raise HTTPException(
                     status_code=404, detail="Organization not found"
                 )
 
-            # Update basic fields
+            # Update basic organization fields
             organization.name = update_request.name
             if update_request.email:
                 organization.email = update_request.email
-            session.add(organization)
 
-            # Get current users in the organization
+            # Fetch existing users
             existing_users = await UserRepository.get_users_by_organization(
                 organization_id, session
             )
-            existing_ids = {u.id for u in existing_users}
+            existing_user_map = {u.id: u for u in existing_users}
+            existing_ids = set(existing_user_map.keys())
 
-            # Build mapping of new user IDs to roles in one pass
-            role_map = {u.id: u.role for u in update_request.users}
-            new_ids = set(role_map.keys())
+            # Extract new user roles from request
+            requested_user_roles = {u.id: u.role for u in update_request.users}
+            new_ids = set(requested_user_roles.keys())
 
-            # Determine removals and additions
+            # Compute sets
             to_remove = existing_ids - new_ids
             to_add = new_ids - existing_ids
+            to_check = (
+                existing_ids & new_ids
+            )  # Users that might need role updates
 
-            # Remove users no longer assigned
+            # Remove users no longer in the list
             if to_remove:
-                users = await UserRepository.get_by_ids(
+                users_to_remove = await UserRepository.get_by_ids(
                     list(to_remove), session
                 )
-                for user in users:
+                for user in users_to_remove:
                     user.organization_id = None
                     user.role = UserRole.member
                     await UserRepository.update_organization(user, session)
 
             # Add new users
             if to_add:
-                users = await UserRepository.get_by_ids(list(to_add), session)
-                for user in users:
+                users_to_add = await UserRepository.get_by_ids(
+                    list(to_add), session
+                )
+                for user in users_to_add:
                     user.organization_id = organization.id
-                    user.role = role_map.get(user.id, UserRole.member)
+                    user.role = requested_user_roles.get(
+                        user.id, UserRole.member
+                    )
                     await UserRepository.update_organization(user, session)
 
+            # Update role if changed
+            for uid in to_check:
+                existing_user = existing_user_map[uid]
+                new_role = requested_user_roles.get(uid)
+                if existing_user.role != new_role:
+                    existing_user.role = new_role
+                    await UserRepository.update_organization(
+                        existing_user, session
+                    )
+
+            # Finalize and return
+            session.add(organization)
             await session.commit()
             await session.refresh(organization)
 
-            users = await UserRepository.get_users_by_organization(
+            updated_users = await UserRepository.get_users_by_organization(
                 organization.id, session
             )
+
             return OrganizationResponse(
                 id=organization.id,
                 name=organization.name,
                 email=organization.email,
-                users=users,
+                users=updated_users,
             )
 
     @staticmethod

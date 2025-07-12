@@ -7,6 +7,7 @@ from sqlalchemy.orm import selectinload
 
 from app.models import Organization, Subscription
 from app.models.associations import OrganizationSubscriptionLink
+from app.repositories.subscription_repository import SubscriptionRepository
 from app.schemas.organization_schemas import OrganizationResponse
 from app.schemas.subscription_schemas import SubscriptionSummary
 
@@ -105,17 +106,25 @@ class OrganizationRepository:
     ) -> List[OrganizationResponse]:
         result = await session.execute(
             select(Organization).options(
-                selectinload(Organization.users)
+                selectinload(Organization.users),
             )  # eager load users
         )
         organizations = result.scalars().all()
 
-        return [
-            OrganizationResponse(
-                id=org.id,
-                name=org.name,
-                email=org.email,
-                users=org.users,
+        responses = []
+        for org in organizations:
+            subscriptions = await SubscriptionRepository.get_all_subscriptions_with_organization(  # noqa: E501
+                session, org.id
             )
-            for org in organizations
-        ]
+
+            responses.append(
+                OrganizationResponse(
+                    id=org.id,
+                    name=org.name,
+                    email=org.email,
+                    users=org.users,
+                    subscriptions=subscriptions,
+                )
+            )
+
+        return responses
