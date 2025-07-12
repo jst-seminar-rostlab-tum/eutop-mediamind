@@ -1,0 +1,95 @@
+name: Python pre-merge
+
+on:
+  workflow_call:
+    inputs:
+      workdir:
+        required: true
+        type: string
+      skip_tests:
+        required: false
+        type: boolean
+        default: false
+
+jobs:
+  setup:
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: ${{ inputs.workdir }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+  lint:
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: ${{ inputs.workdir }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: "pip"
+
+      - name: Install linting tools
+        run: pip install flake8 black isort
+
+      - name: Check formatting with Black
+        run: black --check app
+
+      - name: Check import sorting with isort
+        run: isort --check-only app
+
+      - name: Run flake8 lint
+        run: flake8 app
+
+  test:
+    needs: setup
+    runs-on: ubuntu-24.04
+    if: ${{ !inputs.skip_tests }}
+    defaults:
+      run:
+        working-directory: ${{ inputs.workdir }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: "pip"
+
+      - name: Install testing tools
+        run: |
+          pip install -r requirements.txt
+          pip install pytest pytest-cov
+
+      - name: Copy env
+        run: cp .env.example .env
+
+      - name: Run tests with coverage
+        env:
+          ENVIRONMENT: ci
+        run: pytest ./tests/* --cov=app --cov-report=xml --cov-report=term --cov-fail-under=30
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: backend/coverage.xml
+          retention-days: 5
