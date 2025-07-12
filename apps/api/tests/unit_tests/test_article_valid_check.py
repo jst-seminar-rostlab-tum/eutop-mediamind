@@ -1,5 +1,9 @@
-import pytest
-from app.services.article_cleaner.article_valid_check import is_article_valid, contains_disallowed_chars
+# flake8: noqa: E501
+
+from app.services.article_cleaner.article_valid_check import (
+    contains_disallowed_chars,
+    is_article_valid,
+)
 
 
 class TestArticleValidCheck:
@@ -22,7 +26,9 @@ class TestArticleValidCheck:
 
     def test_very_long_word_without_spaces(self):
         """Test that very long words without spaces might be considered gibberish."""
-        text = "ThisIsAVeryLongWordWithoutSpacesThatShouldBeConsideredGibberish"
+        text = (
+            "ThisIsAVeryLongWordWithoutSpacesThatShouldBeConsideredGibberish"
+        )
         # This should be valid as it only contains allowed characters
         assert is_article_valid(text) is True
 
@@ -103,7 +109,7 @@ class TestArticleValidCheck:
         # Test with valid text
         valid_text = "This is valid text with normal characters."
         assert contains_disallowed_chars(valid_text) is False
-        
+
         # Test with potentially invalid characters (this will depend on the ALLOWED_CHARS set)
         # We can test with a character that's definitely not in the allowed set
         invalid_text = "This text contains 中文 characters"
@@ -114,13 +120,17 @@ class TestArticleValidCheck:
         """Test that the max_violations parameter works correctly."""
         # Create text with many potential violations
         text_with_violations = "这是一个包含很多中文字符的测试文本"
-        
+
         # Test with max_violations=1
-        result = contains_disallowed_chars(text_with_violations, max_violations=1)
+        result = contains_disallowed_chars(
+            text_with_violations, max_violations=1
+        )
         assert isinstance(result, bool)
-        
+
         # Test with max_violations=10
-        result = contains_disallowed_chars(text_with_violations, max_violations=10)
+        result = contains_disallowed_chars(
+            text_with_violations, max_violations=10
+        )
         assert isinstance(result, bool)
 
     def test_empty_string(self):
@@ -145,5 +155,7 @@ class TestArticleValidCheck:
 
     def test_german_and_french_characters(self):
         """Test German and French characters that should be allowed."""
-        german_french_text = "Café mit Müsli, très bien! Schön, größer, français"
+        german_french_text = (
+            "Café mit Müsli, très bien! Schön, größer, français"
+        )
         assert is_article_valid(german_french_text) is True
