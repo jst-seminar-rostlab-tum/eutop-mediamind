@@ -1,6 +1,6 @@
 # Refactored PDFService to use split modules
 import uuid
-from datetime import datetime, timedelta
+from datetime import datetime
 from functools import partial
 from io import BytesIO
 from typing import Callable, List
@@ -59,15 +59,9 @@ class PDFService:
                 "Invalid timeslot. Must be one of: ['morning', 'afternoon',"
                 " 'evening']"
             )
-        elif timeslot == "morning":
-            match_start_time = match_stop_time - timedelta(hours=700)
-        elif timeslot == "afternoon":
-            match_start_time = match_stop_time - timedelta(hours=8)
-        elif timeslot == "evening":
-            match_start_time = match_stop_time - timedelta(hours=7)
 
         articles = await ArticleRepository.get_matched_articles_for_profile(
-            search_profile_id, match_start_time, match_stop_time
+            search_profile_id
         )
 
         translator = ArticleTranslationService.get_translator(language)
