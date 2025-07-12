@@ -14,6 +14,7 @@
   "select_date": "Datum auswählen",
   "yes": "Ja",
   "no": "Nein",
+  "save": "Speichern",
 
   "breadcrumb_home": "Home",
 
@@ -261,5 +262,15 @@
     "breaking_news_update_error": "Fehler beim Aktualisieren der Breaking News Auswahl",
     "breaking_news": "Breaking News Benachrichtigungen erhalten (Email)",
     "breaking_news_title": "Breaking News Benachrichtigungen"
+  },
+
+  "organisation_settings": {
+    "title": "Organisationseinstellungen",
+    "pdf_as_link": "Berichte als Link",
+    "pdf_as_link_text": "Entscheiden sie, ob die Berichte innerhalb ihrer Organisation als Link oder als PDF-Anhang gesendet werden sollen.",
+    "subscriptions": "Subscriptions",
+    "subscriptions_text": "Verwalten sie die Subscriptions, die für Searchprofile ihrer Organisation verwendet werden können.",
+    "success": "Organisationseinstellungen erfolgreich aktualisiert.",
+    "error": "Fehler beim Aktualisieren der Organisationseinstellungen."
   }
 }

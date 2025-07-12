@@ -10,4 +10,5 @@ export default [
   route("search-profile/:id", "routes/search-profile.tsx"),
   route("dashboard/breaking", "routes/breaking-news.tsx"),
   route("search-profile/:searchProfileId/reports", "routes/reports.tsx"),
+  route("organisation-settings", "routes/organisation-settings.tsx"),
 ] satisfies RouteConfig;
