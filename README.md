@@ -19,14 +19,17 @@ Key areas covered:
 
 ```
 eutop-mediamind/
-│
 ├── .github/               # GitHub-specific configurations (actions, issue templates)
 │
-├── backend/               # FastAPI backend app
+├── apps/
+│   │      
+│   ├── api/               # FastAPI backend app
+│   │      
+│   ├── frontend/          # React frontend app
+│   │      
+│   └── scheduler/         # Scheduler app
 │
-├── docs/                  # (Additional) project documentation
-│
-├── frontend/              # React frontend app
+├── docs/
 │
 ├── infra/                 # Infrastructure-as-code
 │
@@ -41,8 +44,9 @@ eutop-mediamind/
 
 For detailed setup instructions and development workflows, refer to the component-specific documentation:
 
-- **[Backend](./backend/README.md)** - FastAPI server, API documentation
-- **[Frontend](./frontend/README.md)** - React app, component library
+- **[API](./apps/api/README.md)** - FastAPI server, API documentation
+- **[Frontend](./apps/frontend/README.md)** - React app, component library
+- **[Scheduler](./apps/scheduler/README.md)** - Python scheduler
 - **[Infrastructure](./infra/README.md)** - AWS deployment, Terraform configs
 
 ### Prerequisites
@@ -56,8 +60,9 @@ For detailed setup instructions and development workflows, refer to the componen
 Copy the example environment files and configure them for your setup:
 
 ```bash
-cp backend/.env.example backend/.env
-cp frontend/.env.example frontend/.env
+cp apps/api/.env.example apps/api/.env
+cp apps/frontend/.env.example apps/frontend/.env
+cp apps/scheduler/.env.example apps/scheduler/.env
 ```
 
 Refer to each component's README for specific environment variable requirements.
