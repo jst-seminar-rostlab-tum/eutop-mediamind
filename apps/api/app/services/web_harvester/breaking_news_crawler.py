@@ -11,7 +11,7 @@ from app.core.db import get_redis_connection
 from app.core.logger import BufferedLogger
 from app.models.breaking_news import BreakingNews
 from app.repositories.user_repository import UserRepository
-from app.services.email_service import EmailSchedule, EmailService
+from app.services.email_service import EmailService
 
 
 class BreakingNewsNewsAPICrawler:
@@ -222,6 +222,8 @@ async def fetch_breaking_news_newsapi():
 
         if not redis_engine.exists(redis_key):
             article = crawler.get_breaking_news_detail(article)
+            if not article:
+                continue  # Newsapi sometimes returns empty articles
             try:
                 # if the article has high relevance score, send emails
                 if article.relevance_score > 0.8:
@@ -236,16 +238,14 @@ async def fetch_breaking_news_newsapi():
                     )
 
                     users = await UserRepository.get_all_users()
-                    for user in users:
-                        email_schedule = EmailSchedule(
-                            user.email,
-                            f"Breaking News Alert: {article.title}",
-                            "text/plain",
-                            email_content,
-                        )
-                        # Schedule the email
-                        await EmailService.schedule_email(email_schedule)
-                        await EmailService.send_scheduled_emails()
+                    emails = [user.email for user in users]
+                    email = EmailService.create_email(
+                        recipient="",
+                        subject=f"Breaking News Alert: {article.title}",
+                        content_type="text/plain",
+                        content=email_content,
+                    )
+                    EmailService.send_email(email=email, bcc_recipients=emails)
 
                 # Store the article in Redis
                 redis_engine.set(
@@ -290,3 +290,9 @@ def get_all_breaking_news() -> List[BreakingNews]:
         logger = BufferedLogger("BreakingNewsRedisReader")
         logger.error(f"Failed to fetch breaking news from Redis: {e}")
         return []
+
+
+if __name__ == "__main__":
+    import asyncio
+
+    asyncio.run(fetch_breaking_news_newsapi())

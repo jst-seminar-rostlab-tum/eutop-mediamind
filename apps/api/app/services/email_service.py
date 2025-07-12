@@ -46,14 +46,29 @@ class EmailSchedule:
 class EmailService:
 
     @staticmethod
-    async def schedule_email(schedule: EmailSchedule) -> Email:
-        email = Email()
-        email.sender = configs.SMTP_USER
-        email.recipient = schedule.recipient
-        email.subject = schedule.subject
-        email.content_type = schedule.content_type
-        email.content = schedule.content
+    def create_email(
+        recipient: str,
+        subject: str,
+        content_type: str,
+        content: str,
+    ) -> Email:
+        email = Email(
+            sender=configs.SMTP_USER,
+            recipient=recipient,
+            subject=subject,
+            content_type=content_type,
+            content=content,
+        )
+        return email
 
+    @staticmethod
+    async def schedule_email(schedule: EmailSchedule) -> Email:
+        email = EmailService.create_email(
+            recipient=schedule.recipient,
+            subject=schedule.subject,
+            content_type=schedule.content_type,
+            content=schedule.content,
+        )
         return await EmailRepository.add_email(email)
 
     @staticmethod
@@ -63,7 +78,7 @@ class EmailService:
         for email in emails:
             try:
                 email.attempts += 1
-                EmailService.__send_email(email)
+                EmailService.send_email(email)
                 email.state = EmailState.SENT
                 await EmailRepository.update_email(email)
             except Exception as e:
@@ -103,24 +118,36 @@ class EmailService:
                 raise Exception(f"Error sending SES email: {ok}")
 
     @staticmethod
-    def __send_email(email: Email):
+    def send_email(email: Email, bcc_recipients: List[str] = None):
         msg = MIMEMultipart("alternative")
         msg["From"] = email.sender
         msg["To"] = email.recipient
         msg["Subject"] = email.subject
 
+        # BCC recipients are not added to the message headers for privacy
+        # They are only included in the sendmail call
         html = MIMEText(email.content, "html")
         msg.attach(html)
+
+        # Only add BCC if there are recipients
+        all_recipients = []
+        if bcc_recipients:
+            all_recipients.extend(bcc_recipients)
+        else:
+            all_recipients.append(email.recipient)
 
         with smtplib.SMTP_SSL(
             configs.SMTP_SERVER, configs.SMTP_PORT
         ) as smtp_server:
             smtp_server.login(configs.SMTP_USER, configs.SMTP_PASSWORD)
             ok = smtp_server.sendmail(
-                email.sender, email.recipient, msg.as_string()
+                email.sender, all_recipients, msg.as_string()
             )
             if not (ok == {}):
-                raise Exception(f"Error sending email: {ok}")
+                error_msg = "Error sending email"
+                if bcc_recipients:
+                    error_msg += " with BCC"
+                raise Exception(f"{error_msg}: {ok}")
 
     @staticmethod
     def _render_email_template(template_name: str, context: dict) -> str:
