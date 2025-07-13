@@ -8,7 +8,9 @@ from uuid import UUID
 class NewsItem:
     id: UUID
     title: str
+    title_original: str
     content: str
+    content_original: str
     url: str
     published_at: str
     summary: str
