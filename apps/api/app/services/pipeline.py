@@ -63,7 +63,7 @@ async def run(datetime_start: datetime, datetime_end: datetime):
     logger.info("Cleaning up old articles (older than 180 days)")
     cleanup_service = ArticleCleanupService()
     cleanup_stats = await cleanup_service.cleanup_articles_older_than_days(
-        days=180, batch_size=100, dry_run=False
+        days=180, batch_size=100
     )
     logger.info(
         f"Article cleanup completed: "

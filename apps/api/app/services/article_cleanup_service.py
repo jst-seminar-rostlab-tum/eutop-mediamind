@@ -31,7 +31,7 @@ class ArticleCleanupService:
         self.vector_service = ArticleVectorService()
 
     async def cleanup_articles_older_than_days(
-        self, days: int = 180, batch_size: int = 100, dry_run: bool = False
+        self, days: int = 180, batch_size: int = 100
     ) -> dict:
         """
         Delete articles older than the specified
@@ -40,7 +40,6 @@ class ArticleCleanupService:
         Args:
             days: Number of days to look back for article deletion
             batch_size: Number of articles to process in each batch
-            dry_run: If True, only count articles but don't delete them
 
         Returns:
             Dict with cleanup statistics
@@ -50,8 +49,6 @@ class ArticleCleanupService:
         logger.info(
             f"Starting article cleanup for articles older than {cutoff_date}"
         )
-        if dry_run:
-            logger.info("Running in DRY RUN mode - no data will be deleted")
 
         stats = {
             "articles_processed": 0,
@@ -75,13 +72,6 @@ class ArticleCleanupService:
 
             logger.info(f"Found {total_articles} articles to process")
 
-            if dry_run:
-                stats["articles_processed"] = total_articles
-                logger.info(
-                    f"DRY RUN: Would delete {total_articles}"
-                    f" articles and their related data"
-                )
-                return stats
 
             # Process articles in batches
             offset = 0
