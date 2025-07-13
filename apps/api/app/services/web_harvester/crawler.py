@@ -366,12 +366,14 @@ def _get_crawler_class(crawler_type: CrawlerType):
         return RSSFeedCrawler
     elif crawler_type == CrawlerType.FtCrawler:
         from app.services.web_harvester.crawlers.ft_crawler import FtCrawler
+
+        return FtCrawler
     elif crawler_type == CrawlerType.EnhesaCrawler:
         from app.services.web_harvester.crawlers.enhesa_crawler import (
             EnhesaCrawler,
         )
 
-        return FtCrawler
+        return EnhesaCrawler
     else:
         raise ValueError(f"Unknown crawler type: {crawler_type}")
 
