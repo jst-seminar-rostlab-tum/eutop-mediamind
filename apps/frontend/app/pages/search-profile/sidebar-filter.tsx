@@ -80,7 +80,7 @@ export function SidebarFilter({
   );
 
   return (
-    <Card className="p-5 gap-4">
+    <Card className="p-5 gap-4 w-full">
       <CardTitle className="mt-2 flex items-center gap-2">
         <ArrowDownNarrowWide /> {t("search_profile.Sorting")}
       </CardTitle>
