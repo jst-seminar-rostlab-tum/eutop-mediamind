@@ -152,10 +152,10 @@ class TopicsRepository:
                 )
 
         await session.flush()
-        
+
         # 6) delete orphaned keywords that have no more topic links
         await _delete_orphaned_keywords(session)
-        
+
         await session.refresh(profile, ["topics"])
 
     @staticmethod
