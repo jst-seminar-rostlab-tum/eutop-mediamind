@@ -54,7 +54,7 @@ export function DataTableSubscriptions<TData, TValue>({
 
   return (
     <>
-      <div className="flex items-center py-4">
+      <div className="flex items-center pb-4">
         <div className="relative w-full flex items-center">
           <Input
             placeholder={t("search")}
