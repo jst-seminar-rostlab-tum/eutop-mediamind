@@ -74,7 +74,7 @@ async def _scrape_articles_for_subscription(subscription, executor):
 
     loop = asyncio.get_event_loop()
     scraped_articles = await loop.run_in_executor(
-        executor, run_selenium_code, new_articles, subscription, scraper
+        executor, run_selenium_code, new_articles, subscription, scraper, loop
     )
 
     # Store every scraped article in the database
@@ -107,7 +107,7 @@ async def _scrape_articles_for_subscription(subscription, executor):
 
 
 def run_selenium_code(
-    articles: list[Article], subscription: Subscription, scraper: Scraper
+    articles: list[Article], subscription: Subscription, scraper: Scraper, loop
 ) -> list[Article]:
     scraper: Scraper = subscription.scrapers
     driver, wait = create_driver(headless=True)
@@ -121,14 +121,17 @@ def run_selenium_code(
                 f"Login failed for subscription {subscription.name}, "
                 f"updating login config with LLM approach"
             )
-            login_updated = LoginLLM.add_page(subscription)
-            if login_updated:
+            login_updated_future = asyncio.run_coroutine_threadsafe(
+                LoginLLM.add_page(subscription), loop
+            )
+            subscription_updated = login_updated_future.result()
+            if subscription_updated:
                 scraper.logger.info(
                     f"Login config updated for {subscription.name}, "
                     f"retrying login"
                 )
                 login_success = _handle_login_if_needed(
-                    subscription, scraper, driver, wait
+                    subscription_updated, scraper, driver, wait
                 )
             else:
                 scraper.logger.error(

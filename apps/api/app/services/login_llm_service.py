@@ -600,6 +600,8 @@ class LoginLLM:
         # Initialize Selenium
         chrome_options = Options()
         chrome_options.add_argument("--disable-notifications")
+        chrome_options.add_argument("--headless")
+        chrome_options.add_argument("--no-sandbox")
         chrome_options.set_capability(
             "goog:loggingPrefs", {"performance": "ALL"}
         )
@@ -645,7 +647,7 @@ class LoginLLM:
                 db_subscription.login_config = login_config
                 await SubscriptionRepository.update(session, db_subscription)
                 logger.info(f"Login config updated for {db_subscription.name}")
-                return True
+                return db_subscription
         else:
             logger.error(
                 f"Login was not possible on newspaper {subscription.name}"
