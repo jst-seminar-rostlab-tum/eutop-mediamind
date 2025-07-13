@@ -141,6 +141,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/users/breaking_news": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Update Breaking News */
+        put: operations["update_breaking_news_api_v1_users_breaking_news_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/search-profiles": {
         parameters: {
             query?: never;
@@ -308,40 +325,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/emails/send/{recipient_email}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Trigger Email Sending */
-        get: operations["trigger_email_sending_api_v1_emails_send__recipient_email__get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/emails/test": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Send Report Email */
-        get: operations["send_report_email_api_v1_emails_test_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/v1/vector-store/add-articles": {
         parameters: {
             query?: never;
@@ -410,6 +393,40 @@ export interface paths {
         get: operations["trigger_pdf_creation_api_v1_articles_pdf_get"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/jobs/email": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Email Job */
+        post: operations["email_job_api_v1_jobs_email_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/jobs/pipeline": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Trigger Pipeline */
+        post: operations["trigger_pipeline_api_v1_jobs_pipeline_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -583,23 +600,6 @@ export interface paths {
         get: operations["get_breaking_news_api_v1_crawler_get_breaking_news_get"];
         put?: never;
         post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/crawler/trigger_pipeline": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Trigger Pipeline */
-        post: operations["trigger_pipeline_api_v1_crawler_trigger_pipeline_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -828,6 +828,21 @@ export interface components {
             /** Detail */
             detail?: components["schemas"]["ValidationError"][];
         };
+        /** JobResponse */
+        JobResponse: {
+            /** @description Status of the job, can be 'completed' or 'failed' */
+            status: components["schemas"]["JobStatus"];
+            /**
+             * Message
+             * @description Additional information about the job status
+             */
+            message: string;
+        };
+        /**
+         * JobStatus
+         * @enum {string}
+         */
+        JobStatus: "completed" | "failed";
         /** Keyword */
         Keyword: {
             /**
@@ -904,6 +919,10 @@ export interface components {
             topics: components["schemas"]["MatchTopicItem"][];
             search_profile: components["schemas"]["MatchProfileInfo"] | null;
             article: components["schemas"]["MatchArticleOverviewContent"];
+            /** Entities */
+            entities?: {
+                [key: string]: unknown;
+            } | null;
         };
         /** MatchFeedbackRequest */
         MatchFeedbackRequest: {
@@ -987,6 +1006,8 @@ export interface components {
              * Format: email
              */
             email: string;
+            /** Pdf As Link */
+            pdf_as_link: boolean;
             /** Users */
             users: components["schemas"]["CreateRequestUser"][];
         };
@@ -999,6 +1020,8 @@ export interface components {
              * Format: email
              */
             email: string;
+            /** Pdf As Link */
+            pdf_as_link: boolean;
             /**
              * Id
              * Format: uuid
@@ -1009,6 +1032,26 @@ export interface components {
              * @default []
              */
             users: components["schemas"]["User"][];
+            /**
+             * Subscriptions
+             * @default []
+             */
+            subscriptions: components["schemas"]["SubscriptionSummary"][];
+        };
+        /** PipelineJobRequest */
+        PipelineJobRequest: {
+            /**
+             * Start
+             * Format: date-time
+             * @description Start time for the pipeline job, defaults to the start         of today
+             */
+            start?: string;
+            /**
+             * End
+             * Format: date-time
+             * @description End time for the pipeline job, defaults to now
+             */
+            end?: string;
         };
         /** ReportDetailResponse */
         ReportDetailResponse: {
@@ -1303,6 +1346,11 @@ export interface components {
              * @default false
              */
             is_superuser: boolean;
+            /**
+             * Breaking News
+             * @default true
+             */
+            breaking_news: boolean;
             /** Organization Id */
             organization_id?: string | null;
             /**
@@ -1352,6 +1400,11 @@ export interface components {
             organization_id?: string | null;
             /** Organization Name */
             organization_name?: string | null;
+            /**
+             * Breaking News
+             * @default true
+             */
+            breaking_news: boolean;
         };
         /**
          * UserRole
@@ -1531,6 +1584,37 @@ export interface operations {
         parameters: {
             query: {
                 gender: components["schemas"]["Gender"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserEntity"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_breaking_news_api_v1_users_breaking_news_put: {
+        parameters: {
+            query: {
+                breaking_news: boolean;
             };
             header?: never;
             path?: never;
@@ -2028,71 +2112,6 @@ export interface operations {
             };
         };
     };
-    trigger_email_sending_api_v1_emails_send__recipient_email__get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                recipient_email: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": unknown;
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    send_report_email_api_v1_emails_test_get: {
-        parameters: {
-            query: {
-                /** @description Clerk User ID */
-                clerk_id: string;
-                /** @description Search Profile UUID */
-                search_profile_id: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": unknown;
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
     add_articles_to_vector_store_api_v1_vector_store_add_articles_post: {
         parameters: {
             query?: {
@@ -2191,6 +2210,59 @@ export interface operations {
                 };
                 content: {
                     "application/json": unknown;
+                };
+            };
+        };
+    };
+    email_job_api_v1_jobs_email_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["JobResponse"];
+                };
+            };
+        };
+    };
+    trigger_pipeline_api_v1_jobs_pipeline_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PipelineJobRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["JobResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };
@@ -2504,39 +2576,6 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["BreakingNewsResponse"];
-                };
-            };
-        };
-    };
-    trigger_pipeline_api_v1_crawler_trigger_pipeline_post: {
-        parameters: {
-            query?: {
-                datetime_start?: string;
-                datetime_end?: string;
-                language?: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": unknown;
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };
