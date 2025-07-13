@@ -213,7 +213,7 @@ class OrganizationService:
         organization_id: uuid.UUID, current_user: UserEntity
     ) -> List[OrganizationResponse]:
         if (
-            current_user.role is not "maintainer"
+            current_user.role != "maintainer"
             and not current_user.is_superuser
         ):
             raise HTTPException(
