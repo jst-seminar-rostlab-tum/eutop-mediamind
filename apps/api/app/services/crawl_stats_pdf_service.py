@@ -57,7 +57,7 @@ async def generate_crawl_stats_pdf(filename: str = "crawl_stats_report.pdf"):
                 Paragraph(subscription_name, normal_style),
                 Paragraph(str(stat.total_successful), normal_style),
                 Paragraph(str(stat.total_attempted), normal_style),
-                Paragraph(stat.notes or "", normal_style),
+                Paragraph(stat.notes[:5000] or "", normal_style),
             ]
         )
 
