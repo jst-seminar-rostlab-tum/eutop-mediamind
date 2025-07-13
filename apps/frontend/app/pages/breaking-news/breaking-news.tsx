@@ -1,4 +1,5 @@
 import { BreakingNewsCard } from "~/custom-components/breaking-news/breaking-news-card";
+import { BreakingNewsCardSkeleton } from "~/custom-components/breaking-news/breaking-news-card-skeleton";
 import Layout from "~/custom-components/layout";
 import {
   Breadcrumb,
@@ -23,14 +24,6 @@ export function BreakingNews() {
 
   const { t } = useTranslation();
 
-  if (isLoading) {
-    return (
-      <Layout>
-        <div>{t("breaking-news.news_loading")}</div>
-      </Layout>
-    );
-  }
-
   if (error) {
     return <ErrorPage />;
   }
@@ -51,16 +44,23 @@ export function BreakingNews() {
         </BreadcrumbList>
       </Breadcrumb>
       <Text hierachy={2}>{t("breaking-news.header")}</Text>
-      {!breakingNews || !breakingNews.news || breakingNews.news.length === 0 ? (
+
+      {isLoading ? (
+        <div className="space-y-4">
+          {Array.from({ length: 3 }).map((_, index) => (
+            <BreakingNewsCardSkeleton key={index} />
+          ))}
+        </div>
+      ) : !breakingNews ||
+        !breakingNews.news ||
+        breakingNews.news.length === 0 ? (
         <div className={"text-gray-400"}>{t("breaking-news.no_news")}</div>
       ) : (
-        <>
-          <div className="space-y-4">
-            {breakingNews.news.map((news) => (
-              <BreakingNewsCard key={news.id} news={news} />
-            ))}
-          </div>
-        </>
+        <div className="space-y-4">
+          {breakingNews.news.map((news) => (
+            <BreakingNewsCard key={news.id} news={news} />
+          ))}
+        </div>
       )}
     </Layout>
   );

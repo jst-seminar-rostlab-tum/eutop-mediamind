@@ -11,16 +11,23 @@ import { useAuthorization } from "~/hooks/use-authorization";
 import { client } from "types/api";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
+import { Switch } from "~/components/ui/switch";
+import { Label } from "~/components/ui/label";
 
 export default function PersonalSettings() {
   const { user, setMediamindUser } = useAuthorization();
   const { t } = useTranslation();
   const [editingField, setEditingField] = useState<
-    "language" | "gender" | null
+    "language" | "gender" | "breaking-news" | null
   >(null);
-  const [language, setLanguage] = useState<"en" | "de">(user?.language ?? "en");
+  const [language, setLanguage] = useState<"en" | "de">(
+    (user?.language as "en" | "de") ?? "en",
+  );
   const [gender, setGender] = useState<"male" | "female" | "divers">(
     user?.gender ?? "male",
+  );
+  const [breakingNews, setBreakingNews] = useState(
+    user?.breaking_news ?? false,
   );
 
   const saveLanuage = async () => {
@@ -52,6 +59,22 @@ export default function PersonalSettings() {
       return;
     }
     setMediamindUser?.({ ...user, gender });
+    setEditingField(null);
+  };
+
+  const saveBreakingNews = async () => {
+    if (breakingNews === undefined || !user) {
+      return;
+    }
+    try {
+      await client.PUT("/api/v1/users/breaking_news", {
+        params: { query: { breaking_news: breakingNews } },
+      });
+    } catch {
+      toast.error(t("personal_settings.breaking_news_update_error"));
+      return;
+    }
+    setMediamindUser?.({ ...user, breaking_news: breakingNews });
     setEditingField(null);
   };
 
@@ -140,6 +163,49 @@ export default function PersonalSettings() {
               </button>
             ) : (
               <button className="update-button" onClick={() => saveGender()}>
+                {t("save_changes")}
+              </button>
+            )}
+          </div>
+        </div>
+        <div className="settings-entry">
+          <div className="settings-entry-heading">
+            {t("personal_settings.breaking_news_title")}
+          </div>
+          <div className="settings-entry-value-box">
+            {editingField !== "breaking-news" ? (
+              <span className="settings-entry-value">
+                {breakingNews ? t("yes") : t("no")}
+              </span>
+            ) : (
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="breaking-news"
+                  checked={breakingNews}
+                  onCheckedChange={(checked: boolean) =>
+                    setBreakingNews(checked)
+                  }
+                />
+                <Label
+                  htmlFor="breaking-news"
+                  className="font-normal cursor-pointer"
+                >
+                  {t("personal_settings.breaking_news")}
+                </Label>
+              </div>
+            )}
+            {editingField !== "breaking-news" ? (
+              <button
+                className="update-button"
+                onClick={() => setEditingField("breaking-news")}
+              >
+                {t("personal_settings.update_preference")}
+              </button>
+            ) : (
+              <button
+                className="update-button"
+                onClick={() => saveBreakingNews()}
+              >
                 {t("save_changes")}
               </button>
             )}

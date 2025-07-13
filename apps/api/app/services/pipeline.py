@@ -51,7 +51,7 @@ async def run(datetime_start: datetime, datetime_end: datetime):
     await matching_service.run()
 
     logger.info("Report generation")
-    # returns the Report, presigned URL, dashboard URL and search profile
+    # Returns the Report, presigned URL, dashboard URL and search profile
     reports_info = await ReportService.run(
         timeslot="morning", languages=[Language.EN, Language.DE]
     )

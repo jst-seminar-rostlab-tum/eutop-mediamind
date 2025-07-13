@@ -1,4 +1,5 @@
 import { ReportCard } from "~/custom-components/reports/report-card";
+import { ReportCardSkeleton } from "~/custom-components/reports/report-card-skeleton";
 import Layout from "~/custom-components/layout";
 import {
   Breadcrumb,
@@ -25,6 +26,7 @@ import {
   PaginationPrevious,
 } from "~/components/ui/pagination";
 import { ReportFilterBar } from "~/custom-components/reports/reports-filter-bar";
+import { BreadcrumbSkeleton } from "~/custom-components/breadcrumb-skeleton";
 
 export function ReportsPage() {
   const { searchProfileId } = useParams();
@@ -54,7 +56,7 @@ export function ReportsPage() {
     if (!languageFilter) {
       return reports.reports;
     }
-    const langToFilter = languageFilter === "en" ? "us" : "de";
+    const langToFilter = languageFilter === "en" ? "en" : "de";
     return reports.reports.filter((report) => report.language === langToFilter);
   }, [reports?.reports, languageFilter]);
 
@@ -118,11 +120,7 @@ export function ReportsPage() {
     return pages;
   };
 
-  if (profileLoading || isLoading) {
-    return <></>;
-  }
-
-  if (!searchProfileId || !profile) {
+  if (!searchProfileId || (!profileLoading && !profile)) {
     return <ErrorPage />;
   }
 
@@ -140,11 +138,15 @@ export function ReportsPage() {
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbLink asChild>
-              <Link to={`/search-profile/${searchProfileId}`}>
-                {profile.name}
-              </Link>
-            </BreadcrumbLink>
+            {profileLoading ? (
+              <BreadcrumbSkeleton />
+            ) : (
+              <BreadcrumbLink asChild>
+                <Link to={`/search-profile/${searchProfileId}`}>
+                  {profile?.name}
+                </Link>
+              </BreadcrumbLink>
+            )}
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
@@ -155,23 +157,23 @@ export function ReportsPage() {
 
       <Text hierachy={2}>{t("reports.header")}</Text>
 
-      {isLoading ? (
-        <div className="flex items-center justify-center min-h-[400px]">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto mb-4"></div>
-            <p>{t("reports.loading")}</p>
+      {profileLoading || isLoading ? (
+        <>
+          <ReportFilterBar
+            language={languageFilter}
+            onLanguageChange={handleLanguageChange}
+            onReset={handleResetFilters}
+          />
+          <div className="grid-report-cards mt-4">
+            {Array.from({ length: 12 }).map((_, index) => (
+              <ReportCardSkeleton key={index} />
+            ))}
           </div>
-        </div>
+        </>
       ) : !reports || !reports.reports || reports.reports.length === 0 ? (
         <div className="text-center py-8">
           <p className="text-muted-foreground">
             {t("reports.no_reports_found")}
-          </p>
-        </div>
-      ) : filteredReports.length === 0 ? (
-        <div className="text-center py-8">
-          <p className="text-muted-foreground">
-            {t("reports.no_reports_match_filter")}
           </p>
         </div>
       ) : (
@@ -181,63 +183,76 @@ export function ReportsPage() {
             onLanguageChange={handleLanguageChange}
             onReset={handleResetFilters}
           />
-          <div className="grid-report-cards mt-4">
-            {currentReports.map((report, index) => (
-              <ReportCard key={report.id || index} report={report} />
-            ))}
-          </div>
 
-          {totalPages > 1 && (
-            <Pagination className="mt-8">
-              <PaginationContent>
-                <PaginationItem>
-                  <PaginationPrevious
-                    onClick={() =>
-                      handlePageChange(Math.max(1, currentPage - 1))
-                    }
-                    className={
-                      currentPage === 1
-                        ? "pointer-events-none opacity-50"
-                        : "cursor-pointer"
-                    }
-                  />
-                </PaginationItem>
-
-                {getPageNumbers().map((page, index) => (
-                  <PaginationItem key={index}>
-                    {page === "..." ? (
-                      <PaginationEllipsis />
-                    ) : (
-                      <PaginationLink
-                        onClick={() => handlePageChange(page as number)}
-                        isActive={currentPage === page}
-                        className="cursor-pointer"
-                      >
-                        {page}
-                      </PaginationLink>
-                    )}
-                  </PaginationItem>
+          {filteredReports.length === 0 ? (
+            <div className="text-center py-8">
+              <p className="text-muted-foreground">
+                {t("reports.no_reports_match_filter")}
+              </p>
+            </div>
+          ) : (
+            <>
+              <div className="grid-report-cards mt-4">
+                {currentReports.map((report, index) => (
+                  <ReportCard key={report.id || index} report={report} />
                 ))}
+              </div>
 
-                <PaginationItem>
-                  <PaginationNext
-                    onClick={() =>
-                      handlePageChange(Math.min(totalPages, currentPage + 1))
-                    }
-                    className={
-                      currentPage === totalPages
-                        ? "pointer-events-none opacity-50"
-                        : "cursor-pointer"
-                    }
-                  />
-                </PaginationItem>
-              </PaginationContent>
-            </Pagination>
+              {totalPages > 1 && (
+                <Pagination className="mt-8">
+                  <PaginationContent>
+                    <PaginationItem>
+                      <PaginationPrevious
+                        onClick={() =>
+                          handlePageChange(Math.max(1, currentPage - 1))
+                        }
+                        className={
+                          currentPage === 1
+                            ? "pointer-events-none opacity-50"
+                            : "cursor-pointer"
+                        }
+                      />
+                    </PaginationItem>
+
+                    {getPageNumbers().map((page, index) => (
+                      <PaginationItem key={index}>
+                        {page === "..." ? (
+                          <PaginationEllipsis />
+                        ) : (
+                          <PaginationLink
+                            onClick={() => handlePageChange(page as number)}
+                            isActive={currentPage === page}
+                            className="cursor-pointer"
+                          >
+                            {page}
+                          </PaginationLink>
+                        )}
+                      </PaginationItem>
+                    ))}
+
+                    <PaginationItem>
+                      <PaginationNext
+                        onClick={() =>
+                          handlePageChange(
+                            Math.min(totalPages, currentPage + 1),
+                          )
+                        }
+                        className={
+                          currentPage === totalPages
+                            ? "pointer-events-none opacity-50"
+                            : "cursor-pointer"
+                        }
+                      />
+                    </PaginationItem>
+                  </PaginationContent>
+                </Pagination>
+              )}
+
+              <div className="text-sm text-muted-foreground mt-4 text-center">
+                {t("reports.pagination", { from, to, total: totalItems })}
+              </div>
+            </>
           )}
-
-          <div className="text-sm text-muted-foreground mt-4 text-center">
-            {t("reports.pagination", { from, to, total: totalItems })}
-          </div>
         </>
       )}
     </Layout>
