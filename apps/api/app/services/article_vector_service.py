@@ -186,3 +186,30 @@ class ArticleVectorService:
         self.vector_store.add_documents(
             documents=[document], ids=[str(article.id)]
         )
+
+    def delete_articles_by_ids(self, article_ids: List[str]) -> int:
+        """
+        Delete articles from the vector store by their IDs.
+
+        Args:
+            article_ids: List of article IDs (as strings) to delete
+
+        Returns:
+            Number of articles successfully deleted
+        """
+        if not article_ids:
+            return 0
+
+        try:
+            # Use Qdrant client to delete points by IDs
+            self._qdrant_client.delete(
+                collection_name=self.collection_name,
+                points_selector=models.PointIdsList(points=article_ids),
+            )
+            logger.info(
+                f"Deleted {len(article_ids)} articles from vector store"
+            )
+            return len(article_ids)
+        except Exception as e:
+            logger.error(f"Error deleting articles from vector store: {e}")
+            return 0
