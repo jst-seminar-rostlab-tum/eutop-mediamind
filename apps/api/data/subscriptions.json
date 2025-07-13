@@ -307,15 +307,21 @@
   },
   {
     "name": "Chemical Watch - Onlinezugang",
-    "domain": "https://www.product.enhesa.com",
+    "domain": "https://product.enhesa.com",
     "paywall": true,
     "is_active": false,
     "login_config": {
-      "user_input": "//input[@name='email' and @type='text']",
-      "password_input": "//input[@name='password' and @type='password']",
-      "submit_button": "//button[@type='submit' and @data-testid='login-button']",
+      "user_input": "input[name='email']",
+      "password_input": "input[name='password']",
+      "submit_button": "button[data-testid='login-button']",
       "profile_section": "//div[@class=' UserAvatar']",
       "logout_button": "//div[contains(text(), 'Log out') and contains(@class, 'hoverable')]"
+    },
+    "crawlers": {
+      "EnhesaCrawler": {
+        "filter_category": true,
+        "sourceUri": "https://www.product.enhesa.com"
+      }
     }
   },
   {
