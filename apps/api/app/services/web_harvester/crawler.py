@@ -367,7 +367,9 @@ def _get_crawler_class(crawler_type: CrawlerType):
     elif crawler_type == CrawlerType.FtCrawler:
         from app.services.web_harvester.crawlers.ft_crawler import FtCrawler
     elif crawler_type == CrawlerType.EnhesaCrawler:
-        from app.services.web_harvester.crawlers.enhesa_crawler import EnhesaCrawler
+        from app.services.web_harvester.crawlers.enhesa_crawler import (
+            EnhesaCrawler,
+        )
 
         return FtCrawler
     else:
