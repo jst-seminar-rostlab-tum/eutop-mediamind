@@ -109,7 +109,6 @@ resource "aws_ecs_service" "app" {
   network_configuration {
     subnets          = var.subnet_ids
     assign_public_ip = true
-    security_groups  = [aws_security_group.ecs_service.id]
   }
   depends_on = [aws_ecs_task_definition.app]
 }
