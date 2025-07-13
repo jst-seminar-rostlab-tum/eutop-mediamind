@@ -12,6 +12,7 @@ from app.core.logger import get_logger
 from app.models.article import Article, ArticleStatus
 from app.models.match import Match
 from app.repositories.matching_run_repository import MatchingRunRepository
+from app.repositories.subscription_repository import SubscriptionRepository
 
 logger = get_logger(__name__)
 
@@ -206,7 +207,7 @@ class ArticleRepository:
             return summarized_articles
 
     @staticmethod
-    async def get_matched_articles_for_profile(
+    async def get_matched_articles_for_profile_for_create_pdf(
         search_profile_id: uuid.UUID,
         limit: int = 100,
     ) -> List[Article]:
@@ -215,6 +216,18 @@ class ArticleRepository:
                 await MatchingRunRepository.get_last_matching_run(session)
             )
             if not last_matching_run:
+                return []
+
+            # Get subscription IDs that are linked to the search profile
+            subscriptions_data = await SubscriptionRepository.get_all_subscriptions_with_search_profile(
+                search_profile_id
+            )
+            # Filter to get only subscribed subscription IDs
+            linked_subscription_ids = [
+                sub.id for sub in subscriptions_data if sub.is_subscribed
+            ]
+            
+            if not linked_subscription_ids:
                 return []
 
             query = (
@@ -233,7 +246,14 @@ class ArticleRepository:
                 .limit(limit)
             )
             matches = (await session.execute(query)).scalars().all()
-            return [m.article for m in matches if m.article is not None]
+            
+            # Filter articles to only include those with subscriptions linked to the search profile
+            filtered_articles = [
+                m.article for m in matches 
+                if m.article is not None and m.article.subscription_id in linked_subscription_ids
+            ]
+            
+            return filtered_articles
 
     @staticmethod
     async def list_new_articles_by_subscription(
