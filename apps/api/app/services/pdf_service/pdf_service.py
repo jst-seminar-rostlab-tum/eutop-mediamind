@@ -5,7 +5,7 @@ from io import BytesIO
 from typing import Callable, List
 
 from reportlab.lib.pagesizes import A4
-from reportlab.lib.units import inch
+from reportlab.lib.units import cm
 from reportlab.platypus import (
     BaseDocTemplate,
     Frame,
@@ -174,7 +174,7 @@ class PDFService:
 
         buffer = BytesIO()
         width, height = dimensions
-        margin = inch
+        margin = 1.5 * cm
 
         # Use a single frame for simplicity, as elements can use PageBreaks
         frame = Frame(
@@ -186,7 +186,7 @@ class PDFService:
             margin,
             margin,
             width - 2 * margin,
-            height - 2 * margin,
+            height - 2.5 * margin,
             id="full_article",
         )
 
@@ -212,6 +212,7 @@ class PDFService:
             topMargin=margin,
             bottomMargin=margin,
         )
+
         on_page = partial(PDFService.draw_header_footer, translator=translator)
         doc.addPageTemplates(
             [

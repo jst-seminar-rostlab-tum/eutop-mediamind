@@ -3,6 +3,7 @@ from typing import List
 
 from reportlab.lib.enums import TA_JUSTIFY
 from reportlab.lib.styles import ParagraphStyle
+from reportlab.lib.units import cm
 from reportlab.platypus import (
     Flowable,
     HRFlowable,
@@ -159,7 +160,7 @@ def draw_cover_elements(
             button_style_right,
         )
         row = [[meta_para, button_para]]
-        table = Table(row, colWidths=[2.5 * 72, 3.25 * 72], hAlign='LEFT')
+        table = Table(row, colWidths=[5 * cm, 8 * cm], hAlign='LEFT')
         table.setStyle(
             TableStyle(
                 [
