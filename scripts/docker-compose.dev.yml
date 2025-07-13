@@ -9,9 +9,9 @@ services:
       - qdrant_data:/qdrant/storage
 
   backend:
-    container_name: backend
+    container_name: api
     build:
-      context: ../backend
+      context: ../apps/api
       dockerfile: Dockerfile
     restart: always
     depends_on:
@@ -21,13 +21,21 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - ../backend:/app
-      - backend_logs_volumes:/app/logs # persistent logs directory
+      - ../apps/api:/app
     logging:
       driver: json-file
       options:
         max-size: "50m" # maximum size of each log file 50MB
         max-file: "10"
+
+  scheduler:
+    container_name: scheduler 
+    build:
+      context: ../apps/scheduler
+      dockerfile: Dockerfile
+    restart: always
+    depends_on:
+      - redis
 
   postgres:
     image: postgres:15
@@ -52,7 +60,5 @@ services:
 
 volumes:
   qdrant_data:
-  backend_logs_volumes:
-    driver: local
   postgres_data:
   redis_data:

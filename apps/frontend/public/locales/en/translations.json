@@ -1,0 +1,266 @@
+{
+  "login": "Login",
+  "Edit": "Edit",
+  "back": "back",
+  "leave": "leave",
+  "Back": "Back",
+  "Leave": "Leave",
+  "Add": "Add",
+  "Delete": "Delete",
+  "search": "Search",
+  "Cancel": "Cancel",
+  "save_changes": "Save Changes",
+  "Search": "Search",
+  "select_date": "Select Date",
+  "yes": "Yes",
+  "no": "No",
+
+  "breadcrumb_home": "Home",
+
+  "landing_page": {
+    "welcome": "Welcome to MediaMind",
+    "welcome_text": "Stay ahead in the fast-changing world of media with our Automated Press Analysis Tool. Keep your client teams informed and prepared with daily press reviews, personalized to your needs. Our platform extracts and compiles the most relevant news articles into concise, anonymized reports – delivered directly to your inbox each morning. Save time, stay informed, and focus on what matters most – delivering value to your clients.",
+    "credits": "MediaMind was build in cooperation between EUTOP, the Technical University of Munich and CSEE during the Javascript Technology Practicum."
+  },
+
+  "dashboard": {
+    "dashboard": "Dashboard",
+    "profile": "Profiles",
+    "new_articles": "new articles",
+    "breaking_news": "Breaking News",
+    "read_more": "Read more",
+    "loading_failed": "Failed to load profiles.",
+    "only_updated": "Only show updated",
+    "no_matched_profiles": "No matched profiles for current filters"
+  },
+
+  "confirmation_dialog": {
+    "title": "Are you sure?",
+    "delete_text": "This will permanently delete this entity",
+    "leave_text": "Unsaved changes will be permanently lost",
+    "unsaved_text": "You have unsaved changes"
+  },
+
+  "edit_profile": {
+    "create": "Create Profile: ",
+    "edit": "Edit Profile: ",
+    "profile_name": "Profile name",
+    "new_profile": "New Profile",
+    "general": "General",
+    "topics": "Topics",
+    "mailing": "Mailing",
+    "subscriptions": "Subscriptions",
+    "search_user": "Search user...",
+    "loading": "Loading...",
+    "no_user": "No user found.",
+    "creating": "Creating...",
+    "saving": "Saving...",
+    "save_create": "Create Profile",
+    "save_changes": "Save Changes",
+    "suggestions_text": "Enter a keyword to get AI suggestions."
+  },
+
+  "general": {
+    "visibility": "Visibility",
+    "public": "Public",
+    "public_text": "A public profile can be viewed by anyone in your organization, while a private profile is only visible to you.",
+    "ownership": "Ownership",
+    "ownership_text": "Transfer ownership of the profile",
+    "select_user": "Select user...",
+    "user_error": "Failed to load users.",
+    "Rights": "Rights",
+    "read": "read",
+    "edit": "edit",
+    "user_already_added": "This user is already in the profile",
+    "Username": "Username",
+    "Email": "Email",
+    "Users": "Users",
+    "Users_header": "Users and Rights",
+    "users_text": "Add users and specify their rights",
+    "language": "Language",
+    "language_text": "Specify the language of the report and topic & keywords. If the language is changed, these content settings of the profile should also be adjusted."
+  },
+
+  "topics": {
+    "AI_error": "Failed to get AI suggestions.",
+    "topic_error": "Can't add the same topic twice",
+    "header": "Topics and Keywords",
+    "info": "Manage topics and keywords for news monitoring",
+    "select_topic": "Select Topic",
+    "label": "Topic: ",
+    "add": "+ Add topic",
+    "AI_header": "AI Keyword Suggestions",
+    "no_suggestions": "No new suggestions available",
+    "delete_topic": "Delete topic"
+  },
+
+  "keyword-field": {
+    "header": "Keywords",
+    "placeholder": "+ Add keyword"
+  },
+
+  "mailing": {
+    "header": "Mailing List",
+    "info": "Configure profile contact database for press release distribution",
+    "Internal": "Internal",
+    "External": "External",
+    "internal": "internal",
+    "external": "external",
+    "filter": "filter {{type}} emails"
+  },
+
+  "data-table-mailing": {
+    "actions": "actions",
+    "no_results": "No results.",
+    "of": "of",
+    "rows_selected": "row(s) selected."
+  },
+
+  "subscriptions": {
+    "header": "Sources",
+    "source": "Source",
+    "info": "Configure web scraping sources used for the external mailing list",
+    "no_results": "No results.",
+    "active": "Active"
+  },
+
+  "admin": {
+    "settings": "settings",
+    "header": "Admin Settings",
+    "organizations": "Organizations",
+    "subscriptions": "Subscriptions",
+    "orga_header": "Manage Organizations",
+    "orga_text": "Make changes to your Organizations here. You can add, edit or delete them",
+    "subs_header": "Manage Subscriptions",
+    "subs_text": "Make changes to your Subscriptions here. You can add, edit or delete them",
+    "admin": "admin",
+    "user": "user",
+    "add_user": "Add User...",
+    "no_user": "No user found.",
+    "no_results": "No results.",
+    "role": "Role"
+  },
+
+  "organization-dialog": {
+    "edit_header": "Edit Organization",
+    "add_header": "Add Organization",
+    "edit_text": "Edit your organization here. Click save when you're done.",
+    "add_text": "Enter the name of the Organization you want to add. Click save when you're done.",
+    "name_error_header": "Organization Name is Empty",
+    "name_error_text": "Please insert a valid Organization Name",
+    "email_error_header": "Invalid Email",
+    "email_error_text": "Please insert a valid and unique email address."
+  },
+
+  "subscription-dialog": {
+    "edit_header": "Edit Subscription",
+    "add_header": "Add Subscription",
+    "edit_text": "Edit your Subscription here. Click save when you're done.",
+    "add_text": "Enter the name of the Subscription you want to add. Click save when you're done.",
+    "credentials_error_header": "Invalid Credentials",
+    "credentials_error_text": "Please insert valid credentials.",
+    "username": "Username",
+    "password": "Password"
+  },
+
+  "search_profile": {
+    "Topics": "Topics",
+    "Keywords": "Keywords",
+    "Sorting": "Sorting",
+    "Sources": "Sources",
+    "Date": "Date",
+    "From": "From",
+    "To": "To",
+    "articles": "Articles",
+    "Relevance": "Relevance",
+    "No_articles": "No articles found.",
+    "delete_error": "Error deleting search profile",
+    "delete_success": "Search profile successfully deleted",
+    "reports": "Reports",
+    "Explore": "Explore",
+    "New_Articles": "New Articles"
+  },
+
+  "article-page": {
+    "summary_header": "Summary",
+    "original_header": "Original",
+    "keywords_header": "Keywords",
+    "meta_data_header": "Meta Data",
+    "meta_data_published": "Published",
+    "meta_data_crawled": "Crawled",
+    "meta_data_language": "Original language",
+    "meta_data_status": "Status",
+    "meta_data_category": "Category",
+    "keywords_text": "Displays matched profile topics with keywords, and a score indicating topic relevance to the article.",
+    "show_more": "Show more",
+    "show_less": "Show less"
+  },
+
+  "role-badge": {
+    "owner": "Owner",
+    "reader": "Reader",
+    "editor": "Editor",
+    "public": "Public",
+    "shared": "Shared",
+    "private": "Private",
+    "ownership": "Access rights",
+    "visibility": "Visibility",
+    "de": "DE",
+    "en": "EN",
+    "morning": "Morning",
+    "afternoon": "Afternoon",
+    "evening": "Evening",
+    "language": "Language"
+  },
+
+  "sr-only": {
+    "open_menu": "Open menu"
+  },
+
+  "breaking-news": {
+    "header": "Breaking News",
+    "no_news": "No breaking news available.",
+    "entry": "Click here to view the latest breaking news!",
+    "show_less": "Show less",
+    "show_more": "Show more",
+    "original": "Original"
+  },
+
+  "crawler_stats": {
+    "title": "Crawler Stats",
+    "subscription": "Subscription",
+    "date": "Date",
+    "successful": "Successful",
+    "attempted": "Attempted",
+    "failed": "Failed",
+    "notes": "Notes",
+    "error": "Error loading crawler stats."
+  },
+
+  "reports": {
+    "reports": "Reports",
+    "header": "Report Download Center",
+    "pagination": "Showing {{from}} to {{to}} of {{total}} reports",
+    "download_unavailable": "Unavailable",
+    "download": "Download",
+    "no_reports_found": "No reports found.",
+    "no_reports_match_filter": "No reports found that match the filters."
+  },
+
+  "personal_settings": {
+    "title": "Personal Settings",
+    "language": "Language",
+    "gender": "Gender",
+    "update_language": "Update Language",
+    "update_gender": "Update Gender",
+    "update_preference": "Update Preference",
+    "male": "Male",
+    "female": "Female",
+    "divers": "Divers",
+    "language_update_error": "Error updating the language",
+    "gender_update_error": "Error updating the gender",
+    "breaking_news_update_error": "Error updating the breaking news preference",
+    "breaking_news": "Receive Breaking News notifications via email",
+    "breaking_news_title": "Breaking News Notifications"
+  }
+}
