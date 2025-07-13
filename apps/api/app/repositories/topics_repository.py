@@ -152,6 +152,10 @@ class TopicsRepository:
                 )
 
         await session.flush()
+
+        # 6) delete orphaned keywords that have no more topic links
+        await _delete_orphaned_keywords(session)
+
         await session.refresh(profile, ["topics"])
 
     @staticmethod
@@ -227,6 +231,23 @@ async def _preload_all_keywords(
 ) -> dict[str, Keyword]:
     kws = await session.scalars(select(Keyword))
     return {kw.name: kw for kw in kws.all()}
+
+
+async def _delete_orphaned_keywords(session: AsyncSession) -> None:
+    """
+    Delete keywords that have no TopicKeywordLink associations.
+    """
+    # Find keywords that have no topic links
+    orphaned_keywords_query = (
+        select(Keyword)
+        .outerjoin(TopicKeywordLink, Keyword.id == TopicKeywordLink.keyword_id)
+        .where(TopicKeywordLink.keyword_id.is_(None))
+    )
+
+    orphaned_keywords = await session.scalars(orphaned_keywords_query)
+
+    for keyword in orphaned_keywords.all():
+        await session.delete(keyword)
 
 
 async def _upsert_topics_and_links(
