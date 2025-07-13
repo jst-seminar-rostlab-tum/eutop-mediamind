@@ -114,10 +114,12 @@ class OrganizationRepository:
         if org is None:
             return None
 
-        subscriptions = await (
-            SubscriptionRepository.get_all_subscriptions_with_organization(
-                session,
-                org.id,
+        subscriptions = (
+            await (
+                SubscriptionRepository.get_all_subscriptions_with_organization(
+                    session,
+                    org.id,
+                )
             )
         )
 
