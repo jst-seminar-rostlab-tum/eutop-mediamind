@@ -72,7 +72,6 @@ class ArticleCleanupService:
 
             logger.info(f"Found {total_articles} articles to process")
 
-
             # Process articles in batches
             offset = 0
             while True:
