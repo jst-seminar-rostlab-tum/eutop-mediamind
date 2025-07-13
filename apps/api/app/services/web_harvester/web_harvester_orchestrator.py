@@ -12,6 +12,7 @@ from app.models.subscription import Subscription
 from app.repositories.article_repository import ArticleRepository
 from app.repositories.crawl_stats_repository import CrawlStatsRepository
 from app.repositories.subscription_repository import (
+    SubscriptionRepository,
     get_subscriptions_with_crawlers,
     get_subscriptions_with_scrapers,
 )
@@ -22,6 +23,8 @@ from app.services.web_harvester.utils.web_utils import (
     get_response_code,
     hardcoded_login,
     hardcoded_logout,
+    safe_page_load,
+    safe_execute_script,
 )
 
 
@@ -169,18 +172,28 @@ def _scrape_articles(scraper, driver, new_articles):
                     f"Scraping article {idx + 1}/{len(new_articles)}"
                 )
                 scraper.logger.flush()
-            # Load the page with timeout handling
+            # Load the page with frame detachment handling
             try:
-                driver.get(article.url)
-                # Wait for page to be fully loaded with increased timeout
+                # Use safe page loading to handle frame detachment
+                if not safe_page_load(driver, article.url):
+                    raise ValueError(f"Failed to load page: {article.url}")
+                
+                # Wait for page to be fully loaded with safe script execution
                 WebDriverWait(driver, 30).until(
-                    lambda d: d.execute_script("return document.readyState")
-                    == "complete"
+                    lambda d: safe_execute_script(
+                        d, "return document.readyState"
+                    ) == "complete"
                 )
             except Exception as load_error:
-                raise ValueError(
-                    f"Timeout loading page {article.url}: {load_error}"
-                )
+                error_msg = str(load_error)
+                if "target frame detached" in error_msg.lower():
+                    raise ValueError(
+                        f"Frame detached loading {article.url}: {load_error}"
+                    )
+                else:
+                    raise ValueError(
+                        f"Timeout loading page {article.url}: {load_error}"
+                    )
 
             # Check response code of the main page
             response_code = get_response_code(driver, article.url)
@@ -229,13 +242,27 @@ def _scraper_error_handling(articles: list[Article], error: str):
     return articles
 
 
+from app.core.db import async_session
+
+async def run_test():
+    driver, wait = create_driver(headless=True)
+    login_success = False
+    async with async_session() as session:
+        subscription = await SubscriptionRepository.get_by_id(
+            session, "9ca9147c-d31c-4a24-a47d-4db154d90b1c"
+        )
+    
+    hardcoded_login(
+       driver=driver, wait=wait, subscription=subscription
+    )
+    # for i in range(10):
+    #     print(f"Iteration {i}")
+    #     safe_page_load(driver, "https://www.boersen-zeitung.de/meinung-analyse/zolldreist")
+    #     await asyncio.sleep(3)
+    # await asyncio.sleep(10)
+
 if __name__ == "__main__":
     # Example usage
     asyncio.run(
-        run_crawler(
-            CrawlerType.RSSFeedCrawler,
-            date_start=datetime(2025, 1, 1),
-            date_end=datetime(2025, 12, 31),
-            limit=-1,
+        run_test()
         )
-    )

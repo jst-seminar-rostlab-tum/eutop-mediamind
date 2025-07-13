@@ -53,35 +53,11 @@ def create_driver(headless: bool = True, use_proxy: bool = False):
 
     # Essential Chrome options for Docker/containerized environments
     chrome_options.add_argument("--no-sandbox")
-    chrome_options.add_argument("--disable-dev-shm-usage")
+    # Might need this if running in a container with limited shared memory
+    # But this will cause timeout errors when scraping sometimes
+    # chrome_options.add_argument("--disable-dev-shm-usage")
     chrome_options.add_argument("--disable-gpu")
     chrome_options.add_argument("--disable-extensions")
-    chrome_options.add_argument("--disable-plugins")
-    chrome_options.add_argument("--disable-web-security")
-    chrome_options.add_argument("--disable-features=VizDisplayCompositor")
-    chrome_options.add_argument("--disable-background-timer-throttling")
-    chrome_options.add_argument("--disable-backgrounding-occluded-windows")
-    chrome_options.add_argument("--disable-renderer-backgrounding")
-    chrome_options.add_argument("--disable-features=TranslateUI")
-    chrome_options.add_argument("--disable-ipc-flooding-protection")
-    chrome_options.add_argument("--disable-default-apps")
-    chrome_options.add_argument("--disable-sync")
-    chrome_options.add_argument("--no-first-run")
-    chrome_options.add_argument("--no-default-browser-check")
-    chrome_options.add_argument("--disable-background-networking")
-
-    # Timeout and performance related options
-    chrome_options.add_argument("--timeout=30000")  # 30 second timeout
-    chrome_options.add_argument("--disable-hang-monitor")
-    chrome_options.add_argument("--disable-prompt-on-repost")
-    chrome_options.add_argument("--disable-client-side-phishing-detection")
-    chrome_options.add_argument("--disable-component-update")
-    chrome_options.add_argument("--disable-domain-reliability")
-
-    # Memory and resource management
-    chrome_options.add_argument("--memory-pressure-off")
-    chrome_options.add_argument("--max_old_space_size=4096")
-    chrome_options.add_argument("--aggressive-cache-discard")
 
     temp_dir = tempfile.mkdtemp()
     chrome_options.add_argument(f"--user-data-dir={temp_dir}")
@@ -108,13 +84,25 @@ def create_driver(headless: bool = True, use_proxy: bool = False):
     driver = webdriver.Chrome(
         options=chrome_options, seleniumwire_options=seleniumwire_options
     )
-    driver.set_window_size(1920, 1080)
-    driver.set_page_load_timeout(30)  # Increased from 10 to 30 seconds
-    driver.command_executor.set_timeout(
-        120
-    )  # Increased from 50 to 120 seconds
+    
+    # Set window size and timeouts with better error handling
+    try:
+        driver.set_window_size(1920, 1080)
+        
+        # Set more conservative timeouts to prevent frame detachment
+        driver.set_page_load_timeout(45)  # Increased but not too high
+        driver.implicitly_wait(5)  # Keep implicit wait lower
+        
+        # Set command executor timeout more safely
+        if hasattr(driver.command_executor, '_timeout'):
+            driver.command_executor._timeout = 60  # More conservative
+        elif hasattr(driver.command_executor, 'set_timeout'):
+            driver.command_executor.set_timeout(60)
+        
+    except Exception as e:
+        logger.warning(f"Error setting driver configuration: {e}")
 
-    wait = WebDriverWait(driver, 15)  # Increased from 5 to 15 seconds
+    wait = WebDriverWait(driver, 20)  # Reasonable wait time
 
     return driver, wait
 
@@ -380,8 +368,10 @@ def hardcoded_login(driver, wait, subscription: Subscription):
 
     # Initialize newspaper website
     try:
-        driver.get(subscription.domain)
-    except Exception:
+        if not safe_page_load(driver, subscription.domain):
+            raise Exception(f"Failed to load domain: {subscription.domain}")
+    except Exception as e:
+        print(e)
         logger.error(f"No link provided for: {subscription.name}")
         return False
 
@@ -436,3 +426,74 @@ def get_response_code(driver, url):
                 main_page_status = response["status"]
                 break
     return main_page_status
+
+
+def safe_page_load(driver, url, max_retries=3):
+    """
+    Safely load a page with frame detachment error handling.
+    Retries if frame gets detached during loading.
+    """
+    for attempt in range(max_retries):
+        try:
+            logger.info(f"Loading {url} (attempt {attempt + 1})")
+            
+            # Clear any existing page state
+            try:
+                driver.execute_script("window.stop();")
+            except Exception:
+                pass
+            
+            # Load the page
+            driver.get(url)
+            
+            # Wait a moment for page to stabilize
+            time.sleep(1)
+            
+            # Verify we can access the page
+            current_url = driver.current_url
+            logger.info(f"Successfully loaded: {current_url}")
+            return True
+            
+        except Exception as e:
+            error_msg = str(e).lower()
+            
+            if "target frame detached" in error_msg or "loading status" in error_msg:
+                logger.warning(f"Frame detached during load (attempt {attempt + 1}): {e}")
+                if attempt < max_retries - 1:
+                    # Wait before retry and try to reset browser state
+                    time.sleep(3)
+                    try:
+                        driver.refresh()
+                    except Exception:
+                        pass
+                    continue
+                else:
+                    logger.error(f"Frame detachment error after {max_retries} attempts")
+                    raise e
+            else:
+                # Other errors - re-raise immediately
+                logger.error(f"Page load error: {e} for {url}")
+                continue
+    
+    return False
+
+
+def safe_execute_script(driver, script, *args):
+    """
+    Safely execute JavaScript with frame detachment handling.
+    """
+    try:
+        return driver.execute_script(script, *args)
+    except Exception as e:
+        error_msg = str(e).lower()
+        if "target frame detached" in error_msg or "loading status" in error_msg:
+            logger.warning(f"Frame detached during script execution: {e}")
+            # Try to wait and retry once
+            time.sleep(2)
+            try:
+                return driver.execute_script(script, *args)
+            except Exception as retry_e:
+                logger.error(f"Script execution failed after retry: {retry_e}")
+                raise retry_e
+        else:
+            raise e
