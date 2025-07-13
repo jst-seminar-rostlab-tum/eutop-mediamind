@@ -312,6 +312,10 @@ class SearchProfileService:
         matches: List[Match] = []
         relevance_map: dict[UUID, float] = {}
 
+        search_profile = await SearchProfileRepository.get_by_id(
+            search_profile_id
+        )
+
         if request.searchTerm:
             # Qdrant vertor search
             avs = ArticleVectorService()
@@ -392,6 +396,7 @@ class SearchProfileService:
             topics_dict = {}
             total_score = 0.0
             article = match_group[0].article
+            has_organization_subscription_access = await SubscriptionRepository.has_organization_subscription_access(search_profile.organization_id, article.subscription_id)
 
             for m in match_group:
                 topic_id = m.topic_id
@@ -419,6 +424,19 @@ class SearchProfileService:
                     else []
                 )
             )
+            
+            # Check if organization has subscription access and modify content accordingly
+            if has_organization_subscription_access:
+                article_text = {
+                    "de": article.content_de or "",
+                    "en": article.content_en or "",
+                }
+            else:
+                article_text = {
+                    "de": "Abonnieren Sie, um den Artikel freizuschalten",
+                    "en": "Subscribe to unlock the article",
+                }
+            
             article_content = MatchArticleOverviewContent(
                 article_url=article.url or "https://no_url.com/",
                 headline={
@@ -429,10 +447,7 @@ class SearchProfileService:
                     "de": article.summary_de or "",
                     "en": article.summary_en or "",
                 },
-                text={
-                    "de": article.content_de or "",
-                    "en": article.content_en or "",
-                },
+                text=article_text,
                 image_urls=["https://example.com/image.jpg"],
                 published=article.published_at,
                 crawled=article.crawled_at,
