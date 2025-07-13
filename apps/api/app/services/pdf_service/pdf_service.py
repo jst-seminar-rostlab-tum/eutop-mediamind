@@ -148,9 +148,10 @@ class PDFService:
         # Logging which articles, if they have summaries and keywords
         for news in news_items:
             logger.debug(
-                f"Processing News item: {news.id}, Summary:  \
-                {True if news.summary else False}, Keywords:  \
-                {True if news.keywords else 'False'}"
+                f'''Processing News item: {news.id}, Summary:\
+                {True if news.summary else False}, Keywords:\
+                {True if news.keywords else 'False'}
+                '''
             )
 
         # Prepare all flowable elements for the PDF
