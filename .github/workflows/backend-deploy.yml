@@ -20,13 +20,31 @@ jobs:
     with:
       image_name: ecr-mediamind
       image_tag: latest
-      dockerfile_path: ./backend/Dockerfile
-      context: ./backend
+      dockerfile_path: ./apps/api/Dockerfile
+      context: ./apps/api
       aws_region: eu-central-1
       ecr_registry: 313193269185.dkr.ecr.eu-central-1.amazonaws.com
     secrets:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+  apply-migrations-dev:
+    uses: ./.github/workflows/apply-migrations.yml
+    secrets:
+      DB_SERVER: ${{ secrets.DEV_DB_SERVER }}
+      DB_PORT: ${{ secrets.DEV_DB_PORT }}
+      DB_USER: ${{ secrets.DEV_DB_USER }}
+      DB_PASSWORD: ${{ secrets.DEV_DB_PASSWORD }}
+      DB_NAME: ${{ secrets.DEV_DB_NAME }}
+
+  apply-migrations-prod:
+    uses: ./.github/workflows/apply-migrations.yml
+    secrets:
+      DB_SERVER: ${{ secrets.PROD_DB_SERVER }}
+      DB_PORT: ${{ secrets.PROD_DB_PORT }}
+      DB_USER: ${{ secrets.PROD_DB_USER }}
+      DB_PASSWORD: ${{ secrets.PROD_DB_PASSWORD }}
+      DB_NAME: ${{ secrets.PROD_DB_NAME }}
 
   ecs-deploy:
     needs: build-and-push
