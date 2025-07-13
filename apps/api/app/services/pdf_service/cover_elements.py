@@ -143,6 +143,9 @@ def draw_cover_elements(
             f'&nbsp;{translator("Full Article")}&nbsp;'
             "</a>"
         )
+        from reportlab.lib.enums import TA_RIGHT
+        button_style_right = styles["button_style"].clone('button_style_right')
+        button_style_right.alignment = TA_RIGHT
         button_para = Paragraph(
             f"""
             <font backColor="{pdf_colors["lightgrey"]}" size="9">
@@ -153,10 +156,10 @@ def draw_cover_elements(
                 {full_article_link}
             </font>
             """,
-            styles["button_style"],
+            button_style_right,
         )
         row = [[meta_para, button_para]]
-        table = Table(row, colWidths=[4 * 72, 2 * 72])
+        table = Table(row, colWidths=[2.5 * 72, 3.25 * 72], hAlign='LEFT')
         table.setStyle(
             TableStyle(
                 [
