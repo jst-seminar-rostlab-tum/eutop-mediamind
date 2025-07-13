@@ -136,11 +136,10 @@ class PDFService:
                 search_profile_id
             )
         )
-        return PDFService.draw_pdf(search_profile, news_items, translator)
+        return PDFService.draw_pdf(news_items, translator)
 
     @staticmethod
     def draw_pdf(
-        search_profile: SearchProfile,
         news_items: List[NewsItem],
         translator: Callable[[str], str],
     ) -> bytes:
