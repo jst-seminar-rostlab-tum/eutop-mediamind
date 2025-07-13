@@ -49,7 +49,8 @@ COPY . .
 # Copy entrypoint and set permissions
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
-    
+
+# Install browsers to project dir to avoid permission issues in Docker
 ENV PLAYWRIGHT_BROWSERS_PATH=0
 # Chromium & crawl4ai final setup
 RUN playwright install chromium && crawl4ai-setup
