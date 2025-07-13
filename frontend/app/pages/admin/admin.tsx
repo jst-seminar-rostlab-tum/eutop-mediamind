@@ -29,6 +29,7 @@ import { Link } from "react-router";
 import { client, useQuery } from "types/api";
 import type { Organization, Subscription } from "../../../types/model";
 import { toast } from "sonner";
+import { TableSkeleton } from "./skeleton";
 
 const suppressSWRReloading = {
   refreshInterval: 0,
@@ -60,14 +61,14 @@ export function AdminPage() {
 
   const {
     data: organizations,
-    // isLoading: orgasLoading,
+    isLoading: orgasLoading,
     error: orgasError,
     mutate: mutateOrgas,
   } = useQuery("/api/v1/organizations", undefined, suppressSWRReloading);
 
   const {
     data: subscriptions,
-    // isLoading: subsLoading,
+    isLoading: subsLoading,
     error: subsError,
     mutate: mutateSubs,
   } = useQuery("/api/v1/subscriptions", undefined, suppressSWRReloading);
@@ -79,10 +80,6 @@ export function AdminPage() {
   if (subsError) {
     toast.success(t("admin.subs_error"));
   }
-
-  /*
-  Organization Functions
-  */
 
   async function handleDeleteOrganization(orga: Organization) {
     try {
@@ -113,7 +110,8 @@ export function AdminPage() {
     try {
       const requestData = {
         name: orga.name,
-        email: "test@email.com", // field outdated
+        email: "test@mail.com",
+        pdf_as_link: true,
         users: orga.users
           .filter((user) => user.id !== undefined) // remove users without id (possibly never the case)
           .map((user) => ({
@@ -157,10 +155,6 @@ export function AdminPage() {
       setIsEditOrgaMode(false);
     }
   };
-
-  /*
-  Subscriptions Functions
-  */
 
   async function handleSaveSubscription(data: {
     id: string;
@@ -267,19 +261,26 @@ export function AdminPage() {
               <CardDescription>{t("admin.orga_text")}</CardDescription>
             </CardHeader>
             <CardContent>
-              <DataTableOrganizations
-                columns={getOrgaColumns(
-                  handleEditOrganization,
-                  setDeleteTarget,
-                  setOpenDeleteDialog,
-                )}
-                data={organizations ?? []}
-                onAdd={() => {
-                  setEditedOrga(null);
-                  setIsEditOrgaMode(false);
-                  setShowOrgaDialog(true);
-                }}
-              />
+              {orgasLoading ? (
+                <div>
+                  <TableSkeleton />
+                </div>
+              ) : (
+                <DataTableOrganizations
+                  columns={getOrgaColumns(
+                    t,
+                    handleEditOrganization,
+                    setDeleteTarget,
+                    setOpenDeleteDialog,
+                  )}
+                  data={organizations ?? []}
+                  onAdd={() => {
+                    setEditedOrga(null);
+                    setIsEditOrgaMode(false);
+                    setShowOrgaDialog(true);
+                  }}
+                />
+              )}
             </CardContent>
           </Card>
 
@@ -292,19 +293,26 @@ export function AdminPage() {
               <CardDescription>{t("admin.subs_text")}</CardDescription>
             </CardHeader>
             <CardContent>
-              <DataTableSubscriptions
-                columns={getSubsColumns(
-                  handleEditSubscription,
-                  setDeleteTarget,
-                  setOpenDeleteDialog,
-                )}
-                data={subscriptions ?? []}
-                onAdd={() => {
-                  setEditedSub(null);
-                  setIsEditSubsMode(false);
-                  setShowSubsDialog(true);
-                }}
-              />
+              {subsLoading ? (
+                <div>
+                  <TableSkeleton />
+                </div>
+              ) : (
+                <DataTableSubscriptions
+                  columns={getSubsColumns(
+                    t,
+                    handleEditSubscription,
+                    setDeleteTarget,
+                    setOpenDeleteDialog,
+                  )}
+                  data={subscriptions ?? []}
+                  onAdd={() => {
+                    setEditedSub(null);
+                    setIsEditSubsMode(false);
+                    setShowSubsDialog(true);
+                  }}
+                />
+              )}
             </CardContent>
           </Card>
         </div>

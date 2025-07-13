@@ -29,6 +29,7 @@ import { cloneDeep, isEqual } from "lodash-es";
 import type { Row } from "@tanstack/react-table";
 import { useQuery } from "types/api";
 import { toast } from "sonner";
+import { UserTableSkeleton } from "../skeleton";
 
 type Props = {
   open: boolean;
@@ -58,9 +59,9 @@ export function OrganizationDialog({
     name: z
       .string()
       .min(1, { message: t("organization-dialog.name_required") })
-      .max(20, { message: "Max length is 20 characters." })
-      .regex(/^[a-zA-Z0-9]+$/, {
-        message: "Only letters and numbers are allowed.",
+      .max(20, { message: t("organization-dialog.name_length") })
+      .regex(/^[a-zA-Z0-9 ]+$/, {
+        message: t("organization-dialog.name_regex"),
       }),
   });
 
@@ -68,9 +69,13 @@ export function OrganizationDialog({
 
   const {
     data: userData,
-    // isLoading: usersLoading,
-    // error: usersError,
+    isLoading: usersLoading,
+    error: usersError,
   } = useQuery("/api/v1/users");
+
+  if (usersError) {
+    toast(t("organization-dialog.users_error"));
+  }
 
   const allUsers: MediamindUser[] = useMemo(() => {
     if (!userData) return [];
@@ -81,21 +86,19 @@ export function OrganizationDialog({
   const [tableUsers, setTableUsers] = useState<TableUser[]>([]);
 
   // initial orga for creation mode
-  const initialOrga: Organization = {
+  const initialOrga = {
     name: "",
     email: "",
+    pdf_as_link: true,
     id: "",
     users: [],
+    subscriptions: [],
   };
 
   // set edited orga either to orga for edit or initialOrga for create
   const editedOrga = useMemo(() => {
     return cloneDeep(isEdit && orga ? orga : initialOrga);
   }, [isEdit, orga]);
-
-  /* 
-  User Table functions
-  */
 
   // prepare user data for table
   useEffect(() => {
@@ -130,7 +133,6 @@ export function OrganizationDialog({
 
   const handleBunchDelete = (selectedRows: Row<TableUser>[]) => {
     const usersToRemove = selectedRows.map((row) => row.original);
-    // Update usersWithRoles
     setTableUsers((prev) =>
       prev.filter((user) => !usersToRemove.some((r) => r.id === user.id)),
     );
@@ -138,7 +140,6 @@ export function OrganizationDialog({
 
   const handleAddNewUser = (email: string) => {
     const user = allUsers.find((user) => user.email === email);
-    // safety check
     if (!user) {
       return;
     }
@@ -154,16 +155,13 @@ export function OrganizationDialog({
       username: `${user.first_name} ${user.last_name}`,
       role: user.role ?? "member", // default to member
     };
-    // add to tableUsers
     setTableUsers((prev) => [...prev, tableUser]);
   };
 
   // prepare data and call onSave
   const onSubmit = (values: FormValues) => {
-    const updatedOrga: Organization = {
-      // get email and id
+    const updatedOrga = {
       ...editedOrga,
-      // get name from form
       name: values.name.trim(),
       users: tableUsers
         .map((tableUser) => {
@@ -171,11 +169,9 @@ export function OrganizationDialog({
           const fullUser = allUsers.find((u) => u.id === tableUser.id);
           if (!fullUser) return null;
           return {
-            // take all attributes from fullUser
             ...fullUser,
-            // except take role from tableUser
+            // take role from tableUser
             role: tableUser.role,
-            // set gender null if its undefined to prevent error
             gender: fullUser.gender ?? null,
           };
         })
@@ -185,7 +181,6 @@ export function OrganizationDialog({
     onSave(updatedOrga);
   };
 
-  // react hook form
   const form = useForm<FormValues>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
@@ -201,17 +196,13 @@ export function OrganizationDialog({
     const base = isEdit ? orga : initialOrga;
 
     const updated = {
-      // get id and email
       ...base,
-      // get current name input to check name change
       name: form.getValues().name.trim(),
-      //get current users table
       users: tableUsers
         .map((tableUser) => {
           const fullUser = allUsers.find((u) => u.email === tableUser.email);
           if (!fullUser) return null;
           return {
-            // get all form fullUser
             ...fullUser,
             // get role form table user to check if edited
             role: tableUser.role,
@@ -228,9 +219,10 @@ export function OrganizationDialog({
         open={open}
         onOpenChange={(isOpen) => {
           if (!checkEqual(isEdit)) {
-            setShowLeaveConfirm(true); // if changes, show AlertDialog
+            // if changes, show AlertDialog
+            setShowLeaveConfirm(true);
           } else {
-            onOpenChange(isOpen); // normal open/close
+            onOpenChange(isOpen);
           }
         }}
       >
@@ -270,13 +262,21 @@ export function OrganizationDialog({
                 />
               </div>
               <div>
-                <DataTableUsers
-                  columns={getUserColumns(handleRoleChange, handleUserDelete)}
-                  data={tableUsers}
-                  onAdd={handleAddNewUser}
-                  users={allUsers}
-                  onBunchDelete={handleBunchDelete}
-                />
+                {usersLoading ? (
+                  <UserTableSkeleton />
+                ) : (
+                  <DataTableUsers
+                    columns={getUserColumns(
+                      t,
+                      handleRoleChange,
+                      handleUserDelete,
+                    )}
+                    data={tableUsers}
+                    onAdd={handleAddNewUser}
+                    users={allUsers}
+                    onBunchDelete={handleBunchDelete}
+                  />
+                )}
               </div>
 
               <DialogFooter>
@@ -292,7 +292,7 @@ export function OrganizationDialog({
         onOpenChange={setShowLeaveConfirm}
         dialogType="leave"
         action={() => {
-          onOpenChange(false); // closes organization-dialog
+          onOpenChange(false);
         }}
       />
     </>

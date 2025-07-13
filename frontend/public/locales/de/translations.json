@@ -158,7 +158,8 @@
     "update_failed": "Organisation konnte nicht geupdated werden",
     "name_required": "Name ist gefordert",
     "name_length": "Maximale länge sind 20 Zeichen",
-    "name_regex": "Nur Buchstaben und Zahlen sind erlaubt"
+    "name_regex": "Nur Buchstaben und Zahlen sind erlaubt",
+    "users_error": "Benutzer konnten nicht geladen werden"
   },
 
   "subscription-dialog": {

@@ -15,11 +15,12 @@ import {
 import { MoreHorizontal, SquarePen, Trash, Trash2 } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { Checkbox } from "~/components/ui/checkbox";
-import { useTranslation } from "react-i18next";
 import type { Organization, Subscription } from "../../../types/model";
 import type { TableUser } from "../admin/dialogs/organization-dialog";
+import type { TFunction } from "i18next";
 
 export function getOrgaColumns(
+  t: TFunction,
   handleEdit: (org: Organization) => void,
   setDeleteTarget: React.Dispatch<
     React.SetStateAction<{
@@ -29,7 +30,6 @@ export function getOrgaColumns(
   >,
   setOpenDeleteDialog: React.Dispatch<React.SetStateAction<boolean>>,
 ): ColumnDef<Organization>[] {
-  const { t } = useTranslation();
   return [
     {
       accessorKey: "name",
@@ -74,6 +74,7 @@ export function getOrgaColumns(
 }
 
 export function getSubsColumns(
+  t: TFunction,
   handleEdit: (sub: Subscription) => void,
   setDeleteTarget: React.Dispatch<
     React.SetStateAction<{
@@ -83,7 +84,6 @@ export function getSubsColumns(
   >,
   setOpenDeleteDialog: React.Dispatch<React.SetStateAction<boolean>>,
 ): ColumnDef<Subscription>[] {
-  const { t } = useTranslation();
   return [
     {
       accessorKey: "name",
@@ -125,10 +125,10 @@ export function getSubsColumns(
 }
 
 export function getUserColumns(
+  t: TFunction,
   onRoleChange: (index: number, role: "maintainer" | "member") => void,
   onDelete: (index: number) => void,
 ): ColumnDef<TableUser>[] {
-  const { t } = useTranslation();
   return [
     {
       id: "select",
