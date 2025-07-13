@@ -57,10 +57,10 @@ class PDFService:
                 " 'evening']"
             )
 
-        articles = await ArticleRepository.\
-            get_matched_articles_for_profile_for_create_pdf(
-                search_profile_id
-            )
+        # flake8: noqa: E501
+        articles = await ArticleRepository.get_matched_articles_for_profile_for_create_pdf(
+            search_profile_id
+        )
 
         translator = ArticleTranslationService.get_translator(language)
         news_items = []

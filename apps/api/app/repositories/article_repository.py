@@ -220,10 +220,10 @@ class ArticleRepository:
                 return []
 
             # Get subscription IDs that are linked to the search profile
-            subscriptions_data = await SubscriptionRepository.\
-                get_all_subscriptions_with_search_profile(
-                    search_profile_id
-                )
+            # flake8: noqa: E501
+            subscriptions_data = await SubscriptionRepository.get_all_subscriptions_with_search_profile(
+                search_profile_id
+            )
             # Filter to get only subscribed subscription IDs
             linked_subscription_ids = [
                 sub.id for sub in subscriptions_data if sub.is_subscribed

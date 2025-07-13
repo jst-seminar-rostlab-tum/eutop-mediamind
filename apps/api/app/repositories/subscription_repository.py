@@ -81,10 +81,10 @@ class SubscriptionRepository:
         organization_id: UUID, subscription_id: UUID
     ) -> bool:
         async with async_session() as session:
-            subscriptions = await SubscriptionRepository.\
-                get_all_subscriptions_with_organization(
-                    session, organization_id
-                )
+            # flake8: noqa: E501
+            subscriptions = await SubscriptionRepository.get_all_subscriptions_with_organization(
+                session, organization_id
+            )
 
             # Check if the subscription_id exists
             # and has access (is_subscribed = True)
