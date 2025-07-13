@@ -226,9 +226,6 @@ class ArticleRepository:
             linked_subscription_ids = [
                 sub.id for sub in subscriptions_data if sub.is_subscribed
             ]
-            
-            if not linked_subscription_ids:
-                return []
 
             query = (
                 select(Match)
@@ -247,13 +244,18 @@ class ArticleRepository:
             )
             matches = (await session.execute(query)).scalars().all()
             
-            # Filter articles to only include those with subscriptions linked to the search profile
-            filtered_articles = [
-                m.article for m in matches 
-                if m.article is not None and m.article.subscription_id in linked_subscription_ids
-            ]
+            # Process articles to modify content for non-subscribed articles
+            articles = []
+            for match in matches:
+                if match.article is not None:
+                    article = match.article
+                    # If article's subscription is not linked to the search profile, modify content
+                    if article.subscription_id not in linked_subscription_ids:
+                        article.content_en = "Subscribe to unlock the article"
+                        article.content_de = "Abonnieren Sie, um den Artikel freizuschalten"
+                    articles.append(article)
             
-            return filtered_articles
+            return articles
 
     @staticmethod
     async def list_new_articles_by_subscription(
