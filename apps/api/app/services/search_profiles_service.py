@@ -396,7 +396,9 @@ class SearchProfileService:
             topics_dict = {}
             total_score = 0.0
             article = match_group[0].article
-            has_organization_subscription_access = await SubscriptionRepository.has_organization_subscription_access(search_profile.organization_id, article.subscription_id)
+            has_organization_subscription_access = await SubscriptionRepository.has_organization_subscription_access(
+                search_profile.organization_id, article.subscription_id
+            )
 
             for m in match_group:
                 topic_id = m.topic_id
@@ -424,7 +426,7 @@ class SearchProfileService:
                     else []
                 )
             )
-            
+
             # Check if organization has subscription access and modify content accordingly
             if has_organization_subscription_access:
                 article_text = {
@@ -436,7 +438,7 @@ class SearchProfileService:
                     "de": "Abonnieren Sie, um den Artikel freizuschalten",
                     "en": "Subscribe to unlock the article",
                 }
-            
+
             article_content = MatchArticleOverviewContent(
                 article_url=article.url or "https://no_url.com/",
                 headline={
@@ -481,8 +483,10 @@ class SearchProfileService:
         profile = await SearchProfileRepository.get_search_profile_by_id(
             search_profile_id
         )
-        has_organization_subscription_access = await SubscriptionRepository.has_organization_subscription_access(
-            profile.organization_id, article.subscription_id
+        has_organization_subscription_access = (
+            await SubscriptionRepository.has_organization_subscription_access(
+                profile.organization_id, article.subscription_id
+            )
         )
 
         all_matches = await MatchRepository.get_matches_by_profile_and_article(
