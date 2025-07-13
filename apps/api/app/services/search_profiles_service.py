@@ -10,12 +10,14 @@ from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 
 from app.core.db import async_session
+from app.core.languages import Language
 from app.core.logger import get_logger
 from app.models import SearchProfile, Topic
 from app.models.match import Match
 from app.models.user import UserRole
 from app.repositories.article_repository import ArticleRepository
 from app.repositories.email_repository import EmailRepository
+from app.repositories.entity_repository import ArticleEntityRepository
 from app.repositories.keyword_repository import KeywordRepository
 from app.repositories.match_repository import MatchRepository
 from app.repositories.report_repository import ReportRepository
@@ -387,22 +389,24 @@ class SearchProfileService:
 
         match_items = []
         for article_id, match_group in article_match_map.items():
-            article = match_group[0].article
-            topics = []
+            topics_dict = {}
             total_score = 0.0
+            article = match_group[0].article
+
             for m in match_group:
                 topic_id = m.topic_id
-                if topic_id is None:
+                if topic_id is None or topic_id in topics_dict:
                     continue
-                topics.append(
-                    MatchTopicItem(
-                        id=topic_id,
-                        name=topic_names.get(topic_id, ""),
-                        score=round(m.score, 4),
-                        keywords=topic_keywords_map.get(topic_id, []),
-                    )
+
+                topics_dict[topic_id] = MatchTopicItem(
+                    id=topic_id,
+                    name=topic_names.get(topic_id, ""),
+                    score=round(m.score, 4),
+                    keywords=topic_keywords_map.get(topic_id, []),
                 )
                 total_score += m.score
+
+            topics = list(topics_dict.values())
 
             avg_score = total_score / len(topics) if topics else 0.0
 
@@ -474,19 +478,28 @@ class SearchProfileService:
             topic_ids
         )
 
-        topics = []
+        topic_items: dict[UUID, MatchTopicItem] = {}
+
         for m in all_matches:
             tid = m.topic_id
             if tid is None:
                 continue
-            topics.append(
-                MatchTopicItem(
+
+            score = round(m.score, 4)
+
+            if tid not in topic_items or score > topic_items[tid].score:
+                topic_items[tid] = MatchTopicItem(
                     id=tid,
                     name=topic_names.get(tid, ""),
-                    score=round(m.score, 4),
+                    score=score,
                     keywords=topic_keywords_map.get(tid, []),
                 )
-            )
+
+        topics = list(topic_items.values())
+
+        entities_dict = await ArticleEntityRepository.get_entities_by_article(
+            article.id
+        )
 
         return MatchDetailResponse(
             match_id=match.id,
@@ -515,6 +528,7 @@ class SearchProfileService:
                 language=article.language,
                 newspaper_id=article.subscription_id,
             ),
+            entities=entities_dict,
         )
 
     @staticmethod
@@ -572,9 +586,9 @@ class SearchProfileService:
             )
 
         prompt: str
-        if search_profile_language == "de":
+        if search_profile_language == Language.DE.value:
             prompt = KEYWORD_SUGGESTION_PROMPT_DE
-        elif search_profile_language == "en":
+        elif search_profile_language == Language.EN.value:
             prompt = KEYWORD_SUGGESTION_PROMPT_EN
         else:
             raise HTTPException(

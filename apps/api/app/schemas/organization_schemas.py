@@ -5,12 +5,14 @@ from pydantic import BaseModel, EmailStr
 
 from app.models import User
 from app.models.user import UserRole
+from app.schemas.subscription_schemas import SubscriptionSummary
 
 
 # Shared properties
 class OrganizationBase(BaseModel):
     name: str
     email: EmailStr or None
+    pdf_as_link: bool
 
 
 class CreateRequestUser(BaseModel):
@@ -27,3 +29,4 @@ class OrganizationCreateOrUpdate(OrganizationBase):
 class OrganizationResponse(OrganizationBase):
     id: uuid.UUID
     users: List[User] = []
+    subscriptions: List[SubscriptionSummary] = []

@@ -7,8 +7,8 @@ msgstr ""
 msgid "Page"
 msgstr "Seite"
 
-msgid "Daily News Report"
-msgstr "Täglicher Nachrichtenbericht"
+msgid "Current Press Report"
+msgstr "Aktueller Pressespiegel"
 
 msgid "Estimated Reading Time"
 msgstr "Geschätzte Lesezeit"
@@ -20,10 +20,10 @@ msgid "Summary"
 msgstr "Zusammenfassung"
 
 msgid "Full Article"
-msgstr "Vollständiger Artikel"
+msgstr "Vollständigen Artikel"
 
 msgid "Read full article"
-msgstr "Vollständigen Artikel lesen"
+msgstr "Vollständiger Artikel lesen"
 
 msgid "Published at"
 msgstr "Veröffentlicht am"
@@ -130,14 +130,17 @@ msgstr "Suchprofil"
 msgid "Good morning"
 msgstr "Guten Morgen"
 
-msgid "Mr./Ms."
-msgstr "Herr/Frau"
+msgid "Mr."
+msgstr "Herr"
+
+msgid "Ms."
+msgstr "Frau"
 
 msgid "This is your daily news report, carefully picked to match your specific interests and search criteria. Our system has identified the most relevant developments in your field, ensuring you stay informed with the insights that matter to your business"
-msgstr "Dies ist Ihr täglicher Nachrichtenbericht, sorgfältig ausgewählt, um Ihren spezifischen Interessen und Suchkriterien zu entsprechen. Unser System hat die relevantesten Entwicklungen in Ihrem Bereich identifiziert, damit Sie mit den Informationen, die für Ihr Unternehmen wichtig sind, stets auf dem Laufenden bleiben"
+msgstr "Dies ist Ihr aktueller Pressespiegel, sorgfältig ausgewählt, um Ihren spezifischen Interessen und Suchkriterien zu entsprechen. Unser System hat die relevantesten Entwicklungen in Ihrem Bereich identifiziert, damit Sie mit den Informationen, die für Ihr Unternehmen wichtig sind, stets auf dem Laufenden bleiben"
 
 msgid "Each story has been selected based on its relevance to your profile, providing you with a comprehensive overview of today's key developments"
-msgstr "Jede Geschichte wurde basierend auf ihrer Relevanz für Ihr Profil ausgewählt und bietet Ihnen einen umfassenden Überblick über die wichtigsten Entwicklungen des heutigen Tages"
+msgstr "Jeder Artikel wurde auf Grundlage seiner Relevanz für Ihr Profil ausgewählt und bietet Ihnen einen umfassenden Überblick über die wichtigsten Entwicklungen des Tages"
 
 msgid "Download here"
 msgstr "Hier herunterladen"

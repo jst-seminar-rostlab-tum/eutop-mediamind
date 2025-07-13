@@ -24,6 +24,7 @@ def _to_user_entity(user: User | UserEntity) -> UserEntity:
         is_superuser=user.is_superuser,
         organization_id=user.organization_id,
         role=user.role,
+        breaking_news=user.breaking_news,
         organization_name=(
             user.organization_name  # already present if it's a UserEntity
             if isinstance(user, UserEntity)
@@ -43,6 +44,8 @@ def _to_user_base(user: User | UserEntity) -> User:
         gender=user.gender,
         is_superuser=user.is_superuser,
         organization_id=user.organization_id,
+        breaking_news=user.breaking_news,
+        role=user.role,
     )
 
 
@@ -100,7 +103,7 @@ class UserRepository:
         query = (
             select(User)
             .options(selectinload(User.organization))
-            .where(User.email == email)
+            .where(User.email == email, User.organization_id.isnot(None))
         )
         result = await session.execute(query)
         user = result.scalar_one_or_none()
@@ -209,8 +212,6 @@ class UserRepository:
     @staticmethod
     async def update_organization(user: User, session) -> User:
         session.add(user)
-        await session.commit()
-        await session.refresh(user)
         return _to_user_base(user)
 
     @staticmethod
@@ -240,6 +241,18 @@ class UserRepository:
             return _to_user_entity(db_user)
 
     @staticmethod
+    async def get_all_users_breaking_news() -> List[UserEntity]:
+        async with async_session() as session:
+            stmt = (
+                select(User)
+                .options(selectinload(User.organization))
+                .where(User.breaking_news.is_(True))
+            )
+            result = await session.execute(stmt)
+            users = result.scalars().all()
+            return [_to_user_entity(u) for u in users]
+
+    @staticmethod
     async def update_gender(user: UserEntity, gender: str) -> UserEntity:
         async with async_session() as session:
             result = await session.execute(
@@ -250,6 +263,25 @@ class UserRepository:
             db_user = result.scalar_one_or_none()
 
             db_user.gender = gender
+            session.add(db_user)
+            await session.commit()
+            await session.refresh(db_user)
+
+            return _to_user_entity(db_user)
+
+    @staticmethod
+    async def update_breaking_news(
+        user: UserEntity, breaking_news: bool
+    ) -> UserEntity:
+        async with async_session() as session:
+            result = await session.execute(
+                select(User)
+                .options(selectinload(User.organization))
+                .where(User.id == user.id)
+            )
+            db_user = result.scalar_one_or_none()
+
+            db_user.breaking_news = breaking_news
             session.add(db_user)
             await session.commit()
             await session.refresh(db_user)

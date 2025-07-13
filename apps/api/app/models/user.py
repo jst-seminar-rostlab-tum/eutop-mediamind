@@ -2,7 +2,7 @@ import uuid
 from enum import Enum
 from typing import TYPE_CHECKING, List
 
-from pydantic import BaseModel, EmailStr
+from pydantic import EmailStr
 from sqlalchemy import CheckConstraint, Column
 from sqlalchemy import Enum as SqlAlchemyEnum
 from sqlalchemy import String
@@ -34,6 +34,7 @@ class UserBase(SQLModel):
     first_name: str = Field(max_length=255)
     last_name: str = Field(max_length=255)
     is_superuser: bool = Field(default=False)
+    breaking_news: bool = Field(default=True)
     organization_id: uuid.UUID | None = Field(
         default=None, foreign_key="organizations.id"
     )
@@ -66,18 +67,6 @@ class UserBase(SQLModel):
             server_default=Gender.male.value,
         ),
     )
-
-
-class UserCreate(BaseModel):
-    clerk_id: str
-    email: str
-    first_name: str
-    last_name: str
-    is_superuser: bool = False
-    organization_id: uuid.UUID | None = None
-    language: str = "en"
-    role: UserRole = UserRole.member
-    gender: Gender | None = Gender.male
 
 
 # Database model, table inferred from class name

@@ -83,7 +83,7 @@ async def trigger_scraping():
 @router.post("/trigger_breaking_news_crawling")
 async def trigger_newsapi_crawling():
     logger.info("Triggering breaking news crawling")
-    breaking_news = fetch_breaking_news_newsapi()
+    breaking_news = await fetch_breaking_news_newsapi()
     return {"message": f"Crawled {len(breaking_news)} breaking news articles"}
 
 

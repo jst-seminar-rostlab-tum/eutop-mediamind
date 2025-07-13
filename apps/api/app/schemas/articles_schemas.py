@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import List
+from typing import List, Optional
 from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict
@@ -50,5 +50,6 @@ class MatchDetailResponse(BaseModel):
     topics: List[MatchTopicItem]
     search_profile: MatchProfileInfo | None
     article: MatchArticleOverviewContent
+    entities: Optional[dict] = None
 
     model_config = ConfigDict(from_attributes=True)
