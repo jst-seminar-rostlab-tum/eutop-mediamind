@@ -174,3 +174,7 @@ msgstr "Abend"
 
 msgid "Afternoon"
 msgstr "Nachmittag"
+
+msgid "Back to translated article"
+msgstr "Zurück zum übersetzten Artikel"
+
