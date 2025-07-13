@@ -212,10 +212,7 @@ class OrganizationService:
     async def get_with_users(
         organization_id: uuid.UUID, current_user: UserEntity
     ) -> List[OrganizationResponse]:
-        if (
-            current_user.role != "maintainer"
-            and not current_user.is_superuser
-        ):
+        if current_user.role != "maintainer" and not current_user.is_superuser:
             raise HTTPException(
                 status_code=403, detail="Insufficient privileges"
             )
