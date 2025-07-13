@@ -87,9 +87,18 @@ async def update_language(
 
 @router.put("/gender", response_model=UserEntity)
 async def update_gender(
-    gender: Gender = Query(...), user=Depends(get_sync_user)
+    gender: Gender = Query(...),
+    user=Depends(get_sync_user),
 ):
     return await UserService.update_gender(gender, user)
+
+
+@router.put("/breaking_news", response_model=UserEntity)
+async def update_breaking_news(
+    user=Depends(get_sync_user),
+    breaking_news: bool = Query(...),
+):
+    return await UserService.update_breaking_news(breaking_news, user)
 
 
 @router.delete("", response_model=FeedbackResponse)
