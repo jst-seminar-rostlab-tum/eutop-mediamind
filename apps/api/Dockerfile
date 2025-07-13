@@ -33,6 +33,11 @@ RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     libpq5 \
     jq \
+    curl gnupg wget unzip xvfb libgbm1 \
+    libnss3 libnspr4 libatk1.0-0 libatk-bridge2.0-0 libcups2 \
+    libxkbcommon0 libatspi2.0-0 libxdamage1 libpango-1.0-0 \
+    libcairo2 libasound2 libsecret-1-0 libgles2 \
+    libgtk-3-0 libgdk-pixbuf2.0-0 libpangocairo-1.0-0 libcairo-gobject2 \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy installed Python packages from builder
@@ -44,6 +49,11 @@ COPY . .
 # Copy entrypoint and set permissions
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
+
+# Install browsers to project dir to avoid permission issues in Docker
+ENV PLAYWRIGHT_BROWSERS_PATH=0
+# Chromium & crawl4ai final setup
+RUN playwright install chromium && crawl4ai-setup
 
 # Set permissions and switch to non-root user
 RUN chown -R appuser:appuser /app
