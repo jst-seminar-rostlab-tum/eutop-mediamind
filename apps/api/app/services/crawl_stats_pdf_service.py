@@ -52,6 +52,7 @@ async def generate_crawl_stats_pdf(filename: str = "crawl_stats_report.pdf"):
             subscription_name = stat.subscription.name
         if not subscription_name:
             subscription_name = str(stat.subscription_id)
+        # [:5000] removes the possibility of a Subscription row > 1 page
         data.append(
             [
                 Paragraph(subscription_name, normal_style),
