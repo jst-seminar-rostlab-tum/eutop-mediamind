@@ -466,6 +466,9 @@ class SearchProfileService:
         profile = await SearchProfileRepository.get_search_profile_by_id(
             search_profile_id
         )
+        has_organization_subscription_access = await SubscriptionRepository.has_organization_subscription_access(
+            profile.organization_id, article.subscription_id
+        )
 
         all_matches = await MatchRepository.get_matches_by_profile_and_article(
             search_profile_id=search_profile_id, article_id=article.id
@@ -501,6 +504,18 @@ class SearchProfileService:
             article.id
         )
 
+        # Check if organization has subscription access and modify content accordingly
+        if has_organization_subscription_access:
+            article_text = {
+                "de": article.content_de or "",
+                "en": article.content_en or "",
+            }
+        else:
+            article_text = {
+                "de": "Abonnieren Sie, um den Artikel freizuschalten",
+                "en": "Subscribe to unlock the article",
+            }
+
         return MatchDetailResponse(
             match_id=match.id,
             topics=topics,
@@ -515,10 +530,7 @@ class SearchProfileService:
                     "de": article.summary_de or "",
                     "en": article.summary_en or "",
                 },
-                text={
-                    "de": article.content_de or "",
-                    "en": article.content_en or "",
-                },
+                text=article_text,
                 image_urls=[article.image_url or "https://no_image.com/"],
                 published=article.published_at,
                 crawled=article.crawled_at,
