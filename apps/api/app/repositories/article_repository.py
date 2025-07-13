@@ -220,8 +220,7 @@ class ArticleRepository:
                 return []
 
             # Get subscription IDs that are linked to the search profile
-            subscriptions_data = await SubscriptionRepository.\
-                get_all_subscriptions_with_search_profile(
+            subscriptions_data = await SubscriptionRepository.get_all_subscriptions_with_search_profile(
                 search_profile_id
             )
             # Filter to get only subscribed subscription IDs
@@ -251,12 +250,13 @@ class ArticleRepository:
             for match in matches:
                 if match.article is not None:
                     article = match.article
-                    # If article's subscription is not 
+                    # If article's subscription is not
                     # linked to the search profile, modify content
                     if article.subscription_id not in linked_subscription_ids:
                         article.content_en = "Subscribe to unlock the article"
-                        article.content_de = "Abonnieren Sie, " \
-                        "um den Artikel freizuschalten"
+                        article.content_de = (
+                            "Abonnieren Sie, " "um den Artikel freizuschalten"
+                        )
                     articles.append(article)
 
             return articles
