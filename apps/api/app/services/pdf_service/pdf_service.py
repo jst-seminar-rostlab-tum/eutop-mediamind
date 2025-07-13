@@ -57,7 +57,8 @@ class PDFService:
                 " 'evening']"
             )
 
-        articles = await ArticleRepository.get_matched_articles_for_profile_for_create_pdf(
+        articles = await ArticleRepository.\
+            get_matched_articles_for_profile_for_create_pdf(
             search_profile_id
         )
 

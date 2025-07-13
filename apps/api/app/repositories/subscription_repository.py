@@ -75,21 +75,24 @@ class SubscriptionRepository:
             )
             for row in result
         ]
-    
+
     @staticmethod
     async def has_organization_subscription_access(
         organization_id: UUID, subscription_id: UUID
     ) -> bool:
         async with async_session() as session:
-            subscriptions = await SubscriptionRepository.get_all_subscriptions_with_organization(
+            subscriptions = await SubscriptionRepository.\
+                get_all_subscriptions_with_organization(
                 session, organization_id
             )
-            
-            # Check if the subscription_id exists and has access (is_subscribed = True)
+
+            # Check if the subscription_id exists 
+            # and has access (is_subscribed = True)
             for subscription in subscriptions:
-                if subscription.id == subscription_id and subscription.is_subscribed:
+                if subscription.id == subscription_id and \
+                    subscription.is_subscribed:
                     return True
-            
+
             return False
 
     @staticmethod
