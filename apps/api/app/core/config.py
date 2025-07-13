@@ -87,10 +87,10 @@ class Configs(BaseSettings):
     CLERK_COOKIE_NAME: str
 
     # AWS
-    AWS_ACCESS_KEY_ID: str | None
-    AWS_SECRET_ACCESS_KEY: str | None
-    AWS_REGION: str | None
-    AWS_S3_BUCKET_NAME: str | None
+    AWS_ACCESS_KEY_ID: str
+    AWS_SECRET_ACCESS_KEY: str
+    AWS_REGION: str
+    AWS_S3_BUCKET_NAME: str
 
     # NewsAPI AI
     NEWSAPIAI_API_KEY: str | None

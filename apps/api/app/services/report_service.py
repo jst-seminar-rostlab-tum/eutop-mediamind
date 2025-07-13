@@ -36,7 +36,7 @@ class ReportService:
         report = await ReportRepository.get_by_searchprofile_timeslot_language(
             search_profile_id, timeslot, language
         )
-        if report:
+        if report is not None:
             return report
 
         # Otherwise, create it

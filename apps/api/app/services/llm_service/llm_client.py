@@ -39,7 +39,10 @@ class LLMClient:
         self.api_key = configs.OPENAI_API_KEY
 
     def generate_response(
-        self, prompt: str, temperature: float = 0.1, image_url: str = None
+        self,
+        prompt: str,
+        temperature: float = 0.1,
+        image_url: str | None = None,
     ) -> str:
         return self.__prompt(
             prompt, temperature=temperature, image_url=image_url
@@ -68,10 +71,10 @@ class LLMClient:
         prompt: str,
         resp_format=None,
         temperature: float = 0.1,
-        image_url: str = None,
+        image_url: str | None = None,
     ):
         messages = []
-        if image_url:
+        if image_url is not None:
             messages.append(
                 {
                     "role": "user",

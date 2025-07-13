@@ -2,6 +2,7 @@ import asyncio
 import json
 import uuid
 from datetime import date, datetime
+from pathlib import Path
 from typing import Sequence
 
 from app.core.logger import get_logger
@@ -47,7 +48,7 @@ class ArticleSummaryService:
     @staticmethod
     def _generate_summary_batch_file(
         articles: Sequence[Article],
-    ) -> str | None:
+    ) -> Path | None:
         """
         Generates a .jsonl batch file containing prompts for summarizing
         and entity extraction.
@@ -72,9 +73,6 @@ class ArticleSummaryService:
             temperature=0.1,
             output_filename="summary_batch.jsonl",
         )
-
-        if not batch_path:
-            return None
 
         return batch_path
 
