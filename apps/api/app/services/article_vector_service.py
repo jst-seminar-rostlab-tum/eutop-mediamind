@@ -108,7 +108,7 @@ class ArticleVectorService:
         self.vector_store.add_documents(documents=documents, ids=uuids)
 
     async def retrieve_by_similarity(
-        self, query: str, score_threshold: float = 0.3
+        self, query: str, score_threshold: float = 0.7
     ) -> list[tuple[Document, float]]:
         """
         Retrieve query-relevant documents from the vector store.
@@ -146,7 +146,6 @@ class ArticleVectorService:
         )
 
         while len(articles) > 0:
-
             await self.add_articles(articles)
 
             articles = await ArticleRepository.list_articles_with_summary(
