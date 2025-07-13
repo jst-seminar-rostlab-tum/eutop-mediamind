@@ -61,7 +61,7 @@ async def extract_enhesa_links(
             clean = re.sub(r"\s+", " ", art["date"]).strip()
             parsed_date = datetime.strptime(clean, "%d %B %Y").replace(
                 tzinfo=timezone.utc
-            )  # ✨
+            )
             if parsed_date < date_start:
                 early_article_found = True
             if (
