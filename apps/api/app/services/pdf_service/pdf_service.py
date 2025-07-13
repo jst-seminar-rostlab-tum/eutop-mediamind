@@ -1,29 +1,19 @@
 # Refactored PDFService to use split modules
 import uuid
-from datetime import datetime, timedelta
+from datetime import datetime
 from functools import partial
 from io import BytesIO
 from typing import Callable, List
 
-from reportlab.lib.enums import TA_JUSTIFY
 from reportlab.lib.pagesizes import A4
-from reportlab.lib.styles import ParagraphStyle
 from reportlab.lib.units import inch
 from reportlab.platypus import (
     BaseDocTemplate,
-    Flowable,
     Frame,
-    HRFlowable,
-    Image,
     NextPageTemplate,
     PageBreak,
     PageTemplate,
-    Paragraph,
-    Spacer,
-    Table,
-    TableStyle,
 )
-from reportlab.platypus.flowables import AnchorFlowable
 
 from app.core.logger import get_logger
 from app.models.entity import EntityType
@@ -44,7 +34,6 @@ from .header_footer import draw_header_footer as _draw_header_footer
 from .news_item import NewsItem
 from .original_elements import create_original_articles_elements
 from .styles import get_pdf_styles
-from .utils import calculate_reading_time
 from .summaries_elements import create_summaries_elements
 
 logger = get_logger(__name__)
