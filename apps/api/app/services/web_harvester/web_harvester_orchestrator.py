@@ -13,6 +13,7 @@ from app.repositories.subscription_repository import (
     get_subscriptions_with_crawlers,
     get_subscriptions_with_scrapers,
 )
+from app.services.login_llm_service import LoginLLM
 from app.services.web_harvester.crawler import Crawler, CrawlerType
 from app.services.web_harvester.scraper import Scraper
 from app.services.web_harvester.utils.web_utils import (
@@ -115,6 +116,26 @@ def run_selenium_code(
         login_success = _handle_login_if_needed(
             subscription, scraper, driver, wait
         )
+        if subscription.paywall and not login_success:
+            scraper.logger.info(
+                f"Login failed for subscription {subscription.name}, "
+                f"updating login config with LLM approach"
+            )
+            login_updated = LoginLLM.add_page(subscription)
+            if login_updated:
+                scraper.logger.info(
+                    f"Login config updated for {subscription.name}, "
+                    f"retrying login"
+                )
+                login_success = _handle_login_if_needed(
+                    subscription, scraper, driver, wait
+                )
+            else:
+                scraper.logger.error(
+                    f"Could not update login config for subscription "
+                    f"{subscription.name} with LLM approach."
+                )
+
         if subscription.paywall and not login_success:
             scraper.logger.error(
                 f"Login failed for subscription {subscription.name}. "
