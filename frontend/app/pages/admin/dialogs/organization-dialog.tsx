@@ -193,7 +193,7 @@ export function OrganizationDialog({
   }, [editedOrga, open]);
 
   const checkEqual = (isEdit: boolean) => {
-    const base = isEdit ? orga : initialOrga;
+    const base = isEdit ? (orga as Organization) : initialOrga;
 
     const updated = {
       ...base,
@@ -203,7 +203,16 @@ export function OrganizationDialog({
           const fullUser = allUsers.find((u) => u.email === tableUser.email);
           if (!fullUser) return null;
           return {
-            ...fullUser,
+            id: fullUser.id,
+            clerk_id: fullUser.clerk_id,
+            email: fullUser.email,
+            first_name: fullUser.first_name,
+            last_name: fullUser.last_name,
+            is_superuser: fullUser.is_superuser,
+            language: fullUser.language,
+            gender: fullUser.gender,
+            organization_id: fullUser.organization_id,
+            breaking_news: fullUser.breaking_news,
             // get role form table user to check if edited
             role: tableUser.role,
           };
