@@ -41,17 +41,17 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-        working-directory: ./backend
+        working-directory: ./apps/api
 
       - name: Copy env
         run: cp .env.example .env
-        working-directory: ./backend
+        working-directory: ./apps/api
 
       - name: Extract OpenAPI spec
         env:
           ENVIRONMENT: ci
         run: python ./scripts/extract-openapi.py app.main:app --app-dir ./ --out /tmp/openapi.json
-        working-directory: ./backend
+        working-directory: ./apps/api
 
       - name: Setup Node
         uses: actions/setup-node@v2
@@ -64,7 +64,7 @@ jobs:
 
       - name: Generate Typescript types
         run: |
-          mkdir -p frontend/types/
+          mkdir -p apps/frontend/types/
           npx openapi-typescript /tmp/openapi.json -o ./frontend/types/api-types-v1.d.ts
 
       - name: Commit & Push changes
@@ -76,7 +76,7 @@ jobs:
             exit 1
           fi
 
-          git add ./frontend/types/api-types-v1.d.ts
+          git add ./apps/frontend/types/api-types-v1.d.ts
               
           if git diff --staged --quiet; then
             echo "No changes detected in API types file. Skipping commit and push step."
