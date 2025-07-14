@@ -264,4 +264,3 @@ def _scraper_error_handling(articles: list[Article], error: str):
         article.status = ArticleStatus.ERROR
         article.note = error
     return articles
-
