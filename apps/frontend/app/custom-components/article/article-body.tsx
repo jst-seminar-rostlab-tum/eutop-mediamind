@@ -1,11 +1,19 @@
 import { Calendar, FileClock, User } from "lucide-react";
 import ReactMarkdown from "react-markdown";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "~/components/ui/carousel";
 
 interface ArticleBodyProps {
   title: string;
   content: string;
   published_at: string;
   author?: string;
+  image_urls: string[];
 }
 
 const calculateReadingTime = (text: string): string => {
@@ -25,6 +33,7 @@ export function ArticleBody({
   content,
   published_at,
   author,
+  image_urls,
 }: ArticleBodyProps) {
   const readingTime = calculateReadingTime(content);
 
@@ -49,6 +58,26 @@ export function ArticleBody({
           {readingTime}
         </div>
       </div>
+      {image_urls.length > 0 && (
+        <Carousel className="w-full">
+          <CarouselContent className="">
+            {image_urls.map((image_url, index) => (
+              <CarouselItem key={index}>
+                <div key={index}>
+                  <img
+                    src={image_url}
+                    alt={`Article image ${index + 1}`}
+                    className="w-full h-auto rounded-lg shadow-sm"
+                    loading="lazy"
+                  />
+                </div>
+              </CarouselItem>
+            ))}
+          </CarouselContent>
+          <CarouselPrevious />
+          <CarouselNext />
+        </Carousel>
+      )}
       <section className={"markdown"}>
         <ReactMarkdown>{content}</ReactMarkdown>
       </section>
