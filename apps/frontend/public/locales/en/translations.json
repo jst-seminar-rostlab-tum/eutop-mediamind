@@ -126,7 +126,7 @@
   },
 
   "admin": {
-    "settings": "settings",
+    "settings": "Settings",
     "header": "Admin Settings",
     "organizations": "Organizations",
     "subscriptions": "Subscriptions",
