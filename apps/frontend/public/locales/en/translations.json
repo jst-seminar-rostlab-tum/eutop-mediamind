@@ -178,7 +178,8 @@
     "delete_success": "Search profile successfully deleted",
     "reports": "Reports",
     "Explore": "Explore",
-    "New_Articles": "New Articles"
+    "New_Articles": "New Articles",
+    "articles_error": "Error fetching Articles"
   },
 
   "article-page": {

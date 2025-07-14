@@ -135,7 +135,7 @@ export function SearchProfileOverview() {
           setMatches(data);
           setMatchesLoading(false);
         } else if (error) {
-          toast.error("Error fetching matches");
+          toast.error(t("search_profile.articles_error"));
           console.error("Error fetching matches:", error);
         }
       });

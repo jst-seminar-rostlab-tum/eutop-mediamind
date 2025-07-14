@@ -178,7 +178,8 @@
     "delete_success": "Suchprofil erfolgreich gelöscht",
     "reports": "Berichte",
     "Explore": "Erkunden",
-    "New_Articles": "Neue Artikel"
+    "New_Articles": "Neue Artikel",
+    "articles_error": "Artikel konnten nicht abgerufen werden"
   },
 
   "article-page": {
