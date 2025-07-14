@@ -22,10 +22,14 @@ import {
 import { useNavigate } from "react-router";
 import { SidebarFilter } from "./sidebar-filter";
 import { ScrollArea, ScrollBar } from "~/components/ui/scroll-area";
-import { SearchProfileSkeleton } from "./search-profile-skeleton";
+import {
+  ArticlesSkeleton,
+  SearchProfileSkeleton,
+} from "./search-profile-skeleton";
 import { useTranslation } from "react-i18next";
 import { Button } from "~/components/ui/button";
 import type { MatchesResponse } from "types/model";
+import { toast } from "sonner";
 
 const suppressSWRReloading = {
   refreshInterval: 0,
@@ -60,6 +64,7 @@ export function SearchProfileOverview() {
   const [matches, setMatches] = useState<MatchesResponse | undefined>(
     undefined,
   );
+  const [matchesLoading, setMatchesLoading] = useState<boolean>(false);
 
   useEffect(() => {
     if (!id) {
@@ -104,6 +109,7 @@ export function SearchProfileOverview() {
 
   useEffect(() => {
     if (!profileReady) return;
+    setMatchesLoading(true);
 
     const requestBody = {
       startDate: fromDate
@@ -127,7 +133,9 @@ export function SearchProfileOverview() {
       .then(({ data, error }) => {
         if (data) {
           setMatches(data);
+          setMatchesLoading(false);
         } else if (error) {
+          toast.error(t("search_profile.articles_error"));
           console.error("Error fetching matches:", error);
         }
       });
@@ -145,55 +153,60 @@ export function SearchProfileOverview() {
   const Topics = profile ? profile.topics : [];
 
   return (
-    <Layout>
+    <Layout className="overflow-hidden flex justify-center">
       {!profile || isProfileLoading ? (
         <SearchProfileSkeleton />
       ) : (
-        <>
-          <Breadcrumb>
-            <BreadcrumbList>
-              <BreadcrumbItem>
-                <BreadcrumbLink asChild>
-                  <Link to="/dashboard">{t("breadcrumb_home")}</Link>
-                </BreadcrumbLink>
-              </BreadcrumbItem>
-              <BreadcrumbSeparator />
-              <BreadcrumbItem>
-                <BreadcrumbPage>{profile?.name}</BreadcrumbPage>
-              </BreadcrumbItem>
-            </BreadcrumbList>
-          </Breadcrumb>
-          <div className="flex gap-8">
-            <Text hierachy={2}>{profile?.name}</Text>
-          </div>
-          <div className="flex items-center justify-between mb-4 gap-10">
-            <ScrollArea className="grow overflow-x-hidden whitespace-nowrap rounded-md pb-1.5">
-              <div className="flex w-max space-x-2 p-1">
-                <div className="flex items-center gap-1 shrink-0">
-                  <Book size={20} />
-                  <p className="font-bold">{t("search_profile.Topics")}</p>
-                </div>
-                {profile?.topics?.map((topic, idx) => (
-                  <div
-                    className="bg-gray-200 rounded-lg py-1 px-2 shrink-0"
-                    key={idx}
-                  >
-                    {topic.name}
-                  </div>
-                ))}
+        <div className="w-full">
+          <div className="w-full flex flex-col justify-start">
+            <Breadcrumb>
+              <BreadcrumbList>
+                <BreadcrumbItem>
+                  <BreadcrumbLink asChild>
+                    <Link to="/dashboard">{t("breadcrumb_home")}</Link>
+                  </BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator />
+                <BreadcrumbItem>
+                  <BreadcrumbPage>{profile?.name}</BreadcrumbPage>
+                </BreadcrumbItem>
+              </BreadcrumbList>
+            </Breadcrumb>
+            <div className="flex gap-6 items-center">
+              <Text hierachy={2}>{profile?.name}</Text>
+              <div className="bg-blue-200 etext-blue-900 font-bold rounded-full h-8 flex items-center justify-center text-sm shadow-sm p-4">
+                {profile.new_articles_count} {t("search_profile.New_Articles")}
               </div>
-              <ScrollBar orientation="horizontal" />
-            </ScrollArea>
-            <Button asChild>
-              <Link to="reports">
-                <FileText />
-                {t("reports.reports")}
-              </Link>
-            </Button>
+            </div>
+            <div className="flex items-center justify-between mb-4 gap-10">
+              <ScrollArea className="grow overflow-x-hidden whitespace-nowrap rounded-md pb-1.5">
+                <div className="flex w-max space-x-2 p-1">
+                  <div className="flex items-center gap-1 shrink-0">
+                    <Book size={20} />
+                    <p className="font-bold">{t("search_profile.Topics")}</p>
+                  </div>
+                  {profile?.topics?.map((topic, idx) => (
+                    <div
+                      className="bg-gray-200 rounded-lg py-1 px-2 shrink-0"
+                      key={idx}
+                    >
+                      {topic.name}
+                    </div>
+                  ))}
+                </div>
+                <ScrollBar orientation="horizontal" />
+              </ScrollArea>
+              <Button asChild>
+                <Link to="reports">
+                  <FileText />
+                  {t("reports.reports")}
+                </Link>
+              </Button>
+            </div>
           </div>
 
-          <div className="w-full grid grid-cols-6 mt-2 gap-8">
-            <div className="col-span-2">
+          <div className="flex flex-row justify-start mt-2 gap-8">
+            <div className="max-w-[400px] flex-grow">
               <SidebarFilter
                 sortBy={sortBy}
                 setSortBy={setSortBy}
@@ -213,7 +226,7 @@ export function SearchProfileOverview() {
                 setToDate={setToDate}
               />
             </div>
-            <div className="col-span-4">
+            <div className="min-w-[500px] flex-grow">
               <div className="relative mb-4 w-full flex">
                 <Input
                   placeholder={t("Search") + " " + t("search_profile.articles")}
@@ -228,9 +241,11 @@ export function SearchProfileOverview() {
                   <Search />
                 </Button>
               </div>
-              <div className="bg-card rounded-xl border shadow-sm">
-                <ScrollArea className="h-[755px] p-4">
-                  {matches?.matches.length === 0 ? (
+              <div className="bg-card rounded-xl border shadow-sm h-[calc(100vh-350px)]">
+                <ScrollArea className="p-4">
+                  {!matches || matchesLoading ? (
+                    <ArticlesSkeleton />
+                  ) : matches?.matches.length === 0 ? (
                     <p className="text-muted-foreground text-sm text-center pt-2 italic">
                       {t("search_profile.No_articles")}
                     </p>
@@ -287,7 +302,7 @@ export function SearchProfileOverview() {
               </div>
             </div>
           </div>
-        </>
+        </div>
       )}
     </Layout>
   );

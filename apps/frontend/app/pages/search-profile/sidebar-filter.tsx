@@ -80,7 +80,7 @@ export function SidebarFilter({
   );
 
   return (
-    <Card className="p-5 gap-4">
+    <Card className="p-5 gap-4 w-full">
       <CardTitle className="mt-2 flex items-center gap-2">
         <ArrowDownNarrowWide /> {t("search_profile.Sorting")}
       </CardTitle>
@@ -115,7 +115,7 @@ export function SidebarFilter({
           className="absolute right-3 top-2 text-muted-foreground"
         />
       </div>
-      <ScrollArea className="h-40 rounded-md border p-2">
+      <ScrollArea className="h-50 rounded-md border p-2">
         {filteredSources.map((source) => (
           <div key={source.id} className="flex items-center gap-2 p-2">
             <Checkbox
@@ -148,7 +148,7 @@ export function SidebarFilter({
           className="absolute right-3 top-2 text-muted-foreground"
         />
       </div>
-      <ScrollArea className="h-40 rounded-md border p-2">
+      <ScrollArea className="h-50 rounded-md border p-2">
         {filteredTopics.map((topic) => (
           <div key={topic.id} className="flex items-center gap-2 p-2">
             <Checkbox

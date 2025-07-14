@@ -27,11 +27,13 @@ import { Switch } from "~/components/ui/switch";
 import type { Subscription } from "../../../../types/model";
 import { useTranslation } from "react-i18next";
 import type { TFunction } from "i18next";
+import { Skeleton } from "~/components/ui/skeleton";
 
 export interface MailingTableProps {
   name: string;
   allSubscriptions: Subscription[];
   setSubscriptions: (subscriptions: Subscription[]) => void;
+  isLoading?: boolean;
 }
 
 type DataRow = {
@@ -97,6 +99,7 @@ export function DataTableSubscriptions({
   name,
   allSubscriptions,
   setSubscriptions,
+  isLoading = false,
 }: MailingTableProps) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -183,6 +186,41 @@ export function DataTableSubscriptions({
     },
   });
 
+  if (isLoading) {
+    return (
+      <div className="w-full h-full">
+        <div className="flex items-center py-4 justify-between">
+          <Skeleton className="h-10 w-64 rounded-md" />
+        </div>
+
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>
+                <Skeleton className="h-5 w-32" />
+              </TableHead>
+              <TableHead>
+                <Skeleton className="h-5 w-24" />
+              </TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {[...Array(5)].map((_, idx) => (
+              <TableRow key={idx}>
+                <TableCell>
+                  <Skeleton className="h-4 w-48" />
+                </TableCell>
+                <TableCell>
+                  <Skeleton className="h-6 w-10 rounded-full" />
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+    );
+  }
+
   return (
     <div className="w-full">
       <div className="flex items-center py-4 justify-between">
@@ -195,7 +233,6 @@ export function DataTableSubscriptions({
           onChange={(event) =>
             table.getColumn("data")?.setFilterValue(event.target.value)
           }
-          className="max-w-sm"
         />
       </div>
       <Table>
@@ -234,7 +271,7 @@ export function DataTableSubscriptions({
           ) : (
             <TableRow>
               <TableCell colSpan={columns.length} className="h-24 text-center">
-                {t("data-table-subscriptions.no_results")}
+                {t("subscriptions.no_results")}
               </TableCell>
             </TableRow>
           )}
