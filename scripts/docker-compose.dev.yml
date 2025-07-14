@@ -13,6 +13,7 @@ services:
     build:
       context: ../apps/api
       dockerfile: Dockerfile
+    shm_size: "2g"
     restart: always
     depends_on:
       - postgres
