@@ -20,7 +20,9 @@
   "landing_page": {
     "header_slogan": "Stay ahead in the fast-changing world of digital media",
     "header_description": "Your automated press analysis tool",
-    "credits": "MediaMind was build in cooperation between EUTOP, the Technical University of Munich and CSEE during the Javascript Technology Practicum."
+    "credits": "MediaMind was build in cooperation between EUTOP, the Technical University of Munich and CSEE during the Javascript Technology Practicum.",
+    "search_profile_header": "Manage your Search Profiles",
+    "search_profile_text": "Clean interface to manage all profiles in one Dashboard"
   },
 
   "dashboard": {
