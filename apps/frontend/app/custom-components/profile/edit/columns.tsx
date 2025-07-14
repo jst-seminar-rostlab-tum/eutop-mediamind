@@ -86,7 +86,7 @@ export function getUserColumns(
         const index = row.index;
         return (
           <Button variant={"ghost"} onClick={() => onDelete(index)}>
-            <Trash className="text-red-500" />
+            <Trash className="text-destructive" />
           </Button>
         );
       },

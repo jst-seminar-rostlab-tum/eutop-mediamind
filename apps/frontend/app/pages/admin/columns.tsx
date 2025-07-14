@@ -60,9 +60,9 @@ export function getOrgaColumns(
                   });
                   setOpenDeleteDialog(true);
                 }}
-                className="text-red-500 focus:text-red-500"
+                className="text-destructive focus:text-destructive"
               >
-                <Trash2 className="text-red-500" />
+                <Trash2 className="text-destructive" />
                 {t("Delete")}
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -111,9 +111,9 @@ export function getSubsColumns(
                   setDeleteTarget({ type: "subscription", data: row.original });
                   setOpenDeleteDialog(true);
                 }}
-                className="text-red-500 focus:text-red-500"
+                className="text-destructive focus:text-destructive"
               >
-                <Trash2 className="text-red-500" />
+                <Trash2 className="text-destructive" />
                 {t("Delete")}
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -201,7 +201,7 @@ export function getUserColumns(
         const index = row.index;
         return (
           <Button variant={"ghost"} onClick={() => onDelete(index)}>
-            <Trash className="text-red-500" />
+            <Trash className="text-destructive" />
           </Button>
         );
       },
