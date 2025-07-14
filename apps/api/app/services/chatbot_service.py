@@ -132,7 +132,7 @@ Please try again later or contact us."""
         )
 
         try:
-            EmailService.send_ses_email(email)
+            await EmailService.send_ses_email(email)
             logger.info(
                 f"Chat response sent to {user_email} for "
                 f"email_conversation with id={email_conversation_id}"
