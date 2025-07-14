@@ -1,3 +1,6 @@
+import asyncio
+import re
+from io import BytesIO
 from uuid import UUID
 
 import markdown
@@ -13,6 +16,8 @@ from app.schemas.user_schema import UserEntity
 from app.services.email_service import EmailService
 from app.services.llm_service.llm_client import LLMClient
 from app.services.llm_service.llm_models import LLMModels
+from app.services.report_service import ReportService
+from app.services.s3_service import S3Service
 
 logger = get_logger(__name__)
 
@@ -20,7 +25,7 @@ logger = get_logger(__name__)
 class ChatbotService:
     @staticmethod
     async def get_or_create_conversation(
-        user_email: str, subject: str
+        user_email: str, subject: str, report_id: UUID
     ) -> EmailConversation:
         email_conversation = (
             await ChatbotRepository.get_conversation_by_email_and_subject(
@@ -29,7 +34,7 @@ class ChatbotService:
         )
         if not email_conversation:
             email_conversation = await ChatbotRepository.create_conversation(
-                user_email, subject
+                user_email, subject, report_id
             )
         return email_conversation
 
@@ -63,10 +68,13 @@ class ChatbotService:
         prompt = f"""You are a professional customer support assistant for \
 MediaMind, responding to user emails. Your tone must always be polite, \
 empathetic, and solution-oriented. Your task is to provide a concise, \
-professional, and helpful reply to the user's latest message.
+professional, and helpful reply to the user's latest message. Find attached \
+the PDF report related to the conversation, which contains relevant \
+information that can help you answer the user's query.
 
-Below is the complete conversation history so far. Messages are labelled as \
-"user" (for user messages) and "assistant" (for your responses):
+Additionally, you can find the complete conversation history so far below. \
+Messages are labelled as "user" (for user messages) and "assistant" \
+(for your responses):
 
 ---
 Subject: <{subject}>
@@ -87,6 +95,8 @@ Instructions:
 - If the user's message is unclear, politely ask for clarification.
 - If you do not know the answer, reply that to the user and politely ask for \
 more context.
+- Attached you will find the latest report in PDF format. Use it to \
+provide accurate information.
 - Focus on providing accurate, actionable, and relevant information to \
 resolve the user's query.
 - Always answer in the language of the user's last message."""
@@ -97,6 +107,7 @@ resolve the user's query.
         email_conversation_id: UUID,
         subject: str,
         chat_body: str,
+        report_file: BytesIO,
     ) -> str:
         prompt = await ChatbotService.create_prompt_from_context(
             email_conversation_id=email_conversation_id,
@@ -106,8 +117,11 @@ resolve the user's query.
 
         llm_client = LLMClient(LLMModels.openai_4o_mini)
         try:
-            llm_response = llm_client.generate_response(
-                prompt, temperature=0.7
+            llm_response = await asyncio.to_thread(
+                llm_client.generate_response,
+                prompt=prompt,
+                file=report_file,
+                temperature=0.7,
             )
         except Exception as e:
             logger.error(
@@ -115,7 +129,7 @@ resolve the user's query.
                 f"with id={email_conversation_id} response: {str(e)}"
             )
             llm_response = f"""Thank you for your message regarding "\
-{subject}". Unfortunately, we ran into a probelm generating a response. \
+{subject}". Unfortunately, we ran into a problem generating a response. \
 Please try again later or contact us."""
         return llm_response
 
@@ -173,21 +187,75 @@ Please try again later or contact us."""
         )
 
     @staticmethod
+    def extract_report_id(subject: str, user_id: UUID) -> UUID:
+        """
+        Extracts the report ID from the subject of the chat request
+        in [report_id] format.
+        """
+
+        try:
+            report_id_match = re.search(r"\[([^\[\]]+)\]", subject)
+            if report_id_match is None:
+                raise Exception("No report_id found in the subject.")
+            return UUID(report_id_match.group(1))
+        except Exception as e:
+            raise Exception(
+                f"Failed to generate chatbot email response for "
+                f"user_id={user_id}: couldn't create UUID from subject="
+                f"{subject}; {e}."
+            )
+
+    @staticmethod
+    async def get_report_pdf_file(
+        s3_service: S3Service, report_id: UUID, user_id: UUID
+    ) -> BytesIO:
+        """
+        Downloads the report PDF file from S3 and returns it as a BytesIO
+        object.
+        """
+        report = await ReportService.get_report_by_id(report_id)
+        if report is None:
+            raise Exception(
+                f"Failed to generate chatbot email response for "
+                f"user_id={user_id}: report with id={report_id} not found."
+            )
+        if report.s3_key is None:
+            raise Exception(
+                f"Failed to generate chatbot email response for "
+                f"user_id={user_id}: s3_key missing for report with "
+                f"id={report_id}."
+            )
+        report_pdf_bytes = await s3_service.download_file(
+            filename=str(report.id), key=report.s3_key
+        )
+        report_pdf_file = BytesIO(report_pdf_bytes)
+        report_pdf_file.name = f"report-{report.id}.pdf"
+        return report_pdf_file
+
+    @staticmethod
     async def generate_and_send_email_response(
-        user: UserEntity, chat: ChatRequest
+        user: UserEntity, chat: ChatRequest, s3_service: S3Service
     ):
         subject = chat.subject or "MediaMind Email-Chatbot"
+        report_id = ChatbotService.extract_report_id(
+            subject=subject, user_id=user.id
+        )
         email_conversation: EmailConversation = (
             await ChatbotService.get_or_create_conversation(
-                user_email=user.email, subject=chat.subject
+                user_email=user.email,
+                report_id=report_id,
+                subject=subject,
             )
+        )
+        report_pdf_file = await ChatbotService.get_report_pdf_file(
+            s3_service=s3_service, report_id=report_id, user_id=user.id
         )
         llm_response = await ChatbotService.generate_llm_response(
             email_conversation_id=email_conversation.id,
             subject=subject,
             chat_body=chat.body,
+            report_file=report_pdf_file,
         )
-
         await ChatbotService.store_chat_messages(
             email_conversation.id, chat.body, llm_response
         )
