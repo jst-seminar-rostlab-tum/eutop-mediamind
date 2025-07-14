@@ -35,4 +35,5 @@ class EmailConversation(SQLModel, table=True):
             onupdate=func.now(),
         )
     )
+    report_id: uuid.UUID = Field(foreign_key="reports.id", nullable=True)
     messages: List["ChatMessage"] = Relationship(back_populates="conversation")

@@ -31,7 +31,7 @@ class ChatbotRepository:
 
     @staticmethod
     async def create_conversation(
-        user_email: str, subject: str
+        user_email: str, subject: str, report_id: uuid.UUID
     ) -> EmailConversation:
         """
         Create a new email conversation.
@@ -39,6 +39,7 @@ class ChatbotRepository:
         new_email_conversation = EmailConversation(
             user_email=user_email,
             subject=subject,
+            report_id=report_id,
         )
         async with async_session() as session:
             session.add(new_email_conversation)
