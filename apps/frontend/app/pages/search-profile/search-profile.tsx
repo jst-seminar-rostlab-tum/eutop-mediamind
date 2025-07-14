@@ -241,7 +241,7 @@ export function SearchProfileOverview() {
                   <Search />
                 </Button>
               </div>
-              <div className="bg-card rounded-xl border shadow-sm grow overflow-hidden">
+              <div className="bg-card rounded-lg border shadow-sm grow overflow-hidden">
                 <div className="h-full">
                   <ScrollArea className="p-4 h-full">
                     {!matches || matchesLoading ? (
