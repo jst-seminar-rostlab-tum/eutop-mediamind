@@ -20,7 +20,9 @@
   "landing_page": {
     "header_slogan": "Ihr Vorsprung in der digitalen Medienwelt von morgen",
     "header_description": "Ihre automatisierte Presse-Analyse Anwendung",
-    "credits": "MediaMind wurde entworfen in kooperation zwischen EUTOP, der Technischen Universität München und dem CSEE während dem Javascript Technology Praktikum."
+    "credits": "MediaMind wurde entworfen in kooperation zwischen EUTOP, der Technischen Universität München und dem CSEE während dem Javascript Technology Praktikum.",
+    "search_profile_header": "Verwalten sie ihre Profile",
+    "search_profile_text": "Eine übersichtliche Oberfläche für alle Profile"
   },
 
   "dashboard": {

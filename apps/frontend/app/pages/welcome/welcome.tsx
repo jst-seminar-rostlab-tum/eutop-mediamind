@@ -74,10 +74,10 @@ export function Welcome() {
           <div className="w-[80%] p-20 mx-auto flex flex-wrap items-center gap-10 justify-center">
             <div className="w-170">
               <p className="text-4xl md:text-5xl font-semibold leading-tight mb-2">
-                Manage your Search Profiles
+                {t("landing_page.search_profile_header")}
               </p>
               <p className="text-2xl md:text-3xl font-medium leading-tight mb-2">
-                Clean interface to manage all profiles in one Dashboard
+                {t("landing_page.search_profile_text")}
               </p>
             </div>
             <Card
