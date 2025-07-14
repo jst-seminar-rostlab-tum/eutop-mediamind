@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime, timezone
 from enum import Enum
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Optional, List
 
 from sqlalchemy import TIMESTAMP, Column
 from sqlmodel import Field, Relationship, SQLModel
@@ -9,6 +9,7 @@ from sqlmodel import Field, Relationship, SQLModel
 if TYPE_CHECKING:
     from .matching_run import MatchingRun
     from .search_profile import SearchProfile
+    from .email import Email
 
 
 class ReportStatus(Enum):
@@ -47,3 +48,4 @@ class Report(SQLModel, table=True):
     matching_run: Optional["MatchingRun"] = Relationship(
         back_populates="reports"
     )
+    emails: List["Email"] = Relationship(back_populates="report")

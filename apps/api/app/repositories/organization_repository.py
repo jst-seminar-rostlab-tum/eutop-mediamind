@@ -5,7 +5,8 @@ from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from app.models import Organization, Subscription
+from app.core.db import async_session
+from app.models import Organization, Subscription, SearchProfile
 from app.models.associations import OrganizationSubscriptionLink
 from app.repositories.subscription_repository import SubscriptionRepository
 from app.schemas.organization_schemas import OrganizationResponse
@@ -129,3 +130,20 @@ class OrganizationRepository:
             )
 
         return responses
+
+    @staticmethod
+    async def get_pdf_as_link_by_recipient(recipient_email: str) -> bool:
+        async with async_session() as session:
+            query = (
+                select(Organization.pdf_as_link)
+                .join(
+                    SearchProfile,
+                    Organization.id == SearchProfile.organization_id,
+                )
+                .where(SearchProfile.organization_emails.any(recipient_email))
+            )
+            result = await session.execute(query)
+            pdf_as_link = result.scalar()
+            if pdf_as_link is None:
+                return True
+            return pdf_as_link

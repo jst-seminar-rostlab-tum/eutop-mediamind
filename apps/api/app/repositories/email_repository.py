@@ -2,6 +2,7 @@ from typing import List
 from uuid import UUID
 
 from sqlalchemy import select, update
+from sqlalchemy.orm import selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.db import async_session
@@ -27,8 +28,10 @@ class EmailRepository:
     @staticmethod
     async def get_all_unsent_emails() -> list[Email]:
         async with async_session() as session:
-            query = select(Email).where(
-                Email.state == (EmailState.PENDING or EmailState.RETRY)
+            query = (
+                select(Email)
+                .where(Email.state == (EmailState.PENDING or EmailState.RETRY))
+                .options(selectinload(Email.report))
             )
             result = await session.execute(query)
             return result.scalars().all()

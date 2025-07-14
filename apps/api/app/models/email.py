@@ -1,10 +1,13 @@
 import uuid
 from datetime import datetime, timezone
 from enum import Enum
-from typing import Dict
+from typing import TYPE_CHECKING, Dict, Optional
 
 from sqlalchemy import TIMESTAMP
-from sqlmodel import JSON, Column, Field, SQLModel
+from sqlmodel import JSON, Column, Field, SQLModel, Relationship
+
+if TYPE_CHECKING:
+    from .report import Report
 
 
 class EmailState(Enum):
@@ -43,6 +46,8 @@ class Email(SQLModel, table=True):
             default=datetime.now(timezone.utc),
         )
     )
+    report_id: uuid.UUID = Field(foreign_key="reports.id", nullable=True)
+    report: Optional["Report"] = Relationship(back_populates="emails")
 
     def add_error(self, error: str):
         """
