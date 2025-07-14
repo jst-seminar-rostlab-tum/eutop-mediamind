@@ -28,7 +28,10 @@ def _assert_admin(user: UserEntity):
     "",
     response_model=List[SubscriptionSummary],
 )
-async def get_all_subscriptions():
+async def get_all_subscriptions(
+        current_user: UserEntity = Depends(get_authenticated_user),
+):
+    _assert_admin(current_user)
     return await SubscriptionService.get_all_subscriptions()
 
 
@@ -37,8 +40,8 @@ async def get_all_subscriptions():
     response_model=SubscriptionRead,
 )
 async def get_subscription(
-    subscription_id: UUID,
-    current_user: UserEntity = Depends(get_authenticated_user),
+        subscription_id: UUID,
+        current_user: UserEntity = Depends(get_authenticated_user),
 ):
     _assert_admin(current_user)
     return await SubscriptionService.get(subscription_id)
@@ -46,8 +49,8 @@ async def get_subscription(
 
 @router.post("", response_model=SubscriptionRead)
 async def create_subscription(
-    data: SubscriptionCreateOrUpdate,
-    current_user: UserEntity = Depends(get_authenticated_user),
+        data: SubscriptionCreateOrUpdate,
+        current_user: UserEntity = Depends(get_authenticated_user),
 ):
     _assert_admin(current_user)
     return await SubscriptionService.create(data)
@@ -55,9 +58,9 @@ async def create_subscription(
 
 @router.put("/{subscription_id}", response_model=SubscriptionRead)
 async def update_subscription(
-    subscription_id: UUID,
-    data: SubscriptionCreateOrUpdate,
-    current_user: UserEntity = Depends(get_authenticated_user),
+        subscription_id: UUID,
+        data: SubscriptionCreateOrUpdate,
+        current_user: UserEntity = Depends(get_authenticated_user),
 ):
     _assert_admin(current_user)
     return await SubscriptionService.update(subscription_id, data)
@@ -65,8 +68,8 @@ async def update_subscription(
 
 @router.delete("/{subscription_id}", response_model=dict)
 async def delete_subscription(
-    subscription_id: UUID,
-    current_user: UserEntity = Depends(get_authenticated_user),
+        subscription_id: UUID,
+        current_user: UserEntity = Depends(get_authenticated_user),
 ):
     _assert_admin(current_user)
     await SubscriptionService.delete(subscription_id)
