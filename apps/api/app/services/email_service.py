@@ -1,4 +1,3 @@
-# flake8: noqa: E501
 import os
 import uuid
 from dataclasses import dataclass
@@ -6,7 +5,6 @@ from datetime import datetime, timezone
 from email.mime.application import MIMEApplication
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-from logging import error
 from time import gmtime, strftime
 from typing import List
 
@@ -119,7 +117,8 @@ class EmailService:
                     email.state = EmailState.RETRY
                 await EmailRepository.update_email(email)
                 raise RuntimeError(
-                    f"Failed to send email to {email.recipient}: {str(e)}"
+                    f"Failed to send email with id={email.id} to "
+                    f"recipient {email.recipient}: {str(e)}"
                 )
 
     @staticmethod
@@ -356,8 +355,9 @@ class EmailService:
                         report.time_slot.capitalize()
                     )
                     subject = (
-                        f"[MEDIAMIND] {translator('Your')} {time_slot_translated} "
-                        f"{translator('Report')} {translator('for')} {search_profile.name}"
+                        f"[MEDIAMIND] {translator('Your')} "
+                        f"{time_slot_translated} {translator('Report')} "
+                        f"{translator('for')} {search_profile.name}"
                     )
                     email_schedule = EmailSchedule(
                         recipient=email,
