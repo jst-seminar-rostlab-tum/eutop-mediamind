@@ -55,7 +55,7 @@ export function BreakingNewsCard({ news }: NewsCardProps) {
             )}
             {news.url && (
               <Button asChild>
-                <a href={news.url}>
+                <a href={news.url} target="_blank">
                   {t("breaking-news.original")}
                   <ExternalLink />
                 </a>
