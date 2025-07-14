@@ -80,7 +80,7 @@ export function SidebarFilter({
   );
 
   return (
-    <Card className="w-full h-full">
+    <Card className="p-0 w-full h-full">
       <ScrollArea className="h-full">
         <div className="flex flex-col gap-4 p-5">
           <CardTitle className="mt-2 flex items-center gap-2">
