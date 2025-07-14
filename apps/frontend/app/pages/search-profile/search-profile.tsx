@@ -153,11 +153,11 @@ export function SearchProfileOverview() {
   const Topics = profile ? profile.topics : [];
 
   return (
-    <Layout className="overflow-hidden flex justify-center">
+    <Layout className="flex justify-center" noOverflow={true}>
       {!profile || isProfileLoading ? (
         <SearchProfileSkeleton />
       ) : (
-        <div className="w-full">
+        <div className="w-full grow flex flex-col overflow-hidden">
           <div className="w-full flex flex-col justify-start">
             <Breadcrumb>
               <BreadcrumbList>
@@ -205,28 +205,31 @@ export function SearchProfileOverview() {
             </div>
           </div>
 
-          <div className="flex flex-row justify-start mt-2 gap-8">
-            <div className="max-w-[400px] flex-grow">
-              <SidebarFilter
-                sortBy={sortBy}
-                setSortBy={setSortBy}
-                selectedSources={selectedSources}
-                setSelectedSources={setSelectedSources}
-                searchSources={searchSources}
-                setSearchSources={setSearchSources}
-                Sources={Sources}
-                selectedTopics={selectedTopics}
-                setSelectedTopics={setSelectedTopics}
-                searchTopics={searchTopics}
-                setSearchTopics={setSearchTopics}
-                Topics={Topics}
-                fromDate={fromDate}
-                setFromDate={setFromDate}
-                toDate={toDate}
-                setToDate={setToDate}
-              />
+          <div className="overflow-hidden grow flex flex-row justify-start mt-2 mb-4 gap-8">
+            <div className="max-w-[400px] h-full">
+              <ScrollArea className="h-full">
+                <SidebarFilter
+                  sortBy={sortBy}
+                  setSortBy={setSortBy}
+                  selectedSources={selectedSources}
+                  setSelectedSources={setSelectedSources}
+                  searchSources={searchSources}
+                  setSearchSources={setSearchSources}
+                  Sources={Sources}
+                  selectedTopics={selectedTopics}
+                  setSelectedTopics={setSelectedTopics}
+                  searchTopics={searchTopics}
+                  setSearchTopics={setSearchTopics}
+                  Topics={Topics}
+                  fromDate={fromDate}
+                  setFromDate={setFromDate}
+                  toDate={toDate}
+                  setToDate={setToDate}
+                />
+                <ScrollBar orientation="vertical" />
+              </ScrollArea>
             </div>
-            <div className="min-w-[500px] flex-grow">
+            <div className="min-w-[500px] grow flex flex-col overflow-hidden">
               <div className="relative mb-4 w-full flex">
                 <Input
                   placeholder={t("Search") + " " + t("search_profile.articles")}
@@ -241,64 +244,66 @@ export function SearchProfileOverview() {
                   <Search />
                 </Button>
               </div>
-              <div className="bg-card rounded-xl border shadow-sm h-[calc(100vh-350px)]">
-                <ScrollArea className="p-4">
-                  {!matches || matchesLoading ? (
-                    <ArticlesSkeleton />
-                  ) : matches?.matches.length === 0 ? (
-                    <p className="text-muted-foreground text-sm text-center pt-2 italic">
-                      {t("search_profile.No_articles")}
-                    </p>
-                  ) : (
-                    matches?.matches.map((match) => {
-                      const relevance = match.relevance;
+              <div className="bg-card rounded-xl border shadow-sm grow overflow-hidden">
+                <div className="h-full">
+                  <ScrollArea className="p-4 h-full">
+                    {!matches || matchesLoading ? (
+                      <ArticlesSkeleton />
+                    ) : matches?.matches.length === 0 ? (
+                      <p className="text-muted-foreground text-sm text-center pt-2 italic">
+                        {t("search_profile.No_articles")}
+                      </p>
+                    ) : (
+                      matches?.matches.map((match) => {
+                        const relevance = match.relevance;
 
-                      const bgColor =
-                        relevance > 7
-                          ? "bg-green-200"
-                          : relevance < 3
-                            ? "bg-red-200"
-                            : "bg-yellow-200";
+                        const bgColor =
+                          relevance > 7
+                            ? "bg-green-200"
+                            : relevance < 3
+                              ? "bg-red-200"
+                              : "bg-yellow-200";
 
-                      return (
-                        <Link to={`./${match.id}`}>
-                          <Card
-                            className="mb-4 p-5 gap-4 justify-start"
-                            key={match.id}
-                          >
-                            <CardTitle className="text-xl">
-                              {getLocalizedContent(match.article.headline)}
-                            </CardTitle>
-                            <p>
-                              {truncateAtWord(
-                                getLocalizedContent(match.article.summary),
-                                190,
-                              )}
-                            </p>
-                            <div className="flex gap-3 items-center">
-                              <div
-                                className={`rounded-lg py-1 px-2 ${bgColor}`}
-                              >
-                                {t("search_profile.Relevance")}{" "}
-                                {getPercentage(relevance)}
-                              </div>
-                              {match.topics.map((topic) => (
+                        return (
+                          <Link to={`./${match.id}`}>
+                            <Card
+                              className="mb-4 p-5 gap-4 justify-start"
+                              key={match.id}
+                            >
+                              <CardTitle className="text-xl">
+                                {getLocalizedContent(match.article.headline)}
+                              </CardTitle>
+                              <p>
+                                {truncateAtWord(
+                                  getLocalizedContent(match.article.summary),
+                                  190,
+                                )}
+                              </p>
+                              <div className="flex gap-3 items-center">
                                 <div
-                                  className="bg-secondary rounded-lg py-1 px-2"
-                                  key={topic.id}
+                                  className={`rounded-lg py-1 px-2 ${bgColor}`}
                                 >
-                                  {getPercentage(topic.score) +
-                                    " " +
-                                    topic.name}
+                                  {t("search_profile.Relevance")}{" "}
+                                  {getPercentage(relevance)}
                                 </div>
-                              ))}
-                            </div>
-                          </Card>
-                        </Link>
-                      );
-                    })
-                  )}
-                </ScrollArea>
+                                {match.topics.map((topic) => (
+                                  <div
+                                    className="bg-secondary rounded-lg py-1 px-2"
+                                    key={topic.id}
+                                  >
+                                    {getPercentage(topic.score) +
+                                      " " +
+                                      topic.name}
+                                  </div>
+                                ))}
+                              </div>
+                            </Card>
+                          </Link>
+                        );
+                      })
+                    )}
+                  </ScrollArea>
+                </div>
               </div>
             </div>
           </div>

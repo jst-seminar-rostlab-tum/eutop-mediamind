@@ -298,7 +298,7 @@
   },
 
   "organisation_settings": {
-    "title": "Organisationseinstellungen",
+    "title": "Organisation Einstellungen",
     "pdf_as_link": "Berichte als Link",
     "pdf_as_link_text": "Entscheiden sie, ob die Berichte innerhalb ihrer Organisation als Link oder als PDF-Anhang gesendet werden sollen.",
     "subscriptions": "Subscriptions",
