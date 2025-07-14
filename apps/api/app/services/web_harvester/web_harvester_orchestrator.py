@@ -12,11 +12,9 @@ from app.models.subscription import Subscription
 from app.repositories.article_repository import ArticleRepository
 from app.repositories.crawl_stats_repository import CrawlStatsRepository
 from app.repositories.subscription_repository import (
-    SubscriptionRepository,
     get_subscriptions_with_crawlers,
     get_subscriptions_with_scrapers,
 )
-from app.services.login_llm_service import LoginLLM
 from app.services.web_harvester.crawler import Crawler, CrawlerType
 from app.services.web_harvester.scraper import Scraper
 from app.services.web_harvester.utils.web_utils import (
@@ -24,8 +22,8 @@ from app.services.web_harvester.utils.web_utils import (
     get_response_code,
     hardcoded_login,
     hardcoded_logout,
-    safe_page_load,
     safe_execute_script,
+    safe_page_load,
 )
 
 
@@ -56,7 +54,7 @@ async def run_crawler(
 
 async def run_scraper():
     subscriptions = await get_subscriptions_with_scrapers()
-    executor = ThreadPoolExecutor(max_workers=2)
+    executor = ThreadPoolExecutor(max_workers=4)
 
     tasks = [
         _scrape_articles_for_subscription(sub, executor)
@@ -126,23 +124,24 @@ def run_selenium_code(
                 f"Login failed for subscription {subscription.name}, "
                 f"updating login config with LLM approach"
             )
-            login_updated_future = asyncio.run_coroutine_threadsafe(
-                LoginLLM.add_page(subscription), loop
-            )
-            subscription_updated = login_updated_future.result()
-            if subscription_updated:
-                scraper.logger.info(
-                    f"Login config updated for {subscription.name}, "
-                    f"retrying login"
-                )
-                login_success = _handle_login_if_needed(
-                    subscription_updated, scraper, driver, wait
-                )
-            else:
-                scraper.logger.error(
-                    f"Could not update login config for subscription "
-                    f"{subscription.name} with LLM approach."
-                )
+            # Disabled because the scheduler should take care of this
+            # login_updated_future = asyncio.run_coroutine_threadsafe(
+            #     LoginLLM.add_page(subscription), loop
+            # )
+            # subscription_updated = login_updated_future.result()
+            # if subscription_updated:
+            #     scraper.logger.info(
+            #         f"Login config updated for {subscription.name}, "
+            #         f"retrying login"
+            #     )
+            #     login_success = _handle_login_if_needed(
+            #         subscription_updated, scraper, driver, wait
+            #     )
+            # else:
+            #     scraper.logger.error(
+            #         f"Could not update login config for subscription "
+            #         f"{subscription.name} with LLM approach."
+            #     )
 
         if subscription.paywall and not login_success:
             scraper.logger.error(
@@ -201,12 +200,13 @@ def _scrape_articles(scraper, driver, new_articles):
                 # Use safe page loading to handle frame detachment
                 if not safe_page_load(driver, article.url):
                     raise ValueError(f"Failed to load page: {article.url}")
-                
+
                 # Wait for page to be fully loaded with safe script execution
                 WebDriverWait(driver, 30).until(
                     lambda d: safe_execute_script(
                         d, "return document.readyState"
-                    ) == "complete"
+                    )
+                    == "complete"
                 )
             except Exception as load_error:
                 error_msg = str(load_error)
@@ -265,28 +265,3 @@ def _scraper_error_handling(articles: list[Article], error: str):
         article.note = error
     return articles
 
-
-from app.core.db import async_session
-
-async def run_test():
-    driver, wait = create_driver(headless=True)
-    login_success = False
-    async with async_session() as session:
-        subscription = await SubscriptionRepository.get_by_id(
-            session, "9ca9147c-d31c-4a24-a47d-4db154d90b1c"
-        )
-    
-    hardcoded_login(
-       driver=driver, wait=wait, subscription=subscription
-    )
-    # for i in range(10):
-    #     print(f"Iteration {i}")
-    #     safe_page_load(driver, "https://www.boersen-zeitung.de/meinung-analyse/zolldreist")
-    #     await asyncio.sleep(3)
-    # await asyncio.sleep(10)
-
-if __name__ == "__main__":
-    # Example usage
-    asyncio.run(
-        run_test()
-        )

@@ -84,21 +84,21 @@ def create_driver(headless: bool = True, use_proxy: bool = False):
     driver = webdriver.Chrome(
         options=chrome_options, seleniumwire_options=seleniumwire_options
     )
-    
+
     # Set window size and timeouts with better error handling
     try:
         driver.set_window_size(1920, 1080)
-        
+
         # Set more conservative timeouts to prevent frame detachment
         driver.set_page_load_timeout(45)  # Increased but not too high
         driver.implicitly_wait(5)  # Keep implicit wait lower
-        
+
         # Set command executor timeout more safely
-        if hasattr(driver.command_executor, '_timeout'):
+        if hasattr(driver.command_executor, "_timeout"):
             driver.command_executor._timeout = 60  # More conservative
-        elif hasattr(driver.command_executor, 'set_timeout'):
+        elif hasattr(driver.command_executor, "set_timeout"):
             driver.command_executor.set_timeout(60)
-        
+
     except Exception as e:
         logger.warning(f"Error setting driver configuration: {e}")
 
@@ -428,7 +428,7 @@ def get_response_code(driver, url):
     return main_page_status
 
 
-def safe_page_load(driver, url, max_retries=3):
+def safe_page_load(driver, url, max_retries=2):
     """
     Safely load a page with frame detachment error handling.
     Retries if frame gets detached during loading.
@@ -436,29 +436,34 @@ def safe_page_load(driver, url, max_retries=3):
     for attempt in range(max_retries):
         try:
             logger.info(f"Loading {url} (attempt {attempt + 1})")
-            
+
             # Clear any existing page state
             try:
                 driver.execute_script("window.stop();")
             except Exception:
                 pass
-            
+
             # Load the page
             driver.get(url)
-            
+
             # Wait a moment for page to stabilize
             time.sleep(1)
-            
+
             # Verify we can access the page
             current_url = driver.current_url
             logger.info(f"Successfully loaded: {current_url}")
             return True
-            
+
         except Exception as e:
             error_msg = str(e).lower()
-            
-            if "target frame detached" in error_msg or "loading status" in error_msg:
-                logger.warning(f"Frame detached during load (attempt {attempt + 1}): {e}")
+
+            if (
+                "target frame detached" in error_msg
+                or "loading status" in error_msg
+            ):
+                logger.warning(
+                    f"Frame detached during load (attempt {attempt + 1}): {e}"
+                )
                 if attempt < max_retries - 1:
                     # Wait before retry and try to reset browser state
                     time.sleep(3)
@@ -468,13 +473,15 @@ def safe_page_load(driver, url, max_retries=3):
                         pass
                     continue
                 else:
-                    logger.error(f"Frame detachment error after {max_retries} attempts")
+                    logger.error(
+                        f"Frame detachment error after {max_retries} attempts"
+                    )
                     raise e
             else:
                 # Other errors - re-raise immediately
                 logger.error(f"Page load error: {e} for {url}")
                 continue
-    
+
     return False
 
 
@@ -486,7 +493,10 @@ def safe_execute_script(driver, script, *args):
         return driver.execute_script(script, *args)
     except Exception as e:
         error_msg = str(e).lower()
-        if "target frame detached" in error_msg or "loading status" in error_msg:
+        if (
+            "target frame detached" in error_msg
+            or "loading status" in error_msg
+        ):
             logger.warning(f"Frame detached during script execution: {e}")
             # Try to wait and retry once
             time.sleep(2)
