@@ -209,6 +209,19 @@ class OrganizationService:
             )
 
     @staticmethod
+    async def get_with_users(
+        organization_id: uuid.UUID, current_user: UserEntity
+    ) -> List[OrganizationResponse]:
+        if current_user.role != "maintainer" and not current_user.is_superuser:
+            raise HTTPException(
+                status_code=403, detail="Insufficient privileges"
+            )
+        async with async_session() as session:
+            return await OrganizationRepository.get_with_users(
+                session, organization_id
+            )
+
+    @staticmethod
     async def get_all_with_users(
         current_user: UserEntity,
     ) -> List[OrganizationResponse]:

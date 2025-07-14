@@ -1,5 +1,5 @@
 # This file contains all paragraph and table styles for the PDF service.
-from reportlab.lib.enums import TA_JUSTIFY
+from reportlab.lib.enums import TA_JUSTIFY, TA_LEFT
 from reportlab.lib.styles import ParagraphStyle
 
 from .colors import pdf_colors
@@ -113,6 +113,68 @@ def get_pdf_styles(fonts_registered: bool):
             fontSize=11,
             leading=14,
             alignment=TA_JUSTIFY,
+            textColor=pdf_colors["darkGrey"],
+        ),
+        # Heading styles for Markdown headings
+        "h1": ParagraphStyle(
+            "Heading1",
+            fontName="DVS-Bold" if fonts_registered else "Helvetica-Bold",
+            fontSize=13,
+            leading=15,
+            spaceBefore=7,
+            spaceAfter=7,
+            textColor=pdf_colors["darkGrey"],
+            alignment=TA_LEFT,
+        ),
+        "h2": ParagraphStyle(
+            "Heading2",
+            fontName="DVS-Bold" if fonts_registered else "Helvetica-Bold",
+            fontSize=12,
+            leading=14,
+            spaceBefore=6,
+            spaceAfter=6,
+            textColor=pdf_colors["darkGrey"],
+            alignment=TA_LEFT,
+        ),
+        "h3": ParagraphStyle(
+            "Heading3",
+            fontName="DVS-Bold" if fonts_registered else "Helvetica-Bold",
+            fontSize=11,
+            leading=13,
+            spaceBefore=5,
+            spaceAfter=5,
+            textColor=pdf_colors["darkGrey"],
+            alignment=TA_LEFT,
+        ),
+        "h4": ParagraphStyle(
+            "Heading4",
+            fontName="DVS-Bold" if fonts_registered else "Helvetica-Bold",
+            fontSize=11,
+            leading=12,
+            spaceBefore=4,
+            spaceAfter=4,
+            textColor=pdf_colors["darkGrey"],
+            alignment=TA_LEFT,
+        ),
+        "h5": ParagraphStyle(
+            "Heading5",
+            fontName="DVS-Bold" if fonts_registered else "Helvetica-Bold",
+            fontSize=11,
+            leading=12,
+            spaceBefore=3,
+            spaceAfter=3,
+            textColor=pdf_colors["darkGrey"],
+            alignment=TA_LEFT,
+        ),
+        "h6": ParagraphStyle(
+            "Heading6",
+            fontName="DVS-Bold" if fonts_registered else "Helvetica-Bold",
+            fontSize=11,
+            leading=12,
+            spaceBefore=2,
+            spaceAfter=2,
+            textColor=pdf_colors["darkGrey"],
+            alignment=TA_LEFT,
         ),
         "reading_time_style": ParagraphStyle(
             "ReadingTime",

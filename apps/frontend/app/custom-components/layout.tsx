@@ -1,14 +1,24 @@
 import type { HTMLAttributes, JSX, PropsWithChildren } from "react";
+import { cn } from "~/lib/utils";
 
 export default function Layout({
   children,
   className,
-}: PropsWithChildren & HTMLAttributes<HTMLDivElement>): JSX.Element {
+  noOverflow = false,
+}: PropsWithChildren &
+  HTMLAttributes<HTMLDivElement> & { noOverflow?: boolean }): JSX.Element {
   return (
     <main
-      className={`${className} mx-auto w-full max-w-8/12 xl:max-w-10/12 2xl:max-w-9/12 pt-8`}
+      className={cn(
+        ` pt-8 grow flex flex-col ${noOverflow ? "overflow-hidden" : "overflow-auto"}`,
+        className,
+      )}
     >
-      {children}
+      <div
+        className={`mx-auto w-full max-w-8/12 xl:max-w-10/12 2xl:max-w-9/12 ${noOverflow ? "overflow-hidden grow flex flex-col" : ""}`}
+      >
+        {children}
+      </div>
     </main>
   );
 }
