@@ -1,3 +1,4 @@
+# flake8: noqa: E501
 import uuid
 from datetime import date, datetime
 from typing import List, Optional, Sequence
@@ -220,7 +221,6 @@ class ArticleRepository:
                 return []
 
             # Get subscription IDs that are linked to the search profile
-            # flake8: noqa: E501
             subscriptions_data = await SubscriptionRepository.get_all_subscriptions_with_search_profile(
                 search_profile_id
             )

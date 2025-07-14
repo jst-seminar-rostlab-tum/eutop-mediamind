@@ -1,3 +1,4 @@
+# flake8: noqa: E501
 # Refactored PDFService to use split modules
 import uuid
 from datetime import datetime
@@ -57,7 +58,6 @@ class PDFService:
                 " 'evening']"
             )
 
-        # flake8: noqa: E501
         articles = await ArticleRepository.get_matched_articles_for_profile_for_create_pdf(
             search_profile_id
         )

@@ -1,3 +1,4 @@
+# flake8: noqa: E501
 from typing import List
 from uuid import UUID
 
@@ -81,7 +82,6 @@ class SubscriptionRepository:
         organization_id: UUID, subscription_id: UUID
     ) -> bool:
         async with async_session() as session:
-            # flake8: noqa: E501
             subscriptions = await SubscriptionRepository.get_all_subscriptions_with_organization(
                 session, organization_id
             )
