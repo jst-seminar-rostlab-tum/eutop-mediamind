@@ -82,8 +82,8 @@ def create_driver(headless: bool = True, use_proxy: bool = False):
     chrome_options.add_argument("--no-default-browser-check")
 
     chrome_options.add_argument("--page-load-strategy=eager")  # or "none"
-    # eager: DOM access is ready, but resources like images may still be loading
-    # none: Does not wait for any page load events
+    # eager: DOM access is ready, but resources like images may still be
+    # loading none: Does not wait for any page load events
 
     temp_dir = tempfile.mkdtemp()
     chrome_options.add_argument(f"--user-data-dir={temp_dir}")
