@@ -93,7 +93,7 @@ export function Welcome() {
         <div className="w-[60%] mx-auto pt-10 pb-4">
           <div className="grid grid-cols-3 place-items-center mt-16 mb-6">
             <img src="/EUTOP_Logo.png" alt="EUTOP_Logo" width={"200px"} />
-            <img src="/TUM_Logo.svg" alt="TUM_Logo" />
+            <img src="/TUM_Logo.png" alt="TUM_Logo" />
             <img src="/csee-logo.webp" alt="CSEE Logo" className="h-20" />
           </div>
           <div>
