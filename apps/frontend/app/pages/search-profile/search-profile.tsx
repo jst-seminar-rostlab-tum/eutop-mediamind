@@ -29,6 +29,7 @@ import {
 import { useTranslation } from "react-i18next";
 import { Button } from "~/components/ui/button";
 import type { MatchesResponse } from "types/model";
+import { toast } from "sonner";
 
 const suppressSWRReloading = {
   refreshInterval: 0,
@@ -63,6 +64,7 @@ export function SearchProfileOverview() {
   const [matches, setMatches] = useState<MatchesResponse | undefined>(
     undefined,
   );
+  const [matchesLoading, setMatchesLoading] = useState<boolean>(false);
 
   useEffect(() => {
     if (!id) {
@@ -107,6 +109,7 @@ export function SearchProfileOverview() {
 
   useEffect(() => {
     if (!profileReady) return;
+    setMatchesLoading(true);
 
     const requestBody = {
       startDate: fromDate
@@ -130,7 +133,9 @@ export function SearchProfileOverview() {
       .then(({ data, error }) => {
         if (data) {
           setMatches(data);
+          setMatchesLoading(false);
         } else if (error) {
+          toast.error("Error fetching matches");
           console.error("Error fetching matches:", error);
         }
       });
@@ -238,7 +243,7 @@ export function SearchProfileOverview() {
               </div>
               <div className="bg-card rounded-xl border shadow-sm h-[calc(100vh-350px)]">
                 <ScrollArea className="p-4">
-                  {!matches ? (
+                  {!matches || matchesLoading ? (
                     <ArticlesSkeleton />
                   ) : matches?.matches.length === 0 ? (
                     <p className="text-muted-foreground text-sm text-center pt-2 italic">
