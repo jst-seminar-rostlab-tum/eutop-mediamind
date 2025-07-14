@@ -59,12 +59,12 @@ def create_driver(headless: bool = True, use_proxy: bool = False):
     chrome_options.add_argument("--disable-gpu")
     chrome_options.add_argument("--disable-extensions")
     chrome_options.add_argument("--disable-plugins")
-    chrome_options.add_argument("--disable-images") 
+    chrome_options.add_argument("--disable-images")
     chrome_options.add_argument("--disable-css")
     chrome_options.add_argument("--aggressive-cache-discard")
     chrome_options.add_argument("--memory-pressure-off")
     chrome_options.add_argument("--max_old_space_size=4096")
-    
+
     # Disable unnecessary features
     chrome_options.add_argument("--disable-background-networking")
     chrome_options.add_argument("--disable-background-timer-throttling")
@@ -80,7 +80,7 @@ def create_driver(headless: bool = True, use_proxy: bool = False):
     chrome_options.add_argument("--disable-web-security")
     chrome_options.add_argument("--no-first-run")
     chrome_options.add_argument("--no-default-browser-check")
-    
+
     chrome_options.add_argument("--page-load-strategy=eager")  # or "none"
     # eager: DOM access is ready, but resources like images may still be loading
     # none: Does not wait for any page load events
