@@ -15,7 +15,6 @@ services:
     build:
       context: ../apps/api
       dockerfile: Dockerfile
-    shm_size: "2g"
     restart: always
     depends_on:
       - postgres
@@ -32,7 +31,7 @@ services:
         max-file: "10"
 
   scheduler:
-    container_name: scheduler 
+    container_name: scheduler
     build:
       context: ../apps/scheduler
       dockerfile: Dockerfile
