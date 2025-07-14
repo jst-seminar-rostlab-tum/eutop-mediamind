@@ -209,7 +209,9 @@
     "delete_error": "Fehler beim Löschen des Suchprofils",
     "delete_success": "Suchprofil erfolgreich gelöscht",
     "reports": "Berichte",
-    "Explore": "Erkunden"
+    "Explore": "Erkunden",
+    "New_Articles": "Neue Artikel",
+    "articles_error": "Artikel konnten nicht abgerufen werden"
   },
 
   "article-page": {
