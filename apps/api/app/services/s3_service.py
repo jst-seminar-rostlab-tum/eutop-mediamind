@@ -37,17 +37,24 @@ class S3Service:
         """
         Downloads an object from S3 and returns its bytes.
         """
-        loop = asyncio.get_event_loop()
-        buffer = io.BytesIO()
-        await loop.run_in_executor(
-            None,
-            self.client.download_fileobj,
-            self.bucket_name,
-            key,
-            buffer,
-        )
-        buffer.seek(0)
-        return buffer.read()
+        try:
+            loop = asyncio.get_event_loop()
+            buffer = io.BytesIO()
+            await loop.run_in_executor(
+                None,
+                self.client.download_fileobj,
+                self.bucket_name,
+                key,
+                buffer,
+            )
+            buffer.seek(0)
+            return buffer.read()
+        except ClientError as e:
+            error_message = (
+                f"Failed to download file with key={key} from S3: {e}"
+            )
+            logger.error(error_message)
+            raise Exception(error_message)
 
     def generate_presigned_url(self, key: str, expires_in: int = 3600) -> str:
         """
