@@ -12,17 +12,17 @@ type Params = {
   "/crawler-stats": {};
   "/dashboard": {};
   "/search-profile/:searchProfileId/:matchId": {
-    "searchProfileId": string;
-    "matchId": string;
+    searchProfileId: string;
+    matchId: string;
   };
   "/error/:code": {
-    "code": string;
+    code: string;
   };
   "/search-profile/:id": {
-    "id": string;
+    id: string;
   };
   "/dashboard/breaking": {};
   "/search-profile/:searchProfileId/reports": {
-    "searchProfileId": string;
+    searchProfileId: string;
   };
 };
