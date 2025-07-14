@@ -201,6 +201,10 @@ def _scrape_articles(scraper, driver, new_articles):
                 )
 
             # Scrape the article content
+            driver.execute_script(
+                "window.scrollTo(0, document.body.scrollHeight);"
+            )
+            time.sleep(2)
             html = driver.page_source
             scraped_article = scraper.extract(html=html, article=article)
             scraped_articles.append(scraped_article)
