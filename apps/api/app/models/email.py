@@ -4,7 +4,7 @@ from enum import Enum
 from typing import TYPE_CHECKING, Dict, Optional
 
 from sqlalchemy import TIMESTAMP
-from sqlmodel import JSON, Column, Field, SQLModel, Relationship
+from sqlmodel import JSON, Column, Field, Relationship, SQLModel
 
 if TYPE_CHECKING:
     from .report import Report

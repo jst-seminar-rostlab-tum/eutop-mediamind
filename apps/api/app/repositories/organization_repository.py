@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.core.db import async_session
-from app.models import Organization, Subscription, SearchProfile
+from app.models import Organization, SearchProfile, Subscription
 from app.models.associations import OrganizationSubscriptionLink
 from app.repositories.subscription_repository import SubscriptionRepository
 from app.schemas.organization_schemas import OrganizationResponse

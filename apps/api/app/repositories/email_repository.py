@@ -2,8 +2,8 @@ from typing import List
 from uuid import UUID
 
 from sqlalchemy import select, update
-from sqlalchemy.orm import selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from app.core.db import async_session
 from app.models import SearchProfile

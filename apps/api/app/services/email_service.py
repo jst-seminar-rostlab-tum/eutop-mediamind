@@ -1,7 +1,7 @@
 # flake8: noqa: E501
 import os
-import uuid
 import smtplib
+import uuid
 from datetime import datetime, timezone
 from email.mime.application import MIMEApplication
 from email.mime.multipart import MIMEMultipart
@@ -20,9 +20,9 @@ from app.models.email import Email, EmailState
 from app.models.user import Gender
 from app.repositories.email_repository import EmailRepository
 from app.repositories.organization_repository import OrganizationRepository
+from app.services.s3_service import S3Service, get_s3_service
 from app.services.translation_service import ArticleTranslationService
 from app.services.user_service import UserService
-from app.services.s3_service import S3Service, get_s3_service
 
 logger = get_logger(__name__)
 
@@ -76,7 +76,7 @@ class EmailService:
             subject=schedule.subject,
             content_type=schedule.content_type,
             content=schedule.content,
-            report_id=schedule.report_id
+            report_id=schedule.report_id,
         )
         return await EmailRepository.add_email(email)
 
@@ -95,7 +95,9 @@ class EmailService:
                 )
                 pdf_bytes = None
                 if not pdf_as_link and email.report.s3_key:
-                    pdf_bytes = await s3_service.download_fileobj(email.report.s3_key)
+                    pdf_bytes = await s3_service.download_fileobj(
+                        email.report.s3_key
+                    )
                 EmailService.send_email(email, pdf_bytes)
                 email.state = EmailState.SENT
                 await EmailRepository.update_email(email)

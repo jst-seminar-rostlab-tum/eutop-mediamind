@@ -1,15 +1,15 @@
 import uuid
 from datetime import datetime, timezone
 from enum import Enum
-from typing import TYPE_CHECKING, Optional, List
+from typing import TYPE_CHECKING, List, Optional
 
 from sqlalchemy import TIMESTAMP, Column
 from sqlmodel import Field, Relationship, SQLModel
 
 if TYPE_CHECKING:
+    from .email import Email
     from .matching_run import MatchingRun
     from .search_profile import SearchProfile
-    from .email import Email
 
 
 class ReportStatus(Enum):
