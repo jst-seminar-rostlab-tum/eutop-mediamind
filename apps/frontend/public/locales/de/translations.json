@@ -209,7 +209,9 @@
     "delete_error": "Fehler beim Löschen des Suchprofils",
     "delete_success": "Suchprofil erfolgreich gelöscht",
     "reports": "Berichte",
-    "Explore": "Erkunden"
+    "Explore": "Erkunden",
+    "New_Articles": "Neue Artikel",
+    "articles_error": "Artikel konnten nicht abgerufen werden"
   },
 
   "article-page": {
@@ -296,7 +298,7 @@
   },
 
   "organisation_settings": {
-    "title": "Organisationseinstellungen",
+    "title": "Organisation Einstellungen",
     "pdf_as_link": "Berichte als Link",
     "pdf_as_link_text": "Entscheiden sie, ob die Berichte innerhalb ihrer Organisation als Link oder als PDF-Anhang gesendet werden sollen.",
     "subscriptions": "Subscriptions",
