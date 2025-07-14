@@ -14,14 +14,15 @@
   "select_date": "Select Date",
   "yes": "Yes",
   "no": "No",
-  "save": "Save",
 
   "breadcrumb_home": "Home",
 
   "landing_page": {
-    "welcome": "Welcome to MediaMind",
-    "welcome_text": "Stay ahead in the fast-changing world of media with our Automated Press Analysis Tool. Keep your client teams informed and prepared with daily press reviews, personalized to your needs. Our platform extracts and compiles the most relevant news articles into concise, anonymized reports – delivered directly to your inbox each morning. Save time, stay informed, and focus on what matters most – delivering value to your clients.",
-    "credits": "MediaMind was build in cooperation between EUTOP, the Technical University of Munich and CSEE during the Javascript Technology Practicum."
+    "header_slogan": "Stay ahead in the fast-changing world of digital media",
+    "header_description": "Your automated press analysis tool",
+    "credits": "MediaMind was build in cooperation between EUTOP, the Technical University of Munich and CSEE during the Javascript Technology Practicum.",
+    "search_profile_header": "Manage your Search Profiles",
+    "search_profile_text": "Clean interface to manage all profiles in one Dashboard"
   },
 
   "dashboard": {
@@ -262,15 +263,5 @@
     "breaking_news_update_error": "Error updating the breaking news preference",
     "breaking_news": "Receive Breaking News notifications via email",
     "breaking_news_title": "Breaking News Notifications"
-  },
-
-  "organisation_settings": {
-    "title": "Organization Settings",
-    "pdf_as_link": "Reports as Link",
-    "pdf_as_link_text": "Decide whether reports within your organization should be sent as a link or as a PDF attachment.",
-    "subscriptions": "Subscriptions",
-    "subscriptions_text": "Manage the subscriptions that can be used for search profiles in your organization.",
-    "success": "Organization settings updated successfully.",
-    "error": "Error updating organization settings."
   }
 }
