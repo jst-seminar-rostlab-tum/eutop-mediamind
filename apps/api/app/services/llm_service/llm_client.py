@@ -1,7 +1,8 @@
 import asyncio
 import json
+from io import BytesIO
 from pathlib import Path
-from typing import List, Optional, Type, TypeVar
+from typing import List, Type, TypeVar
 
 from litellm import (
     acreate_batch,
@@ -9,6 +10,7 @@ from litellm import (
     afile_content,
     aretrieve_batch,
     completion,
+    create_file,
 )
 
 from app.core.config import configs
@@ -43,9 +45,10 @@ class LLMClient:
         prompt: str,
         temperature: float = 0.1,
         image_url: str | None = None,
+        file: BytesIO | None = None,
     ) -> str:
         return self.__prompt(
-            prompt, temperature=temperature, image_url=image_url
+            prompt, temperature=temperature, image_url=image_url, file=file
         )
 
     T = TypeVar("T")
@@ -72,6 +75,7 @@ class LLMClient:
         resp_format=None,
         temperature: float = 0.1,
         image_url: str | None = None,
+        file: BytesIO | None = None,
     ):
         messages = []
         if image_url is not None:
@@ -84,6 +88,25 @@ class LLMClient:
                     ],
                 }
             )
+        elif file is not None:
+            uploaded_file = create_file(
+                file=file,
+                purpose="user_data",
+                custom_llm_provider="openai",
+                api_key=self.api_key,
+            )
+            messages = [
+                {
+                    "role": "user",
+                    "content": [
+                        {"type": "text", "text": prompt},
+                        {
+                            "type": "file",
+                            "file": {"file_id": uploaded_file.id},
+                        },
+                    ],
+                }
+            ]
         else:
             messages.append({"role": "user", "content": prompt})
 
@@ -147,8 +170,8 @@ class LLMClient:
         prompts: List[str],
         model: str,
         temperature: float = 0.1,
-        output_filename: Optional[str] = "batch.jsonl",
-    ) -> Path:
+        output_filename: str = "batch.jsonl",
+    ) -> Path | None:
         """
         Generates a batch of request payloads in JSONL format and writes them
         to a file for use with OpenAI's batch API.
