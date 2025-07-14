@@ -22,7 +22,7 @@ export function Welcome() {
 
   const lines = [
     {
-      text: "Stay ahead in the fast-changing world of digital media",
+      text: t("landing_page.header_slogan"),
       className: "text-4xl md:text-5xl font-medium leading-tight mb-2",
       delay: 0,
     },
@@ -32,7 +32,7 @@ export function Welcome() {
       delay: 0.3,
     },
     {
-      text: "Your automated press analysis tool",
+      text: t("landing_page.header_description"),
       className: "text-3xl md:text-4xl font-medium",
       delay: 0.6,
     },
@@ -71,7 +71,7 @@ export function Welcome() {
       <div className="pt-10 bg-[linear-gradient(to_bottom,_#3a4a5a_0%,_#dcdcdc_20%,_#f8f9fa_30%,_#f8f9fa_70%,_#dcdcdc_80%,_#556270_100%)]">
         {/* Features Section */}
         <div className="flex flex-col justify-center">
-          <div className="w-[80%] p-20 mx-auto flex items-center gap-30 justify-center">
+          <div className="w-[80%] p-20 mx-auto flex flex-wrap items-center gap-10 justify-center">
             <div className="w-170">
               <p className="text-4xl md:text-5xl font-semibold leading-tight mb-2">
                 Manage your Search Profiles
@@ -82,7 +82,7 @@ export function Welcome() {
             </div>
             <Card
               key="dashboard-prev"
-              className="transform scale-100 w-170 h-195 border-8 pt-0"
+              className="transform scale-100 max-w-[750px] h-195 border-8 p-0 px-2"
             >
               <MockedDashboardPage />
             </Card>

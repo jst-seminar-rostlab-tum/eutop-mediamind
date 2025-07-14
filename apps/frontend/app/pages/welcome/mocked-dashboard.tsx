@@ -222,11 +222,11 @@ export function MockedDashboardPage() {
       {filteredAndSortedProfiles?.length === 0 ? (
         <div className="flex items-center justify-center py-8">
           <span className="text-gray-400">
-            No matched profiles for current filters
+            {t("dashboard.no_matched_profiles")}
           </span>
         </div>
       ) : (
-        <div className="mt-6 mb-4 flex mx-8 flex-wrap gap-8">
+        <div className="mt-6 mb-4 flex flex-wrap gap-8 mx-4">
           {filteredAndSortedProfiles?.map((profile) => (
             <MockedProfileCard profile={profile} profile_id={me.id} />
           ))}
