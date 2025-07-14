@@ -207,27 +207,24 @@ export function SearchProfileOverview() {
 
           <div className="overflow-hidden grow flex flex-row justify-start mt-2 mb-4 gap-8">
             <div className="max-w-[400px] h-full">
-              <ScrollArea className="h-full">
-                <SidebarFilter
-                  sortBy={sortBy}
-                  setSortBy={setSortBy}
-                  selectedSources={selectedSources}
-                  setSelectedSources={setSelectedSources}
-                  searchSources={searchSources}
-                  setSearchSources={setSearchSources}
-                  Sources={Sources}
-                  selectedTopics={selectedTopics}
-                  setSelectedTopics={setSelectedTopics}
-                  searchTopics={searchTopics}
-                  setSearchTopics={setSearchTopics}
-                  Topics={Topics}
-                  fromDate={fromDate}
-                  setFromDate={setFromDate}
-                  toDate={toDate}
-                  setToDate={setToDate}
-                />
-                <ScrollBar orientation="vertical" />
-              </ScrollArea>
+              <SidebarFilter
+                sortBy={sortBy}
+                setSortBy={setSortBy}
+                selectedSources={selectedSources}
+                setSelectedSources={setSelectedSources}
+                searchSources={searchSources}
+                setSearchSources={setSearchSources}
+                Sources={Sources}
+                selectedTopics={selectedTopics}
+                setSelectedTopics={setSelectedTopics}
+                searchTopics={searchTopics}
+                setSearchTopics={setSearchTopics}
+                Topics={Topics}
+                fromDate={fromDate}
+                setFromDate={setFromDate}
+                toDate={toDate}
+                setToDate={setToDate}
+              />
             </div>
             <div className="min-w-[500px] grow flex flex-col overflow-hidden">
               <div className="relative mb-4 w-full flex">

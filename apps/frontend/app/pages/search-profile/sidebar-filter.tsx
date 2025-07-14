@@ -9,7 +9,7 @@ import {
 import { Card, CardTitle } from "~/components/ui/card";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
-import { ScrollArea } from "~/components/ui/scroll-area";
+import { ScrollArea, ScrollBar } from "~/components/ui/scroll-area";
 import {
   Select,
   SelectContent,
@@ -80,102 +80,105 @@ export function SidebarFilter({
   );
 
   return (
-    <Card className="p-5 gap-4 w-full">
-      <CardTitle className="mt-2 flex items-center gap-2">
-        <ArrowDownNarrowWide /> {t("search_profile.Sorting")}
-      </CardTitle>
-      <Select
-        value={sortBy}
-        onValueChange={(value) => setSortBy(value as "relevance" | "date")}
-      >
-        <SelectTrigger className="w-full">
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="relevance">
-            <Award /> {t("search_profile.Relevance")}
-          </SelectItem>
-          <SelectItem value="date">
-            <CalendarFold /> {t("search_profile.Date")}
-          </SelectItem>
-        </SelectContent>
-      </Select>
+    <Card className="p-5 gap-4 w-full h-full">
+      <ScrollArea className="h-full">
+        <CardTitle className="mt-2 flex items-center gap-2">
+          <ArrowDownNarrowWide /> {t("search_profile.Sorting")}
+        </CardTitle>
+        <Select
+          value={sortBy}
+          onValueChange={(value) => setSortBy(value as "relevance" | "date")}
+        >
+          <SelectTrigger className="w-full">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="relevance">
+              <Award /> {t("search_profile.Relevance")}
+            </SelectItem>
+            <SelectItem value="date">
+              <CalendarFold /> {t("search_profile.Date")}
+            </SelectItem>
+          </SelectContent>
+        </Select>
 
-      <CardTitle className="mt-4 flex items-center gap-2">
-        <File /> {t("search_profile.Sources")}
-      </CardTitle>
-      <div className="relative w-full flex">
-        <Input
-          placeholder={t("Search") + " " + t("search_profile.Sources")}
-          value={searchSources}
-          onChange={(e) => setSearchSources(e.target.value)}
+        <CardTitle className="mt-4 flex items-center gap-2">
+          <File /> {t("search_profile.Sources")}
+        </CardTitle>
+        <div className="relative w-full flex">
+          <Input
+            placeholder={t("Search") + " " + t("search_profile.Sources")}
+            value={searchSources}
+            onChange={(e) => setSearchSources(e.target.value)}
+          />
+          <Search
+            size={20}
+            className="absolute right-3 top-2 text-muted-foreground"
+          />
+        </div>
+        <ScrollArea className="h-50 rounded-md border p-2">
+          {filteredSources.map((source) => (
+            <div key={source.id} className="flex items-center gap-2 p-2">
+              <Checkbox
+                id={source.id}
+                checked={selectedSources.includes(source.id)}
+                onCheckedChange={(checked) => {
+                  setSelectedSources((prev) =>
+                    checked
+                      ? [...prev, source.id]
+                      : prev.filter((s) => s !== source.id),
+                  );
+                }}
+              />
+              <Label htmlFor={source.id}>{source.name}</Label>
+            </div>
+          ))}
+        </ScrollArea>
+
+        <CardTitle className="mt-4 flex items-center gap-2">
+          <Tag /> {t("search_profile.Topics")}
+        </CardTitle>
+        <div className="relative w-full flex">
+          <Input
+            placeholder={t("Search") + " " + t("search_profile.Topics")}
+            value={searchTopics}
+            onChange={(e) => setSearchTopics(e.target.value)}
+          />
+          <Search
+            size={20}
+            className="absolute right-3 top-2 text-muted-foreground"
+          />
+        </div>
+        <ScrollArea className="h-50 rounded-md border p-2">
+          {filteredTopics.map((topic) => (
+            <div key={topic.id} className="flex items-center gap-2 p-2">
+              <Checkbox
+                id={topic.id}
+                checked={selectedTopics.includes(topic.id)}
+                onCheckedChange={(checked) => {
+                  setSelectedTopics((prev) =>
+                    checked
+                      ? [...prev, topic.id]
+                      : prev.filter((t) => t !== topic.id),
+                  );
+                }}
+              />
+              <Label htmlFor={topic.id}>{topic.name}</Label>
+            </div>
+          ))}
+        </ScrollArea>
+
+        <CardTitle className="mt-4 flex items-center gap-2">
+          <CalendarFold /> {t("search_profile.Date")}
+        </CardTitle>
+        <DatePicker
+          startDate={fromDate}
+          endDate={toDate}
+          setStartDate={(date) => setFromDate(date)}
+          setEndDate={(date) => setToDate(date)}
         />
-        <Search
-          size={20}
-          className="absolute right-3 top-2 text-muted-foreground"
-        />
-      </div>
-      <ScrollArea className="h-50 rounded-md border p-2">
-        {filteredSources.map((source) => (
-          <div key={source.id} className="flex items-center gap-2 p-2">
-            <Checkbox
-              id={source.id}
-              checked={selectedSources.includes(source.id)}
-              onCheckedChange={(checked) => {
-                setSelectedSources((prev) =>
-                  checked
-                    ? [...prev, source.id]
-                    : prev.filter((s) => s !== source.id),
-                );
-              }}
-            />
-            <Label htmlFor={source.id}>{source.name}</Label>
-          </div>
-        ))}
+        <ScrollBar orientation="horizontal" className="mt-2" />
       </ScrollArea>
-
-      <CardTitle className="mt-4 flex items-center gap-2">
-        <Tag /> {t("search_profile.Topics")}
-      </CardTitle>
-      <div className="relative w-full flex">
-        <Input
-          placeholder={t("Search") + " " + t("search_profile.Topics")}
-          value={searchTopics}
-          onChange={(e) => setSearchTopics(e.target.value)}
-        />
-        <Search
-          size={20}
-          className="absolute right-3 top-2 text-muted-foreground"
-        />
-      </div>
-      <ScrollArea className="h-50 rounded-md border p-2">
-        {filteredTopics.map((topic) => (
-          <div key={topic.id} className="flex items-center gap-2 p-2">
-            <Checkbox
-              id={topic.id}
-              checked={selectedTopics.includes(topic.id)}
-              onCheckedChange={(checked) => {
-                setSelectedTopics((prev) =>
-                  checked
-                    ? [...prev, topic.id]
-                    : prev.filter((t) => t !== topic.id),
-                );
-              }}
-            />
-            <Label htmlFor={topic.id}>{topic.name}</Label>
-          </div>
-        ))}
-      </ScrollArea>
-
-      <CardTitle className="mt-4 flex items-center gap-2">
-        <CalendarFold /> {t("search_profile.Date")}
-      </CardTitle>
-      <DatePicker
-        startDate={fromDate}
-        endDate={toDate}
-        setStartDate={(date) => setFromDate(date)}
-        setEndDate={(date) => setToDate(date)}
-      />
     </Card>
   );
 }
