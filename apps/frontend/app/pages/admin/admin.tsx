@@ -110,8 +110,8 @@ export function AdminPage() {
     try {
       const requestData = {
         name: orga.name,
-        email: "test@mail.com",
         pdf_as_link: true,
+        email: null,
         users: orga.users
           .filter((user) => user.id !== undefined) // remove users without id (possibly never the case)
           .map((user) => ({
@@ -119,7 +119,6 @@ export function AdminPage() {
             role: user.role,
           })),
       };
-      console.log(requestData);
       if (!isEditOrgaMode) {
         const result = await client.POST("/api/v1/organizations", {
           body: requestData,

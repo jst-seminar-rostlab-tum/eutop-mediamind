@@ -11,7 +11,7 @@ from app.schemas.subscription_schemas import SubscriptionSummary
 # Shared properties
 class OrganizationBase(BaseModel):
     name: str
-    email: EmailStr or None
+    email: EmailStr | None
     pdf_as_link: bool
 
 
