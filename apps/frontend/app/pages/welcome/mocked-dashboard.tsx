@@ -227,8 +227,8 @@ export function MockedDashboardPage() {
         </div>
       ) : (
         <div className="mt-6 mb-4 flex flex-wrap gap-8 mx-4">
-          {filteredAndSortedProfiles?.map((profile) => (
-            <MockedProfileCard profile={profile} profile_id={me.id} />
+          {filteredAndSortedProfiles?.map((profile, idx) => (
+            <MockedProfileCard key={idx} profile={profile} profile_id={me.id} />
           ))}
         </div>
       )}

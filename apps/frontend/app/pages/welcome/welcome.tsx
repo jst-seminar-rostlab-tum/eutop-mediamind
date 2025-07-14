@@ -39,9 +39,9 @@ export function Welcome() {
   ];
 
   return (
-    <>
+    <div>
       <div
-        className="relative h-[50vh] w-full bg-cover bg-center overflow-hidden"
+        className="relative h-[50vh] w-full bg-cover bg-center"
         style={{
           backgroundImage: "url('/press_wallpaper.jpg')",
         }}
@@ -92,8 +92,8 @@ export function Welcome() {
         {/* Footer Section */}
         <div className="w-[60%] mx-auto pt-10 pb-4">
           <div className="grid grid-cols-3 place-items-center mt-16 mb-6">
-            <img src="/EUTOP_Logo.png" alt="EUTOP_Logo" width={"200px"} />
-            <img src="/TUM_Logo.png" alt="TUM_Logo" />
+            <img src="/EUTOP_Logo.png" alt="EUTOP_Logo" width={"210px"} />
+            <img src="/TUM_Logo.png" alt="TUM_Logo" width={"210px"} />
             <img src="/csee-logo.webp" alt="CSEE Logo" className="h-20" />
           </div>
           <div>
@@ -112,6 +112,6 @@ export function Welcome() {
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 }
