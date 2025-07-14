@@ -1,11 +1,12 @@
 import re
 from typing import Dict
 
-from fastapi import APIRouter, Header, HTTPException
+from fastapi import APIRouter, Depends, Header, HTTPException
 
 from app.core.config import configs
 from app.schemas.chatbot_schemas import ChatRequest
 from app.services.chatbot_service import ChatbotService
+from app.services.s3_service import S3Service, get_s3_service
 from app.services.user_service import UserService
 
 router = APIRouter(
@@ -38,6 +39,7 @@ def extract_email_address(sender: str) -> str:
 async def receive_chat(
     chat: ChatRequest,
     x_api_key: str = Header(None, alias="x-api-key"),
+    s3_service: S3Service = Depends(get_s3_service),
 ):
     if x_api_key != configs.CHAT_API_KEY:
         raise HTTPException(
@@ -56,7 +58,9 @@ async def receive_chat(
         )
 
     try:
-        await ChatbotService.generate_and_send_email_response(user, chat)
+        await ChatbotService.generate_and_send_email_response(
+            user, chat, s3_service
+        )
         return {"status": "ok"}
     except Exception as e:
         raise HTTPException(
