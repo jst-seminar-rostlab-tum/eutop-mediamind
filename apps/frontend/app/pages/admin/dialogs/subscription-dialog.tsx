@@ -343,7 +343,7 @@ export function SubscriptionDialog({
               )}
 
               <DialogFooter>
-                <Button className="mt-2" variant={"secondary"} type="submit">
+                <Button className="mt-2" type="submit">
                   {t("save_changes")}
                 </Button>
               </DialogFooter>
