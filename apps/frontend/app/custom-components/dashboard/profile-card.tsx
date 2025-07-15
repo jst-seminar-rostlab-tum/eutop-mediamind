@@ -1,10 +1,8 @@
 import {
   Trash2,
   SquarePen,
-  OctagonAlert,
   MoreVertical,
   ChevronRight,
-  Loader2,
   FileText,
 } from "lucide-react";
 import type { KeyedMutator } from "swr";
@@ -19,16 +17,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "~/components/ui/alert-dialog";
 import { useTranslation } from "react-i18next";
 import { RoleBadge } from "~/custom-components/dashboard/role-badge";
 import {
@@ -40,6 +28,7 @@ import {
 import { Link } from "react-router";
 import { client } from "types/api";
 import { toast } from "sonner";
+import { ConfirmationDialog } from "../confirmation-dialog";
 
 interface ProfileCardProps {
   profile: Profile;
@@ -52,7 +41,6 @@ export function ProfileCard({
   mutateDashboard,
   profile_id,
 }: ProfileCardProps) {
-  const [isDeleting, setIsDeleting] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [isTruncated, setIsTruncated] = useState(false);
@@ -107,7 +95,6 @@ export function ProfileCard({
 
   const deleteProfile = async () => {
     try {
-      setIsDeleting(true);
       await client.DELETE("/api/v1/search-profiles/{search_profile_id}", {
         params: { path: { search_profile_id: profile.id } },
       });
@@ -118,7 +105,6 @@ export function ProfileCard({
     } catch (error) {
       toast.error(t("search_profile.delete_error"));
     } finally {
-      setIsDeleting(false);
       setShowDeleteDialog(false);
       toast.success(t("search_profile.delete_success"));
     }
@@ -225,33 +211,12 @@ export function ProfileCard({
         </div>
       </div>
 
-      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle className="flex items-center">
-              <OctagonAlert size={20} className="text-destructive mr-2" />
-              {t("confirmation_dialog.title")}
-            </AlertDialogTitle>
-            <AlertDialogDescription>
-              {t("confirmation_dialog.delete_text")}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>{t("Back")}</AlertDialogCancel>
-            <AlertDialogAction
-              className="bg-destructive text-white shadow-xs hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60"
-              onClick={() => deleteProfile()}
-            >
-              {isDeleting ? (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              ) : (
-                <Trash2 />
-              )}
-              {t("Delete")}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <ConfirmationDialog
+        open={showDeleteDialog}
+        onOpenChange={setShowDeleteDialog}
+        dialogType="delete"
+        action={() => deleteProfile()}
+      />
     </TooltipProvider>
   );
 }
