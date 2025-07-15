@@ -4,7 +4,6 @@ variable "container_image" { type = string }
 variable "redis_endpoint" { type = string }
 variable "subnet_ids" { type = list(string) }
 variable "vpc_id" { type = string }
-variable "secrets_arn" { type = string }
 variable "s3_backend_bucket" { type = string }
 variable "region" { type = string }
 variable "log_group_name" {
@@ -82,12 +81,6 @@ resource "aws_ecs_task_definition" "app" {
         { name = "EMAIL_JOB_INTERVAL", value = "30" },
         { name = "PIPELINE_JOB_INTERVAL", value = "1440" },
         { name = "REDIS_URL", value = var.redis_endpoint },
-      ]
-      secrets = [
-        {
-          name      = "APP_CONFIG_JSON"
-          valueFrom = var.secrets_arn
-        }
       ]
       logConfiguration = {
         logDriver = "awslogs"
