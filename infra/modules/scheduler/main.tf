@@ -4,13 +4,11 @@ variable "container_image" { type = string }
 variable "redis_endpoint" { type = string }
 variable "subnet_ids" { type = list(string) }
 variable "vpc_id" { type = string }
-variable "s3_backend_bucket" { type = string }
 variable "region" { type = string }
 variable "log_group_name" {
   type    = string
   default = null
 }
-variable "redis_url" { type = string }
 
 locals {
   effective_log_group_name = var.log_group_name != null ? var.log_group_name : "/ecs/${var.service_name}"
@@ -43,24 +41,6 @@ data "aws_iam_policy_document" "ecs_task_assume_role_policy" {
 resource "aws_iam_role_policy_attachment" "ecs_task_execution_role_policy" {
   role       = aws_iam_role.ecs_task_execution_role.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
-}
-
-resource "aws_iam_role_policy" "ecs_secrets" {
-  name = "${var.service_name}-secrets"
-  role = aws_iam_role.ecs_task_execution_role.id
-
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Effect = "Allow"
-        Action = [
-          "secretsmanager:GetSecretValue"
-        ]
-        Resource = var.secrets_arn
-      }
-    ]
-  })
 }
 
 resource "aws_ecs_task_definition" "app" {
