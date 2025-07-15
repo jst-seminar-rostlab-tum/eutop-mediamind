@@ -19,11 +19,20 @@ import type { Stat } from "types/model";
 import { DataTable } from "~/custom-components/admin-settings/data-table";
 import { format } from "date-fns";
 import { Card } from "~/components/ui/card";
+import { CalendarFold, ChartPie } from "lucide-react";
+import { Badge } from "~/components/ui/badge";
 
 export const CrawlerStatsPage = () => {
   const { t } = useTranslation();
   const [startDate, setStartDate] = useState<Date | undefined>(new Date());
   const [endDate, setEndDate] = useState<Date | undefined>(new Date());
+
+  const [successRatio, setSuccessRatio] = useState(0);
+  const [failureRatio, setFailureRatio] = useState(0);
+  const [totalAttempted, setTotalAttempted] = useState(0);
+  const [totalSuccessful, setTotalSuccessful] = useState(0);
+  const [zeroSuccessful, setZeroSuccessful] = useState(0);
+  const [zeroSuccessRatio, setZeroSuccessRatio] = useState(0);
 
   const { data, error } = useQuery("/api/v1/crawler/stats", {
     params: {
@@ -87,6 +96,33 @@ export const CrawlerStatsPage = () => {
     [t],
   );
 
+  useEffect(() => {
+    if (data?.stats?.length) {
+      const attempted = data.stats.reduce(
+        (sum, stat) => sum + stat.total_attempted,
+        0,
+      );
+      const successful = data.stats.reduce(
+        (sum, stat) => sum + stat.total_successful,
+        0,
+      );
+      const zeroSuccessCount =
+        data?.stats?.filter((stat) => stat.total_successful === 0).length ?? 0;
+
+      const success = attempted > 0 ? successful / attempted : 0;
+      const failure = attempted > 0 ? (attempted - successful) / attempted : 0;
+      const zeroSuccessfulRatio =
+        attempted > 0 ? zeroSuccessCount / data.stats.length : 0;
+
+      setTotalAttempted(attempted);
+      setTotalSuccessful(successful);
+      setSuccessRatio(success);
+      setFailureRatio(failure);
+      setZeroSuccessful(zeroSuccessCount);
+      setZeroSuccessRatio(zeroSuccessfulRatio);
+    }
+  }, [data]);
+
   return (
     <Layout noOverflow={true}>
       <Breadcrumb>
@@ -105,12 +141,40 @@ export const CrawlerStatsPage = () => {
       <Text hierachy={2}>{t("crawler_stats.title")}</Text>
 
       <Card className="gap-4 p-6 overflow-hidden h-full mb-20">
+        <div className="flex items-center">
+          <CalendarFold className="mr-2" />
+          <p className="font-semibold">Timeframe</p>
+        </div>
         <DatePicker
           startDate={startDate}
           endDate={endDate}
           setStartDate={setStartDate}
           setEndDate={setEndDate}
         />
+        <div className="flex items-center">
+          <ChartPie className="mr-2" />
+          <p className="font-semibold">Statistics</p>
+        </div>
+        <div className="flex gap-4 mb-2">
+          <p>Crawlers:</p>
+          <Badge>Sum attempted: {totalAttempted}</Badge>
+          <Badge className="bg-green-600">
+            Sum successful: {totalSuccessful} ({(successRatio * 100).toFixed(0)}
+            %)
+          </Badge>
+          <Badge className="bg-red-600">
+            Sum failed: {totalAttempted - totalSuccessful} (
+            {(failureRatio * 100).toFixed(0)}%)
+          </Badge>
+        </div>
+        <div className="flex gap-4 mb-2">
+          <p>Subscriptions:</p>
+          <Badge>Sum attempted {data?.total_count}</Badge>
+          <Badge className="bg-red-600">
+            Never successful: {zeroSuccessful} (
+            {(zeroSuccessRatio * 100).toFixed(0)}%)
+          </Badge>
+        </div>
         <DataTable
           columns={columns}
           data={data?.stats ?? []}
