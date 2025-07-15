@@ -18,6 +18,7 @@ import { type ColumnDef } from "@tanstack/react-table";
 import type { Stat } from "types/model";
 import { DataTable } from "~/custom-components/admin-settings/data-table";
 import { format } from "date-fns";
+import { Card } from "~/components/ui/card";
 
 export const CrawlerStatsPage = () => {
   const { t } = useTranslation();
@@ -103,19 +104,23 @@ export const CrawlerStatsPage = () => {
       </Breadcrumb>
       <Text hierachy={2}>{t("crawler_stats.title")}</Text>
 
-      <DatePicker
-        startDate={startDate}
-        endDate={endDate}
-        setStartDate={setStartDate}
-        setEndDate={setEndDate}
-      />
-      <div className="space-y-6 p-6">
-        <DataTable
-          columns={columns}
-          data={data?.stats ?? []}
-          searchField="subscription_name"
-        />
-      </div>
+      <Card className="gap-0">
+        <div className="px-6">
+          <DatePicker
+            startDate={startDate}
+            endDate={endDate}
+            setStartDate={setStartDate}
+            setEndDate={setEndDate}
+          />
+        </div>
+        <div className="space-y-4 p-6 pt-4">
+          <DataTable
+            columns={columns}
+            data={data?.stats ?? []}
+            searchField="subscription_name"
+          />
+        </div>
+      </Card>
     </Layout>
   );
 };
