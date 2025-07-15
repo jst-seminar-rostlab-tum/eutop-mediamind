@@ -14,11 +14,7 @@ import { Card, CardTitle } from "~/components/ui/card";
 import { Input } from "~/components/ui/input";
 import Layout from "~/custom-components/layout";
 import Text from "~/custom-components/text";
-import {
-  getLocalizedContent,
-  getPercentage,
-  truncateAtWord,
-} from "~/lib/utils";
+import { getLocalizedContent, getPercentage } from "~/lib/utils";
 import { useNavigate } from "react-router";
 import { SidebarFilter } from "./sidebar-filter";
 import { ScrollArea, ScrollBar } from "~/components/ui/scroll-area";
@@ -152,6 +148,14 @@ export function SearchProfileOverview() {
   const Sources = profile ? profile.subscriptions : [];
   const Topics = profile ? profile.topics : [];
 
+  const image_urls = [
+    "https://picsum.photos/800/600?random=1",
+    "https://picsum.photos/800/600?random=2",
+    "https://picsum.photos/800/600?random=3",
+    "https://images.unsplash.com/photo-1509391366360-2e959784a276?w=800&h=600",
+    "https://images.unsplash.com/photo-1466611653911-95081537e5b7?w=800&h=600",
+  ];
+
   return (
     <Layout className="flex justify-center" noOverflow={true}>
       {!profile || isProfileLoading ? (
@@ -255,9 +259,9 @@ export function SearchProfileOverview() {
                         const relevance = match.relevance;
 
                         const bgColor =
-                          relevance > 7
+                          relevance > 0.7
                             ? "bg-green-200"
-                            : relevance < 3
+                            : relevance < 0.3
                               ? "bg-red-200"
                               : "bg-yellow-200";
 
@@ -267,15 +271,25 @@ export function SearchProfileOverview() {
                               className="mb-4 p-5 gap-4 justify-start"
                               key={match.id}
                             >
-                              <CardTitle className="text-xl">
-                                {getLocalizedContent(match.article.headline)}
-                              </CardTitle>
-                              <p>
-                                {truncateAtWord(
-                                  getLocalizedContent(match.article.summary),
-                                  190,
-                                )}
-                              </p>
+                              <div className="flex flex-row gap-4">
+                                <img
+                                  src={image_urls[0]} //{match.article.image_urls[0]}
+                                  alt="No Image"
+                                  width={180}
+                                  height={180}
+                                  className="rounded-md"
+                                />
+                                <div className="flex flex-col justify-evenly gap-4">
+                                  <CardTitle className="text-xl line-clamp-2">
+                                    {getLocalizedContent(
+                                      match.article.headline,
+                                    )}
+                                  </CardTitle>
+                                  <p className="line-clamp-3">
+                                    {getLocalizedContent(match.article.summary)}
+                                  </p>
+                                </div>
+                              </div>
                               <div className="flex gap-3 items-center">
                                 <div
                                   className={`rounded-lg py-1 px-2 ${bgColor}`}
@@ -285,7 +299,7 @@ export function SearchProfileOverview() {
                                 </div>
                                 {match.topics.map((topic) => (
                                   <div
-                                    className="bg-secondary rounded-lg py-1 px-2"
+                                    className="bg-gray-200 rounded-lg py-1 px-2 shrink-0"
                                     key={topic.id}
                                   >
                                     {getPercentage(topic.score) +
