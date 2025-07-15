@@ -420,20 +420,20 @@ class SearchProfileService:
                 )
             )
             article_content = MatchArticleOverviewContent(
-                article_url=article.url or "https://no_url.com/",
+                article_url=article.url or None,
                 headline={
-                    "de": article.title_de or "",
-                    "en": article.title_en or "",
+                    "de": article.title_de or None,
+                    "en": article.title_en or None,
                 },
                 summary={
-                    "de": article.summary_de or "",
-                    "en": article.summary_en or "",
+                    "de": article.summary_de or None,
+                    "en": article.summary_en or None,
                 },
                 text={
-                    "de": article.content_de or "",
-                    "en": article.content_en or "",
+                    "de": article.content_de or None,
+                    "en": article.content_en or None,
                 },
-                image_urls=["https://example.com/image.jpg"],
+                image_urls=article.image_url or None,
                 published=article.published_at,
                 crawled=article.crawled_at,
                 newspaper_id=article.subscription_id,
