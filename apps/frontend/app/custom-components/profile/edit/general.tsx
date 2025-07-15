@@ -30,12 +30,16 @@ import type { MediamindUser, Profile } from "../../../../types/model";
 import { useEffect } from "react";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
-import {
-  DataTableUsers,
-  type UserWithRole,
-} from "~/custom-components/admin-settings/data-table-users";
+import { DataTableUsers } from "~/custom-components/admin-settings/data-table-users";
 import { getUserColumns } from "./columns";
 import type { Row } from "@tanstack/react-table";
+
+export type UserWithRole = {
+  id: string;
+  email: string;
+  username: string;
+  rights: "read" | "edit";
+};
 
 export interface GeneralProps {
   profile: Profile;
@@ -82,7 +86,7 @@ export function General({ profile, setProfile }: GeneralProps) {
         return {
           id: user.id,
           email: user.email,
-          Username: user.first_name + " " + user.last_name,
+          username: user.first_name + " " + user.last_name,
           rights,
         };
       })
@@ -158,7 +162,7 @@ export function General({ profile, setProfile }: GeneralProps) {
     const newUser: UserWithRole = {
       id: user.id,
       email: user.email,
-      Username: user.first_name + user.last_name,
+      username: user.first_name + user.last_name,
       rights: "read", // default rights: read
     };
 

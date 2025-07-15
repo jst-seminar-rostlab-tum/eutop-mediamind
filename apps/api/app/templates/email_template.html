@@ -1,114 +1,259 @@
 <!DOCTYPE html>
 <html lang="{{ language_code }}">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>{{ title }}</title>
-  <style>
-    @media only screen and (max-width: 650px) {
-      .main-table {
-        width: 100% !important;
-        max-width: 100% !important;
-        border-radius: 0 !important;
-        padding: 0 !important;
-      }
-      .content-cell {
-        padding: 24px 8px !important;
-      }
-      .header-cell {
-        padding: 16px 10px !important;
-      }
-      .footer-cell {
-        padding: 18px 10px !important;
-      }
-      .profile-section {
-        padding-bottom: 12px !important;
-        margin-bottom: 16px !important;
-      }
-      .download-btn {
-        font-size: 1em !important;
-        padding: 10px 16px !important;
-      }
-    }
-  </style>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>{{ title }}</title>
+    <style>
+        @media only screen and (max-width: 650px) {
+            .main-table {
+                width: 100% !important;
+                max-width: 100% !important;
+                border-radius: 0 !important;
+                padding: 0 !important;
+            }
+
+            .content-cell {
+                padding: 24px 8px !important;
+            }
+
+            .header-cell {
+                padding: 16px 10px !important;
+            }
+
+            .footer-cell {
+                padding: 18px 10px !important;
+            }
+
+            .profile-section {
+                padding-bottom: 12px !important;
+                margin-bottom: 16px !important;
+            }
+
+            .download-btn {
+                font-size: 1em !important;
+                padding: 10px 16px !important;
+            }
+        }
+    </style>
 </head>
-<body style="margin:0; padding:0; background-color:#f8f9fa; font-family:Helvetica, Arial, sans-serif;">
-  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="padding:40px 0;">
+<body
+        style="
+      margin: 0;
+      padding: 0;
+      background-color: #f8f9fa;
+      font-family: Helvetica, Arial, sans-serif;
+    "
+>
+<table
+        width="100%"
+        cellpadding="0"
+        cellspacing="0"
+        border="0"
+        style="padding: 40px 0"
+>
     <tr>
-      <td align="center">
-        <table class="main-table" width="600" cellpadding="0" cellspacing="0" border="0" style="width:100%; max-width:600px; background-color:#fff; border-radius:8px; box-shadow:0 4px 20px rgba(0,0,0,0.08); overflow:hidden;">
-          <!-- Header -->
-          <tr>
-            <td class="header-cell" style="background-color:#4b99ff; padding:20px 35px;">
-              <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <td align="center">
+            <table
+                    class="main-table"
+                    width="600"
+                    cellpadding="0"
+                    cellspacing="0"
+                    border="0"
+                    style="
+              width: 100%;
+              max-width: 600px;
+              background-color: #fff;
+              border-radius: 8px;
+              box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+              overflow: hidden;
+            "
+            >
+                <!-- Header -->
                 <tr>
-                  <td align="left" style="color:#fff;">
-                    <h1 style="margin:0; font-size:2.1em; font-weight:300; letter-spacing:-0.5px; line-height:1.2;">MediaMind</h1>
-                    <p style="margin:12px 0 0; font-size:0.9em; text-transform:uppercase; letter-spacing:0.5px; color:rgba(255,255,255,0.85);">{{ date }}</p>
-                  </td>
-                  <td align="right" style="vertical-align:top;">
-                    <img src="https://mediamind.csee.tech/EUTOP_Logo.png" alt="Logo" width="120" style="display:block;max-width:120px;width:100%;" />
-                  </td>
+                    <td
+                            class="header-cell"
+                            style="background-color: #4b99ff; padding: 20px 35px"
+                    >
+                        <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                            <tr>
+                                <td align="left" style="color: #fff">
+                                    <h1
+                                            style="
+                          margin: 0;
+                          font-size: 2.1em;
+                          font-weight: 300;
+                          letter-spacing: -0.5px;
+                          line-height: 1.2;
+                        "
+                                    >
+                                        MediaMind
+                                    </h1>
+                                    <p
+                                            style="
+                          margin: 12px 0 0;
+                          font-size: 0.9em;
+                          text-transform: uppercase;
+                          letter-spacing: 0.5px;
+                          color: rgba(255, 255, 255, 0.85);
+                        "
+                                    >
+                                        {{ date }}
+                                    </p>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
                 </tr>
-              </table>
-            </td>
-          </tr>
-          <!-- Divider -->
-          <tr>
-            <td style="height:4px; background:linear-gradient(90deg,#1e5091 0%,#ffd700 100%);"></td>
-          </tr>
-          <!-- Content -->
-          <tr>
-            <td class="content-cell" style="padding:50px 40px; color:#2c3e50;">
-              <!-- Profile section -->
-              <div class="profile-section" style="margin-bottom:25px; padding-bottom:25px; border-bottom:1px solid #e9ecef;">
-                <p style="color:#6c757d; font-size:0.95em; text-transform:uppercase; letter-spacing:1px; margin-bottom:8px; font-weight:500;">{{ search_profile }}</p>
-                <p style="color:#1e5091; font-size:1.2em; font-weight:600; margin:0;">{{ profile_name }}</p>
-              </div>
-              <!-- Message -->
-              <div style="font-size:1.05em; line-height:1.65; color:#495057; font-weight:400;">
-                <p style="margin:0 0 18px 0;">
-                  {{ salutation }},<br /><br />
-                  {{ text_1 }}.<br /><br />
-                  {{ text_2 }}.
-                </p>
-                <div style="text-align:center; margin: 32px 0 24px 0;">
-                  <a class="download-btn" style="
-                    color: #fff; 
-                    background: #1e5091;
-                    font-weight: 700;
-                    text-decoration: none;
-                    padding: 12px 32px;
-                    border-radius: 5px;
-                    box-shadow: 0 2px 8px rgba(30,80,145,0.10);
-                    display: inline-block;
-                    font-size: 1.08em;
-                    transition: background 0.2s;
-                    word-break:break-word;
-                  " href="{{ s3_link }}" target="_blank">
-                    {{ download_text }}
-                  </a>
-                </div>
-                <div style="margin-bottom:25px; padding-bottom:25px; border-bottom:1px solid #e9ecef;">
-                  {{ text_3 }} (<a style="font-weight:600; color:#1e5091" href="{{ dashboard_link }}">{{ click_text }}</a>).
-                </div>
-                <div style="color:#888; font-size:0.9em;">
-                  {{ text_4 }}:<br />
-                  <span style="font-size:0.7em; word-break:break-all; display:inline-block; margin-top:4px;"><u><a href="{{ s3_link }}" style="color:#888;">{{ s3_link }}</a></u></span>
-                </div>
-              </div>
-            </td>
-          </tr>
-          <!-- Footer -->
-          <tr>
-            <td class="footer-cell" style="background-color:#f8f9fa; padding:30px 40px; text-align:center; border-top:1px solid #e9ecef;">
-              <div style="width:60px; height:2px; background-color:#ffd700; margin:0 auto 20px;"></div>
-              <p style="color:#6c757d; font-size:0.9em; font-weight:400; margin:0;">{{ deliver_text }}</p>
-            </td>
-          </tr>
-        </table>
-      </td>
+                <!-- Divider -->
+                <tr>
+                    <td
+                            style="
+                  height: 4px;
+                  background: linear-gradient(90deg, #1e5091 0%, #ffd700 100%);
+                "
+                    ></td>
+                </tr>
+                <!-- Content -->
+                <tr>
+                    <td
+                            class="content-cell"
+                            style="padding: 50px 40px; color: #2c3e50"
+                    >
+                        <!-- Profile section -->
+                        <div
+                                class="profile-section"
+                                style="
+                    margin-bottom: 25px;
+                    padding-bottom: 25px;
+                    border-bottom: 1px solid #e9ecef;
+                  "
+                        >
+                            <p
+                                    style="
+                      color: #6c757d;
+                      font-size: 0.95em;
+                      text-transform: uppercase;
+                      letter-spacing: 1px;
+                      margin-bottom: 8px;
+                      font-weight: 500;
+                    "
+                            >
+                                {{ search_profile }}
+                            </p>
+                            <p
+                                    style="
+                      color: #1e5091;
+                      font-size: 1.2em;
+                      font-weight: 600;
+                      margin: 0;
+                    "
+                            >
+                                {{ profile_name }}
+                            </p>
+                        </div>
+                        <!-- Message -->
+                        <div
+                                style="
+                    font-size: 1.05em;
+                    line-height: 1.65;
+                    color: #495057;
+                    font-weight: 400;
+                  "
+                        >
+                            <p style="margin: 0 0 18px 0">
+                                {{ salutation }},<br/><br/>
+                                {{ text_1 }}.<br/><br/>
+                                {{ text_2 }}.
+                            </p>
+                            <div style="text-align: center; margin: 32px 0 24px 0">
+                                <a
+                                        class="download-btn"
+                                        style="
+                        color: #fff;
+                        background: #1e5091;
+                        font-weight: 700;
+                        text-decoration: none;
+                        padding: 12px 32px;
+                        border-radius: 5px;
+                        box-shadow: 0 2px 8px rgba(30, 80, 145, 0.1);
+                        display: inline-block;
+                        font-size: 1.08em;
+                        transition: background 0.2s;
+                        word-break: break-word;
+                      "
+                                        href="{{ s3_link }}"
+                                        target="_blank"
+                                >
+                                    {{ download_text }}
+                                </a>
+                            </div>
+                            <div
+                                    style="
+                      margin-bottom: 25px;
+                      padding-bottom: 25px;
+                      border-bottom: 1px solid #e9ecef;
+                    "
+                            >
+                                {{ text_3 }} (<a
+                                    style="font-weight: 600; color: #1e5091"
+                                    href="{{ dashboard_link }}"
+                            >{{ click_text }}</a
+                            >).
+                            </div>
+                            <div style="color: #888; font-size: 0.9em">
+                                {{ text_4 }}:<br/>
+                                <span
+                                        style="
+                        font-size: 0.7em;
+                        word-break: break-all;
+                        display: inline-block;
+                        margin-top: 4px;
+                      "
+                                ><u
+                                ><a href="{{ s3_link }}" style="color: #888"
+                                >{{ s3_link }}</a
+                                ></u
+                                ></span
+                                >
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                <!-- Footer -->
+                <tr>
+                    <td
+                            class="footer-cell"
+                            style="
+                  background-color: #f8f9fa;
+                  padding: 30px 40px;
+                  text-align: center;
+                  border-top: 1px solid #e9ecef;
+                "
+                    >
+                        <div
+                                style="
+                    width: 60px;
+                    height: 2px;
+                    background-color: #ffd700;
+                    margin: 0 auto 20px;
+                  "
+                        ></div>
+                        <p
+                                style="
+                    color: #6c757d;
+                    font-size: 0.9em;
+                    font-weight: 400;
+                    margin: 0;
+                  "
+                        >
+                            {{ deliver_text }}
+                        </p>
+                    </td>
+                </tr>
+            </table>
+        </td>
     </tr>
-  </table>
+</table>
 </body>
 </html>

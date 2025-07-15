@@ -115,6 +115,10 @@ class ArticleSummaryService:
             logger.error(
                 f"Error processing and storing article {article_id}: {e}"
             )
+            article = await ArticleRepository.get_article_by_id(article_id)
+            article.status = "ERROR"
+            article.note = f"Error processing summary: {str(e)}"
+            await ArticleRepository.update_article(article)
 
     @staticmethod
     async def _summarize_and_store_batch(articles: Sequence[Article]) -> None:
