@@ -11,6 +11,7 @@ variable "log_group_name" {
   type    = string
   default = null
 }
+variable "redis_url" { type = string }
 
 locals {
   effective_log_group_name = var.log_group_name != null ? var.log_group_name : "/ecs/${var.service_name}"
@@ -76,6 +77,10 @@ resource "aws_ecs_task_definition" "app" {
       image     = var.container_image
       essential = true
       environment = [
+        { name = "QUEUE_NAME", value = "default" },
+        { name = "SCHEDULER_INTERVAL", value = "60" },
+        { name = "EMAIL_JOB_INTERVAL", value = "30" },
+        { name = "PIPELINE_JOB_INTERVAL", value = "1440" }, 
         { name = "REDIS_URL", value = var.redis_endpoint },
       ]
       secrets = [

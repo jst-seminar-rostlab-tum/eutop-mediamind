@@ -43,6 +43,11 @@ module "ecr" {
   name   = "ecr-mediamind"
 }
 
+module "ecr_scheduler" {
+  source = "./modules/ecr"
+  name   = "ecr-mediamind-scheduler"
+}
+
 module "database" {
   source      = "./modules/database"
   db_name     = "mediamind"
@@ -106,11 +111,10 @@ module "scheduler_dev" {
   source            = "./modules/scheduler"
   service_name      = "mediamind-scheduler-dev"
   cluster_name      = local.cluster_name
-  container_image   = module.ecr.repository_url
+  container_image   = module.ecr_scheduler.repository_url
   redis_endpoint    = module.redis.endpoint
   subnet_ids        = data.aws_subnets.selected.ids
   vpc_id            = data.aws_vpc.selected.id
-  secrets_arn       = local.dev_secrets_arn
   region            = "eu-central-1"
 }
 
