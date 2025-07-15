@@ -10,17 +10,7 @@ import {
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 
-import {
-  Book,
-  Mail,
-  Newspaper,
-  Settings,
-  Edit2,
-  Check,
-  X,
-  OctagonAlert,
-  LogOut,
-} from "lucide-react";
+import { Book, Mail, Newspaper, Settings, Edit2, Check, X } from "lucide-react";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { Topics } from "~/custom-components/profile/edit/topics";
@@ -32,17 +22,9 @@ import { client } from "../../../../types/api";
 import { useAuthorization } from "~/hooks/use-authorization";
 import type { Profile } from "../../../../types/model";
 import { toast } from "sonner";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "~/components/ui/alert-dialog";
+
 import { useTranslation } from "react-i18next";
+import { ConfirmationDialog } from "~/custom-components/confirmation-dialog";
 
 interface EditProfileProps {
   profile?: Profile;
@@ -344,32 +326,15 @@ export function EditProfile({
         </DialogContent>
       </Dialog>
 
-      <AlertDialog open={showCancelDialog} onOpenChange={setShowCancelDialog}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle className="flex items-center">
-              <OctagonAlert size={20} className="text-destructive mr-2" />
-              {t("confirmation_dialog.title")}
-            </AlertDialogTitle>
-            <AlertDialogDescription>
-              {t("confirmation_dialog.leave_text")}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>{t("Back")}</AlertDialogCancel>
-            <AlertDialogAction
-              className="bg-destructive text-white shadow-xs hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60"
-              onClick={() => {
-                handleCancel();
-                setShowCancelDialog(false);
-              }}
-            >
-              <LogOut className="text-white" />
-              {t("Leave")}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <ConfirmationDialog
+        open={showCancelDialog}
+        onOpenChange={setShowCancelDialog}
+        dialogType="leave"
+        action={() => {
+          handleCancel();
+          setShowCancelDialog(false);
+        }}
+      />
     </>
   );
 }
