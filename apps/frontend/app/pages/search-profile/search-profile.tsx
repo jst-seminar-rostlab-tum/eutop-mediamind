@@ -264,13 +264,17 @@ export function SearchProfileOverview() {
                               key={match.id}
                             >
                               <div className="flex flex-row gap-4">
-                                <img
-                                  src={match.article.image_urls[0]}
-                                  alt="No Image"
-                                  width={180}
-                                  height={180}
-                                  className="rounded-md shrink-0"
-                                />
+                                {!match.article.image_urls[0] ? (
+                                  <div className="w-[180px] h-[180px] rounded-md shadow-md border flex items-center justify-center text-muted-foreground text-sm shrink-0">
+                                    No Image
+                                  </div>
+                                ) : (
+                                  <img
+                                    src={match.article.image_urls[0]}
+                                    alt="No Image"
+                                    className="w-[180px] h-[180px] object-cover rounded-md shadow-md shrink-0"
+                                  />
+                                )}
                                 <div className="flex flex-col justify-evenly gap-4 p-2">
                                   <CardTitle className="text-xl line-clamp-2">
                                     {getLocalizedContent(
