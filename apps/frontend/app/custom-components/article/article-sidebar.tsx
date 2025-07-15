@@ -9,10 +9,11 @@ import { AccordionContent } from "@radix-ui/react-accordion";
 import { Badge } from "~/components/ui/badge";
 import { useTranslation } from "react-i18next";
 import { Button } from "~/components/ui/button";
-import { ExternalLink, ChevronDown, ChevronUp } from "lucide-react";
+import { ExternalLink, ChevronDown, ChevronUp, Info } from "lucide-react";
 import { getPercentage } from "~/lib/utils";
 import { getLocalizedContent } from "~/lib/utils";
 import { useState } from "react";
+import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
 
 interface ArticleSidebarProps {
   article: ArticleMatch;
@@ -30,6 +31,8 @@ export function ArticleSidebar({ article }: ArticleSidebarProps) {
       [topicIndex]: !prev[topicIndex],
     }));
   };
+  const onlySummary =
+    article.article.text["en"] === "" && article.article.text["de"] === "";
 
   return (
     <div className={"space-y-6"}>
@@ -39,30 +42,41 @@ export function ArticleSidebar({ article }: ArticleSidebarProps) {
           <ExternalLink />
         </a>
       </Button>
-      <div className={"rounded-lg pl-4 pr-4 bg-gray-100"}>
-        <Accordion
-          type={"single"}
-          collapsible
-          className="w-full"
-          defaultValue="summary"
-        >
-          <AccordionItem value={"summary"}>
-            <AccordionTrigger
-              className={"text-md font-semibold text-gray-900 cursor-pointer"}
-            >
-              {t("article-page.summary_header")}
-            </AccordionTrigger>
-            <AccordionContent
-              className={"text-gray-800 pb-4 whitespace-pre-wrap"}
-            >
-              <p>
-                {getLocalizedContent(article.article.summary) ||
-                  t("article-page.no_summary")}
-              </p>
-            </AccordionContent>
-          </AccordionItem>
-        </Accordion>
-      </div>
+      {onlySummary ? (
+        <Alert variant="destructive">
+          <Info />
+          <AlertTitle>{t("article-page.limited_content")}</AlertTitle>
+          <AlertDescription>
+            {t("article-page.limited_content_description")}
+          </AlertDescription>
+        </Alert>
+      ) : (
+        <div className={"rounded-lg pl-4 pr-4 bg-gray-100"}>
+          <Accordion
+            type={"single"}
+            collapsible
+            className="w-full"
+            defaultValue="summary"
+          >
+            <AccordionItem value={"summary"}>
+              <AccordionTrigger
+                className={"text-md font-semibold text-gray-900 cursor-pointer"}
+              >
+                {t("article-page.summary_header")}
+              </AccordionTrigger>
+              <AccordionContent
+                className={"text-gray-800 pb-4 whitespace-pre-wrap"}
+              >
+                <p>
+                  {getLocalizedContent(article.article.summary) ||
+                    t("article-page.no_summary")}
+                </p>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+        </div>
+      )}
+
       <div className={"rounded-lg border p-4 space-y-2"}>
         <span className={"font-bold"}>{t("article-page.keywords_header")}</span>
         <p className={"text-sm text-gray-400"}>
@@ -94,7 +108,10 @@ export function ArticleSidebar({ article }: ArticleSidebarProps) {
               </div>
               <div className={"flex flex-wrap gap-1 pt-1"}>
                 {displayedKeywords.map((keyword, keywordIndex) => (
-                  <Badge key={keywordIndex} className={"p-1.5 rounded-lg"}>
+                  <Badge
+                    key={keywordIndex}
+                    className={"p-1.5 rounded-lg bg-gray-700"}
+                  >
                     {keyword}
                   </Badge>
                 ))}

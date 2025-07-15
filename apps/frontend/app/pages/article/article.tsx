@@ -23,6 +23,9 @@ export function ArticlePage({
   const localizedHeadline = getLocalizedContent(article.article.headline);
   const localizedText = getLocalizedContent(article.article.text);
 
+  const onlySummary =
+    article.article.text["en"] === "" && article.article.text["de"] === "";
+
   return (
     <Layout>
       <div className="flex gap-15">
@@ -34,7 +37,11 @@ export function ArticlePage({
           />
           <ArticleBody
             title={localizedHeadline}
-            content={localizedText}
+            content={
+              onlySummary
+                ? getLocalizedContent(article.article.summary)
+                : localizedText
+            }
             published_at={publishDateString}
             {...(article.article.authors?.length
               ? { author: article.article.authors.join(", ") }
