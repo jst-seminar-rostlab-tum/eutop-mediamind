@@ -148,14 +148,6 @@ export function SearchProfileOverview() {
   const Sources = profile ? profile.subscriptions : [];
   const Topics = profile ? profile.topics : [];
 
-  const image_urls = [
-    "https://picsum.photos/800/600?random=1",
-    "https://picsum.photos/800/600?random=2",
-    "https://picsum.photos/800/600?random=3",
-    "https://images.unsplash.com/photo-1509391366360-2e959784a276?w=800&h=600",
-    "https://images.unsplash.com/photo-1466611653911-95081537e5b7?w=800&h=600",
-  ];
-
   return (
     <Layout className="flex justify-center" noOverflow={true}>
       {!profile || isProfileLoading ? (
@@ -273,11 +265,11 @@ export function SearchProfileOverview() {
                             >
                               <div className="flex flex-row gap-4">
                                 <img
-                                  src={image_urls[0]} //{match.article.image_urls[0]}
+                                  src={match.article.image_urls[0]}
                                   alt="No Image"
                                   width={180}
                                   height={180}
-                                  className="rounded-md"
+                                  className="rounded-md shrink-0"
                                 />
                                 <div className="flex flex-col justify-evenly gap-4 p-2">
                                   <CardTitle className="text-xl line-clamp-2">
