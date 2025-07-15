@@ -435,8 +435,8 @@ class SearchProfileService:
                 }
             else:
                 article_text = {
-                    "de": "Abonnieren Sie, um den Artikel freizuschalten",
-                    "en": "Subscribe to unlock the article",
+                    "de": "",
+                    "en": "",
                 }
 
             article_content = MatchArticleOverviewContent(

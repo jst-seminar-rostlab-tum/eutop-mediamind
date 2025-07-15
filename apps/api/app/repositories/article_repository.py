@@ -254,10 +254,8 @@ class ArticleRepository:
                     # If article's subscription is not
                     # linked to the search profile, modify content
                     if article.subscription_id not in linked_subscription_ids:
-                        article.content_en = "Subscribe to unlock the article"
-                        article.content_de = (
-                            "Abonnieren Sie, " "um den Artikel freizuschalten"
-                        )
+                        article.content_en = ""
+                        article.content_de = ""
                     articles.append(article)
 
             return articles
