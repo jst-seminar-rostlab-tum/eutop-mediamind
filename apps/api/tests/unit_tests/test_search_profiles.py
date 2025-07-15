@@ -28,10 +28,10 @@ from app.services.search_profiles_service import SearchProfileService
     new_callable=AsyncMock,
 )
 def test_get_article_overview(
-    mock_get_matches,
-    mock_get_keywords,
-    mock_get_topic_names,
-    mock_get_subscription_id,
+        mock_get_matches,
+        mock_get_keywords,
+        mock_get_topic_names,
+        mock_get_subscription_id,
 ):
     search_profile_id = uuid4()
 
@@ -55,6 +55,7 @@ def test_get_article_overview(
             "language": "en",
             "subscription_id": uuid4(),
             "status": "scraped",
+            "image_url": "http://test",
         },
     )()
 
