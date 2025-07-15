@@ -277,28 +277,28 @@ export function EditProfile({
             </TabsList>
             <div className="grow overflow-hidden">
               <ScrollArea className="h-full pr-4">
-                <TabsContent value="general">
+                <TabsContent value="general" className={"px-1"}>
                   <General
                     profile={editedProfile}
                     setProfile={setEditedProfile}
                   />
                 </TabsContent>
 
-                <TabsContent value="topics">
+                <TabsContent value="topics" className={"px-1"}>
                   <Topics
                     profile={editedProfile}
                     setProfile={setEditedProfile}
                   />
                 </TabsContent>
 
-                <TabsContent value="mailing">
+                <TabsContent value="mailing" className={"px-1"}>
                   <Mailing
                     profile={editedProfile}
                     setProfile={setEditedProfile}
                   />
                 </TabsContent>
 
-                <TabsContent value="subscriptions">
+                <TabsContent value="subscriptions" className={"px-1"}>
                   <Subscriptions
                     profile={editedProfile}
                     setProfile={setEditedProfile}

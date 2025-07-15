@@ -226,7 +226,7 @@ export function SearchProfileOverview() {
                 setToDate={setToDate}
               />
             </div>
-            <div className="min-w-[500px] grow flex flex-col overflow-hidden">
+            <div className="min-w-[500px] grow flex flex-col overflow-hidden pl-1 pt-1">
               <div className="relative mb-4 w-full flex">
                 <Input
                   placeholder={t("Search") + " " + t("search_profile.articles")}
