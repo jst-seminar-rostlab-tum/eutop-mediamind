@@ -108,14 +108,14 @@ module "ecs_dev" {
 }
 
 module "scheduler_dev" {
-  source            = "./modules/scheduler"
-  service_name      = "mediamind-scheduler-dev"
-  cluster_name      = local.cluster_name
-  container_image   = module.ecr_scheduler.repository_url
-  redis_endpoint    = module.redis.endpoint
-  subnet_ids        = data.aws_subnets.selected.ids
-  vpc_id            = data.aws_vpc.selected.id
-  region            = "eu-central-1"
+  source          = "./modules/scheduler"
+  service_name    = "mediamind-scheduler-dev"
+  cluster_name    = local.cluster_name
+  container_image = module.ecr_scheduler.repository_url
+  redis_endpoint  = module.redis.endpoint
+  subnet_ids      = data.aws_subnets.selected.ids
+  vpc_id          = data.aws_vpc.selected.id
+  region          = "eu-central-1"
 }
 
 module "qdrant" {
