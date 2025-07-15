@@ -30,7 +30,6 @@ import {
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
 import { Input } from "~/components/ui/input";
-import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 
 export interface MailingTableProps {
@@ -143,8 +142,6 @@ export function DataTableMailing({
     [dataArray],
   );
 
-  useEffect(() => setDataArray(dataArray), [dataArray]);
-
   const table = useReactTable({
     data,
     columns,
@@ -155,6 +152,7 @@ export function DataTableMailing({
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
+    getRowId: (row) => row.data,
     state: {
       sorting,
       columnFilters,
@@ -174,16 +172,16 @@ export function DataTableMailing({
     setDataArray(dataArray.filter((email) => !selectedMails.includes(email)));
   };
 
+  const [email, setEmail] = React.useState("");
+
   const handleAddEmail = () => {
     if (!email) return; // prevent empty
-    if (dataArray.includes(email)) return; //prevent duplicates
+    if (dataArray.includes(email)) return; // prevent duplicates
 
     const updatedArray = [...dataArray, email];
     setDataArray(updatedArray);
     setEmail(""); // clear input
   };
-
-  const [email, setEmail] = React.useState("");
 
   const { t } = useTranslation();
 
