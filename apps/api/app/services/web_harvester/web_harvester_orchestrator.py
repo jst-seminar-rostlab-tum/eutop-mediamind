@@ -29,10 +29,10 @@ from app.services.web_harvester.utils.web_utils import (
 
 
 async def run_crawler(
-    crawler: CrawlerType,
-    date_start: datetime = datetime.combine(date.today(), datetime.min.time()),
-    date_end: datetime = datetime.now(),
-    limit: int = 100,
+        crawler: CrawlerType,
+        date_start: datetime = datetime.combine(date.today(), datetime.min.time()),
+        date_end: datetime = datetime.now(),
+        limit: int = 100,
 ):
     subscriptions = await get_subscriptions_with_crawlers(crawler)
 
@@ -88,6 +88,7 @@ async def _scrape_articles_for_subscription(subscription, executor):
                 "Article has invalid content or too many invalied elements."
             )
             article.status = ArticleStatus.ERROR
+            article.note = "is_article_valid check failed"
         await ArticleRepository.update_article(article)
 
     # Log the crawler stats
@@ -116,7 +117,7 @@ async def _scrape_articles_for_subscription(subscription, executor):
 
 
 def run_selenium_code(
-    articles: list[Article], subscription: Subscription, scraper: Scraper, loop
+        articles: list[Article], subscription: Subscription, scraper: Scraper, loop
 ) -> list[Article]:
     scraper: Scraper = subscription.scrapers
     driver, wait = create_driver(headless=True)
@@ -212,7 +213,7 @@ def _scrape_articles(scraper, driver, new_articles):
                     lambda d: safe_execute_script(
                         d, "return document.readyState"
                     )
-                    == "complete"
+                              == "complete"
                 )
             except Exception as load_error:
                 error_msg = str(load_error)
@@ -251,7 +252,7 @@ def _scrape_articles(scraper, driver, new_articles):
 
 
 def _handle_logout_and_cleanup(
-    driver, wait, subscription, scraper, login_success
+        driver, wait, subscription, scraper, login_success
 ):
     if login_success and subscription.paywall:
         try:
