@@ -1,5 +1,5 @@
 import { isEqual } from "lodash-es";
-import { Loader2 } from "lucide-react";
+import { Link2, Loader2, Newspaper } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
@@ -88,11 +88,12 @@ export const OrganisationSettingsPage = ({
 
   return (
     <>
-      <Card className="px-6 py-0 pb-2 mb-12 gap-4 overflow-hidden">
+      <Card className="px-6 py-0 pb-2 mb-20 gap-4 overflow-hidden">
         <div className="mt-4 flex flex-col overflow-hidden">
-          <div className="text-lg font-semibold">
+          <Label className="text-lg font-semibold mt-2">
+            <Link2 className="mr-2" />
             {t("organisation_settings.pdf_as_link")}
-          </div>
+          </Label>
           <div className="flex gap-2 mt-2">
             <Switch
               checked={editedPdfAsLink}
@@ -103,6 +104,7 @@ export const OrganisationSettingsPage = ({
             </Label>
           </div>
           <Label className="text-lg font-semibold mt-2">
+            <Newspaper className="mr-2" />
             {t("organisation_settings.subscriptions")}
           </Label>
           <p className="text-sm text-muted-foreground mb-4 mt-2">
