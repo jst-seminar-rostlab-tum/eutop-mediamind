@@ -158,7 +158,7 @@ export default function Header() {
           </UserButton>
         </SignedIn>
 
-        {isSignedIn && user?.is_superuser && (
+        {isSignedIn && (user?.is_superuser || user?.role === "maintainer") && (
           <>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -167,18 +167,33 @@ export default function Header() {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem asChild>
-                  <Link to="/admin" className="flex items-center">
-                    <Settings className="mr-2 h-4 w-4" />
-                    Admin-{t("admin.settings")}
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link to="/crawler-stats" className="flex items-center">
-                    <BarChart2 className="mr-2 h-4 w-4" />
-                    {t("crawler_stats.title")}
-                  </Link>
-                </DropdownMenuItem>
+                {user.is_superuser && (
+                  <DropdownMenuItem asChild>
+                    <Link to="/admin" className="flex items-center">
+                      <Settings className="mr-2 h-4 w-4" />
+                      Admin {t("admin.settings")}
+                    </Link>
+                  </DropdownMenuItem>
+                )}
+                {(user.role === "maintainer" || user.is_superuser) && (
+                  <DropdownMenuItem asChild>
+                    <Link
+                      to="/organisation-settings"
+                      className="flex items-center"
+                    >
+                      <Building2 className="mr-2 h-4 w-4" />
+                      {t("organisation_settings.title")}
+                    </Link>
+                  </DropdownMenuItem>
+                )}
+                {user.is_superuser && (
+                  <DropdownMenuItem asChild>
+                    <Link to="/crawler-stats" className="flex items-center">
+                      <BarChart2 className="mr-2 h-4 w-4" />
+                      {t("crawler_stats.title")}
+                    </Link>
+                  </DropdownMenuItem>
+                )}
               </DropdownMenuContent>
             </DropdownMenu>
           </>

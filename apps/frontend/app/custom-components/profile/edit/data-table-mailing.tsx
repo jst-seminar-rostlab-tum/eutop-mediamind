@@ -30,7 +30,6 @@ import {
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
 import { Input } from "~/components/ui/input";
-import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 
 export interface MailingTableProps {
@@ -43,7 +42,11 @@ type DataRow = {
   data: string;
 };
 
-export const getColumns = (name: string): ColumnDef<DataRow>[] => [
+const getColumns = (
+  name: string,
+  setDataArray: (data: string[]) => void,
+  dataArray: string[],
+): ColumnDef<DataRow>[] => [
   {
     id: "select",
     header: ({ table }) => (
@@ -84,7 +87,7 @@ export const getColumns = (name: string): ColumnDef<DataRow>[] => [
   {
     id: "actions",
     enableHiding: false,
-    cell: () => {
+    cell: ({ row }) => {
       const { t } = useTranslation();
       return (
         <DropdownMenu>
@@ -100,7 +103,9 @@ export const getColumns = (name: string): ColumnDef<DataRow>[] => [
             </DropdownMenuLabel>
             <DropdownMenuItem
               onClick={() =>
-                console.log("Delete action triggered from dropdown")
+                setDataArray(
+                  dataArray.filter((email) => email !== row.original.data),
+                )
               }
             >
               {t("Delete")}
@@ -125,7 +130,10 @@ export function DataTableMailing({
     React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
 
-  const columns = React.useMemo(() => getColumns(name), [name]);
+  const columns = React.useMemo(
+    () => getColumns(name, setDataArray, dataArray),
+    [name, setDataArray, dataArray],
+  );
   const data = React.useMemo(
     () =>
       dataArray.map((item) => ({
@@ -133,8 +141,6 @@ export function DataTableMailing({
       })),
     [dataArray],
   );
-
-  useEffect(() => setDataArray(dataArray), [dataArray]);
 
   const table = useReactTable({
     data,
@@ -146,6 +152,7 @@ export function DataTableMailing({
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
+    getRowId: (row) => row.data,
     state: {
       sorting,
       columnFilters,
@@ -159,19 +166,22 @@ export function DataTableMailing({
 
   const handleDeleteSelected = () => {
     if (!canDelete) return;
-    // TODO: delete logic
+    const selectedMails = table
+      .getSelectedRowModel()
+      .rows.map((row) => row.original.data);
+    setDataArray(dataArray.filter((email) => !selectedMails.includes(email)));
   };
+
+  const [email, setEmail] = React.useState("");
 
   const handleAddEmail = () => {
     if (!email) return; // prevent empty
-    if (dataArray.includes(email)) return; //prevent duplicates
+    if (dataArray.includes(email)) return; // prevent duplicates
 
     const updatedArray = [...dataArray, email];
     setDataArray(updatedArray);
     setEmail(""); // clear input
   };
-
-  const [email, setEmail] = React.useState("");
 
   const { t } = useTranslation();
 

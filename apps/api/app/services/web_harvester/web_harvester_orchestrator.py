@@ -4,6 +4,8 @@ import time
 from concurrent.futures import ThreadPoolExecutor
 from datetime import date, datetime
 
+from selenium.webdriver.support.ui import WebDriverWait
+
 from app.models.article import Article, ArticleStatus
 from app.models.crawl_stats import CrawlStats
 from app.models.subscription import Subscription
@@ -13,6 +15,7 @@ from app.repositories.subscription_repository import (
     get_subscriptions_with_crawlers,
     get_subscriptions_with_scrapers,
 )
+from app.services.article_cleaner.article_valid_check import is_article_valid
 from app.services.web_harvester.crawler import Crawler, CrawlerType
 from app.services.web_harvester.scraper import Scraper
 from app.services.web_harvester.utils.web_utils import (
@@ -20,6 +23,8 @@ from app.services.web_harvester.utils.web_utils import (
     get_response_code,
     hardcoded_login,
     hardcoded_logout,
+    safe_execute_script,
+    safe_page_load,
 )
 
 
@@ -73,11 +78,17 @@ async def _scrape_articles_for_subscription(subscription, executor):
 
     loop = asyncio.get_event_loop()
     scraped_articles = await loop.run_in_executor(
-        executor, run_selenium_code, new_articles, subscription, scraper
+        executor, run_selenium_code, new_articles, subscription, scraper, loop
     )
 
     # Store every scraped article in the database
     for article in scraped_articles:
+        if not is_article_valid(article.content):
+            article.note = (
+                "is_article_valid check failed: "
+                "Article has invalid content or too many invalied elements."
+            )
+            article.status = ArticleStatus.ERROR
         await ArticleRepository.update_article(article)
 
     # Log the crawler stats
@@ -106,7 +117,7 @@ async def _scrape_articles_for_subscription(subscription, executor):
 
 
 def run_selenium_code(
-    articles: list[Article], subscription: Subscription, scraper: Scraper
+    articles: list[Article], subscription: Subscription, scraper: Scraper, loop
 ) -> list[Article]:
     scraper: Scraper = subscription.scrapers
     driver, wait = create_driver(headless=True)
@@ -115,6 +126,30 @@ def run_selenium_code(
         login_success = _handle_login_if_needed(
             subscription, scraper, driver, wait
         )
+        if subscription.paywall and not login_success:
+            scraper.logger.info(
+                f"Login failed for subscription {subscription.name}, "
+                f"updating login config with LLM approach"
+            )
+            # Disabled because the scheduler should take care of this
+            # login_updated_future = asyncio.run_coroutine_threadsafe(
+            #     LoginLLM.add_page(subscription), loop
+            # )
+            # subscription_updated = login_updated_future.result()
+            # if subscription_updated:
+            #     scraper.logger.info(
+            #         f"Login config updated for {subscription.name}, "
+            #         f"retrying login"
+            #     )
+            #     login_success = _handle_login_if_needed(
+            #         subscription_updated, scraper, driver, wait
+            #     )
+            # else:
+            #     scraper.logger.error(
+            #         f"Could not update login config for subscription "
+            #         f"{subscription.name} with LLM approach."
+            #     )
+
         if subscription.paywall and not login_success:
             scraper.logger.error(
                 f"Login failed for subscription {subscription.name}. "
@@ -167,7 +202,29 @@ def _scrape_articles(scraper, driver, new_articles):
                     f"Scraping article {idx + 1}/{len(new_articles)}"
                 )
                 scraper.logger.flush()
-            driver.get(article.url)
+            # Load the page with frame detachment handling
+            try:
+                # Use safe page loading to handle frame detachment
+                if not safe_page_load(driver, article.url):
+                    raise ValueError(f"Failed to load page: {article.url}")
+
+                # Wait for page to be fully loaded with safe script execution
+                WebDriverWait(driver, 30).until(
+                    lambda d: safe_execute_script(
+                        d, "return document.readyState"
+                    )
+                    == "complete"
+                )
+            except Exception as load_error:
+                error_msg = str(load_error)
+                if "target frame detached" in error_msg.lower():
+                    raise ValueError(
+                        f"Frame detached loading {article.url}: {load_error}"
+                    )
+                else:
+                    raise ValueError(
+                        f"Timeout loading page {article.url}: {load_error}"
+                    )
 
             # Check response code of the main page
             response_code = get_response_code(driver, article.url)
@@ -214,15 +271,3 @@ def _scraper_error_handling(articles: list[Article], error: str):
         article.status = ArticleStatus.ERROR
         article.note = error
     return articles
-
-
-if __name__ == "__main__":
-    # Example usage
-    asyncio.run(
-        run_crawler(
-            CrawlerType.RSSFeedCrawler,
-            date_start=datetime(2025, 1, 1),
-            date_end=datetime(2025, 12, 31),
-            limit=-1,
-        )
-    )

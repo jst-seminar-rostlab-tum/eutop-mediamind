@@ -2,6 +2,7 @@ from datetime import datetime
 
 from app.core.languages import Language
 from app.core.logger import get_logger
+from app.services.article_cleanup_service import ArticleCleanupService
 from app.services.article_matching_service import ArticleMatchingService
 from app.services.article_summary_service import ArticleSummaryService
 from app.services.article_vector_service import ArticleVectorService
@@ -58,3 +59,13 @@ async def run(datetime_start: datetime, datetime_end: datetime):
 
     logger.info("Sending emails")
     await EmailService.run(reports_info)
+
+    logger.info("Cleaning up old articles (older than 180 days)")
+    cleanup_service = ArticleCleanupService()
+    cleanup_stats = await cleanup_service.cleanup_articles_older_than_days(
+        days=180, batch_size=100
+    )
+    logger.info(
+        f"Article cleanup completed: "
+        f"{cleanup_stats['articles_deleted']} articles deleted"
+    )

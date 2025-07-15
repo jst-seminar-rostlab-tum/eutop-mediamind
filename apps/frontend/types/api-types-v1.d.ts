@@ -687,7 +687,8 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /** Get Organization With Users */
+        get: operations["get_organization_with_users_api_v1_organizations__organization_id__get"];
         /** Update Organization With Users */
         put: operations["update_organization_with_users_api_v1_organizations__organization_id__put"];
         post?: never;
@@ -2714,6 +2715,37 @@ export interface operations {
                 "application/json": components["schemas"]["OrganizationCreateOrUpdate"];
             };
         };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrganizationResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_organization_with_users_api_v1_organizations__organization_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                organization_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
         responses: {
             /** @description Successful Response */
             200: {

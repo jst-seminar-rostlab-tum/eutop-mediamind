@@ -28,7 +28,9 @@ def _assert_admin(user: UserEntity):
     "",
     response_model=List[SubscriptionSummary],
 )
-async def get_all_subscriptions():
+async def get_all_subscriptions(
+    current_user: UserEntity = Depends(get_authenticated_user),
+):
     return await SubscriptionService.get_all_subscriptions()
 
 
