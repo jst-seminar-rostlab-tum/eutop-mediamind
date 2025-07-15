@@ -433,7 +433,7 @@ class SearchProfileService:
                     "de": article.content_de or None,
                     "en": article.content_en or None,
                 },
-                image_urls=article.image_url or None,
+                image_urls=[article.image_url] or None,
                 published=article.published_at,
                 crawled=article.crawled_at,
                 newspaper_id=article.subscription_id,
