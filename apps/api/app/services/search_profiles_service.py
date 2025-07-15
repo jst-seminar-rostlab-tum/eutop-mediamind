@@ -440,7 +440,7 @@ class SearchProfileService:
                 }
 
             article_content = MatchArticleOverviewContent(
-                article_url=article.url or "https://no_url.com/",
+                article_url=article.url or "",
                 headline={
                     "de": article.title_de or "",
                     "en": article.title_en or "",
@@ -450,7 +450,7 @@ class SearchProfileService:
                     "en": article.summary_en or "",
                 },
                 text=article_text,
-                image_urls=["https://example.com/image.jpg"],
+                image_urls=[article.image_url] or [],
                 published=article.published_at,
                 crawled=article.crawled_at,
                 newspaper_id=article.subscription_id,

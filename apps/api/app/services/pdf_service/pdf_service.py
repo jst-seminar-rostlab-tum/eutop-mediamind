@@ -157,7 +157,7 @@ class PDFService:
 
         # Prepare all flowable elements for the PDF
         cover_elements = PDFService.__draw_cover_elements(
-            search_profile, news_items, dimensions, translator
+            news_items, dimensions, translator
         )
         summaries_elements = PDFService.__create_summaries_elements(
             news_items, dimensions, translator

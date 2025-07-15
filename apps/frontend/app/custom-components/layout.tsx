@@ -15,7 +15,7 @@ export default function Layout({
       )}
     >
       <div
-        className={`mx-auto w-full max-w-10/12 xl:max-w-11/12 ${noOverflow ? "overflow-hidden grow flex flex-col" : ""}`}
+        className={`mx-auto w-full max-w-8/12 xl:max-w-10/12 2xl:max-w-9/12 ${noOverflow ? "overflow-hidden grow flex flex-col" : ""}`}
       >
         {children}
       </div>
