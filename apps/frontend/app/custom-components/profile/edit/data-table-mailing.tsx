@@ -229,7 +229,7 @@ export function DataTableMailing({
         </div>
       </div>
       <Table>
-        <TableHeader>
+        <TableHeader className="bg-blue-100">
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>
               {headerGroup.headers.map((header) => {

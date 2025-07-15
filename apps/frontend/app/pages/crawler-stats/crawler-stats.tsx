@@ -88,7 +88,7 @@ export const CrawlerStatsPage = () => {
   );
 
   return (
-    <Layout>
+    <Layout noOverflow={true}>
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
@@ -104,22 +104,18 @@ export const CrawlerStatsPage = () => {
       </Breadcrumb>
       <Text hierachy={2}>{t("crawler_stats.title")}</Text>
 
-      <Card className="gap-0">
-        <div className="px-6">
-          <DatePicker
-            startDate={startDate}
-            endDate={endDate}
-            setStartDate={setStartDate}
-            setEndDate={setEndDate}
-          />
-        </div>
-        <div className="space-y-4 p-6 pt-4">
-          <DataTable
-            columns={columns}
-            data={data?.stats ?? []}
-            searchField="subscription_name"
-          />
-        </div>
+      <Card className="gap-4 p-6 overflow-hidden h-full mb-20">
+        <DatePicker
+          startDate={startDate}
+          endDate={endDate}
+          setStartDate={setStartDate}
+          setEndDate={setEndDate}
+        />
+        <DataTable
+          columns={columns}
+          data={data?.stats ?? []}
+          searchField="subscription_name"
+        />
       </Card>
     </Layout>
   );
