@@ -28,11 +28,20 @@ RUN useradd -m -u 1000 appuser
 
 WORKDIR /app
 
-# Install runtime dependencies
+# Install runtime dependencies including Chrome for Selenium
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     libpq5 \
     jq \
+    wget \
+    gnupg \
+    ca-certificates \
+    gettext\
+    && wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | gpg --dearmor -o /usr/share/keyrings/google-chrome.gpg \
+    && echo "deb [arch=amd64 signed-by=/usr/share/keyrings/google-chrome.gpg] http://dl.google.com/linux/chrome/deb/ stable main" > /etc/apt/sources.list.d/google-chrome.list \
+    && apt-get update \
+    && apt-get install -y --no-install-recommends \
+    google-chrome-stable \
     curl gnupg wget unzip xvfb libgbm1 \
     libnss3 libnspr4 libatk1.0-0 libatk-bridge2.0-0 libcups2 \
     libxkbcommon0 libatspi2.0-0 libxdamage1 libpango-1.0-0 \
@@ -45,6 +54,10 @@ COPY --from=builder /install /usr/local
 
 # Copy application code
 COPY . .
+
+# Run translations
+RUN msgfmt app/services/locales/de/LC_MESSAGES/translations.po \
+    -o app/services/locales/de/LC_MESSAGES/translations.mo
 
 # Copy entrypoint and set permissions
 COPY entrypoint.sh /entrypoint.sh

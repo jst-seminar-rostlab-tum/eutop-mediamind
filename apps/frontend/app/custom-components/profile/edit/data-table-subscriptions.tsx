@@ -58,7 +58,8 @@ const getColumns = (
   removeSubscription: (s: Subscription) => void,
 ): ColumnDef<DataRow>[] => [
   {
-    accessorKey: "data",
+    id: "data",
+    accessorFn: (row) => row.data.name,
     header: ({ column }) => {
       return (
         <Button
@@ -70,9 +71,7 @@ const getColumns = (
         </Button>
       );
     },
-    cell: ({ row }) => (
-      <div className="lowercase">{row.getValue<Subscription>("data").name}</div>
-    ),
+    cell: ({ row }) => <div className="lowercase">{row.getValue("data")}</div>,
   },
   {
     accessorKey: "active",
@@ -83,9 +82,9 @@ const getColumns = (
         onCheckedChange={(value) => {
           table.options.meta?.updateData(row.index, "active", !!value);
           if (value) {
-            addSubscription(row.getValue("data"));
+            addSubscription(row.original.data);
           } else {
-            removeSubscription(row.getValue("data"));
+            removeSubscription(row.original.data);
           }
         }}
         aria-label="Toggle active state"

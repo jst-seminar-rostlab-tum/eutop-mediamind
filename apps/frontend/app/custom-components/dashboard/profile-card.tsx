@@ -1,10 +1,8 @@
 import {
   Trash2,
   SquarePen,
-  OctagonAlert,
   MoreVertical,
   ChevronRight,
-  Loader2,
   FileText,
 } from "lucide-react";
 import type { KeyedMutator } from "swr";
@@ -19,16 +17,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "~/components/ui/alert-dialog";
 import { useTranslation } from "react-i18next";
 import { RoleBadge } from "~/custom-components/dashboard/role-badge";
 import {
@@ -40,6 +28,7 @@ import {
 import { Link } from "react-router";
 import { client } from "types/api";
 import { toast } from "sonner";
+import { ConfirmationDialog } from "../confirmation-dialog";
 
 interface ProfileCardProps {
   profile: Profile;
@@ -52,7 +41,6 @@ export function ProfileCard({
   mutateDashboard,
   profile_id,
 }: ProfileCardProps) {
-  const [isDeleting, setIsDeleting] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [isTruncated, setIsTruncated] = useState(false);
@@ -79,10 +67,8 @@ export function ProfileCard({
       return <RoleBadge variant={"owner"} />;
     } else if (profile.can_edit_user_ids.includes(profile_id)) {
       return <RoleBadge variant={"editor"} />;
-    } else if (profile.can_read_user_ids.includes(profile_id)) {
-      return <RoleBadge variant={"reader"} />;
     }
-    return null;
+    return <RoleBadge variant={"reader"} />;
   };
 
   const getVisibilityBadge = () => {
@@ -107,7 +93,6 @@ export function ProfileCard({
 
   const deleteProfile = async () => {
     try {
-      setIsDeleting(true);
       await client.DELETE("/api/v1/search-profiles/{search_profile_id}", {
         params: { path: { search_profile_id: profile.id } },
       });
@@ -118,7 +103,6 @@ export function ProfileCard({
     } catch (error) {
       toast.error(t("search_profile.delete_error"));
     } finally {
-      setIsDeleting(false);
       setShowDeleteDialog(false);
       toast.success(t("search_profile.delete_success"));
     }
@@ -130,8 +114,8 @@ export function ProfileCard({
 
   return (
     <TooltipProvider>
-      <div className="w-[15.5rem] h-[14rem] rounded-3xl shadow-[2px_2px_15px_rgba(0,0,0,0.1)] p-5 ">
-        <div className="h-full flex-1 flex flex-col justify-between overflow-hidden">
+      <div className="w-[15.5rem] h-[13rem] border-2 rounded-xl shadow-[2px_2px_15px_rgba(0,0,0,0.1)] p-5 ">
+        <div className="h-full flex-1 flex flex-col justify-between">
           <div>
             <div className={"flex justify-between"}>
               <div className={"flex items-center gap-2"}>
@@ -168,12 +152,12 @@ export function ProfileCard({
               />
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="secondary" className="h-8 w-8 p-0 ">
+                  <Button variant="ghost" className="h-8 w-8 p-0 ">
                     <span className="sr-only">{t("sr-only.open_menu")}</span>
                     <MoreVertical className="h-4 w-4" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="center">
+                <DropdownMenuContent align="end">
                   <DropdownMenuItem onClick={() => setShowEditDialog(true)}>
                     <SquarePen className="text-primary" />
                     {t("Edit")}
@@ -188,9 +172,9 @@ export function ProfileCard({
                     onClick={() => {
                       setShowDeleteDialog(true);
                     }}
-                    className="text-red-500 focus:text-red-500"
+                    className="text-destructive focus:text-destructive"
                   >
-                    <Trash2 className="text-red-500" />
+                    <Trash2 className="text-destructive" />
                     {t("Delete")}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
@@ -215,43 +199,22 @@ export function ProfileCard({
           </div>
           <Link
             to={`/search-profile/${profile.id}`}
-            className="w-full h-20 bg-gray-100 items-center flex justify-center rounded-2xl hover:bg-gray-200 transition-background duration-300"
+            className="w-full h-13 bg-gray-100 items-center flex justify-center rounded-lg hover:bg-accent transition-background duration-300"
           >
             <span className={"text-gray-700"}>
               {t("search_profile.Explore")}
             </span>
-            <ChevronRight className="w-7 h-7" />
+            <ChevronRight className="size-5" />
           </Link>
         </div>
       </div>
 
-      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle className="flex items-center">
-              <OctagonAlert size={20} className="text-red-500 mr-2" />
-              {t("confirmation_dialog.title")}
-            </AlertDialogTitle>
-            <AlertDialogDescription>
-              {t("confirmation_dialog.delete_text")}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>{t("Back")}</AlertDialogCancel>
-            <AlertDialogAction
-              className="bg-destructive text-white shadow-xs hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60"
-              onClick={() => deleteProfile()}
-            >
-              {isDeleting ? (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              ) : (
-                <Trash2 />
-              )}
-              {t("Delete")}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <ConfirmationDialog
+        open={showDeleteDialog}
+        onOpenChange={setShowDeleteDialog}
+        dialogType="delete"
+        action={() => deleteProfile()}
+      />
     </TooltipProvider>
   );
 }

@@ -286,31 +286,6 @@ class EmailService:
         return EmailService._render_email_template(template_name, context)
 
     @staticmethod
-    def _build_breaking_news_email_content(news: BreakingNews) -> str:
-        published_at_utc = news.published_at
-        if isinstance(published_at_utc, str):
-            published_at_utc = datetime.fromisoformat(published_at_utc)
-        if published_at_utc.tzinfo is None:
-            published_at_utc = published_at_utc.replace(tzinfo=timezone.utc)
-        else:
-            published_at_utc = published_at_utc.astimezone(timezone.utc)
-
-        published_at = published_at_utc.strftime("%d.%m.%Y, %H:%M")
-        current_time = datetime.now(timezone.utc).strftime("%d.%m.%Y, %H:%M")
-
-        context = {
-            "news_title": news.title,
-            "news_summary": news.summary,
-            "news_date": published_at,
-            "news_url": news.url,
-            "date_time": current_time,
-        }
-
-        template_name = "breaking_news_template.html"
-
-        return EmailService._render_email_template(template_name, context)
-
-    @staticmethod
     def _get_report_in_user_language(reports, user, search_profile_language):
         sp_language_report = None
         english_report = None

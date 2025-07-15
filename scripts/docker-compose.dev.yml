@@ -7,6 +7,8 @@ services:
       - "6334:6334"
     volumes:
       - qdrant_data:/qdrant/storage
+    environment:
+      - QDRANT__SERVICE__API_KEY=QDRANT_SECRET_KEY
 
   backend:
     container_name: api
@@ -29,7 +31,7 @@ services:
         max-file: "10"
 
   scheduler:
-    container_name: scheduler 
+    container_name: scheduler
     build:
       context: ../apps/scheduler
       dockerfile: Dockerfile
