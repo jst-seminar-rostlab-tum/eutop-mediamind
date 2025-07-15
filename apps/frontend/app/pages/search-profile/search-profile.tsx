@@ -279,7 +279,7 @@ export function SearchProfileOverview() {
                                   height={180}
                                   className="rounded-md"
                                 />
-                                <div className="flex flex-col justify-evenly gap-4">
+                                <div className="flex flex-col justify-evenly gap-4 p-2">
                                   <CardTitle className="text-xl line-clamp-2">
                                     {getLocalizedContent(
                                       match.article.headline,
