@@ -289,7 +289,9 @@ export function OrganizationDialog({
               </div>
 
               <DialogFooter>
-                <Button type="submit">{t("save_changes")}</Button>
+                <Button className="mt-2" variant={"secondary"} type="submit">
+                  {t("save_changes")}
+                </Button>
               </DialogFooter>
             </form>
           </Form>
