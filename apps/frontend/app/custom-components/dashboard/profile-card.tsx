@@ -130,7 +130,7 @@ export function ProfileCard({
 
   return (
     <TooltipProvider>
-      <div className="w-[15.5rem] h-[14rem] rounded-xl shadow-[2px_2px_15px_rgba(0,0,0,0.1)] p-5 ">
+      <div className="w-[15.5rem] h-[13rem] rounded-xl shadow-[2px_2px_15px_rgba(0,0,0,0.1)] p-5 ">
         <div className="h-full flex-1 flex flex-col justify-between">
           <div>
             <div className={"flex justify-between"}>
@@ -215,7 +215,7 @@ export function ProfileCard({
           </div>
           <Link
             to={`/search-profile/${profile.id}`}
-            className="w-full h-10 mt-10 bg-gray-100 items-center flex justify-center rounded-lg hover:bg-accent transition-background duration-300"
+            className="w-full h-13 bg-gray-100 items-center flex justify-center rounded-lg hover:bg-accent transition-background duration-300"
           >
             <span className={"text-gray-700"}>
               {t("search_profile.Explore")}
