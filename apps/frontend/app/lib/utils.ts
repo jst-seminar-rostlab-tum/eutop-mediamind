@@ -81,6 +81,8 @@ export function getDateComponents(dateString: string) {
 }
 
 export function getLocalizedContent(content: { [key: string]: string }) {
+  const { i18n } = useTranslation();
+
   if (content[i18n.language]) {
     return content[i18n.language];
   }
