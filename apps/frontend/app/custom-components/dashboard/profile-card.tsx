@@ -67,10 +67,8 @@ export function ProfileCard({
       return <RoleBadge variant={"owner"} />;
     } else if (profile.can_edit_user_ids.includes(profile_id)) {
       return <RoleBadge variant={"editor"} />;
-    } else if (profile.can_read_user_ids.includes(profile_id)) {
-      return <RoleBadge variant={"reader"} />;
     }
-    return null;
+    return <RoleBadge variant={"reader"} />;
   };
 
   const getVisibilityBadge = () => {
