@@ -138,7 +138,7 @@ export function ProfileCard({
                 </Tooltip>
                 {profile.new_articles_count > 0 && (
                   <span
-                    className={`bg-red-200 ${profile.new_articles_count > 99 ? "w-8" : "w-5"} h-5 rounded-full flex items-center justify-center text-sm font-bold text-red-900`}
+                    className={`bg-red-200 ${profile.new_articles_count > 99 ? "w-8" : "w-5"} h-5 pr-[1px] rounded-full flex items-center justify-center text-sm font-bold text-red-900`}
                   >
                     {profile.new_articles_count}
                   </span>
