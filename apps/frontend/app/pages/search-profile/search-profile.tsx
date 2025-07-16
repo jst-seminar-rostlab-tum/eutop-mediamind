@@ -170,9 +170,6 @@ export function SearchProfileOverview() {
             </Breadcrumb>
             <div className="flex gap-6 items-center">
               <Text hierachy={2}>{profile?.name}</Text>
-              <div className="bg-blue-200 etext-blue-900 font-bold rounded-full h-8 flex items-center justify-center text-sm shadow-sm p-4">
-                {profile.new_articles_count} {t("search_profile.New_Articles")}
-              </div>
             </div>
             <div className="flex items-center justify-between mb-4 gap-10">
               <ScrollArea className="grow overflow-x-hidden whitespace-nowrap rounded-md pb-1.5">
