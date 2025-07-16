@@ -16,7 +16,10 @@ from app.repositories.subscription_repository import (
     get_subscriptions_with_crawlers,
     get_subscriptions_with_scrapers,
 )
-from app.services.article_cleaner.article_valid_check import is_article_valid
+from app.services.article_cleaner.article_valid_check import (
+    clean_article_llm,
+    is_article_valid,
+)
 from app.services.web_harvester.crawler import Crawler, CrawlerType
 from app.services.web_harvester.scraper import Scraper
 from app.services.web_harvester.utils.web_utils import (
@@ -100,11 +103,14 @@ async def _scrape_articles_for_subscription(subscription, executor):
     # Store every scraped article in the database
     for article in scraped_articles:
         if not is_article_valid(article.content):
-            article.note = (
-                "is_article_valid check failed: "
-                "Article has invalid content or too many invalied elements."
-            )
-            article.status = ArticleStatus.ERROR
+            cleaned_content = await clean_article_llm(article.content)
+            if cleaned_content.strip() == "":
+                article.note = (
+                    "Article doesn't look like a news article after cleaning."
+                )
+                article.status = ArticleStatus.ERROR
+            else:
+                article.content = cleaned_content
         await ArticleRepository.update_article(article)
 
     logger.info(f"Inserted all articles for Subscription {subscription.name}.")

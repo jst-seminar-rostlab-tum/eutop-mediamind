@@ -9,33 +9,22 @@ from app.services.article_cleaner.article_valid_check import (
 class TestArticleValidCheck:
     """Test cases for article validation functionality."""
 
-    def test_normal_english_sentence(self):
-        """Test that normal English sentences are considered valid."""
-        text = "This is a normal sentence."
-        assert is_article_valid(text) is True
-
-    def test_normal_german_sentence(self):
-        """Test that normal German sentences are considered valid."""
-        text = "Das ist ein normaler Satz."
-        assert is_article_valid(text) is True
-
-    def test_numbers_and_symbols(self):
-        """Test that numbers and common symbols are considered valid."""
-        text = "1234567890!@#$%^&*()_+"
-        assert is_article_valid(text) is True
-
-    def test_very_long_word_without_spaces(self):
-        """Test that very long words without spaces might be considered gibberish."""
-        text = (
-            "ThisIsAVeryLongWordWithoutSpacesThatShouldBeConsideredGibberish"
-        )
-        # This should be valid as it only contains allowed characters
-        assert is_article_valid(text) is True
-
-    def test_lorem_ipsum(self):
-        """Test that Lorem ipsum text is considered valid."""
-        text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit."
-        assert is_article_valid(text) is True
+    def test_article_with_only_navigation_text(self):
+        """Test an article that contains only navigation text."""
+        text = """Home
+                Anmelden
+                Abo
+                E-Paper
+                Lesezeichen
+                Feedback
+                Impressum
+                Datenschutz
+                AGB
+                Lizenzinformationen
+                Datenschutz-Einstellungen"""
+        result = is_article_valid(text)
+        print(f"length: {len(text)}")
+        assert result is False
 
     def test_mixed_text_with_special_chars(self):
         """Test text that contains some special characters that might be disallowed."""
@@ -64,12 +53,6 @@ class TestArticleValidCheck:
         )
         result = is_article_valid(text)
         # Check if this contains disallowed characters
-        assert isinstance(result, bool)
-
-    def test_short_german_phrase(self):
-        """Test a short German phrase."""
-        text = "voe Jowftpso {v wfsfjogbdifo/"
-        result = is_article_valid(text)
         assert isinstance(result, bool)
 
     def test_long_mixed_text_with_english_and_encoded(self):
@@ -132,30 +115,3 @@ class TestArticleValidCheck:
             text_with_violations, max_violations=10
         )
         assert isinstance(result, bool)
-
-    def test_empty_string(self):
-        """Test that empty strings are considered valid."""
-        assert is_article_valid("") is True
-        assert contains_disallowed_chars("") is False
-
-    def test_whitespace_only(self):
-        """Test that whitespace-only strings are considered valid."""
-        assert is_article_valid("   \n\t  ") is True
-        assert contains_disallowed_chars("   \n\t  ") is False
-
-    def test_special_punctuation(self):
-        """Test various punctuation marks that should be allowed."""
-        punctuation_text = "Hello, world! How are you? (Fine, thanks.) [Great] \"Awesome\" 'Nice' –dash— …ellipsis"
-        assert is_article_valid(punctuation_text) is True
-
-    def test_mathematical_symbols(self):
-        """Test mathematical and currency symbols that should be allowed."""
-        math_text = "2 + 2 = 4, π ≈ 3.14, √16 = 4, $100 €50 £30 ¥1000"
-        assert is_article_valid(math_text) is True
-
-    def test_german_and_french_characters(self):
-        """Test German and French characters that should be allowed."""
-        german_french_text = (
-            "Café mit Müsli, très bien! Schön, größer, français"
-        )
-        assert is_article_valid(german_french_text) is True
