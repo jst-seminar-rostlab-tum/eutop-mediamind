@@ -205,7 +205,7 @@ export function DataTableUsers<TData, TValue>({
         </TableHeader>
       </Table>
 
-      <ScrollArea className="h-[200px]">
+      <ScrollArea className="h-[400px]">
         <Table>
           <TableBody>
             {table.getRowModel().rows?.length ? (

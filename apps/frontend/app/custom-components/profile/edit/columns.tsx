@@ -44,6 +44,9 @@ export function getUserColumns(
     {
       accessorKey: "email",
       header: t("general.Email"),
+      cell: ({ row }) => (
+        <div className="whitespace-normal break-all">{row.original.email}</div>
+      ),
       filterFn: (row, _, filterValue: string) => {
         const email = row.original.email?.toLowerCase() || "";
         const username = row.original.username?.toLowerCase() || "";
@@ -52,7 +55,7 @@ export function getUserColumns(
       },
     },
     {
-      accessorKey: "Username",
+      accessorKey: "username",
       header: t("general.Username"),
     },
     {
