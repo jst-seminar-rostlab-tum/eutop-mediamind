@@ -271,7 +271,15 @@
     "attempted": "Attempted",
     "failed": "Failed",
     "notes": "Notes",
-    "error": "Error loading crawler stats."
+    "error": "Error loading crawler stats.",
+    "Sum": "Sum",
+    "Never": "Never",
+    "Once": "Min. once",
+    "Statistics": "Statistics",
+    "Crawlers": "Crawlers",
+    "Subscriptions": "Subscriptions",
+    "show_more": "show more",
+    "show_less": "show less"
   },
 
   "reports": {
