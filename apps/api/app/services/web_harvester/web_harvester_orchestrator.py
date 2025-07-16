@@ -55,13 +55,16 @@ async def run_crawler(
 
 async def run_scraper():
     subscriptions = await get_subscriptions_with_scrapers()
-    executor = ThreadPoolExecutor(max_workers=2)
+    executor = ThreadPoolExecutor(max_workers=3)
 
-    tasks = [
-        _scrape_articles_for_subscription(sub, executor)
-        for sub in subscriptions
-    ]
-    await asyncio.gather(*tasks)
+    try:
+        tasks = [
+            _scrape_articles_for_subscription(sub, executor)
+            for sub in subscriptions
+        ]
+        await asyncio.gather(*tasks)
+    finally:
+        executor.shutdown(wait=True)
 
 
 async def _scrape_articles_for_subscription(subscription, executor):
@@ -83,12 +86,6 @@ async def _scrape_articles_for_subscription(subscription, executor):
 
     # Store every scraped article in the database
     for article in scraped_articles:
-        if not is_article_valid(article.content):
-            article.note = (
-                "is_article_valid check failed: "
-                "Article has invalid content or too many invalied elements."
-            )
-            article.status = ArticleStatus.ERROR
         await ArticleRepository.update_article(article)
 
     # Log the crawler stats
@@ -169,10 +166,9 @@ def run_selenium_code(
         )
         return _scraper_error_handling(articles, str(e))
     finally:
-        if login_success:
-            _handle_logout_and_cleanup(
-                driver, wait, subscription, scraper, login_success
-            )
+        _handle_logout_and_cleanup(
+            driver, wait, subscription, scraper, login_success
+        )
 
 
 def _handle_login_if_needed(subscription, scraper, driver, wait) -> bool:
@@ -254,16 +250,24 @@ def _scrape_articles(scraper, driver, new_articles):
 def _handle_logout_and_cleanup(
     driver, wait, subscription, scraper, login_success
 ):
-    if login_success and subscription.paywall:
+    try:
+        if login_success and subscription.paywall:
+            try:
+                hardcoded_logout(
+                    driver=driver, wait=wait, subscription=subscription
+                )
+            except Exception as e:
+                scraper.logger.error(
+                    f"Error logging out for subscription "
+                    f"{subscription.name}: {e}"
+                )
+    finally:
         try:
-            hardcoded_logout(
-                driver=driver, wait=wait, subscription=subscription
-            )
+            print("Quitting driver...")
+            driver.quit()
+            print("Driver quit successfully.")
         except Exception as e:
-            scraper.logger.error(
-                f"Error logging out for subscription {subscription.name}: {e}",
-            )
-    driver.quit()
+            scraper.logger.error(f"Error quitting driver: {e}")
 
 
 def _scraper_error_handling(articles: list[Article], error: str):
