@@ -114,7 +114,7 @@ export function ProfileCard({
 
   return (
     <TooltipProvider>
-      <div className="w-[15.5rem] h-[13rem] rounded-xl shadow-[2px_2px_15px_rgba(0,0,0,0.1)] p-5 ">
+      <div className="w-[15.5rem] h-[13rem] border-2 rounded-xl shadow-[2px_2px_15px_rgba(0,0,0,0.1)] p-5 ">
         <div className="h-full flex-1 flex flex-col justify-between">
           <div>
             <div className={"flex justify-between"}>
@@ -138,7 +138,7 @@ export function ProfileCard({
                 </Tooltip>
                 {profile.new_articles_count > 0 && (
                   <span
-                    className={`bg-red-200 ${profile.new_articles_count > 99 ? "w-8" : "w-5"} h-5 rounded-full flex items-center justify-center text-sm font-bold text-red-900`}
+                    className={`bg-red-200 ${profile.new_articles_count > 99 ? "w-8" : "w-5"} h-5 pr-[1px] rounded-full flex items-center justify-center text-sm font-bold text-red-900`}
                   >
                     {profile.new_articles_count}
                   </span>
