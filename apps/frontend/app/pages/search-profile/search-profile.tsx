@@ -61,6 +61,7 @@ export function SearchProfileOverview() {
     undefined,
   );
   const [matchesLoading, setMatchesLoading] = useState<boolean>(false);
+  const [imgError, setImgError] = useState(false);
 
   useEffect(() => {
     if (!id) {
@@ -261,7 +262,7 @@ export function SearchProfileOverview() {
                               key={match.id}
                             >
                               <div className="flex flex-row gap-4">
-                                {!match.article.image_urls[0] ? (
+                                {!match.article.image_urls[0] || imgError ? (
                                   <div className="w-[180px] h-[180px] rounded-md shadow-md border flex items-center justify-center text-muted-foreground text-sm shrink-0">
                                     No Image
                                   </div>
@@ -270,6 +271,7 @@ export function SearchProfileOverview() {
                                     src={match.article.image_urls[0]}
                                     alt="No Image"
                                     className="w-[180px] h-[180px] object-cover rounded-md shadow-md shrink-0"
+                                    onError={() => setImgError(true)}
                                   />
                                 )}
                                 <div className="flex flex-col justify-evenly gap-4 p-2">
@@ -283,7 +285,7 @@ export function SearchProfileOverview() {
                                   </p>
                                 </div>
                               </div>
-                              <div className="flex gap-3 items-center">
+                              <div className="flex gap-3 items-center flex-wrap">
                                 <div
                                   className={`rounded-lg py-1 px-2 ${bgColor}`}
                                 >
