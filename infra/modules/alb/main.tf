@@ -2,6 +2,7 @@ variable "vpc_id" { type = string }
 variable "subnet_ids" { type = list(string) }
 variable "certificate_arn_prod" { type = string }
 variable "certificate_arn_dev" { type = string }
+variable "certificate_arn_qdrant" { type = string }
 
 resource "aws_security_group" "alb" {
   name_prefix = "mediamind-alb-sg-"
@@ -56,6 +57,11 @@ resource "aws_lb_listener" "https" {
 resource "aws_lb_listener_certificate" "dev" {
   listener_arn    = aws_lb_listener.https.arn
   certificate_arn = var.certificate_arn_dev
+}
+
+resource "aws_lb_listener_certificate" "qdrant" {
+  listener_arn    = aws_lb_listener.https.arn
+  certificate_arn = var.certificate_arn_qdrant
 }
 
 resource "aws_lb_listener" "http" {

@@ -70,11 +70,12 @@ module "s3" {
 }
 
 module "alb" {
-  source               = "./modules/alb"
-  vpc_id               = data.aws_vpc.selected.id
-  subnet_ids           = data.aws_subnets.selected.ids
-  certificate_arn_prod = "arn:aws:acm:eu-central-1:313193269185:certificate/ba1c0b9b-2c80-4c0f-acf6-355dfb9ba658"
-  certificate_arn_dev  = "arn:aws:acm:eu-central-1:313193269185:certificate/3f5b9917-f56f-414a-ab56-b751c55733ee"
+  source                 = "./modules/alb"
+  vpc_id                 = data.aws_vpc.selected.id
+  subnet_ids             = data.aws_subnets.selected.ids
+  certificate_arn_prod   = "arn:aws:acm:eu-central-1:313193269185:certificate/ba1c0b9b-2c80-4c0f-acf6-355dfb9ba658"
+  certificate_arn_dev    = "arn:aws:acm:eu-central-1:313193269185:certificate/3f5b9917-f56f-414a-ab56-b751c55733ee"
+  certificate_arn_qdrant = "arn:aws:acm:eu-central-1:313193269185:certificate/0056f499-1726-4ef8-b26a-01324b816337"
 }
 
 module "ecs" {
