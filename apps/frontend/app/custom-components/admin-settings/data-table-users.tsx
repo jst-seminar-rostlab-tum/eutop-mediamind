@@ -82,7 +82,6 @@ export function DataTableUsers<TData, TValue>({
 
   return (
     <>
-
       <div className="flex justify-between gap-4 mb-4">
         <Input
           placeholder={"Filter " + t("general.Users")}
