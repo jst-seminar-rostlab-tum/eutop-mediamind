@@ -145,7 +145,8 @@ def draw_cover_elements(
             "</a>"
         )
         from reportlab.lib.enums import TA_RIGHT
-        button_style_right = styles["button_style"].clone('button_style_right')
+
+        button_style_right = styles["button_style"].clone("button_style_right")
         button_style_right.alignment = TA_RIGHT
         button_para = Paragraph(
             f"""
@@ -160,7 +161,7 @@ def draw_cover_elements(
             button_style_right,
         )
         row = [[meta_para, button_para]]
-        table = Table(row, colWidths=[5 * cm, 8 * cm], hAlign='LEFT')
+        table = Table(row, colWidths=[5 * cm, 8 * cm], hAlign="LEFT")
         table.setStyle(
             TableStyle(
                 [

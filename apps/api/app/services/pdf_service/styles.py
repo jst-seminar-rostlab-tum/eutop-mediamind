@@ -12,9 +12,7 @@ def get_pdf_styles(fonts_registered: bool):
         "link_style": ParagraphStyle(
             "Link",
             fontName=(
-                "BoldOblique"
-                if fonts_registered
-                else "Helvetica-BoldOblique"
+                "BoldOblique" if fonts_registered else "Helvetica-BoldOblique"
             ),
             fontSize=8,
             textColor=pdf_colors["electricBlue"],
@@ -44,18 +42,14 @@ def get_pdf_styles(fonts_registered: bool):
         ),
         "keywords_style": ParagraphStyle(
             "Keywords",
-            fontName=(
-                "Oblique" if fonts_registered else "Helvetica-Oblique"
-            ),
+            fontName=("Oblique" if fonts_registered else "Helvetica-Oblique"),
             fontSize=8,
             leading=10,
             textColor=pdf_colors["blue"],
         ),
         "date_style": ParagraphStyle(
             "Date",
-            fontName=(
-                "Oblique" if fonts_registered else "Helvetica-Oblique"
-            ),
+            fontName=("Oblique" if fonts_registered else "Helvetica-Oblique"),
             fontSize=8,
             leading=10,
             textColor=pdf_colors["gray"],
