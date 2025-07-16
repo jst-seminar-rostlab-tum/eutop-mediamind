@@ -12,7 +12,7 @@ from app.schemas.chatbot_schemas import ChatRequest
 from app.schemas.user_schema import UserEntity
 from app.services.email_service import EmailService
 from app.services.llm_service.llm_client import LLMClient
-from app.services.llm_service.llm_models import LLMModels
+from app.services.llm_service.llm_models import ModelServiceMapping
 
 logger = get_logger(__name__)
 
@@ -104,7 +104,7 @@ resolve the user's query.
             chat_body=chat_body,
         )
 
-        llm_client = LLMClient(LLMModels.openai_4o_mini)
+        llm_client = LLMClient(ModelServiceMapping.CHATBOT)
         try:
             llm_response = llm_client.generate_response(
                 prompt, temperature=0.7

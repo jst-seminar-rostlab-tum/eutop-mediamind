@@ -14,7 +14,7 @@ from app.core.config import configs
 from app.models.article import Article
 from app.repositories.article_repository import ArticleRepository
 from app.services.llm_service.llm_client import LLMClient
-from app.services.llm_service.llm_models import LLMModels
+from app.services.llm_service.llm_models import ModelServiceMapping
 
 # Setup logging
 logger = logging.getLogger(__name__)
@@ -40,7 +40,7 @@ def remove_formatting_marks(text: str) -> str:
 class ArticleCleaner:
     def __init__(self, max_concurrency: int = 50):
         assert configs.OPENAI_API_KEY, "Missing OPENAI_API_KEY"
-        self.llm_client = LLMClient(LLMModels.openai_4o)
+        self.llm_client = LLMClient(ModelServiceMapping.ARTICLE_CLEANER)
         self.semaphore = Semaphore(max_concurrency)
 
     @tenacity.retry(

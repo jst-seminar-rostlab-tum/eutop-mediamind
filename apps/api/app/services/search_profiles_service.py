@@ -49,7 +49,7 @@ from app.schemas.topic_schemas import TopicResponse
 from app.schemas.user_schema import UserEntity
 from app.services.article_vector_service import ArticleVectorService
 from app.services.llm_service.llm_client import LLMClient
-from app.services.llm_service.llm_models import LLMModels
+from app.services.llm_service.llm_models import ModelServiceMapping
 from app.services.llm_service.prompts.keyword_suggestion_prompts import (
     KEYWORD_SUGGESTION_PROMPT_DE,
     KEYWORD_SUGGESTION_PROMPT_EN,
@@ -634,7 +634,7 @@ class SearchProfileService:
             related_topics=format_related_topics(related_topics),
         )
 
-        llm = LLMClient(LLMModels.openai_4o)
+        llm = LLMClient(ModelServiceMapping.KEYWORD_SUGGESTION)
 
         response = llm.generate_typed_response(
             prompt, KeywordSuggestionResponse

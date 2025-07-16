@@ -9,14 +9,14 @@ from app.models.article import Article
 from app.repositories.article_repository import ArticleRepository
 from app.repositories.entity_repository import ArticleEntityRepository
 from app.services.llm_service.llm_client import LLMClient
-from app.services.llm_service.llm_models import LLMModels
+from app.services.llm_service.llm_models import ModelServiceMapping
 
 logger = get_logger(__name__)
 
 
 class ArticleSummaryService:
     _semaphore = asyncio.Semaphore(50)
-    _llm_client = LLMClient(LLMModels.openai_4o)
+    _llm_client = LLMClient(ModelServiceMapping.ARTICLE_SUMMARY)
 
     @staticmethod
     def _build_prompt(article: Article) -> str:
@@ -68,7 +68,7 @@ class ArticleSummaryService:
         batch_path = LLMClient.generate_batch(
             custom_ids=custom_ids,
             prompts=prompts,
-            model=LLMModels.openai_4o.value,
+            model=ModelServiceMapping.ARTICLE_SUMMARY.value,
             temperature=0.1,
             output_filename="summary_batch.jsonl",
         )
