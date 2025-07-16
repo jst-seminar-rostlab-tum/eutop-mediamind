@@ -9,7 +9,7 @@ import { AccordionContent } from "@radix-ui/react-accordion";
 import { Badge } from "~/components/ui/badge";
 import { useTranslation } from "react-i18next";
 import { Button } from "~/components/ui/button";
-import { ExternalLink, ChevronDown, ChevronUp, Info } from "lucide-react";
+import { ExternalLink, ChevronDown, ChevronUp } from "lucide-react";
 import { getPercentage } from "~/lib/utils";
 import { getLocalizedContent } from "~/lib/utils";
 import { useState } from "react";
