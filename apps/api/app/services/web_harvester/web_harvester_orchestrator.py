@@ -86,6 +86,12 @@ async def _scrape_articles_for_subscription(subscription, executor):
 
     # Store every scraped article in the database
     for article in scraped_articles:
+        if not is_article_valid(article.content):
+            article.note = (
+                "is_article_valid check failed: "
+                "Article has invalid content or too many invalied elements."
+            )
+            article.status = ArticleStatus.ERROR
         await ArticleRepository.update_article(article)
 
     # Log the crawler stats
