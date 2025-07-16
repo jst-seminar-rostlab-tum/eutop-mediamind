@@ -71,15 +71,13 @@ We use Amazon Simple Email Service (SES) for sending the reports and chatbot mes
 
   - **Rule Name**: `mediamind-receipt-rule`
   - **Recipients**: `test@chat.csee.tech`
-
-    - **Actions**:
-      - **Deliver to Amazon S3 bucket**: Store incoming emails in an S3 bucket named `mediamind-emails`.
+  - **Actions**: **Deliver to Amazon S3 bucket**
 
     ![SES Receipt Rule Configuration](./images/ses-action.png)
 
 ## Lambda
 
-We use AWS Lambda for the chatbot functionality. The Lambda function is triggered by incoming emails to the SES service and processes the emails to generate responses. You can find the Lambda function code in the [`scripts`](/scripts/lambda/) directory together with its AWS SAM template.
+We use AWS Lambda for the chatbot functionality. The Lambda function is triggered by incoming emails to the SES service and processes the emails to generate responses. You can find the Lambda function code in the [/scripts](/scripts/lambda/) together with its AWS SAM template.
 
 ## Database (PostgreSQL)
 
@@ -87,11 +85,11 @@ We use Amazon RDS for PostgreSQL to store application data. Credentials are mana
 
 ## Secrets Manager
 
-Sensitive configuration (database credentials, API keys) is stored in AWS Secrets Manager and injected into ECS tasks at runtime. If you want to update the secrets, you can do so via the AWS Console or CLI, by updating `secrets.json` and runnign the `aws secretsmanager update-secret` command. More information can be found in the [AWS Secrets Manager documentation](https://docs.aws.amazon.com/secretsmanager/latest/userguide/manage_update.html) and [infra/README.md](/infra/README.md).
+Sensitive configuration (database credentials, API keys) is stored in AWS Secrets Manager and injected into ECS tasks at runtime. If you want to update the secrets, you can do so via the AWS Console or CLI, by updating `secrets.json` and runnign the `aws secretsmanager update-secret` command. More information can be found in the [AWS Secrets Manager documentation](https://docs.aws.amazon.com/secretsmanager/latest/userguide/manage_update.html) and [/infra/README.md](/infra/README.md).
 
 ## S3
 
-The S3 bucket `eutop-mediamind` is used for storing application assets and incoming emails (via SES).
+The S3 bucket `eutop-mediamind` is used for storing the reports and incoming emails (via SES).
 
 ## VPC & Networking
 
