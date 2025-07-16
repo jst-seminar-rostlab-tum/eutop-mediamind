@@ -169,8 +169,8 @@ export function DataTableMailing({
   const { t } = useTranslation();
 
   return (
-    <div className="w-full">
-      <div className="flex items-center py-4 justify-between">
+    <div className="w-full overflow-hidden">
+      <div className="flex items-center py-4 justify-between h-full overflow-hidden">
         <Input
           placeholder={`Filter ${name.toLowerCase()}s...`}
           value={(table.getColumn("data")?.getFilterValue() as string) ?? ""}
