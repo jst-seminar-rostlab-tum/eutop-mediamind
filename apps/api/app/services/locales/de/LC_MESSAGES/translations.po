@@ -142,6 +142,9 @@ msgstr "Dies ist Ihr aktueller Pressespiegel, sorgfältig ausgewählt, um Ihren 
 msgid "Each story has been selected based on its relevance to your profile, providing you with a comprehensive overview of today's key developments"
 msgstr "Jeder Artikel wurde auf Grundlage seiner Relevanz für Ihr Profil ausgewählt und bietet Ihnen einen umfassenden Überblick über die wichtigsten Entwicklungen des Tages"
 
+msgid "We have attached your PDF report to this email for your convenience"
+msgstr "Wir haben Ihren PDF-Bericht zur besseren Übersicht diesem E-Mail angehängt"
+
 msgid "Download here"
 msgstr "Hier herunterladen"
 

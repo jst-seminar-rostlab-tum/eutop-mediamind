@@ -134,7 +134,7 @@ export function DashboardPage() {
       </Breadcrumb>
       <Text hierachy={2}>{t("dashboard.dashboard")}</Text>
       <Link to="/dashboard/breaking">
-        <Alert className="hover:bg-secondary/80 mb-4 bg-secondary text-white">
+        <Alert className="hover:bg-blue-100 mb-4 bg-blue-200 text-blue-900">
           <Info />
           <AlertTitle>{t("breaking-news.entry")}</AlertTitle>
         </Alert>

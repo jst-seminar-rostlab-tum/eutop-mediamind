@@ -1002,11 +1002,8 @@ export interface components {
         OrganizationCreateOrUpdate: {
             /** Name */
             name: string;
-            /**
-             * Email
-             * Format: email
-             */
-            email: string;
+            /** Email */
+            email: string | null;
             /** Pdf As Link */
             pdf_as_link: boolean;
             /** Users */
@@ -1016,11 +1013,8 @@ export interface components {
         OrganizationResponse: {
             /** Name */
             name: string;
-            /**
-             * Email
-             * Format: email
-             */
-            email: string;
+            /** Email */
+            email: string | null;
             /** Pdf As Link */
             pdf_as_link: boolean;
             /**
