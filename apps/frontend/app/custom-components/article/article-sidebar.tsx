@@ -13,7 +13,6 @@ import { ExternalLink, ChevronDown, ChevronUp, Info } from "lucide-react";
 import { getPercentage } from "~/lib/utils";
 import { getLocalizedContent } from "~/lib/utils";
 import { useState } from "react";
-import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
 
 interface ArticleSidebarProps {
   article: ArticleMatch;
