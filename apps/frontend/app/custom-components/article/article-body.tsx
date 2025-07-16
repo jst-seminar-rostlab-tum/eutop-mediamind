@@ -1,6 +1,6 @@
 import { Calendar, FileClock, Info, User } from "lucide-react";
 import ReactMarkdown from "react-markdown";
-import { Alert, AlertTitle } from "~/components/ui/alert";
+import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
 import { useTranslation } from "react-i18next";
 
 interface ArticleBodyProps {
@@ -54,9 +54,12 @@ export function ArticleBody({
         </div>
       </div>
       {onlySummary && (
-        <Alert>
+        <Alert variant="destructive">
           <Info />
-          <AlertTitle>{t("article-page.only_summary")}</AlertTitle>
+          <AlertTitle>{t("article-page.limited_content")}</AlertTitle>
+          <AlertDescription>
+            {t("article-page.limited_content_description")}
+          </AlertDescription>
         </Alert>
       )}
       <section className={"markdown"}>

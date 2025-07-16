@@ -42,15 +42,7 @@ export function ArticleSidebar({ article }: ArticleSidebarProps) {
           <ExternalLink />
         </a>
       </Button>
-      {onlySummary ? (
-        <Alert variant="destructive">
-          <Info />
-          <AlertTitle>{t("article-page.limited_content")}</AlertTitle>
-          <AlertDescription>
-            {t("article-page.limited_content_description")}
-          </AlertDescription>
-        </Alert>
-      ) : (
+      {!onlySummary && (
         <div className={"rounded-lg pl-4 pr-4 bg-gray-100"}>
           <Accordion
             type={"single"}
