@@ -6,6 +6,7 @@ from datetime import date, datetime
 
 from selenium.webdriver.support.ui import WebDriverWait
 
+from app.core.logger import get_logger
 from app.models.article import Article, ArticleStatus
 from app.models.crawl_stats import CrawlStats
 from app.models.subscription import Subscription
@@ -26,6 +27,8 @@ from app.services.web_harvester.utils.web_utils import (
     safe_execute_script,
     safe_page_load,
 )
+
+logger = get_logger(__name__)
 
 
 async def run_crawler(
@@ -84,6 +87,7 @@ async def _scrape_articles_for_subscription(subscription, executor):
         executor, run_selenium_code, new_articles, subscription, scraper, loop
     )
 
+    logger.info(f"Scraper executor done for Subscription {subscription.name}.")
     # Store every scraped article in the database
     for article in scraped_articles:
         if not is_article_valid(article.content):
@@ -94,6 +98,7 @@ async def _scrape_articles_for_subscription(subscription, executor):
             article.status = ArticleStatus.ERROR
         await ArticleRepository.update_article(article)
 
+    logger.info(f"Inserted all articles for Subscription {subscription.name}.")
     # Log the crawler stats
     successful_articles = [
         article
@@ -269,9 +274,8 @@ def _handle_logout_and_cleanup(
                 )
     finally:
         try:
-            print("Quitting driver...")
             driver.quit()
-            print("Driver quit successfully.")
+            logger.info(f"{subscription.name} Driver quit successfully.")
         except Exception as e:
             scraper.logger.error(f"Error quitting driver: {e}")
 
