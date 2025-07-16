@@ -43,7 +43,7 @@ const createFormSchema = (t: TFunction) =>
       .string()
       .min(1, { message: t("subscription-dialog.name_required") })
       .max(20, { message: t("subscription-dialog.name_length") })
-      .regex(/^[a-zA-Z0-9]+$/, {
+      .regex(/^[a-zA-Z0-9 ]+$/, {
         message: t("subscription-dialog.name_regex"),
       }),
     url: z.string().url({ message: t("subscription-dialog.url_valid") }),
@@ -343,7 +343,9 @@ export function SubscriptionDialog({
               )}
 
               <DialogFooter>
-                <Button type="submit">{t("save_changes")}</Button>
+                <Button className="mt-2" type="submit">
+                  {t("save_changes")}
+                </Button>
               </DialogFooter>
             </form>
           </Form>
