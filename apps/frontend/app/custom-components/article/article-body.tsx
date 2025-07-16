@@ -1,11 +1,14 @@
-import { Calendar, FileClock, User } from "lucide-react";
+import { Calendar, FileClock, Info, User } from "lucide-react";
 import ReactMarkdown from "react-markdown";
+import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
+import { useTranslation } from "react-i18next";
 
 interface ArticleBodyProps {
   title: string;
   content: string;
   published_at: string;
   author?: string;
+  onlySummary: boolean;
 }
 
 const calculateReadingTime = (text: string): string => {
@@ -25,9 +28,10 @@ export function ArticleBody({
   content,
   published_at,
   author,
+  onlySummary,
 }: ArticleBodyProps) {
   const readingTime = calculateReadingTime(content);
-
+  const { t } = useTranslation();
   return (
     <div className={"space-y-5"}>
       <h2 className={"text-3xl font-bold"}>{title}</h2>
@@ -49,6 +53,12 @@ export function ArticleBody({
           {readingTime}
         </div>
       </div>
+      {onlySummary && (
+        <Alert>
+          <Info />
+          <AlertTitle>{t("article-page.only_summary")}</AlertTitle>
+        </Alert>
+      )}
       <section className={"markdown"}>
         <ReactMarkdown>{content}</ReactMarkdown>
       </section>

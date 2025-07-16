@@ -42,6 +42,7 @@ export function ArticlePage({
                 ? getLocalizedContent(article.article.summary)
                 : localizedText
             }
+            onlySummary={onlySummary}
             published_at={publishDateString}
             {...(article.article.authors?.length
               ? { author: article.article.authors.join(", ") }

@@ -228,7 +228,8 @@
     "show_more": "Mehr anzeigen",
     "show_less": "Weniger anzeigen",
     "limited_content": "Begrenzter Inhalt verfügbar",
-    "limited_content_description": "Dieser Artikel zeigt nur eine Zusammenfassung anstelle des vollständigen Inhalts. Das Abonnement Ihrer Organisation berechtigt nicht zum Zugriff auf den vollständigen Inhalt. Für vollständigen Zugriff wenden Sie sich bitte an Ihren Administrator."
+    "limited_content_description": "Dieser Artikel zeigt nur eine Zusammenfassung anstelle des vollständigen Inhalts. Das Abonnement Ihrer Organisation berechtigt nicht zum Zugriff auf den vollständigen Inhalt. Für vollständigen Zugriff wenden Sie sich bitte an Ihren Administrator.",
+    "only_summary": "Nur Zusammenfassung verfügbar"
   },
 
   "role-badge": {
