@@ -98,8 +98,6 @@ async def delete_organization(
     organization_id: uuid.UUID,
     current_user: UserEntity = Depends(get_authenticated_user),
 ):
-    if not current_user.is_superuser:
-        raise HTTPException(status_code=403, detail="Insufficient privileges")
     await OrganizationService.delete_organization(
         organization_id, current_user
     )
