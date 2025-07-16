@@ -12,6 +12,14 @@ from app.services.search_profiles_service import SearchProfileService
 
 
 @patch(
+    "app.services.search_profiles_service.SubscriptionRepository.has_organization_subscription_access",
+    new_callable=AsyncMock,
+)
+@patch(
+    "app.services.search_profiles_service.SearchProfileRepository.get_by_id",
+    new_callable=AsyncMock,
+)
+@patch(
     "app.services.search_profiles_service.ArticleRepository.get_subscription_id_for_article",
     new_callable=AsyncMock,
 )
@@ -32,8 +40,21 @@ def test_get_article_overview(
         mock_get_keywords,
         mock_get_topic_names,
         mock_get_subscription_id,
+        mock_get_profile,
+        mock_has_subscription_access,
 ):
     search_profile_id = uuid4()
+
+    # mock search profile
+    fake_search_profile = type(
+        "SearchProfile",
+        (),
+        {
+            "id": search_profile_id,
+            "name": "Test Profile",
+            "organization_id": uuid4(),
+        },
+    )()
 
     # mock article & match
     article = type(
@@ -76,6 +97,8 @@ def test_get_article_overview(
     mock_get_subscription_id.return_value = article.subscription_id
     mock_get_topic_names.return_value = {match.topic_id: "TestTopic"}
     mock_get_keywords.return_value = {match.topic_id: ["keyword1", "keyword2"]}
+    mock_get_profile.return_value = fake_search_profile
+    mock_has_subscription_access.return_value = True
 
     request = MatchFilterRequest(
         searchTerm=None,
@@ -143,6 +166,7 @@ def test_get_match_detail_success():
         {
             "id": search_profile_id,
             "name": "My Profile",
+            "organization_id": uuid4(),
         },
     )()
 
