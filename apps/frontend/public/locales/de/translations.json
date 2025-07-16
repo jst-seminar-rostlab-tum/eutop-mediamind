@@ -211,7 +211,8 @@
     "reports": "Berichte",
     "Explore": "Erkunden",
     "New_Articles": "Neue Artikel",
-    "articles_error": "Artikel konnten nicht abgerufen werden"
+    "articles_error": "Artikel konnten nicht abgerufen werden",
+    "no_image": "Kein Bild"
   },
 
   "article-page": {
