@@ -253,7 +253,8 @@ class EmailService:
                 "via your dashboard"
             ),
             "text_3_link_false": translator(
-                "We have attached your PDF report to this email for your convenience"
+                "We have attached your PDF report to this "
+                "email for your convenience"
             ),
             "click_text": translator("click here"),
             "text_4": translator(
