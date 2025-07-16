@@ -36,6 +36,7 @@ export function ArticleBody({
   image_urls,
 }: ArticleBodyProps) {
   const readingTime = calculateReadingTime(content);
+  const validImages = image_urls.filter((url) => url && url.trim() !== "");
 
   return (
     <div className={"space-y-5"}>
@@ -58,10 +59,10 @@ export function ArticleBody({
           {readingTime}
         </div>
       </div>
-      {image_urls.length > 0 && (
+      {validImages.length > 0 && (
         <Carousel className="w-full">
           <CarouselContent className="">
-            {image_urls.map((image_url, index) => (
+            {validImages.map((image_url, index) => (
               <CarouselItem key={index}>
                 <div key={index}>
                   <img
@@ -69,6 +70,9 @@ export function ArticleBody({
                     alt={`Article image ${index + 1}`}
                     className="w-full h-auto rounded-lg shadow-sm"
                     loading="lazy"
+                    onError={(e) => {
+                      e.currentTarget.style.display = "none";
+                    }}
                   />
                 </div>
               </CarouselItem>
