@@ -136,14 +136,14 @@ module "scheduler_dev" {
 }
 
 module "qdrant" {
-  source                   = "./modules/qdrant"
-  service_name             = "mediamind"
-  cluster_name             = local.cluster_name
-  subnet_ids               = data.aws_subnets.selected.ids
-  vpc_id                   = data.aws_vpc.selected.id
-  vpc_cidr_block           = data.aws_vpc.selected.cidr_block
-  api_key                  = jsondecode(data.aws_secretsmanager_secret_version.creds.secret_string)["QDRANT_API_KEY"]
-  alb_target_group_arn     = module.alb.alb_target_group_arn_prod
-  alb_listener_arn         = module.alb.alb_listener_arn
-  alb_security_group_id    = module.alb.alb_security_group_id
+  source                = "./modules/qdrant"
+  service_name          = "mediamind"
+  cluster_name          = local.cluster_name
+  subnet_ids            = data.aws_subnets.selected.ids
+  vpc_id                = data.aws_vpc.selected.id
+  vpc_cidr_block        = data.aws_vpc.selected.cidr_block
+  api_key               = jsondecode(data.aws_secretsmanager_secret_version.creds.secret_string)["QDRANT_API_KEY"]
+  alb_target_group_arn  = module.alb.alb_target_group_arn_prod
+  alb_listener_arn      = module.alb.alb_listener_arn
+  alb_security_group_id = module.alb.alb_security_group_id
 }
