@@ -166,6 +166,7 @@
                                 {{ text_1 }}.<br/><br/>
                                 {{ text_2 }}.
                             </p>
+                            {% if pdf_as_link %}
                             <div style="text-align: center; margin: 32px 0 24px 0">
                                 <a
                                         class="download-btn"
@@ -188,6 +189,8 @@
                                     {{ download_text }}
                                 </a>
                             </div>
+                            {% endif %}
+                            {% if pdf_as_link %}
                             <div
                                     style="
                       margin-bottom: 25px;
@@ -195,12 +198,24 @@
                       border-bottom: 1px solid #e9ecef;
                     "
                             >
-                                {{ text_3 }} (<a
+                                {{ text_3_link_true }} (<a
                                     style="font-weight: 600; color: #1e5091"
                                     href="{{ dashboard_link }}"
                             >{{ click_text }}</a
                             >).
                             </div>
+                            {% else %}
+                            <div
+                                    style="
+                      margin-bottom: 25px;
+                      padding-bottom: 25px;
+                      border-bottom: 1px solid #e9ecef;
+                    "
+                            >
+                                {{ text_3_link_false }}.
+                            </div>
+                            {% endif %}
+                            {% if pdf_as_link %}
                             <div style="color: #888; font-size: 0.9em">
                                 {{ text_4 }}:<br/>
                                 <span
@@ -217,6 +232,7 @@
                                 ></span
                                 >
                             </div>
+                            {% endif %}
                         </div>
                     </td>
                 </tr>

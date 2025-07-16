@@ -236,18 +236,20 @@ class LLMClient:
             bool: True if the batch was completed successfully,
             False otherwise.
         """
-        while True:
+        current = await aretrieve_batch(
+            batch_id=batch_id, custom_llm_provider="openai"
+        )
+        while current.status not in (
+            "completed",
+            "failed",
+            "expired",
+            "cancelled",
+        ):
+            logger.info(f"Batch status: {current.status}")
+            await asyncio.sleep(10)
             current = await aretrieve_batch(
                 batch_id=batch_id, custom_llm_provider="openai"
             )
-            logger.info(f"Batch status: {current.status}")
-            if (
-                current.status
-                in ("completed", "failed", "expired", "cancelled")
-                and current.output_file_id
-            ):
-                break
-            await asyncio.sleep(10)
         return current.status == "completed"
 
     @staticmethod

@@ -215,7 +215,8 @@
     "reports": "Reports",
     "Explore": "Explore",
     "New_Articles": "New Articles",
-    "articles_error": "Error fetching Articles"
+    "articles_error": "Error fetching Articles",
+    "no_image": "No Image"
   },
 
   "article-page": {
@@ -273,7 +274,15 @@
     "attempted": "Attempted",
     "failed": "Failed",
     "notes": "Notes",
-    "error": "Error loading crawler stats."
+    "error": "Error loading crawler stats.",
+    "Sum": "Sum",
+    "Never": "Never",
+    "Once": "Min. once",
+    "Statistics": "Statistics",
+    "Crawlers": "Crawlers",
+    "Subscriptions": "Subscriptions",
+    "show_more": "show more",
+    "show_less": "show less"
   },
 
   "reports": {

@@ -1,4 +1,5 @@
 import string
+import unicodedata
 from logging import getLogger
 
 logger = getLogger(__name__)
@@ -13,25 +14,53 @@ def is_article_valid(text: str) -> bool:
     return not contains_disallowed_chars(text)
 
 
-ALLOWED_CHARS = set(
-    string.ascii_letters
-    + string.digits
-    + "äöüÄÖÜßéèêëàâîïôùûçÉÈÊËÀÂÎÏÔÙÛÇ"  # german, french characters
-    + ".,;:!?()[]\"'-–—…"  # punctuation
-    + "+-×÷=%<>±≈≠∞π√∑∆∫∂°$€£¥"  # numbers and symbols
-    + "@#^&*_~|\\"
-    + " "  # space
-)
+def build_allowed_chars():
+    allowed = set(
+        string.ascii_letters
+        + string.digits
+        + ".,;:!?()[]\"'-–—…„“”’‹›«»/‐‑"
+        + "+-×÷=%<>±≈≠∞π√∑∆∫∂°$€£¥"
+        + "@#^&*_~|\\"
+        + " \u00a0\u202f\n\r\t"
+        + "₀₁₂₃₄₅₆₇₈₉"
+        + "¹²³⁴⁵⁶⁷⁸⁹⁰"
+        + "‘’‚“”„‹›«»"
+        + "㈠㈡㈢㈣㈤㈥㈦㈧㈨㈩"
+        + "µμΩωαβγΓΔδθλσΣφπΠχψΦΨ"
+        + "①②③④⑤⑥⑦⑧⑨⑩⑪⑫⑬⑭⑮⑯⑰⑱⑲⑳"
+        + "。、《》「」『』【】〜"
+        + "ÆæŒœøØÅå"
+        + "‰‱℃℉ℓ℮"
+        + "·•※‧⁃"
+        + "©®™"
+        + "ᵃᵇᶜᵈᵉᶠᵍʰⁱʲᵏˡᵐⁿᵒᵖʳˢᵗᵘᵛʷˣʸᶻ"
+        + "ᴬᴮᶜᴰᴱᶠᴳᴴᴵᴶᴷᴸᴹᴺᴼᴾᴿˢᵀᵁⱽᵂ"
+        + "ʰʲʳʷʸˠˤˡˢˣ"
+    )
+
+    for codepoint in range(0x00A0, 0x2FFF):  # Latin Extended A/B/C/D/E
+        char = chr(codepoint)
+        try:
+            if char.isalpha() and "LATIN" in unicodedata.name(char):
+                allowed.add(char)
+        except ValueError:
+            continue
+
+    return allowed
+
+
+ALLOWED_CHARS = build_allowed_chars()
 
 
 def contains_disallowed_chars(text: str, max_violations=5) -> bool:
     violations = 0
     for ch in text:
         if ch not in ALLOWED_CHARS and not ch.isspace():
-            logger.warning
-            (f"[Gibberish] illegal char: '{ch}' (U+{ord(ch):04X})")
+            logger.warning(
+                f"[Gibberish] illegal char: '{ch}' (U+{ord(ch):04X})"
+            )
             violations += 1
             if violations >= max_violations:
-                print("... (too many violations, truncated)")
+                logger.warning("... (too many violations, truncated)")
                 return True
-    return violations > 0
+    return violations > 1

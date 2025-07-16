@@ -23,8 +23,8 @@ class ArticleSummaryService:
         return (
             f"Summarize the following article in a clear, neutral, "
             f"and informative tone, covering all major points without "
-            f"omitting key details. Make the summary in the article's language"
-            f"Then, extract and list separately:\n"
+            f"omitting key details. The summary must be in the same "
+            f"language as the article. Then, extract and list separately:\n"
             f"- Persons mentioned\n"
             f"- Industries mentioned\n"
             f"- Events mentioned\n"
@@ -176,22 +176,17 @@ class ArticleSummaryService:
         Main entry point to summarize a list of articles and
         store their extracted entities.
         """
-        while True:
-            articles = await ArticleRepository.list_articles_without_summary(
-                limit=page_size,
-                datetime_start=datetime_start,
-                datetime_end=datetime_end,
-            )
-            if not articles:
-                logger.info("No more articles to summarize")
-                break
-
+        articles = await ArticleRepository.list_articles_without_summary(
+            limit=page_size,
+            datetime_start=datetime_start,
+            datetime_end=datetime_end,
+        )
+        while articles:
             if use_batch_api:
                 logger.info(f"Processing batch with {len(articles)} articles")
                 await ArticleSummaryService._summarize_and_store_batch(
                     articles
                 )
-
             else:
                 logger.info(
                     f"Processing {len(articles)} articles concurrently"
@@ -203,3 +198,10 @@ class ArticleSummaryService:
                     for article in articles
                 ]
                 await asyncio.gather(*tasks, return_exceptions=True)
+
+            articles = await ArticleRepository.list_articles_without_summary(
+                limit=page_size,
+                datetime_start=datetime_start,
+                datetime_end=datetime_end,
+            )
+        logger.info("No more articles to summarize")

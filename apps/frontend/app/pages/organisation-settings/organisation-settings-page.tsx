@@ -1,13 +1,13 @@
 import { isEqual } from "lodash-es";
-import { Loader2 } from "lucide-react";
+import { Link2, Loader2, Newspaper } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { client, useQuery } from "types/api";
 import type { Subscription } from "types/model";
 import { Button } from "~/components/ui/button";
+import { Card } from "~/components/ui/card";
 import { Label } from "~/components/ui/label";
-import { ScrollArea, ScrollBar } from "~/components/ui/scroll-area";
 import { Switch } from "~/components/ui/switch";
 import { DataTableSubscriptions } from "~/custom-components/profile/edit/data-table-subscriptions";
 
@@ -88,51 +88,52 @@ export const OrganisationSettingsPage = ({
 
   return (
     <>
-      <div className="mt-4 grow flex flex-col overflow-hidden">
-        <div className="text-lg font-semibold">
-          {t("organisation_settings.pdf_as_link")}
-        </div>
-        <div className="flex gap-2 mt-2">
-          <Switch
-            checked={editedPdfAsLink}
-            onCheckedChange={setEditedPdfAsLink}
-          />
-          <Label className="text-sm text-muted-foreground mb-4">
-            {t("organisation_settings.pdf_as_link_text")}
+      <Card className="px-6 py-0 pb-2 mb-20 gap-4 overflow-hidden">
+        <div className="mt-4 flex flex-col overflow-hidden">
+          <Label className="text-lg font-semibold mt-2">
+            <Link2 className="mr-2" />
+            {t("organisation_settings.pdf_as_link")}
           </Label>
-        </div>
-        <Label className="text-lg font-semibold mt-2">
-          {t("organisation_settings.subscriptions")}
-        </Label>
-        <p className="text-sm text-muted-foreground mb-4 mt-2">
-          {t("organisation_settings.subscriptions_text")}
-        </p>
-        <div className="grow flex flex-col overflow-hidden">
-          <ScrollArea className="h-full">
-            <DataTableSubscriptions
-              name="Source"
-              allSubscriptions={data?.subscriptions ?? []}
-              setSubscriptions={setEditedSubscriptions}
-              isLoading={isLoading}
+          <div className="flex gap-2 mt-2">
+            <Switch
+              checked={editedPdfAsLink}
+              onCheckedChange={setEditedPdfAsLink}
             />
-            <ScrollBar orientation="vertical" className="mt-2" />
-          </ScrollArea>
+            <Label className="text-sm text-muted-foreground mb-4">
+              {t("organisation_settings.pdf_as_link_text")}
+            </Label>
+          </div>
+          <Label className="text-lg font-semibold mt-2">
+            <Newspaper className="mr-2" />
+            {t("organisation_settings.subscriptions")}
+          </Label>
+          <p className="text-sm text-muted-foreground mb-4 mt-2">
+            {t("organisation_settings.subscriptions_text")}
+          </p>
+          <DataTableSubscriptions
+            name="Source"
+            allSubscriptions={data?.subscriptions ?? []}
+            setSubscriptions={setEditedSubscriptions}
+            isLoading={isLoading}
+          />
         </div>
-      </div>
-      <Button
-        variant="default"
-        size="sm"
-        onClick={() => handleChangedSubscriptions(editedSubscriptions)}
-        disabled={
-          isSaving ||
-          (isEqual(editedSubscriptions, data?.subscriptions) &&
-            data?.pdf_as_link === editedPdfAsLink)
-        }
-        className="my-4 w-fit"
-      >
-        {isSaving && <Loader2 className="animate-spin mr-2 h-4 w-4" />}
-        {t("save")}
-      </Button>
+        <div className="flex justify-end">
+          <Button
+            variant="default"
+            size="sm"
+            onClick={() => handleChangedSubscriptions(editedSubscriptions)}
+            disabled={
+              isSaving ||
+              (isEqual(editedSubscriptions, data?.subscriptions) &&
+                data?.pdf_as_link === editedPdfAsLink)
+            }
+            className="my-4 w-fit"
+          >
+            {isSaving && <Loader2 className="animate-spin mr-2 h-4 w-4" />}
+            {t("save")}
+          </Button>
+        </div>
+      </Card>
     </>
   );
 };
