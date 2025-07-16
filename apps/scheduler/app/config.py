@@ -10,6 +10,8 @@ class Config(BaseSettings):
 
     EMAIL_JOB_INTERVAL: int
     PIPELINE_JOB_INTERVAL: int
+    RSS_JOB_INTERVAL: int
+    BREAKING_NEWS_JOB_INTERVAL: int
 
     API_BASE_URL: str
 

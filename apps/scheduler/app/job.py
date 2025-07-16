@@ -9,7 +9,7 @@ log = logging.getLogger(__name__)
 
 
 def schedule_jobs(service: SchedulerService, cfg: Config) -> None:
-    log.info("Scheduling jobs...", cfg.EMAIL_JOB_INTERVAL)
+    log.info("Scheduling jobs...")
 
     service.schedule_periodic(
         id=UUID("f47ac10b-58cc-4372-a567-0e02b2c3d479"),
@@ -23,6 +23,20 @@ def schedule_jobs(service: SchedulerService, cfg: Config) -> None:
         every_seconds=cfg.PIPELINE_JOB_INTERVAL,
         func=job_request,
         args=[f"{cfg.API_BASE_URL}/v1/jobs/pipeline"],
+    )
+
+    service.schedule_periodic(
+        id=UUID("d6b4b98a-9282-4bb0-89d0-09a412a76ab4"),
+        every_seconds=cfg.RSS_JOB_INTERVAL,
+        func=job_request,
+        args=[f"{cfg.API_BASE_URL}/v1/jobs/rss"],
+    )
+
+    service.schedule_periodic(
+        id=UUID("cc1dface-9213-4eed-8cb2-0edba6b2159c"),
+        every_seconds=cfg.BREAKING_NEWS_JOB_INTERVAL,
+        func=job_request,
+        args=[f"{cfg.API_BASE_URL}/v1/jobs/breaking-news"],
     )
 
 
