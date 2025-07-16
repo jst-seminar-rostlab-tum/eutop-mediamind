@@ -267,7 +267,12 @@
     "attempted": "Versucht",
     "failed": "Fehlgeschlagen",
     "notes": "Notizen",
-    "error": "Fehler beim Laden der Crawler Statistiken."
+    "error": "Fehler beim Laden der Crawler Statistiken.",
+    "Sum": "Summe",
+    "Never": "Nie",
+    "Statistics": "Statistiken",
+    "Crawlers": "Crawler",
+    "Subscriptions": "Abonnements"
   },
 
   "reports": {

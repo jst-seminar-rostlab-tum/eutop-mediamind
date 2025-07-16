@@ -153,26 +153,44 @@ export const CrawlerStatsPage = () => {
         />
         <div className="flex items-center">
           <ChartPie className="mr-2" />
-          <p className="font-semibold">Statistics</p>
+          <p className="font-semibold"> {t("crawler_stats.Statistics")}</p>
         </div>
         <div className="flex gap-4 mb-2">
-          <p>Crawlers:</p>
-          <Badge>Sum attempted: {totalAttempted}</Badge>
+          <p>{t("crawler_stats.Crawlers") + ":"}</p>
+          <Badge>
+            {t("crawler_stats.Sum") +
+              " " +
+              (t("crawler_stats.attempted").toLowerCase() + ": ")}
+            {totalAttempted}
+          </Badge>
           <Badge className="bg-green-600">
-            Sum successful: {totalSuccessful} ({(successRatio * 100).toFixed(0)}
+            {t("crawler_stats.Sum") +
+              " " +
+              (t("crawler_stats.successful").toLowerCase() + ": ")}
+            {totalSuccessful} ({(successRatio * 100).toFixed(0)}
             %)
           </Badge>
           <Badge className="bg-red-600">
-            Sum failed: {totalAttempted - totalSuccessful} (
+            {t("crawler_stats.Sum") +
+              " " +
+              (t("crawler_stats.failed").toLowerCase() + ": ")}
+            {totalAttempted - totalSuccessful} (
             {(failureRatio * 100).toFixed(0)}%)
           </Badge>
         </div>
         <div className="flex gap-4 mb-2">
-          <p>Subscriptions:</p>
-          <Badge>Sum attempted {data?.total_count}</Badge>
+          <p>{t("crawler_stats.Subscriptions") + ":"}</p>
+          <Badge>
+            {t("crawler_stats.Sum") +
+              " " +
+              (t("crawler_stats.attempted").toLowerCase() + ": ")}
+            {data?.total_count}
+          </Badge>
           <Badge className="bg-red-600">
-            Never successful: {zeroSuccessful} (
-            {(zeroSuccessRatio * 100).toFixed(0)}%)
+            {t("crawler_stats.Never") +
+              " " +
+              (t("crawler_stats.successful").toLowerCase() + ": ")}{" "}
+            {zeroSuccessful} ({(zeroSuccessRatio * 100).toFixed(0)}%)
           </Badge>
         </div>
         <DataTable
