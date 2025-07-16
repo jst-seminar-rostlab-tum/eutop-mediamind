@@ -102,7 +102,7 @@ export default function Header() {
             <DropdownMenuTrigger asChild>
               <Button variant="outline" className="flex items-center gap-2">
                 <Globe />
-                {(user?.language ?? "en").toLocaleUpperCase()}
+                {(user?.language ?? i18n.language).toLocaleUpperCase()}
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">

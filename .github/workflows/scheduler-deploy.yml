@@ -8,11 +8,10 @@ on:
 jobs:
   scheduler-premerge:
     uses: ./.github/workflows/scheduler-premerge.yml
-
   build-and-push:
     uses: ./.github/workflows/docker-build-push.yml
     with:
-      image_name: ecr-mediamind
+      image_name: ecr-mediamind-scheduler
       image_tag: latest
       dockerfile_path: ./apps/scheduler/Dockerfile
       context: ./apps/scheduler
@@ -40,7 +39,7 @@ jobs:
         run: |
           aws ecs update-service \
             --cluster mediamind-cluster \
-            --service mediamind-service \
+            --service mediamind-scheduler \
             --force-new-deployment \
             --region eu-central-1
 
@@ -48,6 +47,6 @@ jobs:
         run: |
           aws ecs update-service \
             --cluster mediamind-cluster \
-            --service mediamind-service-dev \
+            --service mediamind-scheduler-dev \
             --force-new-deployment \
             --region eu-central-1

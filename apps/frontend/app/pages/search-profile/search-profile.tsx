@@ -14,11 +14,7 @@ import { Card, CardTitle } from "~/components/ui/card";
 import { Input } from "~/components/ui/input";
 import Layout from "~/custom-components/layout";
 import Text from "~/custom-components/text";
-import {
-  getLocalizedContent,
-  getPercentage,
-  truncateAtWord,
-} from "~/lib/utils";
+import { getLocalizedContent, getPercentage } from "~/lib/utils";
 import { useNavigate } from "react-router";
 import { SidebarFilter } from "./sidebar-filter";
 import { ScrollArea, ScrollBar } from "~/components/ui/scroll-area";
@@ -65,6 +61,7 @@ export function SearchProfileOverview() {
     undefined,
   );
   const [matchesLoading, setMatchesLoading] = useState<boolean>(false);
+  const [imgError, setImgError] = useState(false);
 
   useEffect(() => {
     if (!id) {
@@ -174,9 +171,6 @@ export function SearchProfileOverview() {
             </Breadcrumb>
             <div className="flex gap-6 items-center">
               <Text hierachy={2}>{profile?.name}</Text>
-              <div className="bg-blue-200 etext-blue-900 font-bold rounded-full h-8 flex items-center justify-center text-sm shadow-sm p-4">
-                {profile.new_articles_count} {t("search_profile.New_Articles")}
-              </div>
             </div>
             <div className="flex items-center justify-between mb-4 gap-10">
               <ScrollArea className="grow overflow-x-hidden whitespace-nowrap rounded-md pb-1.5">
@@ -226,7 +220,7 @@ export function SearchProfileOverview() {
                 setToDate={setToDate}
               />
             </div>
-            <div className="min-w-[500px] grow flex flex-col overflow-hidden">
+            <div className="min-w-[500px] grow flex flex-col overflow-hidden pl-1 pt-1">
               <div className="relative mb-4 w-full flex">
                 <Input
                   placeholder={t("Search") + " " + t("search_profile.articles")}
@@ -255,9 +249,9 @@ export function SearchProfileOverview() {
                         const relevance = match.relevance;
 
                         const bgColor =
-                          relevance > 7
+                          relevance > 0.7
                             ? "bg-green-200"
-                            : relevance < 3
+                            : relevance < 0.3
                               ? "bg-red-200"
                               : "bg-yellow-200";
 
@@ -267,16 +261,33 @@ export function SearchProfileOverview() {
                               className="mb-4 p-5 gap-4 justify-start"
                               key={match.id}
                             >
-                              <CardTitle className="text-xl">
-                                {getLocalizedContent(match.article.headline)}
-                              </CardTitle>
-                              <p>
-                                {truncateAtWord(
-                                  getLocalizedContent(match.article.summary),
-                                  190,
+                              <div className="flex flex-row gap-4">
+                                {!match.article.image_urls[0] || imgError ? (
+                                  <div className="w-[180px] h-[180px] rounded-md shadow-md border flex items-center justify-center text-muted-foreground text-sm shrink-0">
+                                    {t("search_profile.no_image")}
+                                  </div>
+                                ) : (
+                                  <img
+                                    src={match.article.image_urls[0]}
+                                    alt={getLocalizedContent(
+                                      match.article.headline,
+                                    )}
+                                    className="w-[180px] h-[180px] object-cover rounded-md shadow-md shrink-0"
+                                    onError={() => setImgError(true)}
+                                  />
                                 )}
-                              </p>
-                              <div className="flex gap-3 items-center">
+                                <div className="flex flex-col justify-evenly gap-4 p-2">
+                                  <CardTitle className="text-xl line-clamp-2">
+                                    {getLocalizedContent(
+                                      match.article.headline,
+                                    )}
+                                  </CardTitle>
+                                  <p className="line-clamp-3">
+                                    {getLocalizedContent(match.article.summary)}
+                                  </p>
+                                </div>
+                              </div>
+                              <div className="flex gap-3 items-center flex-wrap">
                                 <div
                                   className={`rounded-lg py-1 px-2 ${bgColor}`}
                                 >
@@ -285,7 +296,7 @@ export function SearchProfileOverview() {
                                 </div>
                                 {match.topics.map((topic) => (
                                   <div
-                                    className="bg-secondary rounded-lg py-1 px-2"
+                                    className="bg-gray-200 rounded-lg py-1 px-2 shrink-0"
                                     key={topic.id}
                                   >
                                     {getPercentage(topic.score) +
