@@ -69,7 +69,6 @@ def contains_disallowed_chars(text: str, max_violations=5) -> bool:
     violations = 0
     for ch in text:
         if ch not in ALLOWED_CHARS and not ch.isspace():
-            logger.warning(f"Disallowed character detected: {ch!r}")
             violations += 1
             if violations >= max_violations:
                 logger.warning("... (too many violations, truncated)")
@@ -99,24 +98,3 @@ def has_minimum_content(text: str, min_chars: int = 150) -> bool:
         )
         return False
     return True
-
-
-async def main():
-    # read from article.txt and check validity
-    with open("article.txt", "r", encoding="utf-8") as f:
-        article_text = f.read()
-        if is_article_valid(article_text):
-            print("OK!")
-        else:
-            cleaned_content = await clean_article_llm(article_text)
-            if cleaned_content.strip() == "":
-                print("Article content is empty after cleaning.")
-            else:
-                print("Cleaned content:", cleaned_content)
-            print("Not OK.")
-
-
-if __name__ == "__main__":
-    import asyncio
-
-    asyncio.run(main())
