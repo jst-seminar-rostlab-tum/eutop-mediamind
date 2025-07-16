@@ -98,6 +98,19 @@ resource "aws_lb_target_group" "dev" {
   }
 }
 
+resource "aws_lb_target_group" "qdrant" {
+  name        = "mediamind-qdrant-tg"
+  port        = 6333
+  protocol    = "HTTP"
+  vpc_id      = var.vpc_id
+  target_type = "ip"
+  health_check {
+    protocol = "HTTP"
+    path     = "/health"
+    port     = "6333"
+  }
+}
+
 resource "aws_lb_listener_rule" "prod" {
   listener_arn = aws_lb_listener.https.arn
   priority     = 10
@@ -126,6 +139,20 @@ resource "aws_lb_listener_rule" "dev" {
   }
 }
 
+resource "aws_lb_listener_rule" "qdrant" {
+  listener_arn = aws_lb_listener.https.arn
+  priority     = 30
+  action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.qdrant.arn
+  }
+  condition {
+    host_header {
+      values = ["qdrant.mediamind.csee.tech"]
+    }
+  }
+}
+
 output "alb_security_group_id" {
   value = aws_security_group.alb.id
 }
@@ -148,4 +175,8 @@ output "alb_target_group_arn_prod" {
 
 output "alb_target_group_arn_dev" {
   value = aws_lb_target_group.dev.arn
+}
+
+output "alb_target_group_arn_qdrant" {
+  value = aws_lb_target_group.qdrant.arn
 }
