@@ -2,6 +2,7 @@ variable "cluster_name" { type = string }
 variable "service_name" { type = string }
 variable "container_image" { type = string }
 variable "redis_endpoint" { type = string }
+variable "api_base_url" { type = string }
 variable "subnet_ids" { type = list(string) }
 variable "vpc_id" { type = string }
 variable "region" { type = string }
@@ -56,6 +57,7 @@ resource "aws_ecs_task_definition" "app" {
         { name = "SCHEDULER_INTERVAL", value = "60" },
         { name = "EMAIL_JOB_INTERVAL", value = "30" },
         { name = "PIPELINE_JOB_INTERVAL", value = "1440" },
+        { name = "API_BASE_URL", value = var.api_base_url },
         { name = "REDIS_URL", value = var.redis_endpoint },
       ]
       logConfiguration = {
@@ -78,7 +80,7 @@ resource "aws_ecs_service" "app" {
   launch_type     = "FARGATE"
   network_configuration {
     subnets          = var.subnet_ids
-    assign_public_ip = false
+    assign_public_ip = true
   }
   depends_on = [aws_ecs_task_definition.app]
 }
