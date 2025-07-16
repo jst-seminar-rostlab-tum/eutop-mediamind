@@ -111,6 +111,8 @@ export function General({ profile, setProfile }: GeneralProps) {
     setUsersWithRoles([...readUsers, ...editUsers]);
   }, [users, profile.can_read_user_ids, profile.can_edit_user_ids]);
 
+  console.log(usersWithRoles);
+
   // handle role change
   const handleRoleChange = (index: number, newRights: "read" | "edit") => {
     const user = usersWithRoles[index];
