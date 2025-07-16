@@ -64,7 +64,7 @@ export function DataTable<TData, TValue>({
   const { t } = useTranslation();
 
   return (
-    <div className="w-full h-full overflow-hidden">
+    <div className="w-full h-full pb-28 overflow-hidden">
       <div className="flex items-center w-full">
         <div className="relative w-full pb-4 flex items-center">
           <Input
