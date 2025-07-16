@@ -112,12 +112,12 @@ export const CrawlerStatsPage = () => {
                 >
                   {expanded ? (
                     <>
-                      {t("show less")}
+                      {t("crawler_stats.show_less")}
                       <ChevronUp className="w-4 h-4" />
                     </>
                   ) : (
                     <>
-                      {t("show more")}
+                      {t("crawler_stats.show_more")}
                       <ChevronDown className="w-4 h-4" />
                     </>
                   )}

@@ -277,7 +277,9 @@
     "Once": "Min. once",
     "Statistics": "Statistics",
     "Crawlers": "Crawlers",
-    "Subscriptions": "Subscriptions"
+    "Subscriptions": "Subscriptions",
+    "show_more": "show more",
+    "show_less": "show less"
   },
 
   "reports": {
