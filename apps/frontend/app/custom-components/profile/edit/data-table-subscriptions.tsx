@@ -223,7 +223,7 @@ export function DataTableSubscriptions({
   }
 
   return (
-    <div className="w-full h-full overflow-hidden">
+    <div className="w-full h-full pb-28 overflow-hidden">
       <div className="relative flex items-center py-4 justify-between">
         <Input
           placeholder={
