@@ -12,7 +12,7 @@ def get_pdf_styles(fonts_registered: bool):
         "link_style": ParagraphStyle(
             "Link",
             fontName=(
-                "DVS-BoldOblique"
+                "BoldOblique"
                 if fonts_registered
                 else "Helvetica-BoldOblique"
             ),
@@ -26,7 +26,7 @@ def get_pdf_styles(fonts_registered: bool):
         ),
         "button_style": ParagraphStyle(
             "Link",
-            fontName=("DVS-Bold" if fonts_registered else "Helvetica-Bold"),
+            fontName=("Bold" if fonts_registered else "Helvetica-Bold"),
             fontSize=8,
             textColor=pdf_colors["electricBlue"],
             spaceAfter=6,
@@ -37,7 +37,7 @@ def get_pdf_styles(fonts_registered: bool):
         ),
         "newspaper_style": ParagraphStyle(
             "Newspaper",
-            fontName="DVS-Bold" if fonts_registered else "Helvetica-Bold",
+            fontName="Bold" if fonts_registered else "Helvetica-Bold",
             fontSize=11,
             leading=13,
             textColor=pdf_colors["main"],
@@ -45,7 +45,7 @@ def get_pdf_styles(fonts_registered: bool):
         "keywords_style": ParagraphStyle(
             "Keywords",
             fontName=(
-                "DVS-Oblique" if fonts_registered else "Helvetica-Oblique"
+                "Oblique" if fonts_registered else "Helvetica-Oblique"
             ),
             fontSize=8,
             leading=10,
@@ -54,7 +54,7 @@ def get_pdf_styles(fonts_registered: bool):
         "date_style": ParagraphStyle(
             "Date",
             fontName=(
-                "DVS-Oblique" if fonts_registered else "Helvetica-Oblique"
+                "Oblique" if fonts_registered else "Helvetica-Oblique"
             ),
             fontSize=8,
             leading=10,
@@ -62,14 +62,14 @@ def get_pdf_styles(fonts_registered: bool):
         ),
         "summary_style": ParagraphStyle(
             "Summary",
-            fontName="DVS",
+            fontName="Regular",
             fontSize=9,
             leading=12,
             alignment=TA_JUSTIFY,
         ),
         "title_style": ParagraphStyle(
             "Title",
-            fontName="DVS-Bold",
+            fontName="Bold",
             fontSize=18,
             leading=20,
             spaceAfter=12,
@@ -77,14 +77,14 @@ def get_pdf_styles(fonts_registered: bool):
         ),
         "subtitle_style": ParagraphStyle(
             "Title",
-            fontName="DVS-Bold",
+            fontName="Bold",
             fontSize=14,
             leading=10,
             spaceAfter=10,
         ),
         "metadata_style": ParagraphStyle(
             "Metadata",
-            fontName="DVS" if fonts_registered else "Helvetica-Oblique",
+            fontName="Regular" if fonts_registered else "Helvetica",
             fontSize=8,
             leading=12,
             textColor=pdf_colors["gray"],
@@ -92,7 +92,7 @@ def get_pdf_styles(fonts_registered: bool):
         "metadata_title_style": ParagraphStyle(
             "Metadata_title",
             fontName=(
-                "DVS-BoldOblique" if fonts_registered else "Helvetica-Oblique"
+                "BoldOblique" if fonts_registered else "Helvetica-Oblique"
             ),
             fontSize=8,
             leading=12,
@@ -101,7 +101,7 @@ def get_pdf_styles(fonts_registered: bool):
         "metadata_subtitle_style": ParagraphStyle(
             "Metadata_subtitle",
             fontName=(
-                "DVS-BoldOblique" if fonts_registered else "Helvetica-Oblique"
+                "BoldOblique" if fonts_registered else "Helvetica-Oblique"
             ),
             fontSize=8,
             leading=12,
@@ -109,7 +109,7 @@ def get_pdf_styles(fonts_registered: bool):
         ),
         "content_style": ParagraphStyle(
             "Content",
-            fontName="DVS",
+            fontName="Regular",
             fontSize=11,
             leading=14,
             alignment=TA_JUSTIFY,
@@ -118,7 +118,7 @@ def get_pdf_styles(fonts_registered: bool):
         # Heading styles for Markdown headings
         "h1": ParagraphStyle(
             "Heading1",
-            fontName="DVS-Bold" if fonts_registered else "Helvetica-Bold",
+            fontName="Bold" if fonts_registered else "Helvetica-Bold",
             fontSize=13,
             leading=15,
             spaceBefore=7,
@@ -128,7 +128,7 @@ def get_pdf_styles(fonts_registered: bool):
         ),
         "h2": ParagraphStyle(
             "Heading2",
-            fontName="DVS-Bold" if fonts_registered else "Helvetica-Bold",
+            fontName="Bold" if fonts_registered else "Helvetica-Bold",
             fontSize=12,
             leading=14,
             spaceBefore=6,
@@ -138,7 +138,7 @@ def get_pdf_styles(fonts_registered: bool):
         ),
         "h3": ParagraphStyle(
             "Heading3",
-            fontName="DVS-Bold" if fonts_registered else "Helvetica-Bold",
+            fontName="Bold" if fonts_registered else "Helvetica-Bold",
             fontSize=11,
             leading=13,
             spaceBefore=5,
@@ -148,7 +148,7 @@ def get_pdf_styles(fonts_registered: bool):
         ),
         "h4": ParagraphStyle(
             "Heading4",
-            fontName="DVS-Bold" if fonts_registered else "Helvetica-Bold",
+            fontName="Bold" if fonts_registered else "Helvetica-Bold",
             fontSize=11,
             leading=12,
             spaceBefore=4,
@@ -158,7 +158,7 @@ def get_pdf_styles(fonts_registered: bool):
         ),
         "h5": ParagraphStyle(
             "Heading5",
-            fontName="DVS-Bold" if fonts_registered else "Helvetica-Bold",
+            fontName="Bold" if fonts_registered else "Helvetica-Bold",
             fontSize=11,
             leading=12,
             spaceBefore=3,
@@ -168,7 +168,7 @@ def get_pdf_styles(fonts_registered: bool):
         ),
         "h6": ParagraphStyle(
             "Heading6",
-            fontName="DVS-Bold" if fonts_registered else "Helvetica-Bold",
+            fontName="Bold" if fonts_registered else "Helvetica-Bold",
             fontSize=11,
             leading=12,
             spaceBefore=2,
@@ -178,7 +178,7 @@ def get_pdf_styles(fonts_registered: bool):
         ),
         "reading_time_style": ParagraphStyle(
             "ReadingTime",
-            fontName="DVS" if fonts_registered else "Helvetica",
+            fontName="Regular" if fonts_registered else "Helvetica",
             fontSize=12,
             textColor=pdf_colors["darkgreen"],
             allowOrphans=0,
@@ -187,6 +187,6 @@ def get_pdf_styles(fonts_registered: bool):
         "reading_time_bold_style": ParagraphStyle(
             "ReadingTimeBold",
             parent=None,  # Set parent in main class if needed
-            fontName="DVS-Bold" if fonts_registered else "Helvetica-Bold",
+            fontName="Bold" if fonts_registered else "Helvetica-Bold",
         ),
     }
