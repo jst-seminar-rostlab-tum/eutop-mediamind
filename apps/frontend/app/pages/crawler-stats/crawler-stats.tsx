@@ -19,8 +19,9 @@ import type { Stat } from "types/model";
 import { DataTable } from "~/custom-components/admin-settings/data-table";
 import { format } from "date-fns";
 import { Card } from "~/components/ui/card";
-import { CalendarFold, ChartPie } from "lucide-react";
+import { CalendarFold, ChartPie, ChevronDown, ChevronUp } from "lucide-react";
 import { Badge } from "~/components/ui/badge";
+import { Button } from "~/components/ui/button";
 
 export const CrawlerStatsPage = () => {
   const { t } = useTranslation();
@@ -88,7 +89,43 @@ export const CrawlerStatsPage = () => {
       {
         accessorKey: "notes",
         header: t("crawler_stats.notes"),
-        cell: (info) => info.getValue() ?? "",
+        cell: ({ row }) => {
+          const [expanded, setExpanded] = useState(false);
+          const fullText = row.getValue("notes") as string;
+
+          const lines = (fullText ?? "").split("\n");
+          const previewLineCount = 1;
+          const isLong = lines.length > previewLineCount;
+          const displayedText = expanded
+            ? fullText
+            : lines.slice(0, previewLineCount).join("\n");
+
+          return (
+            <div className="max-w-[400px] whitespace-pre-wrap break-words">
+              {displayedText + "\n"}
+              {isLong && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="p-2 mt-1 underline"
+                  onClick={() => setExpanded(!expanded)}
+                >
+                  {expanded ? (
+                    <>
+                      {t("show less")}
+                      <ChevronUp className="w-4 h-4" />
+                    </>
+                  ) : (
+                    <>
+                      {t("show more")}
+                      <ChevronDown className="w-4 h-4" />
+                    </>
+                  )}
+                </Button>
+              )}
+            </div>
+          );
+        },
         enableSorting: false,
         meta: {
           className: "max-w-[400px] whitespace-normal break-words",
