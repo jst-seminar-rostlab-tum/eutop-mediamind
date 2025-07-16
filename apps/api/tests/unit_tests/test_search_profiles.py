@@ -152,7 +152,7 @@ def test_get_match_detail_success():
             new_callable=AsyncMock,
         ) as mock_get_match,
         patch(
-            "app.repositories.match_repository.MatchRepository.get_matched_articles_for_profile",
+            "app.repositories.match_repository.MatchRepository.get_matches_by_profile_and_article",
             new_callable=AsyncMock,
         ) as mock_get_matches,
         patch(
