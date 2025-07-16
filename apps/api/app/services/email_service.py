@@ -163,6 +163,7 @@ class EmailService:
             port=email_server.port,
             use_tls=email_server.use_tls,
         )
+        
         try:
             await smtp_client.connect()
             await smtp_client.login(email_server.user, email_server.password)
@@ -183,7 +184,7 @@ class EmailService:
             raise Exception(error_message)
         finally:
             await smtp_client.quit()
-        if not (sendmail_response == {}):
+        if not (isinstance(sendmail_response, tuple) and sendmail_response[1].startswith("Ok")):
             error_msg = "Error sending email"
             if bcc_recipients:
                 error_msg += " with BCC"
