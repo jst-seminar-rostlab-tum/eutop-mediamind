@@ -91,14 +91,14 @@ export const CrawlerStatsPage = () => {
         header: t("crawler_stats.notes"),
         cell: ({ row }) => {
           const [expanded, setExpanded] = useState(false);
-          const fullText = row.getValue("notes") as string;
+          const fullText = (row.getValue("notes") as string) ?? "";
 
-          const lines = (fullText ?? "").split("\n");
-          const previewLineCount = 1;
-          const isLong = lines.length > previewLineCount;
+          const charLimit = 100;
+
+          const isLong = fullText.length > charLimit;
           const displayedText = expanded
             ? fullText
-            : lines.slice(0, previewLineCount).join("\n");
+            : fullText.slice(0, charLimit) + (isLong ? "..." : "");
 
           return (
             <div className="max-w-[400px] whitespace-pre-wrap break-words">
