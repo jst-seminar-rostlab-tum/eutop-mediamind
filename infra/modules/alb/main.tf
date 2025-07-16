@@ -106,7 +106,7 @@ resource "aws_lb_target_group" "qdrant" {
   target_type = "ip"
   health_check {
     protocol = "HTTP"
-    path     = "/health"
+    path     = "/"
     port     = "6333"
   }
 }
