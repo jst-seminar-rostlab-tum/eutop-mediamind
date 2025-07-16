@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import Text from "~/custom-components/text";
 import { useAuthorization } from "~/hooks/use-authorization";
@@ -8,6 +8,8 @@ import { Button } from "~/components/ui/button";
 import { SquareArrowOutUpRight } from "lucide-react";
 import { Card } from "~/components/ui/card";
 import { MockedDashboardPage } from "./mocked-dashboard";
+import { MockedTopics } from "./mocked-topics";
+import { MockedSearchProfileOverview } from "./mocked-search-profile";
 
 export function Welcome() {
   const { isSignedIn, user } = useAuthorization();
@@ -37,6 +39,44 @@ export function Welcome() {
       delay: 0.6,
     },
   ];
+
+  // for mocked topics
+  const exampleProfile = {
+    id: "1",
+    name: "Eutop",
+    is_public: true,
+    organization_emails: ["user@example.com"],
+    profile_emails: ["user@example.com"],
+    can_read_user_ids: ["1"],
+    is_reader: true,
+    can_edit_user_ids: ["1"],
+    is_editor: true,
+    owner_id: "1",
+    is_owner: true,
+    language: "en",
+    topics: [
+      {
+        id: "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+        name: "Automotive",
+        keywords: ["Tires", "Engine"],
+      },
+      {
+        id: "3fa85f64-5717-4562-b3fc-2c963f66afb7",
+        name: "Environment",
+        keywords: ["CO2", "Renewable Energy"],
+      },
+    ],
+    subscriptions: [
+      {
+        id: "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+        name: "string",
+        is_subscribed: true,
+      },
+    ],
+    new_articles_count: 3,
+  };
+
+  const [profile, setProfile] = useState(exampleProfile);
 
   return (
     <div>
@@ -68,11 +108,28 @@ export function Welcome() {
           ))}
         </div>
       </div>
-      <div className="pt-10 bg-[linear-gradient(to_bottom,_#3a4a5a_0%,_#dcdcdc_20%,_#f8f9fa_30%,_#f8f9fa_70%,_#dcdcdc_80%,_#556270_100%)]">
-        {/* Features Section */}
-        <div className="flex flex-col justify-center">
-          <div className="w-[80%] p-20 mx-auto flex flex-wrap items-center gap-10 justify-center">
-            <div className="w-170">
+      {/* Features Section */}
+      <div className="pt-10 bg-[linear-gradient(to_bottom,_#556270_0%,_#dcdcdc_10%,_#f8f9fa_15%,_#f8f9fa_70%,_#dcdcdc_80%,_#556270_100%)]">
+        <div className="w-[80%] mx-auto flex flex-col justify-center gap-30 pt-40 ">
+          <div className="flex flex-row flex-wrap justify-center items-center gap-10">
+            <div className="flex flex-col max-w-[500px] gap-4">
+              <p className="text-4xl md:text-5xl font-semibold leading-tight mb-2">
+                {t("landing_page.topics_header")}
+              </p>
+              <p className="text-2xl md:text-3xl font-medium leading-tight mb-2">
+                {t("landing_page.topics_text")}
+              </p>
+            </div>
+            <Card
+              key="keywords-prev"
+              className="transform scale-110 max-w-[750px] h-110 border-8 p-6 pt-4"
+            >
+              <MockedTopics profile={profile} setProfile={setProfile} />
+            </Card>
+          </div>
+
+          <div className="flex flex-row flex-wrap justify-center items-center gap-10">
+            <div className="flex flex-col max-w-[500px] gap-4">
               <p className="text-4xl md:text-5xl font-semibold leading-tight mb-2">
                 {t("landing_page.search_profile_header")}
               </p>
@@ -80,11 +137,29 @@ export function Welcome() {
                 {t("landing_page.search_profile_text")}
               </p>
             </div>
+
             <Card
               key="dashboard-prev"
-              className="transform scale-100 max-w-[750px] h-195 border-8 p-0 px-2"
+              className="transform scale-90 max-w-[800px] h-195 border-8 p-0"
             >
               <MockedDashboardPage />
+            </Card>
+          </div>
+          <div className="flex flex-row flex-wrap justify-center items-center gap-10">
+            <div className="flex flex-col max-w-[500px] gap-4">
+              <p className="text-4xl md:text-5xl font-semibold leading-tight mb-2">
+                {t("landing_page.search_profile_header")}
+              </p>
+              <p className="text-2xl md:text-3xl font-medium leading-tight mb-2">
+                {t("landing_page.search_profile_text")}
+              </p>
+            </div>
+
+            <Card
+              key="sp-prev"
+              className="h-245 transform scale-70 border-8 p-4 pt-2 overflow-hidden"
+            >
+              <MockedSearchProfileOverview />
             </Card>
           </div>
         </div>

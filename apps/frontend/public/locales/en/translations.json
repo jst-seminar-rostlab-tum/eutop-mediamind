@@ -22,7 +22,11 @@
     "header_description": "Your automated press analysis tool",
     "credits": "MediaMind was build in cooperation between EUTOP, the Technical University of Munich and CSEE during the Javascript Technology Practicum.",
     "search_profile_header": "Manage your Search Profiles",
-    "search_profile_text": "Clean interface to manage all profiles in one Dashboard"
+    "search_profile_text": "Clean interface to manage all profiles in one Dashboard",
+    "topics_header": "Start creating your Search Profiles",
+    "topics_text": "Specify your Topics of interest with the desired keywords and get AI suggestions for the best additional keywords",
+    "add_topic": "You want to add topics and more? Login and get access to all features!",
+    "click_reports": "You want to see Reports and more? Login and get access to all features!"
   },
 
   "dashboard": {

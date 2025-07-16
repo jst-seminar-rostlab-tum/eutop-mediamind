@@ -22,7 +22,11 @@
     "header_description": "Ihre automatisierte Presse-Analyse Anwendung",
     "credits": "MediaMind wurde entworfen in kooperation zwischen EUTOP, der Technischen Universität München und dem CSEE während dem Javascript Technology Praktikum.",
     "search_profile_header": "Verwalten sie ihre Profile",
-    "search_profile_text": "Eine übersichtliche Oberfläche für alle Profile"
+    "search_profile_text": "Eine übersichtliche Oberfläche für alle Profile",
+    "topics_header": "Beginnen Sie ihre Suchprofile anzulegen",
+    "topics_text": "Spezifizieren Sie die Themen die sie interssieren mit den gewünschten Schlagwörtern und bekommmen sie KI Vorschläge für die am besten geeigneten zusätzlichen Schlagwörter",
+    "add_topic": "Sie wollen Themen hinzufügen und mehr? Melden sie sich an und erhalten sie Zugang zu allen Features!",
+    "click_reports": "Sie wollen Berichte einsehen und mehr? Melden sie sich an und erhalten sie Zugang zu allen Features!"
   },
 
   "dashboard": {
