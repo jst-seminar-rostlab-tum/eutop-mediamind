@@ -531,8 +531,8 @@ class SearchProfileService:
             }
         else:
             article_text = {
-                "de": "",
-                "en": "",
+                "de": None,
+                "en": None,
             }
 
         return MatchDetailResponse(
