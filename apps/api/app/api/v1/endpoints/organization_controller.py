@@ -6,6 +6,7 @@ from fastapi import APIRouter, Depends, HTTPException
 
 from app.core.auth import get_authenticated_user
 from app.core.logger import get_logger
+from app.models.user import UserRole
 from app.schemas.organization_schemas import (
     OrganizationCreateOrUpdate,
     OrganizationResponse,
@@ -57,7 +58,13 @@ async def set_organization_subscriptions(
     request: SetOrganizationSubscriptionsRequest,
     current_user: UserEntity = Depends(get_authenticated_user),
 ) -> List[SubscriptionSummary]:
-    if not current_user.is_superuser:
+    if not (
+        current_user.is_superuser
+        or (
+            current_user.role == UserRole.maintainer.value
+            and current_user.organization_id == organization_id
+        )
+    ):
         raise HTTPException(status_code=403, detail="Insufficient privileges")
 
     updated_subscriptions = (
@@ -91,6 +98,8 @@ async def delete_organization(
     organization_id: uuid.UUID,
     current_user: UserEntity = Depends(get_authenticated_user),
 ):
+    if not current_user.is_superuser:
+        raise HTTPException(status_code=403, detail="Insufficient privileges")
     await OrganizationService.delete_organization(
         organization_id, current_user
     )
