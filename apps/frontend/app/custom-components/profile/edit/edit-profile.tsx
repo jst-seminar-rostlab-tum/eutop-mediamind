@@ -291,7 +291,7 @@ export function EditProfile({
                   />
                 </TabsContent>
 
-                <TabsContent value="mailing" className={"px-1"}>
+                <TabsContent value="mailing" className={"px-1 overflow-hidden"}>
                   <Mailing
                     profile={editedProfile}
                     setProfile={setEditedProfile}
