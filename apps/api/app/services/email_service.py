@@ -199,7 +199,7 @@ class EmailService:
             raise
 
     @staticmethod
-    def build_email_content(
+    def _build_email_content(
         s3_link: str,
         dashboard_link: str,
         profile_name: str,
@@ -363,7 +363,7 @@ class EmailService:
                         recipient=email,
                         subject=subject,
                         content_type="text/HTML",
-                        content=EmailService.build_email_content(
+                        content=EmailService._build_email_content(
                             presigned_url,
                             dashboard_url,
                             search_profile.name,
