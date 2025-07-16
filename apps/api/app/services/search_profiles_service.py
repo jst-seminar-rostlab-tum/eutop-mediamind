@@ -450,7 +450,7 @@ class SearchProfileService:
                     "en": article.summary_en or "",
                 },
                 text=article_text,
-                image_urls=[article.image_url] or [],
+                image_urls=[url for url in [article.image_url] if url],
                 published=article.published_at,
                 crawled=article.crawled_at,
                 newspaper_id=article.subscription_id,
