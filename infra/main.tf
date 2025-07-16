@@ -38,6 +38,10 @@ data "aws_secretsmanager_secret_version" "creds" {
   secret_id = local.secrets_arn
 }
 
+data "aws_secretsmanager_secret_version" "dev_creds" {
+  secret_id = local.dev_secrets_arn
+}
+
 module "ecr" {
   source = "./modules/ecr"
   name   = "ecr-mediamind"
@@ -112,7 +116,7 @@ module "scheduler_dev" {
   service_name    = "mediamind-scheduler-dev"
   cluster_name    = local.cluster_name
   container_image = module.ecr_scheduler.repository_url
-  redis_endpoint  = module.redis.endpoint
+  redis_endpoint  = jsondecode(data.aws_secretsmanager_secret_version.dev_creds.secret_string)["REDIS_URL"]
   subnet_ids      = data.aws_subnets.selected.ids
   vpc_id          = data.aws_vpc.selected.id
   region          = "eu-central-1"

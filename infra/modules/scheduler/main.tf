@@ -19,10 +19,6 @@ resource "aws_cloudwatch_log_group" "ecs" {
   retention_in_days = 7
 }
 
-resource "aws_ecs_cluster" "this" {
-  name = var.cluster_name
-}
-
 resource "aws_iam_role" "ecs_task_execution_role" {
   name               = "${var.service_name}-ecs-task-execution"
   assume_role_policy = data.aws_iam_policy_document.ecs_task_assume_role_policy.json
@@ -47,7 +43,7 @@ resource "aws_ecs_task_definition" "app" {
   family                   = var.service_name
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
-  cpu                      = "264"
+  cpu                      = "256"
   memory                   = "512"
   execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
   container_definitions = jsonencode([
@@ -74,13 +70,9 @@ resource "aws_ecs_task_definition" "app" {
   ])
 }
 
-data "aws_vpc" "selected" {
-  id = var.vpc_id
-}
-
 resource "aws_ecs_service" "app" {
   name            = var.service_name
-  cluster         = aws_ecs_cluster.this.id
+  cluster         = var.cluster_name
   task_definition = aws_ecs_task_definition.app.arn
   desired_count   = 1
   launch_type     = "FARGATE"
