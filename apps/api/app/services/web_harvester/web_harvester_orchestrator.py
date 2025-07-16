@@ -41,11 +41,20 @@ async def run_crawler(
 
     async def run_crawler_runner(subscription, crawler):
         crawler: Crawler = subscription.crawlers[crawler.value]
-        articles = crawler.crawl_urls(
+        crawl_result = crawler.crawl_urls(
             date_start=date_start,
             date_end=date_end,
             limit=limit,
         )
+
+        # Check if crawl_urls returned a coroutine (async method)
+        import inspect
+
+        if inspect.iscoroutine(crawl_result):
+            articles = await crawl_result
+        else:
+            articles = crawl_result
+
         await ArticleRepository.create_articles_batch(
             articles, logger=crawler.logger
         )

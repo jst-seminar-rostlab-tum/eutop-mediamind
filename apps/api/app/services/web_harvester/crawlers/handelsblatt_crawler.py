@@ -7,8 +7,6 @@ from crawl4ai import (
     AsyncWebCrawler,
     BrowserConfig,
     CrawlerRunConfig,
-    DefaultMarkdownGenerator,
-    PruningContentFilter,
 )
 from playwright.async_api import BrowserContext, Page
 
@@ -16,6 +14,7 @@ from app.core.logger import get_logger
 from app.models.article import Article, ArticleStatus
 from app.models.subscription import Subscription
 from app.services.web_harvester.crawler import NewsAPICrawler
+from app.services.web_harvester.scraper import TrafilaturaScraper
 
 logger = get_logger(__name__)
 
@@ -36,6 +35,9 @@ class HandelsblattCrawler(NewsAPICrawler):
             filter_category=filter_category,
         )
         self.loged_in = False
+        self.tScraper = TrafilaturaScraper(
+            subscription=subscription,
+        )
 
     async def _handle_cookie_consent(self, page: Page, login_config: dict):
         try:
@@ -81,11 +83,11 @@ class HandelsblattCrawler(NewsAPICrawler):
                 login_config.get("user_input"), timeout=5000
             )
             await page.fill(
-                login_config.get("user_input"), subscription.username
+                login_config.get("user_input"), self.subscription.username
             )
 
             await page.fill(
-                login_config.get("password_input"), subscription.secrets
+                login_config.get("password_input"), self.subscription.secrets
             )
 
             await page.click(login_config.get("submit_button"), force=True)
@@ -99,10 +101,6 @@ class HandelsblattCrawler(NewsAPICrawler):
             return False
 
     def _setup_crawler_config(self):
-        prune_filter = PruningContentFilter(
-            threshold=0.45, threshold_type="dynamic", min_word_threshold=5
-        )
-        md_generator = DefaultMarkdownGenerator(content_filter=prune_filter)
 
         browser_config = BrowserConfig(
             headless=True,
@@ -110,7 +108,6 @@ class HandelsblattCrawler(NewsAPICrawler):
         )
 
         config = CrawlerRunConfig(
-            markdown_generator=md_generator,
             session_id=str(uuid.uuid4()),
         )
 
@@ -131,6 +128,7 @@ class HandelsblattCrawler(NewsAPICrawler):
         ):
             if not self.loged_in:
                 await self._perform_login(page, self.subscription.login_config)
+            await page.wait_for_timeout(6000)
             return page
 
         crawler.crawler_strategy.set_hook("after_goto", login_wrapper)
@@ -145,12 +143,10 @@ class HandelsblattCrawler(NewsAPICrawler):
                 for result in results:
                     if result.success:
                         logger.info(f"Successfully crawled {result.url}")
-
-                        content = result.markdown.fit_markdown
-                        article.content = content
                         article.status = ArticleStatus.SCRAPED
                         article.crawled_at = datetime.now(timezone.utc)
                         article.scraped_at = datetime.now(timezone.utc)
+                        article = self.tScraper.extract(result.html, article)
                         enriched_articles.append(article)
                     else:
                         logger.warning(
