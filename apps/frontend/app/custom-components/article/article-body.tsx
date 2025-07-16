@@ -1,6 +1,6 @@
 import { Calendar, FileClock, Info, User } from "lucide-react";
 import ReactMarkdown from "react-markdown";
-import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
+import { Alert, AlertTitle } from "~/components/ui/alert";
 import { useTranslation } from "react-i18next";
 
 interface ArticleBodyProps {
