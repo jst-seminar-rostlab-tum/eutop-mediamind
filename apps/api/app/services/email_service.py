@@ -1,7 +1,9 @@
 # flake8: noqa: E501
 import os
 import smtplib
+import uuid
 from datetime import datetime, timezone
+from email.mime.application import MIMEApplication
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from logging import error
@@ -17,6 +19,8 @@ from app.models.breaking_news import BreakingNews
 from app.models.email import Email, EmailState
 from app.models.user import Gender
 from app.repositories.email_repository import EmailRepository
+from app.repositories.organization_repository import OrganizationRepository
+from app.services.s3_service import S3Service, get_s3_service
 from app.services.translation_service import ArticleTranslationService
 from app.services.user_service import UserService
 
@@ -36,11 +40,13 @@ class EmailSchedule:
         subject: str,
         content_type: str,
         content: str,
+        report_id: uuid.UUID,
     ) -> None:
         self.recipient = recipient
         self.subject = subject
         self.content = content
         self.content_type = content_type
+        self.report_id = report_id
 
 
 class EmailService:
@@ -51,6 +57,7 @@ class EmailService:
         subject: str,
         content_type: str,
         content: str,
+        report_id: uuid.UUID,
     ) -> Email:
         email = Email(
             sender=configs.SMTP_USER,
@@ -58,6 +65,7 @@ class EmailService:
             subject=subject,
             content_type=content_type,
             content=content,
+            report_id=report_id,
         )
         return email
 
@@ -68,17 +76,29 @@ class EmailService:
             subject=schedule.subject,
             content_type=schedule.content_type,
             content=schedule.content,
+            report_id=schedule.report_id,
         )
         return await EmailRepository.add_email(email)
 
     @staticmethod
     async def send_scheduled_emails() -> None:
         emails = await EmailRepository.get_all_unsent_emails()
+        s3_service = get_s3_service()
 
         for email in emails:
             try:
                 email.attempts += 1
-                EmailService.send_email(email)
+                pdf_as_link = (
+                    await OrganizationRepository.get_pdf_as_link_by_recipient(
+                        email.recipient
+                    )
+                )
+                pdf_bytes = None
+                if not pdf_as_link and email.report.s3_key:
+                    pdf_bytes = await s3_service.download_fileobj(
+                        email.report.s3_key
+                    )
+                EmailService.send_email(email, pdf_bytes)
                 email.state = EmailState.SENT
                 await EmailRepository.update_email(email)
             except Exception as e:
@@ -118,7 +138,9 @@ class EmailService:
                 raise Exception(f"Error sending SES email: {ok}")
 
     @staticmethod
-    def send_email(email: Email, bcc_recipients: List[str] = None):
+    def send_email(
+        email: Email, pdf_bytes: bytes = None, bcc_recipients: List[str] = None
+    ):
         msg = MIMEMultipart("alternative")
         msg["From"] = email.sender
         msg["To"] = email.recipient
@@ -128,6 +150,13 @@ class EmailService:
         # They are only included in the sendmail call
         html = MIMEText(email.content, "html")
         msg.attach(html)
+
+        if pdf_bytes:
+            attachment = MIMEApplication(pdf_bytes, _subtype="pdf")
+            attachment.add_header(
+                "Content-Disposition", "attachment", filename="report.pdf"
+            )
+            msg.attach(attachment)
 
         # Only add BCC if there are recipients
         all_recipients = []
@@ -166,6 +195,7 @@ class EmailService:
         last_name: str,
         gender: Gender,
         language: str = Language.EN.value,
+        pdf_as_link: bool = True,
     ) -> str:
         translator = ArticleTranslationService.get_translator(language)
 
@@ -210,9 +240,12 @@ class EmailService:
                 "today's key developments"
             ),
             "download_text": translator("Download here"),
-            "text_3": translator(
+            "text_3_link_true": translator(
                 "After that, you can still access your report anytime "
                 "via your dashboard"
+            ),
+            "text_3_link_false": translator(
+                "We have attached your PDF report to this email for your convenience"
             ),
             "click_text": translator("click here"),
             "text_4": translator(
@@ -220,6 +253,7 @@ class EmailService:
                 "into your browser"
             ),
             "deliver_text": translator("Delivered by MediaMind"),
+            "pdf_as_link": pdf_as_link,
         }
 
         template_name = "email_template.html"
@@ -284,6 +318,7 @@ class EmailService:
 
         for search_profile_id, reports in grouped_reports.items():
             search_profile = reports[0]["search_profile"]
+            pdf_as_link = search_profile.organization.pdf_as_link
             try:
                 for email in search_profile.organization_emails:
                     user = await UserService.get_by_email(email)
@@ -323,7 +358,9 @@ class EmailService:
                             user.last_name if user else None,
                             user.gender if user else None,
                             translator_language,
+                            pdf_as_link,
                         ),
+                        report_id=report.id,
                     )
 
                     await EmailService.schedule_email(email_schedule)

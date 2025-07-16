@@ -8,11 +8,12 @@ import {
   type SortingState,
   getSortedRowModel,
 } from "@tanstack/react-table";
-import { ArrowDownUp, Plus, SortAsc, SortDesc } from "lucide-react";
+import { ArrowDownUp, Plus, Search, SortAsc, SortDesc } from "lucide-react";
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
+import { ScrollArea } from "~/components/ui/scroll-area";
 import {
   Table,
   TableBody,
@@ -21,6 +22,7 @@ import {
   TableHeader,
   TableRow,
 } from "~/components/ui/table";
+import { cn } from "~/lib/utils";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -62,21 +64,27 @@ export function DataTable<TData, TValue>({
   const { t } = useTranslation();
 
   return (
-    <>
-      <div className="flex items-center py-4">
-        <Input
-          placeholder={t("search")}
-          value={
-            (table
-              .getColumn(searchField as string)
-              ?.getFilterValue() as string) ?? ""
-          }
-          onChange={(event) => {
-            const value = event.target.value;
-            table.getColumn(searchField as string)?.setFilterValue(value);
-            onSearchChange?.(value); // send value to parent
-          }}
-        />
+    <div className="w-full h-full overflow-hidden">
+      <div className="flex items-center w-full">
+        <div className="relative w-full pb-4 flex items-center">
+          <Input
+            placeholder={t("search")}
+            value={
+              (table
+                .getColumn(searchField as string)
+                ?.getFilterValue() as string) ?? ""
+            }
+            onChange={(event) => {
+              const value = event.target.value;
+              table.getColumn(searchField as string)?.setFilterValue(value);
+              onSearchChange?.(value); // send value to parent
+            }}
+          />
+          <Search
+            size={20}
+            className="absolute right-3 text-muted-foreground"
+          />
+        </div>
         {onAdd && (
           <Button variant={"outline"} className="ml-4" onClick={onAdd}>
             {t("Add")}
@@ -85,10 +93,10 @@ export function DataTable<TData, TValue>({
         )}
       </div>
       <Table>
-        <TableHeader>
+        <TableHeader className="bg-blue-100">
           {table.getHeaderGroups().map((headerGroup) => (
-            <TableRow key={headerGroup.id}>
-              {headerGroup.headers.map((header) => {
+            <TableRow key={headerGroup.id} className="grid grid-cols-9">
+              {headerGroup.headers.map((header, idx) => {
                 const canSort = header.column.getCanSort();
                 const sortingState = header.column.getIsSorted();
                 const sortingIndex = header.column.getSortIndex();
@@ -100,13 +108,15 @@ export function DataTable<TData, TValue>({
                         ? header.column.getToggleSortingHandler()
                         : undefined
                     }
-                    className={
+                    className={cn(
                       // eslint-disable-next-line @typescript-eslint/no-explicit-any
                       ((header.column.columnDef.meta as any)?.className ?? "") +
-                      (header.column.getCanSort()
-                        ? " cursor-pointer select-none"
-                        : "")
-                    }
+                        (header.column.getCanSort()
+                          ? " cursor-pointer select-none"
+                          : ""),
+                      idx > 1 && idx < 5 ? "col-span-1" : "col-span-2",
+                      "flex items-center",
+                    )}
                   >
                     {header.isPlaceholder ? null : (
                       <span className="me-1">
@@ -134,33 +144,50 @@ export function DataTable<TData, TValue>({
             </TableRow>
           ))}
         </TableHeader>
-        <TableBody>
-          {table.getRowModel().rows?.length ? (
-            table.getRowModel().rows.map((row) => (
-              <TableRow
-                key={row.id}
-                data-state={row.getIsSelected() && "selected"}
-              >
-                {row.getVisibleCells().map((cell) => (
-                  <TableCell
-                    key={cell.id}
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                    className={(cell.column.columnDef.meta as any)?.className}
-                  >
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </TableCell>
-                ))}
-              </TableRow>
-            ))
-          ) : (
-            <TableRow>
-              <TableCell colSpan={columns.length} className="h-24 text-center">
-                No results.
-              </TableCell>
-            </TableRow>
-          )}
-        </TableBody>
       </Table>
-    </>
+      <ScrollArea className="h-full">
+        <Table>
+          <TableBody>
+            {table.getRowModel().rows?.length ? (
+              table.getRowModel().rows.map((row) => (
+                <TableRow
+                  key={row.id}
+                  data-state={row.getIsSelected() && "selected"}
+                  className="grid grid-cols-9"
+                >
+                  {row.getVisibleCells().map((cell, idx) => (
+                    <TableCell
+                      key={cell.id}
+                      className={cn(
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                        (cell.column.columnDef.meta as any)?.className,
+                        idx > 1 && idx < 5 ? "col-span-1" : "col-span-2",
+                        "flex flex-wrap items-center",
+                      )}
+                    >
+                      <div className="whitespace-normal break-words break-all w-full">
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext(),
+                        )}
+                      </div>
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell
+                  colSpan={columns.length}
+                  className="h-24 text-center"
+                >
+                  {t("admin.no_results")}
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </ScrollArea>
+    </div>
   );
 }
