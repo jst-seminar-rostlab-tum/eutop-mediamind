@@ -33,6 +33,8 @@ export const CrawlerStatsPage = () => {
   const [totalSuccessful, setTotalSuccessful] = useState(0);
   const [zeroSuccessful, setZeroSuccessful] = useState(0);
   const [zeroSuccessRatio, setZeroSuccessRatio] = useState(0);
+  const [onceSuccessful, setOnceSuccessful] = useState(0);
+  const [onceSuccessRatio, setOnceSuccessRatio] = useState(0);
 
   const { data, error } = useQuery("/api/v1/crawler/stats", {
     params: {
@@ -109,10 +111,14 @@ export const CrawlerStatsPage = () => {
       const zeroSuccessCount =
         data?.stats?.filter((stat) => stat.total_successful === 0).length ?? 0;
 
+      const onceSuccessfulCount = data.total_count - zeroSuccessCount;
+
       const success = attempted > 0 ? successful / attempted : 0;
       const failure = attempted > 0 ? (attempted - successful) / attempted : 0;
       const zeroSuccessfulRatio =
         attempted > 0 ? zeroSuccessCount / data.stats.length : 0;
+      const onceSuccessfulRatio =
+        attempted > 0 ? onceSuccessfulCount / data.stats.length : 0;
 
       setTotalAttempted(attempted);
       setTotalSuccessful(successful);
@@ -120,6 +126,8 @@ export const CrawlerStatsPage = () => {
       setFailureRatio(failure);
       setZeroSuccessful(zeroSuccessCount);
       setZeroSuccessRatio(zeroSuccessfulRatio);
+      setOnceSuccessful(onceSuccessfulCount);
+      setOnceSuccessRatio(onceSuccessfulRatio);
     }
   }, [data]);
 
@@ -155,43 +163,53 @@ export const CrawlerStatsPage = () => {
           <ChartPie className="mr-2" />
           <p className="font-semibold"> {t("crawler_stats.Statistics")}</p>
         </div>
-        <div className="flex gap-4 mb-2">
-          <p>{t("crawler_stats.Crawlers") + ":"}</p>
-          <Badge>
-            {t("crawler_stats.Sum") +
-              " " +
-              (t("crawler_stats.attempted").toLowerCase() + ": ")}
-            {totalAttempted}
-          </Badge>
-          <Badge className="bg-green-600">
-            {t("crawler_stats.Sum") +
-              " " +
-              (t("crawler_stats.successful").toLowerCase() + ": ")}
-            {totalSuccessful} ({(successRatio * 100).toFixed(0)}
-            %)
-          </Badge>
-          <Badge className="bg-red-600">
-            {t("crawler_stats.Sum") +
-              " " +
-              (t("crawler_stats.failed").toLowerCase() + ": ")}
-            {totalAttempted - totalSuccessful} (
-            {(failureRatio * 100).toFixed(0)}%)
-          </Badge>
-        </div>
-        <div className="flex gap-4 mb-2">
-          <p>{t("crawler_stats.Subscriptions") + ":"}</p>
-          <Badge>
-            {t("crawler_stats.Sum") +
-              " " +
-              (t("crawler_stats.attempted").toLowerCase() + ": ")}
-            {data?.total_count}
-          </Badge>
-          <Badge className="bg-red-600">
-            {t("crawler_stats.Never") +
-              " " +
-              (t("crawler_stats.successful").toLowerCase() + ": ")}{" "}
-            {zeroSuccessful} ({(zeroSuccessRatio * 100).toFixed(0)}%)
-          </Badge>
+
+        <div className="flex flex-row gap-6 ml-2">
+          <div className="flex flex-col gap-4 mb-2">
+            <p>{t("crawler_stats.Subscriptions") + ":"}</p>
+            <Badge>
+              {t("crawler_stats.Sum") +
+                " " +
+                (t("crawler_stats.attempted").toLowerCase() + ": ")}
+              {data?.total_count}
+            </Badge>
+            <Badge className="bg-emerald-500">
+              {t("crawler_stats.Once") +
+                " " +
+                (t("crawler_stats.successful").toLowerCase() + ": ")}{" "}
+              {onceSuccessful} ({(onceSuccessRatio * 100).toFixed(0)}%)
+            </Badge>
+            <Badge className="bg-destructive">
+              {t("crawler_stats.Never") +
+                " " +
+                (t("crawler_stats.successful").toLowerCase() + ": ")}{" "}
+              {zeroSuccessful} ({(zeroSuccessRatio * 100).toFixed(0)}%)
+            </Badge>
+          </div>
+
+          <div className="flex flex-col gap-4 mb-2">
+            <p>{t("crawler_stats.Crawlers") + ":"}</p>
+            <Badge>
+              {t("crawler_stats.Sum") +
+                " " +
+                (t("crawler_stats.attempted").toLowerCase() + ": ")}
+              {totalAttempted}
+            </Badge>
+            <Badge className="bg-emerald-500">
+              {t("crawler_stats.Sum") +
+                " " +
+                (t("crawler_stats.successful").toLowerCase() + ": ")}
+              {totalSuccessful} ({(successRatio * 100).toFixed(0)}
+              %)
+            </Badge>
+            <Badge className="bg-destructive">
+              {t("crawler_stats.Sum") +
+                " " +
+                (t("crawler_stats.failed").toLowerCase() + ": ")}
+              {totalAttempted - totalSuccessful} (
+              {(failureRatio * 100).toFixed(0)}%)
+            </Badge>
+          </div>
         </div>
         <DataTable
           columns={columns}
