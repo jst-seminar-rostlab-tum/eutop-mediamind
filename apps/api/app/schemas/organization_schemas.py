@@ -1,5 +1,5 @@
 import uuid
-from typing import List
+from typing import List, Optional
 
 from pydantic import BaseModel, EmailStr
 
@@ -11,7 +11,7 @@ from app.schemas.subscription_schemas import SubscriptionSummary
 # Shared properties
 class OrganizationBase(BaseModel):
     name: str
-    email: EmailStr or None
+    email: Optional[EmailStr] = None
     pdf_as_link: bool
 
 
