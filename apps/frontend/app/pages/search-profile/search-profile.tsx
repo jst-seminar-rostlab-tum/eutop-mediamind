@@ -264,12 +264,14 @@ export function SearchProfileOverview() {
                               <div className="flex flex-row gap-4">
                                 {!match.article.image_urls[0] || imgError ? (
                                   <div className="w-[180px] h-[180px] rounded-md shadow-md border flex items-center justify-center text-muted-foreground text-sm shrink-0">
-                                    No Image
+                                    {t("search_profile.no_image")}
                                   </div>
                                 ) : (
                                   <img
                                     src={match.article.image_urls[0]}
-                                    alt="No Image"
+                                    alt={getLocalizedContent(
+                                      match.article.headline,
+                                    )}
                                     className="w-[180px] h-[180px] object-cover rounded-md shadow-md shrink-0"
                                     onError={() => setImgError(true)}
                                   />
