@@ -41,20 +41,12 @@ class EmailServer:
     password: str
 
 
+@dataclass
 class EmailSchedule:
-    def __init__(
-        self,
-        recipient: str,
-        subject: str,
-        content_type: str,
-        content: str,
-        report_id: uuid.UUID,
-    ) -> None:
-        self.recipient = recipient
-        self.subject = subject
-        self.content = content
-        self.content_type = content_type
-        self.report_id = report_id
+    recipient: str
+    subject: str
+    content: str
+    content_type: str
 
 
 class EmailService:
