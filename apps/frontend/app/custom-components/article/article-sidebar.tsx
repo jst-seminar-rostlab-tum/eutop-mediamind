@@ -30,8 +30,9 @@ export function ArticleSidebar({ article }: ArticleSidebarProps) {
       [topicIndex]: !prev[topicIndex],
     }));
   };
-  const onlySummary =
-    article.article.text["en"] === "" && article.article.text["de"] === "";
+  const onlySummary = !(
+    article.article.text?.["en"] && article.article.text?.["de"]
+  );
 
   const localizedSummary = getLocalizedContent(article.article.summary, i18n);
 

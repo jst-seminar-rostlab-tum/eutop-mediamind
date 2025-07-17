@@ -26,8 +26,9 @@ export function ArticlePage({
   const localizedHeadline = getLocalizedContent(article.article.headline, i18n);
   const localizedText = getLocalizedContent(article.article.text, i18n);
 
-  const onlySummary =
-    article.article.text["en"] === "" && article.article.text["de"] === "";
+  const onlySummary = !(
+    article.article.text?.["en"] && article.article.text?.["de"]
+  );
 
   return (
     <Layout>
@@ -42,7 +43,7 @@ export function ArticlePage({
             title={localizedHeadline}
             content={
               onlySummary
-                ? getLocalizedContent(article.article.summary)
+                ? getLocalizedContent(article.article.summary, i18n)
                 : localizedText
             }
             onlySummary={onlySummary}
