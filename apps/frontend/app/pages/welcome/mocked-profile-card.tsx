@@ -126,32 +126,21 @@ export function MockedProfileCard({ profile, profile_id }: ProfileCardProps) {
                 <DropdownMenuContent align="center">
                   <DropdownMenuItem
                     onClick={() =>
-                      toast.info("You want to edit profiles and more?", {
-                        description:
-                          "Log in and experience the full functionality!",
-                      })
+                      toast.info(t("landing_page.edit_profile_toast"))
                     }
                   >
                     <SquarePen className="text-primary" />
                     {t("Edit")}
                   </DropdownMenuItem>
                   <DropdownMenuItem
-                    onClick={() =>
-                      toast.info("You want to view reports and more?", {
-                        description:
-                          "Log in and experience the full functionality!",
-                      })
-                    }
+                    onClick={() => toast.info(t("landing_page.reports_toast"))}
                   >
                     <FileText className="text-primary" />
                     {t("search_profile.reports")}
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     onClick={() =>
-                      toast.info("You want to delete profiles and more?", {
-                        description:
-                          "Log in and experience the full functionality!",
-                      })
+                      toast.info(t("landing_page.delete_profile_toast"))
                     }
                     className="text-red-500 focus:text-red-500"
                   >
@@ -179,7 +168,7 @@ export function MockedProfileCard({ profile, profile_id }: ProfileCardProps) {
             </div>
           </div>
           <div
-            onClick={() => toast.info("Check out the search profile preview!")}
+            onClick={() => toast.info(t("landing_page.checkout_sp_toast"))}
             className="w-full h-20 bg-gray-100 items-center flex justify-center rounded-2xl hover:bg-gray-200 hover:cursor-pointer transition-background duration-300"
           >
             <span className={"text-gray-700"}>

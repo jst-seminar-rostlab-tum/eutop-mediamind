@@ -25,8 +25,8 @@
     "dashboard_text": "Eine übersichtliche Oberfläche für alle Profile",
     "topics_header": "Beginnen Sie ihre Suchprofile anzulegen",
     "topics_text": "Spezifizieren Sie die Themen die sie interssieren mit den gewünschten Schlagwörtern und bekommmen sie KI Vorschläge für die am besten geeigneten zusätzlichen Schlagwörter",
-    "add_topic": "Sie wollen Themen hinzufügen und mehr? Melden sie sich an und erhalten sie Zugang zu allen Features!",
-    "click_reports": "Sie wollen Berichte einsehen und mehr? Melden sie sich an und erhalten sie Zugang zu allen Features!",
+    "add_topic": "Sie wollen Themen hinzufügen und mehr? Melden sie sich an und genießen Sie alle Funktionalitäten!",
+    "click_reports": "Sie wollen Berichte einsehen und mehr? Melden sie sich an und genießen Sie alle Funktionalitäten!",
     "search_profile_header": "Inspizieren Sie die ausgewählten Artikel",
     "search_profile_text": "Themen und Artikel Übereinstimmungen basieren auf semantischer Ähnlichkeit. Suchen sie auch direkt in unserer Vektor Datenbank nach passenden Artikeln",
     "article_header": "Lesen Sie Artikel direkt in der App",
@@ -34,7 +34,13 @@
     "email_header": "Jeden Morgen - Direkt in ihr Postfach!",
     "email_text": "Sie erhalten ihre maßgeschneiderten Berichte jeden Tag per Email. Sie können sie downloaden oder direkt in der Anwendung einsehen",
     "breaking_header": "Lesen sie Aktuelle Schlagzeilen",
-    "breaking_text": "Bleiben sie bestens Informiert mit allen globalen Nachrichten an einem Platz"
+    "breaking_text": "Bleiben sie bestens Informiert mit allen globalen Nachrichten an einem Platz",
+    "breaking_toast": "Sie wollen Schlagzeilen sehen und mehr? Probieren sie die Schlagzeilen vorschau oder Loggen Sie sich ein!",
+    "sp_toast": "Sie wollen ihr eigenes Such Profil erstellen und mehr? Loggen Sie sich ein und genießen Sie alle Funktionalitäten",
+    "edit_profile_toast": "Sie wollen Profile bearbeiten und mehr? Loggen Sie sich ein und genießen Sie alle Funktionalitäten!",
+    "reports_toast": "Sie wollen Berichte einsehen und mehr? Loggen Sie sich ein und genießen Sie alle Funktionalitäten!",
+    "delete_profile_toast": "Sie wollen Profile löschen und mehr? Loggen Sie sich ein und genießen sie alle Funktionalitäten!",
+    "checkout_sp_toast": "Sie wollen das Such Profil sehen und mehr? Probieren sie die Such Profil vorschau oder Loggen Sie sich ein!"
   },
 
   "dashboard": {

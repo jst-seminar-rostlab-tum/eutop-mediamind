@@ -34,7 +34,13 @@
     "email_header": "Every morning - directly in your Inbox!",
     "email_text": "Receive your tailored reports daily via email. You can download them or visit the article in directly in the application",
     "breaking_header": "Read all breaking news",
-    "breaking_text": "Stay informed with all global breaking news in one Spot"
+    "breaking_text": "Stay informed with all global breaking news in one Spot",
+    "breaking_toast": "You want to see breaking news and more? Check out the breaking news preview or log in!",
+    "sp_toast": "You want to create your own Search profile? Log in and enjoy all features",
+    "edit_profile_toast": "You want to edit profiles and more? Log in and experience all features!",
+    "reports_toast": "You want to view reports and more? Log in and experience the full functionality!",
+    "delete_profile_toast": "You want to delete profiles and more? Log in and experience the full functionality!",
+    "checkout_sp_toast": "You want to see the search profile and more? Check out the search profile preview or log in!"
   },
 
   "dashboard": {
