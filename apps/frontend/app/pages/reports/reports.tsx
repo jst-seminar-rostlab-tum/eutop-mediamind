@@ -27,6 +27,7 @@ import {
 } from "~/components/ui/pagination";
 import { ReportFilterBar } from "~/custom-components/reports/reports-filter-bar";
 import { BreadcrumbSkeleton } from "~/custom-components/breadcrumb-skeleton";
+import { sortBy } from "lodash-es";
 
 export function ReportsPage() {
   const { searchProfileId } = useParams();
@@ -54,10 +55,13 @@ export function ReportsPage() {
     if (!reports?.reports) return [];
 
     if (!languageFilter) {
-      return reports.reports;
+      return sortBy(reports.reports, (report) => report.created_at).reverse();
     }
     const langToFilter = languageFilter === "en" ? "en" : "de";
-    return reports.reports.filter((report) => report.language === langToFilter);
+    return sortBy(
+      reports.reports.filter((report) => report.language === langToFilter),
+      (report) => report.created_at,
+    ).reverse();
   }, [reports?.reports, languageFilter]);
 
   const totalItems = filteredReports.length;
