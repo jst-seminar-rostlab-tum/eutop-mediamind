@@ -1,3 +1,4 @@
+# flake8: noqa: E501
 import uuid
 from datetime import date, datetime
 from typing import List, Optional, Sequence
@@ -12,6 +13,7 @@ from app.core.logger import get_logger
 from app.models.article import Article, ArticleStatus
 from app.models.match import Match
 from app.repositories.matching_run_repository import MatchingRunRepository
+from app.repositories.subscription_repository import SubscriptionRepository
 
 logger = get_logger(__name__)
 
@@ -206,7 +208,7 @@ class ArticleRepository:
             return summarized_articles
 
     @staticmethod
-    async def get_matched_articles_for_profile(
+    async def get_matched_articles_for_profile_for_create_pdf(
         search_profile_id: uuid.UUID,
         limit: int = 100,
     ) -> List[Article]:
@@ -214,8 +216,18 @@ class ArticleRepository:
             last_matching_run = (
                 await MatchingRunRepository.get_last_matching_run(session)
             )
+
             if not last_matching_run:
                 return []
+
+            # Get subscription IDs that are linked to the search profile
+            subscriptions_data = await SubscriptionRepository.get_all_subscriptions_with_search_profile(
+                search_profile_id
+            )
+            # Filter to get only subscribed subscription IDs
+            linked_subscription_ids = [
+                sub.id for sub in subscriptions_data if sub.is_subscribed
+            ]
 
             query = (
                 select(Match)
@@ -233,7 +245,20 @@ class ArticleRepository:
                 .limit(limit)
             )
             matches = (await session.execute(query)).scalars().all()
-            return [m.article for m in matches if m.article is not None]
+
+            # Process articles to modify content for non-subscribed articles
+            articles = []
+            for match in matches:
+                if match.article is not None:
+                    article = match.article
+                    # If article's subscription is not
+                    # linked to the search profile, modify content
+                    if article.subscription_id not in linked_subscription_ids:
+                        article.content_en = ""
+                        article.content_de = ""
+                    articles.append(article)
+
+            return articles
 
     @staticmethod
     async def list_new_articles_by_subscription(

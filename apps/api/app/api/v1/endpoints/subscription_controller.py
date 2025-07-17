@@ -31,7 +31,6 @@ def _assert_admin(user: UserEntity):
 async def get_all_subscriptions(
     current_user: UserEntity = Depends(get_authenticated_user),
 ):
-    _assert_admin(current_user)
     return await SubscriptionService.get_all_subscriptions()
 
 

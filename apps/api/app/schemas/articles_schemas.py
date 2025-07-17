@@ -11,7 +11,7 @@ class MatchArticleOverviewContent(BaseModel):
     article_url: str
     headline: dict[str, str]
     summary: dict[str, str]
-    text: dict[str, str]
+    text: dict[str | None, str | None]
     image_urls: List[str]
     published: datetime
     crawled: datetime

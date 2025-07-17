@@ -33,6 +33,22 @@ class S3Service:
             key,
         )
 
+    async def download_fileobj(self, key: str) -> bytes:
+        """
+        Downloads an object from S3 and returns its bytes.
+        """
+        loop = asyncio.get_event_loop()
+        buffer = io.BytesIO()
+        await loop.run_in_executor(
+            None,
+            self.client.download_fileobj,
+            self.bucket_name,
+            key,
+            buffer,
+        )
+        buffer.seek(0)
+        return buffer.read()
+
     def generate_presigned_url(self, key: str, expires_in: int = 3600) -> str:
         """
         Generates a presigned URL for an S3 object.

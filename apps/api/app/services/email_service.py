@@ -1,13 +1,14 @@
-# flake8: noqa: E501
 import os
-import smtplib
+import uuid
+from dataclasses import dataclass
 from datetime import datetime, timezone
+from email.mime.application import MIMEApplication
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-from logging import error
 from time import gmtime, strftime
 from typing import List
 
+from aiosmtplib import SMTP, SMTPResponseException
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 from app.core.config import configs
@@ -17,6 +18,8 @@ from app.models.breaking_news import BreakingNews
 from app.models.email import Email, EmailState
 from app.models.user import Gender
 from app.repositories.email_repository import EmailRepository
+from app.repositories.organization_repository import OrganizationRepository
+from app.services.s3_service import get_s3_service
 from app.services.translation_service import ArticleTranslationService
 from app.services.user_service import UserService
 
@@ -29,18 +32,22 @@ templates_env = Environment(
 )
 
 
+@dataclass
+class EmailServer:
+    hostname: str
+    port: int
+    use_tls: bool
+    user: str
+    password: str
+
+
+@dataclass
 class EmailSchedule:
-    def __init__(
-        self,
-        recipient: str,
-        subject: str,
-        content_type: str,
-        content: str,
-    ) -> None:
-        self.recipient = recipient
-        self.subject = subject
-        self.content = content
-        self.content_type = content_type
+    recipient: str
+    subject: str
+    content: str
+    content_type: str
+    report_id: uuid.UUID
 
 
 class EmailService:
@@ -51,6 +58,7 @@ class EmailService:
         subject: str,
         content_type: str,
         content: str,
+        report_id: uuid.UUID,
     ) -> Email:
         email = Email(
             sender=configs.SMTP_USER,
@@ -58,6 +66,7 @@ class EmailService:
             subject=subject,
             content_type=content_type,
             content=content,
+            report_id=report_id,
         )
         return email
 
@@ -68,17 +77,29 @@ class EmailService:
             subject=schedule.subject,
             content_type=schedule.content_type,
             content=schedule.content,
+            report_id=schedule.report_id,
         )
         return await EmailRepository.add_email(email)
 
     @staticmethod
     async def send_scheduled_emails() -> None:
         emails = await EmailRepository.get_all_unsent_emails()
+        s3_service = get_s3_service()
 
         for email in emails:
             try:
                 email.attempts += 1
-                EmailService.send_email(email)
+                pdf_as_link = (
+                    await OrganizationRepository.get_pdf_as_link_by_recipient(
+                        email.recipient
+                    )
+                )
+                pdf_bytes = (
+                    await s3_service.download_fileobj(email.report.s3_key)
+                    if not pdf_as_link and email.report.s3_key
+                    else None
+                )
+                await EmailService.send_ses_email(email, pdf_bytes)
                 email.state = EmailState.SENT
                 await EmailRepository.update_email(email)
             except Exception as e:
@@ -89,65 +110,81 @@ class EmailService:
                     email.state = EmailState.RETRY
                 await EmailRepository.update_email(email)
                 raise RuntimeError(
-                    f"Failed to send email to {email.recipient}: {str(e)}"
+                    f"Failed to send email with id={email.id} to "
+                    f"recipient {email.recipient}: {str(e)}"
                 )
 
     @staticmethod
-    def send_ses_email(email: Email):
+    async def send_ses_email(email: Email, pdf_bytes: bytes | None = None):
         """
         Send an email using AWS SES SMTP credentials from the chatbot config.
         """
-        msg = MIMEMultipart("alternative")
-        msg["From"] = configs.CHAT_SMTP_FROM
-        msg["To"] = email.recipient
-        msg["Subject"] = email.subject
-
-        html = MIMEText(email.content, "html")
-        msg.attach(html)
-
-        with smtplib.SMTP_SSL(
-            configs.CHAT_SMTP_SERVER, configs.CHAT_SMTP_PORT
-        ) as smtp_server:
-            smtp_server.login(
-                configs.CHAT_SMTP_USER, configs.CHAT_SMTP_PASSWORD
-            )
-            ok = smtp_server.sendmail(
-                configs.CHAT_SMTP_FROM, email.recipient, msg.as_string()
-            )
-            if not (ok == {}):
-                raise Exception(f"Error sending SES email: {ok}")
+        email.sender = configs.CHAT_SMTP_FROM
+        email_server = EmailServer(
+            hostname=configs.CHAT_SMTP_SERVER,
+            port=configs.CHAT_SMTP_PORT,
+            use_tls=True,
+            user=configs.CHAT_SMTP_USER,
+            password=configs.CHAT_SMTP_PASSWORD,
+        )
+        await EmailService.__send_email(email, email_server, pdf_bytes)
 
     @staticmethod
-    def send_email(email: Email, bcc_recipients: List[str] = None):
+    async def __send_email(
+        email: Email,
+        email_server: EmailServer,
+        pdf_bytes: bytes | None = None,
+        bcc_recipients: list[str] = [],
+    ):
         msg = MIMEMultipart("alternative")
         msg["From"] = email.sender
-        msg["To"] = email.recipient
+        msg["To"] = email.recipient  # BCC not included in headers for privacy
         msg["Subject"] = email.subject
 
-        # BCC recipients are not added to the message headers for privacy
-        # They are only included in the sendmail call
         html = MIMEText(email.content, "html")
         msg.attach(html)
 
-        # Only add BCC if there are recipients
-        all_recipients = []
-        if bcc_recipients:
-            all_recipients.extend(bcc_recipients)
-        else:
-            all_recipients.append(email.recipient)
+        if pdf_bytes:
+            attachment = MIMEApplication(pdf_bytes, _subtype="pdf")
+            attachment.add_header(
+                "Content-Disposition", "attachment", filename="report.pdf"
+            )
+            msg.attach(attachment)
+        all_recipients = [email.recipient] + (bcc_recipients)
+        smtp_client = SMTP(
+            hostname=email_server.hostname,
+            port=email_server.port,
+            use_tls=email_server.use_tls,
+        )
 
-        with smtplib.SMTP_SSL(
-            configs.SMTP_SERVER, configs.SMTP_PORT
-        ) as smtp_server:
-            smtp_server.login(configs.SMTP_USER, configs.SMTP_PASSWORD)
-            ok = smtp_server.sendmail(
+        try:
+            await smtp_client.connect()
+            await smtp_client.login(email_server.user, email_server.password)
+        except Exception as e:
+            error_message = f"Failed to connect to SMTP server: {str(e)}"
+            logger.error(error_message)
+            raise Exception(error_message)
+        try:
+            sendmail_response = await smtp_client.sendmail(
                 email.sender, all_recipients, msg.as_string()
             )
-            if not (ok == {}):
-                error_msg = "Error sending email"
-                if bcc_recipients:
-                    error_msg += " with BCC"
-                raise Exception(f"{error_msg}: {ok}")
+        except SMTPResponseException as e:
+            error_message = (
+                f"Failed to send email with id={email.id} to "
+                f"recipients={str(all_recipients)}: {str(e)}"
+            )
+            logger.error(error_message)
+            raise Exception(error_message)
+        finally:
+            await smtp_client.quit()
+        if not (
+            isinstance(sendmail_response, tuple)
+            and sendmail_response[1].startswith("Ok")
+        ):
+            error_msg = "Error sending email"
+            if bcc_recipients:
+                error_msg += " with BCC"
+            raise Exception(f"{error_msg}: {sendmail_response}")
 
     @staticmethod
     def _render_email_template(template_name: str, context: dict) -> str:
@@ -166,6 +203,7 @@ class EmailService:
         last_name: str,
         gender: Gender,
         language: str = Language.EN.value,
+        pdf_as_link: bool = True,
     ) -> str:
         translator = ArticleTranslationService.get_translator(language)
 
@@ -184,7 +222,7 @@ class EmailService:
                 title = translator("Ms.")
             else:
                 title = "Mx."
-            salutation = f"{greeting}, {title} {last_name}"
+            salutation = f"{greeting} {title} {last_name}"
         else:
             salutation = f"{greeting}"
 
@@ -210,9 +248,13 @@ class EmailService:
                 "today's key developments"
             ),
             "download_text": translator("Download here"),
-            "text_3": translator(
+            "text_3_link_true": translator(
                 "After that, you can still access your report anytime "
                 "via your dashboard"
+            ),
+            "text_3_link_false": translator(
+                "We have attached your PDF report to this "
+                "email for your convenience"
             ),
             "click_text": translator("click here"),
             "text_4": translator(
@@ -220,6 +262,7 @@ class EmailService:
                 "into your browser"
             ),
             "deliver_text": translator("Delivered by MediaMind"),
+            "pdf_as_link": pdf_as_link,
         }
 
         template_name = "email_template.html"
@@ -284,6 +327,7 @@ class EmailService:
 
         for search_profile_id, reports in grouped_reports.items():
             search_profile = reports[0]["search_profile"]
+            pdf_as_link = search_profile.organization.pdf_as_link
             try:
                 for email in search_profile.organization_emails:
                     user = await UserService.get_by_email(email)
@@ -309,8 +353,9 @@ class EmailService:
                         report.time_slot.capitalize()
                     )
                     subject = (
-                        f"[MEDIAMIND] {translator('Your')} {time_slot_translated} "
-                        f"{translator('Report')} {translator('for')} {search_profile.name}"
+                        f"[MEDIAMIND] {translator('Your')} "
+                        f"{time_slot_translated} {translator('Report')} "
+                        f"{translator('for')} {search_profile.name}"
                     )
                     email_schedule = EmailSchedule(
                         recipient=email,
@@ -323,7 +368,9 @@ class EmailService:
                             user.last_name if user else None,
                             user.gender if user else None,
                             translator_language,
+                            pdf_as_link,
                         ),
+                        report_id=report.id,
                     )
 
                     await EmailService.schedule_email(email_schedule)
