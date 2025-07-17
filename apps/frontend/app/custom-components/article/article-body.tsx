@@ -1,5 +1,6 @@
 import { Calendar, FileClock, User } from "lucide-react";
 import ReactMarkdown from "react-markdown";
+import { useState } from "react";
 import {
   Carousel,
   CarouselContent,
@@ -37,6 +38,17 @@ export function ArticleBody({
 }: ArticleBodyProps) {
   const readingTime = calculateReadingTime(content);
   const validImages = image_urls.filter((url) => url && url.trim() !== "");
+  const [loadedImages, setLoadedImages] = useState<string[]>([]);
+
+  const handleImageLoad = (imageUrl: string) => {
+    setLoadedImages((prev) => [...prev, imageUrl]);
+  };
+
+  const handleImageError = (imageUrl: string) => {
+    setLoadedImages((prev) => prev.filter((url) => url !== imageUrl));
+  };
+
+  const displayImages = validImages.filter((url) => loadedImages.includes(url));
 
   return (
     <div className={"space-y-5"}>
@@ -59,29 +71,44 @@ export function ArticleBody({
           {readingTime}
         </div>
       </div>
-      {validImages.length > 0 && (
+
+      <div style={{ display: "none" }}>
+        {validImages.map((image_url, index) => (
+          <img
+            key={`preload-${index}`}
+            src={image_url}
+            alt=""
+            onLoad={() => handleImageLoad(image_url)}
+            onError={() => handleImageError(image_url)}
+          />
+        ))}
+      </div>
+
+      {displayImages.length > 0 && (
         <Carousel className="w-full">
           <CarouselContent className="">
-            {validImages.map((image_url, index) => (
+            {displayImages.map((image_url, index) => (
               <CarouselItem key={index}>
-                <div key={index}>
+                <div>
                   <img
                     src={image_url}
                     alt={`Article image ${index + 1}`}
                     className="w-full h-auto rounded-lg shadow-sm"
                     loading="lazy"
-                    onError={(e) => {
-                      e.currentTarget.style.display = "none";
-                    }}
                   />
                 </div>
               </CarouselItem>
             ))}
           </CarouselContent>
-          <CarouselPrevious />
-          <CarouselNext />
+          {displayImages.length > 1 && (
+            <>
+              <CarouselPrevious />
+              <CarouselNext />
+            </>
+          )}
         </Carousel>
       )}
+
       <section className={"markdown"}>
         <ReactMarkdown>{content}</ReactMarkdown>
       </section>
