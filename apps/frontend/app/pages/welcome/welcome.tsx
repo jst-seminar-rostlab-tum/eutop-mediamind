@@ -11,6 +11,7 @@ import { MockedDashboardPage } from "./mocked-dashboard";
 import { MockedTopics } from "./mocked-topics";
 import { MockedSearchProfileOverview } from "./mocked-search-profile";
 import { MockedArticlePage } from "./mocked-article";
+import { MockedBreakingNews } from "./mocked-breaking-news";
 
 export function Welcome() {
   const { isSignedIn, user } = useAuthorization();
@@ -177,9 +178,9 @@ export function Welcome() {
       text: t("landing_page.dashboard_text"),
       card: <MockedDashboardPage />,
       key: "dashboard",
-      zoom: 0.9,
+      zoom: 1,
       height: "h-195",
-      width: "w-180",
+      width: "w-170",
     },
     {
       header: t("landing_page.search_profile_header"),
@@ -188,6 +189,15 @@ export function Welcome() {
       key: "search-profile",
       zoom: 0.7,
       height: "h-245",
+    },
+    {
+      header: t("landing_page.breaking_header"),
+      text: t("landing_page.breaking_text"),
+      card: <MockedBreakingNews />,
+      key: "breaking-news",
+      zoom: 0.9,
+      height: "h-180",
+      width: "w-210",
     },
     {
       header: t("landing_page.article_header"),
