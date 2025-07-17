@@ -1,4 +1,5 @@
 # flake8: noqa: E501
+import traceback
 import uuid
 from collections import defaultdict
 from datetime import datetime, timedelta, timezone
@@ -6,6 +7,8 @@ from typing import List
 from uuid import UUID
 
 from fastapi import HTTPException
+from qdrant_client.common.client_exceptions import QdrantException
+from qdrant_client.http.exceptions import UnexpectedResponse
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 
@@ -602,67 +605,107 @@ class SearchProfileService:
         selected_topic: KeywordSuggestionTopic,
     ) -> KeywordSuggestionResponse:
         """
-        Generate keyword suggestions based on the
-        search profile information
+        Generate keyword suggestions based on the search profile information
         """
+        try:
+            article_vector_service = ArticleVectorService()
 
-        article_vector_service = ArticleVectorService()
+            def format_related_topics(
+                topics: List[KeywordSuggestionTopic],
+            ) -> str:
+                if not topics:
+                    return "--"
+                return "\n".join(
+                    f"{topic.topic_name}: {', '.join(topic.keywords)}"
+                    for topic in topics
+                )
 
-        def format_related_topics(topics: List[KeywordSuggestionTopic]) -> str:
-            if not topics:
-                return "--"
-            return "\n".join(
-                f"{topic.topic_name}: {', '.join(topic.keywords)}"
-                for topic in topics
+            # Select the appropriate prompt based on the language
+            if search_profile_language == Language.DE.value:
+                prompt = KEYWORD_SUGGESTION_PROMPT_DE
+            elif search_profile_language == Language.EN.value:
+                prompt = KEYWORD_SUGGESTION_PROMPT_EN
+            else:
+                raise HTTPException(
+                    status_code=400,
+                    detail="Unsupported language for keyword suggestions",
+                )
+
+            prompt = prompt.format(
+                search_profile_name=search_profile_name,
+                selected_topic_name=selected_topic.topic_name,
+                selected_topic_keywords=", ".join(selected_topic.keywords),
+                related_topics=format_related_topics(related_topics),
             )
 
-        prompt: str
-        if search_profile_language == Language.DE.value:
-            prompt = KEYWORD_SUGGESTION_PROMPT_DE
-        elif search_profile_language == Language.EN.value:
-            prompt = KEYWORD_SUGGESTION_PROMPT_EN
-        else:
-            raise HTTPException(
-                status_code=400,
-                detail="Unsupported language for keyword suggestions",
-            )
+            llm = LLMClient(LLMModels.openai_4o)
 
-        prompt = prompt.format(
-            search_profile_name=search_profile_name,
-            selected_topic_name=selected_topic.topic_name,
-            selected_topic_keywords=", ".join(selected_topic.keywords),
-            related_topics=format_related_topics(related_topics),
-        )
+            try:
+                response = llm.generate_typed_response(
+                    prompt, KeywordSuggestionResponse
+                )
+            except Exception as e:
+                logger.error(
+                    "LLM generation failed: %s", traceback.format_exc()
+                )
+                raise HTTPException(
+                    status_code=500,
+                    detail="Failed to generate keyword suggestions from LLM",
+                )
 
-        llm = LLMClient(LLMModels.openai_4o)
+            if not response:
+                logger.error(
+                    f"Empty response from LLM for profile '{search_profile_name}'"
+                )
+                raise HTTPException(
+                    status_code=500,
+                    detail="Received empty response from LLM",
+                )
 
-        response = llm.generate_typed_response(
-            prompt, KeywordSuggestionResponse
-        )
+            suggestions_map = []
 
-        if not response:
+            for suggestion in response.suggestions:
+                try:
+                    docs = await article_vector_service.retrieve_by_similarity(
+                        query=suggestion, score_threshold=0.5
+                    )
+                    suggestions_map.append((suggestion, len(docs)))
+                except (UnexpectedResponse, QdrantException) as qe:
+                    logger.error(
+                        "Qdrant error while retrieving similarity for '%s': %s",
+                        suggestion,
+                        traceback.format_exc(),
+                    )
+                    raise HTTPException(
+                        status_code=502,
+                        detail="Failed to connect to vector search service",
+                    )
+                except Exception as e:
+                    logger.error(
+                        "Unexpected error during vector search: %s",
+                        traceback.format_exc(),
+                    )
+                    raise HTTPException(
+                        status_code=500,
+                        detail="An error occurred during vector-based similarity search",
+                    )
+
+            suggestions_map.sort(key=lambda x: x[1], reverse=True)
+            top_suggestions = [item[0] for item in suggestions_map[:5]]
+
+            return KeywordSuggestionResponse(suggestions=top_suggestions)
+
+        except HTTPException:
+            raise  # re-raise to preserve existing HTTPExceptions
+        except Exception as e:
             logger.error(
-                f"Failed to generate keyword "
-                f"suggestions from LLM "
-                f"for profile {search_profile_name}"
+                "Unhandled exception in keyword suggestion: %s",
+                traceback.format_exc(),
             )
             raise HTTPException(
                 status_code=500,
-                detail="Failed to generate keyword suggestions from LLM",
+                detail="An unexpected error occurred during keyword suggestion generation",
             )
-
-        suggestions_map = []
-
-        for suggestion in response.suggestions:
-            docs = await article_vector_service.retrieve_by_similarity(
-                query=suggestion, score_threshold=0.5
-            )
-            suggestions_map.append((suggestion, len(docs)))
-
-        suggestions_map.sort(key=lambda x: x[1], reverse=True)
-        suggestions = [item[0] for item in suggestions_map[:5]]
-
-        return KeywordSuggestionResponse(suggestions=suggestions)
 
     @staticmethod
     async def delete_search_profile(
