@@ -100,7 +100,7 @@ export function MockedDashboardPage() {
   }, [profiles, me, filters]);
 
   return (
-    <div className="p-4">
+    <div className="p-6 py-3">
       <Text className="pt-0" hierachy={2}>
         {t("dashboard.dashboard")}
       </Text>
