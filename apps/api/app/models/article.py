@@ -72,10 +72,10 @@ class Article(SQLModel, table=True):
     title_de: Optional[str] = Field(
         default=None, sa_column=Column(Text, nullable=True)
     )
-    content_en: Optional[str] = Field(
+    content_en: Optional[str] | None = Field(
         default=None, sa_column=Column(Text, nullable=True)
     )
-    content_de: Optional[str] = Field(
+    content_de: Optional[str] | None = Field(
         default=None, sa_column=Column(Text, nullable=True)
     )
     summary_en: Optional[str] = Field(
