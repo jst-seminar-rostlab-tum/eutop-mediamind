@@ -39,6 +39,7 @@ export function ArticlePage({
             title={localizedHeadline}
             content={localizedText}
             published_at={publishDateString}
+            image_urls={article.article.image_urls}
             {...(article.article.authors?.length
               ? { author: article.article.authors.join(", ") }
               : {})}
