@@ -11,10 +11,11 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 from seleniumwire import webdriver
 
-from app.core.config import configs
+from app.core.config import get_configs
 from app.core.logger import get_logger
 from app.models.subscription import Subscription
 
+configs = get_configs()
 logger = get_logger(__name__)
 
 # Suppress Selenium Wire INFO logs

@@ -4,9 +4,10 @@ import io
 import boto3
 from botocore.exceptions import ClientError
 
-from app.core.config import configs
+from app.core.config import get_configs
 from app.core.logger import get_logger
 
+configs = get_configs()
 logger = get_logger(__name__)
 
 

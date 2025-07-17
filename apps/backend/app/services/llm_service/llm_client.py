@@ -13,10 +13,11 @@ from litellm import (
     create_file,
 )
 
-from app.core.config import configs
+from app.core.config import get_configs
 from app.core.logger import get_logger
 from app.services.llm_service.llm_models import LLMModels
 
+configs = get_configs()
 logger = get_logger(__name__)
 
 

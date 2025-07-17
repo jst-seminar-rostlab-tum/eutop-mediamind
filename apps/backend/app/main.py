@@ -5,9 +5,10 @@ from starlette.middleware.cors import CORSMiddleware
 from starlette.responses import JSONResponse
 
 from app.api.v1.routes import routers as v1_routers
-from app.core.config import configs
+from app.core.config import get_configs
 from app.core.logger import get_logger
 
+configs = get_configs()
 logger = get_logger(__name__)
 
 

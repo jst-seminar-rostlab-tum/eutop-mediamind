@@ -6,12 +6,14 @@ from typing import List
 import requests
 from eventregistry import EventRegistry
 
-from app.core.config import configs
+from app.core.config import get_configs
 from app.core.db import get_redis_connection
 from app.core.logger import BufferedLogger
 from app.models.breaking_news import BreakingNews
 from app.repositories.user_repository import UserRepository
 from app.services.email_service import EmailService
+
+configs = get_configs()
 
 
 class BreakingNewsNewsAPICrawler:

@@ -5,6 +5,7 @@ from typing import List, Optional
 from langchain_core.documents import Document
 from langchain_openai import OpenAIEmbeddings
 from langchain_qdrant import FastEmbedSparse, QdrantVectorStore, RetrievalMode
+from pydantic import SecretStr
 from qdrant_client import models
 from qdrant_client.http.models import (
     Distance,
@@ -12,13 +13,14 @@ from qdrant_client.http.models import (
     VectorParams,
 )
 
-from app.core.config import configs
+from app.core.config import get_configs
 from app.core.db import get_qdrant_connection
 from app.core.logger import get_logger
 from app.models import Article
 from app.models.article import ArticleStatus
 from app.repositories.article_repository import ArticleRepository
 
+configs = get_configs()
 logger = get_logger(__name__)
 
 
@@ -27,7 +29,8 @@ class ArticleVectorService:
 
     def __init__(self):
         self._dense_embeddings = OpenAIEmbeddings(
-            model="text-embedding-3-large", api_key=configs.OPENAI_API_KEY
+            model="text-embedding-3-large",
+            api_key=SecretStr(configs.OPENAI_API_KEY),
         )
         self._sparse_embeddings = FastEmbedSparse(model_name="Qdrant/bm25")
         self.collection_name = configs.ARTICLE_VECTORS_COLLECTION

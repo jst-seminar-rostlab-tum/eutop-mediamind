@@ -13,11 +13,12 @@ from eventregistry import (
     ReturnInfo,
 )
 
-from app.core.config import configs
+from app.core.config import get_configs
 from app.core.logger import BufferedLogger, get_logger
 from app.models.article import Article
 from app.models.subscription import Subscription
 
+configs = get_configs()
 logger = get_logger(__name__)
 
 

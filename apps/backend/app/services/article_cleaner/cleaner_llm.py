@@ -10,13 +10,13 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 
-from app.core.config import configs
+from app.core.config import get_configs
 from app.models.article import Article
 from app.repositories.article_repository import ArticleRepository
 from app.services.llm_service.llm_client import LLMClient
 from app.services.llm_service.llm_models import LLMModels
 
-# Setup logging
+configs = get_configs()
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 

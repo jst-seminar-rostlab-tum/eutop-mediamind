@@ -11,7 +11,7 @@ from typing import List
 from aiosmtplib import SMTP, SMTPResponseException
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
-from app.core.config import configs
+from app.core.config import get_configs
 from app.core.languages import Language
 from app.core.logger import get_logger
 from app.models.breaking_news import BreakingNews
@@ -23,6 +23,7 @@ from app.services.s3_service import get_s3_service
 from app.services.translation_service import ArticleTranslationService
 from app.services.user_service import UserService
 
+configs = get_configs()
 logger = get_logger(__name__)
 
 templates_dir = os.path.join(os.path.dirname(__file__), "..", "templates")

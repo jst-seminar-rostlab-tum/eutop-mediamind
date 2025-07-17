@@ -10,9 +10,10 @@ from sqlalchemy.ext.asyncio import (
     create_async_engine,
 )
 
-from app.core.config import configs
+from app.core.config import get_configs
 from app.core.logger import get_logger
 
+configs = get_configs()
 logger = get_logger(__name__)
 
 engine: AsyncEngine = create_async_engine(str(configs.SQLALCHEMY_DATABASE_URI))

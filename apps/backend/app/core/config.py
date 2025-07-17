@@ -1,27 +1,45 @@
 """
-NOTE: This file is used to load the configuration settings for the application.
-It uses Pydantic's BaseSettings to load environment variables and validate
-them. It also includes some custom validation logic to ensure that certain
-settings are not set to default values in production environments.
+Configuration Management Module
 
-IMPORTANT: Please, when adding new environment variables, ensure that they are
-documented in the .env.example file and that they are NOT set to default values
-in this file. The default values (for local and ci) should be set in the
-`.env.example` file, NOT here. Also, don't forget to add them to the validation
-checks below. Proper type hinting is also important, as it will help developers
-understand the expected type of each environment variable and should be done in
-this file. When removing environment variables, ensure that they are removed
-from the `.env.example` file, as well as from the validation checks.
+This module provides centralized configuration management for the EUTOP
+application using Pydantic's BaseSettings for environment variable loading
+and validation.
+
+Key Features:
+- Type-safe configuration with Pydantic validation
+- Environment-specific validation (stricter in production)
+- Lazy initialization for better testing support
+- Comprehensive security checks for sensitive values
+
+Usage:
+    from app.core.config import get_configs
+    configs = get_configs()
+
+Environment Variables:
+    All configuration values should be provided via environment variables.
+    See .env.example for the complete list of required variables.
+
+Security:
+    - Never commit real secrets to version control
+    - Use 'changethis' or 'example' values in .env.example
+    - The system will warn/error if default values are used in production
+
+IMPORTANT: When adding new environment variables:
+1. Add them to this class with proper type hints
+2. Document them in .env.example with example values
+3. Add validation in _enforce_non_default_secrets if sensitive
+4. Never set real default values here - only in .env.example
 """
 
 import json
+from pathlib import Path
 from typing import Annotated, Any, Literal
 
 from pydantic import (
     AnyUrl,
     BeforeValidator,
     EmailStr,
-    HttpUrl,
+    Field,
     PostgresDsn,
     computed_field,
     model_validator,
@@ -45,66 +63,66 @@ def parse_cors(v: Any) -> list[str] | str:
 
 class Configs(BaseSettings):
     model_config = SettingsConfigDict(
-        # Use top level .env file (one level above ./api/)
-        env_file=".env",
-        env_ignore_empty=True,
-        extra="ignore",
+        env_file=Path(".env"), extra="ignore", case_sensitive=True
     )
 
+    # Core Application Settings
     ENVIRONMENT: Literal["local", "staging", "production", "ci"]
     PROJECT_NAME: str
 
-    # Backend
+    # Backend Security
     SECRET_KEY: str
     BACKEND_CORS_ORIGINS: Annotated[
         list[AnyUrl] | str, BeforeValidator(parse_cors)
     ]
     FERNET_KEY: str
 
-    # Postgres
+    # Database Configuration
     POSTGRES_SERVER: str
     POSTGRES_PORT: int
     POSTGRES_DB: str
     POSTGRES_USER: str
     POSTGRES_PASSWORD: str
 
-    SENTRY_DSN: HttpUrl | None
+    # Monitoring
+    SENTRY_DSN: str
 
-    # Redis
-    REDIS_URL: str | None
+    # Cache & Storage
+    REDIS_URL: str
 
-    # Qdrant
-    QDRANT_URL: str | None
-    QDRANT_API_KEY: str | None
-    ARTICLE_VECTORS_COLLECTION: str | None
+    # Vector Database
+    QDRANT_URL: str
+    QDRANT_API_KEY: str
+    ARTICLE_VECTORS_COLLECTION: str
 
-    # LLMs
-    OPENAI_API_KEY: str | None
+    # AI Services
+    OPENAI_API_KEY: str
 
-    # Configuration of the user management tool (Clerk)
-    CLERK_SECRET_KEY: str | None
-    CLERK_PUBLISHABLE_KEY: str | None
+    # Authentication (Clerk)
+    CLERK_SECRET_KEY: str
+    CLERK_PUBLISHABLE_KEY: str
     CLERK_COOKIE_NAME: str
 
-    # AWS
+    # Cloud Storage (AWS)
     AWS_ACCESS_KEY_ID: str
     AWS_SECRET_ACCESS_KEY: str
     AWS_REGION: str
     AWS_S3_BUCKET_NAME: str
 
-    # NewsAPI AI
-    NEWSAPIAI_API_KEY: str | None
+    # External APIs
+    NEWSAPIAI_API_KEY: str
 
-    DISABLE_AUTH: bool = False
+    # Feature Flags
+    DISABLE_AUTH: bool = Field(default=False)
 
-    # Email
+    # Email Configuration
     MAX_EMAIL_ATTEMPTS: int
     SMTP_SERVER: str
     SMTP_PORT: int
     SMTP_USER: EmailStr
     SMTP_PASSWORD: str
 
-    # Chatbot
+    # Chatbot Email Configuration
     CHAT_API_KEY: str
     CHAT_SMTP_SERVER: str
     CHAT_SMTP_PORT: int
@@ -112,8 +130,11 @@ class Configs(BaseSettings):
     CHAT_SMTP_FROM: EmailStr
     CHAT_SMTP_PASSWORD: str
 
-    # API server infos for OpenAPI documentation
-    API_SERVER_INFOS: str = "[]"
+    # API Documentation
+    API_SERVER_INFOS: str = Field(default="[]")
+
+    # Network Configuration
+    PROXY_URL: str
 
     @computed_field
     @property
@@ -132,15 +153,16 @@ class Configs(BaseSettings):
         except Exception:
             return []
 
-    # Proxy
-    PROXY_URL: str | None
-
     @computed_field
     @property
     def SQLALCHEMY_DATABASE_URI(self) -> PostgresDsn:
+        """
+        Build PostgreSQL connection URI from individual components.
+        Handles cases where port might be included in server string.
+        """
         # Remove port from host if present
         host = self.POSTGRES_SERVER.split(":")[0]
-        return MultiHostUrl.build(
+        url = MultiHostUrl.build(
             scheme="postgresql+asyncpg",
             username=self.POSTGRES_USER,
             password=self.POSTGRES_PASSWORD,
@@ -148,21 +170,49 @@ class Configs(BaseSettings):
             port=self.POSTGRES_PORT,
             path=self.POSTGRES_DB,
         )
+        return PostgresDsn(str(url))
 
     @computed_field
     @property
     def all_cors_origins(self) -> list[str]:
+        """
+        Get all CORS origins based on environment.
+        Local environment allows all origins for development.
+        """
         if self.ENVIRONMENT == "local":
             return ["*"]
         return [
             str(origin).rstrip("/") for origin in self.BACKEND_CORS_ORIGINS
         ]
 
+    @computed_field
+    @property
+    def is_production(self) -> bool:
+        """Check if running in production environment."""
+        return self.ENVIRONMENT == "production"
+
+    @computed_field
+    @property
+    def is_development(self) -> bool:
+        """Check if running in development environment."""
+        return self.ENVIRONMENT in ("local", "ci")
+
     def _check_default_secret(self, var_name: str, value: str | None) -> None:
+        """
+        Check if a configuration value is set to a default/insecure value.
+
+        Args:
+            var_name: Name of the configuration variable
+            value: Value to check
+
+        Raises:
+            ValueError: If the value is insecure and environment is not local
+        """
         if (
             value is None
             or value == "changethis"
             or "example" in value.lower()
+            or value == ""
         ):
             message = (
                 f'The value of {var_name} is "{value}", '
@@ -175,21 +225,32 @@ class Configs(BaseSettings):
 
     @model_validator(mode="after")
     def _enforce_non_default_secrets(self) -> Self:
+        """
+        Validate that security-sensitive configuration values are not set to
+        defaults. Skips validation in CI environment for testing purposes.
+        """
         # Skip checks in CI environment
         if self.ENVIRONMENT == "ci":
             return self
 
+        # Core security settings
         self._check_default_secret("SECRET_KEY", self.SECRET_KEY)
         self._check_default_secret("FERNET_KEY", self.FERNET_KEY)
+
+        # Database settings
         self._check_default_secret("POSTGRES_SERVER", self.POSTGRES_SERVER)
         self._check_default_secret("POSTGRES_DB", self.POSTGRES_DB)
         self._check_default_secret("POSTGRES_USER", self.POSTGRES_USER)
         self._check_default_secret("POSTGRES_PASSWORD", self.POSTGRES_PASSWORD)
+
+        # Authentication settings
         self._check_default_secret("CLERK_SECRET_KEY", self.CLERK_SECRET_KEY)
         self._check_default_secret(
             "CLERK_PUBLISHABLE_KEY", self.CLERK_PUBLISHABLE_KEY
         )
         self._check_default_secret("CLERK_COOKIE_NAME", self.CLERK_COOKIE_NAME)
+
+        # Cloud storage settings
         self._check_default_secret("AWS_ACCESS_KEY_ID", self.AWS_ACCESS_KEY_ID)
         self._check_default_secret(
             "AWS_SECRET_ACCESS_KEY", self.AWS_SECRET_ACCESS_KEY
@@ -198,16 +259,21 @@ class Configs(BaseSettings):
         self._check_default_secret(
             "AWS_S3_BUCKET_NAME", self.AWS_S3_BUCKET_NAME
         )
+
+        # External services
         self._check_default_secret("REDIS_URL", self.REDIS_URL)
         self._check_default_secret("QDRANT_URL", self.QDRANT_URL)
         self._check_default_secret("QDRANT_API_KEY", self.QDRANT_API_KEY)
         self._check_default_secret(
             "ARTICLE_VECTORS_COLLECTION", self.ARTICLE_VECTORS_COLLECTION
         )
+
+        # Email settings
         self._check_default_secret("SMTP_SERVER", self.SMTP_SERVER)
         self._check_default_secret("SMTP_USER", self.SMTP_USER)
         self._check_default_secret("SMTP_PASSWORD", self.SMTP_PASSWORD)
 
+        # Chatbot email settings
         self._check_default_secret("CHAT_API_KEY", self.CHAT_API_KEY)
         self._check_default_secret("CHAT_SMTP_SERVER", self.CHAT_SMTP_SERVER)
         self._check_default_secret("CHAT_SMTP_USER", self.CHAT_SMTP_USER)
@@ -215,6 +281,13 @@ class Configs(BaseSettings):
         self._check_default_secret(
             "CHAT_SMTP_PASSWORD", self.CHAT_SMTP_PASSWORD
         )
+
+        # External APIs
+        self._check_default_secret("NEWSAPIAI_API_KEY", self.NEWSAPIAI_API_KEY)
+        self._check_default_secret("OPENAI_API_KEY", self.OPENAI_API_KEY)
+
+        # Network Configuration
+        self._check_default_secret("PROXY_URL", self.PROXY_URL)
 
         return self
 
@@ -236,4 +309,20 @@ class Configs(BaseSettings):
         return self
 
 
-configs = Configs()
+_configs_instance: "Configs | None" = None
+
+
+def get_configs() -> "Configs":
+    """
+    Get the global configuration instance.
+    """
+    global _configs_instance
+    if _configs_instance is None:
+        _configs_instance = Configs()  # type: ignore[call-arg]
+    return _configs_instance
+
+
+def reset_configs() -> None:
+    """Reset the global configuration instance. Useful for testing."""
+    global _configs_instance
+    _configs_instance = None

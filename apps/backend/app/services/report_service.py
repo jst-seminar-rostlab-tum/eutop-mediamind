@@ -3,7 +3,7 @@ from datetime import datetime, timezone
 from typing import List, Optional
 from uuid import UUID
 
-from app.core.config import configs
+from app.core.config import get_configs
 from app.core.languages import Language
 from app.core.logger import get_logger
 from app.models.report import Report, ReportStatus
@@ -14,6 +14,7 @@ from app.services.pdf_service.pdf_service import PDFService
 from app.services.s3_service import S3Service, get_s3_service
 from app.services.search_profiles_service import SearchProfileService
 
+configs = get_configs()
 logger = get_logger(__name__)
 
 

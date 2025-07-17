@@ -1,12 +1,13 @@
 from datetime import datetime, timezone
 from uuid import UUID
 
-from app.core.config import configs
+from app.core.config import get_configs
 from app.core.logger import get_logger
 from app.models.email import Email
 from app.schemas.user_schema import UserEntity
 from app.services.email_service import EmailService
 
+configs = get_configs()
 logger = get_logger(__name__)
 
 
@@ -29,7 +30,7 @@ class ChatbotEmailSending:
         )
 
         try:
-            EmailService.send_ses_email(email)
+            await EmailService.send_ses_email(email)
             logger.info(
                 f"Chat response sent to {user_email} for "
                 f"email_conversation with id={email_conversation_id}"

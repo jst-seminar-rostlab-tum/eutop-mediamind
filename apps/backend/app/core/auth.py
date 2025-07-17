@@ -2,11 +2,12 @@ from clerk_backend_api import Clerk
 from clerk_backend_api.jwks_helpers import VerifyTokenOptions, verify_token
 from fastapi import HTTPException, Request, status
 
-from app.core.config import configs
+from app.core.config import get_configs
 from app.core.logger import get_logger
 from app.schemas.user_schema import UserEntity
 from app.services.user_service import UserService
 
+configs = get_configs()
 logger = get_logger(__name__)
 
 

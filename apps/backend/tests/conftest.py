@@ -1,8 +1,10 @@
 import pytest
 from fastapi.testclient import TestClient
 
-from app.core.config import configs
+from app.core.config import get_configs
 from app.main import AppCreator
+
+configs = get_configs()
 
 
 @pytest.fixture(autouse=True)

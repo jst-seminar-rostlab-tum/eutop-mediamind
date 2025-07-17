@@ -17,8 +17,9 @@ if TYPE_CHECKING:
 
 from cryptography.fernet import Fernet
 
-from app.core.config import configs
+from app.core.config import get_configs
 
+configs = get_configs()
 fernet = Fernet(configs.FERNET_KEY)
 
 

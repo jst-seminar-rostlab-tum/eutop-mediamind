@@ -3,7 +3,9 @@ from fastapi import HTTPException
 from starlette import status
 
 from app.core.auth import get_authenticated_user
-from app.core.config import configs
+from app.core.config import get_configs
+
+configs = get_configs()
 
 
 class DummyRequest:

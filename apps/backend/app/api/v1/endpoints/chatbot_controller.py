@@ -3,12 +3,13 @@ from typing import Dict
 
 from fastapi import APIRouter, Depends, Header, HTTPException
 
-from app.core.config import configs
+from app.core.config import get_configs
 from app.schemas.chatbot_schemas import ChatRequest
 from app.services.chatbot_service.chatbot_service import ChatbotService
 from app.services.s3_service import S3Service, get_s3_service
 from app.services.user_service import UserService
 
+configs = get_configs()
 router = APIRouter(
     prefix="/chatbot",
     tags=["chatbot"],

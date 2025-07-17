@@ -3,17 +3,20 @@ import uuid
 
 import pytest
 
+from app.core.config import get_configs
 from app.core.db import get_qdrant_connection
 from app.models import Article
 from app.repositories.article_repository import ArticleRepository
 from app.services.article_vector_service import ArticleVectorService
 
+configs = get_configs()
+
 
 def make_article(
-    id: uuid.UUID = None,
+    id: uuid.UUID | None = None,
     summary: str = "Integration summary",
     title: str = "Integration Title",
-    subscription_id: uuid.UUID = None,
+    subscription_id: uuid.UUID | None = None,
 ) -> Article:
     return Article(
         id=id or uuid.uuid4(),
@@ -47,8 +50,6 @@ def temp_collection(qdrant_client):
 
 @pytest.fixture
 def service(monkeypatch, temp_collection):
-    from app.core.config import configs
-
     configs.ARTICLE_VECTORS_COLLECTION = temp_collection
     svc = ArticleVectorService()
     return svc
