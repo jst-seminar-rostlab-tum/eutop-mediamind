@@ -38,7 +38,7 @@ export function SearchProfileSkeleton() {
         </div>
 
         {/* Content skeleton */}
-        <div className="space-y-6 flex-grow">
+        <div className="space-y-2 flex-grow">
           <Skeleton className="h-10 w-full rounded-md" />
           {[...Array(4)].map((_, i) => (
             <div key={i} className="p-4 border rounded-lg space-y-3">
@@ -59,7 +59,7 @@ export function SearchProfileSkeleton() {
 
 export function ArticlesSkeleton() {
   return (
-    <div className="space-y-6 flex-grow">
+    <div className="space-y-2 flex-grow">
       {[...Array(4)].map((_, i) => (
         <div key={i} className="p-4 border rounded-xl space-y-3">
           <Skeleton className="h-6 w-3/4" />
