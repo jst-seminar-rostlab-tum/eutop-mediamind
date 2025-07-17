@@ -44,7 +44,8 @@ The user's latest message is:
 
 Instructions:
 - Respond only with the body of your reply, in clear and concise paragraphs.
-- Include a salutation. In English, you should use 'Hi'.
+- Include a salutation. In English, you should use 'Hi [username]'. Leave \
+[username] in the salutation to be replaced with the user's first name.
 - Include a closing statement. In English, you should use 'Best regards,
 MediaMind Team'.
 - Do not include subject lines.
@@ -86,21 +87,18 @@ resolve the user's query.
                 f"Error generating Chatbot response for email_conversation "
                 f"with id={email_conversation_id} response: {str(e)}"
             )
-            # TODO: move this somewhere else
             llm_response = f"""Thank you for your message regarding "\
 {subject}". Unfortunately, we ran into a problem generating a response. \
 Please try again later or contact us."""
         return llm_response
 
-    # TODO: adapt to structured output
     @staticmethod
     def format(llm_response: str, user_first_name: str) -> str:
         llm_response_as_html = markdown.markdown(
             llm_response, extensions=["extra"]
         )
-        email_as_html = f"""<p>Hi {user_first_name},</p>
-            <p>{llm_response_as_html}</p>
-            <p>Best regards,<br>
-            MediaMind Team</p>
-            """
+
+        email_as_html = llm_response_as_html.replace(
+            "[username]", user_first_name
+        )
         return email_as_html
