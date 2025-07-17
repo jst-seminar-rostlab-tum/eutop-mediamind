@@ -18,7 +18,7 @@ export function SearchProfileSkeleton() {
       </div>
       <div className="flex gap-8 w-full justify-start">
         {/* Sidebar skeleton */}
-        <div className="space-y-6 mt-2 max-w-[400px] flex-grow">
+        <div className="w-1/5 space-y-6 mt-2 flex-grow">
           <Skeleton className="h-6 w-32" />
           <Skeleton className="h-10 w-full rounded-md mb-8" />
 
@@ -38,36 +38,40 @@ export function SearchProfileSkeleton() {
         </div>
 
         {/* Content skeleton */}
-        <div className="space-y-2 flex-grow">
+        <div className="w-4/5 space-y-2 flex-grow">
           <Skeleton className="h-10 w-full rounded-md" />
-          {[...Array(4)].map((_, i) => (
-            <div key={i} className="p-4 border rounded-lg space-y-3">
-              <Skeleton className="h-6 w-3/4" />
-              <Skeleton className="h-4 w-full" />
-              <Skeleton className="h-4 w-5/6" />
-              <div className="flex gap-2 mt-2">
-                <Skeleton className="h-6 w-24 rounded-lg" />
-                <Skeleton className="h-6 w-32 rounded-lg" />
-              </div>
-            </div>
-          ))}
+          <ArticlesSkeleton />
         </div>
       </div>
     </div>
   );
 }
-
 export function ArticlesSkeleton() {
   return (
     <div className="space-y-2 flex-grow">
       {[...Array(4)].map((_, i) => (
-        <div key={i} className="p-4 border rounded-xl space-y-3">
-          <Skeleton className="h-6 w-3/4" />
-          <Skeleton className="h-4 w-full" />
-          <Skeleton className="h-4 w-5/6" />
-          <div className="flex gap-2 mt-2">
-            <Skeleton className="h-6 w-24 rounded-lg" />
-            <Skeleton className="h-6 w-32 rounded-lg" />
+        <div
+          key={i}
+          className="mb-2 p-5 gap-4 justify-start border rounded-lg space-y-3" // Adjusted to mimic Card classes
+        >
+          <div className="flex flex-row gap-4">
+            <Skeleton className="w-[120px] h-[120px] rounded-md shrink-0" />{" "}
+            {/* Image skeleton */}
+            <div className="flex flex-col justify-evenly space-y-2 flex-1">
+              <Skeleton className="h-7 w-3/4" />{" "}
+              {/* Title: taller to match text-xl */}
+              <Skeleton className="h-4 w-full" /> {/* Summary line 1 */}
+              <Skeleton className="h-4 w-5/6" /> {/* Summary line 2 */}
+            </div>
+          </div>
+          <div className="flex gap-3 items-center flex-wrap">
+            <Skeleton className="h-6 w-24 rounded-lg" /> {/* Relevance tag */}
+            <Skeleton className="h-6 w-32 rounded-lg" /> {/* Topic tag 1 */}
+            <Skeleton className="h-6 w-28 rounded-lg" /> {/* Topic tag 2 */}
+            <Skeleton className="h-6 w-36 rounded-lg" />{" "}
+            {/* Topic tag 3 or more */}
+            <Skeleton className="h-6 w-40 rounded-lg" />{" "}
+            {/* Show more button skeleton */}
           </div>
         </div>
       ))}
