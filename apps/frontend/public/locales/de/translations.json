@@ -43,6 +43,20 @@
     "checkout_sp_toast": "Sie wollen das Such Profil sehen und mehr? Probieren sie die Such Profil vorschau oder Loggen Sie sich ein!"
   },
 
+  "mock_data": {
+    "breaking_title_1": "Durchbruch bei nachhaltiger Reifentechnologie reduziert Mikroplastikemissionen",
+    "breaking_summary_1": "Ein deutsches Start-up hat eine biologisch abbaubare Reifenmischung entwickelt, die Mikroplastikemissionen deutlich reduziert, ohne die Leistung zu beeinträchtigen. Erste Tests zeigen eine Verringerung der Straßenabriebpartikel um 40 %.",
+
+    "breaking_title_2": "EU kündigt neue Anreize für Wasserstoff-Lkw an",
+    "breaking_summary_2": "Die Europäische Kommission hat ein Förderprogramm vorgestellt, das den Umstieg auf wasserstoffbetriebene Nutzfahrzeuge beschleunigen soll. Betreiber erhalten bis zu 150.000 € pro förderfähigem Fahrzeug.",
+
+    "breaking_title_3": "Französischer Automobilzulieferer startet KI-gestützte Plattform zur Batterieanalyse",
+    "breaking_summary_3": "ValeonTech hat eine neue Softwarelösung für E-Fahrzeughersteller vorgestellt, die mithilfe künstlicher Intelligenz den Batteriezustand vorhersagt und das Ladeverhalten optimiert.",
+
+    "breaking_title_4": "Norwegens Offshore-Wind-Offensive soll 2 Millionen Haushalte versorgen",
+    "breaking_summary_4": "Die norwegische Regierung hat die Finanzierung eines 6,5-GW-Offshore-Windparks in der Nordsee genehmigt. Der Bau beginnt voraussichtlich 2026 und wird eines der größten Projekte seiner Art in Europa sein."
+  },
+
   "dashboard": {
     "dashboard": "Übersicht",
     "profile": "Profile",

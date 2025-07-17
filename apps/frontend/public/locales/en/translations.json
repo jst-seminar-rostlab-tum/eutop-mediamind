@@ -43,6 +43,20 @@
     "checkout_sp_toast": "You want to see the search profile and more? Check out the search profile preview or log in!"
   },
 
+  "mock_data": {
+    "breaking_title_1": "Breakthrough in Sustainable Tire Technology Reduces Microplastic Emissions",
+    "breaking_summary_1": "A German startup has developed a biodegradable tire compound that significantly reduces microplastic emissions without compromising performance. Early tests show a 40% drop in road wear particles.",
+
+    "breaking_title_2": "EU Announces New Incentives for Hydrogen Truck Adoption",
+    "breaking_summary_2": "The European Commission unveiled a subsidy program aimed at accelerating the transition to hydrogen-powered freight transport, with up to €150,000 available per vehicle for eligible operators.",
+
+    "breaking_title_3": "French Automotive Supplier Launches AI-Driven Battery Diagnostics Platform",
+    "breaking_summary_3": "ValeonTech has introduced a new software solution for EV manufacturers that leverages AI to predict battery degradation and optimize charging behavior over time.",
+
+    "breaking_title_4": "Norway's Offshore Wind Expansion Set to Power 2 Million Homes",
+    "breaking_summary_4": "Norway's government has approved funding for a 6.5 GW offshore wind farm in the North Sea, expected to begin construction in 2026. The project will be one of the largest of its kind in Europe."
+  },
+
   "dashboard": {
     "dashboard": "Dashboard",
     "profile": "Profiles",
