@@ -2,7 +2,6 @@ import { Book, FileText, Search } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Card, CardTitle } from "~/components/ui/card";
 import { Input } from "~/components/ui/input";
-import Text from "~/custom-components/text";
 import {
   getLocalizedContent,
   getPercentage,
@@ -144,11 +143,8 @@ export function MockedSearchProfileOverview() {
   const Topics = profile ? profile.topics : [];
 
   return (
-    <div className="w-full grow flex flex-col overflow-hidden">
+    <div className="w-full grow flex flex-col overflow-hidden pt-3">
       <div className="w-full flex flex-col justify-start">
-        <div className="flex gap-6 items-center">
-          <Text hierachy={2}>{profile?.name}</Text>
-        </div>
         <div className="flex items-center justify-between mb-4 gap-10">
           <ScrollArea className="grow overflow-x-hidden whitespace-nowrap rounded-md pb-1.5">
             <div className="flex w-max space-x-2 p-1">

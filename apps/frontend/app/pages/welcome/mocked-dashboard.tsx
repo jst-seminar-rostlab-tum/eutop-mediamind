@@ -106,7 +106,7 @@ export function MockedDashboardPage() {
       </Text>
       <Alert
         className="hover:bg-blue-100 mb-4 bg-blue-200 text-blue-900"
-        onClick={() => toast.info("landing_page.breaking_toast")}
+        onClick={() => toast.info(t("landing_page.breaking_toast"))}
       >
         <Info />
         <AlertTitle>{t("breaking-news.entry")}</AlertTitle>
@@ -129,7 +129,7 @@ export function MockedDashboardPage() {
           </span>
         </div>
       ) : (
-        <div className="mt-6 mb-4 flex flex-wrap gap-10 mx-4">
+        <div className="mt-6 mb-4 flex flex-wrap gap-10 gap-y-8 mx-4">
           {filteredAndSortedProfiles?.map((profile, idx) => (
             <MockedProfileCard key={idx} profile={profile} profile_id={me.id} />
           ))}

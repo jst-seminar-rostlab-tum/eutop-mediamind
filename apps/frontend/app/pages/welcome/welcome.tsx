@@ -55,8 +55,8 @@ export function Welcome() {
       text: t("landing_page.dashboard_text"),
       card: <MockedDashboardPage />,
       key: "dashboard",
-      zoom: 0.8,
-      height: "h-192",
+      zoom: 0.9,
+      height: "h-190",
       width: "w-170",
     },
     {
@@ -64,8 +64,8 @@ export function Welcome() {
       text: t("landing_page.search_profile_text"),
       card: <MockedSearchProfileOverview />,
       key: "search-profile",
-      zoom: 0.7,
-      height: "h-245",
+      zoom: 0.75,
+      height: "h-230",
       width: "w-260",
     },
     {
@@ -75,7 +75,7 @@ export function Welcome() {
       key: "breaking-news",
       zoom: 0.85,
       height: "h-190",
-      width: "w-200",
+      width: "w-220",
     },
     {
       header: t("landing_page.article_header"),
@@ -114,8 +114,8 @@ export function Welcome() {
     if (!hasUserInteracted) return;
 
     const timeout = setTimeout(() => {
-      setHasUserInteracted(false); // If user has interacted: Resume autoplay after 30 sec
-    }, 30000);
+      setHasUserInteracted(false); // If user has interacted: Resume autoplay after 15 sec
+    }, 15000);
 
     return () => clearTimeout(timeout);
   }, [hasUserInteracted]);
@@ -158,7 +158,7 @@ export function Welcome() {
           <div className="absolute inset-0 bg-[linear-gradient(160deg,_#8a99a8_0%,_#e3ecf4_20%,_#f8fcfe_50%,_#e5e8eb_100%)] z-0" />
 
           {/* Animation container */}
-          <div className="flex items-center relative z-10 w-full min-h-[1000px] pt-20 pb-35">
+          <div className="flex items-center relative z-10 w-full min-h-[1000px] pt-15 pb-25">
             <AnimatePresence mode="wait" initial={false} custom={direction}>
               <motion.div
                 key={features[currentIndex].key}
@@ -176,9 +176,9 @@ export function Welcome() {
                     delay: 0,
                   },
                 }}
-                className="w-[80%] h-full gap-14 flex flex-wrap justify-center items-center mx-auto"
+                className="w-[80%] h-full gap-14 gap-y-0 flex flex-wrap justify-center items-center mx-auto"
               >
-                <div className="flex flex-col max-w-[500px] h-[310px] justify-center gap-4">
+                <div className="flex flex-col max-w-[500px] h-[310px] justify-center items-center gap-4">
                   <p className="text-4xl md:text-5xl font-semibold leading-tight mb-2">
                     {features[currentIndex].header}
                   </p>
@@ -186,15 +186,17 @@ export function Welcome() {
                     {features[currentIndex].text}
                   </p>
                 </div>
-                <Card
-                  style={{ zoom: features[currentIndex].zoom }}
-                  className={`max-w-270 ${features[currentIndex].width ?? ""} ${features[currentIndex].height} border-8 p-6 py-3 overflow-hidden`}
-                  onClick={() => {
-                    setHasUserInteracted(true);
-                  }}
-                >
-                  {features[currentIndex].card}
-                </Card>
+                <div className="w-190 h-190 flex justify-center items-center">
+                  <Card
+                    style={{ zoom: features[currentIndex].zoom }}
+                    className={`max-w-270 ${features[currentIndex].width ?? ""} ${features[currentIndex].height} border-8 p-6 py-3 overflow-hidden`}
+                    onClick={() => {
+                      setHasUserInteracted(true);
+                    }}
+                  >
+                    {features[currentIndex].card}
+                  </Card>
+                </div>
               </motion.div>
             </AnimatePresence>
           </div>

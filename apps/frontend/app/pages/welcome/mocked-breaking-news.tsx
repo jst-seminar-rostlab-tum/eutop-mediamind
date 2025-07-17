@@ -44,9 +44,9 @@ export function MockedBreakingNews() {
   const sortedNews = sortBy(breakingNews ?? [], "created_at").reverse();
 
   return (
-    <div className="overflow-auto">
+    <div className="overflow-auto p-2">
       <Text hierachy={2}>{t("breaking-news.header")}</Text>
-      <div className="space-y-4">
+      <div className="space-y-4 mt-1">
         {sortedNews.map((news) => (
           <BreakingNewsCard key={news.id} news={news} />
         ))}

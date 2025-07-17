@@ -58,7 +58,7 @@ export function MockedTopics({ profile, setProfile }: TopicsProps) {
       const sourceList = isEnvironment ? environmentKeywords : carKeywords;
 
       const shuffled = [...sourceList].sort(() => 0.5 - Math.random());
-      const suggestions = shuffled.slice(0, 3);
+      const suggestions = shuffled.slice(0, 5);
 
       const filteredSuggestions = suggestions.filter(
         (suggestion) =>
