@@ -154,7 +154,7 @@ resource "aws_lb_listener_rule" "qdrant" {
   }
   condition {
     host_header {
-      values = ["qdrant.mediamind.csee.tech"]
+      values = ["qdrant.api.mediamind.csee.tech"]
     }
   }
 }
