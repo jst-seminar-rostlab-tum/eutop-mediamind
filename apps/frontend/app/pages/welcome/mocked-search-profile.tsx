@@ -13,6 +13,7 @@ import { useTranslation } from "react-i18next";
 import { Button } from "~/components/ui/button";
 import { toast } from "sonner";
 import { matches } from "./mock-data";
+import i18n from "~/i18n";
 
 export function MockedSearchProfileOverview() {
   const [search, setSearch] = useState("");
@@ -95,8 +96,8 @@ export function MockedSearchProfileOverview() {
 
       // Search term in headline or summary
       const content =
-        getLocalizedContent(match.article.headline) +
-        getLocalizedContent(match.article.summary);
+        getLocalizedContent(match.article.headline, i18n) +
+        getLocalizedContent(match.article.summary, i18n);
 
       if (
         searchTerm &&
@@ -232,16 +233,19 @@ export function MockedSearchProfileOverview() {
                       <div className="flex flex-row gap-4">
                         <img
                           src={match.article.image_urls[0]}
-                          alt={getLocalizedContent(match.article.headline)}
+                          alt={getLocalizedContent(
+                            match.article.headline,
+                            i18n,
+                          )}
                           className="w-[130px] h-[130px] object-cover rounded-md shadow-md shrink-0"
                         />
                         <div className="flex flex-col justify-evenly gap-4 p-2">
                           <CardTitle className="text-xl">
-                            {getLocalizedContent(match.article.headline)}
+                            {getLocalizedContent(match.article.headline, i18n)}
                           </CardTitle>
                           <p>
                             {truncateAtWord(
-                              getLocalizedContent(match.article.summary),
+                              getLocalizedContent(match.article.summary, i18n),
                               190,
                             )}
                           </p>
