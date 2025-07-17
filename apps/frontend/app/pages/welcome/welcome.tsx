@@ -262,7 +262,7 @@ export function Welcome() {
       </div>
       {/* Features Section */}
       <div className="pt-10 bg-[linear-gradient(to_bottom,_#556270_0%,_#dcdcdc_10%,_#f8f9fa_15%,_#f8f9fa_70%,_#dcdcdc_80%,_#556270_100%)]">
-        <div className="relative w-full flex justify-center items-center min-h-screen overflow-hidden">
+        <div className="relative w-full flex justify-center items-center min-h-[900px] overflow-hidden">
           {features.map((feature, index) => (
             <motion.div
               key={feature.key}
@@ -313,6 +313,23 @@ export function Welcome() {
               <ChevronRight size={40} />
             </button>
           </div>
+        </div>
+        {/* Stepper / Dots Indicator */}
+        <div className="flex justify-center mt-0 gap-5">
+          {features.map((_, index) => (
+            <button
+              key={index}
+              onClick={() => {
+                setCurrentIndex(index);
+                setHasUserInteracted(true);
+              }}
+              className={`h-3 w-3 rounded-full transition-all duration-300 ${
+                currentIndex === index
+                  ? "bg-gray-800 scale-125"
+                  : "bg-gray-400 hover:bg-gray-500"
+              }`}
+            />
+          ))}
         </div>
 
         {/* Footer Section */}
