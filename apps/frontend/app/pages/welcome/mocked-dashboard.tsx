@@ -9,6 +9,7 @@ import type { Profile } from "../../../types/model";
 import Text from "~/custom-components/text";
 import { toast } from "sonner";
 import { MockedProfileCard } from "./mocked-profile-card";
+import { profiles } from "./mock-data";
 
 interface FilterState {
   showUpdatedOnly: boolean;
@@ -62,95 +63,6 @@ export function MockedDashboardPage() {
     organization_name: "testOrg",
   };
 
-  const profiles = [
-    {
-      id: "1",
-      name: "Eutop",
-      is_public: true,
-      organization_emails: ["user@example.com"],
-      profile_emails: ["user@example.com"],
-      can_read_user_ids: ["1"],
-      is_reader: true,
-      can_edit_user_ids: ["1"],
-      is_editor: true,
-      owner_id: "1",
-      is_owner: true,
-      language: "en",
-      topics: [
-        {
-          id: "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-          name: "string",
-          keywords: ["string"],
-        },
-      ],
-      subscriptions: [
-        {
-          id: "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-          name: "string",
-          is_subscribed: true,
-        },
-      ],
-      new_articles_count: 3,
-    },
-    {
-      id: "2",
-      name: "TUM",
-      is_public: true,
-      organization_emails: ["user@example.com"],
-      profile_emails: ["user@example.com"],
-      can_read_user_ids: ["1"],
-      is_reader: true,
-      can_edit_user_ids: ["2"],
-      is_editor: false,
-      owner_id: "2",
-      is_owner: true,
-      language: "en",
-      topics: [
-        {
-          id: "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-          name: "string",
-          keywords: ["string"],
-        },
-      ],
-      subscriptions: [
-        {
-          id: "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-          name: "string",
-          is_subscribed: true,
-        },
-      ],
-      new_articles_count: 7,
-    },
-    {
-      id: "3",
-      name: "CSEE",
-      is_public: false,
-      organization_emails: ["user@example.com"],
-      profile_emails: ["user@example.com"],
-      can_read_user_ids: ["1"],
-      is_reader: true,
-      can_edit_user_ids: ["1"],
-      is_editor: true,
-      owner_id: "1",
-      is_owner: true,
-      language: "en",
-      topics: [
-        {
-          id: "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-          name: "string",
-          keywords: ["string"],
-        },
-      ],
-      subscriptions: [
-        {
-          id: "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-          name: "string",
-          is_subscribed: true,
-        },
-      ],
-      new_articles_count: 7,
-    },
-  ];
   const { t } = useTranslation();
 
   const [filters, setFilters] = useState<FilterState>({
@@ -194,11 +106,7 @@ export function MockedDashboardPage() {
       </Text>
       <Alert
         className="hover:bg-blue-100 mb-4 bg-blue-200 text-blue-900"
-        onClick={() =>
-          toast.info("You want to see breaking news and more?", {
-            description: "Log in and experience the full functionality!",
-          })
-        }
+        onClick={() => toast.info("landing_page.breaking_toast")}
       >
         <Info />
         <AlertTitle>{t("breaking-news.entry")}</AlertTitle>
@@ -208,11 +116,7 @@ export function MockedDashboardPage() {
         <Button
           variant="outline"
           className={"size-8"}
-          onClick={() =>
-            toast.success(
-              "You want to create your own Search profile? Log in and enjoy MediaMind",
-            )
-          }
+          onClick={() => toast.info(t("landing_page.sp_toast"))}
         >
           <Plus />
         </Button>
