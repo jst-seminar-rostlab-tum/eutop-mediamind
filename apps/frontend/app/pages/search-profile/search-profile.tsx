@@ -63,7 +63,7 @@ export function SearchProfileOverview() {
   >(new Set());
   const INITIAL_ARTICLE_TOPICS_COUNT = 2;
 
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const [matches, setMatches] = useState<MatchesResponse | undefined>(
     undefined,
@@ -336,7 +336,7 @@ export function SearchProfileOverview() {
                                 <img
                                   src={match.article.image_urls[0]}
                                   alt={getLocalizedContent(
-                                    match.article.headline,
+                                    match.article.headline, i18n
                                   )}
                                   className="w-[120px] h-[120px] object-cover rounded-md shadow-md shrink-0"
                                   onError={() => setImgError(true)}
@@ -344,10 +344,10 @@ export function SearchProfileOverview() {
                               )}
                               <div className="flex flex-col justify-evenly p-2">
                                 <CardTitle className="text-xl line-clamp-2">
-                                  {getLocalizedContent(match.article.headline)}
+                                  {getLocalizedContent(match.article.headline, i18n)}
                                 </CardTitle>
                                 <p className="line-clamp-2 text-gray-700">
-                                  {getLocalizedContent(match.article.summary)}
+                                  {getLocalizedContent(match.article.summary, i18n)}
                                 </p>
                               </div>
                             </div>

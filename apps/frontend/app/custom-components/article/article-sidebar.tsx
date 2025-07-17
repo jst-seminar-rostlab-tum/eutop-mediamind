@@ -13,13 +13,14 @@ import { ExternalLink, ChevronDown, ChevronUp } from "lucide-react";
 import { getPercentage } from "~/lib/utils";
 import { getLocalizedContent } from "~/lib/utils";
 import { useState } from "react";
+import { ArticleEntities } from "~/custom-components/article/article-entities";
 
 interface ArticleSidebarProps {
   article: ArticleMatch;
 }
 
 export function ArticleSidebar({ article }: ArticleSidebarProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [expandedTopics, setExpandedTopics] = useState<Record<number, boolean>>(
     {},
   );
@@ -30,6 +31,8 @@ export function ArticleSidebar({ article }: ArticleSidebarProps) {
       [topicIndex]: !prev[topicIndex],
     }));
   };
+
+  const localizedSummary = getLocalizedContent(article.article.summary, i18n);
 
   return (
     <div className={"space-y-6"}>
@@ -55,10 +58,7 @@ export function ArticleSidebar({ article }: ArticleSidebarProps) {
             <AccordionContent
               className={"text-gray-800 pb-4 whitespace-pre-wrap"}
             >
-              <p>
-                {getLocalizedContent(article.article.summary) ||
-                  t("article-page.no_summary")}
-              </p>
+              <p>{localizedSummary || t("article-page.no_summary")}</p>
             </AccordionContent>
           </AccordionItem>
         </Accordion>
@@ -123,6 +123,7 @@ export function ArticleSidebar({ article }: ArticleSidebarProps) {
           );
         })}
       </div>
+      {article.entities && <ArticleEntities entities={article.entities} />}
       <ArticleMetaDataTable article={article} />
     </div>
   );

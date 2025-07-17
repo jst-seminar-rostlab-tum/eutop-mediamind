@@ -233,7 +233,10 @@
     "meta_data_category": "Category",
     "keywords_text": "Displays matched profile topics with keywords, and a score indicating topic relevance to the article.",
     "show_more": "Show more",
-    "show_less": "Show less"
+    "show_less": "Show less",
+    "no_summary": "No summary available.",
+    "entities_text": "Displays entities related to the article.",
+    "entities": "Entities"
   },
 
   "role-badge": {

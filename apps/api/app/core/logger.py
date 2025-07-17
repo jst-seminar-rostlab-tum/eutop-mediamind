@@ -1,10 +1,7 @@
 import logging
 import os
 from logging.handlers import RotatingFileHandler
-from multiprocessing.util import get_logger
 from typing import List, Tuple
-
-logger = get_logger()
 
 
 def get_logger(name: str) -> logging.Logger:

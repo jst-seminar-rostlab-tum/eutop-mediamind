@@ -1,29 +1,3 @@
-import json
-import warnings
-from typing import Annotated, Any, Literal
-
-from pydantic import (
-    AnyUrl,
-    BeforeValidator,
-    EmailStr,
-    HttpUrl,
-    PostgresDsn,
-    computed_field,
-    model_validator,
-)
-from pydantic_core import MultiHostUrl
-from pydantic_settings import BaseSettings, SettingsConfigDict
-from typing_extensions import Self
-
-
-def parse_cors(v: Any) -> list[str] | str:
-    if isinstance(v, str) and not v.startswith("["):
-        return [i.strip() for i in v.split(",")]
-    elif isinstance(v, list | str):
-        return v
-    raise ValueError(v)
-
-
 """
 NOTE: This file is used to load the configuration settings for the application.
 It uses Pydantic's BaseSettings to load environment variables and validate
@@ -39,6 +13,34 @@ understand the expected type of each environment variable and should be done in
 this file. When removing environment variables, ensure that they are removed
 from the `.env.example` file, as well as from the validation checks.
 """
+
+import json
+from typing import Annotated, Any, Literal
+
+from pydantic import (
+    AnyUrl,
+    BeforeValidator,
+    EmailStr,
+    HttpUrl,
+    PostgresDsn,
+    computed_field,
+    model_validator,
+)
+from pydantic_core import MultiHostUrl
+from pydantic_settings import BaseSettings, SettingsConfigDict
+from typing_extensions import Self
+
+from app.core.logger import get_logger
+
+logger = get_logger(__name__)
+
+
+def parse_cors(v: Any) -> list[str] | str:
+    if isinstance(v, str) and not v.startswith("["):
+        return [i.strip() for i in v.split(",")]
+    elif isinstance(v, list | str):
+        return v
+    raise ValueError(v)
 
 
 class Configs(BaseSettings):
@@ -167,7 +169,7 @@ class Configs(BaseSettings):
                 "for security, please change it, at least for deployments."
             )
             if self.ENVIRONMENT == "local":
-                warnings.warn(message)
+                logger.warning(message)
             else:
                 raise ValueError(message)
 
@@ -226,7 +228,7 @@ class Configs(BaseSettings):
             )
         # Log warning for non-production environments.
         elif self.DISABLE_AUTH:
-            warnings.warn(
+            logger.warning(
                 "Authentication is disabled by DISABLED_AUTH in "
                 f"{self.ENVIRONMENT} environment. Never use this "
                 "setting in production.",

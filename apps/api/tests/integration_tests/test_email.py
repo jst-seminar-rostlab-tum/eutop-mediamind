@@ -15,7 +15,6 @@ async def test_schedule_email():
         "Test Subject",
         "text/plain",
         "This is a test email.",
-        "attachment",
     )
 
     # Act
@@ -26,7 +25,6 @@ async def test_schedule_email():
     assert scheduled_email.subject == email_schedule.subject
     assert scheduled_email.content_type == email_schedule.content_type
     assert scheduled_email.content == email_schedule.content
-    assert scheduled_email.attachment == email_schedule.attachment
     assert scheduled_email.state == EmailState.PENDING
     assert scheduled_email.attempts == 0
 
@@ -39,7 +37,6 @@ async def test_send_scheduled_emails():
         "Test Subject",
         "text/plain",
         "This is a test email.",
-        "attachment",
     )
 
     # Act
