@@ -60,10 +60,7 @@ export function ArticleSidebar({ article }: ArticleSidebarProps) {
               <AccordionContent
                 className={"text-gray-800 pb-4 whitespace-pre-wrap"}
               >
-                <p>
-                  {localizedSummary ||
-                    t("article-page.no_summary")}
-                </p>
+                <p>{localizedSummary || t("article-page.no_summary")}</p>
               </AccordionContent>
             </AccordionItem>
           </Accordion>
