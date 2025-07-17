@@ -30,7 +30,9 @@
     "search_profile_header": "View your matched articles",
     "search_profile_text": "Topic and article  matches are rate by relevance based on semantic similarity. Also search in the Vector Database directly via the searchbar",
     "article_header": "Read articles directly in the application",
-    "article_text": "Get a detailed overview of the Article with all Topics and Keywords and their scores"
+    "article_text": "Get a detailed overview of the Article with all Topics and Keywords and their scores",
+    "email_header": "Every morning - directly in your Inbox!",
+    "email_text": "Receive your tailored reports daily via email. You can download them or visit the article in directly in the application"
   },
 
   "dashboard": {

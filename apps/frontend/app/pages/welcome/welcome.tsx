@@ -3,7 +3,7 @@ import { useNavigate } from "react-router";
 import Text from "~/custom-components/text";
 import { useAuthorization } from "~/hooks/use-authorization";
 import { useTranslation } from "react-i18next";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { Button } from "~/components/ui/button";
 import { ChevronLeft, ChevronRight, SquareArrowOutUpRight } from "lucide-react";
 import { Card } from "~/components/ui/card";
@@ -209,6 +209,7 @@ export function Welcome() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const total = features.length;
   const [hasUserInteracted, setHasUserInteracted] = useState(false);
+  const [direction, setDirection] = useState(1);
 
   useEffect(() => {
     if (hasUserInteracted) return; // prevents creating the interval
@@ -261,98 +262,143 @@ export function Welcome() {
         </div>
       </div>
       {/* Features Section */}
-      <div className="pt-15 bg-[linear-gradient(to_bottom,_#556270_0%,_#dcdcdc_10%,_#f8f9fa_15%,_#f8f9fa_70%,_#dcdcdc_80%,_#556270_100%)]">
-        <div className="relative w-full flex justify-center items-center min-h-[900px] overflow-hidden">
-          {features.map((feature, index) => (
-            <motion.div
-              key={feature.key}
-              className="absolute w-full flex justify-center items-center"
-              initial={{ opacity: 0, x: 100 }}
-              animate={
-                index === currentIndex ? { opacity: 1, x: 0 } : { opacity: 0 }
-              }
-              transition={{ duration: 0.8 }}
-              style={{
-                pointerEvents: index === currentIndex ? "auto" : "none",
-              }}
-            >
-              <div className="flex flex-row flex-wrap min-w-[1300px] justify-center items-center mx-30 gap-20">
-                <div className="flex flex-col max-w-[500px] gap-4">
-                  <p className="text-4xl md:text-5xl font-semibold leading-tight mb-2">
-                    {feature.header}
-                  </p>
-                  <p className="text-2xl md:text-3xl font-medium leading-tight mb-2">
-                    {feature.text}
-                  </p>
+      <div className="relative w-full flex justify-center items-center min-h-[1000px] overflow-hidden">
+        {/* Features Section */}
+        <div className="relative w-full overflow-hidden min-h-[1000px]">
+          {/* Background stays fixed and behind */}
+          <div className="absolute inset-0 bg-[linear-gradient(160deg,_#8a99a8_0%,_#e3ecf4_20%,_#f8fcfe_50%,_#e5e8eb_100%)] z-0" />
+
+          {/* Animation container */}
+          <div className="relative z-10 w-full h-[1000px]">
+            <AnimatePresence mode="wait" initial={false} custom={direction}>
+              <motion.div
+                key={features[currentIndex].key}
+                custom={direction}
+                initial={{ x: direction > 0 ? 300 : -300, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                exit={{ x: direction > 0 ? -300 : 300, opacity: 0 }}
+                transition={{
+                  x: {
+                    duration: 0.5, // slide-in
+                    ease: "easeInOut",
+                  },
+                  opacity: {
+                    duration: 0.4, // fade-in
+                    delay: 0,
+                  },
+                }}
+                className="absolute top-0 left-0 w-full h-full flex justify-center items-center"
+              >
+                <div className="flex flex-row flex-wrap min-w-[1400px] justify-center items-center mx-30 gap-20">
+                  <div className="flex flex-col max-w-[500px] gap-4">
+                    <p className="text-4xl md:text-5xl font-semibold leading-tight mb-2">
+                      {features[currentIndex].header}
+                    </p>
+                    <p className="text-2xl md:text-3xl font-medium leading-tight mb-2">
+                      {features[currentIndex].text}
+                    </p>
+                  </div>
+                  <Card
+                    style={{ zoom: features[currentIndex].zoom }}
+                    className={`max-w-270 ${features[currentIndex].width ?? ""} ${features[currentIndex].height} border-8 p-6 py-3 overflow-hidden`}
+                    onClick={() => {
+                      setHasUserInteracted(true);
+                    }}
+                  >
+                    {features[currentIndex].card}
+                  </Card>
                 </div>
-                <Card
-                  style={{ zoom: feature.zoom }}
-                  className={`max-w-300  ${feature.width ?? ""}  ${feature.height} border-8 p-6 py-3 overflow-hidden`}
-                  onClick={() => {
-                    setHasUserInteracted(true);
-                  }}
-                >
-                  {feature.card}
-                </Card>
-              </div>
-            </motion.div>
-          ))}
-          <div className="absolute top-1/2 left-16 transform -translate-y-1/2 z-10">
+              </motion.div>
+            </AnimatePresence>
+          </div>
+
+          {/* Navigation Arrows */}
+          <div className="absolute top-1/2 left-16 transform -translate-y-1/2 z-20">
             <button
-              onClick={() =>
-                setCurrentIndex((prev) => (prev - 1 + total) % total)
-              }
+              onClick={() => {
+                setDirection(-1);
+                setHasUserInteracted(true);
+                requestAnimationFrame(() => {
+                  setCurrentIndex((prev) => (prev - 1 + total) % total);
+                });
+              }}
             >
               <ChevronLeft size={40} />
             </button>
           </div>
-          <div className="absolute top-1/2 right-16 transform -translate-y-1/2 z-10">
+          <div className="absolute top-1/2 right-16 transform -translate-y-1/2 z-20">
             <button
-              onClick={() => setCurrentIndex((prev) => (prev + 1) % total)}
+              onClick={() => {
+                setDirection(1);
+                setHasUserInteracted(true);
+                requestAnimationFrame(() => {
+                  setCurrentIndex((prev) => (prev + 1) % total);
+                });
+              }}
             >
               <ChevronRight size={40} />
             </button>
           </div>
+
+          {/* Stepper */}
+          <div className="absolute bottom-18 left-0 right-0 flex justify-center gap-5 z-20">
+            {features.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => {
+                  setCurrentIndex(index);
+                  setHasUserInteracted(true);
+                }}
+                className={`h-3 w-3 rounded-full transition-all duration-300 ${
+                  currentIndex === index
+                    ? "bg-gray-800 scale-125"
+                    : "bg-gray-400 hover:bg-gray-500"
+                }`}
+              />
+            ))}
+          </div>
         </div>
-        {/* Stepper / Dots Indicator */}
-        <div className="flex justify-center mt-0 gap-5">
-          {features.map((_, index) => (
-            <button
-              key={index}
-              onClick={() => {
-                setCurrentIndex(index);
-                setHasUserInteracted(true);
-              }}
-              className={`h-3 w-3 rounded-full transition-all duration-300 ${
-                currentIndex === index
-                  ? "bg-gray-800 scale-125"
-                  : "bg-gray-400 hover:bg-gray-500"
-              }`}
-            />
-          ))}
+      </div>
+
+      {/* Email Section */}
+      <div className="bg-[linear-gradient(135deg,_#e2ecf9,_#cfe0f5,_#e2ecf9)] flex flex-row flex-wrap justify-center items-center px-30 gap-20 py-30">
+        <div className="flex flex-col max-w-[500px] gap-4">
+          <p className="text-4xl md:text-5xl font-semibold leading-tight mb-2">
+            {t("landing_page.email_header")}
+          </p>
+          <p className="text-2xl md:text-3xl font-medium leading-tight mb-2">
+            {t("landing_page.email_text")}
+          </p>
+        </div>
+        <Card className="w-[600px] h-[730px] p-4 pb-0 overflow-hidden border">
+          <iframe
+            src="/mocked-email.html"
+            title="Email Preview"
+            className="w-full h-[700px] border-none rounded-md"
+          />
+        </Card>
+      </div>
+
+      {/* Footer Section */}
+      <div className="bg-gray-100 px-60 mx-auto pt-10 pb-4">
+        <div className="grid grid-cols-3 place-items-center mt-16 mb-6">
+          <img src="/EUTOP_Logo.png" alt="EUTOP_Logo" width={"210px"} />
+          <img src="/TUM_Logo.png" alt="TUM_Logo" width={"210px"} />
+          <img src="/csee-logo.webp" alt="CSEE Logo" className="h-20 ml-2" />
+        </div>
+        <div>
+          <Text className="text-center">{t("landing_page.credits")}</Text>
         </div>
 
-        {/* Footer Section */}
-        <div className="w-[60%] mx-auto pt-10 pb-4">
-          <div className="grid grid-cols-3 place-items-center mt-16 mb-6">
-            <img src="/EUTOP_Logo.png" alt="EUTOP_Logo" width={"210px"} />
-            <img src="/TUM_Logo.png" alt="TUM_Logo" width={"210px"} />
-            <img src="/csee-logo.webp" alt="CSEE Logo" className="h-20" />
-          </div>
-          <div>
-            <Text className="text-center">{t("landing_page.credits")}</Text>
-          </div>
-
-          <div className="m-6 flex justify-center">
-            <Button asChild variant="link">
-              <span>
-                <SquareArrowOutUpRight />
-                <a href="https://www.eutop.com/de/" target="_blank">
-                  Visit EUTOP
-                </a>
-              </span>
-            </Button>
-          </div>
+        <div className="m-6 flex justify-center">
+          <Button asChild variant="link">
+            <span>
+              <SquareArrowOutUpRight />
+              <a href="https://www.eutop.com/de/" target="_blank">
+                Visit EUTOP
+              </a>
+            </span>
+          </Button>
         </div>
       </div>
     </div>
