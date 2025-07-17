@@ -234,6 +234,7 @@
     "show_less": "Show less",
     "limited_content": "Limited content available",
     "limited_content_description": "This article displays only a summary in place of the full content. Your organization's subscription is not valid. For full access, please contact your administrator."
+    "no_summary": "No summary available."
   },
 
   "role-badge": {

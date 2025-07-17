@@ -19,7 +19,7 @@ interface ArticleSidebarProps {
 }
 
 export function ArticleSidebar({ article }: ArticleSidebarProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [expandedTopics, setExpandedTopics] = useState<Record<number, boolean>>(
     {},
   );
@@ -32,6 +32,8 @@ export function ArticleSidebar({ article }: ArticleSidebarProps) {
   };
   const onlySummary =
     article.article.text["en"] === "" && article.article.text["de"] === "";
+
+  const localizedSummary = getLocalizedContent(article.article.summary, i18n);
 
   return (
     <div className={"space-y-6"}>
@@ -59,7 +61,7 @@ export function ArticleSidebar({ article }: ArticleSidebarProps) {
                 className={"text-gray-800 pb-4 whitespace-pre-wrap"}
               >
                 <p>
-                  {getLocalizedContent(article.article.summary) ||
+                  {localizedSummary ||
                     t("article-page.no_summary")}
                 </p>
               </AccordionContent>
