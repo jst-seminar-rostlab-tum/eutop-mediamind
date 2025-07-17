@@ -56,12 +56,12 @@ export function SearchProfileOverview() {
   const [searchTerm, setSearchTerm] = useState<string>("");
 
   const [showAllTopics, setShowAllTopics] = useState(false);
-  const INITIAL_TOPICS_COUNT = 5;
+  const INITIAL_TOPICS_COUNT = 4;
 
   const [expandedArticleTopics, setExpandedArticleTopics] = useState<
     Set<string>
   >(new Set());
-  const INITIAL_ARTICLE_TOPICS_COUNT = 3;
+  const INITIAL_ARTICLE_TOPICS_COUNT = 2;
 
   const { t } = useTranslation();
 
