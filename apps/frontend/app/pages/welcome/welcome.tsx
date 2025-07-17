@@ -131,10 +131,10 @@ export function Welcome() {
           <div className="flex flex-row flex-wrap justify-center items-center gap-10">
             <div className="flex flex-col max-w-[500px] gap-4">
               <p className="text-4xl md:text-5xl font-semibold leading-tight mb-2">
-                {t("landing_page.search_profile_header")}
+                {t("landing_page.dashboard_header")}
               </p>
               <p className="text-2xl md:text-3xl font-medium leading-tight mb-2">
-                {t("landing_page.search_profile_text")}
+                {t("landing_page.dashboard_text")}
               </p>
             </div>
 

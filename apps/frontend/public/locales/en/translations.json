@@ -21,12 +21,14 @@
     "header_slogan": "Stay ahead in the fast-changing world of digital media",
     "header_description": "Your automated press analysis tool",
     "credits": "MediaMind was build in cooperation between EUTOP, the Technical University of Munich and CSEE during the Javascript Technology Practicum.",
-    "search_profile_header": "Manage your Search Profiles",
-    "search_profile_text": "Clean interface to manage all profiles in one Dashboard",
+    "dashboard_header": "Manage your Search Profiles",
+    "dashboard_text": "Clean interface to manage all profiles in one Dashboard",
     "topics_header": "Start creating your Search Profiles",
     "topics_text": "Specify your Topics of interest with the desired keywords and get AI suggestions for the best additional keywords",
     "add_topic": "You want to add topics and more? Login and get access to all features!",
-    "click_reports": "You want to see Reports and more? Login and get access to all features!"
+    "click_reports": "You want to see Reports and more? Login and get access to all features!",
+    "search_profile_header": "View your matched articles",
+    "search_profile_text": "Get an overview over your articles, topic matches and articles rate by relevance based on semantic similarity. Also search in the Vector Database directly via the searchbar"
   },
 
   "dashboard": {
