@@ -21,13 +21,15 @@ import {
   type RowData,
 } from "@tanstack/react-table";
 import { Button } from "~/components/ui/button";
-import { ArrowUpDown } from "lucide-react";
+import { ArrowUpDown, Search } from "lucide-react";
 import { Input } from "~/components/ui/input";
 import { Switch } from "~/components/ui/switch";
 import type { Subscription } from "../../../../types/model";
 import { useTranslation } from "react-i18next";
 import type { TFunction } from "i18next";
 import { Skeleton } from "~/components/ui/skeleton";
+import { ScrollArea } from "~/components/ui/scroll-area";
+import { cn } from "~/lib/utils";
 
 export interface MailingTableProps {
   name: string;
@@ -58,7 +60,8 @@ const getColumns = (
   removeSubscription: (s: Subscription) => void,
 ): ColumnDef<DataRow>[] => [
   {
-    accessorKey: "data",
+    id: "data",
+    accessorFn: (row) => row.data.name,
     header: ({ column }) => {
       return (
         <Button
@@ -70,9 +73,7 @@ const getColumns = (
         </Button>
       );
     },
-    cell: ({ row }) => (
-      <div className="lowercase">{row.getValue<Subscription>("data").name}</div>
-    ),
+    cell: ({ row }) => <div className="lowercase">{row.getValue("data")}</div>,
   },
   {
     accessorKey: "active",
@@ -83,9 +84,9 @@ const getColumns = (
         onCheckedChange={(value) => {
           table.options.meta?.updateData(row.index, "active", !!value);
           if (value) {
-            addSubscription(row.getValue("data"));
+            addSubscription(row.original.data);
           } else {
-            removeSubscription(row.getValue("data"));
+            removeSubscription(row.original.data);
           }
         }}
         aria-label="Toggle active state"
@@ -222,8 +223,8 @@ export function DataTableSubscriptions({
   }
 
   return (
-    <div className="w-full">
-      <div className="flex items-center py-4 justify-between">
+    <div className="w-full h-full pb-28 overflow-hidden">
+      <div className="relative flex items-center py-4 justify-between">
         <Input
           placeholder={
             "Filter " +
@@ -234,14 +235,21 @@ export function DataTableSubscriptions({
             table.getColumn("data")?.setFilterValue(event.target.value)
           }
         />
+        <Search size={20} className="absolute right-3 text-muted-foreground" />
       </div>
       <Table>
-        <TableHeader>
+        <TableHeader className="bg-blue-100">
           {table.getHeaderGroups().map((headerGroup) => (
-            <TableRow key={headerGroup.id}>
+            <TableRow key={headerGroup.id} className="grid grid-cols-7">
               {headerGroup.headers.map((header) => {
                 return (
-                  <TableHead key={header.id}>
+                  <TableHead
+                    key={header.id}
+                    className={cn(
+                      "flex items-center",
+                      header.id === "data" ? "col-span-6" : "col-span-1",
+                    )}
+                  >
                     {header.isPlaceholder
                       ? null
                       : flexRender(
@@ -254,29 +262,39 @@ export function DataTableSubscriptions({
             </TableRow>
           ))}
         </TableHeader>
-        <TableBody>
-          {table.getRowModel().rows?.length ? (
-            table.getRowModel().rows.map((row) => (
-              <TableRow
-                key={row.id}
-                data-state={row.getIsSelected() && "selected"}
-              >
-                {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id}>
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </TableCell>
-                ))}
-              </TableRow>
-            ))
-          ) : (
-            <TableRow>
-              <TableCell colSpan={columns.length} className="h-24 text-center">
-                {t("subscriptions.no_results")}
-              </TableCell>
-            </TableRow>
-          )}
-        </TableBody>
       </Table>
+      <ScrollArea className="h-full">
+        <Table>
+          <TableBody>
+            {table.getRowModel().rows?.length ? (
+              table.getRowModel().rows.map((row) => (
+                <TableRow
+                  key={row.id}
+                  data-state={row.getIsSelected() && "selected"}
+                >
+                  {row.getVisibleCells().map((cell) => (
+                    <TableCell key={cell.id}>
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext(),
+                      )}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell
+                  colSpan={columns.length}
+                  className="h-24 text-center"
+                >
+                  {t("subscriptions.no_results")}
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </ScrollArea>
     </div>
   );
 }

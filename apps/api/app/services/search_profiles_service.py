@@ -312,6 +312,10 @@ class SearchProfileService:
         matches: List[Match] = []
         relevance_map: dict[UUID, float] = {}
 
+        search_profile = await SearchProfileRepository.get_by_id(
+            search_profile_id
+        )
+
         if request.searchTerm:
             # Qdrant vertor search
             avs = ArticleVectorService()
@@ -392,6 +396,9 @@ class SearchProfileService:
             topics_dict = {}
             total_score = 0.0
             article = match_group[0].article
+            has_organization_subscription_access = await SubscriptionRepository.has_organization_subscription_access(
+                search_profile.organization_id, article.subscription_id
+            )
 
             for m in match_group:
                 topic_id = m.topic_id
@@ -419,8 +426,21 @@ class SearchProfileService:
                     else []
                 )
             )
+
+            # Check if organization has subscription access and modify content accordingly
+            if has_organization_subscription_access:
+                article_text = {
+                    "de": article.content_de or "",
+                    "en": article.content_en or "",
+                }
+            else:
+                article_text = {
+                    "de": None,
+                    "en": None,
+                }
+
             article_content = MatchArticleOverviewContent(
-                article_url=article.url or "https://no_url.com/",
+                article_url=article.url or "",
                 headline={
                     "de": article.title_de or "",
                     "en": article.title_en or "",
@@ -429,11 +449,8 @@ class SearchProfileService:
                     "de": article.summary_de or "",
                     "en": article.summary_en or "",
                 },
-                text={
-                    "de": article.content_de or "",
-                    "en": article.content_en or "",
-                },
-                image_urls=["https://example.com/image.jpg"],
+                text=article_text,
+                image_urls=[url for url in [article.image_url] if url],
                 published=article.published_at,
                 crawled=article.crawled_at,
                 newspaper_id=article.subscription_id,
@@ -465,6 +482,11 @@ class SearchProfileService:
         article = match.article
         profile = await SearchProfileRepository.get_search_profile_by_id(
             search_profile_id
+        )
+        has_organization_subscription_access = (
+            await SubscriptionRepository.has_organization_subscription_access(
+                profile.organization_id, article.subscription_id
+            )
         )
 
         all_matches = await MatchRepository.get_matches_by_profile_and_article(
@@ -501,12 +523,24 @@ class SearchProfileService:
             article.id
         )
 
+        # Check if organization has subscription access and modify content accordingly
+        if has_organization_subscription_access:
+            article_text = {
+                "de": article.content_de or "",
+                "en": article.content_en or "",
+            }
+        else:
+            article_text = {
+                "de": None,
+                "en": None,
+            }
+
         return MatchDetailResponse(
             match_id=match.id,
             topics=topics,
             search_profile=MatchProfileInfo(id=profile.id, name=profile.name),
             article=MatchArticleOverviewContent(
-                article_url=article.url or "https://no_url.com/",
+                article_url=article.url or "",
                 headline={
                     "de": article.title_de or "",
                     "en": article.title_en or "",
@@ -515,11 +549,8 @@ class SearchProfileService:
                     "de": article.summary_de or "",
                     "en": article.summary_en or "",
                 },
-                text={
-                    "de": article.content_de or "",
-                    "en": article.content_en or "",
-                },
-                image_urls=[article.image_url or "https://no_image.com/"],
+                text=article_text,
+                image_urls=[url for url in [article.image_url] if url],
                 published=article.published_at,
                 crawled=article.crawled_at,
                 authors=article.authors or [],

@@ -20,17 +20,17 @@ export function Mailing({ profile, setProfile }: MailingProps): JSX.Element {
     setProfile({ ...profile, profile_emails: emails });
 
   return (
-    <div>
+    <div className="overflow-hidden">
       <h2 className={"font-bold pt-3 pb-3"}>{t("mailing.header")}</h2>
       <Label className={"text-gray-400 font-normal pb-3"}>
         {t("mailing.info")}
       </Label>
-      <Tabs defaultValue="internal" className={"pt-3"}>
+      <Tabs className="overflow-hidden pt-3" defaultValue="internal">
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="internal">{t("mailing.Internal")}</TabsTrigger>
           <TabsTrigger value="external">{t("mailing.External")}</TabsTrigger>
         </TabsList>
-        <TabsContent value={"internal"}>
+        <TabsContent className="overflow-hidden" value={"internal"}>
           <DataTableMailing
             name={t("mailing.Internal") + "e " + "Email"}
             dataArray={profile.organization_emails}

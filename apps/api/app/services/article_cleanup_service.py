@@ -74,7 +74,7 @@ class ArticleCleanupService:
 
             # Process articles in batches
             offset = 0
-            while True:
+            while offset < total_articles:
                 batch_stats = await self._process_article_batch(
                     cutoff_date, batch_size, offset
                 )
