@@ -102,15 +102,21 @@ async def _scrape_articles_for_subscription(subscription, executor):
     logger.info(f"Scraper executor done for Subscription {subscription.name}.")
     # Store every scraped article in the database
     for article in scraped_articles:
-        if not is_article_valid(article.content):
-            cleaned_content = await clean_article_llm(article.content)
-            if cleaned_content.strip() == "":
-                article.note = (
-                    "Article doesn't look like a news article after cleaning."
-                )
-                article.status = ArticleStatus.ERROR
-            else:
-                article.content = cleaned_content
+
+        if (
+            article.status != ArticleStatus.ERROR
+            and article.content is not None
+        ):
+            if not is_article_valid(article.content):
+                cleaned_content = await clean_article_llm(article.content)
+                if cleaned_content.strip() == "":
+                    article.note = (
+                        "Article doesn't look like a news article "
+                        "after cleaning."
+                    )
+                    article.status = ArticleStatus.ERROR
+                else:
+                    article.content = cleaned_content
         await ArticleRepository.update_article(article)
 
     logger.info(f"Inserted all articles for Subscription {subscription.name}.")
