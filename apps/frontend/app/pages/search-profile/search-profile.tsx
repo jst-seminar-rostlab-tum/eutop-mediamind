@@ -24,7 +24,7 @@ import {
 } from "./search-profile-skeleton";
 import { useTranslation } from "react-i18next";
 import { Button } from "~/components/ui/button";
-import type { MatchesResponse } from "types/model";
+import type { MatchesResponse, TopicMatch } from "types/model";
 import { toast } from "sonner";
 
 const suppressSWRReloading = {
@@ -166,12 +166,12 @@ export function SearchProfileOverview() {
   const hasMoreTopics =
     profile?.topics && profile.topics.length > INITIAL_TOPICS_COUNT;
 
-  const getArticleTopicsToDisplay = (matchId: string, topics: any[]) => {
+  const getArticleTopicsToDisplay = (matchId: string, topics: TopicMatch[]) => {
     const isExpanded = expandedArticleTopics.has(matchId);
     return isExpanded ? topics : topics.slice(0, INITIAL_ARTICLE_TOPICS_COUNT);
   };
 
-  const hasMoreArticleTopics = (topics: any[]) => {
+  const hasMoreArticleTopics = (topics: TopicMatch[]) => {
     return topics.length > INITIAL_ARTICLE_TOPICS_COUNT;
   };
 
