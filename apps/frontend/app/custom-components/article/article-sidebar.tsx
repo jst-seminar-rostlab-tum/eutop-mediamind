@@ -13,6 +13,7 @@ import { ExternalLink, ChevronDown, ChevronUp } from "lucide-react";
 import { getPercentage } from "~/lib/utils";
 import { getLocalizedContent } from "~/lib/utils";
 import { useState } from "react";
+import { ArticleEntities } from "~/custom-components/article/article-entities";
 
 interface ArticleSidebarProps {
   article: ArticleMatch;
@@ -122,6 +123,7 @@ export function ArticleSidebar({ article }: ArticleSidebarProps) {
           );
         })}
       </div>
+      {article.entities && <ArticleEntities entities={article.entities} />}
       <ArticleMetaDataTable article={article} />
     </div>
   );
