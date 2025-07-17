@@ -5,6 +5,7 @@ import type { ArticleMatch } from "../../../types/model";
 import { ArticleBody } from "~/custom-components/article/article-body";
 import Layout from "~/custom-components/layout";
 import { formatDate, getLocalizedContent } from "~/lib/utils";
+import { useTranslation } from "react-i18next";
 
 interface ArticleProps {
   searchProfileId: string;
@@ -18,10 +19,12 @@ export function ArticlePage({
   article,
   searchProfileName,
 }: ArticleProps) {
+  const { i18n } = useTranslation();
+
   const publishDateString = formatDate(article.article.published);
 
-  const localizedHeadline = getLocalizedContent(article.article.headline);
-  const localizedText = getLocalizedContent(article.article.text);
+  const localizedHeadline = getLocalizedContent(article.article.headline, i18n);
+  const localizedText = getLocalizedContent(article.article.text, i18n);
 
   return (
     <Layout>
@@ -36,6 +39,7 @@ export function ArticlePage({
             title={localizedHeadline}
             content={localizedText}
             published_at={publishDateString}
+            image_urls={article.article.image_urls}
             {...(article.article.authors?.length
               ? { author: article.article.authors.join(", ") }
               : {})}
