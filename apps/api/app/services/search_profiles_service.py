@@ -1,4 +1,5 @@
 # flake8: noqa: E501
+import traceback
 import uuid
 from collections import defaultdict
 from datetime import datetime, timedelta, timezone
@@ -6,6 +7,8 @@ from typing import List
 from uuid import UUID
 
 from fastapi import HTTPException
+from qdrant_client.common.client_exceptions import QdrantException
+from qdrant_client.http.exceptions import UnexpectedResponse
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 
@@ -61,8 +64,8 @@ logger = get_logger(__name__)
 class SearchProfileService:
     @staticmethod
     async def create_search_profile(
-        data: SearchProfileCreateRequest,
-        current_user: UserEntity,
+            data: SearchProfileCreateRequest,
+            current_user: UserEntity,
     ) -> SearchProfileDetailResponse:
         """
         Create a new SearchProfile plus its topics, subscriptions and emails,
@@ -125,7 +128,7 @@ class SearchProfileService:
 
     @staticmethod
     async def get_extended_by_id(
-        search_profile_id: UUID, current_user: UserEntity
+            search_profile_id: UUID, current_user: UserEntity
     ) -> SearchProfileDetailResponse | None:
         async with async_session() as session:
             profile = (
@@ -152,7 +155,7 @@ class SearchProfileService:
 
     @staticmethod
     async def get_available_search_profiles(
-        current_user: UserEntity,
+            current_user: UserEntity,
     ) -> List[SearchProfileDetailResponse]:
         accessible_profiles = (
             await SearchProfileRepository.get_accessible_profiles(
@@ -172,20 +175,20 @@ class SearchProfileService:
 
     @staticmethod
     async def _build_profile_response(
-        profile: SearchProfile, current_user: UserEntity
+            profile: SearchProfile, current_user: UserEntity
     ) -> SearchProfileDetailResponse:
         is_owner = profile.created_by_id == current_user.id
 
         is_editor = (
-            current_user.id == profile.owner_id
-            or current_user.is_superuser
-            or current_user.id in profile.can_edit_user_ids
+                current_user.id == profile.owner_id
+                or current_user.is_superuser
+                or current_user.id in profile.can_edit_user_ids
         )
 
         is_reader = (
-            current_user.id == profile.owner_id
-            or current_user.is_superuser
-            or current_user.id in profile.can_read_user_ids
+                current_user.id == profile.owner_id
+                or current_user.is_superuser
+                or current_user.id in profile.can_read_user_ids
         )
 
         organization_emails = (
@@ -235,7 +238,7 @@ class SearchProfileService:
 
     @staticmethod
     def _filter_emails_by_org(
-        profile: SearchProfile, org_id: UUID, include: bool
+            profile: SearchProfile, org_id: UUID, include: bool
     ) -> list[str]:
         return [
             user.email
@@ -253,9 +256,9 @@ class SearchProfileService:
 
     @staticmethod
     async def update_search_profile(
-        search_profile_id: UUID,
-        update_data: SearchProfileUpdateRequest,
-        current_user: UserEntity,
+            search_profile_id: UUID,
+            update_data: SearchProfileUpdateRequest,
+            current_user: UserEntity,
     ) -> SearchProfileDetailResponse:
         async with async_session() as session:
             db_profile = (
@@ -275,17 +278,17 @@ class SearchProfileService:
                 )
 
             allow_edit = (
-                current_user.is_superuser
-                or db_profile.created_by_id == current_user.id
-                or (
-                    db_profile.organization_id == current_user.organization_id
-                    and current_user.role == UserRole.maintainer
-                )
-                or (
-                    db_profile.is_public
-                    and db_profile.organization_id
-                    == current_user.organization_id
-                )
+                    current_user.is_superuser
+                    or db_profile.created_by_id == current_user.id
+                    or (
+                            db_profile.organization_id == current_user.organization_id
+                            and current_user.role == UserRole.maintainer
+                    )
+                    or (
+                            db_profile.is_public
+                            and db_profile.organization_id
+                            == current_user.organization_id
+                    )
             )
 
             if not allow_edit:
@@ -306,8 +309,8 @@ class SearchProfileService:
 
     @staticmethod
     async def get_article_matches(
-        search_profile_id: UUID,
-        request: MatchFilterRequest,
+            search_profile_id: UUID,
+            request: MatchFilterRequest,
     ) -> ArticleOverviewResponse:
         matches: List[Match] = []
         relevance_map: dict[UUID, float] = {}
@@ -338,10 +341,10 @@ class SearchProfileService:
                 m
                 for m in all_matches
                 if m.article_id in article_ids
-                and m.article
-                and request.startDate
-                <= m.article.published_at.date()
-                <= request.endDate
+                   and m.article
+                   and request.startDate
+                   <= m.article.published_at.date()
+                   <= request.endDate
             ]
         else:
             # no search term: get all matches for the profile
@@ -352,9 +355,9 @@ class SearchProfileService:
                 m
                 for m in matches
                 if m.article
-                and request.startDate
-                <= m.article.published_at.date()
-                <= request.endDate
+                   and request.startDate
+                   <= m.article.published_at.date()
+                   <= request.endDate
             ]
 
         if request.subscriptions:
@@ -364,7 +367,7 @@ class SearchProfileService:
                 if await ArticleRepository.get_subscription_id_for_article(
                     m.article_id
                 )
-                in request.subscriptions
+                   in request.subscriptions
             ]
 
         # filter matches by requested topics
@@ -472,7 +475,7 @@ class SearchProfileService:
 
     @staticmethod
     async def get_match_detail(
-        search_profile_id: UUID, match_id: UUID
+            search_profile_id: UUID, match_id: UUID
     ) -> MatchDetailResponse | None:
         match = await MatchRepository.get_match_by_id(
             search_profile_id, match_id
@@ -564,7 +567,7 @@ class SearchProfileService:
 
     @staticmethod
     async def update_match_feedback(
-        search_profile_id: UUID, match_id: UUID, data: MatchFeedbackRequest
+            search_profile_id: UUID, match_id: UUID, data: MatchFeedbackRequest
     ) -> bool:
         match = await MatchRepository.update_match_feedback(
             search_profile_id,
@@ -577,7 +580,7 @@ class SearchProfileService:
 
     @staticmethod
     async def get_all_subscriptions_for_profile(
-        search_profile_id: UUID,
+            search_profile_id: UUID,
     ) -> list[SubscriptionSummary]:
         return await SubscriptionRepository.get_all_subscriptions_with_search_profile(  # noqa: E501
             search_profile_id
@@ -585,7 +588,7 @@ class SearchProfileService:
 
     @staticmethod
     async def set_search_profile_subscriptions(
-        request: SetSearchProfileSubscriptionsRequest,
+            request: SetSearchProfileSubscriptionsRequest,
     ) -> None:
         async with async_session() as session:
             await SubscriptionRepository.set_subscriptions_for_profile(
@@ -596,88 +599,128 @@ class SearchProfileService:
 
     @staticmethod
     async def get_keyword_suggestions(
-        search_profile_name: str,
-        search_profile_language: str,
-        related_topics: List[KeywordSuggestionTopic],
-        selected_topic: KeywordSuggestionTopic,
+            search_profile_name: str,
+            search_profile_language: str,
+            related_topics: List[KeywordSuggestionTopic],
+            selected_topic: KeywordSuggestionTopic,
     ) -> KeywordSuggestionResponse:
         """
-        Generate keyword suggestions based on the
-        search profile information
+        Generate keyword suggestions based on the search profile information
         """
+        try:
+            article_vector_service = ArticleVectorService()
 
-        article_vector_service = ArticleVectorService()
+            def format_related_topics(
+                    topics: List[KeywordSuggestionTopic],
+            ) -> str:
+                if not topics:
+                    return "--"
+                return "\n".join(
+                    f"{topic.topic_name}: {', '.join(topic.keywords)}"
+                    for topic in topics
+                )
 
-        def format_related_topics(topics: List[KeywordSuggestionTopic]) -> str:
-            if not topics:
-                return "--"
-            return "\n".join(
-                f"{topic.topic_name}: {', '.join(topic.keywords)}"
-                for topic in topics
+            # Select the appropriate prompt based on the language
+            if search_profile_language == Language.DE.value:
+                prompt = KEYWORD_SUGGESTION_PROMPT_DE
+            elif search_profile_language == Language.EN.value:
+                prompt = KEYWORD_SUGGESTION_PROMPT_EN
+            else:
+                raise HTTPException(
+                    status_code=400,
+                    detail="Unsupported language for keyword suggestions",
+                )
+
+            prompt = prompt.format(
+                search_profile_name=search_profile_name,
+                selected_topic_name=selected_topic.topic_name,
+                selected_topic_keywords=", ".join(selected_topic.keywords),
+                related_topics=format_related_topics(related_topics),
             )
 
-        prompt: str
-        if search_profile_language == Language.DE.value:
-            prompt = KEYWORD_SUGGESTION_PROMPT_DE
-        elif search_profile_language == Language.EN.value:
-            prompt = KEYWORD_SUGGESTION_PROMPT_EN
-        else:
-            raise HTTPException(
-                status_code=400,
-                detail="Unsupported language for keyword suggestions",
-            )
+            llm = LLMClient(LLMModels.openai_4o)
 
-        prompt = prompt.format(
-            search_profile_name=search_profile_name,
-            selected_topic_name=selected_topic.topic_name,
-            selected_topic_keywords=", ".join(selected_topic.keywords),
-            related_topics=format_related_topics(related_topics),
-        )
+            try:
+                response = llm.generate_typed_response(
+                    prompt, KeywordSuggestionResponse
+                )
+            except Exception as e:
+                logger.error(
+                    "LLM generation failed: %s", traceback.format_exc()
+                )
+                raise HTTPException(
+                    status_code=500,
+                    detail="Failed to generate keyword suggestions from LLM",
+                )
 
-        llm = LLMClient(LLMModels.openai_4o)
+            if not response:
+                logger.error(
+                    f"Empty response from LLM for profile '{search_profile_name}'"
+                )
+                raise HTTPException(
+                    status_code=500,
+                    detail="Received empty response from LLM",
+                )
 
-        response = llm.generate_typed_response(
-            prompt, KeywordSuggestionResponse
-        )
+            suggestions_map = []
 
-        if not response:
+            for suggestion in response.suggestions:
+                try:
+                    docs = await article_vector_service.retrieve_by_similarity(
+                        query=suggestion, score_threshold=0.5
+                    )
+                    suggestions_map.append((suggestion, len(docs)))
+                except (UnexpectedResponse, QdrantException) as qe:
+                    logger.error(
+                        "Qdrant error while retrieving similarity for '%s': %s",
+                        suggestion,
+                        traceback.format_exc(),
+                    )
+                    raise HTTPException(
+                        status_code=502,
+                        detail="Failed to connect to vector search service",
+                    )
+                except Exception as e:
+                    logger.error(
+                        "Unexpected error during vector search: %s",
+                        traceback.format_exc(),
+                    )
+                    raise HTTPException(
+                        status_code=500,
+                        detail="An error occurred during vector-based similarity search",
+                    )
+
+            suggestions_map.sort(key=lambda x: x[1], reverse=True)
+            top_suggestions = [item[0] for item in suggestions_map[:5]]
+
+            return KeywordSuggestionResponse(suggestions=top_suggestions)
+
+        except HTTPException:
+            raise  # re-raise to preserve existing HTTPExceptions
+        except Exception as e:
             logger.error(
-                f"Failed to generate keyword "
-                f"suggestions from LLM "
-                f"for profile {search_profile_name}"
+                "Unhandled exception in keyword suggestion: %s",
+                traceback.format_exc(),
             )
             raise HTTPException(
                 status_code=500,
-                detail="Failed to generate keyword suggestions from LLM",
+                detail="An unexpected error occurred during keyword suggestion generation",
             )
-
-        suggestions_map = []
-
-        for suggestion in response.suggestions:
-            docs = await article_vector_service.retrieve_by_similarity(
-                query=suggestion, score_threshold=0.5
-            )
-            suggestions_map.append((suggestion, len(docs)))
-
-        suggestions_map.sort(key=lambda x: x[1], reverse=True)
-        suggestions = [item[0] for item in suggestions_map[:5]]
-
-        return KeywordSuggestionResponse(suggestions=suggestions)
 
     @staticmethod
     async def delete_search_profile(
-        profile_id: UUID, current_user: UserEntity
+            profile_id: UUID, current_user: UserEntity
     ) -> None:
         search_profile = await SearchProfileRepository.get_by_id(profile_id)
         # Permit deletion if user is owner, superuser, or maintainer of the same org
         allow_delete = (
-            current_user.id == search_profile.owner_id
-            or current_user.is_superuser
-            or (
-                current_user.role == UserRole.maintainer
-                and current_user.organization_id
-                == search_profile.organization_id
-            )
+                current_user.id == search_profile.owner_id
+                or current_user.is_superuser
+                or (
+                        current_user.role == UserRole.maintainer
+                        and current_user.organization_id
+                        == search_profile.organization_id
+                )
         )
 
         search_profile = (
