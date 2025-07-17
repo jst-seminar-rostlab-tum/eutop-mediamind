@@ -269,7 +269,7 @@ export function Welcome() {
           <div className="absolute inset-0 bg-[linear-gradient(160deg,_#8a99a8_0%,_#e3ecf4_20%,_#f8fcfe_50%,_#e5e8eb_100%)] z-0" />
 
           {/* Animation container */}
-          <div className="relative z-10 w-full h-[1000px]">
+          <div className="flex items-center relative z-10 w-full min-h-[1000px] pt-20 pb-35">
             <AnimatePresence mode="wait" initial={false} custom={direction}>
               <motion.div
                 key={features[currentIndex].key}
@@ -287,27 +287,25 @@ export function Welcome() {
                     delay: 0,
                   },
                 }}
-                className="absolute top-0 left-0 w-full h-full flex justify-center items-center"
+                className="w-[80%] h-full gap-14 flex flex-wrap justify-center items-center mx-auto"
               >
-                <div className="flex flex-row flex-wrap min-w-[1400px] justify-center items-center mx-30 gap-20">
-                  <div className="flex flex-col max-w-[500px] gap-4">
-                    <p className="text-4xl md:text-5xl font-semibold leading-tight mb-2">
-                      {features[currentIndex].header}
-                    </p>
-                    <p className="text-2xl md:text-3xl font-medium leading-tight mb-2">
-                      {features[currentIndex].text}
-                    </p>
-                  </div>
-                  <Card
-                    style={{ zoom: features[currentIndex].zoom }}
-                    className={`max-w-270 ${features[currentIndex].width ?? ""} ${features[currentIndex].height} border-8 p-6 py-3 overflow-hidden`}
-                    onClick={() => {
-                      setHasUserInteracted(true);
-                    }}
-                  >
-                    {features[currentIndex].card}
-                  </Card>
+                <div className="flex flex-col max-w-[500px] gap-4">
+                  <p className="text-4xl md:text-5xl font-semibold leading-tight mb-2">
+                    {features[currentIndex].header}
+                  </p>
+                  <p className="text-2xl md:text-3xl font-medium leading-tight mb-2">
+                    {features[currentIndex].text}
+                  </p>
                 </div>
+                <Card
+                  style={{ zoom: features[currentIndex].zoom }}
+                  className={`max-w-270 ${features[currentIndex].width ?? ""} ${features[currentIndex].height} border-8 p-6 py-3 overflow-hidden`}
+                  onClick={() => {
+                    setHasUserInteracted(true);
+                  }}
+                >
+                  {features[currentIndex].card}
+                </Card>
               </motion.div>
             </AnimatePresence>
           </div>
