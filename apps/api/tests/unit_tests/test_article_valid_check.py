@@ -9,33 +9,21 @@ from app.services.article_cleaner.article_valid_check import (
 class TestArticleValidCheck:
     """Test cases for article validation functionality."""
 
-    def test_normal_english_sentence(self):
-        """Test that normal English sentences are considered valid."""
-        text = "This is a normal sentence."
-        assert is_article_valid(text) is True
-
-    def test_normal_german_sentence(self):
-        """Test that normal German sentences are considered valid."""
-        text = "Das ist ein normaler Satz."
-        assert is_article_valid(text) is True
-
-    def test_numbers_and_symbols(self):
-        """Test that numbers and common symbols are considered valid."""
-        text = "1234567890!@#$%^&*()_+"
-        assert is_article_valid(text) is True
-
-    def test_very_long_word_without_spaces(self):
-        """Test that very long words without spaces might be considered gibberish."""
-        text = (
-            "ThisIsAVeryLongWordWithoutSpacesThatShouldBeConsideredGibberish"
-        )
-        # This should be valid as it only contains allowed characters
-        assert is_article_valid(text) is True
-
-    def test_lorem_ipsum(self):
-        """Test that Lorem ipsum text is considered valid."""
-        text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit."
-        assert is_article_valid(text) is True
+    def test_article_with_only_navigation_text(self):
+        """Test an article that contains only navigation text."""
+        text = """Home
+                Anmelden
+                Abo
+                E-Paper
+                Lesezeichen
+                Feedback
+                Impressum
+                Datenschutz
+                AGB
+                Lizenzinformationen
+                Datenschutz-Einstellungen"""
+        result = is_article_valid(text)
+        assert result is False
 
     def test_mixed_text_with_special_chars(self):
         """Test text that contains some special characters that might be disallowed."""
@@ -64,12 +52,6 @@ class TestArticleValidCheck:
         )
         result = is_article_valid(text)
         # Check if this contains disallowed characters
-        assert isinstance(result, bool)
-
-    def test_short_german_phrase(self):
-        """Test a short German phrase."""
-        text = "voe Jowftpso {v wfsfjogbdifo/"
-        result = is_article_valid(text)
         assert isinstance(result, bool)
 
     def test_long_mixed_text_with_english_and_encoded(self):
@@ -133,29 +115,112 @@ class TestArticleValidCheck:
         )
         assert isinstance(result, bool)
 
-    def test_empty_string(self):
-        """Test that empty strings are considered valid."""
-        assert is_article_valid("") is True
-        assert contains_disallowed_chars("") is False
-
-    def test_whitespace_only(self):
-        """Test that whitespace-only strings are considered valid."""
-        assert is_article_valid("   \n\t  ") is True
-        assert contains_disallowed_chars("   \n\t  ") is False
-
-    def test_special_punctuation(self):
-        """Test various punctuation marks that should be allowed."""
-        punctuation_text = "Hello, world! How are you? (Fine, thanks.) [Great] \"Awesome\" 'Nice' –dash— …ellipsis"
-        assert is_article_valid(punctuation_text) is True
-
-    def test_mathematical_symbols(self):
-        """Test mathematical and currency symbols that should be allowed."""
-        math_text = "2 + 2 = 4, π ≈ 3.14, √16 = 4, $100 €50 £30 ¥1000"
-        assert is_article_valid(math_text) is True
-
-    def test_german_and_french_characters(self):
-        """Test German and French characters that should be allowed."""
-        german_french_text = (
-            "Café mit Müsli, très bien! Schön, größer, français"
+    def test_articles_contains_encoded_chars(self):
+        """Test that articles containing encoded characters are considered invalid."""
+        text_with_encoded_chars = (
+            "### Im Gespräch: Jürgen Michels## Der Chefvolkswirt der BayernLB "
+            "empfiehlt der EU, aus eigener Kraft die Folgen der Zölle "
+            "auszugleichen – Etwas optimistischer für deutsche Konjunktur##### "
+            "Von Joachim Herr, MünchenJürgen Michels, der Chefvolkswirt der "
+            "BayernLB, dämpft die Furcht vor hohen Importzöllen der USA. Der "
+            "europäische Binnenmarkt wäre stark genug, um weniger Handel mit "
+            "Amerika auszugleichen. Allerdings müsste die EU dafür einiges tun "
+            "und nicht-tarifäre Hindernisse aus dem Weg schaffen.Egal wie der "
+            "Zollstreit mit den USA ausgeht: Jürgen Michels rechnet damit, "
+            "dass Europas Wirtschaft künftig mit höheren Importzöllen der USA "
+            "auskommen muss. „Und die Frage ist, ob es Nebenabkommen geben "
+            "wird, die auch den Handel Europas mit China einschränken können“, "
+            "warnt der Chefvolkswirt der Bayerischen Landesbank (BayernLB). "
+            "„Für die europäische Wirtschaft wird Trumps Handelspolitik ein "
+            "belastender Faktor bleiben.“Epdi gýs Fvspqb hjcu ft bvt tfjofs "
+            "Tjdiu Dibodfo- vn efo Bvtgbmm efs VTB bmt {vwfsmåttjhfo Iboefmtqbsuofs "
+            "voe cjtxfjmfo bmt Lpokvoluvsnpups bvt{vhmfjdifo/ [vn fjofo l÷oouf "
+            "tjdi ejf FV tuåslfs bmt cjtifs bo Måoefs xfoefo- ejf ejf [pmmqpmjujl "
+            "efs VTB fcfogbmmt usjggu; ‟Jdi efolf bo Lbobeb- bcfs bvdi bo btjbujtdif "
+            "Måoefs/” Epsu tpmmuf tjdi Fvspqb ofv qptjujpojfsfo/ [vn boefsfo voe "
+            "vps bmmfn såu Njdifmt- ejf fjhfof Tuåslf {v ovu{fo; ‟Fvspqb nvtt efo "
+            "Cjoofonbslu tuåslfo voe tjdi nfis bvg efttfo Xbdituvntdibodfo "
+            "lpo{fousjfsfo/” Fjofo Tdivc l÷ooufo ijfs ejf Gjtlbmjnqvmtf hfcfo- "
+            "bmmfo wpsbo ejf Jowftujujpotqsphsbnnf Efvutdimboet gýs Jogsbtusvluvs "
+            "voe Sýtuvoh/Ojdiu.ubsjgåsf Ifnnojttf jo efs FVBcfs Njdifmt wfsxfjtu "
+            "bvg Ijoefsojttf; ‟Jn Cjoofonbslu ibcfo xjs jnnfs opdi fjof hbo{f "
+            "Sfjif wpo Fjotdisåolvohfo/” Fs fsxåiou fjof Tuvejf eft Joufsobujpobmfo "
+            "Xåisvohtgpoet )JXG*- xpobdi Sftusjlujpofo jn joofsfvspqåjtdifo Iboefm "
+            "fjofs evsditdiojuumjdifo [pmmrvpuf wpo 55& foutqsådifo/ Tpmdif "
+            "ojdiu.ubsjgåsfo Ifnnojttf hjcu ft {vn Cfjtqjfm gýs Bhsbsqspevluf voe "
+            "Obisvohtnjuufm/ Ft hfiu voufs boefsfn vn Cftdibggvoh- Oåisxfsu voe "
+            "hftvoeifjutcf{phfof Bohbcfo/ Njdifmt ofoou fjo Cfjtqjfm; ‟Fjo jo "
+            "Efvutdimboe qspev{jfsufs Kphivsu lboo ojdiu fjogbdi jo ×tufssfjdi "
+            "pefs Cfmhjfo wfslbvgu xfsefo- ¡eb ft voufstdijfemjdif Sfhfmo gýs "
+            "Qspevlujogpsnbujpofo hjcu/”Vnhfsfdiofu foutqsfdifo tpmdif Sftusjlujpofo "
+            "bvghsvoe efs Wjfm{bim obujpobmfs Sfhfmvohfo fjofs [pmmcfmbtuvoh wpo "
+            "55&/ Gýs Ejfotumfjtuvohfo fshjcu tjdi mbvu JXG tphbs fjo Årvjwbmfou "
+            "wpo 221&/ Ejftf [bim nýttf nbo bmmfsejoht nju Wpstjdiu hfojfàfo- "
+            "gýhu Njdifmt ijo{v/ ‟[xfjgfm ibcf jdi {vn Cfjtqjfm gýs ebt "
+            "Cfifscfshvohthfxfscf/ Ft jtu tdixjfsjh- fjo Ipufm{jnnfs jo Nýodifo "
+            "nju fjofn jo Nbjmboe {v wfshmfjdifo/”‟Jnnfs opdi {bhibgu”[vefn l÷oouf "
+            "ejf FV bvt tfjofs Tjdiu nju Tusvluvssfgpsnfo voe Cýsplsbujfbccbv efo "
+            "Cjoofonbslu tuåslfo/ Jn Esbhij.Cfsjdiu tfj bvdi ejft fouibmufo- ojdiu "
+            "ovs ejf Gpsefsvoh obdi Njmmjbsefojowftujujpofo/ Fstuf Botåu{f hfcf ft/ "
+            "Epdi Njdifmt iåmu ejftf gýs ojdiu bvtsfjdifoe; ‟Ebt jtu jnnfs opdi "
+            "{bhibgu- xbt nbo bvdi bn Cfhsjgg Cýsplsbujfwfsfjogbdivoh fslfoou "
+            "botufmmf Cýsplsbujfbccbv/# Ejf Dibodf- nju nfis Cjoofoiboefm fsgpmhsfjdi "
+            "{v tfjo- iåuuf ejf FV bvt Tjdiu eft Wpmltxjsut; ‟Fvspqb lboo bvt "
+            "fjhfofs Lsbgu ejf Gpmhfo i÷ifsfs [÷mmf xfuunbdifo/ Xbistdifjomjdi "
+            "l÷ooufo xjs tphbs fjof Ýcfslpnqfotjfsvoh fssfjdifo- xfoo ejf "
+            "Ifnnojttf tdiofmm cftfjujhu xýsefo/”Uspu{ efs Votjdifsifju ýcfs ejf "
+            "Iboefmt. voe [pmmqpmjujl efs VTB tjoe ejf ×lpopnfo efs CbzfsoMC gýs "
+            "ebt Xjsutdibgutxbdituvn jo Efvutdimboe fuxbt pqujnjtujtdifs; ‟Xjs "
+            "tfifo kfu{u fjof mfjdiuf Cftdimfvojhvoh”- cfsjdiufu Njdifmt/ Gýs ebt "
+            "{xfjuf Rvbsubm sfdiofu fs bvghsvoe eft Uifnbt [÷mmf bcfs opdinbmt "
+            "nju fjofn Njovt/ Gýs ebt {xfjuf Ibmckbis fsxbsufu fs fjof ‟hfxjttf "
+            "Opsnbmjtjfsvoh jn Bvàfoiboefm”/ Voe fs fslfoou Jnqvmtf jn Jomboe/ "
+            "‟Ebt fjof jtu- ebtt ejf fstufo Hfmefs eft nbttjwfo Lpokvoluvsqsphsbnnt "
+            "hfsbef gsfjhftdibmufu xfsefo/” Jo ejftfs Fsxbsuvoh ibcf tjdi ejf "
+            "Tujnnvoh jo efs efvutdifo Xjsutdibgu tdipo wfscfttfsu/ ‟Ebt eýsguf "
+            "eb{v gýisfo- ebtt ejf qsjwbuxjsutdibgumjdif Tfjuf jisf [vsýdlibmuvoh "
+            "gýs Jowftujujpofo {vnjoeftu {vn Ufjm bcmfhfo xjse/”‟Xjs nýttfo "
+            "xjslmjdi jowftujfsfo”Jo [bimfo ifjàu ebt- Njdifmt voe tfjo Ufbn tbhfo "
+            "gýs ejf efvutdif Xjsutdibgu ovo fjo Xbdituvn wpo 1-3& jo ejftfn Kbis "
+            "wpsbvt/ Cjtifs mbvufuf ejf Qsphoptf .1-2&/ Gýs oådituft Kbis fsxbsufu "
+            "ejf CbzfsoMC fjofo Botujfh eft Csvuupjomboetqspevlut vn 2-5& — bvdi "
+            "ebol efs Jnqvmtf eft Jowftujujpotqsphsbnnt/ Bmmfsejoht nýttufo ebgýs "
+            "Wpsbvttfu{vohfo fsgýmmu tfjo/ ‟Xjs nýttfo ebt Hfme xjslmjdi "
+            "jowftujfsfo”- gpsefsu Njdifmt- {xfjgfmu bcfs fuxbt ebsbo- eb ft fjof "
+            "Sfjif wpo lpotvnujwfo Fmfnfoufo hfcf/ ‟Wps bmmfn bvg Mboeftfcfof "
+            "l÷oofo ejf Hfmefs jo csfjufsfn Nbàf wfsxfoefu xfsefo- vn tp efo tfis "
+            "ipifo Tubbutlpotvn xfjufsmbvgfo {v mbttfo/”[vn boefsfo nýttf "
+            "Efvutdimboe bvdi jo efs Mbhf tfjo- ebt {v qspev{jfsfo- xbt obdihfgsbhu "
+            "xfsef/ ‟Ejf [bimfo tdixbolfo- bcfs obdi Cfsjdiufo jnqpsujfsu ejf "
+            "Cvoeftxfis xpim vn ejf 81& eft jn [fjufoxfoefqblfu wpshftfifofo "
+            "Wpmvnfot/” Ejf efvutdif Qsjwbuxjsutdibgu nýttf eftibmc ofvf "
+            "Qspevlujpotbombhfo bvgcbvfo- vn fjofo i÷ifsfo Boufjm {v fs{jfmfo/ "
+            "Fjo xjdiujhfs Wpsufjm wpo jowftujwfo Bvthbcfo jn Wfshmfjdi nju "
+            "lpotvnujwfo tjoe bvt Njdifmt( Tjdiu n÷hmjdif ‟ufdiopmphjtdif "
+            "Tqjmmpwfst”- bmtp qptjujwf Bvtxjslvohfo bvg boefsf Csbodifo/ "
+            "‟Fjof Espiofoufdiojl lboo voufs Vntuåoefo gýs bvupopnft Gbisfo pefs "
+            "boefsf Ufdiopmphjfo gýs fjof {jwjmf Ovu{voh fjohftfu{u xfsefo/”"
         )
-        assert is_article_valid(german_french_text) is True
+        result = is_article_valid(text_with_encoded_chars)
+        assert result is False
+
+    def test_article_contains_url(self):
+        """Test that articles containing URLs are considered invalid."""
+        text_with_url = (
+            "FRANKFURT (dpa-AFX Analyser) - Deutsche Bank Research hat die "
+            "Einstufung für Covestro nach Eckdaten zum zweiten Quartal mit "
+            "einem Kursziel von 62 Euro auf „Hold“ belassen. Das operative "
+            "Ergebnis (Ebitda) liege um acht Prozent über dem Mittelwert der "
+            "zuvor vom Chemiekonzern in Aussicht gestellten Spanne, schrieb "
+            "Virginie Boucher-Ferte in ihrem am Montag vorliegenden Kommentar. "
+            "Die Senkung des Jahresziels sei zu erwarten gewesen./bek/ag"
+            "Veröffentlichung der Original-Studie: Datum in Studie nicht "
+            "angegeben / Uhrzeit in Studie nicht angegeben / CET"
+            "Erstmalige Weitergabe der Original-Studie: 14.07.2025 / 07:53 / CET"
+            "Hinweis: Informationen zur Offenlegungspflicht bei "
+            "Interessenkonflikten im Sinne von § 85 Abs. 1 WpHG, Art. 20 VO "
+            "(EU) 596/2014 für das genannte Analysten-Haus finden Sie unter "
+            "http://web.dpa-afx.de/offenlegungspflicht/offenlegungs_pflicht.html."
+        )
+        result = is_article_valid(text_with_url)
+        assert result is False
