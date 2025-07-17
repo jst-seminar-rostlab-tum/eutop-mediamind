@@ -111,7 +111,7 @@ export function Welcome() {
       {/* Features Section */}
       <div className="pt-10 bg-[linear-gradient(to_bottom,_#556270_0%,_#dcdcdc_10%,_#f8f9fa_15%,_#f8f9fa_70%,_#dcdcdc_80%,_#556270_100%)]">
         <div className="w-[80%] mx-auto flex flex-col justify-center gap-30 pt-40 ">
-          <div className="flex flex-row flex-wrap justify-center items-center gap-10">
+          <div className="flex flex-row flex-wrap justify-center items-center gap-20">
             <div className="flex flex-col max-w-[500px] gap-4">
               <p className="text-4xl md:text-5xl font-semibold leading-tight mb-2">
                 {t("landing_page.topics_header")}
@@ -122,13 +122,14 @@ export function Welcome() {
             </div>
             <Card
               key="keywords-prev"
-              className="transform scale-110 max-w-[750px] h-110 border-8 p-6 pt-4"
+              style={{ zoom: 1.15 }}
+              className="transform scale-110 max-w-300 h-110 border-8 p-6 pt-4"
             >
               <MockedTopics profile={profile} setProfile={setProfile} />
             </Card>
           </div>
 
-          <div className="flex flex-row flex-wrap justify-center items-center gap-10">
+          <div className="flex flex-row flex-wrap justify-center items-center gap-20">
             <div className="flex flex-col max-w-[500px] gap-4">
               <p className="text-4xl md:text-5xl font-semibold leading-tight mb-2">
                 {t("landing_page.dashboard_header")}
@@ -140,12 +141,13 @@ export function Welcome() {
 
             <Card
               key="dashboard-prev"
-              className="transform scale-90 max-w-[800px] h-195 border-8 p-0"
+              style={{ zoom: 0.95 }}
+              className="max-w-300 h-195 border-8 p-0"
             >
               <MockedDashboardPage />
             </Card>
           </div>
-          <div className="flex flex-row flex-wrap justify-center items-center gap-10">
+          <div className="flex flex-row flex-wrap justify-center items-center gap-20">
             <div className="flex flex-col max-w-[500px] gap-4">
               <p className="text-4xl md:text-5xl font-semibold leading-tight mb-2">
                 {t("landing_page.search_profile_header")}
@@ -157,7 +159,8 @@ export function Welcome() {
 
             <Card
               key="sp-prev"
-              className="h-245 transform scale-70 border-8 p-4 pt-2 overflow-hidden"
+              style={{ zoom: 0.7 }}
+              className="h-245 max-w-300 border-8 p-6 py-3 overflow-hidden"
             >
               <MockedSearchProfileOverview />
             </Card>

@@ -28,7 +28,7 @@
     "add_topic": "You want to add topics and more? Login and get access to all features!",
     "click_reports": "You want to see Reports and more? Login and get access to all features!",
     "search_profile_header": "View your matched articles",
-    "search_profile_text": "Get an overview over your articles, topic matches and articles rate by relevance based on semantic similarity. Also search in the Vector Database directly via the searchbar"
+    "search_profile_text": "Topic and article  matches are rate by relevance based on semantic similarity. Also search in the Vector Database directly via the searchbar"
   },
 
   "dashboard": {
