@@ -387,12 +387,12 @@ export function SearchProfileOverview() {
                                 >
                                   {isExpanded ? (
                                     <>
-                                      {t("Show less")}
+                                      {t("search_profile.show_less")}
                                       <ChevronUp size={16} />
                                     </>
                                   ) : (
                                     <>
-                                      {t("Show more")} (
+                                      {t("search_profile.show_more")} (
                                       {match.topics.length -
                                         INITIAL_ARTICLE_TOPICS_COUNT}
                                       )
