@@ -234,7 +234,13 @@
     "show_less": "Show less",
     "no_summary": "No summary available.",
     "entities_text": "Displays entities related to the article.",
-    "entities": "Entities"
+    "entities": "Entities",
+    "no_entities": "No items in this category.",
+    "person": "People",
+    "event": "Events",
+    "organization": "Organizations",
+    "citation": "Citations",
+    "industry": "Industries"
   },
 
   "role-badge": {
