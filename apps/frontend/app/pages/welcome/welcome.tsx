@@ -26,19 +26,14 @@ export function Welcome() {
 
   const lines = [
     {
-      text: t("landing_page.header_slogan"),
-      className: "text-4xl md:text-5xl font-medium leading-tight mb-2",
-      delay: 0,
-    },
-    {
       text: "Media Mind",
       className: "text-5xl md:text-6xl font-bold leading-tight mb-2",
-      delay: 0.3,
+      delay: 0.1,
     },
     {
-      text: t("landing_page.header_description"),
-      className: "text-3xl md:text-4xl font-medium",
-      delay: 0.6,
+      text: t("landing_page.header_slogan"),
+      className: "text-4xl md:text-5xl font-medium",
+      delay: 0.4,
     },
   ];
 
@@ -178,7 +173,7 @@ export function Welcome() {
       text: t("landing_page.dashboard_text"),
       card: <MockedDashboardPage />,
       key: "dashboard",
-      zoom: 1,
+      zoom: 0.9,
       height: "h-195",
       width: "w-170",
     },
@@ -188,7 +183,7 @@ export function Welcome() {
       card: <MockedSearchProfileOverview />,
       key: "search-profile",
       zoom: 0.7,
-      height: "h-245",
+      height: "h-230",
     },
     {
       header: t("landing_page.breaking_header"),
@@ -212,7 +207,7 @@ export function Welcome() {
       ),
       key: "article",
       zoom: 0.7,
-      height: "h-245",
+      height: "h-230",
     },
   ];
 

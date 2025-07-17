@@ -17,6 +17,7 @@ import { AiSuggestionTag } from "~/custom-components/profile/edit/ai-suggestion-
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import type { Profile } from "types/model";
+import { carKeywords, environmentKeywords } from "./mock-data";
 
 interface TopicsProps {
   profile: Profile;
@@ -49,62 +50,6 @@ export function MockedTopics({ profile, setProfile }: TopicsProps) {
     setIsLoadingSuggestions(true);
 
     setTimeout(() => {
-      const carKeywords = [
-        "Tires",
-        "Engine",
-        "Transmission",
-        "Brakes",
-        "Fuel system",
-        "Suspension",
-        "Battery",
-        "Radiator",
-        "Exhaust",
-        "Spark plugs",
-        "Air filter",
-        "Oil change",
-        "Alternator",
-        "Starter motor",
-        "Catalytic converter",
-        "Timing belt",
-        "Dashboard",
-        "Windshield",
-        "Headlights",
-        "Steering system",
-        "Drive shaft",
-        "Chassis",
-        "Turbocharger",
-        "Infotainment system",
-        "Cruise control",
-      ];
-
-      const environmentKeywords = [
-        "CO2",
-        "Renewable energy",
-        "Carbon footprint",
-        "Greenhouse gases",
-        "Solar power",
-        "Wind energy",
-        "Climate change",
-        "Carbon offset",
-        "Sustainability",
-        "Hydropower",
-        "Energy efficiency",
-        "Emissions reduction",
-        "Geothermal energy",
-        "Biofuels",
-        "Recycling",
-        "Composting",
-        "Environmental policy",
-        "Clean energy",
-        "Net zero",
-        "Carbon neutrality",
-        "Air pollution",
-        "Green energy",
-        "Deforestation",
-        "Ocean acidification",
-        "Eco-friendly technologies",
-      ];
-
       const lowerKeywords = keywords.map((k) => k.toLowerCase());
       const isEnvironment = lowerKeywords.some((k) =>
         ["co2", "renewable energy"].includes(k),
