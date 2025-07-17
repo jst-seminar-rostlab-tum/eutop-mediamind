@@ -5,7 +5,7 @@ import { useAuthorization } from "~/hooks/use-authorization";
 import { useTranslation } from "react-i18next";
 import { motion } from "framer-motion";
 import { Button } from "~/components/ui/button";
-import { SquareArrowOutUpRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, SquareArrowOutUpRight } from "lucide-react";
 import { Card } from "~/components/ui/card";
 import { MockedDashboardPage } from "./mocked-dashboard";
 import { MockedTopics } from "./mocked-topics";
@@ -163,6 +163,73 @@ export function Welcome() {
 
   const [profile, setProfile] = useState(exampleProfile);
 
+  const features = [
+    {
+      header: t("landing_page.topics_header"),
+      text: t("landing_page.topics_text"),
+      card: <MockedTopics profile={profile} setProfile={setProfile} />,
+      key: "topics",
+      zoom: 1.15,
+      height: "h-110",
+    },
+    {
+      header: t("landing_page.dashboard_header"),
+      text: t("landing_page.dashboard_text"),
+      card: <MockedDashboardPage />,
+      key: "dashboard",
+      zoom: 0.9,
+      height: "h-195",
+      width: "w-180",
+    },
+    {
+      header: t("landing_page.search_profile_header"),
+      text: t("landing_page.search_profile_text"),
+      card: <MockedSearchProfileOverview />,
+      key: "search-profile",
+      zoom: 0.7,
+      height: "h-245",
+    },
+    {
+      header: t("landing_page.article_header"),
+      text: t("landing_page.article_text"),
+      card: (
+        <MockedArticlePage
+          searchProfileId={exampleArticle.search_profile.id}
+          searchProfileName={exampleArticle.search_profile.name}
+          article={exampleArticle}
+          matchId={exampleArticle.match_id}
+        />
+      ),
+      key: "article",
+      zoom: 0.7,
+      height: "h-245",
+    },
+  ];
+
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const total = features.length;
+  const [hasUserInteracted, setHasUserInteracted] = useState(false);
+
+  useEffect(() => {
+    if (hasUserInteracted) return; // prevents creating the interval
+
+    const interval = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % total);
+    }, 15000);
+
+    return () => clearInterval(interval); // cleanup when effect re-runs
+  }, [total, hasUserInteracted]);
+
+  useEffect(() => {
+    if (!hasUserInteracted) return;
+
+    const timeout = setTimeout(() => {
+      setHasUserInteracted(false); // If user has interacted: Resume autoplay after 30 sec
+    }, 30000);
+
+    return () => clearTimeout(timeout);
+  }, [hasUserInteracted]);
+
   return (
     <div>
       <div
@@ -195,84 +262,56 @@ export function Welcome() {
       </div>
       {/* Features Section */}
       <div className="pt-10 bg-[linear-gradient(to_bottom,_#556270_0%,_#dcdcdc_10%,_#f8f9fa_15%,_#f8f9fa_70%,_#dcdcdc_80%,_#556270_100%)]">
-        <div className="w-[80%] mx-auto flex flex-col justify-center gap-30 pt-40 ">
-          <div className="flex flex-row flex-wrap justify-center items-center gap-20">
-            <div className="flex flex-col max-w-[500px] gap-4">
-              <p className="text-4xl md:text-5xl font-semibold leading-tight mb-2">
-                {t("landing_page.topics_header")}
-              </p>
-              <p className="text-2xl md:text-3xl font-medium leading-tight mb-2">
-                {t("landing_page.topics_text")}
-              </p>
-            </div>
-            <Card
-              key="keywords-prev"
-              style={{ zoom: 1.15 }}
-              className="transform scale-110 max-w-300 h-110 border-8 p-6 pt-4"
+        <div className="relative w-full flex justify-center items-center min-h-screen overflow-hidden">
+          {features.map((feature, index) => (
+            <motion.div
+              key={feature.key}
+              className="absolute w-full flex justify-center items-center"
+              initial={{ opacity: 0, x: 100 }}
+              animate={
+                index === currentIndex ? { opacity: 1, x: 0 } : { opacity: 0 }
+              }
+              transition={{ duration: 0.8 }}
+              style={{
+                pointerEvents: index === currentIndex ? "auto" : "none",
+              }}
             >
-              <MockedTopics profile={profile} setProfile={setProfile} />
-            </Card>
+              <div className="flex flex-row flex-wrap min-w-[1300px] justify-center items-center mx-30 gap-20">
+                <div className="flex flex-col max-w-[500px] gap-4">
+                  <p className="text-4xl md:text-5xl font-semibold leading-tight mb-2">
+                    {feature.header}
+                  </p>
+                  <p className="text-2xl md:text-3xl font-medium leading-tight mb-2">
+                    {feature.text}
+                  </p>
+                </div>
+                <Card
+                  style={{ zoom: feature.zoom }}
+                  className={`max-w-300  ${feature.width ?? ""}  ${feature.height} border-8 p-6 py-3 overflow-hidden`}
+                  onClick={() => {
+                    setHasUserInteracted(true);
+                  }}
+                >
+                  {feature.card}
+                </Card>
+              </div>
+            </motion.div>
+          ))}
+          <div className="absolute top-1/2 left-16 transform -translate-y-1/2 z-10">
+            <button
+              onClick={() =>
+                setCurrentIndex((prev) => (prev - 1 + total) % total)
+              }
+            >
+              <ChevronLeft size={40} />
+            </button>
           </div>
-
-          <div className="flex flex-row flex-wrap justify-center items-center gap-20">
-            <div className="flex flex-col max-w-[500px] gap-4">
-              <p className="text-4xl md:text-5xl font-semibold leading-tight mb-2">
-                {t("landing_page.dashboard_header")}
-              </p>
-              <p className="text-2xl md:text-3xl font-medium leading-tight mb-2">
-                {t("landing_page.dashboard_text")}
-              </p>
-            </div>
-
-            <Card
-              key="dashboard-prev"
-              style={{ zoom: 0.95 }}
-              className="max-w-300 h-195 border-8 p-0"
+          <div className="absolute top-1/2 right-16 transform -translate-y-1/2 z-10">
+            <button
+              onClick={() => setCurrentIndex((prev) => (prev + 1) % total)}
             >
-              <MockedDashboardPage />
-            </Card>
-          </div>
-          <div className="flex flex-row flex-wrap justify-center items-center gap-20">
-            <div className="flex flex-col max-w-[500px] gap-4">
-              <p className="text-4xl md:text-5xl font-semibold leading-tight mb-2">
-                {t("landing_page.search_profile_header")}
-              </p>
-              <p className="text-2xl md:text-3xl font-medium leading-tight mb-2">
-                {t("landing_page.search_profile_text")}
-              </p>
-            </div>
-
-            <Card
-              key="sp-prev"
-              style={{ zoom: 0.7 }}
-              className="h-245 max-w-300 border-8 p-6 py-3 overflow-hidden"
-            >
-              <MockedSearchProfileOverview />
-            </Card>
-          </div>
-
-          <div className="flex flex-row flex-wrap justify-center items-center gap-20">
-            <div className="flex flex-col max-w-[500px] gap-4">
-              <p className="text-4xl md:text-5xl font-semibold leading-tight mb-2">
-                {t("landing_page.article_header")}
-              </p>
-              <p className="text-2xl md:text-3xl font-medium leading-tight mb-2">
-                {t("landing_page.article_text")}
-              </p>
-            </div>
-
-            <Card
-              key="sp-prev"
-              style={{ zoom: 0.7 }}
-              className="h-245 max-w-300 border-8 p-6 py-3 overflow-hidden"
-            >
-              <MockedArticlePage
-                searchProfileId={exampleArticle.search_profile.id}
-                searchProfileName={exampleArticle.search_profile.name}
-                article={exampleArticle}
-                matchId={exampleArticle.match_id}
-              />
-            </Card>
+              <ChevronRight size={40} />
+            </button>
           </div>
         </div>
 

@@ -2,7 +2,6 @@ import { Info, Plus } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { useState, useMemo } from "react";
 import { sortBy } from "lodash-es";
-import Layout from "~/custom-components/layout";
 import { Alert, AlertTitle } from "~/components/ui/alert";
 import { useTranslation } from "react-i18next";
 import { FilterBar } from "~/custom-components/dashboard/filter-bar";
@@ -189,7 +188,7 @@ export function MockedDashboardPage() {
   }, [profiles, me, filters]);
 
   return (
-    <Layout>
+    <div className="p-4">
       <Text className="pt-0" hierachy={2}>
         {t("dashboard.dashboard")}
       </Text>
@@ -226,12 +225,12 @@ export function MockedDashboardPage() {
           </span>
         </div>
       ) : (
-        <div className="mt-6 mb-4 flex flex-wrap gap-8 mx-4">
+        <div className="mt-6 mb-4 flex flex-wrap gap-10 mx-4">
           {filteredAndSortedProfiles?.map((profile, idx) => (
             <MockedProfileCard key={idx} profile={profile} profile_id={me.id} />
           ))}
         </div>
       )}
-    </Layout>
+    </div>
   );
 }
