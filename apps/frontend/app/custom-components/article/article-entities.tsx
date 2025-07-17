@@ -46,13 +46,30 @@ export function ArticleEntities({ entities }: EntityData) {
                 </AccordionTrigger>
                 <AccordionContent>
                   {values.length > 0 ? (
-                    <div className="flex flex-wrap gap-2">
-                      {values.map((item, index) => (
-                        <Badge key={index} className="text-sm bg-gray-800">
-                          {item}
-                        </Badge>
-                      ))}
-                    </div>
+                    key == "citation" ? (
+                      <div>
+                        <div className={"space-y-2 "}>
+                          {values.map((item, index) => (
+                            <div key={index} className="relative pl-8">
+                              <span className="absolute left-0 top-0 font-medium text-gray-600 text-sm">
+                                [{index + 1}]
+                              </span>
+                              <div className="text-sm leading-relaxed text-gray-800">
+                                {item}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="flex flex-wrap gap-2">
+                        {values.map((item, index) => (
+                          <Badge key={index} className="text-sm bg-gray-800">
+                            {item}
+                          </Badge>
+                        ))}
+                      </div>
+                    )
                   ) : (
                     <p className="text-muted-foreground">
                       No items in this category.
