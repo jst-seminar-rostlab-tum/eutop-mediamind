@@ -216,7 +216,9 @@
     "Explore": "Explore",
     "New_Articles": "New Articles",
     "articles_error": "Error fetching Articles",
-    "no_image": "No Image"
+    "no_image": "No Image",
+    "show_more": "Show more",
+    "show_less": "Show less"
   },
 
   "article-page": {

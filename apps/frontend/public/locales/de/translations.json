@@ -212,7 +212,9 @@
     "Explore": "Erkunden",
     "New_Articles": "Neue Artikel",
     "articles_error": "Artikel konnten nicht abgerufen werden",
-    "no_image": "Kein Bild"
+    "no_image": "Kein Bild",
+    "show_more": "Mehr anzeigen",
+    "show_less": "Weniger anzeigen"
   },
 
   "article-page": {

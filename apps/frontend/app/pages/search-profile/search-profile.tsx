@@ -1,4 +1,4 @@
-import { Book, FileText, Search } from "lucide-react";
+import { Book, FileText, Search, ChevronDown, ChevronUp } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router";
 import { client, useQuery } from "types/api";
@@ -17,7 +17,7 @@ import Text from "~/custom-components/text";
 import { getLocalizedContent, getPercentage } from "~/lib/utils";
 import { useNavigate } from "react-router";
 import { SidebarFilter } from "./sidebar-filter";
-import { ScrollArea, ScrollBar } from "~/components/ui/scroll-area";
+import { ScrollArea } from "~/components/ui/scroll-area";
 import {
   ArticlesSkeleton,
   SearchProfileSkeleton,
@@ -55,6 +55,14 @@ export function SearchProfileOverview() {
 
   const [searchTerm, setSearchTerm] = useState<string>("");
 
+  const [showAllTopics, setShowAllTopics] = useState(false);
+  const INITIAL_TOPICS_COUNT = 5;
+
+  const [expandedArticleTopics, setExpandedArticleTopics] = useState<
+    Set<string>
+  >(new Set());
+  const INITIAL_ARTICLE_TOPICS_COUNT = 3;
+
   const { t } = useTranslation();
 
   const [matches, setMatches] = useState<MatchesResponse | undefined>(
@@ -90,7 +98,6 @@ export function SearchProfileOverview() {
   yesterday.setDate(today.getDate() - 1);
 
   useEffect(() => {
-    //init base matches search for first POST
     if (!profileError && profile && profile.subscriptions && profile.topics) {
       const subscriptionIds = profile.subscriptions.map((s) => s.id);
       const topicsIds = profile.topics.map((s) => s.id);
@@ -149,12 +156,41 @@ export function SearchProfileOverview() {
   const Sources = profile ? profile.subscriptions : [];
   const Topics = profile ? profile.topics : [];
 
+  const getTopicsToDisplay = () => {
+    if (!profile?.topics) return [];
+    return showAllTopics
+      ? profile.topics
+      : profile.topics.slice(0, INITIAL_TOPICS_COUNT);
+  };
+
+  const hasMoreTopics =
+    profile?.topics && profile.topics.length > INITIAL_TOPICS_COUNT;
+
+  const getArticleTopicsToDisplay = (matchId: string, topics: any[]) => {
+    const isExpanded = expandedArticleTopics.has(matchId);
+    return isExpanded ? topics : topics.slice(0, INITIAL_ARTICLE_TOPICS_COUNT);
+  };
+
+  const hasMoreArticleTopics = (topics: any[]) => {
+    return topics.length > INITIAL_ARTICLE_TOPICS_COUNT;
+  };
+
+  const toggleArticleTopics = (matchId: string) => {
+    const newExpanded = new Set(expandedArticleTopics);
+    if (newExpanded.has(matchId)) {
+      newExpanded.delete(matchId);
+    } else {
+      newExpanded.add(matchId);
+    }
+    setExpandedArticleTopics(newExpanded);
+  };
+
   return (
-    <Layout className="flex justify-center" noOverflow={true}>
+    <Layout>
       {!profile || isProfileLoading ? (
         <SearchProfileSkeleton />
       ) : (
-        <div className="w-full grow flex flex-col overflow-hidden">
+        <div className="w-full flex flex-col pb-10">
           <div className="w-full flex flex-col justify-start">
             <Breadcrumb>
               <BreadcrumbList>
@@ -171,25 +207,47 @@ export function SearchProfileOverview() {
             </Breadcrumb>
             <div className="flex gap-6 items-center">
               <Text hierachy={2}>{profile?.name}</Text>
+              <div className="bg-gray-100 etext-blue-900 font-bold rounded-full h-8 flex items-center justify-center text-sm  p-4">
+                {profile.new_articles_count} {t("search_profile.New_Articles")}
+              </div>
             </div>
-            <div className="flex items-center justify-between mb-4 gap-10">
-              <ScrollArea className="grow overflow-x-hidden whitespace-nowrap rounded-md pb-1.5">
-                <div className="flex w-max space-x-2 p-1">
-                  <div className="flex items-center gap-1 shrink-0">
-                    <Book size={20} />
-                    <p className="font-bold">{t("search_profile.Topics")}</p>
-                  </div>
-                  {profile?.topics?.map((topic, idx) => (
-                    <div
-                      className="bg-gray-200 rounded-lg py-1 px-2 shrink-0"
-                      key={idx}
-                    >
+            <div className="flex items-start justify-between mb-4 gap-10">
+              <div className="grow">
+                <div className="flex items-center gap-1 mb-2">
+                  <Book className={"w-4 h-4"} />
+                  <p className="font-bold">{t("search_profile.Topics")}</p>
+                </div>
+
+                <div className="flex flex-wrap gap-2">
+                  {getTopicsToDisplay().map((topic, idx) => (
+                    <div className="bg-gray-200 rounded-lg py-1 px-2" key={idx}>
                       {topic.name}
                     </div>
                   ))}
+                  {hasMoreTopics && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setShowAllTopics(!showAllTopics)}
+                      className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
+                    >
+                      {showAllTopics ? (
+                        <>
+                          {t("search_profile.show_less")}
+                          <ChevronUp size={16} />
+                        </>
+                      ) : (
+                        <>
+                          {t("search_profile.show_more")} (
+                          {profile.topics.length - INITIAL_TOPICS_COUNT}
+                          {""})
+                          <ChevronDown size={16} />
+                        </>
+                      )}
+                    </Button>
+                  )}
                 </div>
-                <ScrollBar orientation="horizontal" />
-              </ScrollArea>
+              </div>
               <Button asChild>
                 <Link to="reports">
                   <FileText />
@@ -199,8 +257,8 @@ export function SearchProfileOverview() {
             </div>
           </div>
 
-          <div className="overflow-hidden grow flex flex-row justify-start mt-2 mb-4 gap-8">
-            <div className="max-w-[400px] h-full">
+          <div className=" flex flex-row justify-start mt-2 mb-4 gap-3">
+            <div className="w-1/4 min-w-[250px] h-full">
               <SidebarFilter
                 sortBy={sortBy}
                 setSortBy={setSortBy}
@@ -220,7 +278,7 @@ export function SearchProfileOverview() {
                 setToDate={setToDate}
               />
             </div>
-            <div className="min-w-[500px] grow flex flex-col overflow-hidden pl-1 pt-1">
+            <div className="w-3/4 flex flex-col  pl-1 pt-1">
               <div className="relative mb-4 w-full flex">
                 <Input
                   placeholder={t("Search") + " " + t("search_profile.articles")}
@@ -235,83 +293,114 @@ export function SearchProfileOverview() {
                   <Search />
                 </Button>
               </div>
-              <div className="bg-card rounded-lg border shadow-sm grow overflow-hidden">
-                <div className="h-full">
-                  <ScrollArea className="p-4 h-full">
-                    {!matches || matchesLoading ? (
-                      <ArticlesSkeleton />
-                    ) : matches?.matches.length === 0 ? (
-                      <p className="text-muted-foreground text-sm text-center pt-2 italic">
-                        {t("search_profile.No_articles")}
-                      </p>
-                    ) : (
-                      matches?.matches.map((match) => {
-                        const relevance = match.relevance;
+              <div className="bg-card rounded-lg border shadow-sm ">
+                <ScrollArea className="p-2 h-[1200px]">
+                  {!matches || matchesLoading ? (
+                    <ArticlesSkeleton />
+                  ) : matches?.matches.length === 0 ? (
+                    <p className="text-muted-foreground text-sm text-center pt-2 italic">
+                      {t("search_profile.No_articles")}
+                    </p>
+                  ) : (
+                    matches?.matches.map((match) => {
+                      const relevance = match.relevance;
 
-                        const bgColor =
-                          relevance > 0.7
-                            ? "bg-green-200"
-                            : relevance < 0.3
-                              ? "bg-red-200"
-                              : "bg-yellow-200";
+                      const bgColor =
+                        relevance > 0.7
+                          ? "bg-green-200"
+                          : relevance < 0.3
+                            ? "bg-red-200"
+                            : "bg-yellow-200";
 
-                        return (
-                          <Link to={`./${match.id}`}>
-                            <Card
-                              className="mb-4 p-5 gap-4 justify-start"
-                              key={match.id}
-                            >
-                              <div className="flex flex-row gap-4">
-                                {!match.article.image_urls[0] || imgError ? (
-                                  <div className="w-[180px] h-[180px] rounded-md shadow-md border flex items-center justify-center text-muted-foreground text-sm shrink-0">
-                                    {t("search_profile.no_image")}
-                                  </div>
-                                ) : (
-                                  <img
-                                    src={match.article.image_urls[0]}
-                                    alt={getLocalizedContent(
-                                      match.article.headline,
-                                    )}
-                                    className="w-[180px] h-[180px] object-cover rounded-md shadow-md shrink-0"
-                                    onError={() => setImgError(true)}
-                                  />
-                                )}
-                                <div className="flex flex-col justify-evenly gap-4 p-2">
-                                  <CardTitle className="text-xl line-clamp-2">
-                                    {getLocalizedContent(
-                                      match.article.headline,
-                                    )}
-                                  </CardTitle>
-                                  <p className="line-clamp-3">
-                                    {getLocalizedContent(match.article.summary)}
-                                  </p>
+                      const topicsToShow = getArticleTopicsToDisplay(
+                        match.id,
+                        match.topics,
+                      );
+                      const hasMoreTopicsForArticle = hasMoreArticleTopics(
+                        match.topics,
+                      );
+                      const isExpanded = expandedArticleTopics.has(match.id);
+
+                      return (
+                        <Link to={`./${match.id}`} key={match.id}>
+                          <Card
+                            className="mb-2 p-5 gap-4 justify-start"
+                            key={match.id}
+                          >
+                            <div className="flex flex-row gap-4">
+                              {!match.article.image_urls[0] || imgError ? (
+                                <div className="w-[120px] h-[120px] rounded-md shadow-md border flex items-center justify-center text-muted-foreground text-sm shrink-0">
+                                  {t("search_profile.no_image")}
                                 </div>
+                              ) : (
+                                <img
+                                  src={match.article.image_urls[0]}
+                                  alt={getLocalizedContent(
+                                    match.article.headline,
+                                  )}
+                                  className="w-[120px] h-[120px] object-cover rounded-md shadow-md shrink-0"
+                                  onError={() => setImgError(true)}
+                                />
+                              )}
+                              <div className="flex flex-col justify-evenly p-2">
+                                <CardTitle className="text-xl line-clamp-2">
+                                  {getLocalizedContent(match.article.headline)}
+                                </CardTitle>
+                                <p className="line-clamp-2 text-gray-700">
+                                  {getLocalizedContent(match.article.summary)}
+                                </p>
                               </div>
-                              <div className="flex gap-3 items-center flex-wrap">
+                            </div>
+                            <div className="flex gap-3 items-center flex-wrap">
+                              <div
+                                className={`rounded-lg py-1 px-2 ${bgColor} text-sm`}
+                              >
+                                {t("search_profile.Relevance")}{" "}
+                                {getPercentage(relevance)}
+                              </div>
+                              {topicsToShow.map((topic) => (
                                 <div
-                                  className={`rounded-lg py-1 px-2 ${bgColor}`}
+                                  className="bg-gray-200 rounded-lg py-1 px-2 shrink-0 text-sm"
+                                  key={topic.id}
                                 >
-                                  {t("search_profile.Relevance")}{" "}
-                                  {getPercentage(relevance)}
+                                  {getPercentage(topic.score) +
+                                    " " +
+                                    topic.name}
                                 </div>
-                                {match.topics.map((topic) => (
-                                  <div
-                                    className="bg-gray-200 rounded-lg py-1 px-2 shrink-0"
-                                    key={topic.id}
-                                  >
-                                    {getPercentage(topic.score) +
-                                      " " +
-                                      topic.name}
-                                  </div>
-                                ))}
-                              </div>
-                            </Card>
-                          </Link>
-                        );
-                      })
-                    )}
-                  </ScrollArea>
-                </div>
+                              ))}
+                              {hasMoreTopicsForArticle && (
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    toggleArticleTopics(match.id);
+                                  }}
+                                  className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
+                                >
+                                  {isExpanded ? (
+                                    <>
+                                      {t("Show less")}
+                                      <ChevronUp size={16} />
+                                    </>
+                                  ) : (
+                                    <>
+                                      {t("Show more")} (
+                                      {match.topics.length -
+                                        INITIAL_ARTICLE_TOPICS_COUNT}
+                                      )
+                                      <ChevronDown size={16} />
+                                    </>
+                                  )}
+                                </Button>
+                              )}
+                            </div>
+                          </Card>
+                        </Link>
+                      );
+                    })
+                  )}
+                </ScrollArea>
               </div>
             </div>
           </div>
