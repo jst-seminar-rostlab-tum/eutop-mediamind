@@ -214,7 +214,7 @@ class EmailService:
                 title = translator("Ms.")
             else:
                 title = "Mx."
-            salutation = f"{greeting}, {title} {last_name}"
+            salutation = f"{greeting} {title} {last_name}"
         else:
             salutation = f"{greeting}"
 

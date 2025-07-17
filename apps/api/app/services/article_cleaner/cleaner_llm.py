@@ -90,6 +90,37 @@ class ArticleCleaner:
             logger.error(f"Failed to clean article '{article.title}': {e}")
             return None
 
+    async def clean_plain_text(self, text: str) -> str:
+        """
+        Clean plain text by removing formatting marks and unnecessary noise.
+        """
+        prompt = (
+            "The following news article might contain unwanted "
+            "formatting artifacts such as author "
+            "lines, inline references, and other structural noise.\n"
+            "However, the article may also include meaningful "
+            "**Markdown formatting**, such as `#` headings, `**bold**`, "
+            "`*italic*`, bullet points, or numbered lists.\n"
+            "**Do NOT remove or modify valid Markdown syntax**. "
+            "These are part of the intended content structure.\n"
+            "If some parts are caesar encrypted, "
+            "decrypt them before processing.\n"
+            "Your task is to remove noise, for example:\n"
+            "Links, metadata, stylistic clutter and "
+            "duplicated content.\n"
+            "Do not paraphrase or add any new content. Only remove noise.\n"
+            "Don't change the language of the article, it should remain the "
+            "same as the original.\n"
+            "If the article contains only content that "
+            "doesn't look like a news article,"
+            " return an empty string.\n"
+            "Return only the cleaned body text, properly structured in "
+            "paragraphs.\n\n"
+            f"Body: {text}"
+        )
+        async with self.semaphore:
+            return await asyncio.to_thread(self._call_llm_sync, prompt)
+
     async def clean_articles_since_date(
         self, session: AsyncSession, since_date: date
     ) -> int:
