@@ -231,7 +231,7 @@ export function Welcome() {
   }, [hasUserInteracted]);
 
   return (
-    <div>
+    <div className="overflow-auto">
       <div
         className="relative h-[50vh] w-full bg-cover bg-center"
         style={{
@@ -261,7 +261,7 @@ export function Welcome() {
         </div>
       </div>
       {/* Features Section */}
-      <div className="pt-10 bg-[linear-gradient(to_bottom,_#556270_0%,_#dcdcdc_10%,_#f8f9fa_15%,_#f8f9fa_70%,_#dcdcdc_80%,_#556270_100%)]">
+      <div className="pt-15 bg-[linear-gradient(to_bottom,_#556270_0%,_#dcdcdc_10%,_#f8f9fa_15%,_#f8f9fa_70%,_#dcdcdc_80%,_#556270_100%)]">
         <div className="relative w-full flex justify-center items-center min-h-[900px] overflow-hidden">
           {features.map((feature, index) => (
             <motion.div
