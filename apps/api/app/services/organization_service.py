@@ -70,7 +70,13 @@ class OrganizationService:
         update_request: OrganizationCreateOrUpdate,
         current_user: UserEntity,
     ) -> OrganizationResponse:
-        if not current_user.is_superuser:
+        if not (
+            current_user.is_superuser
+            or (
+                current_user.role == UserRole.maintainer
+                and current_user.organization_id == organization_id
+            )
+        ):
             raise HTTPException(
                 status_code=403, detail="Insufficient privileges"
             )
