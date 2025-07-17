@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, Header, HTTPException
 
 from app.core.config import configs
 from app.schemas.chatbot_schemas import ChatRequest
-from app.services.chatbot_service import ChatbotService
+from app.services.chatbot_service.chatbot_service import ChatbotService
 from app.services.s3_service import S3Service, get_s3_service
 from app.services.user_service import UserService
 
@@ -46,10 +46,7 @@ async def receive_chat(
             status_code=401, detail="Invalid or missing API key"
         )
 
-    # Extract just the email address from the sender field
     sender_email = extract_email_address(chat.sender)
-
-    # Check if user exists
     user = await UserService.get_by_email(sender_email)
     if not user:
         raise HTTPException(
@@ -59,7 +56,7 @@ async def receive_chat(
 
     try:
         await ChatbotService.generate_and_send_email_response(
-            user, chat, s3_service
+            user=user, chat=chat, s3_service=s3_service
         )
         return {"status": "ok"}
     except Exception as e:
