@@ -24,8 +24,6 @@ export function MockedSearchProfileOverview() {
 
   const [fromDate, setFromDate] = useState<Date>();
   const [toDate, setToDate] = useState<Date>();
-  const [selectedTopics, setSelectedTopics] = useState<string[]>([]);
-  const [selectedSources, setSelectedSources] = useState<string[]>([]);
 
   const [searchTerm, setSearchTerm] = useState<string>("");
 
@@ -46,39 +44,35 @@ export function MockedSearchProfileOverview() {
     language: "en",
     topics: [
       {
-        id: "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+        id: "1",
         name: "Automotive",
         keywords: ["Tires", "Engine"],
       },
       {
-        id: "3fa85f64-5717-4562-b3fc-2c963f66afb7",
+        id: "2",
         name: "Environment",
         keywords: ["CO2", "Renewable Energy"],
       },
     ],
     subscriptions: [
       {
-        id: "3fa85f64-5717-4562-b3fc-2c963f66afy4",
+        id: "1",
         name: "Spiegel",
         is_subscribed: true,
       },
       {
-        id: "3fa85f64-5717-4562-b3fc-2c963f66afx1",
+        id: "2",
         name: "Welt",
         is_subscribed: true,
       },
       {
-        id: "3fa85f64-5717-4562-b3fc-2c963f66afz2",
+        id: "3",
         name: "FAZ",
         is_subscribed: true,
       },
     ],
     new_articles_count: 3,
   };
-
-  const today = new Date();
-  const yesterday = new Date();
-  yesterday.setDate(today.getDate() - 1);
 
   const matches = [
     {
@@ -104,6 +98,7 @@ export function MockedSearchProfileOverview() {
         },
         image_urls: ["https://picsum.photos/800/600?random=10"],
         date: "2025-07-16",
+        source: "1",
       },
     },
     {
@@ -129,6 +124,7 @@ export function MockedSearchProfileOverview() {
         },
         image_urls: ["https://picsum.photos/800/600?random=9"],
         date: "2025-07-16",
+        source: "2",
       },
     },
     {
@@ -136,7 +132,7 @@ export function MockedSearchProfileOverview() {
       relevance: 0.85,
       topics: [
         {
-          id: "3",
+          id: "1",
           name: "Automotive",
           score: 0.88,
           keywords: [],
@@ -154,6 +150,7 @@ export function MockedSearchProfileOverview() {
         },
         image_urls: ["https://picsum.photos/800/600?random=8"],
         date: "2025-07-08",
+        source: "1",
       },
     },
     {
@@ -161,7 +158,7 @@ export function MockedSearchProfileOverview() {
       relevance: 0.86,
       topics: [
         {
-          id: "4",
+          id: "2",
           name: "Environmental",
           score: 0.93,
           keywords: [],
@@ -179,6 +176,7 @@ export function MockedSearchProfileOverview() {
         },
         image_urls: ["https://picsum.photos/800/600?random=7"],
         date: "2025-07-08",
+        source: "3",
       },
     },
     {
@@ -186,7 +184,7 @@ export function MockedSearchProfileOverview() {
       relevance: 0.8,
       topics: [
         {
-          id: "5",
+          id: "1",
           name: "Automotive",
           score: 0.82,
           keywords: [],
@@ -204,6 +202,7 @@ export function MockedSearchProfileOverview() {
         },
         image_urls: ["https://picsum.photos/800/600?random=6"],
         date: "2025-07-02",
+        source: "2",
       },
     },
     {
@@ -211,7 +210,7 @@ export function MockedSearchProfileOverview() {
       relevance: 0.84,
       topics: [
         {
-          id: "6",
+          id: "2",
           name: "Environmental",
           score: 0.85,
           keywords: [],
@@ -229,6 +228,7 @@ export function MockedSearchProfileOverview() {
         },
         image_urls: ["https://picsum.photos/800/600?random=5"],
         date: "2025-06-16",
+        source: "1",
       },
     },
     {
@@ -236,7 +236,7 @@ export function MockedSearchProfileOverview() {
       relevance: 0.75,
       topics: [
         {
-          id: "7",
+          id: "1",
           name: "Automotive",
           score: 0.78,
           keywords: [],
@@ -254,6 +254,7 @@ export function MockedSearchProfileOverview() {
         },
         image_urls: ["https://picsum.photos/800/600?random=4"],
         date: "2025-06-10",
+        source: "3",
       },
     },
     {
@@ -261,7 +262,7 @@ export function MockedSearchProfileOverview() {
       relevance: 0.83,
       topics: [
         {
-          id: "8",
+          id: "2",
           name: "Environmental",
           score: 0.88,
           keywords: [],
@@ -279,6 +280,7 @@ export function MockedSearchProfileOverview() {
         },
         image_urls: ["https://picsum.photos/800/600?random=3"],
         date: "2025-05-24",
+        source: "2",
       },
     },
     {
@@ -286,7 +288,7 @@ export function MockedSearchProfileOverview() {
       relevance: 0.79,
       topics: [
         {
-          id: "9",
+          id: "1",
           name: "Automotive",
           score: 0.76,
           keywords: [],
@@ -304,6 +306,7 @@ export function MockedSearchProfileOverview() {
         },
         image_urls: ["https://picsum.photos/800/600?random=2"],
         date: "2025-07-15",
+        source: "1",
       },
     },
     {
@@ -311,7 +314,7 @@ export function MockedSearchProfileOverview() {
       relevance: 0.91,
       topics: [
         {
-          id: "10",
+          id: "2",
           name: "Environmental",
           score: 0.96,
           keywords: [],
@@ -329,18 +332,75 @@ export function MockedSearchProfileOverview() {
         },
         image_urls: ["https://picsum.photos/800/600?random=1"],
         date: "2025-06-28",
+        source: "3",
       },
     },
   ];
 
-  useEffect(() => {}, [
-    fromDate,
-    toDate,
-    sortBy,
-    searchTerm,
-    selectedTopics,
-    selectedSources,
-  ]);
+  const [selectedTopics, setSelectedTopics] = useState<string[]>(
+    profile.topics.map((s) => s.id),
+  );
+  const [selectedSources, setSelectedSources] = useState<string[]>(
+    profile.subscriptions.map((s) => s.id),
+  );
+
+  const [filteredMatches, setFilteredMatches] = useState(matches);
+
+  useEffect(() => {
+    const from = fromDate ?? new Date("1900-01-01");
+    const to = toDate ?? new Date("9999-12-31");
+
+    const filtered = matches.filter((match) => {
+      const date = new Date(match.article.date);
+
+      // Date filter
+      if (date < from || date > to) return false;
+
+      // Search term in headline or summary
+      const content =
+        getLocalizedContent(match.article.headline) +
+        getLocalizedContent(match.article.summary);
+
+      if (
+        searchTerm &&
+        !content.toLowerCase().includes(searchTerm.toLowerCase())
+      ) {
+        return false;
+      }
+
+      // Topics filter
+      if (
+        selectedTopics.length > 0 &&
+        !match.topics.some((t) => selectedTopics.includes(t.id))
+      ) {
+        return false;
+      }
+
+      // Source filter (based on article.source)
+      if (
+        selectedSources.length == 0 ||
+        !selectedSources.includes(match.article.source)
+      ) {
+        return false;
+      }
+
+      return true;
+    });
+
+    // Sorting
+    const sorted = [...filtered].sort((a, b) => {
+      if (sortBy === "date") {
+        return (
+          new Date(b.article.date).getTime() -
+          new Date(a.article.date).getTime()
+        );
+      } else {
+        return b.relevance - a.relevance;
+      }
+    });
+
+    setFilteredMatches(sorted);
+  }, [fromDate, toDate, sortBy, searchTerm, selectedTopics, selectedSources]);
 
   const Sources = profile ? profile.subscriptions : [];
   const Topics = profile ? profile.topics : [];
@@ -420,7 +480,7 @@ export function MockedSearchProfileOverview() {
           <div className="bg-card rounded-lg border shadow-sm grow overflow-hidden">
             <div className="h-full">
               <ScrollArea className="p-4 h-full">
-                {matches.map((match) => {
+                {filteredMatches.map((match) => {
                   const relevance = match.relevance;
 
                   const bgColor =
