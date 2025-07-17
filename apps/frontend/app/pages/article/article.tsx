@@ -33,7 +33,7 @@ export function ArticlePage({
   return (
     <Layout>
       <div className="flex gap-15">
-        <div className="w-2/3 space-y-8">
+        <div className="w-2/3 space-y-4">
           <ArticleBreadcrumb
             searchProfileId={searchProfileId}
             searchProfileName={searchProfileName}
