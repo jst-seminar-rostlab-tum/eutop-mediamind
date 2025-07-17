@@ -10,6 +10,7 @@ import { Card } from "~/components/ui/card";
 import { MockedDashboardPage } from "./mocked-dashboard";
 import { MockedTopics } from "./mocked-topics";
 import { MockedSearchProfileOverview } from "./mocked-search-profile";
+import { MockedArticlePage } from "./mocked-article";
 
 export function Welcome() {
   const { isSignedIn, user } = useAuthorization();
@@ -40,7 +41,7 @@ export function Welcome() {
     },
   ];
 
-  // for mocked topics
+  // mocked profile
   const exampleProfile = {
     id: "1",
     name: "Eutop",
@@ -74,6 +75,90 @@ export function Welcome() {
       },
     ],
     new_articles_count: 3,
+  };
+
+  // mocked full article
+  const exampleArticle = {
+    match_id: "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    topics: [
+      {
+        id: "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+        name: "Climate Change",
+        score: 0.92,
+        keywords: [
+          "global warming",
+          "carbon emissions",
+          "renewable energy",
+          "sustainability",
+        ],
+      },
+      {
+        id: "6ba7b810-9dad-11d1-80b4-00c04fd430c8",
+        name: "Technology Innovation",
+        score: 0.78,
+        keywords: [
+          "artificial intelligence",
+          "machine learning",
+          "automation",
+          "digital transformation",
+        ],
+      },
+      {
+        id: "6ba7b811-9dad-11d1-80b4-00c04fd430c8",
+        name: "Economic Policy",
+        score: 0.65,
+        keywords: [
+          "inflation",
+          "monetary policy",
+          "fiscal measures",
+          "economic growth",
+        ],
+      },
+    ],
+    search_profile: {
+      id: "123e4567-e89b-12d3-a456-426614174000",
+      name: "Environmental Tech Reporter",
+    },
+    article: {
+      article_url: "",
+      headline: {
+        en: "Revolutionary Solar Panel Technology Achieves 40% Efficiency Breakthrough",
+        de: "Revolutionäre Solarpanel-Technologie erreicht 40% Effizienz-Durchbruch",
+      },
+      summary: {
+        en: "Scientists at MIT have developed a new type of solar panel that achieves unprecedented 40% efficiency, potentially revolutionizing renewable energy adoption worldwide.",
+        de: "Wissenschaftler am MIT haben einen neuen Typ von Solarpanel entwickelt, der eine beispiellose Effizienz von 40% erreicht und die weltweite Einführung erneuerbarer Energien revolutionieren könnte.",
+      },
+      text: {
+        en: "In a groundbreaking development that could reshape the renewable energy landscape, researchers at the Massachusetts Institute of Technology have successfully created solar panels with an efficiency rate of 40%, marking a significant leap from current commercial panels that typically achieve 20-22% efficiency. The breakthrough involves a novel multi-junction cell design that captures a broader spectrum of sunlight, including infrared radiation that traditional panels cannot utilize. Dr. Sarah Chen, lead researcher on the project, explained that the new technology uses a combination of perovskite and silicon materials in a tandem configuration to optimize energy conversion. This innovation has the potential to drastically reduce the cost per watt of solar energy, making renewable sources more competitive with fossil fuels. In lab tests, the new panels maintained performance under varied lighting conditions and showed improved durability compared to standard photovoltaic cells. The team is now working on scaling the manufacturing process and partnering with industry leaders to bring the technology to market within the next few years. Experts in the field have hailed this as a major step forward in sustainable energy, with the potential to accelerate global decarbonization efforts and increase energy access in underserved regions.",
+        de: "In einer bahnbrechenden Entwicklung, die die Landschaft der erneuerbaren Energien grundlegend verändern könnte, haben Forscher am Massachusetts Institute of Technology erfolgreich Solarpanels mit einer Effizienzrate von 40 % entwickelt, was einen bedeutenden Fortschritt gegenüber aktuellen kommerziellen Panels darstellt, die typischerweise nur 20–22 % Effizienz erreichen. Der Durchbruch beruht auf einem neuartigen Multi-Junction-Zellendesign, das ein breiteres Spektrum des Sonnenlichts einfängt, einschließlich Infrarotstrahlung, die von herkömmlichen Panels nicht genutzt werden kann. Dr. Sarah Chen, leitende Wissenschaftlerin des Projekts, erklärte, dass die neue Technologie eine Kombination aus Perowskit- und Silizium-Materialien in einer Tandemkonfiguration verwendet, um die Energieumwandlung zu maximieren. Diese Innovation könnte die Kosten pro Watt für Solarenergie erheblich senken und erneuerbare Energien noch wettbewerbsfähiger gegenüber fossilen Brennstoffen machen. In Labortests zeigten die neuen Panels eine stabile Leistung unter wechselnden Lichtbedingungen und eine verbesserte Haltbarkeit im Vergleich zu herkömmlichen Photovoltaikzellen. Das Team arbeitet nun daran, den Herstellungsprozess zu skalieren und mit Industriepartnern zusammenzuarbeiten, um die Technologie in den nächsten Jahren auf den Markt zu bringen. Experten bezeichnen diese Entwicklung als einen entscheidenden Fortschritt für nachhaltige Energie und eine wichtige Chance, den globalen CO2-Ausstoß zu verringern und den Zugang zu Energie weltweit zu verbessern.",
+      },
+      image_urls: [
+        "https://picsum.photos/800/600?random=1",
+        "https://picsum.photos/800/600?random=2",
+        "https://picsum.photos/800/600?random=3",
+        "https://images.unsplash.com/photo-1509391366360-2e959784a276?w=800&h=600",
+        "https://images.unsplash.com/photo-1466611653911-95081537e5b7?w=800&h=600",
+      ],
+      published: "2024-07-14T10:30:00Z",
+      crawled: "2024-07-14T10:45:00Z",
+      newspaper_id: "mit-tech-review",
+      authors: ["Dr. Sarah Chen", "Michael Rodriguez", "Jennifer Park"],
+      categories: ["Technology", "Environment", "Science", "Energy"],
+      status: "summarized" as const,
+      language: "en",
+    },
+    entities: {
+      organizations: ["MIT", "Massachusetts Institute of Technology"],
+      people: ["Dr. Sarah Chen"],
+      locations: ["Massachusetts", "United States"],
+      technologies: [
+        "solar panels",
+        "perovskite",
+        "silicon",
+        "multi-junction cells",
+      ],
+    },
   };
 
   const [profile, setProfile] = useState(exampleProfile);
@@ -163,6 +248,30 @@ export function Welcome() {
               className="h-245 max-w-300 border-8 p-6 py-3 overflow-hidden"
             >
               <MockedSearchProfileOverview />
+            </Card>
+          </div>
+
+          <div className="flex flex-row flex-wrap justify-center items-center gap-20">
+            <div className="flex flex-col max-w-[500px] gap-4">
+              <p className="text-4xl md:text-5xl font-semibold leading-tight mb-2">
+                {t("landing_page.article_header")}
+              </p>
+              <p className="text-2xl md:text-3xl font-medium leading-tight mb-2">
+                {t("landing_page.article_text")}
+              </p>
+            </div>
+
+            <Card
+              key="sp-prev"
+              style={{ zoom: 0.7 }}
+              className="h-245 max-w-300 border-8 p-6 py-3 overflow-hidden"
+            >
+              <MockedArticlePage
+                searchProfileId={exampleArticle.search_profile.id}
+                searchProfileName={exampleArticle.search_profile.name}
+                article={exampleArticle}
+                matchId={exampleArticle.match_id}
+              />
             </Card>
           </div>
         </div>
