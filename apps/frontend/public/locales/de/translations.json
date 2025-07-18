@@ -230,7 +230,13 @@
     "show_less": "Weniger anzeigen",
     "no_summary": "Keine Zusammenfassung verfügbar.",
     "entities_text": "Zeigt Entitäten an, die mit dem Artikel in Zusammenhang stehen.",
-    "entities": "Entitäten"
+    "entities": "Entitäten",
+    "no_entities": "Keine Einträge in dieser Kategorie.",
+    "person": "Personen",
+    "event": "Ereignisse",
+    "organization": "Organisationen",
+    "citation": "Quellen",
+    "industry": "Industrien"
   },
 
   "role-badge": {

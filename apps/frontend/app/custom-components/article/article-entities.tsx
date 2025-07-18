@@ -34,7 +34,11 @@ export function ArticleEntities({ entities }: EntityData) {
               <AccordionItem key={key} value={key}>
                 <AccordionTrigger>
                   <div className={"flex gap-2"}>
-                    <text>{capitalize(key)}</text>
+                    <text>
+                      {t(`article-page.${key}`, {
+                        defaultValue: capitalize(key),
+                      })}
+                    </text>
                     <div
                       className={
                         "rounded-sm bg-gray-100 px-1.5 flex items-center justify-center"
@@ -72,7 +76,7 @@ export function ArticleEntities({ entities }: EntityData) {
                     )
                   ) : (
                     <p className="text-muted-foreground">
-                      No items in this category.
+                      {t("article-page.no_entities")}
                     </p>
                   )}
                 </AccordionContent>
