@@ -190,7 +190,7 @@ export function SearchProfileOverview() {
       {!profile || isProfileLoading ? (
         <SearchProfileSkeleton />
       ) : (
-        <div className="w-full flex flex-col pb-10">
+        <div className="w-full flex flex-col pb-1">
           <div className="w-full flex flex-col justify-start">
             <Breadcrumb>
               <BreadcrumbList>
@@ -205,12 +205,7 @@ export function SearchProfileOverview() {
                 </BreadcrumbItem>
               </BreadcrumbList>
             </Breadcrumb>
-            <div className="flex gap-6 items-center">
-              <Text hierachy={2}>{profile?.name}</Text>
-              <div className="bg-gray-100 etext-blue-900 font-bold rounded-full h-8 flex items-center justify-center text-sm  p-4">
-                {profile.new_articles_count} {t("search_profile.New_Articles")}
-              </div>
-            </div>
+            <Text hierachy={2}>{profile?.name}</Text>
             <div className="flex items-start justify-between mb-4 gap-10">
               <div className="grow">
                 <div className="flex items-center gap-1 mb-2">

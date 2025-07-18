@@ -84,7 +84,7 @@ export function SidebarFilter({
       <ScrollArea className="h-full">
         <div className="flex flex-col gap-4 p-5">
           <CardTitle className="mt-2 flex items-center gap-2">
-            <ArrowDownNarrowWide className={"w-4 h-4"} />{" "}
+            <ArrowDownNarrowWide className={"w-4.5 h-4.5"} />{" "}
             {t("search_profile.Sorting")}
           </CardTitle>
           <Select
@@ -105,7 +105,7 @@ export function SidebarFilter({
           </Select>
 
           <CardTitle className="mt-4 flex items-center gap-2">
-            <File className={"w-4 h-4"} /> {t("search_profile.Sources")}
+            <File className={"w-4.5 h-4.5"} /> {t("search_profile.Sources")}
           </CardTitle>
           <div className="relative w-full flex">
             <Input
@@ -118,7 +118,7 @@ export function SidebarFilter({
               className="absolute right-3 top-2 text-muted-foreground"
             />
           </div>
-          <ScrollArea className="h-50 rounded-md" type={"always"}>
+          <ScrollArea className="h-50 rounded-md border" type={"always"}>
             {filteredSources.map((source) => (
               <div key={source.id} className="flex items-center gap-2 p-2">
                 <Checkbox
@@ -138,7 +138,7 @@ export function SidebarFilter({
           </ScrollArea>
 
           <CardTitle className="mt-4 flex items-center gap-2">
-            <Tag className={"w-4 h-4"} /> {t("search_profile.Topics")}
+            <Tag className={"w-4.5 h-4.5"} /> {t("search_profile.Topics")}
           </CardTitle>
           <div className="relative w-full flex">
             <Input
@@ -151,7 +151,7 @@ export function SidebarFilter({
               className="absolute right-3 top-2 text-muted-foreground"
             />
           </div>
-          <ScrollArea className="h-50 rounded-md" type={"always"}>
+          <ScrollArea className="h-50 rounded-md border" type={"always"}>
             {filteredTopics.map((topic) => (
               <div key={topic.id} className="flex items-center gap-2 p-2">
                 <Checkbox
@@ -171,7 +171,8 @@ export function SidebarFilter({
           </ScrollArea>
 
           <CardTitle className="mt-4 flex items-center gap-2">
-            <CalendarFold className={"w-4 h-4"} /> {t("search_profile.Date")}
+            <CalendarFold className={"w-4.5 h-4.5"} />{" "}
+            {t("search_profile.Date")}
           </CardTitle>
           <DatePicker
             startDate={fromDate}
