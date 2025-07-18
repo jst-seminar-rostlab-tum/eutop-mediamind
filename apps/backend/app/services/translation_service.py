@@ -115,15 +115,18 @@ class ArticleTranslationService:
             if not text or not text.strip():
                 logger.warning(f"Empty text for id {id_}, skipping.")
                 continue
+
             translation_required = True
-            try:
-                detected_lang = detect(text)
-            except Exception:
-                logger.warning(
-                    f"Text '{text}' is not valid for language detection"
-                )
-                detected_lang = None
-                translation_required = False
+            detected_lang = None
+            #  Above certain number of characters for accurate detection
+            if len(text) >= 50:
+                try:
+                    detected_lang = detect(text)
+                except Exception:
+                    logger.warning(
+                        f"Text '{text}' is not valid for language detection"
+                    )
+                    translation_required = False
 
             for lang_code, lang_name in target_langs.items():
                 full_id = f"{id_}_{lang_code}"
