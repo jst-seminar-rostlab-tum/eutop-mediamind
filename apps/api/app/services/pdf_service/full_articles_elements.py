@@ -45,9 +45,7 @@ def create_full_articles_elements(news_items, dimensions, translator, styles):
         if match and "topics" in match and match["topics"]:
             topic = match["topics"][0]
             # Format category as "Antibiotics: 53.75%"
-            category_str = (
-                f"{topic['topic_name']}: {topic['score']*100:.2f}%"
-            )
+            category_str = f"{topic['topic_name']}: {topic['score']*100:.2f}%"
             # Format keywords as "infection: 62.5%, immunity: 62.5%"
             if topic.get("keywords"):
                 keywords_str = ", ".join(
