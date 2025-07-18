@@ -435,8 +435,8 @@ class SearchProfileService:
                 }
             else:
                 article_text = {
-                    "de": "",
-                    "en": "",
+                    "de": None,
+                    "en": None,
                 }
 
             article_content = MatchArticleOverviewContent(
@@ -450,7 +450,7 @@ class SearchProfileService:
                     "en": article.summary_en or "",
                 },
                 text=article_text,
-                image_urls=[article.image_url] or [],
+                image_urls=[url for url in [article.image_url] if url],
                 published=article.published_at,
                 crawled=article.crawled_at,
                 newspaper_id=article.subscription_id,
@@ -531,8 +531,8 @@ class SearchProfileService:
             }
         else:
             article_text = {
-                "de": "",
-                "en": "",
+                "de": None,
+                "en": None,
             }
 
         return MatchDetailResponse(
@@ -540,7 +540,7 @@ class SearchProfileService:
             topics=topics,
             search_profile=MatchProfileInfo(id=profile.id, name=profile.name),
             article=MatchArticleOverviewContent(
-                article_url=article.url or "https://no_url.com/",
+                article_url=article.url or "",
                 headline={
                     "de": article.title_de or "",
                     "en": article.title_en or "",
@@ -550,7 +550,7 @@ class SearchProfileService:
                     "en": article.summary_en or "",
                 },
                 text=article_text,
-                image_urls=[article.image_url or "https://no_image.com/"],
+                image_urls=[url for url in [article.image_url] if url],
                 published=article.published_at,
                 crawled=article.crawled_at,
                 authors=article.authors or [],
