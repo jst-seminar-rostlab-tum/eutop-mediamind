@@ -67,10 +67,12 @@ class ArticleEntityRepository:
             for entity in entities:
                 # Only 'industry' and 'event' have translations
                 if entity.entity_type in {"industry", "event"}:
-                    grouped_entities[entity.entity_type].append({
-                        "de": entity.value_de or entity.value,
-                        "en": entity.value_en or entity.value
-                    })
+                    grouped_entities[entity.entity_type].append(
+                        {
+                            "de": entity.value_de or entity.value,
+                            "en": entity.value_en or entity.value,
+                        }
+                    )
                 else:
                     grouped_entities[entity.entity_type].append(entity.value)
 

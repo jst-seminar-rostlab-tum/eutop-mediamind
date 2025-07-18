@@ -84,9 +84,10 @@ class PDFService:
             else:
                 published_at_str = None
             missing_sub_message = (
-                translator("This content is only available to") +
-                f" {article.subscription.name} " +
-                translator("subscribers") + "."
+                translator("This content is only available to")
+                + f" {article.subscription.name} "
+                + translator("subscribers")
+                + "."
             )
             news_item = NewsItem(
                 id=article.id,
