@@ -8,8 +8,11 @@ class Config(BaseSettings):
 
     SCHEDULER_INTERVAL: int
 
+    # Job intervals in seconds. If set to -1 it means the job is disabled.
     EMAIL_JOB_INTERVAL: int
     PIPELINE_JOB_INTERVAL: int
+    RSS_JOB_INTERVAL: int
+    BREAKING_NEWS_JOB_INTERVAL: int
 
     API_BASE_URL: str
 

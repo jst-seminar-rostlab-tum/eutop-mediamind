@@ -7,7 +7,6 @@ Once we have a proper scheduler, we can remove this controller.
 import asyncio
 from datetime import date
 from datetime import date as Date
-from datetime import datetime
 from typing import Optional
 
 from fastapi import APIRouter, Query
@@ -50,27 +49,6 @@ async def trigger_crawling(
         )
     )
     return {"message": "Crawling triggered successfully"}
-
-
-@router.post("/trigger_rss_crawling")
-async def trigger_rss_crawling(
-    datetime_start: datetime = datetime.combine(
-        date.today(), datetime.min.time()
-    ),
-    datetime_end: datetime = datetime.now(),
-):
-    logger.info(
-        f"Triggering RSS crawling from {datetime_start} to {datetime_end}"
-    )
-    asyncio.create_task(
-        run_crawler(
-            CrawlerType.RSSFeedCrawler,
-            date_start=datetime_start,
-            date_end=datetime_end,
-            limit=-1,
-        )
-    )
-    return {"message": "RSS Crawling triggered successfully"}
 
 
 @router.post("/trigger_scraping")
