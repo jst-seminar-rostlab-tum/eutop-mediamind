@@ -60,6 +60,8 @@ But additional also results are served to the user and can be looked through. Th
 
 ### Search Profile Overview
 
+This view contains a filter bar and a listing of all articles that were matched with your Search Profile. Each Article has an overall relevance score based on all topics of your profile and an additional matching score for each single topic. With the search bar you can also directly search in the Vector Database for similar articles to your input. The search bar, per default, sorts based on relevance, all sources and topics are included and the timeframe is this day today.
+
 ### Article Page
 
 ### Personal Settings
@@ -73,6 +75,10 @@ The personal settings can be found by clicking on the user on the top right of t
 ### Download Center
 
 ### Admin Settings
+
+This page is only accessable for MediaMind admin. You can create and edit Organizations here and add users with roles to them. You can also create and edit Subscriptions there. The attribute paywalled enables or disables the username and password for a subscription. For safety reasons you don't get your password shown here. If you want to set a new password, you can still do that by just typing it in and confirm.
+
+![Admin Settings](assets/admin-settings.png)
 
 ### Crawler Stats
 
