@@ -31,6 +31,9 @@ export function ArticleSidebar({ article }: ArticleSidebarProps) {
       [topicIndex]: !prev[topicIndex],
     }));
   };
+  const onlySummary = !(
+    article.article.text?.["en"] && article.article.text?.["de"]
+  );
 
   const localizedSummary = getLocalizedContent(article.article.summary, i18n);
 
@@ -42,27 +45,30 @@ export function ArticleSidebar({ article }: ArticleSidebarProps) {
           <ExternalLink />
         </a>
       </Button>
-      <div className={"rounded-lg pl-4 pr-4 bg-gray-100"}>
-        <Accordion
-          type={"single"}
-          collapsible
-          className="w-full"
-          defaultValue="summary"
-        >
-          <AccordionItem value={"summary"}>
-            <AccordionTrigger
-              className={"text-md font-semibold text-gray-900 cursor-pointer"}
-            >
-              {t("article-page.summary_header")}
-            </AccordionTrigger>
-            <AccordionContent
-              className={"text-gray-800 pb-4 whitespace-pre-wrap"}
-            >
-              <p>{localizedSummary || t("article-page.no_summary")}</p>
-            </AccordionContent>
-          </AccordionItem>
-        </Accordion>
-      </div>
+      {!onlySummary && (
+        <div className={"rounded-lg pl-4 pr-4 bg-gray-100"}>
+          <Accordion
+            type={"single"}
+            collapsible
+            className="w-full"
+            defaultValue="summary"
+          >
+            <AccordionItem value={"summary"}>
+              <AccordionTrigger
+                className={"text-md font-semibold text-gray-900 cursor-pointer"}
+              >
+                {t("article-page.summary_header")}
+              </AccordionTrigger>
+              <AccordionContent
+                className={"text-gray-800 pb-4 whitespace-pre-wrap"}
+              >
+                <p>{localizedSummary || t("article-page.no_summary")}</p>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+        </div>
+      )}
+
       <div className={"rounded-lg border p-4 space-y-2"}>
         <span className={"font-bold"}>{t("article-page.keywords_header")}</span>
         <p className={"text-sm text-gray-400"}>
@@ -94,7 +100,10 @@ export function ArticleSidebar({ article }: ArticleSidebarProps) {
               </div>
               <div className={"flex flex-wrap gap-1 pt-1"}>
                 {displayedKeywords.map((keyword, keywordIndex) => (
-                  <Badge key={keywordIndex} className={"p-1.5 rounded-lg"}>
+                  <Badge
+                    key={keywordIndex}
+                    className={"p-1.5 rounded-lg bg-gray-700"}
+                  >
                     {keyword}
                   </Badge>
                 ))}

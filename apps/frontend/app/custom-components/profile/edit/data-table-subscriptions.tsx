@@ -20,8 +20,7 @@ import {
   type VisibilityState,
   type RowData,
 } from "@tanstack/react-table";
-import { Button } from "~/components/ui/button";
-import { ArrowUpDown, Search } from "lucide-react";
+import { ArrowDownUp, Search, SortAsc, SortDesc } from "lucide-react";
 import { Input } from "~/components/ui/input";
 import { Switch } from "~/components/ui/switch";
 import type { Subscription } from "../../../../types/model";
@@ -62,18 +61,8 @@ const getColumns = (
   {
     id: "data",
     accessorFn: (row) => row.data.name,
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          {name}
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      );
-    },
     cell: ({ row }) => <div className="lowercase">{row.getValue("data")}</div>,
+    header: name,
   },
   {
     accessorKey: "active",
@@ -93,6 +82,7 @@ const getColumns = (
       />
     ),
     enableSorting: true,
+    sortingFn: "basic",
   },
 ];
 
@@ -102,7 +92,9 @@ export function DataTableSubscriptions({
   setSubscriptions,
   isLoading = false,
 }: MailingTableProps) {
-  const [sorting, setSorting] = React.useState<SortingState>([]);
+  const [sorting, setSorting] = React.useState<SortingState>([
+    { id: "active", desc: true },
+  ]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     [],
   );
@@ -139,6 +131,11 @@ export function DataTableSubscriptions({
         const existingRow = currentInternalData.find(
           (d) => d.data.id === item.id,
         );
+
+        if (existingRow && existingRow.data === item) {
+          return existingRow;
+        }
+
         return {
           data: item,
           active: existingRow ? existingRow.active : item.is_subscribed,
@@ -242,20 +239,47 @@ export function DataTableSubscriptions({
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id} className="grid grid-cols-7">
               {headerGroup.headers.map((header) => {
+                const canSort = header.column.getCanSort();
+                const sortingState = header.column.getIsSorted();
+                const sortingIndex = header.column.getSortIndex();
                 return (
                   <TableHead
                     key={header.id}
+                    onClick={
+                      canSort
+                        ? header.column.getToggleSortingHandler()
+                        : undefined
+                    }
                     className={cn(
+                      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                      ((header.column.columnDef.meta as any)?.className ?? "") +
+                        (header.column.getCanSort()
+                          ? " cursor-pointer select-none"
+                          : ""),
                       "flex items-center",
                       header.id === "data" ? "col-span-6" : "col-span-1",
                     )}
                   >
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
+                    {header.isPlaceholder ? null : (
+                      <span className="me-1">
+                        {flexRender(
                           header.column.columnDef.header,
                           header.getContext(),
                         )}
+                      </span>
+                    )}
+                    {sortingIndex && sortingIndex >= 0 ? (
+                      <span>{sortingIndex + 1}</span>
+                    ) : undefined}
+                    {canSort ? (
+                      sortingState === "asc" ? (
+                        <SortAsc className="inline size-4" />
+                      ) : sortingState === "desc" ? (
+                        <SortDesc className="inline size-4" />
+                      ) : (
+                        <ArrowDownUp className="inline size-4 opacity-50" />
+                      )
+                    ) : null}
                   </TableHead>
                 );
               })}
