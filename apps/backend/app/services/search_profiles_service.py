@@ -522,7 +522,7 @@ class SearchProfileService:
 
         topics = list(topic_items.values())
 
-        entities_dict = await ArticleEntityRepository.get_entities_by_article(
+        entities_dict = await ArticleEntityRepository.get_entities_multilang_by_article(
             article.id
         )
 

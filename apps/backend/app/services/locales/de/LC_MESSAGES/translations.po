@@ -177,3 +177,9 @@ msgstr "Abend"
 
 msgid "Afternoon"
 msgstr "Nachmittag"
+
+msgid "This content is only available to"
+msgstr "Dieser Inhalt ist nur verfügbar für"
+
+msgid "subscribers"
+msgstr "Abonnenten"
