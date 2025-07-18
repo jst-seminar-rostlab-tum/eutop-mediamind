@@ -33,10 +33,46 @@ def create_full_articles_elements(news_items, dimensions, translator, styles):
             )
         )
 
+        # Use calculate_reading_time to get word count
+        word_count = (
+            calculate_reading_time(news.content, words_per_minute=1)
+            if news.content
+            else 0
+        )
+
+        # --- Custom topic/keyword formatting from match ---
+        match = getattr(news, "match", None)
+        if match and "topics" in match and match["topics"]:
+            topic = match["topics"][0]
+            # Format category as "Antibiotics: 53.75%"
+            category_str = (
+                f"{topic['topic_name']}: {topic['score']*100:.2f}%"
+            )
+            # Format keywords as "infection: 62.5%, immunity: 62.5%"
+            if topic.get("keywords"):
+                keywords_str = ", ".join(
+                    f"{kw['keyword_name']}: {kw['score']*100:.1f}%"
+                    for kw in topic["keywords"]
+                )
+            else:
+                keywords_str = ""
+        else:
+            category_str = getattr(news, "category", "") or translator(
+                "Unknown"
+            )
+            keywords_str = (
+                ", ".join(news.keywords)
+                if getattr(news, "keywords", None)
+                else ""
+            )
+
         # Wrap metadata in a styled table box
         metadata_text = f"""
         {translator('Published at')}: {news.published_at} |
-         {translator('Newspaper')}: {news.newspaper.name}
+         {translator('Newspaper')}: {news.newspaper.name} |
+         {translator('Words')}: {word_count} |
+         {translator('Keywords')}: {keywords_str} |
+         {translator('Category')}: {category_str}
                 """
         metadata_para = Paragraph(metadata_text, styles["metadata_style"])
         metadata_first = Table(
@@ -209,11 +245,7 @@ def create_full_articles_elements(news_items, dimensions, translator, styles):
                     styles["metadata_style"],
                 ),
                 Paragraph(
-                    (
-                        ", ".join(news.keywords)
-                        if news.keywords
-                        else translator("None")
-                    ),
+                    keywords_str if keywords_str else translator("None"),
                     styles["metadata_style"],
                 ),
             ],
@@ -273,8 +305,9 @@ def create_full_articles_elements(news_items, dimensions, translator, styles):
         combined_box = Table(
             metadata_rows,
             colWidths=[
-                (dimensions[0] - 4 * inch) * 0.25,
-                (dimensions[0] - 1.5 * inch) * 0.75,
+                (dimensions[0] - 4 * inch)
+                * 0.32,  # Make first column a bit bigger
+                (dimensions[0] - 1.5 * inch) * 0.68,
             ],
             style=TableStyle(
                 [
