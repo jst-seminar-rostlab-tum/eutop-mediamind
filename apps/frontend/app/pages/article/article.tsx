@@ -26,10 +26,14 @@ export function ArticlePage({
   const localizedHeadline = getLocalizedContent(article.article.headline, i18n);
   const localizedText = getLocalizedContent(article.article.text, i18n);
 
+  const onlySummary = !(
+    article.article.text?.["en"] && article.article.text?.["de"]
+  );
+
   return (
     <Layout>
       <div className="flex gap-15">
-        <div className="w-2/3 space-y-8">
+        <div className="w-2/3 space-y-4">
           <ArticleBreadcrumb
             searchProfileId={searchProfileId}
             searchProfileName={searchProfileName}
@@ -37,7 +41,12 @@ export function ArticlePage({
           />
           <ArticleBody
             title={localizedHeadline}
-            content={localizedText}
+            content={
+              onlySummary
+                ? getLocalizedContent(article.article.summary, i18n)
+                : localizedText
+            }
+            onlySummary={onlySummary}
             published_at={publishDateString}
             image_urls={article.article.image_urls}
             {...(article.article.authors?.length

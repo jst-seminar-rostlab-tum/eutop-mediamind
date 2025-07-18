@@ -236,7 +236,9 @@
     "event": "Ereignisse",
     "organization": "Organisationen",
     "citation": "Quellen",
-    "industry": "Industrien"
+    "industry": "Industrien",
+    "limited_content": "Begrenzter Inhalt verfügbar",
+    "limited_content_description": "Dieser Artikel zeigt nur eine Zusammenfassung anstelle des vollständigen Inhalts. Das Abonnement Ihrer Organisation berechtigt nicht zum Zugriff auf den vollständigen Inhalt. Für vollständigen Zugriff wenden Sie sich bitte an Ihren Administrator."
   },
 
   "role-badge": {

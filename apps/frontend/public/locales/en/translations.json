@@ -240,7 +240,9 @@
     "event": "Events",
     "organization": "Organizations",
     "citation": "Citations",
-    "industry": "Industries"
+    "industry": "Industries",
+    "limited_content": "Limited content available",
+    "limited_content_description": "This article displays only a summary in place of the full content. Your organization's subscription is not valid. For full access, please contact your administrator."
   },
 
   "role-badge": {
