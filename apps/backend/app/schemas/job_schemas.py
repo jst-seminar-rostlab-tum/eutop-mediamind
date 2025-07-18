@@ -33,3 +33,17 @@ class PipelineJobRequest(BaseModel):
         default_factory=datetime.now,
         description="End time for the pipeline job, defaults to now",
     )
+
+
+class RSSJobRequest(BaseModel):
+    start: datetime = Field(
+        default_factory=lambda: datetime.combine(
+            datetime.today(), datetime.min.time()
+        ),
+        description="Start time for the RSS crawling job, defaults to the \
+        start of today",
+    )
+    end: datetime = Field(
+        default_factory=datetime.now,
+        description="End time for the RSS crawling job, defaults to now",
+    )
