@@ -40,7 +40,8 @@
     "edit_profile_toast": "You want to edit profiles and more? Log in and experience all features!",
     "reports_toast": "You want to view reports and more? Log in and experience the full functionality!",
     "delete_profile_toast": "You want to delete profiles and more? Log in and experience the full functionality!",
-    "checkout_sp_toast": "You want to see the search profile and more? Check out the search profile preview or log in!"
+    "checkout_sp_toast": "You want to see the search profile and more? Check out the search profile preview or log in!",
+    "original_toast": "You want to access articles and more? Log in and experience the full functionality!"
   },
 
   "mock_data": {

@@ -40,7 +40,8 @@
     "edit_profile_toast": "Sie wollen Profile bearbeiten und mehr? Loggen Sie sich ein und genießen Sie alle Funktionalitäten!",
     "reports_toast": "Sie wollen Berichte einsehen und mehr? Loggen Sie sich ein und genießen Sie alle Funktionalitäten!",
     "delete_profile_toast": "Sie wollen Profile löschen und mehr? Loggen Sie sich ein und genießen Sie alle Funktionalitäten!",
-    "checkout_sp_toast": "Sie wollen das Such Profil sehen und mehr? Probieren Sie die Such Profil vorschau oder Loggen Sie sich ein!"
+    "checkout_sp_toast": "Sie wollen das Such Profil sehen und mehr? Probieren Sie die Such Profil vorschau oder Loggen Sie sich ein!",
+    "original_toast": "Sie wollen Artikel aufrufen und mehr? Loggen Sie sich ein und genießen Sie alle Funktionalitäten!"
   },
 
   "mock_data": {

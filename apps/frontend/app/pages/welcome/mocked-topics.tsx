@@ -57,18 +57,31 @@ export function MockedTopics({ profile, setProfile }: TopicsProps) {
 
       const sourceList = isEnvironment ? environmentKeywords : carKeywords;
 
-      const shuffled = [...sourceList].sort(() => 0.5 - Math.random());
-      const suggestions = shuffled.slice(0, 5);
-
-      const filteredSuggestions = suggestions.filter(
+      // Filter out already selected keywords
+      const filtered = sourceList.filter(
         (suggestion) =>
           !keywords.some(
             (keyword) => keyword.toLowerCase() === suggestion.toLowerCase(),
           ),
       );
-      setAiSuggestions(filteredSuggestions);
+
+      // Shuffle
+      const shuffled = [...filtered].sort(() => 0.5 - Math.random());
+
+      // Ensure 3 items (pad if needed)
+      const suggestions = shuffled.slice(0, 3);
+      while (suggestions.length < 3 && shuffled.length < sourceList.length) {
+        // Try to pad with other unique values from sourceList
+        const extras = sourceList.filter(
+          (kw) => !keywords.includes(kw) && !suggestions.includes(kw),
+        );
+        if (extras.length === 0) break;
+        suggestions.push(extras[Math.floor(Math.random() * extras.length)]);
+      }
+
+      setAiSuggestions(suggestions.slice(0, 3));
       setIsLoadingSuggestions(false);
-    }, 2000); // 2 second delay to mock AI generating process
+    }, 2000); // simulate delay
   };
 
   useEffect(() => {
