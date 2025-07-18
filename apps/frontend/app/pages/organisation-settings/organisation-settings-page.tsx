@@ -88,7 +88,7 @@ export const OrganisationSettingsPage = ({
 
   return (
     <>
-      <Card className="px-6 py-0 pb-2 mb-20 gap-4 overflow-hidden">
+      <Card className="px-6 py-0 pb-2 mb-4 gap-4 overflow-hidden">
         <div className="mt-4 flex flex-col overflow-hidden">
           <Label className="text-lg font-semibold mt-2">
             <Link2 className="mr-2" />
