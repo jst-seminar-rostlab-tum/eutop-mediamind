@@ -1,3 +1,7 @@
+import io
+import logging
+
+import requests
 from reportlab.lib.units import inch
 from reportlab.platypus import (
     Image,
@@ -12,6 +16,8 @@ from reportlab.platypus.flowables import AnchorFlowable
 from .colors import pdf_colors
 from .markdown_utils import markdown_blocks_to_paragraphs
 from .utils import calculate_reading_time
+
+logger = logging.getLogger(__name__)
 
 
 def create_full_articles_elements(news_items, dimensions, translator, styles):
@@ -48,6 +54,24 @@ def create_full_articles_elements(news_items, dimensions, translator, styles):
             ),
         )
         story.append(metadata_first)
+
+        # Add image from newsitem.image_url
+        if getattr(news, "image_url", None):
+            try:
+                # Download the image from the URL
+                response = requests.get(news.image_url, timeout=10)
+                response.raise_for_status()
+                img_data = io.BytesIO(response.content)
+                # Add the image to the story
+                story.append(
+                    Image(img_data, width=4 * inch, height=2.5 * inch)
+                )
+                story.append(Spacer(1, 0.15 * inch))
+            except Exception as e:
+                logger.warning(
+                    f"Could not load image for article '{news.title}': {e}"
+                )
+                pass
 
         # Summary
         story.append(

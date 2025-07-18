@@ -99,6 +99,11 @@ class PDFService:
                     if article.authors
                     else translator("Unknown")
                 ),
+                image_url=(
+                    article.image_url
+                    if hasattr(article, "image_url")
+                    else None
+                ),
                 published_at=published_at_str,
                 language=article.language if article.language else None,
                 category=(
@@ -117,7 +122,6 @@ class PDFService:
                 subscription_id=article.subscription.id,
                 newspaper=article.subscription or translator("Unknown"),
                 keywords=[keyword.name for keyword in article.keywords],
-                image_url=None,
                 persons=persons,
                 organizations=organizations,
                 industries=industries,
