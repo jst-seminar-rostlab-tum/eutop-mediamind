@@ -4,6 +4,9 @@ variable "vpc_id" { type = string }
 variable "cluster_name" { type = string }
 variable "vpc_cidr_block" { type = string }
 variable "api_key" { type = string }
+variable "alb_target_group_arn" { type = string }
+variable "alb_listener_arn" { type = string }
+variable "alb_security_group_id" { type = string }
 
 resource "aws_security_group" "qdrant" {
   name_prefix = "${var.service_name}-qdrant-sg-"
@@ -11,10 +14,10 @@ resource "aws_security_group" "qdrant" {
   vpc_id      = var.vpc_id
 
   ingress {
-    from_port   = 6333
-    to_port     = 6333
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    from_port       = 6333
+    to_port         = 6333
+    protocol        = "tcp"
+    security_groups = [var.alb_security_group_id]
   }
 
   ingress {
@@ -31,6 +34,7 @@ resource "aws_security_group" "qdrant" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 }
+
 
 resource "aws_iam_role" "qdrant_task_execution_role" {
   name               = "${var.service_name}-qdrant-task-execution"
@@ -125,6 +129,11 @@ resource "aws_ecs_service" "qdrant" {
     subnets          = var.subnet_ids
     assign_public_ip = true
     security_groups  = [aws_security_group.qdrant.id]
+  }
+  load_balancer {
+    target_group_arn = var.alb_target_group_arn
+    container_name   = "qdrant"
+    container_port   = 6333
   }
   depends_on = [aws_cloudwatch_log_group.qdrant]
 }

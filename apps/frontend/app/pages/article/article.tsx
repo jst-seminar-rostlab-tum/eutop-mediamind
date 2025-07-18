@@ -48,6 +48,7 @@ export function ArticlePage({
             }
             onlySummary={onlySummary}
             published_at={publishDateString}
+            image_urls={article.article.image_urls}
             {...(article.article.authors?.length
               ? { author: article.article.authors.join(", ") }
               : {})}

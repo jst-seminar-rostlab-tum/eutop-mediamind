@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-24.04
     defaults:
       run:
-        working-directory: ./apps/api
+        working-directory: ./apps/backend
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
