@@ -232,7 +232,15 @@
     "show_less": "Weniger anzeigen",
     "no_summary": "Keine Zusammenfassung verfügbar.",
     "entities_text": "Zeigt Entitäten an, die mit dem Artikel in Zusammenhang stehen.",
-    "entities": "Entitäten"
+    "entities": "Entitäten",
+    "no_entities": "Keine Einträge in dieser Kategorie.",
+    "person": "Personen",
+    "event": "Ereignisse",
+    "organization": "Organisationen",
+    "citation": "Quellen",
+    "industry": "Industrien",
+    "limited_content": "Begrenzter Inhalt verfügbar",
+    "limited_content_description": "Dieser Artikel zeigt nur eine Zusammenfassung anstelle des vollständigen Inhalts. Das Abonnement Ihrer Organisation berechtigt nicht zum Zugriff auf den vollständigen Inhalt. Für vollständigen Zugriff wenden Sie sich bitte an Ihren Administrator."
   },
 
   "role-badge": {

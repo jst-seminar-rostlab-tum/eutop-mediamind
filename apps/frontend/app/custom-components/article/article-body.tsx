@@ -1,4 +1,4 @@
-import { Calendar, FileClock, User } from "lucide-react";
+import { Calendar, FileClock, Info, User } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { useState } from "react";
 import {
@@ -8,6 +8,8 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "~/components/ui/carousel";
+import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
+import { useTranslation } from "react-i18next";
 
 interface ArticleBodyProps {
   title: string;
@@ -15,6 +17,7 @@ interface ArticleBodyProps {
   published_at: string;
   author?: string;
   image_urls: string[];
+  onlySummary: boolean;
 }
 
 const calculateReadingTime = (text: string): string => {
@@ -35,8 +38,11 @@ export function ArticleBody({
   published_at,
   author,
   image_urls,
+  onlySummary,
 }: ArticleBodyProps) {
   const readingTime = calculateReadingTime(content);
+
+  const { t } = useTranslation();
   const validImages = image_urls.filter((url) => url && url.trim() !== "");
   const [loadedImages, setLoadedImages] = useState<string[]>([]);
 
@@ -71,6 +77,15 @@ export function ArticleBody({
           {readingTime}
         </div>
       </div>
+      {onlySummary && (
+        <Alert variant="destructive">
+          <Info />
+          <AlertTitle>{t("article-page.limited_content")}</AlertTitle>
+          <AlertDescription>
+            {t("article-page.limited_content_description")}
+          </AlertDescription>
+        </Alert>
+      )}
 
       <div style={{ display: "none" }}>
         {validImages.map((image_url, index) => (
