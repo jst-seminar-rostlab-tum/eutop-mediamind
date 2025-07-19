@@ -32,14 +32,14 @@ export function Mailing({ profile, setProfile }: MailingProps): JSX.Element {
         </TabsList>
         <TabsContent className="overflow-hidden" value={"internal"}>
           <DataTableMailing
-            name={t("mailing.Internal") + "e " + "Email"}
+            name={t("mailing.Internal") + " Email"}
             dataArray={profile.organization_emails}
             setDataArray={setInternalMails}
           />
         </TabsContent>
         <TabsContent value={"external"}>
           <DataTableMailing
-            name={t("mailing.External") + "e " + "Email"}
+            name={t("mailing.External") + " Email"}
             dataArray={profile.profile_emails}
             setDataArray={setExternalMails}
           />

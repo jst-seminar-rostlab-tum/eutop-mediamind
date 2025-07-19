@@ -138,10 +138,10 @@
   "mailing": {
     "header": "Email Liste",
     "info": "Konfigurieren sie ihre Kontakte für den Pressemitteilungs Verteiler",
-    "Internal": "Intern",
-    "External": "Extern",
-    "internal": "intern",
-    "external": "extern",
+    "Internal": "Interne",
+    "External": "Externe",
+    "internal": "interne",
+    "external": "externe",
     "filter": "Filter {{type}} Emails"
   },
 
