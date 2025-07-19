@@ -180,7 +180,7 @@ def run_selenium_code(
             #     )
 
         if subscription.paywall and not login_success:
-            scraper.logger.error(
+            scraper.logger.warning(
                 f"Login failed for subscription {subscription.name}. "
                 "Skipping scraping."
             )
@@ -193,7 +193,7 @@ def run_selenium_code(
         scraped_articles = _scrape_articles(scraper, driver, articles)
         return scraped_articles
     except Exception as e:
-        scraper.logger.error(
+        scraper.logger.warning(
             f"Error during scraping for subscription {subscription.name}: {e}"
         )
         return _scraper_error_handling(articles, str(e))
@@ -210,7 +210,7 @@ def _handle_login_if_needed(subscription, scraper, driver, wait) -> bool:
         if login_success:
             scraper.logger.info(f"Login successful for {subscription.name}")
         else:
-            scraper.logger.error(
+            scraper.logger.warning(
                 f"Login failed for {subscription.name}. Skipping scraping."
             )
         return login_success
@@ -271,7 +271,7 @@ def _scrape_articles(scraper, driver, new_articles):
             )
             time.sleep(random.uniform(1, 3))
         except Exception as e:
-            scraper.logger.error(f"Error scraping article {article.url}: {e}")
+            scraper.logger.warning(f"Error scraping article {article.url}: {e}")
             article.status = ArticleStatus.ERROR
             article.note = str(e)
             scraped_articles.append(article)
@@ -289,7 +289,7 @@ def _handle_logout_and_cleanup(
                     driver=driver, wait=wait, subscription=subscription
                 )
             except Exception as e:
-                scraper.logger.error(
+                scraper.logger.warning(
                     f"Error logging out for subscription "
                     f"{subscription.name}: {e}"
                 )

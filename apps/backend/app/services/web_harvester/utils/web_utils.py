@@ -164,12 +164,12 @@ def click_element(driver, wait, selector_xpath, selector_name):
                 logger.info(f"Element {selector_name} clicked")
                 return True
             except Exception:
-                logger.error(
+                logger.warning(
                     f"Was not possible to click element {selector_name}"
                 )
                 return False
     except Exception:
-        logger.error(f"Element to click {selector_name} not found")
+        logger.warning(f"Element to click {selector_name} not found")
         return False
 
 
@@ -204,13 +204,13 @@ def click_shadow_element(
                 )
                 return True
             except Exception:
-                logger.error(
+                logger.warning(
                     f"Was not possible to click element {element_name} "
                     f"in {shadow_name}"
                 )
                 return False
     except Exception:
-        logger.error(
+        logger.warning(
             f"Element {element_name} in shadow root {shadow_name} not found"
         )
         return False
@@ -225,7 +225,7 @@ def change_frame(driver, wait, selector_xpath, selector_name):
         logger.info(f"Changed to iframe: {selector_name}")
         return True
     except Exception:
-        logger.error(f"Error when changing to iframe: {selector_name}")
+        logger.warning(f"Error when changing to iframe: {selector_name}")
         return False
 
 
@@ -246,7 +246,7 @@ def scroll_to_element(driver, wait, selector_xpath, selector_name):
         logger.info(f"Scrolled to element {selector_name}")
         return True
     except Exception:
-        logger.error(f"Failed to scroll to element {selector_name}")
+        logger.warning(f"Failed to scroll to element {selector_name}")
         return False
 
 
@@ -359,7 +359,7 @@ def submit_login_credentials(driver, wait, paper, username, password):
         if not click_element(
             driver, wait, paper[second_button_key], second_button_key
         ):
-            logger.error("Failed to click second submit button")
+            logger.warning("Failed to click second submit button")
             return False
         return True
     elif paper.get(first_button_key):
@@ -369,7 +369,7 @@ def submit_login_credentials(driver, wait, paper, username, password):
         if not click_element(
             driver, wait, paper[first_button_key], first_button_key
         ):
-            logger.error("Failed to click submit button")
+            logger.warning("Failed to click submit button")
             return False
         return True
     driver.switch_to.default_content()  # Always switch back to main context
@@ -426,7 +426,7 @@ def hardcoded_logout(driver, wait, subscription: Subscription):
     logout_key = "logout_button"
     if paper.get(logout_key):
         if not click_element(driver, wait, paper[logout_key], logout_key):
-            logger.error("Failed to logout from page")
+            logger.warning("Failed to logout from page")
             return False
         return True
 
@@ -500,13 +500,13 @@ def safe_page_load(driver, url, max_retries=2):
                         pass
                     continue
                 else:
-                    logger.error(
+                    logger.warning(
                         f"Frame detachment error after {max_retries} attempts"
                     )
                     raise e
             else:
                 # Other errors - re-raise immediately
-                logger.error(f"Page load error: {e} for {url}")
+                logger.warning(f"Page load error: {e} for {url}")
                 continue
 
     return False
@@ -530,7 +530,7 @@ def safe_execute_script(driver, script, *args):
             try:
                 return driver.execute_script(script, *args)
             except Exception as retry_e:
-                logger.error(f"Script execution failed after retry: {retry_e}")
+                logger.warning(f"Script execution failed after retry: {retry_e}")
                 raise retry_e
         else:
             raise e

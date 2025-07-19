@@ -87,7 +87,7 @@ class ArticleCleaner:
                 return article, rewritten
             return None
         except Exception as e:
-            logger.error(f"Failed to clean article '{article.title}': {e}")
+            logger.warning(f"Failed to clean article '{article.title}': {e}")
             return None
 
     async def clean_plain_text(self, text: str) -> str:
