@@ -41,8 +41,16 @@ We use Amazon Elastic Container Service (ECS) to run our Docker containers. The 
 
 These services run the main application. The `mediamind-service` is the production version, while `mediamind-service-dev` is used for development and testing. They can be reached via the following URLs:
 
-- Production: `https://mediamind.csee.tech`
-- Development: `https://dev.mediamind.csee.tech`
+- Production: `https://api.mediamind.csee.tech`
+- Development: `https://dev.api.mediamind.csee.tech`
+
+To simplify local development and testing, the following proxy routes are available via [mediamind.csee.tech](https://mediamind.csee.tech):
+
+- `/api/*` → `api.mediamind.csee.tech/api/*`
+- `/dev/api/*` → `dev.api.mediamind.csee.tech/api/*`
+
+**Example:**  
+A request to [mediamind.csee.tech/dev/api/v1/healthcheck](https://mediamind.csee.tech/dev/api/v1/healthcheck) is proxied to [dev.api.mediamind.csee.tech/api/v1/healthcheck](https://dev.api.mediamind.csee.tech/api/v1/healthcheck)
 
 ### mediamind-scheduler and mediamind-scheduler-dev
 
