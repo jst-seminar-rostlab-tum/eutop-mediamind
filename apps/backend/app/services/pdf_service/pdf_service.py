@@ -1,13 +1,12 @@
 # flake8: noqa: E501
 # Refactored PDFService to use split modules
 import uuid
-from datetime import datetime
 from functools import partial
 from io import BytesIO
 from typing import Callable, List
 
 from reportlab.lib.pagesizes import A4
-from reportlab.lib.units import inch
+from reportlab.lib.units import cm
 from reportlab.platypus import (
     BaseDocTemplate,
     Frame,
@@ -18,16 +17,12 @@ from reportlab.platypus import (
 
 from app.core.logger import get_logger
 from app.models.entity import EntityType
-from app.models.search_profile import SearchProfile
 from app.repositories.article_repository import ArticleRepository
 from app.repositories.entity_repository import ArticleEntityRepository
 from app.services.translation_service import ArticleTranslationService
 
-# PDFService uses split modules
-from ...repositories.search_profile_repository import SearchProfileRepository
-from .colors import pdf_colors
-
 # Connect the external functions as a static methods of PDFService
+from .colors import pdf_colors
 from .cover_elements import draw_cover_elements as _draw_cover_elements
 from .fonts import register_fonts
 from .full_articles_elements import create_full_articles_elements
@@ -49,7 +44,6 @@ class PDFService:
         search_profile_id: uuid.UUID,
         timeslot: str,
         language: str,
-        match_stop_time: datetime,
     ) -> bytes:
         # Obtain translator for the specified language
         if timeslot not in ["morning", "afternoon", "evening"]:
@@ -106,6 +100,11 @@ class PDFService:
                     if article.authors
                     else translator("Unknown")
                 ),
+                image_url=(
+                    article.image_url
+                    if hasattr(article, "image_url")
+                    else None
+                ),
                 published_at=published_at_str,
                 language=article.language if article.language else None,
                 category=(
@@ -124,7 +123,6 @@ class PDFService:
                 subscription_id=article.subscription.id,
                 newspaper=article.subscription or translator("Unknown"),
                 keywords=[keyword.name for keyword in article.keywords],
-                image_url=None,
                 persons=persons,
                 organizations=organizations,
                 industries=industries,
@@ -132,16 +130,10 @@ class PDFService:
                 citations=citations,
             )
             news_items.append(news_item)
-        search_profile = (
-            await SearchProfileRepository.get_search_profile_by_id(
-                search_profile_id
-            )
-        )
-        return PDFService.draw_pdf(search_profile, news_items, translator)
+        return PDFService.draw_pdf(news_items, translator)
 
     @staticmethod
     def draw_pdf(
-        search_profile: SearchProfile,
         news_items: List[NewsItem],
         translator: Callable[[str], str],
     ) -> bytes:
@@ -150,9 +142,10 @@ class PDFService:
         # Logging which articles, if they have summaries and keywords
         for news in news_items:
             logger.debug(
-                f"Processing News item: {news.id}, Summary:  \
-                {True if news.summary else False}, Keywords:  \
-                {True if news.keywords else 'False'}"
+                f"""Processing News item: {news.id}, Summary:\
+                {True if news.summary else False}, Keywords:\
+                {True if news.keywords else 'False'}
+                """
             )
 
         # Prepare all flowable elements for the PDF
@@ -186,7 +179,7 @@ class PDFService:
 
         buffer = BytesIO()
         width, height = dimensions
-        margin = inch
+        margin = 1.5 * cm
 
         # Use a single frame for simplicity, as elements can use PageBreaks
         frame = Frame(
@@ -198,7 +191,7 @@ class PDFService:
             margin,
             margin,
             width - 2 * margin,
-            height - 2 * margin,
+            height - 2.5 * margin,
             id="full_article",
         )
 
@@ -224,6 +217,7 @@ class PDFService:
             topMargin=margin,
             bottomMargin=margin,
         )
+
         on_page = partial(PDFService.draw_header_footer, translator=translator)
         doc.addPageTemplates(
             [

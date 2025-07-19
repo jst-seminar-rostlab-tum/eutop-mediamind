@@ -18,10 +18,10 @@ def register_fonts():
         )
         return False
     fonts = {
-        "DVS": "DejaVuSans.ttf",
-        "DVS-Bold": "DejaVuSans-Bold.ttf",
-        "DVS-Oblique": "DejaVuSans-Oblique.ttf",
-        "DVS-BoldOblique": "DejaVuSans-BoldOblique.ttf",
+        "Regular": "Inter_18pt-Regular.ttf",
+        "Bold": "Inter_18pt-Bold.ttf",
+        "Oblique": "Inter_18pt-Italic.ttf",
+        "BoldOblique": "Inter_18pt-BoldItalic.ttf",
     }
     for font_name, file_name in fonts.items():
         font_path = os.path.join(font_dir, file_name)
@@ -33,8 +33,8 @@ def register_fonts():
                 f"not display correctly."
             )
     # Add Mapping converts the html <bold> <italic> tags to the font styles
-    addMapping("DVS", 0, 0, "DVS")
-    addMapping("DVS", 1, 0, "DVS-Bold")
-    addMapping("DVS", 0, 1, "DVS-Oblique")
-    addMapping("DVS", 1, 1, "DVS-BoldOblique")
+    addMapping("Regular", 0, 0, "Regular")
+    addMapping("Regular", 1, 0, "Bold")
+    addMapping("Regular", 0, 1, "Oblique")
+    addMapping("Regular", 1, 1, "BoldOblique")
     return True

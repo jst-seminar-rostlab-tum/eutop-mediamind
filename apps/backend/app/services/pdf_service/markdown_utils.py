@@ -10,18 +10,46 @@ def markdown_to_html(text: str) -> str:
     HTML tags that ReportLab can use with the fonts.py "addMappings".
     Does NOT handle headings or block structure.
     """
-    # Bold-italic: ***text*** or ___text___
-    text = re.sub(r"\*\*\*(.+?)\*\*\*", r"<b><i>\1</i></b>", text)
-    text = re.sub(r"___(.+?)___", r"<b><i>\1</i></b>", text)
-    # Bold: **text** or __text__
-    text = re.sub(r"\*\*(.+?)\*\*", r"<b>\1</b>", text)
-    text = re.sub(r"__(.+?)__", r"<b>\1</b>", text)
-    # Italic: *text* or _text_
-    text = re.sub(r"\*(.+?)\*", r"<i>\1</i>", text)
-    text = re.sub(r"_(.+?)_", r"<i>\1</i>", text)
-    # Replace markdown line breaks with <br/>
+    # Convert markdown to HTML suitable for ReportLab Paragraphs
+    # Only allow <b>, <i>, <br/>, <para> tags
+    # This implementation avoids overlapping tags (e.g., <b><i>text</b></i>)
+    # 'text' is already the argument; no need to reassign
+    # Replace < and > to avoid HTML injection
+    text = text.replace("<", "&lt;").replace(">", "&gt;")
+
+    # To avoid nested/overlapping tags, parse markdown in order:
+    # bold-italic, bold, italic, and do not allow overlapping
+    # Replace bold-italic (***text*** or ___text___)
+    text = re.sub(r"(\*\*\*|___)(.+?)(\1)", r"<b><i>\2</i></b>", text)
+    # Replace bold (**text** or __text__)
+    text = re.sub(r"(\*\*|__)(.+?)(\1)", r"<b>\2</b>", text)
+    # Replace italic (*text* or _text_)
+    text = re.sub(r"(\*|_)(.+?)(\1)", r"<i>\2</i>", text)
+
+    # Remove any remaining asterisks/underscores (malformed markdown)
+    text = text.replace("*", "").replace("_", "")
+
+    # Replace newlines with <br/>
     text = text.replace("\n", "<br/>")
-    return text
+
+    # Remove duplicate tags
+    text = re.sub(r"(<i>)+", "<i>", text)
+    text = re.sub(r"(</i>)+", "</i>", text)
+    text = re.sub(r"(<b>)+", "<b>", text)
+    text = re.sub(r"(</b>)+", "</b>", text)
+
+    # Remove overlapping and mis-nested tags
+    # Remove <b><i>...</i></i></b> => <b><i>...</i></b>
+    text = re.sub(r"<b><i>(.*?)</i></i></b>", r"<b><i>\1</i></b>", text)
+    # Remove <b><i>...</b></i></b> => <b><i>...</i></b>
+    text = re.sub(r"<b><i>(.*?)</b></i></b>", r"<b><i>\1</i></b>", text)
+    # Remove <b><i>...</i></b></i> => <b><i>...</i></b>
+    text = re.sub(r"<b><i>(.*?)</i></b></i>", r"<b><i>\1</i></b>", text)
+    # Remove <b><i>...</b></b></i> => <b><i>...</i></b>
+    text = re.sub(r"<b><i>(.*?)</b></b></i>", r"<b><i>\1</i></b>", text)
+
+    # Wrap in <para> for ReportLab
+    return f"<para>{text}</para>"
 
 
 def _flush_paragraph(paragraph, blocks):
@@ -47,6 +75,8 @@ def parse_markdown_blocks(text: str):
     list_type = None
     ul_pattern = re.compile(r"^\s*([-*+])\s+(.*)")
     ol_pattern = re.compile(r"^\s*(\d+)\.\s+(.*)")
+    heading_pattern = re.compile(r"^(#+)\s+(.*)")
+
     for line in lines + [None]:  # Add None to flush last block
         if line is None or re.match(r"^\s*$", line):
             _flush_paragraph(paragraph, blocks)
@@ -55,9 +85,11 @@ def parse_markdown_blocks(text: str):
                 list_items = []
                 list_type = None
             continue
-        heading_match = re.match(r"^(#{1,6})\s+(.*)", line)
+
+        heading_match = heading_pattern.match(line)
         ul_match = ul_pattern.match(line)
         ol_match = ol_pattern.match(line)
+
         if heading_match:
             _flush_paragraph(paragraph, blocks)
             if list_items:

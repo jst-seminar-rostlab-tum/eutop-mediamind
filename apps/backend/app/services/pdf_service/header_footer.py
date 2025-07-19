@@ -14,7 +14,7 @@ def draw_header_footer(canvas, doc, translator):
 
     style = ParagraphStyle(
         name="HeaderTitle",
-        fontName="DVS-BoldOblique",
+        fontName="BoldOblique",
         fontSize=10,
         textColor=pdf_colors["main"],
         leading=12,
@@ -46,7 +46,7 @@ def draw_header_footer(canvas, doc, translator):
     table.drawOn(canvas, inch, height - inch + 20)
 
     # --- Draw page number in footer ---
-    canvas.setFont("DVS", 10)
+    canvas.setFont("Regular", 10)
     canvas.setFillColor(pdf_colors["main"])
     page_str = translator("Page") + f" {doc.page}"
     canvas.drawRightString(width - inch, 0.4 * inch, page_str)
