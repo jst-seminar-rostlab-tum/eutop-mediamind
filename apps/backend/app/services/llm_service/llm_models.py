@@ -1,6 +1,16 @@
 from enum import Enum
 
+from app.core.config import get_configs
 
-class LLMModels(Enum):
-    openai_4o = "gpt-4o-2024-08-06"
-    openai_4o_mini = "gpt-4o-mini-2024-07-18"
+configs = get_configs()
+
+
+class TaskModelMapping(Enum):
+
+    TEST = configs.MODEL_TEST
+    ARTICLE_SUMMARY = configs.MODEL_ARTICLE_SUMMARY
+    CHATBOT = configs.MODEL_CHATBOT
+    TRANSLATION = configs.MODEL_TRANSLATION
+    LOGIN_AUTOMATION = configs.MODEL_LOGIN_AUTOMATION
+    ARTICLE_CLEANER = configs.MODEL_ARTICLE_CLEANER
+    KEYWORD_SUGGESTION = configs.MODEL_KEYWORD_SUGGESTION
