@@ -310,7 +310,7 @@
 
   "crawler_stats": {
     "title": "Crawler Statistiken",
-    "subscription": "Subscription",
+    "source": "Quelle",
     "date": "Datum",
     "successful": "Erfolgreich",
     "attempted": "Versucht",

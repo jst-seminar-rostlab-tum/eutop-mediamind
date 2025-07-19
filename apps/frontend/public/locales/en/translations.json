@@ -314,7 +314,7 @@
 
   "crawler_stats": {
     "title": "Crawler Stats",
-    "subscription": "Subscription",
+    "source": "Source",
     "date": "Date",
     "successful": "Successful",
     "attempted": "Attempted",
