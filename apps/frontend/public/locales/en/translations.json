@@ -14,6 +14,7 @@
   "select_date": "Select Date",
   "yes": "Yes",
   "no": "No",
+  "Save": "Save",
 
   "breadcrumb_home": "Home",
 
@@ -164,6 +165,8 @@
     "header": "Admin Settings",
     "organizations": "Organizations",
     "subscriptions": "Subscriptions",
+    "organization": "Organization",
+    "subscription": "Subscription",
     "orga_header": "Manage Organizations",
     "orga_text": "Make changes to your Organizations here. You can add, edit or delete them",
     "subs_header": "Manage Subscriptions",
