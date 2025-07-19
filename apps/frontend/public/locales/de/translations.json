@@ -177,7 +177,8 @@
     "no_user": "Keine Benutzer gefunden.",
     "no_results": "Keine Ergebnisse.",
     "orgas_error": "Laden der Organisationen fehlgeschlagen",
-    "subs_error": "Laden der Abonnements fehlgeschlagen"
+    "subs_error": "Laden der Abonnements fehlgeschlagen",
+    "search_user": "Nutzer suchen..."
   },
 
   "organization-dialog": {
