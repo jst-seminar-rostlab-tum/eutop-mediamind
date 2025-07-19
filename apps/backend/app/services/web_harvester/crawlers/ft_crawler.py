@@ -146,7 +146,7 @@ class FtCrawler(NewsAPICrawler):
             return True
 
         except Exception as e:
-            logger.error(f"Login failed: {e}")
+            logger.warning(f"Login failed: {e}")
             return False
 
     async def _handle_login_with_cookies(
@@ -182,7 +182,7 @@ class FtCrawler(NewsAPICrawler):
 
             login_success = await self._perform_login(page)
             if not login_success:
-                logger.error("Login failed")
+                logger.warning("Login failed")
 
         return page
 
@@ -224,7 +224,7 @@ class FtCrawler(NewsAPICrawler):
         # Ensure login before main crawling
         login_success = await self._ensure_login()
         if not login_success:
-            logger.error("Failed to ensure login, aborting crawling")
+            logger.warning("Failed to ensure login, aborting crawling")
             return []
         browser_config, config = self._setup_crawler_config()
         crawler = AsyncWebCrawler(config=browser_config)
@@ -257,7 +257,7 @@ class FtCrawler(NewsAPICrawler):
                             f"{result.error_message}"
                         )
             except Exception as e:
-                logger.error(f"Error crawling article: {e}")
+                logger.warning(f"Error crawling article: {e}")
 
         await crawler.close()
         return enriched_articles
@@ -284,11 +284,11 @@ class FtCrawler(NewsAPICrawler):
             if results and len(results) > 0:
                 return True
             else:
-                logger.error("Login check failed")
+                logger.warning("Login check failed")
                 return False
 
         except Exception as e:
-            logger.error(f"Error during login check: {e}")
+            logger.warning(f"Error during login check: {e}")
             try:
                 await crawler.close()
             except Exception:

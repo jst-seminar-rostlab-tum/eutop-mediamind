@@ -194,7 +194,7 @@ class EuramsCrawler:
             return article
 
         except Exception as e:
-            logger.error(f"Failed to process article {result.url}: {e}")
+            logger.warning(f"Failed to process article {result.url}: {e}")
             return None
 
     async def _handle_cookie_consent(
@@ -271,7 +271,7 @@ class EuramsCrawler:
             return page_articles, has_out_of_range_article
 
         except Exception as e:
-            logger.error(f"Error crawling page {page_num}: {e}")
+            logger.warning(f"Error crawling page {page_num}: {e}")
             return [], False
 
     async def crawl_urls_async(self) -> List[Article]:

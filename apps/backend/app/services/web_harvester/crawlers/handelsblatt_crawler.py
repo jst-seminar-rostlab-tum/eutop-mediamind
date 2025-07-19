@@ -97,7 +97,7 @@ class HandelsblattCrawler(NewsAPICrawler):
             return True
 
         except Exception as e:
-            logger.error(f"Login failed: {e}")
+            logger.warning(f"Login failed: {e}")
             return False
 
     def _setup_crawler_config(self):
@@ -154,7 +154,7 @@ class HandelsblattCrawler(NewsAPICrawler):
                             f"{result.error_message}"
                         )
             except Exception as e:
-                logger.error(f"Error crawling article: {e}")
+                logger.warning(f"Error crawling article: {e}")
 
         await crawler.close()
 
