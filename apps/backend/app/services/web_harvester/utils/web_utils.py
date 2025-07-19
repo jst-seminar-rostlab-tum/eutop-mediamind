@@ -530,7 +530,9 @@ def safe_execute_script(driver, script, *args):
             try:
                 return driver.execute_script(script, *args)
             except Exception as retry_e:
-                logger.warning(f"Script execution failed after retry: {retry_e}")
+                logger.warning(
+                    f"Script execution failed after retry: {retry_e}"
+                )
                 raise retry_e
         else:
             raise e

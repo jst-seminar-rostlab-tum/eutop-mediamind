@@ -463,7 +463,9 @@ class LoginLLM:
                     continue
                 LLM_result = LoginLLM._llm_response_to_json(resp)
                 if LLM_result is None:
-                    logger.warning("Skipping response due to JSON parse error.")
+                    logger.warning(
+                        "Skipping response due to JSON parse error."
+                    )
                     continue
                 updated_config = LoginLLM._add_new_keys_to_config(
                     LLM_result, updated_config

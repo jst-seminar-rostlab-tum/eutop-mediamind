@@ -271,7 +271,9 @@ def _scrape_articles(scraper, driver, new_articles):
             )
             time.sleep(random.uniform(1, 3))
         except Exception as e:
-            scraper.logger.warning(f"Error scraping article {article.url}: {e}")
+            scraper.logger.warning(
+                f"Error scraping article {article.url}: {e}"
+            )
             article.status = ArticleStatus.ERROR
             article.note = str(e)
             scraped_articles.append(article)
