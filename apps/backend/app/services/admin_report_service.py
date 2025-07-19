@@ -9,6 +9,9 @@ from apps.backend.app.services.crawl_stats_pdf_service import (
 )
 from apps.backend.app.services.email_service import EmailService
 
+from app.core.config import get_configs
+
+configs = get_configs()
 logger = get_logger(__name__)
 
 
@@ -37,7 +40,7 @@ class AdminReportService:
 
         for superuser_email in superuser_emails:
             email = Email(
-                sender="",
+                sender=configs.SMTP_USER,
                 recipient=superuser_email,
                 subject="Admin Report",
                 content="Hello, please find the attached admin report.",
