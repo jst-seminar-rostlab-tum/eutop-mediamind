@@ -183,3 +183,9 @@ msgstr "Dieser Inhalt ist nur verfügbar für"
 
 msgid "subscribers"
 msgstr "Abonnenten"
+
+msgid "Appendix: Original Articles"
+msgstr "Anhang: Originalartikel"
+
+msgid "Back to translated article"
+msgstr "Zurück zum übersetzten Artikel"
