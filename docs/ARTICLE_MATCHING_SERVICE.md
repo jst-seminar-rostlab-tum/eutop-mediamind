@@ -2,7 +2,7 @@
 
 ## Overview
 
-The `ArticleMatchingService` performs intelligent matching between articles and search profiles using a three-phase algorithm that combines vector similarity search with keyword matching.
+The `ArticleMatchingService` intelligently matches articles to search profiles using a hybrid approach that combines semantic vector similarity with keyword matching for optimal precision and recall.
 
 **Location:** `apps/backend/app/services/article_matching_service.py`
 
@@ -12,23 +12,22 @@ The `ArticleMatchingService` performs intelligent matching between articles and 
 
 #### Phase 1: Topic Matching
 
-- Combines topic name with all keywords into search queries
-- Uses vector similarity search against article database
-- **Threshold:** 0.7
+- Merges topic names with keywords to create comprehensive search queries
+- Performs vector similarity search against the article database
+- **Threshold:** 0.7 (high precision)
 - **Output:** `topic_id → {article_id: topic_score}`
 
 #### Phase 2: Keyword Matching
 
-- Searches each keyword individually against articles from Phase 1
-- **Threshold:** 0.1
+- Executes individual keyword searches on articles from Phase 1
+- **Threshold:** 0.1 (high recall)
 - **Output:** `topic_id → article_id → keyword_id → [scores]`
 
 #### Phase 3: Score Combination
 
-- Combines topic and keyword scores with weighted average
-- **Weights:** Topic: 0.7, Keyword: 0.3
-- Deduplicates articles (one match per article)
-- Sorts by combined score (descending)
+- Applies weighted average to merge topic and keyword scores
+- **Weights:** Topic: 0.7 (semantic relevance), Keyword: 0.3 (specific terms)
+- Removes duplicate articles and ranks by combined score (highest first)
 
 ### Configuration
 
@@ -38,38 +37,37 @@ topic_score_threshold = 0.7
 keyword_score_threshold = 0.1
 ```
 
-## Key Methods
+## Implementation
 
-### Batch Processing
+### Core Method
 
 ```python
 async def run(batch_size=100)
 ```
 
-Processes all search profiles in parallel batches.
+Executes the complete matching pipeline with configurable batch processing for memory efficiency and parallel execution.
 
-## Data Models
+### Data Architecture
 
-- **Match:** Stores article-profile matches with scores
-- **MatchingRun:** Tracks algorithm versions and execution runs
-- **SearchProfile:** Contains topics and keywords for matching
+- **Match:** Persists article-profile relationships with computed similarity scores
+- **MatchingRun:** Maintains execution metadata and algorithm versioning
+- **SearchProfile:** Encapsulates user-defined topics and associated keywords
 
-## Integration
+### Service Dependencies
 
-### Dependencies
-
-- `ArticleVectorService` - Vector similarity search
-- `MatchRepository` - Data persistence
-- `SearchProfileRepository` - Profile data access
+- **ArticleVectorService** → Vector similarity search and retrieval
+- **MatchRepository** → Match persistence and querying operations
+- **SearchProfileRepository** → Profile data access and loading
+- **MatchingRunRepository** → Execution tracking and versioning
 
 ## Configuration Tuning
 
-### Thresholds
+### Threshold Optimization
 
-- **Increase topic threshold (0.7)** → Fewer, higher-quality topic matches
-- **Increase keyword threshold (0.1)** → Fewer, higher-quality keyword matches
+- **Topic threshold ↑ (0.7)** → Higher precision, fewer matches
+- **Keyword threshold ↑ (0.1)** → More selective keyword matching
 
-### Weights
+### Weight Balancing
 
-- **Increase topic weight (0.7)** → Favor topic-level similarity
-- **Increase keyword weight (0.3)** → Favor individual keyword matches
+- **Topic weight ↑ (0.7)** → Emphasize semantic similarity
+- **Keyword weight ↑ (0.3)** → Emphasize exact term matches
