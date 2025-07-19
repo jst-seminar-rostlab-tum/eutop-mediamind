@@ -1,5 +1,4 @@
 import os
-import uuid
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from email.mime.application import MIMEApplication
@@ -7,6 +6,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from time import gmtime, strftime
 from typing import List
+from uuid import UUID
 
 from aiosmtplib import SMTP, SMTPResponseException
 from jinja2 import Environment, FileSystemLoader, select_autoescape
@@ -36,6 +36,7 @@ templates_env = Environment(
 @dataclass
 class EmailServer:
     hostname: str
+    sender: str
     port: int
     use_tls: bool
     user: str
@@ -48,7 +49,7 @@ class EmailSchedule:
     subject: str
     content: str
     content_type: str
-    report_id: uuid.UUID
+    report_id: UUID
 
 
 class EmailService:
@@ -59,10 +60,10 @@ class EmailService:
         subject: str,
         content_type: str,
         content: str,
-        report_id: uuid.UUID,
+        report_id: UUID,
     ) -> Email:
         email = Email(
-            sender=configs.SMTP_USER,
+            sender=configs.SMTP_FROM,
             recipient=recipient,
             subject=subject,
             content_type=content_type,
@@ -70,6 +71,17 @@ class EmailService:
             report_id=report_id,
         )
         return email
+
+    @staticmethod
+    def create_ses_email_server() -> EmailServer:
+        return EmailServer(
+            hostname=configs.SMTP_SERVER,
+            port=configs.SMTP_PORT,
+            use_tls=True,
+            user=configs.SMTP_USER,
+            password=configs.SMTP_PASSWORD,
+            sender=configs.SMTP_FROM,
+        )
 
     @staticmethod
     async def schedule_email(schedule: EmailSchedule) -> Email:
@@ -100,7 +112,7 @@ class EmailService:
                     if not pdf_as_link and email.report.s3_key
                     else None
                 )
-                await EmailService.send_ses_email(email, pdf_bytes)
+                await EmailService.send_email(email, pdf_bytes)
                 email.state = EmailState.SENT
                 await EmailRepository.update_email(email)
             except Exception as e:
@@ -116,27 +128,14 @@ class EmailService:
                 )
 
     @staticmethod
-    async def send_ses_email(email: Email, pdf_bytes: bytes | None = None):
-        """
-        Send an email using AWS SES SMTP credentials from the chatbot config.
-        """
-        email.sender = configs.CHAT_SMTP_FROM
-        email_server = EmailServer(
-            hostname=configs.CHAT_SMTP_SERVER,
-            port=configs.CHAT_SMTP_PORT,
-            use_tls=True,
-            user=configs.CHAT_SMTP_USER,
-            password=configs.CHAT_SMTP_PASSWORD,
-        )
-        await EmailService.__send_email(email, email_server, pdf_bytes)
-
-    @staticmethod
-    async def __send_email(
+    async def send_email(
         email: Email,
-        email_server: EmailServer,
         pdf_bytes: bytes | None = None,
         bcc_recipients: list[str] = [],
-    ):
+    ) -> None:
+        """
+        Create email message, load attachments if any, and send email using SMTP.
+        """
         msg = MIMEMultipart("alternative")
         msg["From"] = email.sender
         msg["To"] = email.recipient  # BCC not included in headers for privacy
@@ -152,12 +151,22 @@ class EmailService:
             )
             msg.attach(attachment)
         all_recipients = [email.recipient] + (bcc_recipients)
+        await EmailService.__send_email(
+            email_id=email.id, message=msg, recipients=all_recipients
+        )
+
+    @staticmethod
+    async def __send_email(
+        email_id: UUID,
+        message: MIMEMultipart,
+        recipients: list[str],
+    ) -> None:
+        email_server = EmailService.create_ses_email_server()
         smtp_client = SMTP(
             hostname=email_server.hostname,
             port=email_server.port,
             use_tls=email_server.use_tls,
         )
-
         try:
             await smtp_client.connect()
             await smtp_client.login(email_server.user, email_server.password)
@@ -167,12 +176,12 @@ class EmailService:
             raise Exception(error_message)
         try:
             sendmail_response = await smtp_client.sendmail(
-                email.sender, all_recipients, msg.as_string()
+                email_server.sender, recipients, message.as_string()
             )
         except SMTPResponseException as e:
             error_message = (
-                f"Failed to send email with id={email.id} to "
-                f"recipients={str(all_recipients)}: {str(e)}"
+                f"Failed to send email with id={email_id} to "
+                f"recipients={str(recipients)} with error: {str(e)}"
             )
             logger.error(error_message)
             raise Exception(error_message)
@@ -182,10 +191,9 @@ class EmailService:
             isinstance(sendmail_response, tuple)
             and sendmail_response[1].startswith("Ok")
         ):
-            error_msg = "Error sending email"
-            if bcc_recipients:
-                error_msg += " with BCC"
-            raise Exception(f"{error_msg}: {sendmail_response}")
+            raise Exception(
+                f"Error sending emails for recipients={str(recipients)}: {sendmail_response}"
+            )
 
     @staticmethod
     def _render_email_template(template_name: str, context: dict) -> str:
