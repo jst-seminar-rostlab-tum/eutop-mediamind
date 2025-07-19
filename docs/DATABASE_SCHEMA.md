@@ -33,31 +33,37 @@ The MediaMind system uses a PostgreSQL database with 18+ tables supporting news 
 erDiagram
     organizations ||--o{ users : "has"
     organizations ||--o{ search_profiles : "owns"
-    organizations }o--o{ subscriptions : "accesses via organizations_subscriptions"
-
-    users }o--o{ search_profiles : "permissions via users_search_profiles"
-
+    organizations ||--o{ organizations_subscriptions : "part_of"
+    
+    users ||--o{ users_search_profiles : "part_of"
+    
     search_profiles ||--o{ topics : "contains"
     search_profiles ||--o{ matches : "generates"
     search_profiles ||--o{ reports : "produces"
-    search_profiles }o--o{ subscriptions : "filters via search_profiles_subscriptions"
-
+    search_profiles ||--o{ search_profiles_subscriptions : "part_of"
+    search_profiles ||--o{ users_search_profiles : "part_of"
+    
     subscriptions ||--o{ articles : "publishes"
     subscriptions ||--o{ crawl_stats : "tracks"
-
+    subscriptions ||--o{ organizations_subscriptions : "part_of"
+    subscriptions ||--o{ search_profiles_subscriptions : "part_of"
+    
     articles ||--o{ matches : "matched_in"
     articles ||--o{ entities : "contains"
-    articles }o--o{ keywords : "tagged_with via articles_keywords"
-
+    articles ||--o{ articles_keywords : "part_of"
+    
     topics ||--o{ matches : "categorizes"
-    topics }o--o{ keywords : "defined_by via topics_keywords"
-
+    topics ||--o{ topics_keywords : "part_of"
+    
+    keywords ||--o{ articles_keywords : "part_of"
+    keywords ||--o{ topics_keywords : "part_of"
+    
     matching_runs ||--o{ matches : "executes"
     matching_runs ||--o{ reports : "generates"
-
+    
     reports ||--o{ emails : "sent_as"
     reports ||--o{ email_conversations : "creates"
-
+    
     email_conversations ||--o{ chat_messages : "contains"
 
     organizations {
