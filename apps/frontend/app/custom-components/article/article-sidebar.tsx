@@ -13,13 +13,14 @@ import { ExternalLink, ChevronDown, ChevronUp } from "lucide-react";
 import { getPercentage } from "~/lib/utils";
 import { getLocalizedContent } from "~/lib/utils";
 import { useState } from "react";
+import { ArticleEntities } from "~/custom-components/article/article-entities";
 
 interface ArticleSidebarProps {
   article: ArticleMatch;
 }
 
 export function ArticleSidebar({ article }: ArticleSidebarProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [expandedTopics, setExpandedTopics] = useState<Record<number, boolean>>(
     {},
   );
@@ -30,6 +31,11 @@ export function ArticleSidebar({ article }: ArticleSidebarProps) {
       [topicIndex]: !prev[topicIndex],
     }));
   };
+  const onlySummary = !(
+    article.article.text?.["en"] && article.article.text?.["de"]
+  );
+
+  const localizedSummary = getLocalizedContent(article.article.summary, i18n);
 
   return (
     <div className={"space-y-6"}>
@@ -39,31 +45,31 @@ export function ArticleSidebar({ article }: ArticleSidebarProps) {
           <ExternalLink />
         </a>
       </Button>
-      <div className={"rounded-3xl pl-4 pr-4 bg-gray-100"}>
-        <Accordion
-          type={"single"}
-          collapsible
-          className="w-full"
-          defaultValue="summary"
-        >
-          <AccordionItem value={"summary"}>
-            <AccordionTrigger
-              className={"text-md font-semibold text-gray-900 cursor-pointer"}
-            >
-              {t("article-page.summary_header")}
-            </AccordionTrigger>
-            <AccordionContent
-              className={"text-gray-800 pb-4 whitespace-pre-wrap"}
-            >
-              <p>
-                {getLocalizedContent(article.article.summary) ||
-                  t("article-page.no_summary")}
-              </p>
-            </AccordionContent>
-          </AccordionItem>
-        </Accordion>
-      </div>
-      <div className={"rounded-3xl border p-4 space-y-2"}>
+      {!onlySummary && (
+        <div className={"rounded-lg pl-4 pr-4 bg-gray-100"}>
+          <Accordion
+            type={"single"}
+            collapsible
+            className="w-full"
+            defaultValue="summary"
+          >
+            <AccordionItem value={"summary"}>
+              <AccordionTrigger
+                className={"text-md font-semibold text-gray-900 cursor-pointer"}
+              >
+                {t("article-page.summary_header")}
+              </AccordionTrigger>
+              <AccordionContent
+                className={"text-gray-800 pb-4 whitespace-pre-wrap"}
+              >
+                <p>{localizedSummary || t("article-page.no_summary")}</p>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+        </div>
+      )}
+
+      <div className={"rounded-lg border p-4 space-y-2"}>
         <span className={"font-bold"}>{t("article-page.keywords_header")}</span>
         <p className={"text-sm text-gray-400"}>
           {t("article-page.keywords_text")}
@@ -79,7 +85,7 @@ export function ArticleSidebar({ article }: ArticleSidebarProps) {
           return (
             <div
               key={topicIndex}
-              className={"space-y-1 bg-gray-100 p-2 rounded-2xl"}
+              className={"space-y-1 bg-gray-100 p-2 rounded-lg"}
             >
               <div className={"flex items-center gap-2"}>
                 <p className={"font-bold text-gray-800"}>{topic.name}</p>
@@ -94,7 +100,10 @@ export function ArticleSidebar({ article }: ArticleSidebarProps) {
               </div>
               <div className={"flex flex-wrap gap-1 pt-1"}>
                 {displayedKeywords.map((keyword, keywordIndex) => (
-                  <Badge key={keywordIndex} className={"p-1.5 rounded-lg"}>
+                  <Badge
+                    key={keywordIndex}
+                    className={"p-1.5 rounded-lg bg-gray-700"}
+                  >
                     {keyword}
                   </Badge>
                 ))}
@@ -123,6 +132,7 @@ export function ArticleSidebar({ article }: ArticleSidebarProps) {
           );
         })}
       </div>
+      {article.entities && <ArticleEntities entities={article.entities} />}
       <ArticleMetaDataTable article={article} />
     </div>
   );

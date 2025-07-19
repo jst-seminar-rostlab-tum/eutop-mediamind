@@ -14,13 +14,49 @@
   "select_date": "Datum auswählen",
   "yes": "Ja",
   "no": "Nein",
+  "Save": "Änderungen Speichern",
 
   "breadcrumb_home": "Home",
 
   "landing_page": {
-    "welcome": "Wilkommen bei MediaMind",
-    "welcome_text": "Bleiben sie informiert in der sich schnell ändernden Welt der digitalen Medien, mit unserem automatischen Presse Analyse Tool. Halten sie ihre Kunden auf dem neusten Stand mit täglichen Presse Updates, angepasst an ihre Bedürfnisse. Unsere Plattform extrahiert die wichtigsten Nachrichten und fasst sie in kurze und informative Beiträge zusammen – direkt in ihr Email Postfach. Sparen sie Zeit, bleiben sie Informiert, und fokusieren sie sich auf das Wesentliche – das Liefern von Mehrwert für ihre Kunden.",
-    "credits": "MediaMind wurde entworfen in kooperation zwischen EUTOP, der Technischen Universität München und dem CSEE während dem Javascript Technology Praktikum."
+    "header_slogan": "Ihr Vorsprung in der digitalen Medienwelt von morgen",
+    "header_description": "Ihre automatisierte Presse-Analyse Anwendung",
+    "credits": "MediaMind wurde entworfen in kooperation zwischen EUTOP, der Technischen Universität München und dem CSEE während dem Javascript Technology Praktikum.",
+    "dashboard_header": "Verwalten Sie ihre Profile",
+    "dashboard_text": "Eine übersichtliche Oberfläche für alle Profile",
+    "topics_header": "Beginnen Sie ihre Suchprofile anzulegen",
+    "topics_text": "Spezifizieren Sie die Themen die sie interssieren mit den gewünschten Schlagwörtern und bekommmen Sie KI Vorschläge für die am besten geeigneten zusätzlichen Schlagwörter",
+    "add_topic": "Sie wollen Themen hinzufügen und mehr? Melden Sie sich an und genießen Sie alle Funktionalitäten!",
+    "click_reports": "Sie wollen Berichte einsehen und mehr? Melden Sie sich an und genießen Sie alle Funktionalitäten!",
+    "search_profile_header": "Inspizieren Sie die ausgewählten Artikel",
+    "search_profile_text": "Themen und Artikel Übereinstimmungen basieren auf semantischer Ähnlichkeit. Suchen Sie auch direkt in unserer Vektor Datenbank nach passenden Artikeln",
+    "article_header": "Lesen Sie Artikel direkt in der App",
+    "article_text": "Somit bekommen Sie eine detailierte Übersicht über den Artikel sowie aller Themen und Schlagwörter",
+    "email_header": "Jeden Morgen - Direkt in ihr Postfach!",
+    "email_text": "Sie erhalten ihre maßgeschneiderten Berichte jeden Tag per Email. Sie können sie downloaden oder direkt in der Anwendung einsehen",
+    "breaking_header": "Lesen Sie Aktuelle Schlagzeilen",
+    "breaking_text": "Bleiben Sie bestens Informiert mit allen globalen Nachrichten an einem Platz",
+    "breaking_toast": "Sie wollen Schlagzeilen sehen und mehr? Probieren Sie die Schlagzeilen vorschau oder Loggen Sie sich ein!",
+    "sp_toast": "Sie wollen ihr eigenes Such Profil erstellen und mehr? Loggen Sie sich ein und genießen Sie alle Funktionalitäten",
+    "edit_profile_toast": "Sie wollen Profile bearbeiten und mehr? Loggen Sie sich ein und genießen Sie alle Funktionalitäten!",
+    "reports_toast": "Sie wollen Berichte einsehen und mehr? Loggen Sie sich ein und genießen Sie alle Funktionalitäten!",
+    "delete_profile_toast": "Sie wollen Profile löschen und mehr? Loggen Sie sich ein und genießen Sie alle Funktionalitäten!",
+    "checkout_sp_toast": "Sie wollen das Such Profil sehen und mehr? Probieren Sie die Such Profil vorschau oder Loggen Sie sich ein!",
+    "original_toast": "Sie wollen Artikel aufrufen und mehr? Loggen Sie sich ein und genießen Sie alle Funktionalitäten!"
+  },
+
+  "mock_data": {
+    "breaking_title_1": "Durchbruch bei nachhaltiger Reifentechnologie reduziert Mikroplastikemissionen",
+    "breaking_summary_1": "Ein deutsches Start-up hat eine biologisch abbaubare Reifenmischung entwickelt, die Mikroplastikemissionen deutlich reduziert, ohne die Leistung zu beeinträchtigen. Erste Tests zeigen eine Verringerung der Straßenabriebpartikel um 40 %.",
+
+    "breaking_title_2": "EU kündigt neue Anreize für Wasserstoff-Lkw an",
+    "breaking_summary_2": "Die Europäische Kommission hat ein Förderprogramm vorgestellt, das den Umstieg auf wasserstoffbetriebene Nutzfahrzeuge beschleunigen soll. Betreiber erhalten bis zu 150.000 € pro förderfähigem Fahrzeug.",
+
+    "breaking_title_3": "Französischer Automobilzulieferer startet KI-gestützte Plattform zur Batterieanalyse",
+    "breaking_summary_3": "ValeonTech hat eine neue Softwarelösung für E-Fahrzeughersteller vorgestellt, die mithilfe künstlicher Intelligenz den Batteriezustand vorhersagt und das Ladeverhalten optimiert.",
+
+    "breaking_title_4": "Norwegens Offshore-Wind-Offensive soll 2 Millionen Haushalte versorgen",
+    "breaking_summary_4": "Die norwegische Regierung hat die Finanzierung eines 6,5-GW-Offshore-Windparks in der Nordsee genehmigt. Der Bau beginnt voraussichtlich 2026 und wird eines der größten Projekte seiner Art in Europa sein."
   },
 
   "dashboard": {
@@ -102,10 +138,10 @@
   "mailing": {
     "header": "Email Liste",
     "info": "Konfigurieren sie ihre Kontakte für den Pressemitteilungs Verteiler",
-    "Internal": "Intern",
-    "External": "Extern",
-    "internal": "intern",
-    "external": "extern",
+    "Internal": "Interne",
+    "External": "Externe",
+    "internal": "interne",
+    "external": "externe",
     "filter": "Filter {{type}} Emails"
   },
 
@@ -129,6 +165,8 @@
     "header": "Admin Einstellungen",
     "organizations": "Organisationen",
     "subscriptions": "Abonnements",
+    "organization": "Organisation",
+    "subscription": "Abonnement",
     "orga_header": "Organisationen verwalten",
     "orga_text": "Machen sie Änderungen an ihren Organisationen hier. Sie können bestehende löschen oder bearbeiten und neue hinzufügen",
     "subs_header": "Abonnements verwalten",
@@ -138,7 +176,8 @@
     "add_user": "Benutzer hinzufügen...",
     "no_user": "Keine Benutzer gefunden.",
     "no_results": "Keine Ergebnisse.",
-    "role": "Rolle"
+    "orgas_error": "Laden der Organisationen fehlgeschlagen",
+    "subs_error": "Laden der Abonnements fehlgeschlagen"
   },
 
   "organization-dialog": {
@@ -146,10 +185,23 @@
     "add_header": "Organisation hinzufügen",
     "edit_text": "Bearbeiten sie ihre Organisation hier. Klicken sie auf Speichern wenn sie fertig sind.",
     "add_text": "Geben sie den Namen der Organisation ein die sie hinzufügen möchten. Klicken sie auf Speichern wenn sie fertig sind.",
-    "name_error_header": "Organisations Name ist leer!",
-    "name_error_text": "Bitte geben sie einen gültigen Namen ein",
-    "email_error_header": "Ungültige Email",
-    "email_error_text": "Bitte geben sie eine gültige und einmalige Email ein"
+    "Name": "Name",
+    "role": "Rolle",
+    "no_results": "Keine Ergebnisse.",
+    "New_Organization": "Neue Organisation",
+    "maintainer": "Betreuer",
+    "member": "Mitglied",
+    "user_already_added": "Dieser Benutzer ist bereits teil der Organisation",
+    "delete_success": "Organisation erfolgreich gelöscht",
+    "delete_failed": "Organisation konnte nicht gelöscht werden",
+    "create_success": "Organisation erfolgreich erstellt",
+    "create_failed": "Organisation konnte nicht erstellt werden",
+    "update_success": "Organisation erfolgreich geupdated",
+    "update_failed": "Organisation konnte nicht geupdated werden",
+    "name_required": "Name ist gefordert",
+    "name_length": "Maximale länge sind 20 Zeichen",
+    "name_regex": "Nur Buchstaben und Zahlen sind erlaubt",
+    "users_error": "Benutzer konnten nicht geladen werden"
   },
 
   "subscription-dialog": {
@@ -159,8 +211,25 @@
     "add_text": "Geben sie den Namen der Abonnement ein die sie hinzufügen möchten. Klicken sie auf Speichern wenn sie fertig sind.",
     "credentials_error_header": "Ungültige Anmeldedaten",
     "credentials_error_text": "Bitte geben sie gültige Anmeldedaten ein",
-    "username": "Benutzername",
-    "password": "Passwort"
+    "Name": "Name",
+    "URL": "URL",
+    "Username": "Benutzername",
+    "Password": "Passwort",
+    "Paywall": "Paywall",
+    "delete_success": "Abonnement erfolgreich gelöscht",
+    "delete_failed": "Abonnement konnte nicht gelöscht werden",
+    "create_success": "Abonnement erfolgreich erstellt",
+    "create_failed": "Abonnement konnte nicht erstellt werden",
+    "update_success": "Abonnement erfolgreich geupdated",
+    "update_failed": "Abonnement konnte nicht geupdated werden",
+    "sub_not_found": "Abonnement nicht gefunden",
+    "name_required": "Name ist gefordert",
+    "name_length": "Maximale länge sind 20 Zeichen",
+    "name_regex": "Nur Buchstaben und Zahlen sind erlaubt",
+    "url_valid": "Muss eine valide URL sein, z.b. https://beispiel.de",
+    "username_min": "Benutzername muss mindestens 2 Zeichen lang sein",
+    "username_max": "Benutzername darf maximal 30 Zeichen lang sein",
+    "username_regex": "Benutzername darf nur aus Buchstaben, Zahlen, Punkten, Strichen oder Unterstrichen bestehen."
   },
 
   "search_profile": {
@@ -177,7 +246,10 @@
     "delete_error": "Fehler beim Löschen des Suchprofils",
     "delete_success": "Suchprofil erfolgreich gelöscht",
     "reports": "Berichte",
-    "Explore": "Erkunden"
+    "Explore": "Erkunden",
+    "New_Articles": "Neue Artikel",
+    "articles_error": "Artikel konnten nicht abgerufen werden",
+    "no_image": "Kein Bild"
   },
 
   "article-page": {
@@ -192,7 +264,18 @@
     "meta_data_category": "Kategorie",
     "keywords_text": "Zeigt übereinstimmende Themen mit Schlagwörtern und einer Bewertung an, die die Themenrelevanz für den Artikel angibt.",
     "show_more": "Mehr anzeigen",
-    "show_less": "Weniger anzeigen"
+    "show_less": "Weniger anzeigen",
+    "no_summary": "Keine Zusammenfassung verfügbar.",
+    "entities_text": "Zeigt Entitäten an, die mit dem Artikel in Zusammenhang stehen.",
+    "entities": "Entitäten",
+    "no_entities": "Keine Einträge in dieser Kategorie.",
+    "person": "Personen",
+    "event": "Ereignisse",
+    "organization": "Organisationen",
+    "citation": "Quellen",
+    "industry": "Industrien",
+    "limited_content": "Begrenzter Inhalt verfügbar",
+    "limited_content_description": "Dieser Artikel zeigt nur eine Zusammenfassung anstelle des vollständigen Inhalts. Das Abonnement Ihrer Organisation berechtigt nicht zum Zugriff auf den vollständigen Inhalt. Für vollständigen Zugriff wenden Sie sich bitte an Ihren Administrator."
   },
 
   "role-badge": {
@@ -227,13 +310,21 @@
 
   "crawler_stats": {
     "title": "Crawler Statistiken",
-    "subscription": "Subscription",
+    "source": "Quelle",
     "date": "Datum",
     "successful": "Erfolgreich",
     "attempted": "Versucht",
     "failed": "Fehlgeschlagen",
     "notes": "Notizen",
-    "error": "Fehler beim Laden der Crawler Statistiken."
+    "error": "Fehler beim Laden der Crawler Statistiken.",
+    "Sum": "Summe",
+    "Never": "Nie",
+    "Once": "Min. einmal",
+    "Statistics": "Statistiken",
+    "Crawlers": "Crawler",
+    "Subscriptions": "Abonnements",
+    "show_more": "mehr anzeigen",
+    "show_less": "weniger anzeigen"
   },
 
   "reports": {
@@ -261,5 +352,15 @@
     "breaking_news_update_error": "Fehler beim Aktualisieren der Breaking News Auswahl",
     "breaking_news": "Breaking News Benachrichtigungen erhalten (Email)",
     "breaking_news_title": "Breaking News Benachrichtigungen"
+  },
+
+  "organisation_settings": {
+    "title": "Organisation Einstellungen",
+    "pdf_as_link": "Berichte als Link",
+    "pdf_as_link_text": "Entscheiden sie, ob die Berichte innerhalb ihrer Organisation als Link oder als PDF-Anhang gesendet werden sollen.",
+    "subscriptions": "Subscriptions",
+    "subscriptions_text": "Verwalten sie die Subscriptions, die für Searchprofile ihrer Organisation verwendet werden können.",
+    "success": "Organisationseinstellungen erfolgreich aktualisiert.",
+    "error": "Fehler beim Aktualisieren der Organisationseinstellungen."
   }
 }

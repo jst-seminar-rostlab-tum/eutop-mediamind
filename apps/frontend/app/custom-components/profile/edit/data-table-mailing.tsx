@@ -21,17 +21,12 @@ import {
 } from "@tanstack/react-table";
 import { Checkbox } from "~/components/ui/checkbox";
 import { Button } from "~/components/ui/button";
-import { ArrowUpDown, MoreHorizontal, Plus, Trash2 } from "lucide-react";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuTrigger,
-} from "~/components/ui/dropdown-menu";
+import { ArrowUpDown, Plus, Trash, Trash2 } from "lucide-react";
+
 import { Input } from "~/components/ui/input";
-import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import { ScrollArea } from "~/components/ui/scroll-area";
+import { cn } from "~/lib/utils";
 
 export interface MailingTableProps {
   name: string;
@@ -43,7 +38,11 @@ type DataRow = {
   data: string;
 };
 
-export const getColumns = (name: string): ColumnDef<DataRow>[] => [
+const getColumns = (
+  name: string,
+  setDataArray: (data: string[]) => void,
+  dataArray: string[],
+): ColumnDef<DataRow>[] => [
   {
     id: "select",
     header: ({ table }) => (
@@ -84,29 +83,18 @@ export const getColumns = (name: string): ColumnDef<DataRow>[] => [
   {
     id: "actions",
     enableHiding: false,
-    cell: () => {
-      const { t } = useTranslation();
+    cell: ({ row }) => {
       return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>
-              {t("data-table-mailing.actions")}
-            </DropdownMenuLabel>
-            <DropdownMenuItem
-              onClick={() =>
-                console.log("Delete action triggered from dropdown")
-              }
-            >
-              {t("Delete")}
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <Button
+          variant={"ghost"}
+          onClick={() =>
+            setDataArray(
+              dataArray.filter((email) => email !== row.original.data),
+            )
+          }
+        >
+          <Trash className="text-destructive" />
+        </Button>
       );
     },
   },
@@ -125,7 +113,10 @@ export function DataTableMailing({
     React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
 
-  const columns = React.useMemo(() => getColumns(name), [name]);
+  const columns = React.useMemo(
+    () => getColumns(name, setDataArray, dataArray),
+    [name, setDataArray, dataArray],
+  );
   const data = React.useMemo(
     () =>
       dataArray.map((item) => ({
@@ -133,8 +124,6 @@ export function DataTableMailing({
       })),
     [dataArray],
   );
-
-  useEffect(() => setDataArray(dataArray), [dataArray]);
 
   const table = useReactTable({
     data,
@@ -146,6 +135,7 @@ export function DataTableMailing({
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
+    getRowId: (row) => row.data,
     state: {
       sorting,
       columnFilters,
@@ -159,25 +149,28 @@ export function DataTableMailing({
 
   const handleDeleteSelected = () => {
     if (!canDelete) return;
-    // TODO: delete logic
+    const selectedMails = table
+      .getSelectedRowModel()
+      .rows.map((row) => row.original.data);
+    setDataArray(dataArray.filter((email) => !selectedMails.includes(email)));
   };
+
+  const [email, setEmail] = React.useState("");
 
   const handleAddEmail = () => {
     if (!email) return; // prevent empty
-    if (dataArray.includes(email)) return; //prevent duplicates
+    if (dataArray.includes(email)) return; // prevent duplicates
 
     const updatedArray = [...dataArray, email];
     setDataArray(updatedArray);
     setEmail(""); // clear input
   };
 
-  const [email, setEmail] = React.useState("");
-
   const { t } = useTranslation();
 
   return (
-    <div className="w-full">
-      <div className="flex items-center py-4 justify-between">
+    <div className="w-full overflow-hidden">
+      <div className="flex items-center py-4 justify-between h-full overflow-hidden">
         <Input
           placeholder={`Filter ${name.toLowerCase()}s...`}
           value={(table.getColumn("data")?.getFilterValue() as string) ?? ""}
@@ -217,12 +210,20 @@ export function DataTableMailing({
         </div>
       </div>
       <Table>
-        <TableHeader>
+        <TableHeader className="bg-blue-100">
           {table.getHeaderGroups().map((headerGroup) => (
-            <TableRow key={headerGroup.id}>
-              {headerGroup.headers.map((header) => {
+            <TableRow key={headerGroup.id} className="grid grid-cols-8">
+              {headerGroup.headers.map((header, idx) => {
                 return (
-                  <TableHead key={header.id}>
+                  <TableHead
+                    key={header.id}
+                    className={cn(
+                      "flex items-center",
+                      idx === 0 || idx === 2
+                        ? "col-span-1 justify-center"
+                        : "col-span-6 ",
+                    )}
+                  >
                     {header.isPlaceholder
                       ? null
                       : flexRender(
@@ -235,29 +236,48 @@ export function DataTableMailing({
             </TableRow>
           ))}
         </TableHeader>
-        <TableBody>
-          {table.getRowModel().rows?.length ? (
-            table.getRowModel().rows.map((row) => (
-              <TableRow
-                key={row.id}
-                data-state={row.getIsSelected() && "selected"}
-              >
-                {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id}>
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </TableCell>
-                ))}
-              </TableRow>
-            ))
-          ) : (
-            <TableRow>
-              <TableCell colSpan={columns.length} className="h-24 text-center">
-                {t("data-table-mailing.no_results")}
-              </TableCell>
-            </TableRow>
-          )}
-        </TableBody>
       </Table>
+      <ScrollArea className="h-full">
+        <Table>
+          <TableBody>
+            {table.getRowModel().rows?.length ? (
+              table.getRowModel().rows.map((row) => (
+                <TableRow
+                  className="grid grid-cols-8"
+                  key={row.id}
+                  data-state={row.getIsSelected() && "selected"}
+                >
+                  {row.getVisibleCells().map((cell, idx) => (
+                    <TableCell
+                      key={cell.id}
+                      className={cn(
+                        "flex items-center",
+                        idx === 0 || idx === 2
+                          ? "col-span-1 justify-center"
+                          : "col-span-6",
+                      )}
+                    >
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext(),
+                      )}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell
+                  colSpan={columns.length}
+                  className="h-24 text-center"
+                >
+                  {t("data-table-mailing.no_results")}
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </ScrollArea>
       <div className="flex items-center justify-end space-x-2 py-4">
         <div className="flex-1 text-sm text-muted-foreground">
           {numSelectedRows} {t("data-table-mailing.of")}{" "}

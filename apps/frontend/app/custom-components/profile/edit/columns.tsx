@@ -11,7 +11,7 @@ import { Trash } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { Checkbox } from "~/components/ui/checkbox";
 import { useTranslation } from "react-i18next";
-import type { UserWithRole } from "../../admin-settings/data-table-users";
+import type { UserWithRole } from "../edit/general";
 
 export function getUserColumns(
   onRoleChange: (index: number, role: "read" | "edit") => void,
@@ -44,15 +44,18 @@ export function getUserColumns(
     {
       accessorKey: "email",
       header: t("general.Email"),
+      cell: ({ row }) => (
+        <div className="whitespace-normal break-all">{row.original.email}</div>
+      ),
       filterFn: (row, _, filterValue: string) => {
         const email = row.original.email?.toLowerCase() || "";
-        const username = row.original.Username?.toLowerCase() || "";
+        const username = row.original.username?.toLowerCase() || "";
         const value = filterValue.toLowerCase();
         return email.includes(value) || username.includes(value);
       },
     },
     {
-      accessorKey: "Username",
+      accessorKey: "username",
       header: t("general.Username"),
     },
     {
@@ -86,7 +89,7 @@ export function getUserColumns(
         const index = row.index;
         return (
           <Button variant={"ghost"} onClick={() => onDelete(index)}>
-            <Trash className="text-red-500" />
+            <Trash className="text-destructive" />
           </Button>
         );
       },

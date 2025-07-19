@@ -5,25 +5,14 @@ import {
   CardHeader,
   CardTitle,
 } from "~/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
-import { DataTable } from "~/custom-components/admin-settings/data-table";
+import { DataTableSubscriptions } from "~/custom-components/admin-settings/data-table-subs";
 import Layout from "~/custom-components/layout";
 import Text from "~/custom-components/text";
 import React from "react";
-import type { Organization, Subscription, User } from "./types";
 import { getOrgaColumns, getSubsColumns } from "./columns";
 import { OrganizationDialog } from "./dialogs/organization-dialog";
 import { SubscriptionDialog } from "./dialogs/subscription-dialog";
-import {
-  AlertDialog,
-  AlertDialogContent,
-  AlertDialogHeader,
-  AlertDialogFooter,
-  AlertDialogTitle,
-  AlertDialogDescription,
-  AlertDialogCancel,
-  AlertDialogAction,
-} from "~/components/ui/alert-dialog";
+
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -33,217 +22,215 @@ import {
   BreadcrumbSeparator,
 } from "~/components/ui/breadcrumb";
 import { useTranslation } from "react-i18next";
+import { ConfirmationDialog } from "~/custom-components/confirmation-dialog";
+import { Building2, Newspaper } from "lucide-react";
+import { DataTableOrganizations } from "~/custom-components/admin-settings/data-table-orgas";
 import { Link } from "react-router";
+import { client, useQuery } from "types/api";
+import type { Organization, Subscription } from "../../../types/model";
+import { toast } from "sonner";
+import { TableSkeleton } from "./skeleton";
 
-// Fetch Orgas
-async function getOrgaData(): Promise<Organization[]> {
-  // Fetch data from your API here
-  return [
-    {
-      name: "BMW",
-      users: [
-        { name: "jonathan@bmw.com", role: "admin" },
-        { name: "rafael@bmw.com", role: "user" },
-        { name: "leo@bmw.com", role: "user" },
-      ],
-    },
-    {
-      name: "Allianz",
-      users: [{ name: "leo@allianz.com", role: "user" }],
-    },
-    {
-      name: "EUTOP",
-      users: [{ name: "leo@eutop.com", role: "user" }],
-    },
-    {
-      name: "ADAC",
-      users: [{ name: "leo@adac.com", role: "user" }],
-    },
-  ];
-}
-
-//Fetch Subs
-async function getSubsData(): Promise<Subscription[]> {
-  // Fetch data from your API here
-  return [
-    {
-      name: "Spiegel",
-      url: "spiegel-online.de",
-      username: "Test_123",
-      password: "Spiegel_123",
-    },
-    {
-      name: "SZ",
-      url: "sz.de",
-      username: "Test_456",
-      password: "SZ_123",
-    },
-  ];
-}
+const suppressSWRReloading = {
+  refreshInterval: 0,
+  refreshWhenHidden: false,
+  revalidateOnFocus: false,
+  refreshWhenOffline: false,
+  revalidateIfStale: false,
+  revalidateOnReconnect: false,
+};
 
 export function AdminPage() {
   //Organizations
-  const [orgaData, setOrgaData] = React.useState<Organization[]>([]);
+  const [editedOrga, setEditedOrga] = React.useState<Organization | null>(null);
   const [showOrgaDialog, setShowOrgaDialog] = React.useState(false);
-  const [newOrgaName, setNewOrgaName] = React.useState("");
-  const [initialOrgaName, setInitialOrgaName] = React.useState("");
   const [isEditOrgaMode, setIsEditOrgaMode] = React.useState(false);
-  const [editingOrgIndex, setEditingOrgIndex] = React.useState<number | null>(
-    null,
-  );
-  const [editingUserData, setEditingUserData] = React.useState<User[]>([]);
-  const [showOrgaNameAlert, setShowOrgaNameAlert] = React.useState(false);
-  const [showAlert, setShowAlert] = React.useState(false);
 
   // Subscriptions
-  const [subsData, setSubsData] = React.useState<Subscription[]>([]);
-  const [initialSub, setInitialSub] = React.useState<Subscription>();
+  const [editedSub, setEditedSub] = React.useState<Subscription | null>(null);
   const [showSubsDialog, setShowSubsDialog] = React.useState(false);
-  const [newSubsName, setNewSubsName] = React.useState("");
-  const [newURL, setNewURL] = React.useState("");
-  const [newUsername, setNewUsername] = React.useState("");
-  const [newPassword, setNewPassword] = React.useState("");
   const [isEditSubsMode, setIsEditSubsMode] = React.useState(false);
-  const [editingSubsIndex, setEditingSubsIndex] = React.useState<number | null>(
-    null,
-  );
 
-  const [unsavedEdits, setUnsavedEdits] = React.useState(false);
   const [openDeleteDialog, setOpenDeleteDialog] = React.useState(false);
   const [deleteTarget, setDeleteTarget] = React.useState<{
     type: "organization" | "subscription";
-    identifier: string | number; // name for org, index for sub
+    data: Organization | Subscription;
   } | null>(null);
 
-  React.useEffect(() => {
-    async function fetchData() {
-      const data = await getOrgaData();
-      setOrgaData(data);
-    }
-    fetchData();
-  }, []);
+  const { t } = useTranslation();
 
-  React.useEffect(() => {
-    async function fetchData() {
-      const data = await getSubsData();
-      setSubsData(data);
-    }
-    fetchData();
-  }, []);
+  const {
+    data: organizations,
+    isLoading: orgasLoading,
+    error: orgasError,
+    mutate: mutateOrgas,
+  } = useQuery("/api/v1/organizations", undefined, suppressSWRReloading);
 
-  function handleDeleteOrganization(name: string) {
-    setOrgaData((prev) => prev.filter((org) => org.name !== name));
+  const {
+    data: subscriptions,
+    isLoading: subsLoading,
+    error: subsError,
+    mutate: mutateSubs,
+  } = useQuery("/api/v1/subscriptions", undefined, suppressSWRReloading);
+
+  if (orgasError) {
+    toast.success(t("admin.orgas_error"));
   }
 
-  function handleEditOrganization(name: string) {
-    // reset from possible previous dialog
-    setShowAlert(false);
-    setShowOrgaNameAlert(false);
-    // set false on open for safety
-    setUnsavedEdits(false);
-    const index = orgaData.findIndex((org) => org.name === name);
-    if (index !== -1) {
-      setInitialOrgaName(orgaData[index].name); // to catch edge case if you edit back to initial name as no changes
-      setNewOrgaName(orgaData[index].name);
-      setEditingOrgIndex(index);
-      setIsEditOrgaMode(true);
-
-      // call api here to get the actual users of this org
-      const usersForOrg = orgaData[index].users ?? [];
-      setEditingUserData(usersForOrg);
-
-      setShowOrgaDialog(true);
-    }
+  if (subsError) {
+    toast.success(t("admin.subs_error"));
   }
 
-  function handleSaveOrganization() {
-    if (!newOrgaName.trim()) {
-      setShowOrgaNameAlert(true);
-      return;
-    }
-
-    const trimmedName = newOrgaName.trim();
-
-    if (isEditOrgaMode && editingOrgIndex !== null) {
-      setOrgaData((prev) =>
-        prev.map((org, i) =>
-          i === editingOrgIndex
-            ? { ...org, name: trimmedName, users: editingUserData }
-            : org,
-        ),
+  async function handleDeleteOrganization(orga: Organization) {
+    try {
+      const result = await client.DELETE(
+        "/api/v1/organizations/{organization_id}",
+        {
+          params: { path: { organization_id: orga.id } },
+        },
       );
-    } else {
-      setOrgaData((prev) => [
-        ...prev,
-        { name: trimmedName, users: editingUserData },
-      ]);
+      if (result.error) {
+        throw new Error(result.error as string);
+      }
+      await mutateOrgas();
+      toast.success(t("organization-dialog.delete_success"));
+    } catch (error) {
+      console.error(error);
+      toast.error(t("organization-dialog.delete_failed"));
     }
-
-    setNewOrgaName("");
-    setShowOrgaDialog(false);
-    setIsEditOrgaMode(false);
-    setEditingOrgIndex(null);
-    setUnsavedEdits(false);
   }
 
-  // Subscriptions Functions
+  function handleEditOrganization(orga: Organization) {
+    setEditedOrga(orga);
+    setIsEditOrgaMode(true);
+    setShowOrgaDialog(true);
+  }
 
-  function handleSaveSubscription() {
-    if (
-      !newSubsName.trim() ||
-      !newURL.trim() ||
-      !newUsername.trim() ||
-      !newPassword.trim()
-    ) {
-      setShowAlert(true);
-      return;
-    }
-    setShowAlert(false);
-    const newSubs = {
-      name: newSubsName.trim(),
-      url: newURL.trim(),
-      username: newUsername.trim(),
-      password: newPassword.trim(),
-    };
-
-    if (isEditSubsMode && editingSubsIndex !== null) {
-      setSubsData((prev) =>
-        prev.map((sub, i) => (i === editingSubsIndex ? newSubs : sub)),
+  const handleSaveOrganization = async (orga: Organization) => {
+    try {
+      const requestData = {
+        name: orga.name,
+        pdf_as_link: true,
+        email: null,
+        users: orga.users
+          .filter((user) => user.id !== undefined) // remove users without id (possibly never the case)
+          .map((user) => ({
+            id: user.id as string,
+            role: user.role,
+          })),
+      };
+      if (!isEditOrgaMode) {
+        const result = await client.POST("/api/v1/organizations", {
+          body: requestData,
+        });
+        if (result.error) {
+          throw new Error(result.error as string);
+        }
+        await mutateOrgas();
+        toast.success(t("organization-dialog.create_success"));
+      } else {
+        const result = await client.PUT(
+          "/api/v1/organizations/{organization_id}",
+          {
+            params: { path: { organization_id: orga.id } },
+            body: requestData,
+          },
+        );
+        if (result.error) {
+          throw new Error(result.error as string);
+        }
+        mutateOrgas();
+        toast.success(t("organization-dialog.update_success"));
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error(
+        isEditOrgaMode
+          ? t("organization-dialog.update_failed")
+          : t("organization-dialog.create_failed"),
       );
-    } else {
-      setSubsData((prev) => [...prev, newSubs]);
+    } finally {
+      setShowOrgaDialog(false);
+      setIsEditOrgaMode(false);
     }
+  };
 
-    // reset
-    setNewSubsName("");
-    setNewURL("");
-    setNewUsername("");
-    setNewPassword("");
-    setIsEditSubsMode(false);
-    setEditingSubsIndex(null);
-    setShowSubsDialog(false);
-
-    setUnsavedEdits(false);
+  async function handleSaveSubscription(data: {
+    id: string;
+    name: string;
+    url: string;
+    paywall: boolean;
+    username: string;
+    password: string;
+  }) {
+    try {
+      const requestData = {
+        name: data.name,
+        domain: data.url,
+        paywall: data.paywall,
+        username: data.username,
+        password: data.password,
+      };
+      if (!isEditSubsMode) {
+        const result = await client.POST("/api/v1/subscriptions", {
+          body: requestData,
+        });
+        if (result.error) {
+          throw new Error(result.error as string);
+        }
+        mutateSubs();
+        toast.success(t("subscription-dialog.create_success"));
+      } else {
+        const result = await client.PUT(
+          "/api/v1/subscriptions/{subscription_id}",
+          {
+            params: { path: { subscription_id: data.id } },
+            body: requestData,
+          },
+        );
+        if (result.error) {
+          throw new Error(result.error as string);
+        }
+        mutateSubs();
+        toast.success(t("subscription-dialog.update_success"));
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error(
+        isEditSubsMode
+          ? t("subscription-dialog.update_failed")
+          : t("subscription-dialog.create_failed"),
+      );
+    } finally {
+      setIsEditSubsMode(false);
+      setShowSubsDialog(false);
+    }
   }
 
-  function handleEditSubscription(index: number) {
-    const sub = subsData[index];
-    setInitialSub(sub);
-
-    setNewSubsName(sub.name);
-    setNewURL(sub.url);
-    setNewUsername(sub.username);
-    setNewPassword(sub.password);
-    setEditingSubsIndex(index);
+  function handleEditSubscription(sub: Subscription) {
+    setEditedSub(sub);
     setIsEditSubsMode(true);
     setShowSubsDialog(true);
   }
 
-  function handleDeleteSubscription(index: number) {
-    setSubsData((prev) => prev.filter((_, i) => i !== index));
+  async function handleDeleteSubscription(sub: Subscription) {
+    try {
+      const result = await client.DELETE(
+        "/api/v1/subscriptions/{subscription_id}",
+        {
+          params: { path: { subscription_id: sub.id } },
+        },
+      );
+      if (result.error) {
+        throw new Error(result.error as string);
+      }
+      await mutateSubs();
+      toast.success(t("subscription-dialog.delete_success"));
+    } catch (error) {
+      console.error(error);
+      toast.error(t("subscription-dialog.delete_failed"));
+    }
   }
-
-  const { t } = useTranslation();
 
   return (
     <>
@@ -263,139 +250,104 @@ export function AdminPage() {
         </Breadcrumb>
         <Text hierachy={2}>{t("admin.header")}</Text>
 
-        <Tabs defaultValue="organizations" className="my-2">
-          <TabsList className="w-full">
-            <TabsTrigger value="organizations">
-              {t("admin.organizations")}
-            </TabsTrigger>
-            <TabsTrigger value="subscriptions">
-              {t("admin.subscriptions")}
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="organizations">
-            <Card>
-              <CardHeader>
-                <CardTitle>{t("admin.orga_header")}</CardTitle>
-                <CardDescription>{t("admin.orga_text")}</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <DataTable
+        <div className="flex flex-col gap-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-xl flex">
+                <Building2 className="mr-2" />
+                {t("admin.orga_header")}
+              </CardTitle>
+              <CardDescription>{t("admin.orga_text")}</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {orgasLoading ? (
+                <div>
+                  <TableSkeleton />
+                </div>
+              ) : (
+                <DataTableOrganizations
                   columns={getOrgaColumns(
+                    t,
                     handleEditOrganization,
                     setDeleteTarget,
                     setOpenDeleteDialog,
                   )}
-                  data={orgaData}
+                  data={organizations ?? []}
                   onAdd={() => {
+                    setEditedOrga(null);
                     setIsEditOrgaMode(false);
-                    setEditingOrgIndex(null);
-                    setNewOrgaName("");
-                    setEditingUserData([]);
                     setShowOrgaDialog(true);
                   }}
                 />
-              </CardContent>
-            </Card>
-          </TabsContent>
+              )}
+            </CardContent>
+          </Card>
 
-          <TabsContent value="subscriptions">
-            <Card>
-              <CardHeader>
-                <CardTitle>{t("admin.subs_header")}</CardTitle>
-                <CardDescription>{t("admin.subs_text")}</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <DataTable
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-xl flex">
+                <Newspaper className="mr-2" />
+                {t("admin.subs_header")}
+              </CardTitle>
+              <CardDescription>{t("admin.subs_text")}</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {subsLoading ? (
+                <div>
+                  <TableSkeleton />
+                </div>
+              ) : (
+                <DataTableSubscriptions
                   columns={getSubsColumns(
+                    t,
                     handleEditSubscription,
                     setDeleteTarget,
                     setOpenDeleteDialog,
                   )}
-                  data={subsData}
+                  data={subscriptions ?? []}
                   onAdd={() => {
-                    setNewSubsName("");
-                    setNewURL("");
-                    setNewUsername("");
-                    setNewPassword("");
+                    setEditedSub(null);
                     setIsEditSubsMode(false);
-                    setEditingSubsIndex(null);
                     setShowSubsDialog(true);
                   }}
                 />
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
+              )}
+            </CardContent>
+          </Card>
+        </div>
 
         <OrganizationDialog
           open={showOrgaDialog}
           onOpenChange={setShowOrgaDialog}
           isEdit={isEditOrgaMode}
-          name={newOrgaName}
-          onNameChange={setNewOrgaName}
-          users={editingUserData}
-          setUsers={setEditingUserData}
+          orga={editedOrga}
           onSave={handleSaveOrganization}
-          unsavedEdits={unsavedEdits}
-          setUnsavedEdits={setUnsavedEdits}
-          initialOrgaName={initialOrgaName}
-          showAlert={showAlert}
-          setShowAlert={setShowAlert}
-          showOrgaNameAlert={showOrgaNameAlert}
         />
 
         <SubscriptionDialog
           open={showSubsDialog}
           onOpenChange={setShowSubsDialog}
           isEdit={isEditSubsMode}
-          name={newSubsName}
-          url={newURL}
-          username={newUsername}
-          password={newPassword}
-          setName={setNewSubsName}
-          setURL={setNewURL}
-          setUsername={setNewUsername}
-          setPassword={setNewPassword}
+          sub={editedSub}
           onSave={handleSaveSubscription}
-          showAlert={showAlert}
-          initialSub={initialSub}
         />
 
-        <AlertDialog open={openDeleteDialog} onOpenChange={setOpenDeleteDialog}>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-              <AlertDialogDescription>
-                This will permanently delete this entity
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction
-                className="bg-destructive text-white shadow-xs hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60"
-                onClick={() => {
-                  if (deleteTarget) {
-                    if (deleteTarget.type === "organization") {
-                      handleDeleteOrganization(
-                        deleteTarget.identifier as string,
-                      );
-                    } else if (deleteTarget.type === "subscription") {
-                      handleDeleteSubscription(
-                        deleteTarget.identifier as number,
-                      );
-                    }
-                  }
-
-                  setOpenDeleteDialog(false);
-                  setDeleteTarget(null); // clear after use
-                }}
-              >
-                Delete
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+        <ConfirmationDialog
+          open={openDeleteDialog}
+          onOpenChange={setOpenDeleteDialog}
+          dialogType="delete"
+          action={() => {
+            if (deleteTarget) {
+              if (deleteTarget.type === "organization") {
+                const orga = deleteTarget.data as Organization;
+                handleDeleteOrganization(orga);
+              } else if (deleteTarget.type === "subscription") {
+                const sub = deleteTarget.data as Subscription;
+                handleDeleteSubscription(sub);
+              }
+            }
+          }}
+        />
       </Layout>
     </>
   );
