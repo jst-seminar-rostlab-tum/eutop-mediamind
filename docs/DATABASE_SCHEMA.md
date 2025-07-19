@@ -39,6 +39,7 @@ erDiagram
 
     search_profiles ||--o{ topics : "contains"
     search_profiles ||--o{ matches : "generates"
+    search_profiles ||--o{ reports : "produces"
     search_profiles }o--o{ subscriptions : "filters via search_profiles_subscriptions"
 
     subscriptions ||--o{ articles : "publishes"
@@ -54,8 +55,8 @@ erDiagram
     matching_runs ||--o{ matches : "executes"
     matching_runs ||--o{ reports : "generates"
 
-    search_profiles ||--o{ reports : "produces"
     reports ||--o{ emails : "sent_as"
+    reports ||--o{ email_conversations : "creates"
 
     email_conversations ||--o{ chat_messages : "contains"
 
@@ -88,6 +89,10 @@ erDiagram
         uuid created_by_id FK
         uuid owner_id FK
         uuid organization_id FK
+        array organization_emails
+        array profile_emails
+        array can_read_user_ids
+        array can_edit_user_ids
         string language
     }
 
@@ -132,7 +137,7 @@ erDiagram
     topics {
         uuid id PK
         string name
-        text description
+        string description
         uuid search_profile_id FK
     }
 
@@ -150,56 +155,74 @@ erDiagram
 
     keywords {
         uuid id PK
-        string keyword
-        string language
+        string name
     }
 
     entities {
         uuid id PK
-        string entity_name
         string entity_type
+        string value
+        string value_en
+        string value_de
         uuid article_id FK
     }
 
     reports {
         uuid id PK
-        string file_path
         uuid search_profile_id FK
+        timestamp created_at
+        string time_slot
+        string s3_key
+        string status
         uuid matching_run_id FK
+        string language
     }
 
     emails {
         uuid id PK
-        string email_type
-        string status
+        string sender
+        string recipient
+        string subject
+        text content
+        string content_type
+        integer attempts
+        string state
+        json errors
+        timestamp created_at
+        timestamp update_at
         uuid report_id FK
     }
 
     matching_runs {
         uuid id PK
-        timestamp started_at
-        timestamp completed_at
-        string status
+        timestamp created_at
+        string algorithm_version
     }
 
     crawl_stats {
         uuid id PK
-        integer articles_found
-        timestamp crawl_date
         uuid subscription_id FK
+        integer total_successful
+        integer total_attempted
+        date crawl_date
+        text notes
     }
 
     email_conversations {
         uuid id PK
-        string title
-        string status
+        string subject
+        string user_email
+        timestamp created_at
+        timestamp updated_at
+        uuid report_id FK
     }
 
     chat_messages {
         uuid id PK
+        uuid email_conversation_id FK
+        string role
         text content
-        string sender_type
-        uuid conversation_id FK
+        timestamp created_at
     }
 
     %% Association Tables
