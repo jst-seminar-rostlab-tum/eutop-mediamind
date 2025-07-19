@@ -17,15 +17,15 @@ The `ArticleCleanupService` is a critical maintenance component responsible for 
 
 **Returns**: Dictionary with cleanup statistics
 
-### Five-Phase Deletion Process
+### Five-Phase Deletion Process (in order):
 
 The service implements a sophisticated cascade deletion system to ensure referential integrity:
 
-1. **Article Entities Cleanup** - Removes `ArticleEntity` records (persons, organizations, events)
-2. **Keyword Links Cleanup** - Removes `ArticleKeywordLink` associations while preserving keywords
-3. **Matches Cleanup** - Removes `Match` records linking articles to search profiles
-4. **Vector Store Cleanup** - Removes article embeddings from Qdrant vector database
-5. **Article Deletion** - Final removal of article records
+1. **Article Entities Cleanup** - Deletes `ArticleEntity` (persons, orgs, events)
+2. **Keyword Links Cleanup** - Removes `ArticleKeywordLink` (keeps keywords)
+3. **Matches Cleanup** - Delete `Match` relations to search profiles
+4. **Vector Store Cleanup** - Removes article embeddings from Qdrant
+5. **Article Deletion** - Deltes `Article` records
 
 ## Integration Points
 
@@ -33,31 +33,7 @@ The service implements a sophisticated cascade deletion system to ensure referen
 - **Vector Store**: Uses `ArticleVectorService` for Qdrant operations
 - **Database**: Operates on PostgreSQL with foreign key constraints
 
-## Database Schema Impact
-
-### Affected Tables
-
-- `articles` - Primary entities being cleaned
-- `article_entities` - Named entities extracted from articles
-- `article_keyword_links` - Article-keyword associations with scores
-- `matches` - Article-search profile matching results
-
-### Deletion Order
-
-The specific deletion order ensures referential integrity:
-
-1. Child entities first (entities, keyword links, matches)
-2. Vector store embeddings
-3. Parent articles last
-
 ## Usage Examples
-
-### Standard Cleanup (180 days)
-
-```python
-service = ArticleCleanupService()
-stats = await service.cleanup_articles_older_than_days()
-```
 
 ### Custom Retention Period
 
@@ -68,12 +44,8 @@ stats = await service.cleanup_articles_older_than_days(days=90, batch_size=50)
 
 ## Important Notes
 
-⚠️ **Critical Operation**: This service performs irreversible data deletion. Always:
-
-- Test in non-production environments first
-- Ensure proper backups before execution
-- Monitor system resources during cleanup
-- Verify cleanup statistics after completion
+⚠️ **Critical Operation**:
+Irreversible deletion. Test thoroughly, ensure backups, monitor resources.
 
 ## File Locations
 
