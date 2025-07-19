@@ -9,7 +9,7 @@
   "Delete": "Löschen",
   "search": "Suchen",
   "Cancel": "Abbruch",
-  "save_changes": "Änderungen speichern",
+  "save_changes": "Änderungen Speichern",
   "Search": "Suche",
   "select_date": "Datum auswählen",
   "yes": "Ja",
@@ -92,7 +92,7 @@
     "creating": "Erstellen...",
     "saving": "Speichern...",
     "save_create": "Profil erstellen",
-    "save_changes": "Änderungen speichern",
+    "save_changes": "Änderungen Speichern",
     "suggestions_text": "Füge ein Schlagwort hinzu, um AI-Vorschläge zu erhalten."
   },
 
@@ -153,8 +153,8 @@
   },
 
   "subscriptions": {
-    "header": "Quellen",
-    "source": "Quelle",
+    "header": "Abonnements",
+    "source": "Abonnement",
     "info": "Konfigurieren sie die Web Scraping Quellen, die für die externe Email liste benutzt werden",
     "no_results": "No results.",
     "active": "Aktiv"
@@ -236,7 +236,7 @@
     "Topics": "Themen",
     "Keywords": "Schlagwörter",
     "Sorting": "Sortierung",
-    "Sources": "Quellen",
+    "Sources": "Abonnements",
     "Date": "Datum",
     "From": "Von",
     "To": "Bis",
@@ -310,7 +310,7 @@
 
   "crawler_stats": {
     "title": "Crawler Statistiken",
-    "source": "Quelle",
+    "source": "Abonnement",
     "date": "Datum",
     "successful": "Erfolgreich",
     "attempted": "Versucht",
