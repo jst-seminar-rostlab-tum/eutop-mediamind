@@ -145,104 +145,108 @@ class PDFService:
         news_items: List[NewsItem],
         translator: Callable[[str], str],
     ) -> bytes:
-        dimensions = A4
-        logger.debug("Articles chosen before PDF Generation:")
-        # Logging which articles, if they have summaries and keywords
-        for news in news_items:
-            logger.debug(
-                f"Processing News item: {news.id}, Summary:  \
-                {True if news.summary else False}, Keywords:  \
-                {True if news.keywords else 'False'}"
+        try:
+            dimensions = A4
+            logger.debug("Articles chosen before PDF Generation:")
+            # Logging which articles, if they have summaries and keywords
+            for news in news_items:
+                logger.debug(
+                    f"Processing News item: {news.id}, Summary:  \
+                    {True if news.summary else False}, Keywords:  \
+                    {True if news.keywords else 'False'}"
+                )
+
+            # Prepare all flowable elements for the PDF
+            cover_elements = PDFService.__draw_cover_elements(
+                news_items, dimensions, translator
+            )
+            summaries_elements = PDFService.__create_summaries_elements(
+                news_items, dimensions, translator
+            )
+            full_articles_elements = PDFService.__create_full_articles_elements(
+                news_items, dimensions, translator, PDFService.styles
+            )
+            # Add appendix with original articles
+            original_elements = PDFService._PDFService__create_original_elements(
+                news_items, PDFService.styles, translator
+            )
+            # Combine all elements
+            all_elements = []
+            all_elements.append(NextPageTemplate("Cover"))
+            all_elements.extend(cover_elements)
+            # Add NextPageTemplate to switch to three-column layout for summaries
+            all_elements.append(NextPageTemplate("SummariesThreeCol"))
+            all_elements.append(PageBreak())
+            all_elements.extend(summaries_elements)
+            # Switch back to full-width single-column layout for full articles
+            all_elements.append(NextPageTemplate("FullArticles"))
+            all_elements.append(PageBreak())
+            all_elements.extend(full_articles_elements)
+            # Add appendix with original articles
+            all_elements.extend(original_elements)
+
+            buffer = BytesIO()
+            width, height = dimensions
+            margin = inch
+
+            # Use a single frame for simplicity, as elements can use PageBreaks
+            frame = Frame(
+                margin, margin, width - 2 * margin, height - 2 * margin, id="main"
             )
 
-        # Prepare all flowable elements for the PDF
-        cover_elements = PDFService.__draw_cover_elements(
-            news_items, dimensions, translator
-        )
-        summaries_elements = PDFService.__create_summaries_elements(
-            news_items, dimensions, translator
-        )
-        full_articles_elements = PDFService.__create_full_articles_elements(
-            news_items, dimensions, translator, PDFService.styles
-        )
-        # Add appendix with original articles
-        original_elements = PDFService._PDFService__create_original_elements(
-            news_items, PDFService.styles, translator
-        )
-        # Combine all elements
-        all_elements = []
-        all_elements.append(NextPageTemplate("Cover"))
-        all_elements.extend(cover_elements)
-        # Add NextPageTemplate to switch to three-column layout for summaries
-        all_elements.append(NextPageTemplate("SummariesThreeCol"))
-        all_elements.append(PageBreak())
-        all_elements.extend(summaries_elements)
-        # Switch back to full-width single-column layout for full articles
-        all_elements.append(NextPageTemplate("FullArticles"))
-        all_elements.append(PageBreak())
-        all_elements.extend(full_articles_elements)
-        # Add appendix with original articles
-        all_elements.extend(original_elements)
-
-        buffer = BytesIO()
-        width, height = dimensions
-        margin = inch
-
-        # Use a single frame for simplicity, as elements can use PageBreaks
-        frame = Frame(
-            margin, margin, width - 2 * margin, height - 2 * margin, id="main"
-        )
-
-        # Define a full-width frame for full articles
-        full_article_frame = Frame(
-            margin,
-            margin,
-            width - 2 * margin,
-            height - 2 * margin,
-            id="full_article",
-        )
-
-        # Define three vertical frames evenly spaced across the page width for
-        # summaries
-        frame_width = (width - 2 * margin) / 3
-        frames = [
-            Frame(
-                margin + i * frame_width,
+            # Define a full-width frame for full articles
+            full_article_frame = Frame(
                 margin,
-                frame_width,
+                margin,
+                width - 2 * margin,
                 height - 2 * margin,
-                id=f"col{i}",
+                id="full_article",
             )
-            for i in range(3)
-        ]
 
-        doc = BaseDocTemplate(
-            buffer,
-            pagesize=A4,
-            rightMargin=margin,
-            leftMargin=margin,
-            topMargin=margin,
-            bottomMargin=margin,
-        )
-        on_page = partial(PDFService.draw_header_footer, translator=translator)
-        doc.addPageTemplates(
-            [
-                PageTemplate(id="Cover", frames=[frame]),
-                PageTemplate(
-                    id="SummariesThreeCol",
-                    frames=frames,
-                    onPage=on_page,
-                ),
-                PageTemplate(
-                    id="FullArticles",
-                    frames=[full_article_frame],
-                    onPage=on_page,
-                ),
+            # Define three vertical frames evenly spaced across the page width for
+            # summaries
+            frame_width = (width - 2 * margin) / 3
+            frames = [
+                Frame(
+                    margin + i * frame_width,
+                    margin,
+                    frame_width,
+                    height - 2 * margin,
+                    id=f"col{i}",
+                )
+                for i in range(3)
             ]
-        )
-        doc.build(all_elements)
-        buffer.seek(0)
-        return buffer.getvalue()
+
+            doc = BaseDocTemplate(
+                buffer,
+                pagesize=A4,
+                rightMargin=margin,
+                leftMargin=margin,
+                topMargin=margin,
+                bottomMargin=margin,
+            )
+            on_page = partial(PDFService.draw_header_footer, translator=translator)
+            doc.addPageTemplates(
+                [
+                    PageTemplate(id="Cover", frames=[frame]),
+                    PageTemplate(
+                        id="SummariesThreeCol",
+                        frames=frames,
+                        onPage=on_page,
+                    ),
+                    PageTemplate(
+                        id="FullArticles",
+                        frames=[full_article_frame],
+                        onPage=on_page,
+                    ),
+                ]
+            )
+            doc.build(all_elements)
+            buffer.seek(0)
+            return buffer.getvalue()
+        except Exception as e:
+            logger.error(f"Error generating PDF: {e}")
+            raise
 
 
 PDFService._PDFService__draw_cover_elements = staticmethod(

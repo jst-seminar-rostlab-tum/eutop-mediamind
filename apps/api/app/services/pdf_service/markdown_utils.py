@@ -11,7 +11,7 @@ def markdown_to_html(text: str) -> str:
     Does NOT handle headings or block structure.
     """
     # Bold-italic: ***text*** or ___text___
-    text = re.sub(r"\*\*\*(.+?)\*\*\*", r"<b><i>\1</i></b>", text)
+    text = re.sub(r"\*\*\*\*(.+?)\*\*\*\*", r"<b><i>\1</i></b>", text)
     text = re.sub(r"___(.+?)___", r"<b><i>\1</i></b>", text)
     # Bold: **text** or __text__
     text = re.sub(r"\*\*(.+?)\*\*", r"<b>\1</b>", text)
