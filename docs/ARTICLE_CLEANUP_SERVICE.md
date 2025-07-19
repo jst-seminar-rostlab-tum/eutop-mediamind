@@ -27,47 +27,7 @@ The service implements a sophisticated cascade deletion system to ensure referen
 4. **Vector Store Cleanup** - Removes article embeddings from Qdrant vector database
 5. **Article Deletion** - Final removal of article records
 
-## Technical Implementation
-
-### Batch Processing
-
-- Processes articles in configurable batches (default: 100)
-- Uses offset-based pagination for memory efficiency
-- Provides transaction safety with automatic rollback on errors
-
-### Statistics Tracking
-
-The service tracks comprehensive statistics:
-
-```python
-{
-    "articles_processed": 0,
-    "articles_deleted": 0,
-    "entities_deleted": 0,
-    "keyword_links_deleted": 0,
-    "matches_deleted": 0,
-    "vector_store_deletions": 0,
-    "errors": 0,
-    "cutoff_date": "2024-01-16T17:00:00"
-}
-```
-
-### Error Handling
-
-- Database transaction rollback on batch failures
-- Graceful error logging with detailed statistics
-- Continues processing on non-critical errors
-- Vector store deletion errors are logged but don't stop the process
-
-## Configuration
-
-### Default Settings
-
-- **Retention Period**: 180 days
-- **Batch Size**: 100 articles
-- **Cutoff Calculation**: `datetime.now() - timedelta(days=days)`
-
-### Integration Points
+## Integration Points
 
 - **Pipeline Integration**: Executed in main processing pipeline after email sending
 - **Vector Store**: Uses `ArticleVectorService` for Qdrant operations
@@ -90,34 +50,6 @@ The specific deletion order ensures referential integrity:
 2. Vector store embeddings
 3. Parent articles last
 
-## Performance Considerations
-
-### Scalability
-
-- Batch processing prevents memory overload
-- Query optimization through index usage on `published_at`
-- Configurable batch size for different system loads
-
-### Resource Usage
-
-- Memory efficient through streaming approach
-- Database connection pooling through SQLAlchemy
-- Minimal vector store API calls through batch operations
-
-## Safety Procedures
-
-### Monitoring During Cleanup
-
-- Monitor batch processing statistics
-- Track error rates and types
-- Verify deletion counts align with expectations
-
-### Post-Cleanup Validation
-
-- Verify referential integrity maintenance
-- Check vector store consistency
-- Validate cleanup statistics accuracy
-
 ## Usage Examples
 
 ### Standard Cleanup (180 days)
@@ -134,24 +66,6 @@ service = ArticleCleanupService()
 stats = await service.cleanup_articles_older_than_days(days=90, batch_size=50)
 ```
 
-### Pipeline Integration
-
-Located in `apps/api/app/services/pipeline.py` (lines 64-70):
-
-```python
-# Article cleanup (180 days retention, 100 article batches)
-cleanup_service = ArticleCleanupService()
-cleanup_stats = await cleanup_service.cleanup_articles_older_than_days()
-```
-
-## Troubleshooting
-
-### Common Issues
-
-1. **Vector Store Connection Errors**: Check Qdrant availability and credentials
-2. **Database Lock Timeouts**: Reduce batch size during high-traffic periods
-3. **Memory Issues**: Lower batch size for large article volumes
-
 ## Important Notes
 
 ⚠️ **Critical Operation**: This service performs irreversible data deletion. Always:
@@ -160,10 +74,6 @@ cleanup_stats = await cleanup_service.cleanup_articles_older_than_days()
 - Ensure proper backups before execution
 - Monitor system resources during cleanup
 - Verify cleanup statistics after completion
-
-🔒 **Security**: The service requires database write permissions and vector store access. Ensure proper authentication and authorization.
-
-📊 **Monitoring**: Integrate cleanup statistics into monitoring systems to track storage optimization and identify potential issues.
 
 ## File Locations
 
