@@ -18,7 +18,7 @@ from app.core.db import async_session
 from app.core.logger import get_logger
 from app.models.subscription import Subscription
 from app.repositories.subscription_repository import SubscriptionRepository
-from app.services.llm_service.llm_client import LLMClient, LLMModels
+from app.services.llm_service.llm_client import LLMClient
 from app.services.llm_service.llm_models import TaskModelMapping
 from app.services.web_harvester.utils.web_utils import (
     change_frame,

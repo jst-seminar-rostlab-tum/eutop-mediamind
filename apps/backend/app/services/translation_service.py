@@ -11,7 +11,7 @@ from langdetect import detect
 from app.core.logger import get_logger
 from app.repositories.article_repository import ArticleRepository
 from app.repositories.entity_repository import ArticleEntityRepository
-from app.services.llm_service.llm_client import LLMClient, LLMModels
+from app.services.llm_service.llm_client import LLMClient
 from app.services.llm_service.llm_models import TaskModelMapping
 
 logger = get_logger(__name__)
