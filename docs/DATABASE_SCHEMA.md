@@ -8,24 +8,23 @@ The MediaMind system uses a PostgreSQL database with 18+ tables supporting news 
 
 ### Backend Tables (`apps/backend/app/models/`)
 
-- **articles.py** - News articles with multilingual support
-- **users.py** - User management and authentication
-- **organizations.py** - Multi-tenant organization structure
-- **search_profiles.py** - Content filtering profiles
-- **subscriptions.py** - News sources configuration
-- **matches.py** - Article-profile matching results
-- **topics.py** - Thematic content groupings
-- **keywords.py** - Search and matching keywords
-- **entities.py** - Named entity extraction results
-- **reports.py** - Generated PDF reports
-- **emails.py** - Email delivery tracking
-- **email_conversations.py** - Chatbot conversation threads
-- **chat_messages.py** - Individual chat interactions
-- **matching_runs.py** - Algorithm execution tracking
+- **article.py** - News articles with multilingual support
+- **user.py** - User management and authentication
+- **organization.py** - Multi-tenant organization structure
+- **search_profile.py** - Content filtering profiles
+- **subscription.py** - News sources configuration
+- **match.py** - Article-profile matching results
+- **topic.py** - Thematic content groupings
+- **keyword.py** - Search and matching keywords
+- **entity.py** - Named entity extraction results
+- **report.py** - Generated PDF reports
+- **email.py** - Email delivery tracking
+- **email_conversation.py** - Chatbot conversation threads
+- **chat_message.py** - Individual chat interactions
+- **matching_run.py** - Algorithm execution tracking
 - **crawl_stats.py** - Web crawling performance metrics
-
-### API Tables (`apps/api/app/models/`)
-
+- **auth.py** - Authentication models and utilities
+- **breaking_news.py** - Breaking news notifications
 - **associations.py** - Many-to-many relationship tables
 
 ## Database Schema Diagram
@@ -34,24 +33,23 @@ The MediaMind system uses a PostgreSQL database with 18+ tables supporting news 
 erDiagram
     organizations ||--o{ users : "has"
     organizations ||--o{ search_profiles : "owns"
-    organizations }o--o{ subscriptions : "accesses"
+    organizations }o--o{ subscriptions : "accesses via organizations_subscriptions"
 
-    users ||--o{ search_profiles : "creates"
-    users }o--o{ search_profiles : "permissions"
+    users }o--o{ search_profiles : "permissions via users_search_profiles"
 
     search_profiles ||--o{ topics : "contains"
     search_profiles ||--o{ matches : "generates"
-    search_profiles }o--o{ subscriptions : "filters"
+    search_profiles }o--o{ subscriptions : "filters via search_profiles_subscriptions"
 
     subscriptions ||--o{ articles : "publishes"
     subscriptions ||--o{ crawl_stats : "tracks"
 
     articles ||--o{ matches : "matched_in"
     articles ||--o{ entities : "contains"
-    articles }o--o{ keywords : "tagged_with"
+    articles }o--o{ keywords : "tagged_with via articles_keywords"
 
     topics ||--o{ matches : "categorizes"
-    topics }o--o{ keywords : "defined_by"
+    topics }o--o{ keywords : "defined_by via topics_keywords"
 
     matching_runs ||--o{ matches : "executes"
     matching_runs ||--o{ reports : "generates"
@@ -76,7 +74,10 @@ erDiagram
         string first_name
         string last_name
         boolean is_superuser
+        boolean breaking_news
+        string language
         string role
+        string gender
         uuid organization_id FK
     }
 
@@ -97,7 +98,10 @@ erDiagram
         boolean paywall
         boolean is_active
         json crawlers
+        json login_config
         json scrapers
+        bytea encrypted_secrets
+        bytea encrypted_username
     }
 
     articles {
@@ -105,9 +109,23 @@ erDiagram
         string title
         text content
         string url
+        string image_url
+        json authors
         timestamp published_at
         string language
+        json categories
+        text summary
         string status
+        integer relevance
+        text title_en
+        text title_de
+        text content_en
+        text content_de
+        text summary_en
+        text summary_de
+        timestamp crawled_at
+        timestamp scraped_at
+        text note
         uuid subscription_id FK
     }
 
@@ -123,6 +141,8 @@ erDiagram
         uuid article_id FK
         uuid search_profile_id FK
         uuid topic_id FK
+        integer sorting_order
+        text comment
         float score
         timestamp matched_at
         uuid matching_run_id FK
@@ -181,31 +201,34 @@ erDiagram
         string sender_type
         uuid conversation_id FK
     }
+
+    %% Association Tables
+    organizations_subscriptions {
+        uuid organization_id PK,FK
+        uuid subscription_id PK,FK
+    }
+
+    users_search_profiles {
+        uuid user_id PK,FK
+        uuid search_profile_id PK,FK
+    }
+
+    search_profiles_subscriptions {
+        uuid search_profile_id PK,FK
+        uuid subscription_id PK,FK
+    }
+
+    articles_keywords {
+        uuid article_id PK,FK
+        uuid keyword_id PK,FK
+        float score
+    }
+
+    topics_keywords {
+        uuid topic_id PK,FK
+        uuid keyword_id PK,FK
+    }
 ```
-
-## Key Relationships
-
-### Core Data Flow
-
-1. **Organizations** contain **Users** and own **Search Profiles**
-2. **Subscriptions** publish **Articles** that get crawled and processed
-3. **Search Profiles** define filtering criteria and generate **Topics**
-4. **Articles** are matched against **Topics** to create **Matches**
-5. **Matching Runs** execute algorithms and generate **Reports**
-6. **Reports** are distributed via **Emails**
-
-### Content Processing Pipeline
-
-- Articles are crawled from Subscriptions
-- Named Entities and Keywords are extracted from Articles
-- Matching algorithms connect Articles to Search Profiles via Topics
-- Results are compiled into Reports and sent as Emails
-
-### User & Permission Model
-
-- Organizations provide multi-tenant data isolation
-- Users have role-based access (admin > maintainer > member)
-- Search Profiles support hierarchical permissions (owner > editor > reader)
 
 ## Migration Files
 
@@ -217,5 +240,4 @@ erDiagram
 
 - All tables use UUID primary keys
 - Multilingual support (EN/DE) throughout the system
-- JSON fields for flexible configuration storage
 - Encrypted credentials for secure data handling
