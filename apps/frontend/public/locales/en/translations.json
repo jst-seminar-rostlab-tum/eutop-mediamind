@@ -177,7 +177,8 @@
     "no_user": "No user found.",
     "no_results": "No results.",
     "orgas_error": "Failed to fetch organizations",
-    "subs_error": "Failed to fetch subscriptions"
+    "subs_error": "Failed to fetch subscriptions",
+    "search_user": "Search user..."
   },
 
   "organization-dialog": {
