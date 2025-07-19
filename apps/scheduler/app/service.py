@@ -65,7 +65,7 @@ class SchedulerService:
         """
         self._scheduler.schedule(
             id=str(id),
-            scheduled_time=datetime.now(),
+            scheduled_time=datetime.now(timezone.utc),
             func=func,
             args=args,
             interval=every_seconds,

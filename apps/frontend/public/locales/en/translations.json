@@ -14,14 +14,49 @@
   "select_date": "Select Date",
   "yes": "Yes",
   "no": "No",
-  "save": "Save",
+  "Save": "Save changes",
 
   "breadcrumb_home": "Home",
 
   "landing_page": {
-    "welcome": "Welcome to MediaMind",
-    "welcome_text": "Stay ahead in the fast-changing world of media with our Automated Press Analysis Tool. Keep your client teams informed and prepared with daily press reviews, personalized to your needs. Our platform extracts and compiles the most relevant news articles into concise, anonymized reports – delivered directly to your inbox each morning. Save time, stay informed, and focus on what matters most – delivering value to your clients.",
-    "credits": "MediaMind was build in cooperation between EUTOP, the Technical University of Munich and CSEE during the Javascript Technology Practicum."
+    "header_slogan": "Stay ahead in the fast-changing world of digital media",
+    "header_description": "Your automated press analysis tool",
+    "credits": "MediaMind was build in cooperation between EUTOP, the Technical University of Munich and CSEE during the Javascript Technology Practicum.",
+    "dashboard_header": "Manage your Search Profiles",
+    "dashboard_text": "Clean interface to manage all profiles in one Dashboard",
+    "topics_header": "Start creating your Search Profiles",
+    "topics_text": "Specify your topics of interest with the desired keywords and get AI suggestions for the best additional keywords",
+    "add_topic": "You want to add topics and more? Login and get access to all features!",
+    "click_reports": "You want to see reports and more? Login and get access to all features!",
+    "search_profile_header": "View your matched articles",
+    "search_profile_text": "Topic and article  matches are rate by relevance based on semantic similarity. Also search in the Vector Database directly via the searchbar",
+    "article_header": "Read articles directly in the application",
+    "article_text": "Get a detailed overview of the article with all topics, keywords and their scores",
+    "email_header": "Every morning - directly in your Inbox!",
+    "email_text": "Receive your tailored reports daily via email. You can download them or visit the article directly in the application",
+    "breaking_header": "Read all breaking news",
+    "breaking_text": "Stay informed with all global breaking news in one spot",
+    "breaking_toast": "You want to see breaking news and more? Check out the breaking news preview or log in!",
+    "sp_toast": "You want to create your own Search profile? Log in and enjoy all features",
+    "edit_profile_toast": "You want to edit profiles and more? Log in and experience all features!",
+    "reports_toast": "You want to view reports and more? Log in and experience the full functionality!",
+    "delete_profile_toast": "You want to delete profiles and more? Log in and experience the full functionality!",
+    "checkout_sp_toast": "You want to see the search profile and more? Check out the search profile preview or log in!",
+    "original_toast": "You want to access articles and more? Log in and experience the full functionality!"
+  },
+
+  "mock_data": {
+    "breaking_title_1": "Breakthrough in Sustainable Tire Technology Reduces Microplastic Emissions",
+    "breaking_summary_1": "A German startup has developed a biodegradable tire compound that significantly reduces microplastic emissions without compromising performance. Early tests show a 40% drop in road wear particles.",
+
+    "breaking_title_2": "EU Announces New Incentives for Hydrogen Truck Adoption",
+    "breaking_summary_2": "The European Commission unveiled a subsidy program aimed at accelerating the transition to hydrogen-powered freight transport, with up to €150,000 available per vehicle for eligible operators.",
+
+    "breaking_title_3": "French Automotive Supplier Launches AI-Driven Battery Diagnostics Platform",
+    "breaking_summary_3": "ValeonTech has introduced a new software solution for EV manufacturers that leverages AI to predict battery degradation and optimize charging behavior over time.",
+
+    "breaking_title_4": "Norway's Offshore Wind Expansion Set to Power 2 Million Homes",
+    "breaking_summary_4": "Norway's government has approved funding for a 6.5 GW offshore wind farm in the North Sea, expected to begin construction in 2026. The project will be one of the largest of its kind in Europe."
   },
 
   "dashboard": {
@@ -118,8 +153,8 @@
   },
 
   "subscriptions": {
-    "header": "Sources",
-    "source": "Source",
+    "header": "Subscriptions",
+    "source": "Subscription",
     "info": "Configure web scraping sources used for the external mailing list",
     "no_results": "No results.",
     "active": "Active"
@@ -130,17 +165,20 @@
     "header": "Admin Settings",
     "organizations": "Organizations",
     "subscriptions": "Subscriptions",
+    "organization": "Organization",
+    "subscription": "Subscription",
     "orga_header": "Manage Organizations",
-    "orga_text": "Make changes to your Organizations here. You can add, edit or delete them",
+    "orga_text": "Make changes to your organizations here. You can add, edit or delete them",
     "subs_header": "Manage Subscriptions",
-    "subs_text": "Make changes to your Subscriptions here. You can add, edit or delete them",
+    "subs_text": "Make changes to your subscriptions here. You can add, edit or delete them",
     "admin": "admin",
     "user": "user",
     "add_user": "Add User...",
     "no_user": "No user found.",
     "no_results": "No results.",
     "orgas_error": "Failed to fetch organizations",
-    "subs_error": "Failed to fetch subscriptions"
+    "subs_error": "Failed to fetch subscriptions",
+    "search_user": "Search user..."
   },
 
   "organization-dialog": {
@@ -148,8 +186,8 @@
     "add_header": "Add Organization",
     "edit_text": "Edit your organization here. Click save when you're done.",
     "add_text": "Enter the name of the Organization you want to add. Click save when you're done.",
-    "name_error_header": "Organization Name is Empty",
-    "name_error_text": "Please insert a valid Organization Name",
+    "name_error_header": "Organization name is empty",
+    "name_error_text": "Please insert a valid organization name",
     "email_error_header": "Invalid Email",
     "email_error_text": "Please insert a valid and unique email address.",
     "Name": "Name",
@@ -158,7 +196,7 @@
     "New_Organization": "New Organization",
     "maintainer": "Maintainer",
     "member": "Member",
-    "user_already_added": "This user is already part of the Organization",
+    "user_already_added": "This user is already part of the organization",
     "delete_success": "Organization deleted successfully",
     "delete_failed": "Organization could not be delete",
     "create_success": "Organization created successfully",
@@ -174,8 +212,8 @@
   "subscription-dialog": {
     "edit_header": "Edit Subscription",
     "add_header": "Add Subscription",
-    "edit_text": "Edit your Subscription here. Click save when you're done.",
-    "add_text": "Enter the name of the Subscription you want to add. Click save when you're done.",
+    "edit_text": "Edit your subscription here. Click save when you're done.",
+    "add_text": "Enter the name of the subscription you want to add. Click save when you're done.",
     "credentials_error_header": "Invalid Credentials",
     "credentials_error_text": "Please insert valid credentials.",
     "Name": "Name",
@@ -203,7 +241,7 @@
     "Topics": "Topics",
     "Keywords": "Keywords",
     "Sorting": "Sorting",
-    "Sources": "Sources",
+    "Sources": "Subscriptions",
     "Date": "Date",
     "From": "From",
     "To": "To",
@@ -215,7 +253,7 @@
     "reports": "Reports",
     "Explore": "Explore",
     "New_Articles": "New Articles",
-    "articles_error": "Error fetching Articles",
+    "articles_error": "Error fetching articles",
     "no_image": "No Image"
   },
 
@@ -231,7 +269,18 @@
     "meta_data_category": "Category",
     "keywords_text": "Displays matched profile topics with keywords, and a score indicating topic relevance to the article.",
     "show_more": "Show more",
-    "show_less": "Show less"
+    "show_less": "Show less",
+    "no_summary": "No summary available.",
+    "entities_text": "Displays entities related to the article.",
+    "entities": "Entities",
+    "no_entities": "No items in this category.",
+    "person": "People",
+    "event": "Events",
+    "organization": "Organizations",
+    "citation": "Citations",
+    "industry": "Industries",
+    "limited_content": "Limited content available",
+    "limited_content_description": "This article displays only a summary in place of the full content. Your organization's subscription is not valid. For full access, please contact your administrator."
   },
 
   "role-badge": {
@@ -266,7 +315,7 @@
 
   "crawler_stats": {
     "title": "Crawler Stats",
-    "subscription": "Subscription",
+    "source": "Subscription",
     "date": "Date",
     "successful": "Successful",
     "attempted": "Attempted",
@@ -312,8 +361,8 @@
 
   "organisation_settings": {
     "title": "Organization Settings",
-    "pdf_as_link": "Reports as Link",
-    "pdf_as_link_text": "Decide whether reports within your organization should be sent as a link or as a PDF attachment.",
+    "pdf_as_link": "Reports as link",
+    "pdf_as_link_text": "Decide whether the reports within your organization should be sent as a link or as a PDF attachment.",
     "subscriptions": "Subscriptions",
     "subscriptions_text": "Manage the subscriptions that can be used for search profiles in your organization.",
     "success": "Organization settings updated successfully.",
