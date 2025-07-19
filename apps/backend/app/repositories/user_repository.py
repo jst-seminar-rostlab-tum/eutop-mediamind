@@ -287,3 +287,16 @@ class UserRepository:
             await session.refresh(db_user)
 
             return _to_user_entity(db_user)
+
+    @staticmethod
+    async def get_all_superuser_emails() -> List[str]:
+        """
+        Return a list of email addresses of all superusers.
+        """
+        async with async_session() as session:
+            stmt = select(User.email).where(
+                User.is_superuser.is_(True), User.email.isnot(None)
+            )
+            result = await session.execute(stmt)
+            emails = result.scalars().all()
+            return list(emails)
