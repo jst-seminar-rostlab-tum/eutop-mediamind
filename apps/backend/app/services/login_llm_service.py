@@ -19,6 +19,7 @@ from app.core.logger import get_logger
 from app.models.subscription import Subscription
 from app.repositories.subscription_repository import SubscriptionRepository
 from app.services.llm_service.llm_client import LLMClient, LLMModels
+from app.services.llm_service.llm_models import TaskModelMapping
 from app.services.web_harvester.utils.web_utils import (
     change_frame,
     click_element,
@@ -399,7 +400,9 @@ class LoginLLM:
 
     @staticmethod
     def _count_tokens(text):
-        enc = tiktoken.encoding_for_model(LLMModels.openai_4o.value)
+        enc = tiktoken.encoding_for_model(
+            TaskModelMapping.LOGIN_AUTOMATION.value
+        )
         return len(enc.encode(text))
 
     @staticmethod
@@ -447,7 +450,7 @@ class LoginLLM:
         await asyncio.sleep(3)
         website_image = LoginLLM._take_screenshot(driver)
         try:
-            client = LLMClient(LLMModels.openai_4o)
+            client = LLMClient(TaskModelMapping.LOGIN_AUTOMATION)
             html_chunks = LoginLLM._split_html(html, MAX_TOKENS)
             tasks = [
                 LoginLLM._send_chunk_to_llm(
