@@ -56,7 +56,7 @@ export const CrawlerStatsPage = () => {
     () => [
       {
         accessorKey: "subscription_name",
-        header: t("crawler_stats.subscription"),
+        header: t("crawler_stats.source"),
         enableSorting: true,
       },
       {

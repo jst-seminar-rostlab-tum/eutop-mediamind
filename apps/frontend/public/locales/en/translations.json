@@ -14,6 +14,7 @@
   "select_date": "Select Date",
   "yes": "Yes",
   "no": "No",
+  "Save": "Save changes",
 
   "breadcrumb_home": "Home",
 
@@ -164,6 +165,8 @@
     "header": "Admin Settings",
     "organizations": "Organizations",
     "subscriptions": "Subscriptions",
+    "organization": "Organization",
+    "subscription": "Subscription",
     "orga_header": "Manage Organizations",
     "orga_text": "Make changes to your Organizations here. You can add, edit or delete them",
     "subs_header": "Manage Subscriptions",
@@ -311,7 +314,7 @@
 
   "crawler_stats": {
     "title": "Crawler Stats",
-    "subscription": "Subscription",
+    "source": "Source",
     "date": "Date",
     "successful": "Successful",
     "attempted": "Attempted",
@@ -353,5 +356,15 @@
     "breaking_news_update_error": "Error updating the breaking news preference",
     "breaking_news": "Receive Breaking News notifications via email",
     "breaking_news_title": "Breaking News Notifications"
+  },
+
+  "organisation_settings": {
+    "title": "Organization Settings",
+    "pdf_as_link": "Reports as link",
+    "pdf_as_link_text": "Decide whether the reports within your organization should be sent as a link or as a PDF attachment.",
+    "subscriptions": "Subscriptions",
+    "subscriptions_text": "Manage the subscriptions that can be used for search profiles in your organization.",
+    "success": "Organization settings updated successfully.",
+    "error": "Error updating organization settings."
   }
 }
