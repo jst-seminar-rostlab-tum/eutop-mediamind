@@ -299,4 +299,4 @@ class UserRepository:
             )
             result = await session.execute(stmt)
             emails = result.scalars().all()
-            return list(emails)
+            return List(emails)
