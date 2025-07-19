@@ -43,10 +43,8 @@ function getUserRole(profile: Profile, userId: string): string {
     return "owner";
   } else if (profile.can_edit_user_ids.includes(userId)) {
     return "editor";
-  } else if (profile.can_read_user_ids.includes(userId)) {
-    return "reader";
   }
-  return "";
+  return "reader";
 }
 
 function getProfileVisibility(profile: Profile, userId: string): string {

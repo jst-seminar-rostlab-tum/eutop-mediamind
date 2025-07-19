@@ -55,7 +55,7 @@ export function SearchProfileOverview() {
 
   const [searchTerm, setSearchTerm] = useState<string>("");
 
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const [matches, setMatches] = useState<MatchesResponse | undefined>(
     undefined,
@@ -90,7 +90,6 @@ export function SearchProfileOverview() {
   yesterday.setDate(today.getDate() - 1);
 
   useEffect(() => {
-    //init base matches search for first POST
     if (!profileError && profile && profile.subscriptions && profile.topics) {
       const subscriptionIds = profile.subscriptions.map((s) => s.id);
       const topicsIds = profile.topics.map((s) => s.id);
@@ -200,7 +199,7 @@ export function SearchProfileOverview() {
           </div>
 
           <div className="overflow-hidden grow flex flex-row justify-start mt-2 mb-4 gap-8">
-            <div className="max-w-[400px] h-full">
+            <div className="max-w-[400px] min-w-[400px] h-full">
               <SidebarFilter
                 sortBy={sortBy}
                 setSortBy={setSortBy}
@@ -271,6 +270,7 @@ export function SearchProfileOverview() {
                                     src={match.article.image_urls[0]}
                                     alt={getLocalizedContent(
                                       match.article.headline,
+                                      i18n,
                                     )}
                                     className="w-[180px] h-[180px] object-cover rounded-md shadow-md shrink-0"
                                     onError={() => setImgError(true)}
@@ -280,10 +280,14 @@ export function SearchProfileOverview() {
                                   <CardTitle className="text-xl line-clamp-2">
                                     {getLocalizedContent(
                                       match.article.headline,
+                                      i18n,
                                     )}
                                   </CardTitle>
                                   <p className="line-clamp-3">
-                                    {getLocalizedContent(match.article.summary)}
+                                    {getLocalizedContent(
+                                      match.article.summary,
+                                      i18n,
+                                    )}
                                   </p>
                                 </div>
                               </div>

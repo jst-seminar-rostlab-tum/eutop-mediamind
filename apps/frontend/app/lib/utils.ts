@@ -80,7 +80,10 @@ export function getDateComponents(dateString: string) {
   }
 }
 
-export function getLocalizedContent(content: { [key: string]: string }) {
+export function getLocalizedContent(
+  content: { [key: string]: string },
+  i18n: { language: string },
+) {
   if (content[i18n.language]) {
     return content[i18n.language];
   }
@@ -91,7 +94,7 @@ export function getLocalizedContent(content: { [key: string]: string }) {
   if (content["de"]) {
     return content["de"];
   }
-  return "Error";
+  return "";
 }
 
 export function getPercentage(decimal_percentage: number) {
