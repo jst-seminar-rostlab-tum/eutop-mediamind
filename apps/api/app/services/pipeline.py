@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime
 
 from app.core.languages import Language
@@ -14,6 +15,8 @@ from app.services.web_harvester.web_harvester_orchestrator import (
     run_crawler,
     run_scraper,
 )
+
+logging.getLogger("LiteLLM").setLevel(logging.WARNING)
 
 logger = get_logger(__name__)
 

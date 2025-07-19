@@ -169,7 +169,7 @@ class ArticleRepository:
                 select(Article)
                 .where(
                     Article.status == "SCRAPED",
-                    Article.published_at.between(datetime_start, datetime_end),
+                    Article.scraped_at.between(datetime_start, datetime_end),
                     or_(Article.summary.is_(None), Article.summary == ""),
                 )
                 .limit(limit)
@@ -196,7 +196,7 @@ class ArticleRepository:
                     Article.summary.isnot(None),
                     Article.summary != "",
                     Article.status == "TRANSLATED",
-                    Article.published_at.between(date_start, date_end),
+                    Article.scraped_at.between(date_start, date_end),
                 )
                 .limit(limit)
             )
@@ -294,7 +294,7 @@ class ArticleRepository:
                 select(Article)
                 .where(
                     Article.status == "SUMMARIZED",
-                    Article.published_at.between(datetime_start, datetime_end),
+                    Article.scraped_at.between(datetime_start, datetime_end),
                     or_(
                         Article.title_en.is_(None),
                         Article.title_en == "",

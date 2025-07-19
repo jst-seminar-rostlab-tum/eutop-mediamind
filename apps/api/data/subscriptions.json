@@ -5,11 +5,11 @@
     "paywall": true,
     "is_active": true,
     "login_config": {
-      "cookies_button": "//button[contains(@class, 'sp_choice_type_11')]",
-      "path_to_login_button": "//button[@track-element='Login']",
-      "login_button": "//button[@track-element='Login / Registrieren']",
-      "user_input": "//input[@placeholder='E-Mail / Benutzername']",
-      "password_input": "//input[@autocomplete='current-password']",
+      "cookies_button": "//button[contains(@class, 'sp_choice_type_11')]", 
+      "path_to_login_button": "//button[@track-element='Login']", 
+      "login_button": "//button[@track-element='Login / Registrieren']", 
+      "user_input": "//input[@id='login-mail']", 
+      "password_input": "//input[@autocomplete='current-password']", 
       "submit_button": "//button[normalize-space(.)='Passwort vergessen?']/preceding-sibling::button[1]"
     },
     "crawlers": {
@@ -425,15 +425,15 @@
     "paywall": true,
     "is_active": true,
     "login_config": {
-      "iframe_cookies": "//iframe[@id='sp_message_iframe_1251936']",
+      "iframe_cookies": "//iframe[@id='sp_message_iframe_1251936']", 
       "cookies_button": "//button[contains(text(), 'Alle akzeptieren')]",
-      "login_button": "//button[contains(text(), 'Log In')]",
+      "login_button": "//div[@data-testid='accountLinks']/button[@title='Klicken Sie hier um sich anzumelden']",
       "iframe_credentials": "//iframe[starts-with(@id, 'piano-id-')]",
       "user_input": "//input[@name='email']",
       "password_input": "//input[@aria-label='password']",
       "submit_button": "//button[.//t[text()='Weiter']]",
       "second_submit_button": "//button[.//t[text()='Anmelden']]",
-      "profile_section": "//button[contains(@class, 'sc__sc-fa155557-11')]",
+      "profile_section": "//header/div/div/div/button[@data-testid='expand-header-button']",
       "logout_button": "//button[contains(text(), 'Abmelden')]"
     },
     "crawlers": {
@@ -473,17 +473,17 @@
     "paywall": true,
     "is_active": true,
     "login_config": {
-      "iframe_cookies": "//iframe[@id='sp_message_iframe_1253152']",
-      "cookies_button": "//button[normalize-space()='Zustimmen']",
-      "refuse_notifications": "//button[contains(@class, 'cleverpush-confirm-btn-deny')]",
-      "path_to_login_button": "//button[@aria-label='Profil']",
-      "login_button": "//button[contains(text(), 'Einloggen')]",
-      "iframe_credentials": "//iframe[starts-with(@id, 'piano-id-')]",
-      "user_input": "//input[@name='email']",
-      "password_input": "//input[@aria-label='password']",
-      "submit_button": "//button[.//t[text()='Anmelden']]",
-      "profile_section": "//button[@aria-label='Profil']",
-      "logout_button": "//button[contains(text(), 'Abmelden')]"
+        "iframe_cookies": "//iframe[@id='sp_message_iframe_1336816']",
+        "cookies_button": "//button[normalize-space()='Zustimmen']",
+        "refuse_notifications": "//button[contains(@class, 'cleverpush-confirm-btn-deny')]",
+        "path_to_login_button": "//button[@aria-label='Profil']",
+        "login_button": "//button[contains(text(), 'Einloggen')]",
+        "iframe_credentials": "//iframe[starts-with(@id, 'piano-id-')]",
+        "user_input": "//input[@name='email']",
+        "password_input": "//input[@aria-label='password']",
+        "submit_button": "//button[.//t[text()='Anmelden']]",
+        "profile_section": "//button[@aria-label='Profil']",
+        "logout_button": "//button[contains(text(), 'Abmelden')]"
     },
     "crawlers": {
       "NewsAPICrawler": {

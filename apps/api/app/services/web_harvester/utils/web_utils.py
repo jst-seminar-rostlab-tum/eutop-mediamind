@@ -133,7 +133,9 @@ def create_driver(headless: bool = True, use_proxy: bool = False):
     return driver, wait
 
 
-def click_element(driver, wait, selector_xpath, selector_name):
+def click_element(
+    driver, wait, selector_xpath, selector_name, subscription_name
+):
     try:
         time.sleep(1)
         if selector_xpath.startswith("class="):
@@ -155,25 +157,39 @@ def click_element(driver, wait, selector_xpath, selector_name):
             )
         try:
             btn.click()
-            logger.info(f"Element {selector_name} clicked")
+            logger.info(
+                f"{subscription_name}: Element {selector_name} " f"clicked"
+            )
             return True
         except Exception:
             try:
                 driver.execute_script("arguments[0].click();", btn)
-                logger.info(f"Element {selector_name} clicked")
+                logger.info(
+                    f"{subscription_name}: Element {selector_name} " f"clicked"
+                )
                 return True
             except Exception:
-                logger.error(
-                    f"Was not possible to click element {selector_name}"
+                logger.warning(
+                    f"{subscription_name}: Was not possible to click element "
+                    f"{selector_name}"
                 )
                 return False
     except Exception:
-        logger.error(f"Element to click {selector_name} not found")
+        logger.warning(
+            f"{subscription_name}: Element to click {selector_name}"
+            f" not found"
+        )
         return False
 
 
 def click_shadow_element(
-    driver, wait, element_selector, shadow_selector, element_name, shadow_name
+    driver,
+    wait,
+    element_selector,
+    shadow_selector,
+    element_name,
+    shadow_name,
+    subscription_name=None,
 ):
     try:
         time.sleep(1)
@@ -189,7 +205,8 @@ def click_shadow_element(
         try:
             clickable_element.click()
             logger.info(
-                f"Button {element_name} clicked in shadow root {shadow_name}"
+                f"{subscription_name}: Button {element_name} clicked in shadow"
+                f" root {shadow_name}"
             )
             return True
         except Exception:
@@ -198,37 +215,45 @@ def click_shadow_element(
                     "arguments[0].click();", clickable_element
                 )
                 logger.info(
-                    f"Button {element_name} clicked "
+                    f"{subscription_name}: Button {element_name} clicked "
                     f"in shadow root {shadow_name}"
                 )
                 return True
             except Exception:
-                logger.error(
-                    f"Was not possible to click element {element_name} "
-                    f"in {shadow_name}"
+                logger.warning(
+                    f"{subscription_name}: Was not possible to click element "
+                    f"{element_name} in {shadow_name}"
                 )
                 return False
     except Exception:
-        logger.error(
-            f"Element {element_name} in shadow root {shadow_name} not found"
+        logger.warning(
+            f"{subscription_name}: Element {element_name} in shadow root "
+            f"{shadow_name} not found"
         )
         return False
 
 
-def change_frame(driver, wait, selector_xpath, selector_name):
+def change_frame(
+    driver, wait, selector_xpath, selector_name, subscription_name
+):
     try:
         iframe = wait.until(
             EC.presence_of_element_located((By.XPATH, selector_xpath))
         )
         driver.switch_to.frame(iframe)
-        logger.info(f"Changed to iframe: {selector_name}")
+        logger.info(f"{subscription_name}: Changed to iframe: {selector_name}")
         return True
     except Exception:
-        logger.error(f"Error when changing to iframe: {selector_name}")
+        logger.warning(
+            f"{subscription_name}: Error when changing to iframe: "
+            f"{selector_name}"
+        )
         return False
 
 
-def scroll_to_element(driver, wait, selector_xpath, selector_name):
+def scroll_to_element(
+    driver, wait, selector_xpath, selector_name, subscription_name
+):
     try:
         element = wait.until(
             EC.visibility_of_element_located((By.XPATH, selector_xpath))
@@ -242,14 +267,26 @@ def scroll_to_element(driver, wait, selector_xpath, selector_name):
         )
         time.sleep(1)
 
-        logger.info(f"Scrolled to element {selector_name}")
+        logger.info(
+            f"{subscription_name}: Scrolled to element " f"{selector_name}"
+        )
         return True
     except Exception:
-        logger.error(f"Failed to scroll to element {selector_name}")
+        logger.warning(
+            f"{subscription_name}: Failed to scroll to element "
+            f"{selector_name}"
+        )
         return False
 
 
-def insert_credential(driver, wait, credential, input_selector, input_name):
+def insert_credential(
+    driver,
+    wait,
+    credential,
+    input_selector,
+    input_name,
+    subscription_name=None,
+):
     try:
         if input_selector.startswith("//"):
             input_field = wait.until(
@@ -264,10 +301,15 @@ def insert_credential(driver, wait, credential, input_selector, input_name):
         input_field.clear()
         input_field.send_keys(credential)
         time.sleep(1)
-        logger.info(f"Credential inserted for {input_name}")
+        logger.info(
+            f"{subscription_name}: Credential inserted for {input_name}"
+        )
         return True
     except Exception:
-        logger.warning(f"Could not insert credential for {input_name}")
+        logger.warning(
+            f"{subscription_name}: Could not insert credential for "
+            f"{input_name}"
+        )
         return False
 
 
@@ -279,11 +321,13 @@ def get_account_credentials(subscription):
     return username, password
 
 
-def accept_cookies(driver, wait, paper):
+def accept_cookies(driver, wait, paper, subscription_name):
     # Change to cookies iframe
     iframe_key = "iframe_cookies"
     if paper.get(iframe_key):
-        change_frame(driver, wait, paper[iframe_key], iframe_key)
+        change_frame(
+            driver, wait, paper[iframe_key], iframe_key, subscription_name
+        )
 
     # Accept cookies
     button_key = "cookies_button"
@@ -296,42 +340,62 @@ def accept_cookies(driver, wait, paper):
             paper[shadow_dom_key],
             button_key,
             shadow_dom_key,
+            subscription_name,
         )
     elif paper.get(button_key):
-        if not click_element(driver, wait, paper[button_key], button_key):
+        if not click_element(
+            driver, wait, paper[button_key], button_key, subscription_name
+        ):
             try:
-                logger.info("Searching for unregistered cookies iframe")
+                logger.info(
+                    f"{subscription_name}: Searching for unregistered"
+                    f" cookies iframe"
+                )
                 iframe = driver.find_element(
                     By.CSS_SELECTOR, "iframe[id^='sp_message_iframe']"
                 )
-                logger.info("Unregistered cookies iframe found")
+                logger.info(
+                    f"{subscription_name}: Unregistered cookies iframe"
+                    f" found"
+                )
                 driver.switch_to.frame(iframe)
                 time.sleep(1)
                 click_element(driver, wait, paper[button_key], button_key)
             except Exception:
-                logger.warning("Was not possible to accept cookies")
+                logger.warning(
+                    f"{subscription_name}: Was not possible to "
+                    f"accept cookies"
+                )
     driver.switch_to.default_content()  # Always switch back to main context
 
 
-def remove_notifications(driver, wait, paper):
+def remove_notifications(driver, wait, paper, subscription_name):
     key = "refuse_notifications"
     if paper.get(key):
-        click_element(driver, wait, paper[key], key)
+        click_element(driver, wait, paper[key], key, subscription_name)
 
 
-def open_login_form(driver, wait, paper):
+def open_login_form(driver, wait, paper, subscription_name):
     path_key = "path_to_login_button"
     if paper.get(path_key):
-        click_element(driver, wait, paper[path_key], path_key)
+        click_element(
+            driver, wait, paper[path_key], path_key, subscription_name
+        )
     button_key = "login_button"
     if paper.get(button_key):
-        click_element(driver, wait, paper[button_key], button_key)
+        click_element(
+            driver, wait, paper[button_key], button_key, subscription_name
+        )
 
 
-def submit_login_credentials(driver, wait, paper, username, password):
+def submit_login_credentials(
+    driver, wait, paper, username, password, subscription_name
+):
     iframe_key = "iframe_credentials"
     if paper.get(iframe_key):
-        change_frame(driver, wait, paper[iframe_key], iframe_key)
+        change_frame(
+            driver, wait, paper[iframe_key], iframe_key, subscription_name
+        )
 
     # Insert and submit credentials
     user_key = "user_input"
@@ -339,36 +403,87 @@ def submit_login_credentials(driver, wait, paper, username, password):
     first_button_key = "submit_button"
     second_button_key = "second_submit_button"
     if paper.get(user_key):
-        click_element(driver, wait, paper[user_key], user_key)
-        insert_credential(driver, wait, username, paper[user_key], user_key)
+        click_element(
+            driver, wait, paper[user_key], user_key, subscription_name
+        )
+        insert_credential(
+            driver,
+            wait,
+            username,
+            paper[user_key],
+            user_key,
+            subscription_name,
+        )
     if paper.get(second_button_key) and paper.get(first_button_key):
         scroll_to_element(
-            driver, wait, paper[first_button_key], first_button_key
+            driver,
+            wait,
+            paper[first_button_key],
+            first_button_key,
+            subscription_name,
         )
-        click_element(driver, wait, paper[first_button_key], first_button_key)
+        click_element(
+            driver,
+            wait,
+            paper[first_button_key],
+            first_button_key,
+            subscription_name,
+        )
     if paper.get(password_key):
-        click_element(driver, wait, paper[password_key], password_key)
+        if not click_element(
+            driver, wait, paper[password_key], password_key, subscription_name
+        ):
+            logger.warning(
+                f"{subscription_name}: Failed to click password " f"input"
+            )
+            return False
         insert_credential(
-            driver, wait, password, paper[password_key], password_key
+            driver,
+            wait,
+            password,
+            paper[password_key],
+            password_key,
+            subscription_name,
         )
     if paper.get(second_button_key):
         scroll_to_element(
-            driver, wait, paper[second_button_key], second_button_key
+            driver,
+            wait,
+            paper[second_button_key],
+            second_button_key,
+            subscription_name,
         )
         if not click_element(
-            driver, wait, paper[second_button_key], second_button_key
+            driver,
+            wait,
+            paper[second_button_key],
+            second_button_key,
+            subscription_name,
         ):
-            logger.error("Failed to click second submit button")
+            logger.warning(
+                f"{subscription_name}: Failed to click second "
+                f"submit button"
+            )
             return False
         return True
     elif paper.get(first_button_key):
         scroll_to_element(
-            driver, wait, paper[first_button_key], first_button_key
+            driver,
+            wait,
+            paper[first_button_key],
+            first_button_key,
+            subscription_name,
         )
         if not click_element(
-            driver, wait, paper[first_button_key], first_button_key
+            driver,
+            wait,
+            paper[first_button_key],
+            first_button_key,
+            subscription_name,
         ):
-            logger.error("Failed to click submit button")
+            logger.warning(
+                f"{subscription_name}: Failed to click submit " f"button"
+            )
             return False
         return True
     driver.switch_to.default_content()  # Always switch back to main context
@@ -378,7 +493,7 @@ def hardcoded_login(driver, wait, subscription: Subscription):
     # Load newspapers accounts
     credentials = get_account_credentials(subscription)
     if credentials is None:
-        logger.error(
+        logger.warning(
             f"No credentials found for subscription: {subscription.name}."
         )
         return False
@@ -387,25 +502,26 @@ def hardcoded_login(driver, wait, subscription: Subscription):
 
     config = subscription.login_config
     if not config:
-        logger.error(
+        logger.warning(
             f"No configuration found for newspaper: {subscription.name}"
         )
         return False
 
     # Initialize newspaper website
     try:
-        if not safe_page_load(driver, subscription.domain):
+        if not safe_page_load(driver, subscription.domain, max_retries=4):
             raise Exception(f"Failed to load domain: {subscription.domain}")
     except Exception as e:
-        print(e)
-        logger.error(f"No link provided for: {subscription.name}")
+        logger.warning(f"Failed to login: {subscription.name} because {e}")
         return False
 
     logger.info(f"Processing login to: {subscription.name}")
-    accept_cookies(driver, wait, config)
-    remove_notifications(driver, wait, config)
-    open_login_form(driver, wait, config)
-    return submit_login_credentials(driver, wait, config, username, password)
+    accept_cookies(driver, wait, config, subscription.name)
+    remove_notifications(driver, wait, config, subscription.name)
+    open_login_form(driver, wait, config, subscription.name)
+    return submit_login_credentials(
+        driver, wait, config, username, password, subscription.name
+    )
 
 
 def hardcoded_logout(driver, wait, subscription: Subscription):
@@ -414,18 +530,27 @@ def hardcoded_logout(driver, wait, subscription: Subscription):
     # Go to profile section
     profile_key = "profile_section"
     if paper.get(profile_key):
-        click_element(driver, wait, paper[profile_key], profile_key)
+        click_element(
+            driver, wait, paper[profile_key], profile_key, subscription.name
+        )
 
     # Change to logout iframe
     iframe_key = "iframe_logout"
     if paper.get(iframe_key):
-        change_frame(driver, wait, paper[iframe_key], iframe_key)
+        change_frame(
+            driver, wait, paper[iframe_key], iframe_key, subscription.name
+        )
 
     # Logout
     logout_key = "logout_button"
     if paper.get(logout_key):
-        if not click_element(driver, wait, paper[logout_key], logout_key):
-            logger.error("Failed to logout from page")
+        if not click_element(
+            driver, wait, paper[logout_key], logout_key, subscription.name
+        ):
+            logger.warning(
+                f"Failed to logout from page. Subscription: "
+                f"{subscription.name}"
+            )
             return False
         return True
 
@@ -499,13 +624,13 @@ def safe_page_load(driver, url, max_retries=2):
                         pass
                     continue
                 else:
-                    logger.error(
+                    logger.warning(
                         f"Frame detachment error after {max_retries} attempts"
                     )
                     raise e
             else:
                 # Other errors - re-raise immediately
-                logger.error(f"Page load error: {e} for {url}")
+                logger.warning(f"Page load error: {e} for {url}")
                 continue
 
     return False
@@ -529,7 +654,9 @@ def safe_execute_script(driver, script, *args):
             try:
                 return driver.execute_script(script, *args)
             except Exception as retry_e:
-                logger.error(f"Script execution failed after retry: {retry_e}")
+                logger.warning(
+                    f"Script execution failed after retry: " f"{retry_e}"
+                )
                 raise retry_e
         else:
             raise e
