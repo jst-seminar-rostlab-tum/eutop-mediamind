@@ -14,14 +14,48 @@
   "select_date": "Select Date",
   "yes": "Yes",
   "no": "No",
-  "save": "Save",
 
   "breadcrumb_home": "Home",
 
   "landing_page": {
-    "welcome": "Welcome to MediaMind",
-    "welcome_text": "Stay ahead in the fast-changing world of media with our Automated Press Analysis Tool. Keep your client teams informed and prepared with daily press reviews, personalized to your needs. Our platform extracts and compiles the most relevant news articles into concise, anonymized reports – delivered directly to your inbox each morning. Save time, stay informed, and focus on what matters most – delivering value to your clients.",
-    "credits": "MediaMind was build in cooperation between EUTOP, the Technical University of Munich and CSEE during the Javascript Technology Practicum."
+    "header_slogan": "Stay ahead in the fast-changing world of digital media",
+    "header_description": "Your automated press analysis tool",
+    "credits": "MediaMind was build in cooperation between EUTOP, the Technical University of Munich and CSEE during the Javascript Technology Practicum.",
+    "dashboard_header": "Manage your Search Profiles",
+    "dashboard_text": "Clean interface to manage all profiles in one Dashboard",
+    "topics_header": "Start creating your Search Profiles",
+    "topics_text": "Specify your Topics of interest with the desired keywords and get AI suggestions for the best additional keywords",
+    "add_topic": "You want to add topics and more? Login and get access to all features!",
+    "click_reports": "You want to see Reports and more? Login and get access to all features!",
+    "search_profile_header": "View your matched articles",
+    "search_profile_text": "Topic and article  matches are rate by relevance based on semantic similarity. Also search in the Vector Database directly via the searchbar",
+    "article_header": "Read articles directly in the application",
+    "article_text": "Get a detailed overview of the Article with all Topics and Keywords and their scores",
+    "email_header": "Every morning - directly in your Inbox!",
+    "email_text": "Receive your tailored reports daily via email. You can download them or visit the article directly in the application",
+    "breaking_header": "Read all breaking news",
+    "breaking_text": "Stay informed with all global breaking news in one Spot",
+    "breaking_toast": "You want to see breaking news and more? Check out the breaking news preview or log in!",
+    "sp_toast": "You want to create your own Search profile? Log in and enjoy all features",
+    "edit_profile_toast": "You want to edit profiles and more? Log in and experience all features!",
+    "reports_toast": "You want to view reports and more? Log in and experience the full functionality!",
+    "delete_profile_toast": "You want to delete profiles and more? Log in and experience the full functionality!",
+    "checkout_sp_toast": "You want to see the search profile and more? Check out the search profile preview or log in!",
+    "original_toast": "You want to access articles and more? Log in and experience the full functionality!"
+  },
+
+  "mock_data": {
+    "breaking_title_1": "Breakthrough in Sustainable Tire Technology Reduces Microplastic Emissions",
+    "breaking_summary_1": "A German startup has developed a biodegradable tire compound that significantly reduces microplastic emissions without compromising performance. Early tests show a 40% drop in road wear particles.",
+
+    "breaking_title_2": "EU Announces New Incentives for Hydrogen Truck Adoption",
+    "breaking_summary_2": "The European Commission unveiled a subsidy program aimed at accelerating the transition to hydrogen-powered freight transport, with up to €150,000 available per vehicle for eligible operators.",
+
+    "breaking_title_3": "French Automotive Supplier Launches AI-Driven Battery Diagnostics Platform",
+    "breaking_summary_3": "ValeonTech has introduced a new software solution for EV manufacturers that leverages AI to predict battery degradation and optimize charging behavior over time.",
+
+    "breaking_title_4": "Norway's Offshore Wind Expansion Set to Power 2 Million Homes",
+    "breaking_summary_4": "Norway's government has approved funding for a 6.5 GW offshore wind farm in the North Sea, expected to begin construction in 2026. The project will be one of the largest of its kind in Europe."
   },
 
   "dashboard": {
@@ -319,15 +353,5 @@
     "breaking_news_update_error": "Error updating the breaking news preference",
     "breaking_news": "Receive Breaking News notifications via email",
     "breaking_news_title": "Breaking News Notifications"
-  },
-
-  "organisation_settings": {
-    "title": "Organization Settings",
-    "pdf_as_link": "Reports as Link",
-    "pdf_as_link_text": "Decide whether reports within your organization should be sent as a link or as a PDF attachment.",
-    "subscriptions": "Subscriptions",
-    "subscriptions_text": "Manage the subscriptions that can be used for search profiles in your organization.",
-    "success": "Organization settings updated successfully.",
-    "error": "Error updating organization settings."
   }
 }
