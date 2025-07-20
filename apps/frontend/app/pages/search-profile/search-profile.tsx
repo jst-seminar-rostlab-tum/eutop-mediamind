@@ -253,7 +253,7 @@ export function SearchProfileOverview() {
           </div>
 
           <div className="flex flex-row justify-start mt-2 mb-4 gap-3">
-            <div className="w-1/5 min-w-[293px] h-full">
+            <div className="w-1/5 min-w-[305px] h-full">
               <SidebarFilter
                 sortBy={sortBy}
                 setSortBy={setSortBy}
