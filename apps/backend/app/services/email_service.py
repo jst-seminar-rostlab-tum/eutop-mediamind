@@ -264,6 +264,10 @@ class EmailService:
             ),
             "deliver_text": translator("Delivered by MediaMind"),
             "pdf_as_link": pdf_as_link,
+            "empty_pdf_text": translator(
+                "Unfortunately, there are no news items that match your "
+                "search profile today. We will notify you as soon as relevant "
+                "news is found for your search profile")
         }
 
         template_name = "email_template.html"

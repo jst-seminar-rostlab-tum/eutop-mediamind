@@ -44,7 +44,7 @@ class PDFService:
         search_profile_id: uuid.UUID,
         timeslot: str,
         language: str,
-    ) -> bytes:
+    ) -> tuple[bytes, bool]:
         # Obtain translator for the specified language
         if timeslot not in ["morning", "afternoon", "evening"]:
             logger.info(
@@ -55,6 +55,10 @@ class PDFService:
         articles = await ArticleRepository.get_matched_articles_for_profile_for_create_pdf(
             search_profile_id
         )
+
+        empty_pdf = False
+        if not articles:
+            empty_pdf = True
 
         translator = ArticleTranslationService.get_translator(language)
         news_items = []
@@ -130,7 +134,7 @@ class PDFService:
                 citations=citations,
             )
             news_items.append(news_item)
-        return PDFService.draw_pdf(news_items, translator)
+        return PDFService.draw_pdf(news_items, translator), empty_pdf
 
     @staticmethod
     def draw_pdf(
