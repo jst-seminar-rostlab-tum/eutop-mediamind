@@ -14,7 +14,7 @@ from app.core.config import get_configs
 from app.models.article import Article
 from app.repositories.article_repository import ArticleRepository
 from app.services.llm_service.llm_client import LLMClient
-from app.services.llm_service.llm_models import LLMModels
+from app.services.llm_service.llm_models import TaskModelMapping
 
 configs = get_configs()
 logger = logging.getLogger(__name__)
@@ -40,7 +40,7 @@ def remove_formatting_marks(text: str) -> str:
 class ArticleCleaner:
     def __init__(self, max_concurrency: int = 50):
         assert configs.OPENAI_API_KEY, "Missing OPENAI_API_KEY"
-        self.llm_client = LLMClient(LLMModels.openai_4o)
+        self.llm_client = LLMClient(TaskModelMapping.ARTICLE_CLEANER)
         self.semaphore = Semaphore(max_concurrency)
 
     @tenacity.retry(
@@ -87,7 +87,7 @@ class ArticleCleaner:
                 return article, rewritten
             return None
         except Exception as e:
-            logger.error(f"Failed to clean article '{article.title}': {e}")
+            logger.warning(f"Failed to clean article '{article.title}': {e}")
             return None
 
     async def clean_plain_text(self, text: str) -> str:

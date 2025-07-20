@@ -128,7 +128,7 @@ class EnhesaCrawler(Crawler):
                 return True
 
             except Exception as e:
-                logger.error(f"Login failed: {e}")
+                logger.warning(f"Login failed: {e}")
                 return False
 
     async def _crawl_single_page(
@@ -145,7 +145,7 @@ class EnhesaCrawler(Crawler):
             return page_articles, has_out_of_range_article
 
         except Exception as e:
-            logger.error(f"Error crawling page {page_num}: {e}")
+            logger.warning(f"Error crawling page {page_num}: {e}")
             return [], False
 
     async def crawl_urls(
