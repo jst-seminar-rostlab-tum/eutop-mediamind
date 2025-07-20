@@ -252,8 +252,8 @@ export function SearchProfileOverview() {
             </div>
           </div>
 
-          <div className=" flex flex-row justify-start mt-2 mb-4 gap-3">
-            <div className="w-1/5 min-w-[286px] h-full">
+          <div className="flex flex-row justify-start mt-2 mb-4 gap-3">
+            <div className="w-1/5 min-w-[293px] h-full">
               <SidebarFilter
                 sortBy={sortBy}
                 setSortBy={setSortBy}
@@ -288,8 +288,8 @@ export function SearchProfileOverview() {
                   <Search />
                 </Button>
               </div>
-              <div className="bg-card rounded-lg border shadow-sm ">
-                <ScrollArea className="p-2 h-[1200px]">
+              <div className="bg-card rounded-lg border shadow-sm">
+                <ScrollArea className="p-2 h-[max(810px,calc(100vh-23rem))]">
                   {!matches || matchesLoading ? (
                     <ArticlesSkeleton />
                   ) : matches?.matches.length === 0 ? (
