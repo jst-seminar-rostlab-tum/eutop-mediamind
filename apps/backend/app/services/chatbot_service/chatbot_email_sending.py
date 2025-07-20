@@ -18,6 +18,7 @@ class ChatbotEmailSending:
         user_email: str,
         subject: str,
         content: str,
+        report_id: UUID | None = None,
     ):
         email = Email(
             sender=configs.SMTP_USER,
@@ -27,6 +28,7 @@ class ChatbotEmailSending:
             content=content,
             created_at=datetime.now(timezone.utc),
             update_at=datetime.now(timezone.utc),
+            report_id=report_id,
         )
 
         try:
