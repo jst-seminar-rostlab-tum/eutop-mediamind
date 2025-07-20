@@ -28,13 +28,11 @@ class OrganizationRepository:
         subscriptions: List[SubscriptionSummary],
         session: AsyncSession,
     ) -> None:
-        # Get current subscription IDs for the organization
-        result = await session.execute(
-            select(OrganizationSubscriptionLink.subscription_id).where(
-                OrganizationSubscriptionLink.organization_id == organization_id
+        current_sub_ids = (
+            await OrganizationRepository._get_current_subscription_ids(
+                organization_id, session
             )
         )
-        current_sub_ids = {row[0] for row in result.fetchall()}
 
         to_add = {
             s.id
@@ -47,7 +45,6 @@ class OrganizationRepository:
             if not s.is_subscribed and s.id in current_sub_ids
         }
 
-        # Add new
         for sub_id in to_add:
             session.add(
                 OrganizationSubscriptionLink(
@@ -55,14 +52,13 @@ class OrganizationRepository:
                 )
             )
 
-        # Remove old
         if to_remove:
             await session.execute(
                 delete(OrganizationSubscriptionLink).where(
                     OrganizationSubscriptionLink.organization_id
                     == organization_id,
                     OrganizationSubscriptionLink.subscription_id.in_(
-                        List[to_remove]
+                        to_remove
                     ),
                 )
             )
@@ -74,7 +70,6 @@ class OrganizationRepository:
         organization_id: UUID,
         session: AsyncSession,
     ) -> list[SubscriptionSummary]:
-        # Get all subscriptions with info if they are assigned
         result = await session.execute(
             select(
                 Subscription.id,
@@ -94,11 +89,9 @@ class OrganizationRepository:
                 ),
             )
         )
-        rows = result.fetchall()
-
         return [
             SubscriptionSummary(id=row[0], name=row[1], is_subscribed=row[2])
-            for row in rows
+            for row in result.fetchall()
         ]
 
     @staticmethod
@@ -112,18 +105,66 @@ class OrganizationRepository:
             .options(selectinload(Organization.users))
         )
         org = result.scalars().first()
-        if org is None:
+        if not org:
             return None
 
+        return await OrganizationRepository._build_organization_response(
+            org, session
+        )
+
+    @staticmethod
+    async def get_all_with_users(
+        session: AsyncSession,
+    ) -> List[OrganizationResponse]:
+        result = await session.execute(
+            select(Organization).options(selectinload(Organization.users))
+        )
+        organizations = result.scalars().all()
+
+        return [
+            await OrganizationRepository._build_organization_response(
+                org, session
+            )
+            for org in organizations
+        ]
+
+    @staticmethod
+    async def get_pdf_as_link_by_recipient(recipient_email: str) -> bool:
+        async with async_session() as session:
+            result = await session.execute(
+                select(Organization.pdf_as_link)
+                .join(
+                    SearchProfile,
+                    Organization.id == SearchProfile.organization_id,
+                )
+                .where(SearchProfile.organization_emails.any(recipient_email))
+            )
+            value = result.scalar()
+            return value if value is not None else True
+
+    @staticmethod
+    async def _get_current_subscription_ids(
+        organization_id: UUID,
+        session: AsyncSession,
+    ) -> set[UUID]:
+        result = await session.execute(
+            select(OrganizationSubscriptionLink.subscription_id).where(
+                OrganizationSubscriptionLink.organization_id == organization_id
+            )
+        )
+        return {row[0] for row in result.fetchall()}
+
+    @staticmethod
+    async def _build_organization_response(
+        org: Organization, session: AsyncSession
+    ) -> OrganizationResponse:
         subscriptions = (
             await (
                 SubscriptionRepository.get_all_subscriptions_with_organization(
-                    session,
-                    org.id,
+                    session, org.id
                 )
             )
         )
-
         return OrganizationResponse(
             id=org.id,
             name=org.name,
@@ -132,50 +173,3 @@ class OrganizationRepository:
             users=org.users,
             subscriptions=subscriptions,
         )
-
-    @staticmethod
-    async def get_all_with_users(
-        session: AsyncSession,
-    ) -> List[OrganizationResponse]:
-        result = await session.execute(
-            select(Organization).options(
-                selectinload(Organization.users)
-            )  # eager load users
-        )
-        organizations = result.scalars().all()
-
-        responses = []
-        for org in organizations:
-            subscriptions = await SubscriptionRepository.get_all_subscriptions_with_organization(  # noqa: E501
-                session, org.id
-            )
-
-            responses.append(
-                OrganizationResponse(
-                    id=org.id,
-                    name=org.name,
-                    email=org.email,
-                    pdf_as_link=org.pdf_as_link,
-                    users=org.users,
-                    subscriptions=subscriptions,
-                )
-            )
-
-        return responses
-
-    @staticmethod
-    async def get_pdf_as_link_by_recipient(recipient_email: str) -> bool:
-        async with async_session() as session:
-            query = (
-                select(Organization.pdf_as_link)
-                .join(
-                    SearchProfile,
-                    Organization.id == SearchProfile.organization_id,
-                )
-                .where(SearchProfile.organization_emails.any(recipient_email))
-            )
-            result = await session.execute(query)
-            pdf_as_link = result.scalar()
-            if pdf_as_link is None:
-                return True
-            return pdf_as_link
