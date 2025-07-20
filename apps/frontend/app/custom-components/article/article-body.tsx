@@ -100,28 +100,30 @@ export function ArticleBody({
       </div>
 
       {displayImages.length > 0 && (
-        <Carousel className="w-full">
-          <CarouselContent className="">
-            {displayImages.map((image_url, index) => (
-              <CarouselItem key={index}>
-                <div>
-                  <img
-                    src={image_url}
-                    alt={`Article image ${index + 1}`}
-                    className="w-full h-auto rounded-lg shadow-sm"
-                    loading="lazy"
-                  />
-                </div>
-              </CarouselItem>
-            ))}
-          </CarouselContent>
-          {displayImages.length > 1 && (
-            <>
-              <CarouselPrevious />
-              <CarouselNext />
-            </>
-          )}
-        </Carousel>
+        <div className="flex justify-center">
+          <Carousel className="w-3/4">
+            <CarouselContent>
+              {displayImages.map((image_url, index) => (
+                <CarouselItem key={index}>
+                  <div>
+                    <img
+                      src={image_url}
+                      alt={`Article image ${index + 1}`}
+                      className="w-full h-auto shadow-sm"
+                      loading="lazy"
+                    />
+                  </div>
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            {displayImages.length > 1 && (
+              <>
+                <CarouselPrevious />
+                <CarouselNext />
+              </>
+            )}
+          </Carousel>
+        </div>
       )}
 
       <section className={"markdown"}>
