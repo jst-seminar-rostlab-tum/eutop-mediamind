@@ -7,7 +7,7 @@ import markdown
 from app.core.logger import get_logger
 from app.services.chatbot_service.chatbot_context import ChatbotContext
 from app.services.llm_service.llm_client import LLMClient
-from app.services.llm_service.llm_models import LLMModels
+from app.services.llm_service.llm_models import TaskModelMapping
 
 logger = get_logger(__name__)
 
@@ -74,7 +74,7 @@ resolve the user's query.
             chat_body=chat_body,
         )
 
-        llm_client = LLMClient(LLMModels.openai_4o_mini)
+        llm_client = LLMClient(TaskModelMapping.CHATBOT)
         try:
             llm_response = await asyncio.to_thread(
                 llm_client.generate_response,

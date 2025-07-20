@@ -8,9 +8,11 @@
       "cookies_button": "//button[contains(@class, 'sp_choice_type_11')]",
       "path_to_login_button": "//button[@track-element='Login']",
       "login_button": "//button[@track-element='Login / Registrieren']",
-      "user_input": "//input[@placeholder='E-Mail / Benutzername']",
+      "user_input": "//input[@id='login-mail']",
       "password_input": "//input[@autocomplete='current-password']",
-      "submit_button": "//button[normalize-space(.)='Passwort vergessen?']/preceding-sibling::button[1]"
+      "submit_button": "//button[normalize-space(.)='Passwort vergessen?']/preceding-sibling::button[1]",
+      "profile_section": "//button[@track-element='Login']",
+      "logout_button": "//button[normalize-space()='Logout']"
     },
     "crawlers": {
       "NewsAPICrawler": {
@@ -37,7 +39,9 @@
       "user_input": "//input[@id='enter-email']",
       "password_input": "//input[@id='enter-password']",
       "submit_button": "//button[@id='enter-email-next']",
-      "second_submit_button": "//button[@id='sign-in-button']"
+      "second_submit_button": "//button[@id='sign-in-button']",
+      "profile_section": "//a[@id='o-header-top-link-myaccount']",
+      "logout_button": "//a[normalize-space(text())='Sign Out']"
     },
     "crawlers": {
       "RSSFeedCrawler": {
@@ -54,12 +58,14 @@
     "paywall": true,
     "is_active": false,
     "login_config": {
-      "container_selector": "[id^='sp_message_container_']",
-      "cookies_button": "//button[@title='Zustimmen und weiter' and contains(@class, 'sp_choice_type_11')]",
-      "iframe": "//iframe[contains(@id, 'sp_message_iframe')]",
-      "user_input": "form hmg-text-input:nth-of-type(1) input",
-      "password_input": "form hmg-text-input:nth-of-type(2) input",
-      "submit_button": "form hmg-button > button"
+      "iframe_cookies": "//iframe[@id='sp_message_iframe_1325677']",
+      "cookies_button": "//button[@title='Zustimmen und weiter']",
+      "user_input": "//input[@type='email' and @placeholder='E-Mail-Adresse']",
+      "password_input": "//input[@type='password' and @placeholder='Ihr Passwort']",
+      "submit_button": "//button[@type='submit' and @class='']",
+      "login_button": "//button[@type='submit' and @class='']",
+      "profile_section": "//span[contains(@class, 'ng-star-inserted')]",
+      "logout_button": "//a[contains(@class, 'menu-item__content-wrapper') and contains(@href, 'logout')]"
     },
     "crawlers": {
       "HandelsblattCrawler": {
@@ -77,7 +83,8 @@
       "iframe_credentials": "//iframe[starts-with(@id, 'piano-id-')]",
       "user_input": "//input[@id='login']",
       "password_input": "//input[@id='current-password']",
-      "submit_button": "//button[@type='submit' and text()='Einloggen']"
+      "submit_button": "//button[@type='submit' and text()='Einloggen']",
+      "logout_button": "//button[@type='button' and normalize-space()='Logout']"
     },
     "crawlers": {
       "NewsAPICrawler": {
@@ -105,7 +112,10 @@
       "iframe_credentials": "//iframe[@id='plenigoFramecheckout']",
       "user_input": "//input[@id='login_form__username']",
       "password_input": "//input[@id='login_form__password']",
-      "submit_button": "//button[@type='submit' and contains(text(), 'Anmelden')]"
+      "submit_button": "//button[@type='submit' and contains(text(), 'Anmelden')]",
+      "profile_section": "//div[@class='mat-ripple toolbar-icon icon toolbar-icon-menu']",
+      "logout_button": "//storefront-button[contains(@class, 'menu-button-Login/Logout')]//button",
+      "logout_confirmation": "//button[@id='btn-logout']"
     },
     "crawlers": {
       "NewsAPICrawler": {
@@ -193,7 +203,9 @@
       "user_input": "//input[@id='username']",
       "password_input": "//input[@name='loginform:password']",
       "submit_button": "//button[@name='loginform:submit']",
-      "second_submit_button": "//button[@name='loginform:submit']"
+      "second_submit_button": "//button[@name='loginform:submit']",
+      "profile_section": "//a[@title='Abmelden']",
+      "logout_button": "//a[@title='Abmelden' and contains(@href, 'abmelden')]"
     },
     "crawlers": {
       "NewsAPICrawler": {
@@ -246,11 +258,13 @@
     "paywall": true,
     "is_active": false,
     "login_config": {
+      "iframe_cookies": "//iframe[@id='sp_message_iframe_1325679']",
       "cookies_button": "//button[@title='ZUSTIMMEN' and contains(@class, 'sp_choice_type_11')]",
-      "iframe": "",
-      "user_input": "//input[@type='email']",
-      "password_input": "//input[@type='password']",
-      "submit_button": "//button[@type='submit']"
+      "user_input": "//input[@placeholder='E-Mail-Adresse']",
+      "password_input": "//input[@placeholder='Ihr Passwort']",
+      "submit_button": "//button[@type='submit']",
+      "profile_section": "//section[contains(@class, 'right') and contains(@class, 'ng-star-inserted')]",
+      "logout_button": "//a[contains(@href, '/logout') and normalize-space()='Abmelden']"
     },
     "crawlers": {
       "RSSFeedCrawler": {
@@ -295,7 +309,8 @@
       "login_button": "//a[text()='Anmelden']",
       "user_input": "//input[@id='username']",
       "password_input": "//input[@id='password']",
-      "submit_button": "//input[@type='submit' and @value='Anmelden']"
+      "submit_button": "//input[@type='submit' and @value='Anmelden']",
+      "logout_button": "//a[contains(@class, 'combined-link') and text()='Abmelden']"
     },
     "crawlers": {
       "NewsAPICrawler": {
@@ -321,7 +336,7 @@
       "user_input": "input[name='email']",
       "password_input": "input[name='password']",
       "submit_button": "button[data-testid='login-button']",
-      "profile_section": "//div[@class=' UserAvatar']",
+      "profile_section": "//div[@role='button' and @data-testid='trigger']//div[contains(@class, 'UserAvatar--inner')]",
       "logout_button": "//div[contains(text(), 'Log out') and contains(@class, 'hoverable')]"
     },
     "crawlers": {
@@ -427,13 +442,13 @@
     "login_config": {
       "iframe_cookies": "//iframe[@id='sp_message_iframe_1251936']",
       "cookies_button": "//button[contains(text(), 'Alle akzeptieren')]",
-      "login_button": "//button[contains(text(), 'Log In')]",
+      "login_button": "//div[@data-testid='accountLinks']/button[@title='Klicken Sie hier um sich anzumelden']",
       "iframe_credentials": "//iframe[starts-with(@id, 'piano-id-')]",
       "user_input": "//input[@name='email']",
       "password_input": "//input[@aria-label='password']",
       "submit_button": "//button[.//t[text()='Weiter']]",
       "second_submit_button": "//button[.//t[text()='Anmelden']]",
-      "profile_section": "//button[contains(@class, 'sc__sc-fa155557-11')]",
+      "profile_section": "//button[@type='button' and @data-testid='expand-header-button' and @aria-controls='navigation-expand']",
       "logout_button": "//button[contains(text(), 'Abmelden')]"
     },
     "crawlers": {
@@ -483,7 +498,7 @@
       "password_input": "//input[@aria-label='password']",
       "submit_button": "//button[.//t[text()='Anmelden']]",
       "profile_section": "//button[@aria-label='Profil']",
-      "logout_button": "//button[contains(text(), 'Abmelden')]"
+      "logout_button": "//button[contains(@class, 'piano-button__logout')]"
     },
     "crawlers": {
       "NewsAPICrawler": {
@@ -508,8 +523,37 @@
   {
     "name": "Heise.de",
     "domain": "https://www.heise.de",
-    "paywall": true,
-    "is_active": false
+    "paywall": false,
+    "is_active": true,
+    "login_config": {
+      "user_input": "//input[@id='login-user']", 
+      "password_input": "//input[@id='login-password' and @type='password']", 
+      "submit_button": "//button[@name='rm_login' and @type='submit']",
+      "logout_button": "//a[contains(@class, 'a-login__link--logout') and normalize-space(text())='Abmelden']"
+    },
+    "crawlers": {
+      "RSSFeedCrawler": {
+        "feed_urls": [
+          "https://www.heise.de/rss/heise.rdf",
+          "https://www.heise.de/rss/heise-Rubrik-IT.rdf",
+          "https://www.heise.de/rss/heise-Rubrik-Wissen.rdf",
+          "https://www.heise.de/rss/heise-Rubrik-Mobiles.rdf",
+          "https://www.heise.de/rss/heise-Rubrik-Entertainment.rdf",
+          "https://www.heise.de/rss/heise-Rubrik-Netzpolitik.rdf",
+          "https://www.heise.de/rss/heise-Rubrik-Wirtschaft.rdf",
+          "https://www.heise.de/rss/heise-Rubrik-Journal.rdf",
+          "https://www.heise.de/rss/heise-top-alexa.xml"
+        ], 
+        "language": "de"
+      }
+    },
+    "scrapers": {
+      "TrafilaturaScraper": {
+        "trafilatura_kwargs": {
+          "author_blacklist": ["Heise Online", "Heise Autos"]
+        }
+      }
+    }
   },
   {
     "name": "HORIZONT+",
@@ -548,9 +592,9 @@
     "paywall": true,
     "is_active": false,
     "login_config": {
-      "shadow_cookies": "#usercentrics-cmp-ui",
+      "shadow_host_cookies": "#usercentrics-cmp-ui",
       "cookies_button": "button.accept.uc-accept-button",
-      "login_button": "//a[contains(@href, 'login')]",
+      "login_button": "//a[contains(@href, '/user/login/')]",
       "user_input": "//input[@name='i_email']",
       "password_input": "//input[@name='i_password']",
       "submit_button": "//button[@id='i_OKuser']",
@@ -574,9 +618,9 @@
   },
   {
     "name": "Mace Magazine",
-    "domain": "https://www.macemagazine.com",
-    "paywall": true,
-    "is_active": false,
+    "domain": "https://macemagazine.com/",
+    "paywall": false,
+    "is_active": true,
     "login_config": {
       "login_button": "//a[contains(text(), 'Login')]",
       "user_input": "//input[@id='user_login']",
@@ -589,6 +633,13 @@
       "RSSFeedCrawler": {
         "feed_urls": ["https://macemagazine.com/feed/"],
         "language": "en"
+      }
+    },
+    "scrapers": {
+      "TrafilaturaScraper": {
+        "trafilatura_kwargs": {
+          "author_blacklist": ["Mace"]
+        }
       }
     }
   },
@@ -631,16 +682,32 @@
     "name": "Platow Brief",
     "domain": "https://www.platow.de",
     "paywall": true,
-    "is_active": false,
+    "is_active": true,
     "login_config": {
-      "login_button": "//a[contains(text(), 'Login')]",
+      "cookies_button": "#BorlabsCookieBox .brlbs-btn-accept-all",
+      "login_button": "//a[text()='Login']",
       "iframe_credentials": "//iframe[@id='plenigoFramecheckout']",
       "user_input": "//input[@id='login_form__username']",
       "password_input": "//input[@id = 'login_form__password']",
-      "submit_button": "//button[contains(text(), 'Anmelden')]",
+      "submit_button": "//button[@type='submit' and contains(text(), 'Anmelden')]",
       "profile_section": "//a[contains(@href, 'profil')]",
       "iframe_logout": "//iframe[@id='plenigoFramesnippetsplenigoLogin']",
       "logout_button": "//a[contains(text(), 'Logout')]"
+    },
+    "crawlers": {
+      "RSSFeedCrawler": {
+        "feed_urls": [
+          "https://www.platow.de/deutsche-aktien/feed/",
+          "https://www.platow.de/us-aktien/feed/",
+          "https://www.platow.de/europaeische-aktien/feed/",
+          "https://www.platow.de/emerging-markets/feed/",
+          ""
+        ], 
+        "language": "de"
+      }
+    },
+    "scrapers": {
+      "TrafilaturaScraper": {}
     }
   },
   {

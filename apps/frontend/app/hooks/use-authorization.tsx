@@ -44,6 +44,7 @@ export const AuthorizationContextProvider = ({
       !pathname.includes("error") &&
       pathname !== "/"
     ) {
+      setMediamindUser(undefined);
       navigate("error/401?redirect_url=" + pathname);
     }
   }, [isLoaded, isSignedIn, pathname]);

@@ -15,7 +15,7 @@ from litellm import (
 
 from app.core.config import get_configs
 from app.core.logger import get_logger
-from app.services.llm_service.llm_models import LLMModels
+from app.services.llm_service.llm_models import TaskModelMapping
 
 configs = get_configs()
 logger = get_logger(__name__)
@@ -37,7 +37,7 @@ class LLMClient:
         >>> response = service.generate_response("Tell me a joke")
     """
 
-    def __init__(self, model: LLMModels):
+    def __init__(self, model: TaskModelMapping):
         self.model = model.value
         self.api_key = configs.OPENAI_API_KEY
 
