@@ -29,11 +29,8 @@ export const DatePicker = ({
   const { t } = useTranslation();
 
   return (
-    <div className="flex mx-2 flex-wrap gap-y-4 mb-2 items-center">
+    <div className="flex flex-wrap gap-y-4 mb-2 items-center">
       <div className="flex">
-        <Label htmlFor="date" className="pr-2">
-          {t("search_profile.From")}
-        </Label>
         <Popover open={openFromDate} onOpenChange={setOpenFromDate}>
           <PopoverTrigger asChild>
             <Button
@@ -55,11 +52,8 @@ export const DatePicker = ({
           </PopoverContent>
         </Popover>
       </div>
-
-      <div className={i18n.language == "de" ? "flex ml-2" : "flex ml-4"}>
-        <Label htmlFor="date" className="pr-2">
-          {t("search_profile.To")}
-        </Label>
+      <Label className={"px-1"}>-</Label>
+      <div>
         <Popover open={openToDate} onOpenChange={setOpenToDate}>
           <PopoverTrigger asChild>
             <Button

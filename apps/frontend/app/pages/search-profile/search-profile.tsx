@@ -253,7 +253,7 @@ export function SearchProfileOverview() {
           </div>
 
           <div className=" flex flex-row justify-start mt-2 mb-4 gap-3">
-            <div className="w-1/5 min-w-[250px] h-full">
+            <div className="w-1/5 min-w-[286px] h-full">
               <SidebarFilter
                 sortBy={sortBy}
                 setSortBy={setSortBy}
@@ -273,7 +273,7 @@ export function SearchProfileOverview() {
                 setToDate={setToDate}
               />
             </div>
-            <div className="w-4/5 flex flex-col  pl-1 pt-1">
+            <div className="w-4/5 flex flex-col pl-1 pt-1">
               <div className="relative mb-4 w-full flex">
                 <Input
                   placeholder={t("Search") + " " + t("search_profile.articles")}
@@ -319,12 +319,12 @@ export function SearchProfileOverview() {
                       return (
                         <Link to={`./${match.id}`} key={match.id}>
                           <Card
-                            className="mb-2 p-5 gap-4 justify-start"
+                            className="mb-2 p-5 gap-3 justify-start"
                             key={match.id}
                           >
-                            <div className="flex flex-row gap-4">
+                            <div className="flex flex-row gap-2">
                               {!match.article.image_urls[0] || imgError ? (
-                                <div className="w-[120px] h-[120px] rounded-md shadow-md border flex items-center justify-center text-muted-foreground text-sm shrink-0">
+                                <div className="w-[90px] h-[90px] rounded-md shadow-md border flex items-center justify-center text-muted-foreground text-sm shrink-0">
                                   {t("search_profile.no_image")}
                                 </div>
                               ) : (
@@ -334,7 +334,7 @@ export function SearchProfileOverview() {
                                     match.article.headline,
                                     i18n,
                                   )}
-                                  className="w-[120px] h-[120px] object-cover rounded-md shadow-md shrink-0"
+                                  className="w-[90px] h-[90px] object-cover rounded-md shadow-md shrink-0"
                                   onError={() => setImgError(true)}
                                 />
                               )}
@@ -345,7 +345,7 @@ export function SearchProfileOverview() {
                                     i18n,
                                   )}
                                 </CardTitle>
-                                <p className="line-clamp-2 text-gray-700">
+                                <p className="line-clamp-2 text-gray-700 text-sm">
                                   {getLocalizedContent(
                                     match.article.summary,
                                     i18n,
