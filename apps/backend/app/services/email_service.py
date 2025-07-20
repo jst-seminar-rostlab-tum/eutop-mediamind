@@ -134,7 +134,8 @@ class EmailService:
         bcc_recipients: list[str] = [],
     ) -> None:
         """
-        Create email message, load attachments if any, and send email using SMTP.
+        Create email message, load attachments if any,
+        and send email using SMTP.
         """
         msg = MIMEMultipart("alternative")
         msg["From"] = email.sender
@@ -192,7 +193,8 @@ class EmailService:
             and sendmail_response[1].startswith("Ok")
         ):
             raise Exception(
-                f"Error sending emails for recipients={str(recipients)}: {sendmail_response}"
+                f"Error sending emails for recipients={str(recipients)}: "
+                f"{sendmail_response}"
             )
 
     @staticmethod

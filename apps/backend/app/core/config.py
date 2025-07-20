@@ -277,9 +277,7 @@ class Configs(BaseSettings):
         self._check_default_secret("SMTP_SERVER", self.SMTP_SERVER)
         self._check_default_secret("SMTP_USER", self.SMTP_USER)
         self._check_default_secret("SMTP_FROM", self.SMTP_FROM)
-        self._check_default_secret(
-            "SMTP_PASSWORD", self.SMTP_PASSWORD
-        )
+        self._check_default_secret("SMTP_PASSWORD", self.SMTP_PASSWORD)
 
         # Chatbot email settings
         self._check_default_secret("CHAT_API_KEY", self.CHAT_API_KEY)
