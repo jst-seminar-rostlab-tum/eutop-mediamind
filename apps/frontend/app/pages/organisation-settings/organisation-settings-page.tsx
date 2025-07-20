@@ -130,7 +130,7 @@ export const OrganisationSettingsPage = ({
             className="my-4 w-fit"
           >
             {isSaving && <Loader2 className="animate-spin mr-2 h-4 w-4" />}
-            {t("save")}
+            {t("Save")}
           </Button>
         </div>
       </Card>

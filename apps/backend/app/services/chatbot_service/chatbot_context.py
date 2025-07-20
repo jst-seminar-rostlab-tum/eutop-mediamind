@@ -82,9 +82,7 @@ class ChatbotContext:
                 f"user_id={user_id}: s3_key missing for report with "
                 f"id={report_id}."
             )
-        report_pdf_bytes = await s3_service.download_file(
-            filename=str(report.id), key=report.s3_key
-        )
+        report_pdf_bytes = await s3_service.download_fileobj(key=report.s3_key)
         report_pdf_file = BytesIO(report_pdf_bytes)
         report_pdf_file.name = f"report-{report.id}.pdf"
         return report_pdf_file
