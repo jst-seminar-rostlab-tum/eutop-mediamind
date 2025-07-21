@@ -1,4 +1,3 @@
-from datetime import datetime, timezone
 from uuid import UUID
 
 from app.core.config import get_configs
@@ -26,8 +25,6 @@ class ChatbotEmailSending:
             subject=subject,
             content_type="text/HTML",
             content=content,
-            created_at=datetime.now(timezone.utc),
-            update_at=datetime.now(timezone.utc),
             report_id=report_id,
         )
 
@@ -75,9 +72,9 @@ class ChatbotEmailSending:
         """
         content = f"""<p>Hi {user.first_name},</p>
             <p>This conversation has reached the maximum number of messages \
-                allowed (100 messages). To continue receiving support, \
-                please start a new conversation by replying to a different \
-                report email or contacting us directly.</p>
+allowed ({configs.CHAT_MAX_MESSAGES_PER_CONVERSATION} messages). To continue \
+receiving support, please start a new conversation by replying to a different \
+report email or contacting us directly.</p>
             <p>Best regards,<br>
             MediaMind Team</p>"""
         await ChatbotEmailSending.send_email_response(

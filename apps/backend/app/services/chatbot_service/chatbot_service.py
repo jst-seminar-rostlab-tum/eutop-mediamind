@@ -1,6 +1,7 @@
 import re
 from uuid import UUID
 
+from app.core.config import get_configs
 from app.core.logger import get_logger
 from app.models.email_conversation import EmailConversation
 from app.repositories.chatbot_repository import ChatbotRepository
@@ -10,6 +11,7 @@ from app.services.chatbot_service import ChatbotContext, ChatbotEmailSending
 from app.services.chatbot_service.chatbot_response import ChatbotResponse
 from app.services.s3_service import S3Service
 
+configs = get_configs()
 logger = get_logger(__name__)
 
 
@@ -51,14 +53,16 @@ class ChatbotService:
         message_count = await ChatbotRepository.get_message_count(
             email_conversation_id
         )
-        if message_count >= 100:
+        if message_count >= configs.CHAT_MAX_MESSAGES_PER_CONVERSATION:
             await ChatbotEmailSending.send_message_limit_exceeded_response(
                 user=user,
                 subject=subject,
             )
             raise Exception(
                 f"Conversation {email_conversation_id} has reached the "
-                f"maximum message limit (100). Current count: {message_count}"
+                "maximum message limit "
+                f"({configs.CHAT_MAX_MESSAGES_PER_CONVERSATION}). "
+                f"Current count: {message_count}"
             )
 
     @staticmethod
