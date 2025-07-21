@@ -6,6 +6,13 @@ The `ArticleMatchingService` intelligently matches articles to search profiles u
 
 **Location:** `apps/backend/app/services/article_matching_service.py`
 
+## Uses ArticleVectorService
+
+- Dense vector: uses OpenAI embeddings with cosine similarity search
+- Sparse vector: uses BM25
+
+You can tune the retrieval in `apps/backend/app/services/article_vector_service.py`
+
 ## Algorithm
 
 ### Three-Phase Matching Process
@@ -46,19 +53,6 @@ async def run(batch_size=100)
 ```
 
 Executes the complete matching pipeline with configurable batch processing for memory efficiency and parallel execution.
-
-### Data Architecture
-
-- **Match:** Persists article-profile relationships with computed similarity scores
-- **MatchingRun:** Maintains execution metadata and algorithm versioning
-- **SearchProfile:** Encapsulates user-defined topics and associated keywords
-
-### Service Dependencies
-
-- **ArticleVectorService** → Vector similarity search and retrieval
-- **MatchRepository** → Match persistence and querying operations
-- **SearchProfileRepository** → Profile data access and loading
-- **MatchingRunRepository** → Execution tracking and versioning
 
 ## Configuration Tuning
 
