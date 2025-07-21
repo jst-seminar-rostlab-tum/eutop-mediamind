@@ -526,7 +526,7 @@ def hardcoded_login(driver, wait, subscription: Subscription):
 
 
 def hardcoded_logout(driver, wait, subscription: Subscription):
-    paper = subscription.login_config
+    paper = subscription.logout_config
 
     # Go to profile section
     profile_key = "profile_section"
