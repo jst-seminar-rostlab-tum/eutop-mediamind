@@ -15,7 +15,9 @@ logger = get_logger(__name__)
 
 class ChatbotService:
     @staticmethod
-    async def extract_report_id_from_subject(subject: str, user: UserEntity) -> UUID:
+    async def extract_report_id_from_subject(
+        subject: str, user: UserEntity
+    ) -> UUID:
         """
         Extracts the report ID from the subject of the chat request
         in [report_id] format.
@@ -39,7 +41,7 @@ class ChatbotService:
                 f"user_id={user.id}: couldn't create UUID from subject="
                 f"{subject}; {e}."
             )
-        
+
     @staticmethod
     async def check_max_message_limit(
         email_conversation_id: UUID,
@@ -78,7 +80,9 @@ class ChatbotService:
                 subject=subject,
             )
         )
-        await ChatbotService.check_max_message_limit(email_conversation.id, user, subject)
+        await ChatbotService.check_max_message_limit(
+            email_conversation.id, user, subject
+        )
 
         report_pdf_file = await ChatbotContext.load_report_pdf_file(
             s3_service=s3_service, report_id=report_id, user_id=user.id

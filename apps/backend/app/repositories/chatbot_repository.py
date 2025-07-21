@@ -90,9 +90,8 @@ class ChatbotRepository:
         """
         Get the total number of messages in a conversation.
         """
-        query = (
-            select(func.count(ChatMessage.id))
-            .where(ChatMessage.email_conversation_id == email_conversation_id)
+        query = select(func.count(ChatMessage.id)).where(
+            ChatMessage.email_conversation_id == email_conversation_id
         )
         async with async_session() as session:
             result = await session.execute(query)
