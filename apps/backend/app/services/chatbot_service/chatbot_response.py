@@ -4,8 +4,10 @@ from uuid import UUID
 
 import markdown
 
+from app.core.languages import Language
 from app.core.logger import get_logger
 from app.services.chatbot_service.chatbot_context import ChatbotContext
+from app.services.email_service import EmailService
 from app.services.llm_service.llm_client import LLMClient
 from app.services.llm_service.llm_models import TaskModelMapping
 
@@ -93,7 +95,11 @@ Please try again later or contact us."""
         return llm_response
 
     @staticmethod
-    def format(llm_response: str, user_first_name: str) -> str:
+    def format(
+        llm_response: str,
+        user_first_name: str,
+        user_language: str = Language.EN.value,
+    ) -> str:
         llm_response_as_html = markdown.markdown(
             llm_response, extensions=["extra"]
         )
@@ -101,4 +107,8 @@ Please try again later or contact us."""
         email_as_html = llm_response_as_html.replace(
             "[username]", user_first_name
         )
+
+        disclaimer_html = EmailService.get_disclaimer_html(user_language)
+        email_as_html += disclaimer_html
+
         return email_as_html

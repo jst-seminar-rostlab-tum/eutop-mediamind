@@ -49,7 +49,7 @@ class EmailSchedule:
     subject: str
     content: str
     content_type: str
-    report_id: UUID
+    report_id: UUID | None = None
 
 
 class EmailService:
@@ -60,7 +60,7 @@ class EmailService:
         subject: str,
         content_type: str,
         content: str,
-        report_id: UUID,
+        report_id: UUID | None = None,
     ) -> Email:
         email = Email(
             sender=configs.SMTP_FROM,
@@ -273,6 +273,7 @@ class EmailService:
                 "into your browser"
             ),
             "deliver_text": translator("Delivered by MediaMind"),
+            "disclaimer_text": EmailService.get_disclaimer_text(language),
             "pdf_as_link": pdf_as_link,
             "empty_pdf_text": translator(
                 "There are no news items that match your "
@@ -286,7 +287,9 @@ class EmailService:
         return EmailService._render_email_template(template_name, context)
 
     @staticmethod
-    def _build_breaking_news_email_content(news: BreakingNews) -> str:
+    def _build_breaking_news_email_content(
+        news: BreakingNews, language: str = Language.EN.value
+    ) -> str:
         published_at_utc = news.published_at
         if isinstance(published_at_utc, str):
             published_at_utc = datetime.fromisoformat(published_at_utc)
@@ -304,6 +307,7 @@ class EmailService:
             "news_date": published_at,
             "news_url": news.url,
             "date_time": current_time,
+            "disclaimer_text": EmailService.get_disclaimer_text(language),
         }
 
         template_name = "breaking_news_template.html"
@@ -397,3 +401,30 @@ class EmailService:
             except Exception as e:
                 logger.error(f"Error in EmailService: {str(e)}")
                 continue
+
+    @staticmethod
+    def get_disclaimer_text(language: str = Language.EN.value) -> str:
+        translator = ArticleTranslationService.get_translator(language)
+        disclaimer_text = translator(
+            "Replies to this email are handled by an AI assistant. You can "
+            "reply with questions, but please avoid sharing personal or "
+            "sensitive information."
+        )
+        return disclaimer_text
+
+    @staticmethod
+    def get_disclaimer_html(language: str = Language.EN.value) -> str:
+        disclaimer_text = EmailService.get_disclaimer_text(language)
+        return f"""
+        <div style="
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e9ecef;
+            font-size: 0.85em;
+            color: #6c757d;
+            font-style: italic;
+            line-height: 1.4;
+        ">
+            <p style="margin: 0;">{disclaimer_text}</p>
+        </div>
+        """
