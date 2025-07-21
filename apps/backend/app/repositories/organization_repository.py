@@ -16,7 +16,7 @@ from app.schemas.subscription_schemas import SubscriptionSummary
 class OrganizationRepository:
     @staticmethod
     async def create(
-        organization: Organization, session: AsyncSession
+            organization: Organization, session: AsyncSession
     ) -> Organization:
         session.add(organization)
         await session.flush()
@@ -24,11 +24,10 @@ class OrganizationRepository:
 
     @staticmethod
     async def update_subscriptions(
-        organization_id: UUID,
-        subscriptions: List[SubscriptionSummary],
-        session: AsyncSession,
+            organization_id: UUID,
+            subscriptions: List[SubscriptionSummary],
+            session: AsyncSession,
     ) -> None:
-        # Get current subscription IDs for the organization
         result = await session.execute(
             select(OrganizationSubscriptionLink.subscription_id).where(
                 OrganizationSubscriptionLink.organization_id == organization_id
@@ -47,23 +46,19 @@ class OrganizationRepository:
             if not s.is_subscribed and s.id in current_sub_ids
         }
 
-        # Add new
         for sub_id in to_add:
             session.add(
                 OrganizationSubscriptionLink(
-                    organization_id=organization_id, subscription_id=sub_id
+                    organization_id=organization_id,
+                    subscription_id=sub_id,
                 )
             )
 
-        # Remove old
         if to_remove:
             await session.execute(
                 delete(OrganizationSubscriptionLink).where(
-                    OrganizationSubscriptionLink.organization_id
-                    == organization_id,
-                    OrganizationSubscriptionLink.subscription_id.in_(
-                        List[to_remove]
-                    ),
+                    OrganizationSubscriptionLink.organization_id == organization_id,
+                    OrganizationSubscriptionLink.subscription_id.in_(list(to_remove))
                 )
             )
 
@@ -71,8 +66,8 @@ class OrganizationRepository:
 
     @staticmethod
     async def get_subscription_summaries(
-        organization_id: UUID,
-        session: AsyncSession,
+            organization_id: UUID,
+            session: AsyncSession,
     ) -> list[SubscriptionSummary]:
         # Get all subscriptions with info if they are assigned
         result = await session.execute(
@@ -85,12 +80,12 @@ class OrganizationRepository:
             ).outerjoin(
                 OrganizationSubscriptionLink,
                 (
-                    Subscription.id
-                    == OrganizationSubscriptionLink.subscription_id
+                        Subscription.id
+                        == OrganizationSubscriptionLink.subscription_id
                 )
                 & (
-                    OrganizationSubscriptionLink.organization_id
-                    == organization_id
+                        OrganizationSubscriptionLink.organization_id
+                        == organization_id
                 ),
             )
         )
@@ -103,8 +98,8 @@ class OrganizationRepository:
 
     @staticmethod
     async def get_with_users(
-        session: AsyncSession,
-        organization_id: UUID,
+            session: AsyncSession,
+            organization_id: UUID,
     ) -> OrganizationResponse | None:
         result = await session.execute(
             select(Organization)
@@ -135,7 +130,7 @@ class OrganizationRepository:
 
     @staticmethod
     async def get_all_with_users(
-        session: AsyncSession,
+            session: AsyncSession,
     ) -> List[OrganizationResponse]:
         result = await session.execute(
             select(Organization).options(
