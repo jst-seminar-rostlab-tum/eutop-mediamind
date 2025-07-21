@@ -71,7 +71,7 @@ export function OrganizationDialog({
     data: userData,
     isLoading: usersLoading,
     error: usersError,
-  } = useQuery("/api/v1/users");
+  } = useQuery("/api/v1/users/all");
 
   if (usersError) {
     toast(t("organization-dialog.users_error"));

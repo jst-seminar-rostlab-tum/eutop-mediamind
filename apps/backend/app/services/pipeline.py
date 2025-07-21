@@ -35,10 +35,12 @@ async def run(datetime_start: datetime, datetime_end: datetime):
         datetime_start=datetime_start, datetime_end=datetime_end
     )
 
-    logger.info("Running Translation")
+    logger.info("Running Translation for articles")
     await ArticleTranslationService.run(
         datetime_start=datetime_start, datetime_end=datetime_end
     )
+    logger.info("Running Translation for entities")
+    await ArticleTranslationService.run_for_entities()
 
     logger.info("Running Embedding")
     vector_service = ArticleVectorService()
