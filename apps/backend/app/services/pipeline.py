@@ -30,6 +30,18 @@ async def run(datetime_start: datetime, datetime_end: datetime):
     )
     await run_scraper()
 
+    # Run custom crawlers
+    for crawler_type in [
+        CrawlerType.EuramsCrawler,
+        CrawlerType.EnhesaCrawler,
+        CrawlerType.HandelsblattCrawler,
+    ]:
+        await run_crawler(
+            crawler_type,
+            date_start=datetime_start,
+            date_end=datetime_end,
+        )
+
     logger.info("Running Summarization and Entity Extraction")
     await ArticleSummaryService.run(
         datetime_start=datetime_start, datetime_end=datetime_end

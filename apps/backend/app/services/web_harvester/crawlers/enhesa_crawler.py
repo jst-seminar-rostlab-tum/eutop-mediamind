@@ -13,6 +13,7 @@ from crawl4ai import (
 )
 from playwright.async_api import BrowserContext, Page
 
+from app.core.languages import Language
 from app.core.logger import get_logger
 from app.models.article import Article
 from app.models.subscription import Subscription
@@ -101,7 +102,7 @@ class EnhesaCrawler(Crawler):
         )
         config = CrawlerRunConfig(
             markdown_generator=md_generator,
-            wait_until="networkidle",
+            wait_until="load",
             session_id=session_id,
             scan_full_page=True,
         )
@@ -117,10 +118,11 @@ class EnhesaCrawler(Crawler):
                     login_config.get("user_input"), timeout=5000
                 )
                 await page.fill(
-                    login_config.get("user_input"), subscription.username
+                    login_config.get("user_input"), self.subscription.username
                 )
                 await page.fill(
-                    login_config.get("password_input"), subscription.secrets
+                    login_config.get("password_input"),
+                    self.subscription.secrets,
                 )
                 await page.click(login_config.get("submit_button"), force=True)
                 logger.info("Login process completed")
@@ -181,7 +183,7 @@ class EnhesaCrawler(Crawler):
 
         all_articles: List[Article] = []
         page_num = 0
-        max_pages = 1000
+        max_pages = 20
         should_stop = False
 
         while page_num <= max_pages and not should_stop:
@@ -205,6 +207,8 @@ class EnhesaCrawler(Crawler):
                     published_at=datetime.strptime(
                         article_url["date"], "%d %B %Y"
                     ).replace(tzinfo=timezone.utc),
+                    subscription_id=self.subscription.id,
+                    language=Language.EN.value,
                 )
                 final_articles.append(
                     self.tScraper.extract(sub_result.html, article)

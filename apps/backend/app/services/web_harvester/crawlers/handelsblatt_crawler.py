@@ -142,7 +142,6 @@ class HandelsblattCrawler(NewsAPICrawler):
 
                 for result in results:
                     if result.success:
-                        logger.info(f"Successfully crawled {result.url}")
                         article.status = ArticleStatus.SCRAPED
                         article.crawled_at = datetime.now(timezone.utc)
                         article.scraped_at = datetime.now(timezone.utc)
