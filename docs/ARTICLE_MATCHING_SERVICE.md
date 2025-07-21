@@ -58,10 +58,10 @@ Executes the complete matching pipeline with configurable batch processing for m
 
 ### Threshold Optimization
 
-- **Topic threshold ↑ (0.7)** → Higher precision, fewer matches
-- **Keyword threshold ↑ (0.1)** → More selective keyword matching
+- **Topic threshold ↑ (0.0 - 1.0)** → Higher precision, fewer matches
+- **Keyword threshold ↑ (0.0 - 1.0)** → More selective keyword matching
 
 ### Weight Balancing
 
-- **Topic weight ↑ (0.7)** → Emphasize semantic similarity
-- **Keyword weight ↑ (0.3)** → Emphasize exact term matches
+- **Topic weight ↑ (0.0 - 1.0)** → Emphasize semantic similarity
+- **Keyword weight ↑ (0.0 - 1.0)** → Emphasize exact term matches
