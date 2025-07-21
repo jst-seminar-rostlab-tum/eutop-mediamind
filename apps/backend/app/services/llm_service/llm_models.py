@@ -7,7 +7,6 @@ configs = get_configs()
 
 class TaskModelMapping(Enum):
 
-    TEST = configs.LLM_MODEL_SMALL
     ARTICLE_SUMMARY = configs.LLM_MODEL_LARGE
     CHATBOT = configs.LLM_MODEL_SMALL
     TRANSLATION = configs.LLM_MODEL_LARGE
