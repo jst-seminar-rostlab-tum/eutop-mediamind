@@ -216,11 +216,12 @@ class PDFService:
             Frame(
                 margin + i * frame_width,
                 margin,
-                margin,
-                width - 2 * margin,
+                frame_width,
                 height - 2 * margin,
-                id="full_article",
+                id=f"col{i}",
             )
+            for i in range(3)
+        ]
 
         doc = BaseDocTemplate(
             buffer,
@@ -246,37 +247,10 @@ class PDFService:
                     onPage=on_page,
                 ),
             ]
-
-            doc = BaseDocTemplate(
-                buffer,
-                pagesize=A4,
-                rightMargin=margin,
-                leftMargin=margin,
-                topMargin=margin,
-                bottomMargin=margin,
-            )
-            on_page = partial(PDFService.draw_header_footer, translator=translator)
-            doc.addPageTemplates(
-                [
-                    PageTemplate(id="Cover", frames=[frame]),
-                    PageTemplate(
-                        id="SummariesThreeCol",
-                        frames=frames,
-                        onPage=on_page,
-                    ),
-                    PageTemplate(
-                        id="FullArticles",
-                        frames=[full_article_frame],
-                        onPage=on_page,
-                    ),
-                ]
-            )
-            doc.build(all_elements)
-            buffer.seek(0)
-            return buffer.getvalue()
-        except Exception as e:
-            logger.error(f"Error generating PDF: {e}")
-            raise
+        )
+        doc.build(all_elements)
+        buffer.seek(0)
+        return buffer.getvalue()
 
 
 PDFService._PDFService__draw_cover_elements = staticmethod(
