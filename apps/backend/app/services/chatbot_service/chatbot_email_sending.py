@@ -64,3 +64,25 @@ class ChatbotEmailSending:
             subject=subject,
             content=content,
         )
+
+    @staticmethod
+    async def send_message_limit_exceeded_response(
+        user: UserEntity, subject: str
+    ):
+        """
+        Sends an error response to the user when the conversation has
+        reached the maximum number of messages (100).
+        """
+        content = f"""<p>Hi {user.first_name},</p>
+            <p>This conversation has reached the maximum number of messages \
+                allowed (100 messages). To continue receiving support, \
+                please start a new conversation by replying to a different \
+                report email or contacting us directly.</p>
+            <p>Best regards,<br>
+            MediaMind Team</p>"""
+        await ChatbotEmailSending.send_email_response(
+            email_conversation_id=None,
+            user_email=user.email,
+            subject=subject,
+            content=content,
+        )
