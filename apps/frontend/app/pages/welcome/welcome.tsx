@@ -13,7 +13,7 @@ import { MockedSearchProfileOverview } from "./mocked-search-profile";
 import { MockedArticlePage } from "./mocked-article";
 import { MockedBreakingNews } from "./mocked-breaking-news";
 import { exampleArticle, exampleProfile } from "./mock-data";
-import i18n from "~/i18n";
+import { MockedEmail } from "./mocked-email";
 
 export function Welcome() {
   const { isLoaded, user } = useAuthorization();
@@ -266,20 +266,8 @@ export function Welcome() {
             {t("landing_page.email_text")}
           </p>
         </div>
-        <Card className="w-[600px] h-[735px] p-4 pb-0 overflow-hidden border">
-          {i18n.language == "en" ? (
-            <iframe
-              src="/mocked-email-en.html"
-              title="Email Preview"
-              className="w-full h-[710px] border-none rounded-md"
-            />
-          ) : (
-            <iframe
-              src="/mocked-email-de.html"
-              title="Email Preview"
-              className="w-full h-[710px] border-none rounded-md"
-            />
-          )}
+        <Card className="w-[600px] p-4 pb-0 overflow-hidden border">
+          <MockedEmail />
         </Card>
       </div>
 
