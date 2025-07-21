@@ -125,6 +125,7 @@ class Configs(BaseSettings):
 
     # Chatbot Email Configuration
     CHAT_API_KEY: str
+    CHAT_MAX_MESSAGES_PER_CONVERSATION: int
 
     # API Documentation
     API_SERVER_INFOS: str = Field(default="[]")
