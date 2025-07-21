@@ -478,3 +478,47 @@ class ArticleTranslationService:
         except Exception as e:
             logger.exception(f"Error running entity translation workflow: {e}")
             return None
+
+    @staticmethod
+    async def translate_breaking_news_fields(
+        breaking_news, target_language: str
+    ):
+        """
+        Translates the title and summary of a BreakingNews object
+        to the target language using the LLM.
+        Args:
+            breaking_news: BreakingNews object
+            target_language: 'en' or 'de'
+            use_batch_api: whether to use batch API for translation
+        Returns:
+            dict: {"title": translated_title, "summary": translated_summary}
+        """
+        texts = [breaking_news.title, breaking_news.summary]
+        # Only translate if the current language is not the target
+        if breaking_news.language == target_language:
+            return {
+                "title": breaking_news.title,
+                "summary": breaking_news.summary,
+            }
+        # Prepare prompts for translation
+        logger.info(f" {breaking_news.id} Prepare prompts for translation")
+        target_langs = {"en": "English", "de": "German"}
+        prompts = [
+            base_prompt.format(
+                target_lang=target_langs[target_language], content=text
+            )
+            for text in texts
+        ]
+        # Call LLM for translation
+        logger.info(f" {breaking_news.id} Call LLM for translation")
+        responses = []
+        for prompt in prompts:
+            resp = ArticleTranslationService._llm_client.generate_response(
+                prompt
+            )
+            responses.append(
+                resp["choices"][0]["message"]["content"]
+                if "choices" in resp and resp["choices"]
+                else resp
+            )
+        return {"title": responses[0], "summary": responses[1]}

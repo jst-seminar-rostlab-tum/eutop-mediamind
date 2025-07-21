@@ -131,7 +131,6 @@ class EmailService:
     async def send_email(
         email: Email,
         pdf_bytes: bytes | None = None,
-        bcc_recipients: list[str] = [],
     ) -> None:
         """
         Create email message, load attachments if any,
@@ -139,7 +138,7 @@ class EmailService:
         """
         msg = MIMEMultipart("alternative")
         msg["From"] = email.sender
-        msg["To"] = email.recipient  # BCC not included in headers for privacy
+        msg["To"] = email.recipient
         msg["Subject"] = email.subject
 
         html = MIMEText(email.content, "html")
@@ -151,16 +150,13 @@ class EmailService:
                 "Content-Disposition", "attachment", filename="report.pdf"
             )
             msg.attach(attachment)
-        all_recipients = [email.recipient] + (bcc_recipients)
-        await EmailService.__send_email(
-            email_id=email.id, message=msg, recipients=all_recipients
-        )
+
+        await EmailService.__send_email(email=email, message=msg)
 
     @staticmethod
     async def __send_email(
-        email_id: UUID,
+        email: Email,
         message: MIMEMultipart,
-        recipients: list[str],
     ) -> None:
         email_server = EmailService.create_ses_email_server()
         smtp_client = SMTP(
@@ -177,12 +173,12 @@ class EmailService:
             raise Exception(error_message)
         try:
             sendmail_response = await smtp_client.sendmail(
-                email_server.sender, recipients, message.as_string()
+                email_server.sender, [email.recipient], message.as_string()
             )
         except SMTPResponseException as e:
             error_message = (
-                f"Failed to send email with id={email_id} to "
-                f"recipients={str(recipients)} with error: {str(e)}"
+                f"Failed to send email with id={email.id} to "
+                f"recipient={str([email.recipient])} with error: {str(e)}"
             )
             logger.error(error_message)
             raise Exception(error_message)
@@ -193,7 +189,7 @@ class EmailService:
             and sendmail_response[1].startswith("Ok")
         ):
             raise Exception(
-                f"Error sending emails for recipients={str(recipients)}: "
+                f"Error sending emails for recipient={str(email.recipient)}: "
                 f"{sendmail_response}"
             )
 

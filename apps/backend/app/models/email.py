@@ -20,7 +20,6 @@ class EmailState(Enum):
 class Email(SQLModel, table=True):
     __tablename__ = "emails"
 
-    # Attributes
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     sender: str = Field(max_length=255, nullable=False)
     recipient: str = Field(max_length=255, nullable=False)
