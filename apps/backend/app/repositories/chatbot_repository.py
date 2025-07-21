@@ -1,7 +1,7 @@
 import uuid
 from typing import List, Optional
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import selectinload
 
 from app.core.db import async_session
@@ -82,3 +82,17 @@ class ChatbotRepository:
         async with async_session() as session:
             chat_messages = await session.execute(query)
             return chat_messages.scalars().all()
+
+    @staticmethod
+    async def get_message_count(
+        email_conversation_id: uuid.UUID,
+    ) -> int:
+        """
+        Get the total number of messages in a conversation.
+        """
+        query = select(func.count(ChatMessage.id)).where(
+            ChatMessage.email_conversation_id == email_conversation_id
+        )
+        async with async_session() as session:
+            result = await session.execute(query)
+            return result.scalar() or 0

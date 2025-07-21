@@ -2,7 +2,7 @@ import asyncio
 import random
 import time
 from concurrent.futures import ThreadPoolExecutor
-from datetime import date, datetime
+from datetime import date, datetime, timedelta, timezone
 
 from selenium.webdriver.support.ui import WebDriverWait
 
@@ -20,6 +20,7 @@ from app.services.article_cleaner.article_valid_check import (
     clean_article_llm,
     is_article_valid,
 )
+from app.services.login_llm_service import LoginLLM
 from app.services.web_harvester.crawler import Crawler, CrawlerType
 from app.services.web_harvester.scraper import Scraper
 from app.services.web_harvester.utils.web_utils import (
@@ -156,31 +157,39 @@ def run_selenium_code(
             subscription, scraper, driver, wait
         )
         if subscription.paywall and not login_success:
-            scraper.logger.info(
-                f"Login failed for subscription {subscription.name}, "
-                f"updating login config with LLM approach"
+            now = datetime.now(timezone.utc)
+            # One weekly attempt per subscription
+            next_attempt = (
+                subscription.llm_login_attempt + timedelta(days=7)
+                if subscription.llm_login_attempt
+                else None
             )
-            # Disabled because the scheduler should take care of this
-            # login_updated_future = asyncio.run_coroutine_threadsafe(
-            #     LoginLLM.add_page(subscription), loop
-            # )
-            # subscription_updated = login_updated_future.result()
-            # if subscription_updated:
-            #     scraper.logger.info(
-            #         f"Login config updated for {subscription.name}, "
-            #         f"retrying login"
-            #     )
-            #     login_success = _handle_login_if_needed(
-            #         subscription_updated, scraper, driver, wait
-            #     )
-            # else:
-            #     scraper.logger.error(
-            #         f"Could not update login config for subscription "
-            #         f"{subscription.name} with LLM approach."
-            #     )
+            if subscription.llm_login_attempt is None or now >= next_attempt:
+                logger.info(
+                    f"Login failed for subscription {subscription.name}, "
+                    f"updating login config with LLM approach"
+                )
+                login_updated_future = asyncio.run_coroutine_threadsafe(
+                    LoginLLM.add_page(subscription), loop
+                )
+                subscription_updated = login_updated_future.result()
+
+                if subscription_updated:
+                    logger.info(
+                        f"Login config updated for {subscription.name}, "
+                        f"retrying login"
+                    )
+                    login_success = _handle_login_if_needed(
+                        subscription_updated, scraper, driver, wait
+                    )
+                else:
+                    logger.warning(
+                        f"Could not update login config for subscription "
+                        f"{subscription.name} with LLM approach."
+                    )
 
         if subscription.paywall and not login_success:
-            scraper.logger.warning(
+            logger.warning(
                 f"Login failed for subscription {subscription.name}. "
                 "Skipping scraping."
             )

@@ -1,4 +1,3 @@
-from datetime import datetime, timezone
 from uuid import UUID
 
 from app.core.config import get_configs
@@ -18,19 +17,19 @@ class ChatbotEmailSending:
         user_email: str,
         subject: str,
         content: str,
+        report_id: UUID | None = None,
     ):
         email = Email(
-            sender=configs.SMTP_USER,
+            sender=configs.SMTP_FROM,
             recipient=user_email,
             subject=subject,
             content_type="text/HTML",
             content=content,
-            created_at=datetime.now(timezone.utc),
-            update_at=datetime.now(timezone.utc),
+            report_id=report_id,
         )
 
         try:
-            await EmailService.send_ses_email(email)
+            await EmailService.send_email(email)
             logger.info(
                 f"Chat response sent to {user_email} for "
                 f"email_conversation with id={email_conversation_id}"
@@ -54,6 +53,28 @@ class ChatbotEmailSending:
             <p>We couldn't find the context for your request. \
                 Please make sure you are replying to an email \
                 sent by us.</p>
+            <p>Best regards,<br>
+            MediaMind Team</p>"""
+        await ChatbotEmailSending.send_email_response(
+            email_conversation_id=None,
+            user_email=user.email,
+            subject=subject,
+            content=content,
+        )
+
+    @staticmethod
+    async def send_message_limit_exceeded_response(
+        user: UserEntity, subject: str
+    ):
+        """
+        Sends an error response to the user when the conversation has
+        reached the maximum number of messages (100).
+        """
+        content = f"""<p>Hi {user.first_name},</p>
+            <p>This conversation has reached the maximum number of messages \
+allowed ({configs.CHAT_MAX_MESSAGES_PER_CONVERSATION} messages). To continue \
+receiving support, please start a new conversation by replying to a different \
+report email or contacting us directly.</p>
             <p>Best regards,<br>
             MediaMind Team</p>"""
         await ChatbotEmailSending.send_email_response(
