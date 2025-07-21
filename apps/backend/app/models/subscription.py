@@ -62,6 +62,16 @@ class Subscription(SQLModel, table=True):
             "paywalled newspapers",
         )
     )
+    logout_config: Optional[dict] = Field(
+        sa_column=Column(
+            JSON,
+            default=None,
+            nullable=True,
+            comment="Contains "
+            "the xpaths to logout from "
+            "paywalled newspapers",
+        )
+    )
 
     encrypted_secrets: Optional[bytes] = Field(
         default=None, sa_column_kwargs={"nullable": True}
