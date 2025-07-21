@@ -9,6 +9,7 @@ from app.models.user import UserRole
 from app.repositories.organization_repository import OrganizationRepository
 from app.repositories.user_repository import UserRepository
 from app.schemas.organization_schemas import (
+    CreateRequestUser,
     OrganizationCreateOrUpdate,
     OrganizationResponse,
 )
@@ -20,35 +21,19 @@ class OrganizationService:
 
     @staticmethod
     async def create_with_users(
-        create_request: OrganizationCreateOrUpdate, current_user: UserEntity
+        create_request: OrganizationCreateOrUpdate,
     ) -> OrganizationResponse:
-        if not current_user.is_superuser:
-            raise HTTPException(
-                status_code=403, detail="Insufficient privileges"
-            )
-
         async with async_session() as session:
-            organization = Organization(
-                name=create_request.name,
-                email=create_request.email,
-                pdf_as_link=create_request.pdf_as_link,
-            )
-            organization = await OrganizationRepository.create(
-                organization, session=session
+            organization = (
+                await OrganizationService._create_organization_from_request(
+                    create_request, session
+                )
             )
 
-            # Only process if there are user assignments
-            if len(create_request.users) > 0:
-                # Build mapping of user IDs to roles in one pass
-                role_map = {u.id: u.role for u in create_request.users}
-                user_ids = list(role_map.keys())
-
-                # Fetch and update each user
-                users = await UserRepository.get_by_ids(user_ids, session)
-                for user in users:
-                    user.organization_id = organization.id
-                    user.role = role_map.get(user.id, UserRole.member)
-                    await UserRepository.update_organization(user, session)
+            if create_request.users:
+                await OrganizationService._assign_users_to_organization(
+                    create_request.users, organization.id, session
+                )
 
             await session.commit()
             await session.refresh(organization)
@@ -56,123 +41,42 @@ class OrganizationService:
             users = await UserRepository.get_users_by_organization(
                 organization.id, session
             )
-            return OrganizationResponse(
-                id=organization.id,
-                name=organization.name,
-                email=organization.email,
-                pdf_as_link=organization.pdf_as_link,
-                users=users,
-            )
+            return OrganizationService._build_response(organization, users)
 
     @staticmethod
     async def update_with_users(
         organization_id: uuid.UUID,
         update_request: OrganizationCreateOrUpdate,
-        current_user: UserEntity,
     ) -> OrganizationResponse:
-        if not (
-            current_user.is_superuser
-            or (
-                current_user.role == UserRole.maintainer
-                and current_user.organization_id == organization_id
-            )
-        ):
-            raise HTTPException(
-                status_code=403, detail="Insufficient privileges"
-            )
-
         async with async_session() as session:
-            # Fetch organization
             organization = await session.get(Organization, organization_id)
             if not organization:
                 raise HTTPException(
                     status_code=404, detail="Organization not found"
                 )
 
-            # Update basic organization fields
             organization.name = update_request.name
             if update_request.email:
                 organization.email = update_request.email
             organization.pdf_as_link = update_request.pdf_as_link
             session.add(organization)
 
-            # Fetch existing users
-            existing_users = await UserRepository.get_users_by_organization(
-                organization_id, session
+            await OrganizationService._sync_user_assignments(
+                organization_id, update_request.users, session
             )
-            existing_user_map = {u.id: u for u in existing_users}
-            existing_ids = set(existing_user_map.keys())
 
-            # Extract new user roles from request
-            requested_user_roles = {u.id: u.role for u in update_request.users}
-            new_ids = set(requested_user_roles.keys())
-
-            # Compute sets
-            to_remove = existing_ids - new_ids
-            to_add = new_ids - existing_ids
-            to_check = (
-                existing_ids & new_ids
-            )  # Users that might need role updates
-
-            # Remove users no longer in the list
-            if to_remove:
-                users_to_remove = await UserRepository.get_by_ids(
-                    list(to_remove), session
-                )
-                for user in users_to_remove:
-                    user.organization_id = None
-                    user.role = UserRole.member
-                    await UserRepository.update_organization(user, session)
-
-            # Add new users
-            if to_add:
-                users_to_add = await UserRepository.get_by_ids(
-                    list(to_add), session
-                )
-                for user in users_to_add:
-                    user.organization_id = organization.id
-                    user.role = requested_user_roles.get(
-                        user.id, UserRole.member
-                    )
-                    await UserRepository.update_organization(user, session)
-
-            # Update role if changed
-            for uid in to_check:
-                existing_user = existing_user_map[uid]
-                new_role = requested_user_roles.get(uid)
-                if existing_user.role != new_role:
-                    existing_user.role = new_role
-                    await UserRepository.update_organization(
-                        existing_user, session
-                    )
-
-            # Finalize and return
-            session.add(organization)
             await session.commit()
             await session.refresh(organization)
 
             updated_users = await UserRepository.get_users_by_organization(
                 organization.id, session
             )
-
-            return OrganizationResponse(
-                id=organization.id,
-                name=organization.name,
-                email=organization.email,
-                pdf_as_link=organization.pdf_as_link,
-                users=updated_users,
+            return OrganizationService._build_response(
+                organization, updated_users
             )
 
     @staticmethod
-    async def delete_organization(
-        organization_id: uuid.UUID,
-        current_user: UserEntity,
-    ):
-        if not current_user.is_superuser:
-            raise HTTPException(
-                status_code=403, detail="Insufficient privileges"
-            )
-
+    async def delete_organization(organization_id: uuid.UUID):
         async with async_session() as session:
             organization = await session.get(Organization, organization_id)
             if not organization:
@@ -180,7 +84,6 @@ class OrganizationService:
                     status_code=404, detail="Organization not found"
                 )
 
-            # Find all users currently assigned to the organization
             users = await UserRepository.get_users_by_organization(
                 organization_id, session
             )
@@ -188,7 +91,6 @@ class OrganizationService:
                 user.organization_id = None
                 await UserRepository.update_organization(user, session)
 
-            # Delete the organization
             await session.delete(organization)
             await session.commit()
 
@@ -198,7 +100,6 @@ class OrganizationService:
         subscriptions: list[SubscriptionSummary],
     ) -> list[SubscriptionSummary]:
         async with async_session() as session:
-            # Ensure org exists
             organization = await session.get(Organization, organization_id)
             if not organization:
                 raise HTTPException(
@@ -208,8 +109,6 @@ class OrganizationService:
             await OrganizationRepository.update_subscriptions(
                 organization_id, subscriptions, session
             )
-
-            # Fetch and return updated summaries
             return await OrganizationRepository.get_subscription_summaries(
                 organization_id, session
             )
@@ -237,3 +136,79 @@ class OrganizationService:
             )
         async with async_session() as session:
             return await OrganizationRepository.get_all_with_users(session)
+
+    @staticmethod
+    async def _create_organization_from_request(
+        request: OrganizationCreateOrUpdate, session
+    ) -> Organization:
+        organization = Organization(
+            name=request.name,
+            email=request.email,
+            pdf_as_link=request.pdf_as_link,
+        )
+        return await OrganizationRepository.create(organization, session)
+
+    @staticmethod
+    async def _assign_users_to_organization(
+        users: List[CreateRequestUser], organization_id: uuid.UUID, session
+    ):
+        role_map = {u.id: u.role for u in users}
+        user_ids = list(role_map.keys())
+
+        db_users = await UserRepository.get_by_ids(user_ids, session)
+        for user in db_users:
+            user.organization_id = organization_id
+            user.role = role_map.get(user.id, UserRole.member)
+            await UserRepository.update_organization(user, session)
+
+    @staticmethod
+    async def _sync_user_assignments(
+        organization_id: uuid.UUID,
+        requested_users: List[CreateRequestUser],
+        session,
+    ):
+        existing_users = await UserRepository.get_users_by_organization(
+            organization_id, session
+        )
+        existing_map = {u.id: u for u in existing_users}
+        requested_map = {u.id: u.role for u in requested_users}
+
+        existing_ids = set(existing_map.keys())
+        requested_ids = set(requested_map.keys())
+
+        to_remove = existing_ids - requested_ids
+        to_add = requested_ids - existing_ids
+        to_update = existing_ids & requested_ids
+
+        if to_remove:
+            users = await UserRepository.get_by_ids(list(to_remove), session)
+            for user in users:
+                user.organization_id = None
+                user.role = UserRole.member
+                await UserRepository.update_organization(user, session)
+
+        if to_add:
+            users = await UserRepository.get_by_ids(list(to_add), session)
+            for user in users:
+                user.organization_id = organization_id
+                user.role = requested_map.get(user.id, UserRole.member)
+                await UserRepository.update_organization(user, session)
+
+        for uid in to_update:
+            user = existing_map[uid]
+            new_role = requested_map.get(uid)
+            if user.role != new_role:
+                user.role = new_role
+                await UserRepository.update_organization(user, session)
+
+    @staticmethod
+    def _build_response(
+        organization: Organization, users: list[UserEntity]
+    ) -> OrganizationResponse:
+        return OrganizationResponse(
+            id=organization.id,
+            name=organization.name,
+            email=organization.email,
+            pdf_as_link=organization.pdf_as_link,
+            users=users,
+        )

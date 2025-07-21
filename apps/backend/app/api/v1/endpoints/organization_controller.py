@@ -5,7 +5,6 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException
 
 from app.core.auth import get_authenticated_user
-from app.core.logger import get_logger
 from app.models.user import UserRole
 from app.schemas.organization_schemas import (
     OrganizationCreateOrUpdate,
@@ -25,7 +24,10 @@ router = APIRouter(
     dependencies=[Depends(get_authenticated_user)],
 )
 
-logger = get_logger(__name__)
+
+def _assert_admin(user: UserEntity):
+    if not user.is_superuser:
+        raise HTTPException(status_code=403, detail="Insufficient privileges")
 
 
 @router.post("", response_model=OrganizationResponse)
@@ -33,9 +35,8 @@ async def create_organization_with_users(
     organization_with_users: OrganizationCreateOrUpdate,
     current_user: UserEntity = Depends(get_authenticated_user),
 ):
-    return await OrganizationService.create_with_users(
-        organization_with_users, current_user
-    )
+    _assert_admin(current_user)
+    return await OrganizationService.create_with_users(organization_with_users)
 
 
 @router.put("/{organization_id}", response_model=OrganizationResponse)
@@ -44,8 +45,9 @@ async def update_organization_with_users(
     update_request: OrganizationCreateOrUpdate,
     current_user: UserEntity = Depends(get_authenticated_user),
 ):
+    _assert_admin(current_user)
     return await OrganizationService.update_with_users(
-        organization_id, update_request, current_user
+        organization_id, update_request
     )
 
 
@@ -98,7 +100,6 @@ async def delete_organization(
     organization_id: uuid.UUID,
     current_user: UserEntity = Depends(get_authenticated_user),
 ):
-    await OrganizationService.delete_organization(
-        organization_id, current_user
-    )
+    _assert_admin(current_user)
+    await OrganizationService.delete_organization(organization_id)
     return FeedbackResponse(status="success")
