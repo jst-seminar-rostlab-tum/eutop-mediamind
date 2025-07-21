@@ -16,15 +16,19 @@ import { exampleArticle, exampleProfile } from "./mock-data";
 import i18n from "~/i18n";
 
 export function Welcome() {
-  const { isSignedIn, user } = useAuthorization();
+  const { isLoaded, user } = useAuthorization();
   const navigate = useNavigate();
   const { t } = useTranslation();
 
   useEffect(() => {
-    if (isSignedIn && user?.organization_id) {
-      navigate("/dashboard");
+    if (isLoaded && user) {
+      if (user?.organization_id) {
+        navigate("/dashboard");
+      } else {
+        navigate("error/no-org");
+      }
     }
-  }, [isSignedIn, user?.organization_id, navigate]);
+  }, [isLoaded, user, user?.organization_id, navigate]);
 
   const lines = [
     {
