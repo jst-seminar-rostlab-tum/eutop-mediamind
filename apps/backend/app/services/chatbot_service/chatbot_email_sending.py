@@ -21,7 +21,7 @@ class ChatbotEmailSending:
         report_id: UUID | None = None,
     ):
         email = Email(
-            sender=configs.SMTP_USER,
+            sender=configs.SMTP_FROM,
             recipient=user_email,
             subject=subject,
             content_type="text/HTML",
