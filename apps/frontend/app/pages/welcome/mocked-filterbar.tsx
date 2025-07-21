@@ -71,7 +71,7 @@ export function MockedFilterBar({ onFiltersChange }: FilterBarProps) {
   };
 
   return (
-    <div className="flex gap-5 pt-3 justify-start items-center">
+    <div className="flex gap-5 ml-2 pt-3 justify-start items-center">
       <div className="flex items-center gap-2">
         <Select value={selectedRole} onValueChange={handleRoleChange}>
           <SelectTrigger className="w-[180px] rounded-lg">
