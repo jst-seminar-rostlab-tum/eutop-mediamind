@@ -199,7 +199,7 @@ export function SearchProfileOverview() {
           </div>
 
           <div className="overflow-hidden grow flex flex-row justify-start mt-2 mb-4 gap-8">
-            <div className="max-w-[400px] h-full">
+            <div className="max-w-[400px] min-w-[400px] h-full">
               <SidebarFilter
                 sortBy={sortBy}
                 setSortBy={setSortBy}

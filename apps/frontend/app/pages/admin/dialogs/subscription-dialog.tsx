@@ -166,181 +166,188 @@ export function SubscriptionDialog({
           }
         }}
       >
-        <DialogContent className="min-w-[400px]">
+        <DialogContent className="min-w-[400px] min-h-[450px]">
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSave)} className="space-y-4">
-              <DialogHeader>
-                <DialogTitle>
-                  {isEdit
-                    ? t("subscription-dialog.edit_header")
-                    : t("subscription-dialog.add_header")}
-                </DialogTitle>
-                <DialogDescription>
-                  {isEdit
-                    ? t("subscription-dialog.edit_text")
-                    : t("subscription-dialog.add_text")}
-                </DialogDescription>
-              </DialogHeader>
+            <form
+              onSubmit={form.handleSubmit(onSave)}
+              className="flex flex-col justify-between"
+            >
+              <div className="space-y-4">
+                <DialogHeader>
+                  <DialogTitle>
+                    {isEdit
+                      ? t("subscription-dialog.edit_header")
+                      : t("subscription-dialog.add_header")}
+                  </DialogTitle>
+                  <DialogDescription>
+                    {isEdit
+                      ? t("subscription-dialog.edit_text")
+                      : t("subscription-dialog.add_text")}
+                  </DialogDescription>
+                </DialogHeader>
 
-              <div className="mx-4">
-                <FormField
-                  control={form.control}
-                  name="name"
-                  render={({ field }) => (
-                    <FormItem className="grid grid-cols-4 items-center gap-x-4 gap-y-1">
-                      <FormLabel className="col-span-1 flex justify-end">
-                        {t("subscription-dialog.Name")}
-                      </FormLabel>
-                      <FormControl className="col-span-3">
-                        {loadingFreshSub || subLoading ? (
-                          <Skeleton className="h-9 w-full rounded-md" />
-                        ) : (
-                          <Input
-                            placeholder={t("subscription-dialog.Name")}
-                            {...field}
-                          />
-                        )}
-                      </FormControl>
-                      <FormMessage className="col-span-3 col-start-2" />
-                    </FormItem>
-                  )}
-                />
-              </div>
+                <div className="mx-4">
+                  <FormField
+                    control={form.control}
+                    name="name"
+                    render={({ field }) => (
+                      <FormItem className="grid grid-cols-4 items-center gap-x-4 gap-y-1">
+                        <FormLabel className="col-span-1 flex justify-end">
+                          {t("subscription-dialog.Name")}
+                        </FormLabel>
+                        <FormControl className="col-span-3">
+                          {loadingFreshSub || subLoading ? (
+                            <Skeleton className="h-9 w-full rounded-md" />
+                          ) : (
+                            <Input
+                              placeholder={t("subscription-dialog.Name")}
+                              {...field}
+                            />
+                          )}
+                        </FormControl>
+                        <FormMessage className="col-span-3 col-start-2" />
+                      </FormItem>
+                    )}
+                  />
+                </div>
 
-              <div className="mx-4">
-                <FormField
-                  control={form.control}
-                  name="url"
-                  render={({ field }) => (
-                    <FormItem className="grid grid-cols-4 items-center gap-x-4 gap-y-1">
-                      <FormLabel className="col-span-1 flex justify-end">
-                        {t("subscription-dialog.URL")}
-                      </FormLabel>
-                      <FormControl className="col-span-3">
-                        {loadingFreshSub || subLoading ? (
-                          <Skeleton className="h-9 w-full rounded-md" />
-                        ) : (
-                          <Input
-                            placeholder={t("subscription-dialog.URL")}
-                            {...field}
-                          />
-                        )}
-                      </FormControl>
-                      <FormMessage className="col-span-3 col-start-2" />
-                    </FormItem>
-                  )}
-                />
-              </div>
+                <div className="mx-4">
+                  <FormField
+                    control={form.control}
+                    name="url"
+                    render={({ field }) => (
+                      <FormItem className="grid grid-cols-4 items-center gap-x-4 gap-y-1">
+                        <FormLabel className="col-span-1 flex justify-end">
+                          {t("subscription-dialog.URL")}
+                        </FormLabel>
+                        <FormControl className="col-span-3">
+                          {loadingFreshSub || subLoading ? (
+                            <Skeleton className="h-9 w-full rounded-md" />
+                          ) : (
+                            <Input
+                              placeholder={t("subscription-dialog.URL")}
+                              {...field}
+                            />
+                          )}
+                        </FormControl>
+                        <FormMessage className="col-span-3 col-start-2" />
+                      </FormItem>
+                    )}
+                  />
+                </div>
 
-              <div className="mx-4">
-                <FormField<FormValues, "paywall">
-                  control={form.control}
-                  name="paywall"
-                  render={({ field }) => (
-                    <FormItem className="grid grid-cols-4 items-center gap-x-4 gap-y-1">
-                      <FormLabel className="col-span-1 flex justify-end">
-                        {t("subscription-dialog.Paywall")}
-                      </FormLabel>
-                      <FormControl className="col-span-3">
-                        {loadingFreshSub || subLoading ? (
-                          <Skeleton className="h-9 w-[30%] rounded-md" />
-                        ) : (
-                          <Select
-                            value={field.value ? "true" : "false"}
-                            onValueChange={(value) =>
-                              field.onChange(value === "true")
-                            }
-                          >
-                            <SelectTrigger className="w-full">
-                              <SelectValue
-                                placeholder={t("subscription-dialog.Paywall")}
-                              />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="true">{t("Yes")}</SelectItem>
-                              <SelectItem value="false">{t("No")}</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        )}
-                      </FormControl>
-                      <FormMessage className="col-span-3 col-start-2" />
-                    </FormItem>
-                  )}
-                />
-              </div>
+                <div className="mx-4">
+                  <FormField<FormValues, "paywall">
+                    control={form.control}
+                    name="paywall"
+                    render={({ field }) => (
+                      <FormItem className="grid grid-cols-4 items-center gap-x-4 gap-y-1">
+                        <FormLabel className="col-span-1 flex justify-end">
+                          {t("subscription-dialog.Paywall")}
+                        </FormLabel>
+                        <FormControl className="col-span-3">
+                          {loadingFreshSub || subLoading ? (
+                            <Skeleton className="h-9 w-[30%] rounded-md" />
+                          ) : (
+                            <Select
+                              value={field.value ? "true" : "false"}
+                              onValueChange={(value) =>
+                                field.onChange(value === "true")
+                              }
+                            >
+                              <SelectTrigger className="w-full">
+                                <SelectValue
+                                  placeholder={t("subscription-dialog.Paywall")}
+                                />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="true">{t("Yes")}</SelectItem>
+                                <SelectItem value="false">{t("No")}</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          )}
+                        </FormControl>
+                        <FormMessage className="col-span-3 col-start-2" />
+                      </FormItem>
+                    )}
+                  />
+                </div>
 
-              {paywall && (
-                <>
-                  <div className="mx-4">
-                    <FormField
-                      control={form.control}
-                      name="username"
-                      render={({ field }) => (
-                        <FormItem className="grid grid-cols-4 items-center gap-x-4 gap-y-1">
-                          <FormLabel className="col-span-1 flex justify-end">
-                            {t("subscription-dialog.Username")}
-                          </FormLabel>
-                          <FormControl className="col-span-3">
-                            {loadingFreshSub || subLoading ? (
-                              <Skeleton className="h-9 w-full rounded-md" />
-                            ) : (
-                              <Input
-                                placeholder={t("subscription-dialog.Username")}
-                                {...field}
-                              />
-                            )}
-                          </FormControl>
-                          <FormMessage className="col-span-3 col-start-2" />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-
-                  <div className="mx-4">
-                    <FormField
-                      control={form.control}
-                      name="password"
-                      render={({ field }) => (
-                        <FormItem className="grid grid-cols-4 gap-x-4 gap-y-1">
-                          <FormLabel className="col-span-1 flex justify-end">
-                            {t("subscription-dialog.Password")}
-                          </FormLabel>
-                          <FormControl className="col-span-3">
-                            {loadingFreshSub || subLoading ? (
-                              <Skeleton className="h-9 w-full rounded-md" />
-                            ) : (
-                              <div className="relative">
+                {paywall && (
+                  <>
+                    <div className="mx-4">
+                      <FormField
+                        control={form.control}
+                        name="username"
+                        render={({ field }) => (
+                          <FormItem className="grid grid-cols-4 items-center gap-x-4 gap-y-1">
+                            <FormLabel className="col-span-1 flex justify-end">
+                              {t("subscription-dialog.Username")}
+                            </FormLabel>
+                            <FormControl className="col-span-3">
+                              {loadingFreshSub || subLoading ? (
+                                <Skeleton className="h-9 w-full rounded-md" />
+                              ) : (
                                 <Input
-                                  type={visible ? "text" : "password"}
                                   placeholder={t(
-                                    "subscription-dialog.Password",
+                                    "subscription-dialog.Username",
                                   )}
-                                  className="pr-10"
                                   {...field}
                                 />
-                                <Button
-                                  type="button"
-                                  variant="ghostNoHover"
-                                  size="icon"
-                                  className="absolute right-2 top-1/2 -translate-y-1/2"
-                                  onClick={() => setVisible((v) => !v)}
-                                >
-                                  {visible ? (
-                                    <EyeOff className="h-4 w-4 " />
-                                  ) : (
-                                    <Eye className="h-4 w-4" />
-                                  )}
-                                </Button>
-                              </div>
-                            )}
-                          </FormControl>
-                          <FormMessage className="col-span-3 col-start-2" />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                </>
-              )}
+                              )}
+                            </FormControl>
+                            <FormMessage className="col-span-3 col-start-2" />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+
+                    <div className="mx-4">
+                      <FormField
+                        control={form.control}
+                        name="password"
+                        render={({ field }) => (
+                          <FormItem className="grid grid-cols-4 gap-x-4 gap-y-1">
+                            <FormLabel className="col-span-1 flex justify-end">
+                              {t("subscription-dialog.Password")}
+                            </FormLabel>
+                            <FormControl className="col-span-3">
+                              {loadingFreshSub || subLoading ? (
+                                <Skeleton className="h-9 w-full rounded-md" />
+                              ) : (
+                                <div className="relative">
+                                  <Input
+                                    type={visible ? "text" : "password"}
+                                    placeholder={t(
+                                      "subscription-dialog.Password",
+                                    )}
+                                    className="pr-10"
+                                    {...field}
+                                  />
+                                  <Button
+                                    type="button"
+                                    variant="ghostNoHover"
+                                    size="icon"
+                                    className="absolute right-2 top-1/2 -translate-y-1/2"
+                                    onClick={() => setVisible((v) => !v)}
+                                  >
+                                    {visible ? (
+                                      <EyeOff className="h-4 w-4 " />
+                                    ) : (
+                                      <Eye className="h-4 w-4" />
+                                    )}
+                                  </Button>
+                                </div>
+                              )}
+                            </FormControl>
+                            <FormMessage className="col-span-3 col-start-2" />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                  </>
+                )}
+              </div>
 
               <DialogFooter>
                 <Button className="mt-2" type="submit">

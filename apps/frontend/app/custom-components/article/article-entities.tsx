@@ -8,17 +8,45 @@ import { capitalize } from "lodash-es";
 import { Badge } from "~/components/ui/badge";
 import { useTranslation } from "react-i18next";
 
+interface LocalizedString {
+  [key: string]: string;
+}
+
+type EntityValue = string | LocalizedString;
+
 interface EntityData {
-  entities: { [key: string]: unknown };
+  entities: { [key: string]: EntityValue[] };
 }
 
 export function ArticleEntities({ entities }: EntityData) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
-  function isStringArray(value: unknown): value is string[] {
-    return (
-      Array.isArray(value) && value.every((item) => typeof item === "string")
-    );
+  function isValidEntityArray(value: unknown): value is EntityValue[] {
+    if (!Array.isArray(value)) return false;
+
+    return value.every((item) => {
+      if (typeof item === "string") return true;
+
+      if (typeof item === "object" && item !== null) {
+        return Object.values(item).every((val) => typeof val === "string");
+      }
+
+      return false;
+    });
+  }
+
+  function getLocalizedValue(value: EntityValue): string {
+    if (typeof value === "string") {
+      return value;
+    }
+
+    const currentLang = i18n.language;
+    if (value[currentLang]) {
+      return value[currentLang];
+    }
+
+    const firstKey = Object.keys(value)[0];
+    return firstKey ? value[firstKey] : "";
   }
 
   return (
@@ -30,11 +58,15 @@ export function ArticleEntities({ entities }: EntityData) {
       <Accordion type="multiple" className="w-full">
         {Object.entries(entities).map(
           ([key, values]) =>
-            isStringArray(values) && (
+            isValidEntityArray(values) && (
               <AccordionItem key={key} value={key}>
                 <AccordionTrigger>
                   <div className={"flex gap-2"}>
-                    <text>{capitalize(key)}</text>
+                    <text>
+                      {t(`article-page.${key}`, {
+                        defaultValue: capitalize(key),
+                      })}
+                    </text>
                     <div
                       className={
                         "rounded-sm bg-gray-100 px-1.5 flex items-center justify-center"
@@ -55,7 +87,7 @@ export function ArticleEntities({ entities }: EntityData) {
                                 [{index + 1}]
                               </span>
                               <div className="text-sm leading-relaxed text-gray-800">
-                                {item}
+                                {getLocalizedValue(item)}
                               </div>
                             </div>
                           ))}
@@ -65,14 +97,14 @@ export function ArticleEntities({ entities }: EntityData) {
                       <div className="flex flex-wrap gap-2">
                         {values.map((item, index) => (
                           <Badge key={index} className="text-sm bg-gray-800">
-                            {item}
+                            {getLocalizedValue(item)}
                           </Badge>
                         ))}
                       </div>
                     )
                   ) : (
                     <p className="text-muted-foreground">
-                      No items in this category.
+                      {t("article-page.no_entities")}
                     </p>
                   )}
                 </AccordionContent>
