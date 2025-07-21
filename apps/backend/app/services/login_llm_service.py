@@ -18,7 +18,8 @@ from app.core.db import async_session
 from app.core.logger import get_logger
 from app.models.subscription import Subscription
 from app.repositories.subscription_repository import SubscriptionRepository
-from app.services.llm_service.llm_client import LLMClient, LLMModels
+from app.services.llm_service.llm_client import LLMClient
+from app.services.llm_service.llm_models import TaskModelMapping
 from app.services.web_harvester.utils.web_utils import (
     change_frame,
     click_element,
@@ -164,7 +165,7 @@ class LoginLLM:
             logger.info("Successfully added new keys.")
             return config
         else:
-            logger.error("Failed to add new keys.")
+            logger.warning("Failed to add new keys.")
             return None
 
     @staticmethod
@@ -293,7 +294,7 @@ class LoginLLM:
                                     f"inside shadow root {shadow_xpath}"
                                 )
                     except Exception:
-                        logger.error(
+                        logger.warning(
                             f"Element {css_selector} not found in shadow root "
                             f"{shadow_xpath}"
                         )
@@ -302,7 +303,7 @@ class LoginLLM:
                     f"Error locating shadow host element {shadow_xpath}"
                 )
 
-        logger.error("No clickable element found inside shadow roots")
+        logger.warning("No clickable element found inside shadow roots")
         return False
 
     @staticmethod
@@ -399,7 +400,9 @@ class LoginLLM:
 
     @staticmethod
     def _count_tokens(text):
-        enc = tiktoken.encoding_for_model(LLMModels.openai_4o.value)
+        enc = tiktoken.encoding_for_model(
+            TaskModelMapping.LOGIN_AUTOMATION.value
+        )
         return len(enc.encode(text))
 
     @staticmethod
@@ -420,7 +423,7 @@ class LoginLLM:
                     client.generate_response, prompt, 0.1, website_image
                 )
         except Exception as e:
-            logger.error(f"LLM call failed for chunk: {e}")
+            logger.warning(f"LLM call failed for chunk: {e}")
             return None
 
     @staticmethod
@@ -447,7 +450,7 @@ class LoginLLM:
         await asyncio.sleep(3)
         website_image = LoginLLM._take_screenshot(driver)
         try:
-            client = LLMClient(LLMModels.openai_4o)
+            client = LLMClient(TaskModelMapping.LOGIN_AUTOMATION)
             html_chunks = LoginLLM._split_html(html, MAX_TOKENS)
             tasks = [
                 LoginLLM._send_chunk_to_llm(
@@ -463,7 +466,9 @@ class LoginLLM:
                     continue
                 LLM_result = LoginLLM._llm_response_to_json(resp)
                 if LLM_result is None:
-                    logger.error("Skipping response due to JSON parse error.")
+                    logger.warning(
+                        "Skipping response due to JSON parse error."
+                    )
                     continue
                 updated_config = LoginLLM._add_new_keys_to_config(
                     LLM_result, updated_config
@@ -649,7 +654,7 @@ class LoginLLM:
                 logger.info(f"Login config updated for {db_subscription.name}")
                 return db_subscription
         else:
-            logger.error(
+            logger.warning(
                 f"Login was not possible on newspaper {subscription.name}"
             )
             return False

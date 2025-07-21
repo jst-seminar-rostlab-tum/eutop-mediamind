@@ -52,7 +52,7 @@ from app.schemas.topic_schemas import TopicResponse
 from app.schemas.user_schema import UserEntity
 from app.services.article_vector_service import ArticleVectorService
 from app.services.llm_service.llm_client import LLMClient
-from app.services.llm_service.llm_models import LLMModels
+from app.services.llm_service.llm_models import TaskModelMapping
 from app.services.llm_service.prompts.keyword_suggestion_prompts import (
     KEYWORD_SUGGESTION_PROMPT_DE,
     KEYWORD_SUGGESTION_PROMPT_EN,
@@ -522,8 +522,10 @@ class SearchProfileService:
 
         topics = list(topic_items.values())
 
-        entities_dict = await ArticleEntityRepository.get_entities_by_article(
-            article.id
+        entities_dict = (
+            await ArticleEntityRepository.get_entities_multilang_by_article(
+                article.id
+            )
         )
 
         # Check if organization has subscription access and modify content accordingly
@@ -638,7 +640,7 @@ class SearchProfileService:
                 related_topics=format_related_topics(related_topics),
             )
 
-            llm = LLMClient(LLMModels.openai_4o)
+            llm = LLMClient(TaskModelMapping.KEYWORD_SUGGESTION)
 
             try:
                 response = llm.generate_typed_response(

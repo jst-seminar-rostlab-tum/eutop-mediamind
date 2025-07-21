@@ -254,6 +254,7 @@ class ArticleRepository:
                     # If article's subscription is not
                     # linked to the search profile, modify content
                     if article.subscription_id not in linked_subscription_ids:
+                        article.content = ""
                         article.content_en = ""
                         article.content_de = ""
                     articles.append(article)

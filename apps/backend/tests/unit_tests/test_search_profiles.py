@@ -192,7 +192,7 @@ def test_get_match_detail_success():
             new_callable=AsyncMock,
         ) as mock_get_keywords,
         patch(
-            "app.repositories.entity_repository.ArticleEntityRepository.get_entities_by_article",
+            "app.repositories.entity_repository.ArticleEntityRepository.get_entities_multilang_by_article",
             new_callable=AsyncMock,
         ) as mock_get_entities,
         patch(
@@ -205,7 +205,11 @@ def test_get_match_detail_success():
         mock_get_profile.return_value = fake_profile
         mock_get_topic_names.return_value = {topic_id: "Environment"}
         mock_get_keywords.return_value = {topic_id: ["green"]}
-        mock_get_entities.return_value = {"de": ["DSGVO"], "en": ["GDPR"]}
+        mock_get_entities.return_value = {
+            "industry": [{"de": "Automobil", "en": "Automotive"}],
+            "event": [{"de": "Fusion", "en": "Merger"}],
+            "organization": ["BMW"],
+        }
         mock_has_subscription_access.return_value = True
 
         result: MatchDetailResponse = asyncio.run(
@@ -219,4 +223,8 @@ def test_get_match_detail_success():
     assert result.article.headline["en"] == "Title"
     assert result.article.article_url == fake_article.url
     assert result.search_profile.name == "My Profile"
-    assert result.entities == {"de": ["DSGVO"], "en": ["GDPR"]}
+    assert result.entities == {
+        "industry": [{"de": "Automobil", "en": "Automotive"}],
+        "event": [{"de": "Fusion", "en": "Merger"}],
+        "organization": ["BMW"],
+    }

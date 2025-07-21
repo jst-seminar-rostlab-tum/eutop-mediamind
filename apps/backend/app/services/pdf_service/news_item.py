@@ -26,3 +26,4 @@ class NewsItem:
     industries: Optional[List] = None
     events: Optional[List] = None
     citations: Optional[List] = None
+    match: Optional[dict] = None

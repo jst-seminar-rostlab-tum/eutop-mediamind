@@ -1,17 +1,18 @@
 import asyncio
-import gettext
 import json
 import os
 import uuid
 from datetime import date, datetime
 from typing import Callable
 
+from babel.messages.pofile import read_po
 from langdetect import detect
 
 from app.core.logger import get_logger
 from app.repositories.article_repository import ArticleRepository
 from app.repositories.entity_repository import ArticleEntityRepository
-from app.services.llm_service.llm_client import LLMClient, LLMModels
+from app.services.llm_service.llm_client import LLMClient
+from app.services.llm_service.llm_models import TaskModelMapping
 
 logger = get_logger(__name__)
 base_prompt = (
@@ -28,7 +29,7 @@ base_prompt = (
 
 class ArticleTranslationService:
     _translators_cache = {}
-    _llm_client = LLMClient(LLMModels.openai_4o)
+    _llm_client = LLMClient(TaskModelMapping.TRANSLATION)
     _semaphore = asyncio.Semaphore(50)
 
     _completed_count = 0
@@ -50,15 +51,25 @@ class ArticleTranslationService:
         """
         if language not in ArticleTranslationService._translators_cache:
             locale_dir = os.path.join(os.path.dirname(__file__), "locales")
-            lang = gettext.translation(
-                "translations",
-                localedir=locale_dir,
-                languages=[language],
-                fallback=True,
+            po_file_path = os.path.join(
+                locale_dir, language, "LC_MESSAGES", "translations.po"
             )
-            ArticleTranslationService._translators_cache[language] = (
-                lang.gettext
-            )
+            if os.path.exists(po_file_path):
+                with open(po_file_path, "r", encoding="utf-8") as f:
+                    catalog = read_po(f)
+
+                def translate(text: str) -> str:
+                    message = catalog.get(text)
+                    return (
+                        message.string if message and message.string else text
+                    )
+
+            else:
+
+                def translate(text: str) -> str:
+                    return text
+
+            ArticleTranslationService._translators_cache[language] = translate
 
         return ArticleTranslationService._translators_cache[language]
 
@@ -115,11 +126,22 @@ class ArticleTranslationService:
             if not text or not text.strip():
                 logger.warning(f"Empty text for id {id_}, skipping.")
                 continue
-            detected_lang = detect(text)
+
+            translation_required = True
+            detected_lang = None
+            #  Above certain number of characters for accurate detection
+            if len(text) >= 50:
+                try:
+                    detected_lang = detect(text)
+                except Exception:
+                    logger.warning(
+                        f"Text '{text}' is not valid for language detection"
+                    )
+                    translation_required = False
 
             for lang_code, lang_name in target_langs.items():
                 full_id = f"{id_}_{lang_code}"
-                if detected_lang == lang_code:
+                if detected_lang == lang_code or not translation_required:
                     auto_responses.append(
                         {
                             "custom_id": full_id,
@@ -187,7 +209,7 @@ class ArticleTranslationService:
         output_path = LLMClient.generate_batch(
             custom_ids=custom_ids,
             prompts=prompts,
-            model=LLMModels.openai_4o.value,
+            model=TaskModelMapping.TRANSLATION.value,
             temperature=0.1,
             output_filename="openai_batch_translation.jsonl",
         )
@@ -416,10 +438,8 @@ class ArticleTranslationService:
         """
         try:
             page = 0
-            offset = 0
-
             get = ArticleEntityRepository.get_entities_without_translations
-            entities = await get(limit=limit, offset=offset)
+            entities = await get(limit=limit)
 
             while entities:
                 logger.info(
@@ -451,9 +471,7 @@ class ArticleTranslationService:
                 )
 
                 page += 1
-                offset = page * limit
-
-                entities = await get(limit=limit, offset=offset)
+                entities = await get(limit=limit)
 
             logger.info("No more entities without translation found")
 
