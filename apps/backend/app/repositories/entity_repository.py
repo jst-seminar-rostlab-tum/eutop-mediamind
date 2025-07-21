@@ -49,8 +49,38 @@ class ArticleEntityRepository:
             return grouped_entities
 
     @staticmethod
+    async def get_entities_multilang_by_article(article_id: UUID) -> dict:
+        """
+        Retrieves the entities associated with a given article,
+        with all its translations (just for industry and event type).
+        """
+        async with async_session() as session:
+            result = await session.execute(
+                select(ArticleEntity).where(
+                    ArticleEntity.article_id == article_id
+                )
+            )
+            entities = result.scalars().all()
+
+            grouped_entities = {e.value: [] for e in EntityType}
+
+            for entity in entities:
+                # Only 'industry' and 'event' have translations
+                if entity.entity_type in {"industry", "event"}:
+                    grouped_entities[entity.entity_type].append(
+                        {
+                            "de": entity.value_de or entity.value,
+                            "en": entity.value_en or entity.value,
+                        }
+                    )
+                else:
+                    grouped_entities[entity.entity_type].append(entity.value)
+
+            return grouped_entities
+
+    @staticmethod
     async def get_entities_without_translations(
-        limit: int = 100, offset: int = 0
+        limit: int = 100,
     ) -> List[ArticleEntity]:
         async with async_session() as session:
             result = await session.execute(
@@ -67,7 +97,6 @@ class ArticleEntityRepository:
                     )
                 )
                 .limit(limit)
-                .offset(offset)
             )
             entities = result.scalars().all()
             return entities

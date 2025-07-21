@@ -44,7 +44,7 @@ async def trigger_pdf_creation():
     # Hardcoded search profile UUID for demonstration purposes
     search_profile_id = "7ea2dacc-2e5b-457a-a26b-906b3ed562fa"
     search_profile = await SearchProfileRepository.get_by_id(search_profile_id)
-    pdf_bytes = await PDFService.create_pdf(
+    pdf_bytes, empty_pdf = await PDFService.create_pdf(
         search_profile, "morning", datetime.now(timezone.utc)
     )
 
