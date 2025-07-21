@@ -119,16 +119,13 @@ class Configs(BaseSettings):
     MAX_EMAIL_ATTEMPTS: int
     SMTP_SERVER: str
     SMTP_PORT: int
-    SMTP_USER: EmailStr
+    SMTP_USER: str
+    SMTP_FROM: EmailStr
     SMTP_PASSWORD: str
 
     # Chatbot Email Configuration
     CHAT_API_KEY: str
-    CHAT_SMTP_SERVER: str
-    CHAT_SMTP_PORT: int
-    CHAT_SMTP_USER: str
-    CHAT_SMTP_FROM: EmailStr
-    CHAT_SMTP_PASSWORD: str
+    CHAT_MAX_MESSAGES_PER_CONVERSATION: int
 
     # API Documentation
     API_SERVER_INFOS: str = Field(default="[]")
@@ -137,13 +134,8 @@ class Configs(BaseSettings):
     PROXY_URL: str
 
     # LLM Models
-    MODEL_TEST: str = "gpt-4o-mini-2024-07-18"
-    MODEL_ARTICLE_SUMMARY: str = "gpt-4o-2024-08-06"
-    MODEL_CHATBOT: str = "gpt-4o-mini-2024-07-18"
-    MODEL_TRANSLATION: str = "gpt-4o-2024-08-06"
-    MODEL_LOGIN_AUTOMATION: str = "gpt-4o-2024-08-06"
-    MODEL_ARTICLE_CLEANER: str = "gpt-4o-2024-08-06"
-    MODEL_KEYWORD_SUGGESTION: str = "gpt-4o-2024-08-06"
+    LLM_MODEL_SMALL: str
+    LLM_MODEL_LARGE: str
 
     @computed_field
     @property
@@ -280,16 +272,11 @@ class Configs(BaseSettings):
         # Email settings
         self._check_default_secret("SMTP_SERVER", self.SMTP_SERVER)
         self._check_default_secret("SMTP_USER", self.SMTP_USER)
+        self._check_default_secret("SMTP_FROM", self.SMTP_FROM)
         self._check_default_secret("SMTP_PASSWORD", self.SMTP_PASSWORD)
 
         # Chatbot email settings
         self._check_default_secret("CHAT_API_KEY", self.CHAT_API_KEY)
-        self._check_default_secret("CHAT_SMTP_SERVER", self.CHAT_SMTP_SERVER)
-        self._check_default_secret("CHAT_SMTP_USER", self.CHAT_SMTP_USER)
-        self._check_default_secret("CHAT_SMTP_FROM", self.CHAT_SMTP_FROM)
-        self._check_default_secret(
-            "CHAT_SMTP_PASSWORD", self.CHAT_SMTP_PASSWORD
-        )
 
         # External APIs
         self._check_default_secret("NEWSAPIAI_API_KEY", self.NEWSAPIAI_API_KEY)
@@ -320,13 +307,8 @@ class Configs(BaseSettings):
     @model_validator(mode="after")
     def validate_models(self) -> Self:
         model_vars = [
-            "MODEL_TEST",
-            "MODEL_ARTICLE_SUMMARY",
-            "MODEL_CHATBOT",
-            "MODEL_TRANSLATION",
-            "MODEL_LOGIN_AUTOMATION",
-            "MODEL_ARTICLE_CLEANER",
-            "MODEL_KEYWORD_SUGGESTION",
+            "LLM_MODEL_SMALL",
+            "LLM_MODEL_LARGE",
         ]
 
         for var in model_vars:
