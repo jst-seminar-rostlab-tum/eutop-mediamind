@@ -23,7 +23,7 @@ from app.schemas.search_profile_schemas import (
 )
 from app.schemas.user_schema import UserEntity
 from app.services.report_service import ReportService
-from app.services.search_profiles_service import SearchProfileService
+from app.services.search_profile_service import SearchProfileService
 
 router = APIRouter(
     prefix="/search-profiles",

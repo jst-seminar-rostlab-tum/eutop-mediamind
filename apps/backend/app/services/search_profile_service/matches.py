@@ -6,7 +6,9 @@ from app.core.db import async_session
 from app.repositories.article_repository import ArticleRepository
 from app.repositories.keyword_repository import KeywordRepository
 from app.repositories.match_repository import MatchRepository
-from app.repositories.search_profile import SearchProfileRepository
+from app.repositories.search_profile.search_profile_repository import (
+    SearchProfileRepository,
+)
 from app.repositories.subscription_repository import SubscriptionRepository
 from app.repositories.topics_repository import TopicsRepository
 from app.schemas.articles_schemas import (

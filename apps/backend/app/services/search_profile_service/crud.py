@@ -10,7 +10,9 @@ from app.models.user import UserRole
 from app.repositories.email_repository import EmailRepository
 from app.repositories.match_repository import MatchRepository
 from app.repositories.report_repository import ReportRepository
-from app.repositories.search_profile import SearchProfileRepository
+from app.repositories.search_profile.search_profile_repository import (
+    SearchProfileRepository,
+)
 from app.repositories.subscription_repository import SubscriptionRepository
 from app.repositories.topics_repository import TopicsRepository
 from app.repositories.user_repository import UserRepository
