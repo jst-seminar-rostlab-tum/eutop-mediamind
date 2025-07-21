@@ -18,19 +18,21 @@ class ChatbotEmailSending:
         user_email: str,
         subject: str,
         content: str,
+        report_id: UUID | None = None,
     ):
         email = Email(
-            sender=configs.SMTP_USER,
+            sender=configs.SMTP_FROM,
             recipient=user_email,
             subject=subject,
             content_type="text/HTML",
             content=content,
             created_at=datetime.now(timezone.utc),
             update_at=datetime.now(timezone.utc),
+            report_id=report_id,
         )
 
         try:
-            await EmailService.send_ses_email(email)
+            await EmailService.send_email(email)
             logger.info(
                 f"Chat response sent to {user_email} for "
                 f"email_conversation with id={email_conversation_id}"

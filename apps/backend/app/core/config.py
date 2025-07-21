@@ -119,16 +119,12 @@ class Configs(BaseSettings):
     MAX_EMAIL_ATTEMPTS: int
     SMTP_SERVER: str
     SMTP_PORT: int
-    SMTP_USER: EmailStr
+    SMTP_USER: str
+    SMTP_FROM: EmailStr
     SMTP_PASSWORD: str
 
     # Chatbot Email Configuration
     CHAT_API_KEY: str
-    CHAT_SMTP_SERVER: str
-    CHAT_SMTP_PORT: int
-    CHAT_SMTP_USER: str
-    CHAT_SMTP_FROM: EmailStr
-    CHAT_SMTP_PASSWORD: str
 
     # API Documentation
     API_SERVER_INFOS: str = Field(default="[]")
@@ -280,16 +276,11 @@ class Configs(BaseSettings):
         # Email settings
         self._check_default_secret("SMTP_SERVER", self.SMTP_SERVER)
         self._check_default_secret("SMTP_USER", self.SMTP_USER)
+        self._check_default_secret("SMTP_FROM", self.SMTP_FROM)
         self._check_default_secret("SMTP_PASSWORD", self.SMTP_PASSWORD)
 
         # Chatbot email settings
         self._check_default_secret("CHAT_API_KEY", self.CHAT_API_KEY)
-        self._check_default_secret("CHAT_SMTP_SERVER", self.CHAT_SMTP_SERVER)
-        self._check_default_secret("CHAT_SMTP_USER", self.CHAT_SMTP_USER)
-        self._check_default_secret("CHAT_SMTP_FROM", self.CHAT_SMTP_FROM)
-        self._check_default_secret(
-            "CHAT_SMTP_PASSWORD", self.CHAT_SMTP_PASSWORD
-        )
 
         # External APIs
         self._check_default_secret("NEWSAPIAI_API_KEY", self.NEWSAPIAI_API_KEY)

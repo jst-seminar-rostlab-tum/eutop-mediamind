@@ -75,7 +75,7 @@ class ChatbotService:
             email_conversation.id, chat.body, llm_response
         )
         llm_response_as_html = ChatbotResponse.format(
-            llm_response, user.first_name
+            llm_response, user.first_name, user.language
         )
         await ChatbotEmailSending.send_email_response(
             email_conversation_id=email_conversation.id,
