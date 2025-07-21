@@ -8,6 +8,7 @@ from eventregistry import EventRegistry
 
 from app.core.config import get_configs
 from app.core.db import get_redis_connection
+from app.core.languages import Language
 from app.core.logger import BufferedLogger
 from app.models.breaking_news import BreakingNews
 from app.repositories.user_repository import UserRepository
@@ -233,21 +234,25 @@ async def fetch_breaking_news_newsapi():
                         f"Sending breaking news alert for article {article.id}"
                     )
 
-                    email_content = (
-                        EmailService._build_breaking_news_email_content(
-                            article
-                        )
-                    )
-
                     users = await UserRepository.get_all_users_breaking_news()
-                    emails = [user.email for user in users]
-                    email = EmailService.create_email(
-                        recipient="",
-                        subject=f"Breaking News Alert: {article.title}",
-                        content_type="text/plain",
-                        content=email_content,
-                    )
-                    EmailService.send_email(email=email, bcc_recipients=emails)
+                    for user in users:
+                        user_language = (
+                            user.language
+                            if hasattr(user, "language")
+                            else Language.EN.value
+                        )
+                        email_content = (
+                            EmailService._build_breaking_news_email_content(
+                                article, user_language
+                            )
+                        )
+                        email = EmailService.create_email(
+                            recipient=user.email,
+                            subject=f"Breaking News Alert: {article.title}",
+                            content_type="text/HTML",
+                            content=email_content,
+                        )
+                        await EmailService.send_email(email=email)
 
                 # Store the article in Redis
                 redis_engine.set(

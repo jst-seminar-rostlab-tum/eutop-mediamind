@@ -5,6 +5,7 @@ import math
 import re
 import time
 from asyncio import Semaphore
+from datetime import datetime, timezone
 
 import tiktoken
 from bs4 import BeautifulSoup, Comment
@@ -644,17 +645,20 @@ class LoginLLM:
 
         LoginLLM._reset_flags()
 
-        if logged_in:
-            async with async_session() as session:
-                db_subscription = await SubscriptionRepository.get_by_id(
-                    session, subscription.id
-                )
+        async with async_session() as session:
+            db_subscription = await SubscriptionRepository.get_by_id(
+                session, subscription.id
+            )
+            db_subscription.llm_login_attempt = datetime.now(timezone.utc)
+
+            if logged_in:
                 db_subscription.login_config = login_config
                 await SubscriptionRepository.update(session, db_subscription)
                 logger.info(f"Login config updated for {db_subscription.name}")
                 return db_subscription
-        else:
-            logger.warning(
-                f"Login was not possible on newspaper {subscription.name}"
-            )
-            return False
+            else:
+                await SubscriptionRepository.update(session, db_subscription)
+                logger.warning(
+                    f"Login was not possible on newspaper {subscription.name}"
+                )
+                return False

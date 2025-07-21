@@ -192,3 +192,6 @@ msgstr "Zurück zum übersetzten Artikel"
 
 msgid "There are no news items that match your search profile this time. We will notify you as soon as relevant news are found for your search profile"
 msgstr "Es gibt derzeit keine Nachrichten, die zu Ihrem Suchprofil passen. Wir benachrichtigen Sie, sobald relevante Nachrichten für Ihr Suchprofil gefunden werden"
+
+msgid "Replies to this email are handled by an AI assistant. You can reply with questions, but please avoid sharing personal or sensitive information."
+msgstr "Sie können auf diese E-Mail mit Fragen antworten; diese werden von einer KI bearbeitet. Bitte geben Sie jedoch keine persönlichen oder sensiblen Informationen an."
