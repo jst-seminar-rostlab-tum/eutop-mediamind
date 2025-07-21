@@ -233,7 +233,7 @@ class EmailService:
             "profile_name": profile_name,
             "date": today,
             "language_code": language,
-            "title": translator("Daily News Report"),
+            "title": translator("Current Press Report"),
             "search_profile": translator("Search Profile"),
             "salutation": salutation,
             "text_1": translator(
@@ -264,6 +264,11 @@ class EmailService:
             ),
             "deliver_text": translator("Delivered by MediaMind"),
             "pdf_as_link": pdf_as_link,
+            "empty_pdf_text": translator(
+                "There are no news items that match your "
+                "search profile this time. We will notify you as soon as "
+                "relevant news are found for your search profile"
+            ),
         }
 
         template_name = "email_template.html"

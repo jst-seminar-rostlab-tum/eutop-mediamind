@@ -110,9 +110,12 @@ export function DataTableUsers<TData, TValue>({
                   <ChevronsUpDown className="opacity-50" />
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-[250px] p-0">
+              <PopoverContent className="w-fit p-0">
                 <Command>
-                  <CommandInput placeholder="Search user..." className="h-9" />
+                  <CommandInput
+                    placeholder={t("admin.search_user")}
+                    className="h-9"
+                  />
                   <CommandList>
                     <CommandEmpty>{t("admin.no_user")}</CommandEmpty>
                     <CommandGroup>

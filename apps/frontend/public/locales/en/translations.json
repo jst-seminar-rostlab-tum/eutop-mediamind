@@ -177,7 +177,8 @@
     "no_user": "No user found.",
     "no_results": "No results.",
     "orgas_error": "Failed to fetch organizations",
-    "subs_error": "Failed to fetch subscriptions"
+    "subs_error": "Failed to fetch subscriptions",
+    "search_user": "Search user..."
   },
 
   "organization-dialog": {
@@ -242,8 +243,6 @@
     "Sorting": "Sorting",
     "Sources": "Subscriptions",
     "Date": "Date",
-    "From": "From",
-    "To": "To",
     "articles": "Articles",
     "Relevance": "Relevance",
     "No_articles": "No articles found.",
@@ -253,7 +252,9 @@
     "Explore": "Explore",
     "New_Articles": "New Articles",
     "articles_error": "Error fetching articles",
-    "no_image": "No Image"
+    "no_image": "No Image",
+    "show_more": "Show more",
+    "show_less": "Show less"
   },
 
   "article-page": {

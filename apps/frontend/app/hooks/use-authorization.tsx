@@ -44,7 +44,13 @@ export const AuthorizationContextProvider = ({
       !pathname.includes("error") &&
       pathname !== "/"
     ) {
-      navigate("error/401?redirect_url=" + pathname);
+      if (mediamindUser) {
+        // we have been signed in before, so we just logged out, in this case we navigate to the landing page
+        navigate("/");
+      } else {
+        navigate("error/401?redirect_url=" + pathname);
+      }
+      setMediamindUser(undefined);
     }
   }, [isLoaded, isSignedIn, pathname]);
 

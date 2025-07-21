@@ -177,7 +177,8 @@
     "no_user": "Keine Benutzer gefunden.",
     "no_results": "Keine Ergebnisse.",
     "orgas_error": "Laden der Organisationen fehlgeschlagen",
-    "subs_error": "Laden der Abonnements fehlgeschlagen"
+    "subs_error": "Laden der Abonnements fehlgeschlagen",
+    "search_user": "Nutzer suchen..."
   },
 
   "organization-dialog": {
@@ -238,8 +239,6 @@
     "Sorting": "Sortierung",
     "Sources": "Abonnements",
     "Date": "Datum",
-    "From": "Von",
-    "To": "Bis",
     "articles": "Artikel",
     "Relevance": "Relevanz",
     "No_articles": "Keine Artikel gefunden",
@@ -249,7 +248,9 @@
     "Explore": "Erkunden",
     "New_Articles": "Neue Artikel",
     "articles_error": "Artikel konnten nicht abgerufen werden",
-    "no_image": "Kein Bild"
+    "no_image": "Kein Bild",
+    "show_more": "Mehr anzeigen",
+    "show_less": "Weniger anzeigen"
   },
 
   "article-page": {

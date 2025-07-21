@@ -16,6 +16,7 @@ class ReportStatus(Enum):
     PENDING = "pending"
     UPLOADED = "uploaded"
     FAILED = "failed"
+    EMPTY = "empty"
 
 
 class Report(SQLModel, table=True):

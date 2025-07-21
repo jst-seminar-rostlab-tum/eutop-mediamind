@@ -136,6 +136,15 @@ class Configs(BaseSettings):
     # Network Configuration
     PROXY_URL: str
 
+    # LLM Models
+    MODEL_TEST: str = "gpt-4o-mini-2024-07-18"
+    MODEL_ARTICLE_SUMMARY: str = "gpt-4o-2024-08-06"
+    MODEL_CHATBOT: str = "gpt-4o-mini-2024-07-18"
+    MODEL_TRANSLATION: str = "gpt-4o-2024-08-06"
+    MODEL_LOGIN_AUTOMATION: str = "gpt-4o-2024-08-06"
+    MODEL_ARTICLE_CLEANER: str = "gpt-4o-2024-08-06"
+    MODEL_KEYWORD_SUGGESTION: str = "gpt-4o-2024-08-06"
+
     @computed_field
     @property
     def API_SERVERS(self) -> list[dict[str, str]]:
@@ -306,6 +315,24 @@ class Configs(BaseSettings):
                 f"{self.ENVIRONMENT} environment. Never use this "
                 "setting in production.",
             )
+        return self
+
+    @model_validator(mode="after")
+    def validate_models(self) -> Self:
+        model_vars = [
+            "MODEL_TEST",
+            "MODEL_ARTICLE_SUMMARY",
+            "MODEL_CHATBOT",
+            "MODEL_TRANSLATION",
+            "MODEL_LOGIN_AUTOMATION",
+            "MODEL_ARTICLE_CLEANER",
+            "MODEL_KEYWORD_SUGGESTION",
+        ]
+
+        for var in model_vars:
+            if not getattr(self, var):
+                raise ValueError(f"{var} must be set and cannot be empty.")
+
         return self
 
 

@@ -160,7 +160,7 @@
                     color: #495057;
                     font-weight: 400;
                   "
-                        >
+                        >   {% if s3_link %}
                             <p style="margin: 0 0 18px 0">
                                 {{ salutation }},<br/><br/>
                                 {{ text_1 }}.<br/><br/>
@@ -232,6 +232,12 @@
                                 ></span
                                 >
                             </div>
+                            {% endif %}
+                            {% else %}
+                            <p style="margin: 0 0 18px 0">
+                                {{ salutation }},<br/><br/>
+                                {{ empty_pdf_text }}.
+                            </p>
                             {% endif %}
                         </div>
                     </td>
