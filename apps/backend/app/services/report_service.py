@@ -8,7 +8,7 @@ from app.core.languages import Language
 from app.core.logger import get_logger
 from app.models.report import Report, ReportStatus
 from app.repositories.report_repository import ReportRepository
-from app.repositories.search_profile_repository import SearchProfileRepository
+from app.repositories.search_profile import SearchProfileRepository
 from app.schemas.report_schemas import ReportCreate
 from app.services.pdf_service.pdf_service import PDFService
 from app.services.s3_service import S3Service, get_s3_service

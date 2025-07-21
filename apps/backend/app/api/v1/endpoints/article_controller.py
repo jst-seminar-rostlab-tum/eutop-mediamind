@@ -5,7 +5,7 @@ from fastapi import APIRouter, BackgroundTasks, Depends
 from app.core.auth import get_authenticated_user
 from app.core.logger import get_logger
 from app.models import User
-from app.repositories.search_profile_repository import SearchProfileRepository
+from app.repositories.search_profile import SearchProfileRepository
 from app.services.article_summary_service import ArticleSummaryService
 from app.services.pdf_service.pdf_service import PDFService
 

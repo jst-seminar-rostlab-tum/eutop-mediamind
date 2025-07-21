@@ -199,7 +199,7 @@ async def update_match_feedback(
 @router.get("/{search_profile_id}/reports", response_model=ReportListResponse)
 async def get_reports(
     search_profile_id: UUID,
-    current_user: User = Depends(get_authenticated_user),
+    current_user: UserEntity = Depends(get_authenticated_user),
 ):
     profile = await SearchProfileService.get_extended_by_id(
         search_profile_id, current_user

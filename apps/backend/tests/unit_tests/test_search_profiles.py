@@ -180,7 +180,7 @@ def test_get_match_detail_success():
             new_callable=AsyncMock,
         ) as mock_get_matches,
         patch(
-            "app.repositories.search_profile_repository.SearchProfileRepository.get_search_profile_by_id",
+            "app.repositories.search_profile.SearchProfileRepository.get_search_profile_by_id",
             new_callable=AsyncMock,
         ) as mock_get_profile,
         patch(

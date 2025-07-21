@@ -8,7 +8,7 @@ from app.core.logger import get_logger
 from app.models import Match, MatchingRun, SearchProfile
 from app.repositories.match_repository import MatchRepository
 from app.repositories.matching_run_repository import MatchingRunRepository
-from app.repositories.search_profile_repository import SearchProfileRepository
+from app.repositories.search_profile import SearchProfileRepository
 from app.services.article_vector_service import ArticleVectorService
 
 
