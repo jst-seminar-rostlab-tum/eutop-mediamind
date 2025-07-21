@@ -165,7 +165,7 @@ def run_selenium_code(
                 else None
             )
             if subscription.llm_login_attempt is None or now >= next_attempt:
-                scraper.logger.info(
+                logger.info(
                     f"Login failed for subscription {subscription.name}, "
                     f"updating login config with LLM approach"
                 )
@@ -175,7 +175,7 @@ def run_selenium_code(
                 subscription_updated = login_updated_future.result()
 
                 if subscription_updated:
-                    scraper.logger.info(
+                    logger.info(
                         f"Login config updated for {subscription.name}, "
                         f"retrying login"
                     )
@@ -183,13 +183,13 @@ def run_selenium_code(
                         subscription_updated, scraper, driver, wait
                     )
                 else:
-                    scraper.logger.warning(
+                    logger.warning(
                         f"Could not update login config for subscription "
                         f"{subscription.name} with LLM approach."
                     )
 
         if subscription.paywall and not login_success:
-            scraper.logger.warning(
+            logger.warning(
                 f"Login failed for subscription {subscription.name}. "
                 "Skipping scraping."
             )
