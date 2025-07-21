@@ -46,10 +46,3 @@ stats = await service.cleanup_articles_older_than_days(days=90, batch_size=50)
 
 ⚠️ **Critical Operation**:
 Irreversible deletion. Test thoroughly, ensure backups, monitor resources.
-
-## File Locations
-
-- **Service**: `apps/backend/app/services/article_cleanup_service.py`
-- **Vector Integration**: `apps/backend/app/services/article_vector_service.py`
-- **Pipeline Integration**: `apps/backend/app/services/pipeline.py`
-- **Models**: `apps/backend/app/models` (article.py, entity.py, match.py, associations.py)
