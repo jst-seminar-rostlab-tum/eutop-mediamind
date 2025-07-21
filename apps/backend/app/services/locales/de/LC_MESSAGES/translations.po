@@ -181,5 +181,5 @@ msgstr "Nachmittag"
 msgid "Back to translated article"
 msgstr "Zurück zum übersetzten Artikel"
 
-msgid "Unfortunately, there are no news items that match your search profile today. We will notify you as soon as relevant news is found for your search profile"
-msgstr "Leider gibt es heute keine Nachrichten, die Ihrem Suchprofil entsprechen. Wir benachrichtigen Sie, sobald relevante Nachrichten für Ihr Suchprofil gefunden werden"
+msgid "There are no news items that match your search profile this time. We will notify you as soon as relevant news are found for your search profile"
+msgstr "Es gibt derzeit keine Nachrichten, die zu Ihrem Suchprofil passen. Wir benachrichtigen Sie, sobald relevante Nachrichten für Ihr Suchprofil gefunden werden"
