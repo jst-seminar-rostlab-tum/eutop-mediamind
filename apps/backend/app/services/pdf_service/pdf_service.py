@@ -77,6 +77,12 @@ class PDFService:
                 )
             else:
                 published_at_str = None
+            missing_sub_message = (
+                translator("This content is only available to")
+                + f" {article.subscription.name} "
+                + translator("subscribers")
+                + "."
+            )
             news_item = NewsItem(
                 id=article.id,
                 title=(
@@ -88,11 +94,19 @@ class PDFService:
                 ),
                 content=(
                     getattr(article, f"content_{language}", None)
-                    or article.content
+                    or (
+                        missing_sub_message
+                        if article.content == ""
+                        else article.content
+                    )
                 ),
                 content_original=(
                     getattr(article, "content_original", None)
-                    or article.content
+                    or (
+                        missing_sub_message
+                        if article.content == ""
+                        else article.content
+                    )
                 ),
                 url=article.url,
                 author=(
