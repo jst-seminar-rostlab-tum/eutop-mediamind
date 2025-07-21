@@ -9,11 +9,12 @@
   "Delete": "Löschen",
   "search": "Suchen",
   "Cancel": "Abbruch",
-  "save_changes": "Änderungen speichern",
+  "save_changes": "Änderungen Speichern",
   "Search": "Suche",
   "select_date": "Datum auswählen",
   "yes": "Ja",
   "no": "Nein",
+  "Save": "Änderungen Speichern",
 
   "breadcrumb_home": "Home",
 
@@ -91,7 +92,7 @@
     "creating": "Erstellen...",
     "saving": "Speichern...",
     "save_create": "Profil erstellen",
-    "save_changes": "Änderungen speichern",
+    "save_changes": "Änderungen Speichern",
     "suggestions_text": "Füge ein Schlagwort hinzu, um AI-Vorschläge zu erhalten."
   },
 
@@ -137,10 +138,10 @@
   "mailing": {
     "header": "Email Liste",
     "info": "Konfigurieren sie ihre Kontakte für den Pressemitteilungs Verteiler",
-    "Internal": "Intern",
-    "External": "Extern",
-    "internal": "intern",
-    "external": "extern",
+    "Internal": "Interne",
+    "External": "Externe",
+    "internal": "interne",
+    "external": "externe",
     "filter": "Filter {{type}} Emails"
   },
 
@@ -152,8 +153,8 @@
   },
 
   "subscriptions": {
-    "header": "Quellen",
-    "source": "Quelle",
+    "header": "Abonnements",
+    "source": "Abonnement",
     "info": "Konfigurieren sie die Web Scraping Quellen, die für die externe Email liste benutzt werden",
     "no_results": "No results.",
     "active": "Aktiv"
@@ -164,6 +165,8 @@
     "header": "Admin Einstellungen",
     "organizations": "Organisationen",
     "subscriptions": "Abonnements",
+    "organization": "Organisation",
+    "subscription": "Abonnement",
     "orga_header": "Organisationen verwalten",
     "orga_text": "Machen sie Änderungen an ihren Organisationen hier. Sie können bestehende löschen oder bearbeiten und neue hinzufügen",
     "subs_header": "Abonnements verwalten",
@@ -174,7 +177,8 @@
     "no_user": "Keine Benutzer gefunden.",
     "no_results": "Keine Ergebnisse.",
     "orgas_error": "Laden der Organisationen fehlgeschlagen",
-    "subs_error": "Laden der Abonnements fehlgeschlagen"
+    "subs_error": "Laden der Abonnements fehlgeschlagen",
+    "search_user": "Nutzer suchen..."
   },
 
   "organization-dialog": {
@@ -233,7 +237,7 @@
     "Topics": "Themen",
     "Keywords": "Schlagwörter",
     "Sorting": "Sortierung",
-    "Sources": "Quellen",
+    "Sources": "Abonnements",
     "Date": "Datum",
     "From": "Von",
     "To": "Bis",
@@ -307,7 +311,7 @@
 
   "crawler_stats": {
     "title": "Crawler Statistiken",
-    "subscription": "Subscription",
+    "source": "Abonnement",
     "date": "Datum",
     "successful": "Erfolgreich",
     "attempted": "Versucht",

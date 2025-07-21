@@ -13,17 +13,22 @@ import { MockedSearchProfileOverview } from "./mocked-search-profile";
 import { MockedArticlePage } from "./mocked-article";
 import { MockedBreakingNews } from "./mocked-breaking-news";
 import { exampleArticle, exampleProfile } from "./mock-data";
+import i18n from "~/i18n";
 
 export function Welcome() {
-  const { isSignedIn, user } = useAuthorization();
+  const { isLoaded, user } = useAuthorization();
   const navigate = useNavigate();
   const { t } = useTranslation();
 
   useEffect(() => {
-    if (isSignedIn && user?.organization_id) {
-      navigate("/dashboard");
+    if (isLoaded && user) {
+      if (user?.organization_id) {
+        navigate("/dashboard");
+      } else {
+        navigate("error/no-org");
+      }
     }
-  }, [isSignedIn, user?.organization_id, navigate]);
+  }, [isLoaded, user, user?.organization_id, navigate]);
 
   const lines = [
     {
@@ -261,12 +266,20 @@ export function Welcome() {
             {t("landing_page.email_text")}
           </p>
         </div>
-        <Card className="w-[600px] h-[730px] p-4 pb-0 overflow-hidden border">
-          <iframe
-            src="/mocked-email.html"
-            title="Email Preview"
-            className="w-full h-[700px] border-none rounded-md"
-          />
+        <Card className="w-[600px] h-[735px] p-4 pb-0 overflow-hidden border">
+          {i18n.language == "en" ? (
+            <iframe
+              src="/mocked-email-en.html"
+              title="Email Preview"
+              className="w-full h-[710px] border-none rounded-md"
+            />
+          ) : (
+            <iframe
+              src="/mocked-email-de.html"
+              title="Email Preview"
+              className="w-full h-[710px] border-none rounded-md"
+            />
+          )}
         </Card>
       </div>
 

@@ -14,6 +14,7 @@
   "select_date": "Select Date",
   "yes": "Yes",
   "no": "No",
+  "Save": "Save changes",
 
   "breadcrumb_home": "Home",
 
@@ -24,17 +25,17 @@
     "dashboard_header": "Manage your Search Profiles",
     "dashboard_text": "Clean interface to manage all profiles in one Dashboard",
     "topics_header": "Start creating your Search Profiles",
-    "topics_text": "Specify your Topics of interest with the desired keywords and get AI suggestions for the best additional keywords",
+    "topics_text": "Specify your topics of interest with the desired keywords and get AI suggestions for the best additional keywords",
     "add_topic": "You want to add topics and more? Login and get access to all features!",
-    "click_reports": "You want to see Reports and more? Login and get access to all features!",
+    "click_reports": "You want to see reports and more? Login and get access to all features!",
     "search_profile_header": "View your matched articles",
     "search_profile_text": "Topic and article  matches are rate by relevance based on semantic similarity. Also search in the Vector Database directly via the searchbar",
     "article_header": "Read articles directly in the application",
-    "article_text": "Get a detailed overview of the Article with all Topics and Keywords and their scores",
+    "article_text": "Get a detailed overview of the article with all topics, keywords and their scores",
     "email_header": "Every morning - directly in your Inbox!",
     "email_text": "Receive your tailored reports daily via email. You can download them or visit the article directly in the application",
     "breaking_header": "Read all breaking news",
-    "breaking_text": "Stay informed with all global breaking news in one Spot",
+    "breaking_text": "Stay informed with all global breaking news in one spot",
     "breaking_toast": "You want to see breaking news and more? Check out the breaking news preview or log in!",
     "sp_toast": "You want to create your own Search profile? Log in and enjoy all features",
     "edit_profile_toast": "You want to edit profiles and more? Log in and experience all features!",
@@ -152,8 +153,8 @@
   },
 
   "subscriptions": {
-    "header": "Sources",
-    "source": "Source",
+    "header": "Subscriptions",
+    "source": "Subscription",
     "info": "Configure web scraping sources used for the external mailing list",
     "no_results": "No results.",
     "active": "Active"
@@ -164,17 +165,20 @@
     "header": "Admin Settings",
     "organizations": "Organizations",
     "subscriptions": "Subscriptions",
+    "organization": "Organization",
+    "subscription": "Subscription",
     "orga_header": "Manage Organizations",
-    "orga_text": "Make changes to your Organizations here. You can add, edit or delete them",
+    "orga_text": "Make changes to your organizations here. You can add, edit or delete them",
     "subs_header": "Manage Subscriptions",
-    "subs_text": "Make changes to your Subscriptions here. You can add, edit or delete them",
+    "subs_text": "Make changes to your subscriptions here. You can add, edit or delete them",
     "admin": "admin",
     "user": "user",
     "add_user": "Add User...",
     "no_user": "No user found.",
     "no_results": "No results.",
     "orgas_error": "Failed to fetch organizations",
-    "subs_error": "Failed to fetch subscriptions"
+    "subs_error": "Failed to fetch subscriptions",
+    "search_user": "Search user..."
   },
 
   "organization-dialog": {
@@ -182,8 +186,8 @@
     "add_header": "Add Organization",
     "edit_text": "Edit your organization here. Click save when you're done.",
     "add_text": "Enter the name of the Organization you want to add. Click save when you're done.",
-    "name_error_header": "Organization Name is Empty",
-    "name_error_text": "Please insert a valid Organization Name",
+    "name_error_header": "Organization name is empty",
+    "name_error_text": "Please insert a valid organization name",
     "email_error_header": "Invalid Email",
     "email_error_text": "Please insert a valid and unique email address.",
     "Name": "Name",
@@ -192,7 +196,7 @@
     "New_Organization": "New Organization",
     "maintainer": "Maintainer",
     "member": "Member",
-    "user_already_added": "This user is already part of the Organization",
+    "user_already_added": "This user is already part of the organization",
     "delete_success": "Organization deleted successfully",
     "delete_failed": "Organization could not be delete",
     "create_success": "Organization created successfully",
@@ -208,8 +212,8 @@
   "subscription-dialog": {
     "edit_header": "Edit Subscription",
     "add_header": "Add Subscription",
-    "edit_text": "Edit your Subscription here. Click save when you're done.",
-    "add_text": "Enter the name of the Subscription you want to add. Click save when you're done.",
+    "edit_text": "Edit your subscription here. Click save when you're done.",
+    "add_text": "Enter the name of the subscription you want to add. Click save when you're done.",
     "credentials_error_header": "Invalid Credentials",
     "credentials_error_text": "Please insert valid credentials.",
     "Name": "Name",
@@ -237,7 +241,7 @@
     "Topics": "Topics",
     "Keywords": "Keywords",
     "Sorting": "Sorting",
-    "Sources": "Sources",
+    "Sources": "Subscriptions",
     "Date": "Date",
     "From": "From",
     "To": "To",
@@ -249,7 +253,7 @@
     "reports": "Reports",
     "Explore": "Explore",
     "New_Articles": "New Articles",
-    "articles_error": "Error fetching Articles",
+    "articles_error": "Error fetching articles",
     "no_image": "No Image"
   },
 
@@ -311,7 +315,7 @@
 
   "crawler_stats": {
     "title": "Crawler Stats",
-    "subscription": "Subscription",
+    "source": "Subscription",
     "date": "Date",
     "successful": "Successful",
     "attempted": "Attempted",
@@ -353,5 +357,15 @@
     "breaking_news_update_error": "Error updating the breaking news preference",
     "breaking_news": "Receive Breaking News notifications via email",
     "breaking_news_title": "Breaking News Notifications"
+  },
+
+  "organisation_settings": {
+    "title": "Organization Settings",
+    "pdf_as_link": "Reports as link",
+    "pdf_as_link_text": "Decide whether the reports within your organization should be sent as a link or as a PDF attachment.",
+    "subscriptions": "Subscriptions",
+    "subscriptions_text": "Manage the subscriptions that can be used for search profiles in your organization.",
+    "success": "Organization settings updated successfully.",
+    "error": "Error updating organization settings."
   }
 }

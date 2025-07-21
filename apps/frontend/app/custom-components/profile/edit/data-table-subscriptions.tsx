@@ -61,8 +61,8 @@ const getColumns = (
   {
     id: "data",
     accessorFn: (row) => row.data.name,
-    cell: ({ row }) => <div className="lowercase">{row.getValue("data")}</div>,
-    header: name,
+    cell: ({ row }) => <div>{row.getValue("data")}</div>,
+    header: t("subscriptions.source"),
   },
   {
     accessorKey: "active",

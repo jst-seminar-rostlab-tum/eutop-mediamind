@@ -11,7 +11,8 @@ from langdetect import detect
 from app.core.logger import get_logger
 from app.repositories.article_repository import ArticleRepository
 from app.repositories.entity_repository import ArticleEntityRepository
-from app.services.llm_service.llm_client import LLMClient, LLMModels
+from app.services.llm_service.llm_client import LLMClient
+from app.services.llm_service.llm_models import TaskModelMapping
 
 logger = get_logger(__name__)
 base_prompt = (
@@ -28,7 +29,7 @@ base_prompt = (
 
 class ArticleTranslationService:
     _translators_cache = {}
-    _llm_client = LLMClient(LLMModels.openai_4o)
+    _llm_client = LLMClient(TaskModelMapping.TRANSLATION)
     _semaphore = asyncio.Semaphore(50)
 
     _completed_count = 0
@@ -198,7 +199,7 @@ class ArticleTranslationService:
         output_path = LLMClient.generate_batch(
             custom_ids=custom_ids,
             prompts=prompts,
-            model=LLMModels.openai_4o.value,
+            model=TaskModelMapping.TRANSLATION.value,
             temperature=0.1,
             output_filename="openai_batch_translation.jsonl",
         )
