@@ -56,13 +56,31 @@ But additional also results are served to the user and can be looked through. Th
 
 ### Dashboard
 
-### Edit / Create Search Profiles
+The dashboard serves as the main entry point into the MediaMind web application. The dashboard contains an overview of all search profiles which the user has access to. The individual search profile cards serve as an entry into the [Search Profile Overview](#search-profile-overview) through the "Explore" button. They also display the users access rights to the profile as well as the visibility of the profile. 
+
+<img src="assets/dashboard.png" alt="Dashboard" width="800">
+
+#### Edit / Create Search Profiles
+
+The profile cards provide shortcuts for deleting and editing the respective profile or accessing the [Report Download Center](#download-center). Profile creating is also handle through the dashboard via the "Plus" icon next to the "Profile" header.
+
+<img src="assets/profile-options.png" alt="Profile Options" width="200">
 
 ### Search Profile Overview
 
 This view contains a filter bar and a listing of all articles that were matched with your Search Profile. Each Article has an overall relevance score based on all topics of your profile and an additional matching score for each single topic. With the search bar you can also directly search in the Vector Database for similar articles to your input. The search bar, per default, sorts based on relevance, all sources and topics are included and the timeframe is this day today.
 
+<img src="assets/search-profile-overview.png" alt="Search Profile Overview" width="800">
+
 ### Article Page
+
+The article page features an integrated in-app reader for articles that match a selected search profile. In addition to the article content, the page presents a quantitative correlation between the topics and keywords of the search profile and those relevant to the specific article. Identified entities such as people and industries are also displayed. Furthermore, metadata including the publication date and original language is provided. The article page is accessed by clicking on the corresponding article in the [Search Profile Overview](#search-profile-overview).
+
+Users can access the original article by clicking the “Original” button located at the top right of the page.
+
+If a subscription is required to access the full article, an alert is displayed to notify the user. In such cases, only a summary of the article is available.
+
+<img src="assets/article-page.png" alt="Article Page" width="800">
 
 ### Personal Settings
 
@@ -72,7 +90,11 @@ The personal settings can be found by clicking on the user on the top right of t
 
 ### Breaking News
 
+The Breaking News view is accessible via the entry at the top of the [Dashboard](#dashboard) page. This section displays significant global events that are currently receiving widespread attention.
+
 ### Download Center
+
+The daily reports generated for each [Search Profile](#search-profile) are accessible long term through the download center of that search profile. The download center of a search profile can be accessed either via the "Reports" button displayed on the top right of the [Search Profile Page](#search-profile-overview) or through the [Quick Options](#edit--create-search-profiles) menu of a profile card.
 
 ### Admin Settings
 
