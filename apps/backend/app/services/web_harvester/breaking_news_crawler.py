@@ -351,10 +351,3 @@ def get_all_breaking_news() -> List[BreakingNews]:
         logger = BufferedLogger("BreakingNewsRedisReader")
         logger.error(f"Failed to fetch breaking news from Redis: {e}")
         return []
-
-
-if __name__ == "__main__":
-    import asyncio
-
-    # Fetch and store breaking news in Redis
-    stored_articles = asyncio.run(fetch_breaking_news_newsapi())
