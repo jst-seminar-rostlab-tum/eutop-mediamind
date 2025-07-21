@@ -189,3 +189,6 @@ msgstr "Anhang: Originalartikel"
 
 msgid "Back to translated article"
 msgstr "Zurück zum übersetzten Artikel"
+
+msgid "There are no news items that match your search profile this time. We will notify you as soon as relevant news are found for your search profile"
+msgstr "Es gibt derzeit keine Nachrichten, die zu Ihrem Suchprofil passen. Wir benachrichtigen Sie, sobald relevante Nachrichten für Ihr Suchprofil gefunden werden"
