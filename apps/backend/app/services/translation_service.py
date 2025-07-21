@@ -1,11 +1,11 @@
 import asyncio
-import gettext
 import json
 import os
 import uuid
 from datetime import date, datetime
 from typing import Callable
 
+from babel.messages.pofile import read_po
 from langdetect import detect
 
 from app.core.logger import get_logger
@@ -51,15 +51,25 @@ class ArticleTranslationService:
         """
         if language not in ArticleTranslationService._translators_cache:
             locale_dir = os.path.join(os.path.dirname(__file__), "locales")
-            lang = gettext.translation(
-                "translations",
-                localedir=locale_dir,
-                languages=[language],
-                fallback=True,
+            po_file_path = os.path.join(
+                locale_dir, language, "LC_MESSAGES", "translations.po"
             )
-            ArticleTranslationService._translators_cache[language] = (
-                lang.gettext
-            )
+            if os.path.exists(po_file_path):
+                with open(po_file_path, "r", encoding="utf-8") as f:
+                    catalog = read_po(f)
+
+                def translate(text: str) -> str:
+                    message = catalog.get(text)
+                    return (
+                        message.string
+                        if message and message.string
+                        else text
+                    )
+            else:
+                def translate(text: str) -> str:
+                    return text
+
+            ArticleTranslationService._translators_cache[language] = translate
 
         return ArticleTranslationService._translators_cache[language]
 
