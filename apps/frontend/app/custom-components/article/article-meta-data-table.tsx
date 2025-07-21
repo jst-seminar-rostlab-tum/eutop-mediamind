@@ -1,10 +1,4 @@
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableRow,
-} from "~/components/ui/table";
+import { Table, TableBody, TableCell, TableRow } from "~/components/ui/table";
 import type { ArticleMatch } from "../../../types/model";
 import { formatDate } from "~/lib/utils";
 import { useTranslation } from "react-i18next";
@@ -18,8 +12,10 @@ export function ArticleMetaDataTable({ article }: ArticleMetaDataTableProps) {
 
   return (
     <div className="border border-gray-200 rounded-lg p-3">
+      <div className="p-2 font-semibold">
+        {t("article-page.meta_data_header")}
+      </div>
       <Table>
-        <TableHead>{t("article-page.meta_data_header")}</TableHead>
         <TableBody>
           <TableRow>
             <TableCell>{t("article-page.meta_data_published")}</TableCell>

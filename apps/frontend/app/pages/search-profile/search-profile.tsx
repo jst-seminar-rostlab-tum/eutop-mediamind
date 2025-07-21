@@ -279,6 +279,11 @@ export function SearchProfileOverview() {
                   placeholder={t("Search") + " " + t("search_profile.articles")}
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      setSearchTerm(search);
+                    }
+                  }}
                 />
                 <Button
                   variant="default"
