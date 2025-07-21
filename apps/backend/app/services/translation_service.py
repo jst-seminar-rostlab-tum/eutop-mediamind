@@ -61,11 +61,11 @@ class ArticleTranslationService:
                 def translate(text: str) -> str:
                     message = catalog.get(text)
                     return (
-                        message.string
-                        if message and message.string
-                        else text
+                        message.string if message and message.string else text
                     )
+
             else:
+
                 def translate(text: str) -> str:
                     return text
 
