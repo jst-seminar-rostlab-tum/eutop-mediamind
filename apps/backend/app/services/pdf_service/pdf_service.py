@@ -170,12 +170,16 @@ class PDFService:
             summaries_elements = PDFService.__create_summaries_elements(
                 news_items, dimensions, translator
             )
-            full_articles_elements = PDFService.__create_full_articles_elements(
-                news_items, dimensions, translator, PDFService.styles
+            full_articles_elements = (
+                PDFService.__create_full_articles_elements(
+                    news_items, dimensions, translator, PDFService.styles
+                )
             )
             # Add appendix with original articles
-            original_elements = PDFService._PDFService__create_original_elements(
-                news_items, PDFService.styles, translator
+            original_elements = (
+                PDFService._PDFService__create_original_elements(
+                    news_items, PDFService.styles, translator
+                )
             )
             # Combine all elements
             all_elements = []
@@ -198,7 +202,11 @@ class PDFService:
 
             # Use a single frame for simplicity, as elements can use PageBreaks
             frame = Frame(
-                margin, margin, width - 2 * margin, height - 2 * margin, id="main"
+                margin,
+                margin,
+                width - 2 * margin,
+                height - 2 * margin,
+                id="main",
             )
 
             # Define a full-width frame for full articles
@@ -233,7 +241,9 @@ class PDFService:
                 bottomMargin=margin,
             )
 
-            on_page = partial(PDFService.draw_header_footer, translator=translator)
+            on_page = partial(
+                PDFService.draw_header_footer, translator=translator
+            )
             doc.addPageTemplates(
                 [
                     PageTemplate(id="Cover", frames=[frame]),
