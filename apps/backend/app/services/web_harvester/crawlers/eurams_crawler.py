@@ -298,7 +298,8 @@ if __name__ == "__main__":
         paywall=False,
         domain="eurams.de",
         login_config={
-            "time_selector": "body > section > div > article > header > div.article-meta > div.article-date > time",
+            "time_selector": "body > section > div > article > header "
+            "> div.article-meta > div.article-date > time",
             "iframe_selector": "iframe#sp_message_iframe_879787",
             "cookie_button_selector": "button[title='AKZEPTIEREN UND WEITER']",
         },
