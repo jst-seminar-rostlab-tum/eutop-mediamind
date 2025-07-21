@@ -233,7 +233,7 @@ class EmailService:
             "profile_name": profile_name,
             "date": today,
             "language_code": language,
-            "title": translator("Daily News Report"),
+            "title": translator("Current Press Report"),
             "search_profile": translator("Search Profile"),
             "salutation": salutation,
             "text_1": translator(
