@@ -28,3 +28,5 @@ export type ProfileReports = components["schemas"]["ReportListResponse"];
 export type ReportOverview = components["schemas"]["ReportRead"];
 
 export type Report = components["schemas"]["ReportDetailResponse"];
+
+export type TopicMatch = components["schemas"]["MatchTopicItem"];

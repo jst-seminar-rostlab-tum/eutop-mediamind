@@ -77,17 +77,21 @@ class ReportService:
         report = await ReportRepository.create(report)
 
         # PDF generation
-        pdf_bytes = await PDFService.create_pdf(
-            search_profile_id, timeslot, language, now
+        pdf_bytes, empty_pdf = await PDFService.create_pdf(
+            search_profile_id, timeslot, language
         )
 
-        # Set S3 key to the report id and upload the PDF
-        s3_key = f"{configs.ENVIRONMENT}/reports/{search_profile_id}/{report.id}.pdf"  # noqa: E501
-        await s3_service.upload_fileobj(file_bytes=pdf_bytes, key=s3_key)
+        if not empty_pdf:
+            # Set S3 key to the report id and upload the PDF
+            s3_key = f"{configs.ENVIRONMENT}/reports/{search_profile_id}/{report.id}.pdf"  # noqa: E501
+            await s3_service.upload_fileobj(file_bytes=pdf_bytes, key=s3_key)
 
-        # Update the report with the correct s3_key and mark as uploaded
-        report.s3_key = s3_key
-        report.status = ReportStatus.UPLOADED
+            # Update the report with the correct s3_key and mark as uploaded
+            report.s3_key = s3_key
+            report.status = ReportStatus.UPLOADED
+        else:
+            report.status = ReportStatus.EMPTY
+
         report = await ReportRepository.update(report)
 
         return report
@@ -122,14 +126,17 @@ class ReportService:
                     search_profile.id, timeslot, lang.value, s3_service
                 )
 
-                # For email generation
-                presigned_url = s3_service.generate_presigned_url(
-                    key=report.s3_key, expires_in=604800  # 7 days
-                )
-                dashboard_url = (
-                    "https://mediamind.csee.tech/dashboard/reports/"
-                    f"{report.id}"
-                )
+                presigned_url = None
+                dashboard_url = None
+                if report.status == ReportStatus.UPLOADED:
+                    # For email generation
+                    presigned_url = s3_service.generate_presigned_url(
+                        key=report.s3_key, expires_in=604800  # 7 days
+                    )
+                    dashboard_url = (
+                        "https://mediamind.csee.tech/dashboard/reports/"
+                        f"{report.id}"
+                    )
 
                 reports.append(
                     {

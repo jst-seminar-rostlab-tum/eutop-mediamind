@@ -58,7 +58,7 @@ resource "aws_ecs_task_definition" "app" {
         { name = "EMAIL_JOB_INTERVAL", value = "30" },
         { name = "PIPELINE_JOB_INTERVAL", value = "-1" },
         { name = "RSS_JOB_INTERVAL", value = "1800" },
-        { name = "BREAKING_NEWS_INTERVAL", value = "3600" },
+        { name = "BREAKING_NEWS_JOB_INTERVAL", value = "3600" },
         { name = "API_BASE_URL", value = var.api_base_url },
         { name = "REDIS_URL", value = var.redis_endpoint },
       ]

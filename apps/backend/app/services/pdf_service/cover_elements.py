@@ -3,6 +3,7 @@ from typing import List
 
 from reportlab.lib.enums import TA_JUSTIFY
 from reportlab.lib.styles import ParagraphStyle
+from reportlab.lib.units import cm
 from reportlab.platypus import (
     Flowable,
     HRFlowable,
@@ -26,7 +27,7 @@ def draw_cover_elements(
     width, height = dimensions
     toc_entry_style = ParagraphStyle(
         name="TOCEntry",
-        fontName="DVS-Bold",
+        fontName="Bold",
         fontSize=10,
         textColor=pdf_colors["blue"],
         spaceAfter=0,
@@ -37,7 +38,7 @@ def draw_cover_elements(
     )
     metadata_style = ParagraphStyle(
         name="HeaderTitle",
-        fontName="DVS",
+        fontName="Regular",
         fontSize=10,
         textColor=pdf_colors["darkGrey"],
         spaceAfter=6,
@@ -80,15 +81,15 @@ def draw_cover_elements(
 
         def draw(self):
             canvas = self.canv
-            canvas.setFont("DVS", 12)
+            canvas.setFont("Regular", 12)
             canvas.setFillColor(pdf_colors["darkgreen"])
             label = translator("Estimated Reading Time") + ": "
             canvas.drawString(0, 0, label)
-            label_width = canvas.stringWidth(label, "DVS", 12)
-            canvas.setFont("DVS-Bold", 12)
+            label_width = canvas.stringWidth(label, "Regular", 12)
+            canvas.setFont("Bold", 12)
             canvas.drawString(label_width, 0, str(self.estimated_minutes))
             label_width += canvas.stringWidth(
-                str(self.estimated_minutes), "DVS-Bold", 12
+                str(self.estimated_minutes), "Bold", 12
             )
             canvas.drawString(label_width, 0, f" {translator('min')}")
 
@@ -100,7 +101,7 @@ def draw_cover_elements(
             translator("Table of Contents"),
             ParagraphStyle(
                 name="TOCHeader",
-                fontName="DVS-Bold",
+                fontName="Bold",
                 fontSize=16,
                 spaceAfter=12,
                 textColor=pdf_colors["blue"],
@@ -143,6 +144,10 @@ def draw_cover_elements(
             f'&nbsp;{translator("Full Article")}&nbsp;'
             "</a>"
         )
+        from reportlab.lib.enums import TA_RIGHT
+
+        button_style_right = styles["button_style"].clone("button_style_right")
+        button_style_right.alignment = TA_RIGHT
         button_para = Paragraph(
             f"""
             <font backColor="{pdf_colors["lightgrey"]}" size="9">
@@ -153,10 +158,10 @@ def draw_cover_elements(
                 {full_article_link}
             </font>
             """,
-            styles["button_style"],
+            button_style_right,
         )
         row = [[meta_para, button_para]]
-        table = Table(row, colWidths=[4 * 72, 2 * 72])
+        table = Table(row, colWidths=[5 * cm, 8 * cm], hAlign="LEFT")
         table.setStyle(
             TableStyle(
                 [
