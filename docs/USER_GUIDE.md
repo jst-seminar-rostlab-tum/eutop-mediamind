@@ -136,7 +136,6 @@ The MediaMind Email Chatbot lets you get quick answers by replying to emails you
 Only replies to existing MediaMind emails are supported.
 New emails sent to the chatbot address will not be processed.
 This limitation is mainly due to security concerns, but also about performance:
-If you allow users to send emails to the Chatbot asking about a report containing a specific news article, the Chatbot would need to go through countless articles to find it.
-This could potentially lead to a large increase in costs.
+If you allow users to send emails to the Chatbot asking about a report containing a specific news article, the Chatbot would need to go through countless articles to find it, which would potentially lead to a large increase in costs.
 To limit this, users can only directly respond to email threads, which are linked to the attached report.
 If you send a new email (not a reply), you will receive a message asking you to reply to a previous MediaMind email instead.
