@@ -42,7 +42,7 @@ async def test_cleanup_articles_older_than_days_normal(monkeypatch):
     mock_vector_service = MagicMock()
     monkeypatch.setattr(
         "app.services.article_cleanup_service.ArticleVectorService",
-        lambda *args, **kwargs: mock_vector_service
+        lambda *args, **kwargs: mock_vector_service,
     )
     service = ArticleCleanupService()
     # mock async_session and all internal methods
@@ -79,7 +79,7 @@ async def test_delete_article_entities_empty(monkeypatch):
     # Patch ArticleVectorService before instantiating ArticleCleanupService
     monkeypatch.setattr(
         "app.services.article_cleanup_service.ArticleVectorService",
-        lambda *args, **kwargs: MagicMock()
+        lambda *args, **kwargs: MagicMock(),
     )
     service = ArticleCleanupService()
     result = await service._delete_article_entities(MagicMock(), [])
@@ -90,7 +90,7 @@ async def test_delete_article_entities_empty(monkeypatch):
 async def test_delete_article_keyword_links_empty(monkeypatch):
     monkeypatch.setattr(
         "app.services.article_cleanup_service.ArticleVectorService",
-        lambda *args, **kwargs: MagicMock()
+        lambda *args, **kwargs: MagicMock(),
     )
     service = ArticleCleanupService()
     result = await service._delete_article_keyword_links(MagicMock(), [])
@@ -101,7 +101,7 @@ async def test_delete_article_keyword_links_empty(monkeypatch):
 async def test_delete_article_matches_empty(monkeypatch):
     monkeypatch.setattr(
         "app.services.article_cleanup_service.ArticleVectorService",
-        lambda *args, **kwargs: MagicMock()
+        lambda *args, **kwargs: MagicMock(),
     )
     service = ArticleCleanupService()
     result = await service._delete_article_matches(MagicMock(), [])
@@ -114,7 +114,7 @@ async def test_delete_from_vector_store_empty(monkeypatch):
     mock_vector_service.delete_articles_by_ids.return_value = 0
     monkeypatch.setattr(
         "app.services.article_cleanup_service.ArticleVectorService",
-        lambda *args, **kwargs: mock_vector_service
+        lambda *args, **kwargs: mock_vector_service,
     )
     service = ArticleCleanupService()
     result = await service._delete_from_vector_store([])
@@ -125,7 +125,7 @@ async def test_delete_from_vector_store_empty(monkeypatch):
 async def test_delete_articles_empty(monkeypatch):
     monkeypatch.setattr(
         "app.services.article_cleanup_service.ArticleVectorService",
-        lambda *args, **kwargs: MagicMock()
+        lambda *args, **kwargs: MagicMock(),
     )
     service = ArticleCleanupService()
     result = await service._delete_articles(MagicMock(), [])
