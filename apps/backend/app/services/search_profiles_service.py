@@ -328,7 +328,7 @@ class SearchProfileService:
                 return re.findall(r"[\wäöüßÄÖÜ]+", text.lower())
 
             search_words = split_words(request.searchTerm)
-            min_match = max(1, len(search_words) // 2)
+            min_match = max(1, int(len(search_words) * 0.75))
 
             def field_match(field):
                 field_words = split_words(field)
@@ -348,8 +348,6 @@ class SearchProfileService:
                     m.article.title_en or "",
                     m.article.summary_de or "",
                     m.article.summary_en or "",
-                    m.article.content_de or "",
-                    m.article.content_en or "",
                 ]
                 found = False
                 for field in fields:
