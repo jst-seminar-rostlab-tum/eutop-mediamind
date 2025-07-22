@@ -110,7 +110,7 @@ This page is only accessible to MediaMind administrators. It provides an overvie
 
 ### Organisation Settings
 
-This page is only accessable for organisation maintainers.
+This page is only accessible to organisation maintainers.
 There are two kinds of preferences which should be maintained on an organisation level.
 
 You can decide via a true/false toggle, whether you want to receive the daily report as pdf directly via email or as a signed link (which is valid for a week and can be regenerated in the webapps Download Center) to the pdf.
