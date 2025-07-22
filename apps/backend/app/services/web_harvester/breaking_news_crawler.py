@@ -259,7 +259,7 @@ async def fetch_breaking_news_newsapi():
                             crawler.logger.info(
                                 f"Translating article {article.id} to German"
                             )
-                            translation = await ArticleTranslationService.translate_breaking_news_fields(
+                            translation = await ArticleTranslationService.translate_breaking_news_fields(  # noqa 501
                                 article, Language.DE.value
                             )
                             article.title = translation["title"]
@@ -272,7 +272,7 @@ async def fetch_breaking_news_newsapi():
                             crawler.logger.info(
                                 f"Translating article {article.id} to English"
                             )
-                            translation = await ArticleTranslationService.translate_breaking_news_fields(
+                            translation = await ArticleTranslationService.translate_breaking_news_fields(  # noqa 501
                                 article, Language.EN.value
                             )
                             article.title = translation["title"]
