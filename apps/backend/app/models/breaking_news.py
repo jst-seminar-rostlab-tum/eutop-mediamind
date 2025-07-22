@@ -15,3 +15,4 @@ class BreakingNews(SQLModel, table=False):
     url: str = Field(default=None, nullable=True)
     published_at: str = Field(default=None, nullable=True)
     relevance_score: float = Field(default=0.0, nullable=True)
+    language: str = Field(default=None, nullable=True)

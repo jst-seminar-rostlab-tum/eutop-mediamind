@@ -13,6 +13,7 @@ from app.core.logger import BufferedLogger
 from app.models.breaking_news import BreakingNews
 from app.repositories.user_repository import UserRepository
 from app.services.email_service import EmailService
+from app.services.translation_service import ArticleTranslationService
 
 configs = get_configs()
 
@@ -72,16 +73,25 @@ class BreakingNewsNewsAPICrawler:
                 image = event.get("images")[0] if event.get("images") else None
 
                 titles = event.get("title")
+                summaries = event.get("summary")
+
+                # Detect language for title/summary
                 if "eng" in titles:
                     title = titles["eng"]
+                    language = "en"
                 elif "deu" in titles:
                     title = titles["deu"]
+                    language = "de"
+                else:
+                    title = None
+                    language = None
 
-                summaries = event.get("summary")
                 if "eng" in summaries:
                     summary = summaries["eng"]
                 elif "deu" in summaries:
                     summary = summaries["deu"]
+                else:
+                    summary = None
 
                 relevance_score = event.get("breakingScore", 0.0)
                 # The API does not return datetime published_at
@@ -91,6 +101,7 @@ class BreakingNewsNewsAPICrawler:
                     image_url=image,
                     summary=summary,
                     relevance_score=relevance_score,
+                    language=language,
                 )
                 breaking_news_list.append(breaking_news)
 
@@ -222,7 +233,6 @@ async def fetch_breaking_news_newsapi():
 
     for article in new_articles:
         redis_key = f"breaking_news:{article.id}"
-
         if not redis_engine.exists(redis_key):
             article = crawler.get_breaking_news_detail(article)
             if not article:
@@ -241,15 +251,51 @@ async def fetch_breaking_news_newsapi():
                             if hasattr(user, "language")
                             else Language.EN.value
                         )
+
+                        if (
+                            user_language == Language.DE.value
+                            and article.language != Language.DE.value
+                        ):
+                            crawler.logger.info(
+                                f"Translating article {article.id} to German"
+                            )
+                            translation = await ArticleTranslationService.translate_breaking_news_fields(  # noqa 501
+                                article, Language.DE.value
+                            )
+                            article.title = translation["title"]
+                            article.summary = translation["summary"]
+                            article.language = Language.DE.value
+                        elif (
+                            user_language == Language.EN.value
+                            and article.language != Language.EN.value
+                        ):
+                            crawler.logger.info(
+                                f"Translating article {article.id} to English"
+                            )
+                            translation = await ArticleTranslationService.translate_breaking_news_fields(  # noqa 501
+                                article, Language.EN.value
+                            )
+                            article.title = translation["title"]
+                            article.summary = translation["summary"]
+                            article.language = "en"
+
                         email_content = (
                             EmailService._build_breaking_news_email_content(
-                                article, user_language
+                                news=article, language=user_language
                             )
                         )
+
+                        subject_prefix = (
+                            "Breaking News Alert"
+                            if user_language == Language.EN.value
+                            else "Nachrichten-Alarm"
+                        )
+                        subject = f"{subject_prefix}: {article.title}"
+
                         email = EmailService.create_email(
                             recipient=user.email,
-                            subject=f"Breaking News Alert: {article.title}",
-                            content_type="text/HTML",
+                            subject=subject,
+                            content_type="text/plain",
                             content=email_content,
                         )
                         await EmailService.send_email(email=email)
@@ -262,7 +308,6 @@ async def fetch_breaking_news_newsapi():
                 )
                 stored_articles.append(article)
                 crawler.logger.info(f"Stored article {article.id} in Redis.")
-
             except Exception as e:
                 crawler.logger.error(
                     f"Failed to store article {article.id} in Redis: {e}"
