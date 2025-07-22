@@ -1,10 +1,18 @@
-import pytest
 from unittest.mock import MagicMock, patch
-from app.services.web_harvester.web_harvester_orchestrator import (
-    _scraper_error_handling, _handle_login_if_needed, _scrape_articles, run_selenium_code
-)
+
+import pytest
+
 from app.models.article import Article, ArticleStatus
 from app.models.subscription import Subscription
+from app.services.web_harvester.web_harvester_orchestrator import (
+    _handle_login_if_needed,
+    _scrape_articles,
+    _scraper_error_handling,
+)
+from app.services.web_harvester.web_harvester_orchestrator import (
+    run_selenium_code_safe as run_selenium_code,
+)
+
 
 class DummyScraper:
     def __init__(self):
@@ -72,7 +80,8 @@ def test_scrape_articles_load_fail():
 
 # 100% coverage for run_selenium_code and _handle_logout_and_cleanup
 import types
-from app.services.web_harvester.web_harvester_orchestrator import run_selenium_code, _handle_logout_and_cleanup
+
+_handle_logout_and_cleanup = __import__('app.services.web_harvester.web_harvester_orchestrator', fromlist=['_cleanup_driver_safe'])._cleanup_driver_safe
 
 class DummySubscription:
     def __init__(self, paywall=True, llm_login_attempt=None):
