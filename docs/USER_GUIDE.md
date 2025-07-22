@@ -104,7 +104,7 @@ This page is only accessable for MediaMind admin. You can create and edit Organi
 
 ### Crawler Stats
 
-This page is only accessable for MediaMind admins. You can get an overview of the status of the crawling grouped by domains. Thus, you see, whether crawling was not successfull or where you should have another look.
+This page is only accessible to MediaMind administrators. It provides an overview of the crawling status, grouped by domain. This allows you to identify unsuccessful crawls and determine where further investigation may be needed.
 
 ![Crawler Stats](assets/crawler-stats.png)
 
