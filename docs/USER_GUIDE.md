@@ -18,11 +18,11 @@ Each search profile consists of one or more topics, and each topic contains mult
 
 #### Subscriptions
 
-Sometimes also called Domain. MediaMind crawls articles from different news paper domains. Legally, you are only allowed to receive full texts for domains where your organisation has a valid subscription, although MediaMind might have more subscriptions than you have. (see Organisation Settings)
+MediaMind crawls articles from different news paper domains. You will only receive full texts for domains where your organisation has a valid subscription, although MediaMind might have more subscriptions than you have. (see Organisation Settings)
 
 If you do not have a valid subscription, you will still receive summaries of articles from these domains, provided they match your search profile. However, access to the full article content will not be available.
 
-> Note: For a search profile you can again select Subscriptions. These will then be used for external mail addresses from this search profile. (See search profile edit)
+> Note: Subscriptions are chosen on two different layers: The organization layer and the search profile layer. Organization layer subscriptions are you used for sending full text articles to internal emails (specified in search profile) & display them in the frontend. Search profile layer subscriptions are used for sending full text articles to external emails (specified in search profile).
 
 #### Organisations
 
@@ -120,7 +120,7 @@ The second option allows you to specify for which sources your organization hold
 > Legal notice: Although it is possible to select subscriptions even if your organisation does not have a valid subscription/account for this domain, this is legally forbidden.
 > Only select domains, where your organisation has a valid subscription!
 
-![Organisation Settings](assets/organisation-settings.png.png)
+![Organisation Settings](assets/organisation-settings.png)
 
 ## ChatBot Feature
 
