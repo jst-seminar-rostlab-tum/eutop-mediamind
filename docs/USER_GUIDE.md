@@ -20,7 +20,7 @@ Each search profile consists of one or more topics, and each topic contains mult
 
 Sometimes also called Domain. MediaMind crawls articles from different news paper domains. Legally, you are only allowed to receive full texts for domains where your organisation has a valid subscription, although MediaMind might have more subscriptions than you have. (see Organisation Settings)
 
-If you dont have a valid subscription, you will still receive summaries for articles from these domains, if they are matched to your search profile.
+If you do not have a valid subscription, you will still receive summaries of articles from these domains, provided they match your search profile. However, access to the full article content will not be available.
 
 > Note: For a search profile you can again select Subscriptions. These will then be used for external mail addresses from this search profile. (See search profile edit)
 
