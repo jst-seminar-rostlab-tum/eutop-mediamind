@@ -50,7 +50,7 @@ async def test_send_email(monkeypatch):
     email.content = "<b>content</b>"
     email.id = 1
     await EmailService.send_email(
-        email, pdf_bytes=None, bcc_recipients=["bcc@test.com"]
+        email, pdf_bytes=None
     )
 
 
