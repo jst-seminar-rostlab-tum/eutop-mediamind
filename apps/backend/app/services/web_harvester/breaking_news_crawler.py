@@ -263,13 +263,9 @@ async def fetch_breaking_news_newsapi():
                             translation = await ArticleTranslationService.translate_breaking_news_fields(
                                 article, Language.DE.value
                             )
-                            article = article.__class__(
-                                **{
-                                    **article.model_dump(),
-                                    **translation,
-                                    "language": Language.DE.value,
-                                }
-                            )
+                            article.title = translation["title"]
+                            article.summary = translation["summary"]
+                            article.language = Language.DE.value
                         elif (
                             user_language == Language.EN.value
                             and article.language != Language.EN.value
@@ -280,13 +276,9 @@ async def fetch_breaking_news_newsapi():
                             translation = await ArticleTranslationService.translate_breaking_news_fields(
                                 article, Language.EN.value
                             )
-                            article = article.__class__(
-                                **{
-                                    **article.model_dump(),
-                                    **translation,
-                                    "language": Language.EN.value,
-                                }
-                            )
+                            article.title = translation["title"]
+                            article.summary = translation["summary"]
+                            article.language = "en"
 
                         email_content = (
                             EmailService._build_breaking_news_email_content(
