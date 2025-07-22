@@ -26,9 +26,7 @@ If you do not have a valid subscription, you will still receive summaries of art
 
 #### Organisations
 
-An organisation is required to use MediaMind. If you want to use MediaMind for your organisation, contact a MediaMind admin, to create an organisation for you.
-
-If new users should be added to your organisation, they have to first create an account and then, have to be added by a MediaMind admin to your organisation, before they can use the application.
+To use MediaMind, users must first create an account and be assigned to an organization. If you would like to join the platform, please contact a MediaMind administrator to be added to an existing organization or to have a new one created for you.
 (see Admin Settings)
 
 ### Authorization Concept
