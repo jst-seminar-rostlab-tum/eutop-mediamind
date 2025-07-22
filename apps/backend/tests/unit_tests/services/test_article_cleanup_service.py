@@ -62,6 +62,12 @@ async def test_cleanup_articles_older_than_days_normal(monkeypatch):
     monkeypatch.setattr(
         "app.services.article_cleanup_service.logger", MagicMock()
     )
+    # Mock vector store deletion to avoid Qdrant connection
+    monkeypatch.setattr(
+        service.vector_service,
+        "delete_articles_by_ids",
+        MagicMock(return_value=1)
+    )
     stats = await service.cleanup_articles_older_than_days(
         days=1, batch_size=1
     )
@@ -90,8 +96,14 @@ async def test_delete_article_matches_empty():
 
 
 @pytest.mark.asyncio
-async def test_delete_from_vector_store_empty():
+async def test_delete_from_vector_store_empty(monkeypatch):
     service = ArticleCleanupService()
+    # Mock vector store deletion to avoid Qdrant connection
+    monkeypatch.setattr(
+        service.vector_service,
+        "delete_articles_by_ids",
+        MagicMock(return_value=0)
+    )
     result = await service._delete_from_vector_store([])
     assert result == 0
 
