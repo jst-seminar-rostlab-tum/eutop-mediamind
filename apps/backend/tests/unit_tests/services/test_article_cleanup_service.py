@@ -38,6 +38,12 @@ class DummySession:
 
 @pytest.mark.asyncio
 async def test_cleanup_articles_older_than_days_normal(monkeypatch):
+    # Patch ArticleVectorService before instantiating ArticleCleanupService
+    mock_vector_service = MagicMock()
+    monkeypatch.setattr(
+        "app.services.article_cleanup_service.ArticleVectorService",
+        lambda *args, **kwargs: mock_vector_service
+    )
     service = ArticleCleanupService()
     # mock async_session and all internal methods
     monkeypatch.setattr(
@@ -62,12 +68,6 @@ async def test_cleanup_articles_older_than_days_normal(monkeypatch):
     monkeypatch.setattr(
         "app.services.article_cleanup_service.logger", MagicMock()
     )
-    # Mock vector store deletion to avoid Qdrant connection
-    monkeypatch.setattr(
-        service.vector_service,
-        "delete_articles_by_ids",
-        MagicMock(return_value=1)
-    )
     stats = await service.cleanup_articles_older_than_days(
         days=1, batch_size=1
     )
@@ -75,21 +75,34 @@ async def test_cleanup_articles_older_than_days_normal(monkeypatch):
 
 
 @pytest.mark.asyncio
-async def test_delete_article_entities_empty():
+async def test_delete_article_entities_empty(monkeypatch):
+    # Patch ArticleVectorService before instantiating ArticleCleanupService
+    monkeypatch.setattr(
+        "app.services.article_cleanup_service.ArticleVectorService",
+        lambda *args, **kwargs: MagicMock()
+    )
     service = ArticleCleanupService()
     result = await service._delete_article_entities(MagicMock(), [])
     assert result == 0
 
 
 @pytest.mark.asyncio
-async def test_delete_article_keyword_links_empty():
+async def test_delete_article_keyword_links_empty(monkeypatch):
+    monkeypatch.setattr(
+        "app.services.article_cleanup_service.ArticleVectorService",
+        lambda *args, **kwargs: MagicMock()
+    )
     service = ArticleCleanupService()
     result = await service._delete_article_keyword_links(MagicMock(), [])
     assert result == 0
 
 
 @pytest.mark.asyncio
-async def test_delete_article_matches_empty():
+async def test_delete_article_matches_empty(monkeypatch):
+    monkeypatch.setattr(
+        "app.services.article_cleanup_service.ArticleVectorService",
+        lambda *args, **kwargs: MagicMock()
+    )
     service = ArticleCleanupService()
     result = await service._delete_article_matches(MagicMock(), [])
     assert result == 0
@@ -97,19 +110,23 @@ async def test_delete_article_matches_empty():
 
 @pytest.mark.asyncio
 async def test_delete_from_vector_store_empty(monkeypatch):
-    service = ArticleCleanupService()
-    # Mock vector store deletion to avoid Qdrant connection
+    mock_vector_service = MagicMock()
+    mock_vector_service.delete_articles_by_ids.return_value = 0
     monkeypatch.setattr(
-        service.vector_service,
-        "delete_articles_by_ids",
-        MagicMock(return_value=0)
+        "app.services.article_cleanup_service.ArticleVectorService",
+        lambda *args, **kwargs: mock_vector_service
     )
+    service = ArticleCleanupService()
     result = await service._delete_from_vector_store([])
     assert result == 0
 
 
 @pytest.mark.asyncio
-async def test_delete_articles_empty():
+async def test_delete_articles_empty(monkeypatch):
+    monkeypatch.setattr(
+        "app.services.article_cleanup_service.ArticleVectorService",
+        lambda *args, **kwargs: MagicMock()
+    )
     service = ArticleCleanupService()
     result = await service._delete_articles(MagicMock(), [])
     assert result == 0
