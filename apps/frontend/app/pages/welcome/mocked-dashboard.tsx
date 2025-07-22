@@ -4,12 +4,12 @@ import { useState, useMemo } from "react";
 import { sortBy } from "lodash-es";
 import { Alert, AlertTitle } from "~/components/ui/alert";
 import { useTranslation } from "react-i18next";
-import { FilterBar } from "~/custom-components/dashboard/filter-bar";
 import type { Profile } from "../../../types/model";
 import Text from "~/custom-components/text";
 import { toast } from "sonner";
 import { MockedProfileCard } from "./mocked-profile-card";
 import { profiles } from "./mock-data";
+import { MockedFilterBar } from "./mocked-filterbar";
 
 interface FilterState {
   showUpdatedOnly: boolean;
@@ -121,7 +121,7 @@ export function MockedDashboardPage() {
           <Plus />
         </Button>
       </div>
-      <FilterBar onFiltersChange={setFilters} />
+      <MockedFilterBar onFiltersChange={setFilters} />
       {filteredAndSortedProfiles?.length === 0 ? (
         <div className="flex items-center justify-center py-8">
           <span className="text-gray-400">
@@ -129,7 +129,7 @@ export function MockedDashboardPage() {
           </span>
         </div>
       ) : (
-        <div className="mt-6 mb-4 flex flex-wrap gap-10 gap-y-8 mx-4">
+        <div className="mt-6 mb-4 flex flex-wrap gap-10 gap-y-8 mx-2">
           {filteredAndSortedProfiles?.map((profile, idx) => (
             <MockedProfileCard key={idx} profile={profile} profile_id={me.id} />
           ))}
