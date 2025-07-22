@@ -320,32 +320,51 @@ class SearchProfileService:
         )
 
         if request.searchTerm:
-            # Qdrant vertor search
-            avs = ArticleVectorService()
-            results = await avs.retrieve_by_similarity(
-                query=request.searchTerm
-            )
+            import re
 
-            # extract article IDs and relevance scores
-            article_ids = []
-            for doc, score in results:
-                aid = uuid.UUID(doc.metadata["id"])
-                article_ids.append(aid)
-                relevance_map[aid] = score
+            def split_words(text):
+                if not text:
+                    return []
+                return re.findall(r"[\wäöüßÄÖÜ]+", text.lower())
 
-            # get matches for the profile with the article IDs
+            search_words = split_words(request.searchTerm)
+            min_match = max(1, len(search_words) // 2)
+
+            def field_match(field):
+                field_words = split_words(field)
+                return sum(
+                    w in field_words or w in field for w in search_words
+                )
+
             all_matches = await MatchRepository.get_matches_by_search_profile(
                 search_profile_id,
             )
-            matches = [
-                m
-                for m in all_matches
-                if m.article_id in article_ids
-                and m.article
-                and request.startDate
-                <= m.article.published_at.date()
-                <= request.endDate
-            ]
+            matches = []
+            for m in all_matches:
+                if not m.article:
+                    continue
+                fields = [
+                    m.article.title_de or "",
+                    m.article.title_en or "",
+                    m.article.summary_de or "",
+                    m.article.summary_en or "",
+                    m.article.content_de or "",
+                    m.article.content_en or "",
+                ]
+                found = False
+                for field in fields:
+                    if field:
+                        match_count = field_match(field)
+                        if match_count >= min_match:
+                            found = True
+                            break
+                if (
+                    found
+                    and request.startDate
+                    <= m.article.published_at.date()
+                    <= request.endDate
+                ):
+                    matches.append(m)
         else:
             # no search term: get all matches for the profile
             matches = await MatchRepository.get_matches_by_search_profile(
