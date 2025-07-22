@@ -17,12 +17,12 @@ The main pipeline is orchestrated in `apps/backend/app/services/pipeline.py` and
 - **Crawlers** (`crawler.py`): Discover article URLs from news sources
   - `NewsAPICrawler`: Uses EventRegistry API to find articles from specific news sources
   - `RSSFeedCrawler`: Crawls RSS feeds for article URLs. This should be triggered on a regular basis by the scheduler. 
-  - `FtCrawler`, `HandelsblattCrawler`, `EnhesaCrawler`: Specialized crawlers for paywall sites. These have special mechanism to avoid botting.
+  - `HandelsblattCrawler`, `EnhesaCrawler`, `Eurams`: Specialized crawlers for paywall sites. These have special mechanism to avoid bot detection using playwright. These classes include crawling and scraping.
 - **Scrapers** (`scraper.py`): Extract full article content from URLs
   - `TrafilaturaScraper`: Primary content extraction using Trafilatura library
   - `Newspaper4kScraper`: Scraper using Newspaper4k library
 
-In the data/subscription.json file it is specified which crawlers and scrapers are enabled for each subscription. One Subscription can have multiple crawlers but only one scraper. To further extend these classes one can add new classes and simply register them in the registry variable in the `crawler.py` and `scraper.py`, update the subscription.json and start the data seeding to update the database.
+In the data/subscription.json file it is specified which crawlers and scrapers are enabled for each subscription. One Subscription can have multiple crawlers but only one scraper. To further extend these classes one can add new classes and simply register them in the registry variable in the `crawler.py` and `scraper.py`, update the `subscription.json` and start the data seeding to update the database. This is explained in the `DATA_SEEDING.md` in detail.
 
 **Functionality:**
 - Handles paywall authentication for premium sources

@@ -466,7 +466,7 @@
     "paywall": true,
     "is_active": true,
     "login_config": {
-      "iframe_cookies": "//iframe[@id='sp_message_iframe_1251936']", 
+      "iframe_cookies": "//iframe[starts-with(@id, 'sp_message_iframe_')]", 
       "cookies_button": "//button[contains(text(), 'Alle akzeptieren')]",
       "login_button": "//div[@data-testid='accountLinks']/button[@title='Klicken Sie hier um sich anzumelden']",
       "iframe_credentials": "//iframe[starts-with(@id, 'piano-id-')]",
