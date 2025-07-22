@@ -130,7 +130,7 @@ The MediaMind Email Chatbot lets you get quick answers by replying to emails you
 
 1. Reply directly to any email you received from MediaMind (such as your daily news report).
 2. Write your question or request in the reply (e.g., "Can you summarize today’s report?" or "Can I get this in another language?").
-3. Send your reply. You will receive an answer by email, usually within a few minutes.
+3. Wait for a response. You will receive an answer by email, usually within a few minutes.
 
 **Important:**
 Only replies to existing MediaMind emails are supported.
