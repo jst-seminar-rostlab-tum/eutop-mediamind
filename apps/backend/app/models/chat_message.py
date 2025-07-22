@@ -1,7 +1,7 @@
-import uuid
 from datetime import datetime, timezone
 from enum import Enum
 from typing import TYPE_CHECKING
+from uuid import UUID, uuid4
 
 from sqlalchemy import TIMESTAMP, Column, Text
 from sqlmodel import Field, Relationship, SQLModel
@@ -23,19 +23,17 @@ class ChatMessage(SQLModel, table=True):
 
     __tablename__ = "chat_messages"
 
-    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
-    email_conversation_id: uuid.UUID = Field(
-        foreign_key="email_conversations.id"
-    )
+    id: UUID = Field(default_factory=uuid4, primary_key=True)
+    email_conversation_id: UUID = Field(foreign_key="email_conversations.id")
     role: MessageRole
     content: str = Field(
         sa_column=Column(Text, nullable=False),
     )
     created_at: datetime = Field(
+        default_factory=lambda: datetime.now(timezone.utc),
         sa_column=Column(
             TIMESTAMP(timezone=True),
             nullable=False,
-            default=datetime.now(timezone.utc),
-        )
+        ),
     )
     conversation: "EmailConversation" = Relationship(back_populates="messages")

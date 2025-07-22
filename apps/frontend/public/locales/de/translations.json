@@ -45,6 +45,19 @@
     "original_toast": "Sie wollen Artikel aufrufen und mehr? Loggen Sie sich ein und genießen Sie alle Funktionalitäten!"
   },
 
+  "mock_email": {
+    "date": "Juli 16, 2025",
+    "search_profile": "Such Profil",
+    "header": "Guten Morgen Herr Mustermann,",
+    "text_1": "Dies ist Ihr täglicher Nachrichtenbericht, sorgfältig ausgewählt, um Ihren spezifischen Interessen und Suchkriterien zu entsprechen. Unser System hat die relevantesten Entwicklungen in Ihrem Fachgebiet identifiziert, damit Sie über die wichtigsten Erkenntnissen für Ihr Unternehmen informiert bleiben.",
+    "text_2": "Jede Meldung wurde basierend auf ihrer Relevanz für Ihr Profil ausgewählt und bietet Ihnen einen umfassenden Überblick über die wichtigsten Entwicklungen des Tages.",
+    "download_here": "download hier",
+    "text_footer": "Danach können sie ihren Bericht weiterhin jederzeit über das Dashboard einsehen",
+    "click_here": "Klicken Sie hier",
+    "download_toast": "Sie wollen Berichte herunterladen und mehr? Loggen Sie sich ein und genießen Sie alle Funktionalitäten!",
+    "click_here_toast": "Sie wollen das komplette Dashboard sehen und mehr? Loggen Sie sich ein und genießen Sie alle Funktionalitäten!"
+  },
+
   "mock_data": {
     "breaking_title_1": "Durchbruch bei nachhaltiger Reifentechnologie reduziert Mikroplastikemissionen",
     "breaking_summary_1": "Ein deutsches Start-up hat eine biologisch abbaubare Reifenmischung entwickelt, die Mikroplastikemissionen deutlich reduziert, ohne die Leistung zu beeinträchtigen. Erste Tests zeigen eine Verringerung der Straßenabriebpartikel um 40 %.",

@@ -515,14 +515,10 @@ export const exampleArticle = {
     language: "en",
   },
   entities: {
-    organizations: ["MIT", "Massachusetts Institute of Technology"],
-    people: ["Dr. Sarah Chen"],
-    locations: ["Massachusetts", "United States"],
-    technologies: [
-      "solar panels",
-      "perovskite",
-      "silicon",
-      "multi-junction cells",
-    ],
+    organization: ["MIT", "Massachusetts Institute of Technology"],
+    person: ["Dr. Sarah Chen"],
+    event: ["Massachusetts event"],
+    industry: ["solar panels", "multi-junction cells"],
+    citation: [],
   },
 };

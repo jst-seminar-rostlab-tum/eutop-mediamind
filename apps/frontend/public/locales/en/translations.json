@@ -45,6 +45,19 @@
     "original_toast": "You want to access articles and more? Log in and experience the full functionality!"
   },
 
+  "mock_email": {
+    "date": "July 16, 2025",
+    "search_profile": "Search Profile",
+    "header": "Good Morning Mr. Mustermann,",
+    "text_1": "This is your daily news report, carefully picked to match your specific interests and search criteria. Our system has identified the most relevant developments in your field, ensuring you stay informed with the insights that matter to your business.",
+    "text_2": "Each story has been selected based on its relevance to your profile, providing you with a comprehensive overview of today's key developments.",
+    "download_here": "download here",
+    "text_footer": "After that, you can still access your report anytime via your dashboard",
+    "click_here": "Click here",
+    "download_toast": "You want to download reports and more? Log in and experience all features!",
+    "click_here_toast": "You want to view the full dashboard and more? Log in and experience all features!"
+  },
+
   "mock_data": {
     "breaking_title_1": "Breakthrough in Sustainable Tire Technology Reduces Microplastic Emissions",
     "breaking_summary_1": "A German startup has developed a biodegradable tire compound that significantly reduces microplastic emissions without compromising performance. Early tests show a 40% drop in road wear particles.",
