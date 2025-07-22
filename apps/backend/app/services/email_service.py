@@ -167,6 +167,7 @@ class EmailService:
             hostname=email_server.hostname,
             port=email_server.port,
             use_tls=email_server.use_tls,
+            timeout=60,  # seconds
         )
         try:
             await smtp_client.connect()
