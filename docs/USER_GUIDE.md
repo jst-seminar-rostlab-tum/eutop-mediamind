@@ -78,7 +78,7 @@ The article page features an integrated in-app reader for articles that match a 
 
 Users can access the original article by clicking the “Original” button located at the top right of the page.
 
-If a subscription is required to access the full article, an alert is displayed to notify the user. In such cases, only a summary of the article is available.
+If an article comes from a source that requires a subscription for full access, but the user's organization does not hold a valid subscription for that source, an alert is displayed. In such cases, only a summary of the article is available.
 
 <img src="assets/article-page.png" alt="Article Page" width="800">
 
