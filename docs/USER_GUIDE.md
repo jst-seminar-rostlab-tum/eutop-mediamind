@@ -14,7 +14,7 @@ A search profile is a specification of topics and keywords that define the userâ
 
 #### Topics & Keywords
 
-A topic consists of multiple keywords. For your search profile you can create multiple topics with multiple keywords. MediaMind will semantically match articles to your profile based on the topcis defined by the keywords.
+Each search profile consists of one or more topics, and each topic contains multiple keywords. MediaMind uses these keywords to match news articles based on their meaning and context, not just exact word matches.
 
 #### Subscriptions
 
