@@ -144,7 +144,7 @@ async def _scrape_articles_for_subscription(subscription, executor):
                 new_articles,
                 subscription,
                 scraper,
-                loop
+                loop,
             ),
             timeout=SELENIUM_TASK_TIMEOUT - 10,  # Leave some buffer
         )
@@ -214,9 +214,8 @@ def run_selenium_code_safe(
             subscription, scraper, driver, wait
         )
 
-
         if subscription.paywall and not login_success:
-                        now = datetime.now(timezone.utc)
+            now = datetime.now(timezone.utc)
             # One weekly attempt per subscription
             next_attempt = (
                 subscription.llm_login_attempt + timedelta(days=7)
