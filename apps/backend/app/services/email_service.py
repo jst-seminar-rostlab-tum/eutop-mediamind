@@ -163,7 +163,7 @@ class EmailService:
         msg = MIMEMultipart("alternative")
         msg["From"] = email.sender
         msg["To"] = email.recipient
-        msg["Subject"] = email.subject
+        msg["Subject"] = subject
 
         html = MIMEText(email.content, "html")
         msg.attach(html)
