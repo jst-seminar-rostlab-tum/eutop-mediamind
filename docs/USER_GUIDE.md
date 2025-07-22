@@ -84,7 +84,7 @@ If an article comes from a source that requires a subscription for full access, 
 
 ### Personal Settings
 
-The personal settings can be found by clicking on the user on the top right of the header, then "Manage Account" and "Personal Settings". You can choose personal preferences here regarding your language, gender and breaking news notifications.
+The personal settings can be found by clicking on the user icon on the top right of the header, then "Manage Account" and "Personal Settings". You can choose personal preferences here regarding your language, gender and breaking news notifications.
 
 ![Personal Settings](assets/personal-settings.png)
 
