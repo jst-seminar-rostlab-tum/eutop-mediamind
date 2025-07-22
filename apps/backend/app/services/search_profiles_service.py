@@ -328,13 +328,13 @@ class SearchProfileService:
                 return re.findall(r"[\wäöüßÄÖÜ]+", text.lower())
 
             search_words = split_words(request.searchTerm)
-            min_match = max(1, int(len(search_words) * 0.75))
+            min_match = len(search_words)
 
             def field_match(field):
-                field_words = split_words(field)
-                return sum(
-                    w in field_words or w in field for w in search_words
-                )
+                combined_words = set()
+                for field in fields:
+                    combined_words.update(split_words(field))
+                return sum(w in combined_words for w in search_words)
 
             all_matches = await MatchRepository.get_matches_by_search_profile(
                 search_profile_id,
