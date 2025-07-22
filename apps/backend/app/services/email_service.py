@@ -286,6 +286,8 @@ class EmailService:
     def _build_breaking_news_email_content(
         news: BreakingNews, language: str = Language.EN.value
     ) -> str:
+        translator = ArticleTranslationService.get_translator(language)
+
         published_at_utc = news.published_at
         if isinstance(published_at_utc, str):
             published_at_utc = datetime.fromisoformat(published_at_utc)
@@ -304,6 +306,15 @@ class EmailService:
             "news_url": news.url,
             "date_time": current_time,
             "disclaimer_text": EmailService.get_disclaimer_text(language),
+            "title_big": translator("BREAKING NEWS ALERT"),
+            "title": translator("Breaking News Alert"),
+            "Published": translator("Published"),
+            "read_full": translator("Read Full Article"),
+            "text_1": translator(
+                "If the button above does not work, copy and paste this URL "
+                "into your browser"
+            ),
+            "deliver_text": translator("Delivered by MediaMind"),
         }
 
         template_name = "breaking_news_template.html"
