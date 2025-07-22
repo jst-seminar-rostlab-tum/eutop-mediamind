@@ -356,8 +356,13 @@ class EmailService:
         for search_profile_id, reports in grouped_reports.items():
             search_profile = reports[0]["search_profile"]
             pdf_as_link = search_profile.organization.pdf_as_link
+            # Internal and external emails
+            all_emails = (
+                search_profile.organization_emails
+                + search_profile.profile_emails
+            )
             try:
-                for email in search_profile.organization_emails:
+                for email in all_emails:
                     user = await UserService.get_by_email(email)
                     report_in_user_lang = (
                         EmailService._get_report_in_user_language(
@@ -366,7 +371,10 @@ class EmailService:
                     )
                     report = report_in_user_lang["report"]
                     presigned_url = report_in_user_lang["presigned_url"]
-                    dashboard_url = report_in_user_lang["dashboard_url"]
+                    if email in search_profile.organization_emails:
+                        dashboard_url = report_in_user_lang["dashboard_url"]
+                    else:
+                        dashboard_url = None
 
                     if user and user.language in Language._value2member_map_:
                         translator_language = user.language
