@@ -62,7 +62,7 @@ The dashboard serves as the main entry point into the MediaMind web application.
 
 #### Edit / Create Search Profiles
 
-The profile cards provide shortcuts for deleting and editing the respective profile or accessing the [Report Download Center](#download-center). Profile creating is also handle through the dashboard via the "Plus" icon next to the "Profile" header.
+The profile cards provide shortcuts for deleting and editing the respective profile or accessing the [Report Download Center](#download-center). Profile creating is also handled through the dashboard via the "Plus" icon next to the "Profile" header.
 
 <img src="assets/profile-options.png" alt="Profile Options" width="200">
 
