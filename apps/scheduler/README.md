@@ -69,6 +69,25 @@ around the `rq-scheduler` package.
 
 _Note:_ for the scheduler to work, you need to have a Redis server running.
 
+Schedule a periodic job:
+
+```python
+from app.services.scheduler import SchedulerService
+
+SchedulerService.schedule_periodic(
+    id=UUID("cc1dface-9213-4eed-8cb2-0edba6b2159c"),
+    interval=60,  # Runs every 60 seconds
+    func=my_function,
+    args=(arg1, arg2),
+)
+```
+On periodic jobs, we must provide a unique `id` (uuidv4) to identify
+the job. This is needed that the job is not scheduled multiple times
+when restarting the service.
+Another important note is that the `interval` parameter is in seconds, and
+by convention your code should avoid scheduling a job if the interval is
+negative. You should also make sure to let the user customize the interval
+using environment variables.
 
 Schedule a job to run immediately:
 
@@ -93,18 +112,9 @@ SchedulerService.schedule_at(
     args=(arg1, arg2),
 )
 ```
+**NOTE**: The `execution_time` is a timezone-aware `datetime` object. 
+Please always use UTC for the `execution_time` to avoid issues with timezones.
 
-Schedule a periodic job:
-
-```python
-from app.services.scheduler import SchedulerService
-
-SchedulerService.schedule_periodic(
-    interval=60,  # Runs every 60 seconds
-    func=my_function,
-    args=(arg1, arg2),
-)
-```
 
 Async jobs can also be scheduled, but they need to be wrapped in a synchronous
 function:
@@ -155,3 +165,20 @@ The flow is as follows:
    scheduled jobs. When it finds a job that is due to be executed, it moves the
    job to another Redis queue, containing jobs that are ready to be executed.
 3. Finally, the worker consumes the jobs from the execution queue and executes them.
+
+## How to debug?
+
+To debug the job scheduling process, you can use the [rq-dashboard](https://github.com/Parallels/rq-dashboard)
+package. You can install it with:
+
+```bash
+pip install rq-dashboard
+```
+
+Then, you can run the dashboard with:
+
+```bash
+rq-dashboard
+```
+
+Make sure the dashboard is running on the same Redis server as the scheduler and worker.
