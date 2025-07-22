@@ -1,11 +1,11 @@
-from uuid import UUID, uuid4
+from uuid import uuid4
 
 from sqlmodel import Field, SQLModel
 
 
 class BreakingNews(SQLModel, table=False):
-    id: UUID = Field(
-        default_factory=uuid4,
+    id: str = Field(
+        default_factory=lambda: str(uuid4()),
         primary_key=True,
         index=True,
     )
