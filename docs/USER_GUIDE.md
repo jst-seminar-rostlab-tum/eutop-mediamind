@@ -115,7 +115,7 @@ There are two kinds of preferences which should be maintained on an organisation
 
 You can decide via a true/false toggle, whether you want to receive the daily report as pdf directly via email or as a signed link (which is valid for a week and can be regenerated in the webapps Download Center) to the pdf.
 
-The second option is, that you need to select from which subscriptions/domains the full text will be sent to your organisations internal emails.
+The second option allows you to specify for which sources your organization holds a valid subscription. The full article content will be included in internal emails and in the webapp for the selected sources.
 
 > Legal notice: Although it is possible to select subscriptions even if your organisation does not have a valid subscription/account for this domain, this is legally forbidden.
 > Only select domains, where your organisation has a valid subscription!
