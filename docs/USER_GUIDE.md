@@ -49,8 +49,10 @@ To use MediaMind, users must first create an account and be assigned to an organ
 
 ## Webapp Features
 
-The webapps main purpose is to administrate the preferences of users, organisations & search-profiles.
-But additional also results are served to the user and can be looked through. The folllwing views are available.
+The webapp's main purpose is to administrate the preferences of users, organisations, and search profiles.
+Additionally, matched results are also served to the user and can be browsed within the application.
+Everything sent by email is also accessible through the webapp, except chatbot conversations.
+The following views are available:
 
 ### Dashboard
 
