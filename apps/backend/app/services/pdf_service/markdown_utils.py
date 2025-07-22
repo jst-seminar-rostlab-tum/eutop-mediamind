@@ -20,7 +20,7 @@ def markdown_to_html(text: str) -> str:
     # To avoid nested/overlapping tags, parse markdown in order:
     # bold-italic, bold, italic, and do not allow overlapping
     # Replace bold-italic (***text*** or ___text___)
-    text = re.sub(r"(\*\*\*|___)(.+?)(\1)", r"<b><i>\2</i></b>", text)
+    text = re.sub(r"(\*\*\*\*|___)(.+?)(\1)", r"<b><i>\2</i></b>", text)
     # Replace bold (**text** or __text__)
     text = re.sub(r"(\*\*|__)(.+?)(\1)", r"<b>\2</b>", text)
     # Replace italic (*text* or _text_)

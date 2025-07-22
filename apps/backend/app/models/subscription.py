@@ -1,7 +1,8 @@
 import uuid
+from datetime import datetime
 from typing import TYPE_CHECKING, Any, List, Optional
 
-from sqlalchemy import JSON, Column
+from sqlalchemy import JSON, TIMESTAMP, Column
 from sqlmodel import Boolean, Field, Relationship, SQLModel
 
 from app.models.associations import (
@@ -91,6 +92,15 @@ class Subscription(SQLModel, table=True):
             "for this subscription. Contains the Class and the "
             "config to initialize the Scraper",
         ),
+    )
+
+    llm_login_attempt: Optional[datetime] = Field(
+        sa_column=Column(
+            TIMESTAMP(timezone=True),
+            nullable=True,
+            default=None,
+            comment="Last time the LLM approach was attempted",
+        )
     )
 
     # Relationships
