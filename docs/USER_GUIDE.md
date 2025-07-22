@@ -43,7 +43,7 @@ To use MediaMind, users must first create an account and be assigned to an organ
 
 | Access | Description                                                                                                                                                          |
 | ------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Owner  | Owner of the profile (only one possible). The owner can read/edit the profile and transfer ownership to another member (maintainer & admin are treated like owners). |
+| Owner  | Each profile has exactly one owner. The owner can view and edit the profile as well as transfer ownership to another user. Users with the roles Maintainer or Admin can also do everything an owner can. |
 | Write  | Same rights as the owner without the option to transfer ownership.                                                                                                   |
 | Read   | They can only see the profile, meaning see which topics are chosen and read the matched articles together with the topics & keywords which caused the match.         |
 
