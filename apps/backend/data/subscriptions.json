@@ -466,7 +466,7 @@
     "paywall": true,
     "is_active": true,
     "login_config": {
-      "iframe_cookies": "//iframe[@id='sp_message_iframe_1251936']",
+      "iframe_cookies": "//iframe[@id='sp_message_iframe_1251936']", 
       "cookies_button": "//button[contains(text(), 'Alle akzeptieren')]",
       "login_button": "//div[@data-testid='accountLinks']/button[@title='Klicken Sie hier um sich anzumelden']",
       "iframe_credentials": "//iframe[starts-with(@id, 'piano-id-')]",
@@ -514,17 +514,17 @@
     "paywall": true,
     "is_active": true,
     "login_config": {
-      "iframe_cookies": "//iframe[@id='sp_message_iframe_1253152']",
-      "cookies_button": "//button[normalize-space()='Zustimmen']",
-      "refuse_notifications": "//button[contains(@class, 'cleverpush-confirm-btn-deny')]",
-      "path_to_login_button": "//button[@aria-label='Profil']",
-      "login_button": "//button[contains(text(), 'Einloggen')]",
-      "iframe_credentials": "//iframe[starts-with(@id, 'piano-id-')]",
-      "user_input": "//input[@name='email']",
-      "password_input": "//input[@aria-label='password']",
-      "submit_button": "//button[.//t[text()='Anmelden']]",
-      "profile_section": "//button[@aria-label='Profil']",
-      "logout_button": "//button[contains(@class, 'piano-button__logout')]"
+        "iframe_cookies": "//iframe[@id='sp_message_iframe_1336816']",
+        "cookies_button": "//button[normalize-space()='Zustimmen']",
+        "refuse_notifications": "//button[contains(@class, 'cleverpush-confirm-btn-deny')]",
+        "path_to_login_button": "//button[@aria-label='Profil']",
+        "login_button": "//button[contains(text(), 'Einloggen')]",
+        "iframe_credentials": "//iframe[starts-with(@id, 'piano-id-')]",
+        "user_input": "//input[@name='email']",
+        "password_input": "//input[@aria-label='password']",
+        "submit_button": "//button[.//t[text()='Anmelden']]",
+        "profile_section": "//button[@aria-label='Profil']",
+        "logout_button": "//button[contains(@class, 'piano-button__logout')]"
     },
     "crawlers": {
       "NewsAPICrawler": {

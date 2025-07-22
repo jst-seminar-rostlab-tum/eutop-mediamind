@@ -21,7 +21,7 @@ class ArticleMatchingService:
         self.article_vector_service = ArticleVectorService()
         self.logger = get_logger(__name__)
         self.weights = {"topic": 0.7, "keyword": 0.3}
-        self.topic_score_threshold = 0.7
+        self.topic_score_threshold = 0.5
         self.keyword_score_threshold = 0.1
 
     async def process_article_matching_for_search_profile(
@@ -217,28 +217,46 @@ class ArticleMatchingService:
 
             for _, (art_id, topic_id, score) in enumerate(matches):
                 # Check if match already exists for this profile and article
-                if await MatchRepository.match_exists(
-                    session, profile_id, art_id
-                ):
-                    skipped_count += 1
+                self.logger.debug(
+                    f"Checking if match exists for profile {profile_id} "
+                    f"and article {art_id}"
+                )
+                try:
+                    if await MatchRepository.match_exists(
+                        session, profile_id, art_id
+                    ):
+                        skipped_count += 1
+                        self.logger.debug(
+                            f"Skipping article {art_id} for "
+                            f"profile {profile_id} - match already exists"
+                        )
+                        continue
+
                     self.logger.debug(
-                        f"Skipping article {art_id} for "
-                        f"profile {profile_id} - match already exists"
+                        f"Inserting match for profile {profile_id} "
+                        f"and article {art_id}"
+                    )
+                    entry = next(
+                        r for r in results if r["article_id"] == art_id
+                    )
+                    match = Match(
+                        article_id=art_id,
+                        search_profile_id=profile_id,
+                        topic_id=topic_id,
+                        sorting_order=inserted_count,
+                        comment=json.dumps(entry, default=str),
+                        score=score,
+                        matching_run_id=matching_run.id,
+                    )
+
+                    await MatchRepository.insert_match(match, session)
+                    inserted_count += 1
+                except Exception as e:
+                    self.logger.error(
+                        f"Error inserting match for profile {profile_id} "
+                        f"and article {art_id}: {e}"
                     )
                     continue
-
-                entry = next(r for r in results if r["article_id"] == art_id)
-                match = Match(
-                    article_id=art_id,
-                    search_profile_id=profile_id,
-                    topic_id=topic_id,
-                    sorting_order=inserted_count,
-                    comment=json.dumps(entry, default=str),
-                    score=score,
-                    matching_run_id=matching_run.id,
-                )
-                await MatchRepository.insert_match(match, session)
-                inserted_count += 1
 
             self.logger.info(
                 f"Profile {profile_id}: "
