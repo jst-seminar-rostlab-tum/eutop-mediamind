@@ -1,15 +1,18 @@
 # 1%
-from app.services.pdf_service import summaries_elements
 from reportlab.lib.styles import getSampleStyleSheet
+
+from app.services.pdf_service import summaries_elements
+
 
 class DummyNews:
     def __init__(self):
-        self.title = 'title'
-        self.url = 'http://test.com'
-        self.newspaper = type('np', (), {'name': 'np'})()
-        self.summary = 'summary'
-        self.published_at = '2025-01-01'
+        self.title = "title"
+        self.url = "http://test.com"
+        self.newspaper = type("np", (), {"name": "np"})()
+        self.summary = "summary"
+        self.published_at = "2025-01-01"
         self.id = 1
+
 
 def test_create_summaries_elements():
     news_items = [DummyNews()]
@@ -25,5 +28,7 @@ def test_create_summaries_elements():
         "link_style": sample_styles["Normal"],
     }
     pdf_colors = {"main": "black"}
-    elements = summaries_elements.create_summaries_elements(news_items, dimensions, translator, styles, pdf_colors)
+    elements = summaries_elements.create_summaries_elements(
+        news_items, dimensions, translator, styles, pdf_colors
+    )
     assert isinstance(elements, list)
