@@ -1,4 +1,5 @@
 import os
+import re
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from email.mime.application import MIMEApplication
@@ -17,6 +18,7 @@ from app.core.logger import get_logger
 from app.models.breaking_news import BreakingNews
 from app.models.email import Email, EmailState
 from app.models.user import Gender
+from app.repositories.chatbot_repository import ChatbotRepository
 from app.repositories.email_repository import EmailRepository
 from app.repositories.organization_repository import OrganizationRepository
 from app.services.s3_service import get_s3_service
@@ -128,6 +130,15 @@ class EmailService:
                 )
 
     @staticmethod
+    def extract_conversation_id_from_subject(subject: str) -> UUID | None:
+        """Extracts the conversation ID from the email subject."""
+        conversation_id_match = re.search(r"\[([^\[\]]+)\]", subject)
+        if conversation_id_match is None:
+            return None
+        else:
+            return UUID(conversation_id_match.group(1))
+
+    @staticmethod
     async def send_email(
         email: Email,
         pdf_bytes: bytes | None = None,
@@ -136,10 +147,23 @@ class EmailService:
         Create email message, load attachments if any,
         and send email using SMTP.
         """
+        email_conversation_id = (
+            EmailService.extract_conversation_id_from_subject(email.subject)
+        )
+        if email_conversation_id is None:
+            email_conversation = await ChatbotRepository.create_conversation(
+                user_email=email.recipient,
+                subject=email.subject,
+                report_id=email.report_id,
+            )
+            subject = f"{email.subject} [{email_conversation.id}]"
+        else:
+            subject = email.subject
+
         msg = MIMEMultipart("alternative")
         msg["From"] = email.sender
         msg["To"] = email.recipient
-        msg["Subject"] = email.subject
+        msg["Subject"] = subject
 
         html = MIMEText(email.content, "html")
         msg.attach(html)
