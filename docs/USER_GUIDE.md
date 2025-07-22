@@ -68,7 +68,7 @@ The profile cards provide shortcuts for deleting and editing the respective prof
 
 ### Search Profile Overview
 
-This view contains a filter bar and a listing of all articles that were matched with your Search Profile. Each Article has an overall relevance score based on all topics of your profile and an additional matching score for each single topic. With the search bar you can also directly search in the Vector Database for similar articles to your input. The search bar, per default, sorts based on relevance, all sources and topics are included and the timeframe is this day today.
+This view contains a filter menu and a listing of all articles that were matched with your Search Profile. Each Article has an overall relevance score based on all topics of your profile and an additional matching score for each single topic. With the search bar you can also directly semantically search the Vector Database for similar articles to your input. Results are, per default, sorted by their overall relevance.
 
 <img src="assets/search-profile-overview.png" alt="Search Profile Overview" width="800">
 
