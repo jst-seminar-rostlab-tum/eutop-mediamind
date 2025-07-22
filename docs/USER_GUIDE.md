@@ -10,7 +10,7 @@ This guide will introduce the most important concepts, as well as a rough overvi
 
 #### Search Profile
 
-A search profile is a specification of topics and keywords by the user, to receive daily reports about articles, which have been published and are matched to the interests of this search profile.
+A search profile is a specification of topics and keywords that define the user’s areas of interest. Based on this specification, MediaMind delivers daily reports containing relevant articles.
 
 #### Topics & Keywords
 
