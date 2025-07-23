@@ -77,25 +77,50 @@ def parse_markdown_blocks(text: str):
     ol_pattern = re.compile(r"^\s*(\d+)\.\s+(.*)")
     heading_pattern = re.compile(r"^(#+)\s+(.*)")
 
+    ol_start = None
     for line in lines + [None]:  # Add None to flush last block
+        heading_match = heading_pattern.match(line) if line else None
+        ul_match = ul_pattern.match(line) if line else None
+        ol_match = ol_pattern.match(line) if line else None
+
         if line is None or re.match(r"^\s*$", line):
             _flush_paragraph(paragraph, blocks)
             if list_items:
-                blocks.append((list_items, list_type))
+                if list_type == "ol":
+                    blocks.append(
+                        (
+                            (
+                                list_items,
+                                ol_start if ol_start is not None else 1,
+                            ),
+                            list_type,
+                        )
+                    )
+                else:
+                    blocks.append((list_items, list_type))
                 list_items = []
                 list_type = None
+                ol_start = None
             continue
-
-        heading_match = heading_pattern.match(line)
-        ul_match = ul_pattern.match(line)
-        ol_match = ol_pattern.match(line)
 
         if heading_match:
             _flush_paragraph(paragraph, blocks)
             if list_items:
-                blocks.append((list_items, list_type))
+                if list_type == "ol":
+                    blocks.append(
+                        (
+                            (
+                                list_items,
+                                ol_start if ol_start is not None else 1,
+                            ),
+                            list_type,
+                        )
+                    )
+                else:
+                    blocks.append((list_items, list_type))
                 list_items = []
                 list_type = None
+                ol_start = None
             hashes, heading_text = heading_match.groups()
             level = len(hashes)
             style_key = f"h{level}"
@@ -103,22 +128,61 @@ def parse_markdown_blocks(text: str):
         elif ul_match:
             _flush_paragraph(paragraph, blocks)
             if list_type not in (None, "ul"):
-                blocks.append((list_items, list_type))
+                if list_type == "ol":
+                    blocks.append(
+                        (
+                            (
+                                list_items,
+                                ol_start if ol_start is not None else 1,
+                            ),
+                            list_type,
+                        )
+                    )
+                else:
+                    blocks.append((list_items, list_type))
                 list_items = []
+                ol_start = None
             list_type = "ul"
             list_items.append(ul_match.group(2).strip())
         elif ol_match:
             _flush_paragraph(paragraph, blocks)
             if list_type not in (None, "ol"):
-                blocks.append((list_items, list_type))
+                if list_type == "ol":
+                    blocks.append(
+                        (
+                            (
+                                list_items,
+                                ol_start if ol_start is not None else 1,
+                            ),
+                            list_type,
+                        )
+                    )
+                else:
+                    blocks.append((list_items, list_type))
                 list_items = []
+                ol_start = None
             list_type = "ol"
+            number = int(ol_match.group(1))
+            if ol_start is None:
+                ol_start = number
             list_items.append(ol_match.group(2).strip())
         else:
             if list_items:
-                blocks.append((list_items, list_type))
+                if list_type == "ol":
+                    blocks.append(
+                        (
+                            (
+                                list_items,
+                                ol_start if ol_start is not None else 1,
+                            ),
+                            list_type,
+                        )
+                    )
+                else:
+                    blocks.append((list_items, list_type))
                 list_items = []
                 list_type = None
+                ol_start = None
             paragraph.append(line)
     return blocks
 
@@ -131,9 +195,23 @@ def markdown_blocks_to_paragraphs(text: str, styles):
     blocks = parse_markdown_blocks(text)
     paragraphs = []
     for content, style_key in blocks:
-        if style_key in ("ul", "ol"):
-            # Render list items as ListFlowable
-            bulletType = "bullet" if style_key == "ul" else "1"
+        if style_key == "ol":
+            # content is a tuple: (list_items, start)
+            list_items, start = content
+            items = [
+                ListItem(
+                    Paragraph(markdown_to_html(item), styles["content_style"])
+                )
+                for item in list_items
+            ]
+            paragraphs.append(
+                ListFlowable(
+                    items,
+                    bulletType="1",
+                    start=start,
+                )
+            )
+        elif style_key == "ul":
             items = [
                 ListItem(
                     Paragraph(markdown_to_html(item), styles["content_style"])
@@ -143,8 +221,7 @@ def markdown_blocks_to_paragraphs(text: str, styles):
             paragraphs.append(
                 ListFlowable(
                     items,
-                    bulletType=bulletType,
-                    start="1" if style_key == "ol" else None,
+                    bulletType="bullet",
                 )
             )
         else:
