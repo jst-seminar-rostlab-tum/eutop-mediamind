@@ -88,24 +88,24 @@ class SchedulerService:
         """
         # Calculate seconds in a day
         seconds_in_day = 24 * 60 * 60
-        
+
         # Get current time
         now = datetime.now(timezone.utc)
-        
+
         # Schedule for each time
         for i, time_str in enumerate(times):
             try:
-                hour, minute = map(int, time_str.split(':'))
-                
+                hour, minute = map(int, time_str.split(":"))
+
                 # Calculate next occurrence of this time today
                 target_time = now.replace(
                     hour=hour, minute=minute, second=0, microsecond=0
                 )
-                
+
                 # If the time has already passed today, schedule for tomorrow
                 if target_time <= now:
                     target_time += timedelta(days=1)
-                
+
                 # Schedule with daily interval, using unique ID for each time
                 unique_id = f"{id}_{i}"
                 self._scheduler.schedule(

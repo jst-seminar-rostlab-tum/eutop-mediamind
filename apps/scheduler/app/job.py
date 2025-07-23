@@ -16,19 +16,14 @@ def schedule_jobs(service: SchedulerService, cfg: Config) -> None:
             id=UUID("f47ac10b-58cc-4372-a567-0e02b2c3d479"),
             every_seconds=cfg.EMAIL_JOB_INTERVAL,
             func=job_request,
-            args=[f"{cfg.API_BASE_URL}/v1/jobs/email"]
+            args=[f"{cfg.API_BASE_URL}/v1/jobs/email"],
         )
 
     pipeline_schedule = {
-        cfg.PIPELINE_MORNING_TIME: {
-            "time_period": cfg.PIPELINE_MORNING_LABEL
-        },
-        cfg.PIPELINE_AFTERNOON_TIME: {
-            "time_period": cfg.PIPELINE_AFTERNOON_LABEL
-        },
-        cfg.PIPELINE_EVENING_TIME: {
-            "time_period": cfg.PIPELINE_EVENING_LABEL
-        }
+        cfg.PIPELINE_MORNING_TIME: {"time_period": cfg.PIPELINE_MORNING_LABEL},
+        cfg.PIPELINE_AFTERNOON_TIME: {"time_period":
+                                      cfg.PIPELINE_AFTERNOON_LABEL},
+        cfg.PIPELINE_EVENING_TIME: {"time_period": cfg.PIPELINE_EVENING_LABEL},
     }
 
     for i, (time, args_dict) in enumerate(pipeline_schedule.items()):
