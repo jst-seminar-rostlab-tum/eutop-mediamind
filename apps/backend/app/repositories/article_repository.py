@@ -1,4 +1,5 @@
 # flake8: noqa: E501
+import json
 import uuid
 from datetime import date, datetime
 from typing import List, Optional, Sequence
@@ -216,7 +217,6 @@ class ArticleRepository:
             last_matching_run = (
                 await MatchingRunRepository.get_last_matching_run(session)
             )
-
             if not last_matching_run:
                 return []
 
@@ -235,7 +235,7 @@ class ArticleRepository:
                     selectinload(Match.article).selectinload(
                         Article.subscription
                     ),
-                    selectinload(Match.article).selectinload(Article.keywords),
+                    selectinload(Match.article),
                 )
                 .where(
                     Match.matching_run_id == last_matching_run.id,
@@ -246,19 +246,47 @@ class ArticleRepository:
             )
             matches = (await session.execute(query)).scalars().all()
 
-            # Process articles to modify content for non-subscribed articles
             articles = []
             for match in matches:
-                if match.article is not None:
+                try:
+                    if match.article is None:
+                        logger.warning(
+                            f"Match {getattr(match, 'id', None)} has no article."
+                        )
+                        continue
                     article = match.article
-                    # If article's subscription is not
-                    # linked to the search profile, modify content
-                    if article.subscription_id not in linked_subscription_ids:
+                    # Parse topics/keywords from match.comment JSON
+                    topics_data = []
+                    if match.comment:
+                        try:
+                            comment_data = json.loads(match.comment)
+                            topics_data = comment_data.get("topics", [])
+                        except Exception as e:
+                            logger.warning(
+                                f"Could not parse comment JSON for match {getattr(match, 'id', None)}: {e}. Raw comment: {match.comment}"
+                            )
+                    # Always attach topics_data to the article, even if empty, using object.__setattr__ for SQLModel compatibility
+                    try:
+                        object.__setattr__(article, "topics_data", topics_data)
+                    except Exception as e:
+                        logger.error(
+                            f"Failed to set topics_data on article {getattr(article, 'id', None)}: {e}"
+                        )
+                    # If article's subscription is not linked, blank out content
+                    if (
+                        hasattr(article, "subscription_id")
+                        and article.subscription_id
+                        not in linked_subscription_ids
+                    ):
                         article.content = ""
                         article.content_en = ""
                         article.content_de = ""
                     articles.append(article)
-
+                except Exception as e:
+                    logger.error(
+                        f"Error processing match {getattr(match, 'id', None)}: {e}"
+                    )
+                    continue
             return articles
 
     @staticmethod
