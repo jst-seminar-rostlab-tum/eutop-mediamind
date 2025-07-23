@@ -247,10 +247,21 @@ class ArticleRepository:
             matches = (await session.execute(query)).scalars().all()
 
             # Eagerly load keywords for all articles
-            article_ids = [m.article.id for m in matches if m.article is not None]
+            article_ids = [
+                m.article.id for m in matches if m.article is not None
+            ]
             if article_ids:
-                article_query = select(Article).options(selectinload(Article.keywords)).where(Article.id.in_(article_ids))
-                article_map = {a.id: a for a in (await session.execute(article_query)).scalars().all()}
+                article_query = (
+                    select(Article)
+                    .options(selectinload(Article.keywords))
+                    .where(Article.id.in_(article_ids))
+                )
+                article_map = {
+                    a.id: a
+                    for a in (await session.execute(article_query))
+                    .scalars()
+                    .all()
+                }
             else:
                 article_map = {}
 
