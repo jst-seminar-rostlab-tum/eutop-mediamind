@@ -177,7 +177,7 @@ class SearchProfileService:
     async def _build_profile_response(
         profile: SearchProfile, current_user: UserEntity
     ) -> SearchProfileDetailResponse:
-        is_owner = profile.created_by_id == current_user.id
+        is_owner = profile.owner_id== current_user.id
 
         is_editor = (
             current_user.id == profile.owner_id
@@ -223,7 +223,7 @@ class SearchProfileService:
             id=profile.id,
             name=profile.name,
             is_public=profile.is_public,
-            owner_id=profile.created_by_id,
+            owner_id=profile.owner_id,
             is_owner=is_owner,
             can_read_user_ids=profile.can_read_user_ids,
             is_reader=is_reader,
