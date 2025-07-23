@@ -3,6 +3,10 @@ variable "service_name" { type = string }
 variable "container_image" { type = string }
 variable "redis_endpoint" { type = string }
 variable "api_base_url" { type = string }
+variable "pipeline_morning_time" { type = string }
+variable "pipeline_afternoon_time" { type = string }
+variable "pipeline_evening_time" { type = string }
+variable "breaking_news_job_interval" { type = string }
 variable "subnet_ids" { type = list(string) }
 variable "vpc_id" { type = string }
 variable "region" { type = string }
@@ -58,10 +62,10 @@ resource "aws_ecs_task_definition" "app" {
         { name = "SCHEDULER_INTERVAL", value = "60" },
         { name = "EMAIL_JOB_INTERVAL", value = "30" },
         { name = "RSS_JOB_INTERVAL", value = "1800" },
-        { name = "BREAKING_NEWS_JOB_INTERVAL", value = "3600" },
-        { name = "PIPELINE_MORNING_TIME", value = "10:00" },
-        { name = "PIPELINE_AFTERNOON_TIME", value = "16:00" },
-        { name = "PIPELINE_EVENING_TIME", value = "21:00" },
+        { name = "BREAKING_NEWS_JOB_INTERVAL", value = var.breaking_news_job_interval },
+        { name = "PIPELINE_MORNING_TIME", value = var.pipeline_morning_time },
+        { name = "PIPELINE_AFTERNOON_TIME", value = var.pipeline_afternoon_time },
+        { name = "PIPELINE_EVENING_TIME", value = var.pipeline_evening_time },
         { name = "PIPELINE_MORNING_LABEL", value = "morning" },
         { name = "PIPELINE_AFTERNOON_LABEL", value = "afternoon" },
         { name = "PIPELINE_EVENING_LABEL", value = "evening" },
