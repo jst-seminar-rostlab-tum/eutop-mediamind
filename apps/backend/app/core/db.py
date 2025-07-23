@@ -69,7 +69,7 @@ def get_qdrant_connection() -> QdrantClient:
         client = QdrantClient(
             url=configs.QDRANT_URL,
             api_key=configs.QDRANT_API_KEY,
-            timeout=30 # seconds
+            timeout=30,  # seconds
         )
         return client
 
