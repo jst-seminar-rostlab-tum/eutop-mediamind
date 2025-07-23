@@ -1,31 +1,44 @@
 # Crawling
 
-Crawlers can be of the following types:
+Crawlers can be categorized as follows:
 
-* NewsAPICrawler: uses NewsAPI to obtain the articles. It is defined as a json with the following structure:
+### 1. NewsAPICrawler
+
+This crawler uses NewsAPI to fetch articles. It is configured using a JSON structure:
+
 ```json
 {
     "NewsAPICrawler": {
         "filter_category": <boolean>,
-        "include_blogs": <boolean>, 
+        "include_blogs": <boolean>,
         "sourceUri": <newspaper_domain>
     }
 }
 ```
-* RSSFeedCrawler: this type of crawler uses RSS feeds to obtain the articles' links. It is defined as a json as well:
+
+### 2. RSSFeedCrawler
+
+This crawler retrieves article links from RSS feeds. Its configuration is also defined in JSON:
+
 ```json
 {
     "RSSFeedCrawler": {
-        "feed_urls": <strings_list_with_RSS_feed_links>, 
+        "feed_urls": <list_of_RSS_feed_links>,
         "language": <language_code>
     }
 }
 ```
-The json defining the crawler must be stored for each active subscription in the database.
 
-For newspapers not supported by NewsAPI and without RSS feeds we define the following custom crawler types:
-* FtCrawler
-* HandelsblattCrawler
-* EnhesaCrawler
+The crawler configuration JSON must be stored in the database for each active subscription.
 
-After the crawling is finished, the articles are inserted in the database, without their content and with their status set to NEW.
+After crawling, articles are inserted into the database without their content, and their status is set to `NEW`.
+
+### 3. Custom Crawlers
+
+For newspapers that are not supported by NewsAPI, do not provide RSS feeds, or where the login and scraping process does not work as expected, the following custom crawler types are defined:
+
+- `HandelsblattCrawler`
+- `EnhesaCrawler`
+- `EuramsCrawler`
+
+Every custom crawler is defined for a specific domain, and based on crawl4ai. These custom crawlersc can handle login, crawling, and scraping. Since the website structures are suitable, no additional data cleaning is required. After processing, articles are stored directly in the database with the status `SCRAPED`, as the scraping step is already integrated.
