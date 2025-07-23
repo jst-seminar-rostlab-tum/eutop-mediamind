@@ -2,7 +2,7 @@ from datetime import datetime
 
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import ParagraphStyle
-from reportlab.lib.units import inch
+from reportlab.lib.units import inch, cm
 from reportlab.platypus import Paragraph, Table, TableStyle
 
 from .colors import pdf_colors
@@ -43,7 +43,7 @@ def draw_header_footer(canvas, doc, translator):
         )
     )
     table.wrapOn(canvas, width, height)
-    table.drawOn(canvas, inch, height - inch + 20)
+    table.drawOn(canvas, inch, height - inch + 20 + .5 * cm)
 
     # --- Draw page number in footer ---
     canvas.setFont("Regular", 10)
