@@ -558,7 +558,14 @@ class SearchProfileService:
                 "de": None,
                 "en": None,
             }
-
+        publisher = None
+        if article.subscription_id:
+            async with async_session() as session:
+                subscription = await SubscriptionRepository.get_by_id(
+                    subscription_id=article.subscription_id, session=session
+                )
+                if subscription:
+                    publisher = subscription.name
         return MatchDetailResponse(
             match_id=match.id,
             topics=topics,
@@ -582,6 +589,7 @@ class SearchProfileService:
                 categories=article.categories or [],
                 language=article.language,
                 newspaper_id=article.subscription_id,
+                publisher=publisher,
             ),
             entities=entities_dict,
         )
