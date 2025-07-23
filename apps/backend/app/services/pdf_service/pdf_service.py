@@ -77,7 +77,7 @@ class PDFService:
             )
             # Obtain translator for the specified language
             if timeslot not in ["morning", "afternoon", "evening"]:
-                logger.info(
+                logger.error(
                     "Invalid timeslot. Must be one of: ['morning', 'afternoon',"
                     " 'evening']"
                 )
