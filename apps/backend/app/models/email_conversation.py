@@ -1,6 +1,6 @@
-import uuid
 from datetime import datetime, timezone
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING, List, Optional
+from uuid import UUID, uuid4
 
 from sqlalchemy import TIMESTAMP, Column, func
 from sqlmodel import Field, Relationship, SQLModel
@@ -17,23 +17,23 @@ class EmailConversation(SQLModel, table=True):
 
     __tablename__ = "email_conversations"
 
-    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    id: UUID = Field(default_factory=uuid4, primary_key=True)
     subject: str = Field(max_length=500, nullable=False)
     user_email: str = Field(max_length=255, nullable=False, index=True)
     created_at: datetime = Field(
+        default_factory=lambda: datetime.now(timezone.utc),
         sa_column=Column(
             TIMESTAMP(timezone=True),
             nullable=False,
-            default=datetime.now(timezone.utc),
-        )
+        ),
     )
     updated_at: datetime = Field(
+        default_factory=lambda: datetime.now(timezone.utc),
         sa_column=Column(
             TIMESTAMP(timezone=True),
             nullable=False,
-            default=datetime.now(timezone.utc),
             onupdate=func.now(),
-        )
+        ),
     )
-    report_id: uuid.UUID = Field(foreign_key="reports.id", nullable=True)
+    report_id: Optional[UUID] = Field(foreign_key="reports.id", nullable=True)
     messages: List["ChatMessage"] = Relationship(back_populates="conversation")

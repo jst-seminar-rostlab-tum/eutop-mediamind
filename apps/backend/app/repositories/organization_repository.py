@@ -1,7 +1,7 @@
 from typing import List
 from uuid import UUID
 
-from sqlalchemy import delete, select
+from sqlalchemy import delete, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -28,7 +28,6 @@ class OrganizationRepository:
         subscriptions: List[SubscriptionSummary],
         session: AsyncSession,
     ) -> None:
-        # Get current subscription IDs for the organization
         result = await session.execute(
             select(OrganizationSubscriptionLink.subscription_id).where(
                 OrganizationSubscriptionLink.organization_id == organization_id
@@ -47,22 +46,21 @@ class OrganizationRepository:
             if not s.is_subscribed and s.id in current_sub_ids
         }
 
-        # Add new
         for sub_id in to_add:
             session.add(
                 OrganizationSubscriptionLink(
-                    organization_id=organization_id, subscription_id=sub_id
+                    organization_id=organization_id,
+                    subscription_id=sub_id,
                 )
             )
 
-        # Remove old
         if to_remove:
             await session.execute(
                 delete(OrganizationSubscriptionLink).where(
                     OrganizationSubscriptionLink.organization_id
                     == organization_id,
                     OrganizationSubscriptionLink.subscription_id.in_(
-                        List[to_remove]
+                        list(to_remove)
                     ),
                 )
             )
@@ -172,7 +170,12 @@ class OrganizationRepository:
                     SearchProfile,
                     Organization.id == SearchProfile.organization_id,
                 )
-                .where(SearchProfile.organization_emails.any(recipient_email))
+                .where(
+                    or_(
+                        SearchProfile.organization_emails.any(recipient_email),
+                        SearchProfile.profile_emails.any(recipient_email),
+                    )
+                )
             )
             result = await session.execute(query)
             pdf_as_link = result.scalar()

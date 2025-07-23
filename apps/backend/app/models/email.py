@@ -20,7 +20,6 @@ class EmailState(Enum):
 class Email(SQLModel, table=True):
     __tablename__ = "emails"
 
-    # Attributes
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     sender: str = Field(max_length=255, nullable=False)
     recipient: str = Field(max_length=255, nullable=False)
@@ -33,20 +32,22 @@ class Email(SQLModel, table=True):
         default_factory=dict, sa_column=Column(JSON)
     )
     created_at: datetime = Field(
+        default_factory=lambda: datetime.now(timezone.utc),
         sa_column=Column(
             TIMESTAMP(timezone=True),
             nullable=False,
-            default=datetime.now(timezone.utc),
-        )
+        ),
     )
     update_at: datetime = Field(
+        default_factory=lambda: datetime.now(timezone.utc),
         sa_column=Column(
             TIMESTAMP(timezone=True),
             nullable=False,
-            default=datetime.now(timezone.utc),
-        )
+        ),
     )
-    report_id: uuid.UUID = Field(foreign_key="reports.id", nullable=True)
+    report_id: Optional[uuid.UUID] = Field(
+        foreign_key="reports.id", nullable=True
+    )
     report: Optional["Report"] = Relationship(back_populates="emails")
 
     def add_error(self, error: str):

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Breaking News Alert</title>
+    <title>{{ title }}</title>
     <style>
         @media only screen and (max-width: 650px) {
             .main-table {
@@ -123,7 +123,7 @@
                     letter-spacing: 1px;
                   "
                         >
-                            🚨 BREAKING NEWS ALERT
+                            🚨 {{ title_big }}
                         </p>
                     </td>
                 </tr>
@@ -191,7 +191,7 @@
                         font-weight: 500;
                       "
                                 >
-                                    Published: {{ news_date }}
+                                    {{ Published }}: {{ news_date }}
                                 </p>
                             </div>
 
@@ -222,7 +222,7 @@
                                         href="{{ news_url }}"
                                         target="_blank"
                                 >
-                                    Read Full Article
+                                    {{ read_full }}
                                 </a>
                             </div>
 
@@ -236,8 +236,7 @@
                       border-top: 1px solid #e9ecef;
                     "
                             >
-                                If the button above doesn't work, copy and paste this URL
-                                into your browser:<br/>
+                                {{ text_1 }}:<br/>
                                 <span
                                         style="
                         font-size: 0.7em;
@@ -253,6 +252,21 @@
                                 >
                             </div>
                         </div>
+                        
+                        <!-- Disclaimer -->
+                        {% if disclaimer_text %}
+                        <div style="
+                            margin-top: 30px;
+                            padding-top: 20px;
+                            border-top: 1px solid #e9ecef;
+                            font-size: 0.85em;
+                            color: #6c757d;
+                            font-style: italic;
+                            line-height: 1.4;
+                        ">
+                            <p style="margin: 0;">{{ disclaimer_text }}</p>
+                        </div>
+                        {% endif %}
                     </td>
                 </tr>
                 <!-- Footer -->
@@ -282,7 +296,7 @@
                     margin: 0;
                   "
                         >
-                            Delivered by MediaMind
+                            {{ deliver_text }}
                         </p>
                     </td>
                 </tr>

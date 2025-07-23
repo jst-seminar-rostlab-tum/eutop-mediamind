@@ -1,7 +1,7 @@
 import uuid
 from typing import List, Optional
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import selectinload
 
 from app.core.db import async_session
@@ -11,18 +11,18 @@ from app.models.email_conversation import EmailConversation
 
 class ChatbotRepository:
     @staticmethod
-    async def get_conversation_by_email_and_subject(
-        user_email: str, subject: str
+    async def get_conversation_by_id_and_email(
+        conversation_id: uuid.UUID, user_email: str
     ) -> Optional[EmailConversation]:
         """
-        Find existing conversation by user email and subject.
+        Find existing conversation by conversation ID and user email.
         """
         query = (
             select(EmailConversation)
             .options(selectinload(EmailConversation.messages))
             .where(
+                EmailConversation.id == conversation_id,
                 EmailConversation.user_email == user_email,
-                EmailConversation.subject == subject,
             )
         )
         async with async_session() as session:
@@ -31,7 +31,9 @@ class ChatbotRepository:
 
     @staticmethod
     async def create_conversation(
-        user_email: str, subject: str, report_id: uuid.UUID
+        user_email: str,
+        subject: str,
+        report_id: Optional[uuid.UUID] = None,
     ) -> EmailConversation:
         """
         Create a new email conversation.
@@ -82,3 +84,17 @@ class ChatbotRepository:
         async with async_session() as session:
             chat_messages = await session.execute(query)
             return chat_messages.scalars().all()
+
+    @staticmethod
+    async def get_message_count(
+        email_conversation_id: uuid.UUID,
+    ) -> int:
+        """
+        Get the total number of messages in a conversation.
+        """
+        query = select(func.count(ChatMessage.id)).where(
+            ChatMessage.email_conversation_id == email_conversation_id
+        )
+        async with async_session() as session:
+            result = await session.execute(query)
+            return result.scalar() or 0

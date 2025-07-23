@@ -1,5 +1,5 @@
 import os
-import uuid
+import re
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from email.mime.application import MIMEApplication
@@ -7,6 +7,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from time import gmtime, strftime
 from typing import List
+from uuid import UUID
 
 from aiosmtplib import SMTP, SMTPResponseException
 from jinja2 import Environment, FileSystemLoader, select_autoescape
@@ -17,6 +18,7 @@ from app.core.logger import get_logger
 from app.models.breaking_news import BreakingNews
 from app.models.email import Email, EmailState
 from app.models.user import Gender
+from app.repositories.chatbot_repository import ChatbotRepository
 from app.repositories.email_repository import EmailRepository
 from app.repositories.organization_repository import OrganizationRepository
 from app.services.s3_service import get_s3_service
@@ -36,6 +38,7 @@ templates_env = Environment(
 @dataclass
 class EmailServer:
     hostname: str
+    sender: str
     port: int
     use_tls: bool
     user: str
@@ -48,7 +51,7 @@ class EmailSchedule:
     subject: str
     content: str
     content_type: str
-    report_id: uuid.UUID
+    report_id: UUID | None = None
 
 
 class EmailService:
@@ -59,10 +62,10 @@ class EmailService:
         subject: str,
         content_type: str,
         content: str,
-        report_id: uuid.UUID,
+        report_id: UUID | None = None,
     ) -> Email:
         email = Email(
-            sender=configs.SMTP_USER,
+            sender=configs.SMTP_FROM,
             recipient=recipient,
             subject=subject,
             content_type=content_type,
@@ -70,6 +73,17 @@ class EmailService:
             report_id=report_id,
         )
         return email
+
+    @staticmethod
+    def create_ses_email_server() -> EmailServer:
+        return EmailServer(
+            hostname=configs.SMTP_SERVER,
+            port=configs.SMTP_PORT,
+            use_tls=True,
+            user=configs.SMTP_USER,
+            password=configs.SMTP_PASSWORD,
+            sender=configs.SMTP_FROM,
+        )
 
     @staticmethod
     async def schedule_email(schedule: EmailSchedule) -> Email:
@@ -100,7 +114,7 @@ class EmailService:
                     if not pdf_as_link and email.report.s3_key
                     else None
                 )
-                await EmailService.send_ses_email(email, pdf_bytes)
+                await EmailService.send_email(email, pdf_bytes)
                 email.state = EmailState.SENT
                 await EmailRepository.update_email(email)
             except Exception as e:
@@ -116,31 +130,40 @@ class EmailService:
                 )
 
     @staticmethod
-    async def send_ses_email(email: Email, pdf_bytes: bytes | None = None):
-        """
-        Send an email using AWS SES SMTP credentials from the chatbot config.
-        """
-        email.sender = configs.CHAT_SMTP_FROM
-        email_server = EmailServer(
-            hostname=configs.CHAT_SMTP_SERVER,
-            port=configs.CHAT_SMTP_PORT,
-            use_tls=True,
-            user=configs.CHAT_SMTP_USER,
-            password=configs.CHAT_SMTP_PASSWORD,
-        )
-        await EmailService.__send_email(email, email_server, pdf_bytes)
+    def extract_conversation_id_from_subject(subject: str) -> UUID | None:
+        """Extracts the conversation ID from the email subject."""
+        conversation_id_match = re.search(r"\[([^\[\]]+)\]", subject)
+        if conversation_id_match is None:
+            return None
+        else:
+            return UUID(conversation_id_match.group(1))
 
     @staticmethod
-    async def __send_email(
+    async def send_email(
         email: Email,
-        email_server: EmailServer,
         pdf_bytes: bytes | None = None,
-        bcc_recipients: list[str] = [],
-    ):
+    ) -> None:
+        """
+        Create email message, load attachments if any,
+        and send email using SMTP.
+        """
+        email_conversation_id = (
+            EmailService.extract_conversation_id_from_subject(email.subject)
+        )
+        if email_conversation_id is None:
+            email_conversation = await ChatbotRepository.create_conversation(
+                user_email=email.recipient,
+                subject=email.subject,
+                report_id=email.report_id,
+            )
+            subject = f"{email.subject} [{email_conversation.id}]"
+        else:
+            subject = email.subject
+
         msg = MIMEMultipart("alternative")
         msg["From"] = email.sender
-        msg["To"] = email.recipient  # BCC not included in headers for privacy
-        msg["Subject"] = email.subject
+        msg["To"] = email.recipient
+        msg["Subject"] = subject
 
         html = MIMEText(email.content, "html")
         msg.attach(html)
@@ -151,13 +174,21 @@ class EmailService:
                 "Content-Disposition", "attachment", filename="report.pdf"
             )
             msg.attach(attachment)
-        all_recipients = [email.recipient] + (bcc_recipients)
+
+        await EmailService.__send_email(email=email, message=msg)
+
+    @staticmethod
+    async def __send_email(
+        email: Email,
+        message: MIMEMultipart,
+    ) -> None:
+        email_server = EmailService.create_ses_email_server()
         smtp_client = SMTP(
             hostname=email_server.hostname,
             port=email_server.port,
             use_tls=email_server.use_tls,
+            timeout=60,  # seconds
         )
-
         try:
             await smtp_client.connect()
             await smtp_client.login(email_server.user, email_server.password)
@@ -167,12 +198,12 @@ class EmailService:
             raise Exception(error_message)
         try:
             sendmail_response = await smtp_client.sendmail(
-                email.sender, all_recipients, msg.as_string()
+                email_server.sender, [email.recipient], message.as_string()
             )
         except SMTPResponseException as e:
             error_message = (
                 f"Failed to send email with id={email.id} to "
-                f"recipients={str(all_recipients)}: {str(e)}"
+                f"recipient={str([email.recipient])} with error: {str(e)}"
             )
             logger.error(error_message)
             raise Exception(error_message)
@@ -182,10 +213,10 @@ class EmailService:
             isinstance(sendmail_response, tuple)
             and sendmail_response[1].startswith("Ok")
         ):
-            error_msg = "Error sending email"
-            if bcc_recipients:
-                error_msg += " with BCC"
-            raise Exception(f"{error_msg}: {sendmail_response}")
+            raise Exception(
+                f"Error sending emails for recipient={str(email.recipient)}: "
+                f"{sendmail_response}"
+            )
 
     @staticmethod
     def _render_email_template(template_name: str, context: dict) -> str:
@@ -263,6 +294,7 @@ class EmailService:
                 "into your browser"
             ),
             "deliver_text": translator("Delivered by MediaMind"),
+            "disclaimer_text": EmailService.get_disclaimer_text(language),
             "pdf_as_link": pdf_as_link,
             "empty_pdf_text": translator(
                 "There are no news items that match your "
@@ -276,7 +308,11 @@ class EmailService:
         return EmailService._render_email_template(template_name, context)
 
     @staticmethod
-    def _build_breaking_news_email_content(news: BreakingNews) -> str:
+    def _build_breaking_news_email_content(
+        news: BreakingNews, language: str = Language.EN.value
+    ) -> str:
+        translator = ArticleTranslationService.get_translator(language)
+
         published_at_utc = news.published_at
         if isinstance(published_at_utc, str):
             published_at_utc = datetime.fromisoformat(published_at_utc)
@@ -294,6 +330,16 @@ class EmailService:
             "news_date": published_at,
             "news_url": news.url,
             "date_time": current_time,
+            "disclaimer_text": EmailService.get_disclaimer_text(language),
+            "title_big": translator("BREAKING NEWS ALERT"),
+            "title": translator("Breaking News Alert"),
+            "Published": translator("Published"),
+            "read_full": translator("Read Full Article"),
+            "text_1": translator(
+                "If the button above does not work, copy and paste this URL "
+                "into your browser"
+            ),
+            "deliver_text": translator("Delivered by MediaMind"),
         }
 
         template_name = "breaking_news_template.html"
@@ -334,8 +380,13 @@ class EmailService:
         for search_profile_id, reports in grouped_reports.items():
             search_profile = reports[0]["search_profile"]
             pdf_as_link = search_profile.organization.pdf_as_link
+            # Internal and external emails
+            all_emails = (
+                search_profile.organization_emails
+                + search_profile.profile_emails
+            )
             try:
-                for email in search_profile.organization_emails:
+                for email in all_emails:
                     user = await UserService.get_by_email(email)
                     report_in_user_lang = (
                         EmailService._get_report_in_user_language(
@@ -344,7 +395,10 @@ class EmailService:
                     )
                     report = report_in_user_lang["report"]
                     presigned_url = report_in_user_lang["presigned_url"]
-                    dashboard_url = report_in_user_lang["dashboard_url"]
+                    if email in search_profile.organization_emails:
+                        dashboard_url = report_in_user_lang["dashboard_url"]
+                    else:
+                        dashboard_url = None
 
                     if user and user.language in Language._value2member_map_:
                         translator_language = user.language
@@ -387,3 +441,30 @@ class EmailService:
             except Exception as e:
                 logger.error(f"Error in EmailService: {str(e)}")
                 continue
+
+    @staticmethod
+    def get_disclaimer_text(language: str = Language.EN.value) -> str:
+        translator = ArticleTranslationService.get_translator(language)
+        disclaimer_text = translator(
+            "Replies to this email are handled by an AI assistant. You can "
+            "reply with questions, but please avoid sharing personal or "
+            "sensitive information."
+        )
+        return disclaimer_text
+
+    @staticmethod
+    def get_disclaimer_html(language: str = Language.EN.value) -> str:
+        disclaimer_text = EmailService.get_disclaimer_text(language)
+        return f"""
+        <div style="
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e9ecef;
+            font-size: 0.85em;
+            color: #6c757d;
+            font-style: italic;
+            line-height: 1.4;
+        ">
+            <p style="margin: 0;">{disclaimer_text}</p>
+        </div>
+        """

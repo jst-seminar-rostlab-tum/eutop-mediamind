@@ -12,7 +12,7 @@ interface LocalizedString {
   [key: string]: string;
 }
 
-type EntityValue = string | LocalizedString;
+export type EntityValue = string | LocalizedString;
 
 interface EntityData {
   entities: { [key: string]: EntityValue[] };
@@ -62,11 +62,11 @@ export function ArticleEntities({ entities }: EntityData) {
               <AccordionItem key={key} value={key}>
                 <AccordionTrigger>
                   <div className={"flex gap-2"}>
-                    <text>
+                    <p>
                       {t(`article-page.${key}`, {
                         defaultValue: capitalize(key),
                       })}
-                    </text>
+                    </p>
                     <div
                       className={
                         "rounded-sm bg-gray-100 px-1.5 flex items-center justify-center"
