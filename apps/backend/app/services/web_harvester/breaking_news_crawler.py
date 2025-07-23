@@ -75,31 +75,29 @@ class BreakingNewsNewsAPICrawler:
                 titles = event.get("title")
                 summaries = event.get("summary")
 
-                # Detect language for title/summary
-                if "eng" in titles:
-                    title = titles["eng"]
-                    language = "en"
-                elif "deu" in titles:
-                    title = titles["deu"]
-                    language = "de"
-                else:
-                    title = None
-                    language = None
-
-                if "eng" in summaries:
-                    summary = summaries["eng"]
-                elif "deu" in summaries:
-                    summary = summaries["deu"]
-                else:
-                    summary = None
-
+                # Detect available languages for title/summary and build headline/summary dicts
+                headline = {}
+                summary_dict = {}
+                language = None
+                # Map eventregistry language codes to ISO
+                lang_map = {"eng": "en", "deu": "de"}
+                for lang_code, text in (titles or {}).items():
+                    iso_lang = lang_map.get(lang_code)
+                    if iso_lang:
+                        headline[iso_lang] = text
+                        if language is None:
+                            language = iso_lang  # Use first available as main language
+                for lang_code, text in (summaries or {}).items():
+                    iso_lang = lang_map.get(lang_code)
+                    if iso_lang:
+                        summary_dict[iso_lang] = text
                 relevance_score = event.get("breakingScore", 0.0)
                 # The API does not return datetime published_at
                 breaking_news = BreakingNews(
                     id=event.get("uri"),
-                    title=title,
+                    headline=headline or None,
+                    summary=summary_dict or None,
                     image_url=image,
-                    summary=summary,
                     relevance_score=relevance_score,
                     language=language,
                 )
@@ -237,13 +235,35 @@ async def fetch_breaking_news_newsapi():
             article = crawler.get_breaking_news_detail(article)
             if not article:
                 continue  # Newsapi sometimes returns empty articles
+            # Translate headline and summary to both EN and DE if not present
             try:
-                # if the article has high relevance score, send emails
+                # Ensure headline/summary dicts exist
+                if not article.headline:
+                    article.headline = {}
+                if not article.summary:
+                    article.summary = {}
+                
+                # Translate to English if missing
+                if "en" not in article.headline or "en" not in article.summary:
+                    translation_en = await ArticleTranslationService.translate_breaking_news_fields(article, Language.EN.value)
+                    if translation_en.get("headline"):
+                        article.headline["en"] = translation_en["headline"]
+                    if translation_en.get("summary"):
+                        article.summary["en"] = translation_en["summary"]
+
+                # Translate to German if missing
+                if "de" not in article.headline or "de" not in article.summary:
+                    translation_de = await ArticleTranslationService.translate_breaking_news_fields(article, Language.DE.value)
+                    if translation_de.get("headline"):
+                        article.headline["de"] = translation_de["headline"]
+                    if translation_de.get("summary"):
+                        article.summary["de"] = translation_de["summary"]
+                
+                # Send emails if high relevance
                 if article.relevance_score > 0.8:
                     crawler.logger.info(
                         f"Sending breaking news alert for article {article.id}"
                     )
-
                     users = await UserRepository.get_all_users_breaking_news()
                     for user in users:
                         user_language = (
@@ -251,47 +271,23 @@ async def fetch_breaking_news_newsapi():
                             if hasattr(user, "language")
                             else Language.EN.value
                         )
-
-                        if (
-                            user_language == Language.DE.value
-                            and article.language != Language.DE.value
-                        ):
-                            crawler.logger.info(
-                                f"Translating article {article.id} to German"
-                            )
-                            translation = await ArticleTranslationService.translate_breaking_news_fields(  # noqa 501
-                                article, Language.DE.value
-                            )
-                            article.title = translation["title"]
-                            article.summary = translation["summary"]
-                            article.language = Language.DE.value
-                        elif (
-                            user_language == Language.EN.value
-                            and article.language != Language.EN.value
-                        ):
-                            crawler.logger.info(
-                                f"Translating article {article.id} to English"
-                            )
-                            translation = await ArticleTranslationService.translate_breaking_news_fields(  # noqa 501
-                                article, Language.EN.value
-                            )
-                            article.title = translation["title"]
-                            article.summary = translation["summary"]
-                            article.language = "en"
-
-                        email_content = (
-                            EmailService._build_breaking_news_email_content(
-                                news=article, language=user_language
-                            )
+                        # Use already translated text for email
+                        headline_str = article.headline.get(user_language, next(iter(article.headline.values()), ""))
+                        summary_str = article.summary.get(user_language, next(iter(article.summary.values()), ""))
+                        # Build a temporary article object for email content
+                        email_article = article.model_copy()
+                        # Set headline and summary as strings for email content
+                        email_article.headline = headline_str
+                        email_article.summary = summary_str
+                        email_content = EmailService._build_breaking_news_email_content(
+                            news=email_article, language=user_language
                         )
-
                         subject_prefix = (
                             "Breaking News Alert"
                             if user_language == Language.EN.value
                             else "Nachrichten-Alarm"
                         )
-                        subject = f"{subject_prefix}: {article.title}"
-
+                        subject = f"{subject_prefix}: {headline_str}"
                         email = EmailService.create_email(
                             recipient=user.email,
                             subject=subject,
@@ -310,7 +306,7 @@ async def fetch_breaking_news_newsapi():
                 crawler.logger.info(f"Stored article {article.id} in Redis.")
             except Exception as e:
                 crawler.logger.error(
-                    f"Failed to store article {article.id} in Redis: {e}"
+                    f"Failed to send email and store article {article.id} in Redis: {e}"
                 )
 
     crawler.logger.flush()
@@ -342,3 +338,21 @@ def get_all_breaking_news() -> List[BreakingNews]:
         logger = BufferedLogger("BreakingNewsRedisReader")
         logger.error(f"Failed to fetch breaking news from Redis: {e}")
         return []
+
+
+if __name__ == "__main__":
+    import asyncio
+
+    async def main():
+        print("Fetching breaking news...")
+        articles = await fetch_breaking_news_newsapi()
+        print(f"Fetched and stored {len(articles)} breaking news articles.")
+        for article in articles:
+            print(f"ID: {article.id}")
+            print(f"Headline: {article.headline}")
+            print(f"Summary: {article.summary}")
+            print(f"Relevance: {article.relevance_score}")
+            print(f"Language: {article.language}")
+            print("---")
+
+    asyncio.run(main())

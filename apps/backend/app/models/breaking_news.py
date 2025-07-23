@@ -1,5 +1,8 @@
+# flake8: noqa 
+from typing import Optional
 from uuid import uuid4
 
+from sqlalchemy import JSON, Column
 from sqlmodel import Field, SQLModel
 
 
@@ -9,8 +12,22 @@ class BreakingNews(SQLModel, table=False):
         primary_key=True,
         index=True,
     )
-    title: str = Field(default=None, nullable=True)
-    summary: str = Field(default=None, nullable=True)
+    headline: Optional[dict] = Field(
+        sa_column=Column(
+            JSON,
+            nullable=True,
+            default=None,
+            comment="Headline in different languages, e.g., {'en': '...', 'de': '...'}",
+        )
+    )
+    summary: Optional[dict] = Field(
+        sa_column=Column(
+            JSON,
+            nullable=True,
+            default=None,
+            comment="Summary in different languages, e.g., {'en': '...', 'de': '...'}",
+        )
+    )
     image_url: str = Field(default=None, nullable=True)
     url: str = Field(default=None, nullable=True)
     published_at: str = Field(default=None, nullable=True)
