@@ -358,35 +358,3 @@ class PDFService:
         except Exception as e:
             logger.error(f"Error generating PDF: {e}")
             return b""
-
-
-if __name__ == "__main__":
-    import asyncio
-
-    async def main():
-        search_profiles = [
-            "c6b17b31-08f8-48eb-9e74-4b52359d95ca",
-            "c9f803a0-5f57-42b8-ace6-f4888ac38025",
-            "4e421277-0bca-4d03-94c1-86a912ebfa0e",
-            "1ac7bcba-fc42-4e44-be06-a8abdc84f5d7",
-            "d20fcbcb-6ae3-433a-848a-58e015d5de37",
-            "017acbb1-cf93-43a9-8c3d-ad4cabaa31ec",
-            "8dbf83da-0cbd-45c6-bce3-f6d4088fffb6",
-            "7ea2dacc-2e5b-457a-a26b-906b3ed562fa",
-        ]
-
-        timeslots = ["morning", "afternoon", "evening"]
-
-        for profile_id in search_profiles:
-            for timeslot in timeslots:
-                pdf_bytes, empty_pdf = await PDFService.create_pdf(
-                    search_profile_id=profile_id,
-                    timeslot=timeslot,
-                    language="en",
-                )
-                filename = f"example_report_{profile_id}_{timeslot}.pdf"
-                with open(filename, "wb") as f:
-                    f.write(pdf_bytes)
-                print(f"Generated {filename}. Empty: {empty_pdf}")
-
-    asyncio.run(main())

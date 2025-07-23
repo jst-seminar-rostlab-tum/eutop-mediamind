@@ -246,11 +246,19 @@ class ArticleRepository:
             )
             matches = (await session.execute(query)).scalars().all()
 
+            # Eagerly load keywords for all articles
+            article_ids = [m.article.id for m in matches if m.article is not None]
+            if article_ids:
+                article_query = select(Article).options(selectinload(Article.keywords)).where(Article.id.in_(article_ids))
+                article_map = {a.id: a for a in (await session.execute(article_query)).scalars().all()}
+            else:
+                article_map = {}
+
             # Process articles to modify content for non-subscribed articles
             articles = []
             for match in matches:
                 if match.article is not None:
-                    article = match.article
+                    article = article_map.get(match.article.id, match.article)
                     # If article's subscription is not
                     # linked to the search profile, modify content
                     if article.subscription_id not in linked_subscription_ids:

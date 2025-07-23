@@ -177,6 +177,7 @@ def create_full_articles_elements(news_items, dimensions, translator, styles):
         organizations_str = ", ".join(f"{i}" for i in news.organizations)
         industries_str = ", ".join(f"{i}" for i in news.industries)
         events_str = ", ".join(f"{i}" for i in news.events)
+        citations_str = ", ".join(f"{c}" for c in news.citations)
 
         # Prepare metadata as label-value pairs for two columns
         metadata_rows = [
@@ -299,6 +300,16 @@ def create_full_articles_elements(news_items, dimensions, translator, styles):
                 ),
                 Paragraph(
                     events_str if events_str else translator("None"),
+                    styles["metadata_style"],
+                ),
+            ],
+            [
+                Paragraph(
+                    f"<b>{translator('Citations')}:</b>",
+                    styles["metadata_style"],
+                ),
+                Paragraph(
+                    citations_str if citations_str else translator("None"),
                     styles["metadata_style"],
                 ),
             ],
