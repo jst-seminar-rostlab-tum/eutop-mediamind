@@ -331,10 +331,12 @@ class SearchProfileService:
             min_match = len(search_words)
 
             def field_match(field):
-                combined_words = set()
-                for field in fields:
-                    combined_words.update(split_words(field))
-                return sum(w in combined_words for w in search_words)
+                combined_text = " ".join(fields).lower()
+                combined_words = set(split_words(combined_text))
+                return sum(
+                    w in combined_words or w in combined_text
+                    for w in search_words
+                )
 
             all_matches = await MatchRepository.get_matches_by_search_profile(
                 search_profile_id,
