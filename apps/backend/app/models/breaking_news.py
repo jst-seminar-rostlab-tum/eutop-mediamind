@@ -1,4 +1,4 @@
-# flake8: noqa 
+# flake8: noqa
 from typing import Optional
 from uuid import uuid4
 

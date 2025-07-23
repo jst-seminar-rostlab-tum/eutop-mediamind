@@ -491,7 +491,7 @@ class ArticleTranslationService:
             target_language: 'en' or 'de'
             use_batch_api: whether to use batch API for translation
         Returns:
-            dict: {"headline": translated_headline, "summary": translated_summary}
+            dict: {"headline": translated_headl, "summary": translated_sum}
         """
         texts = [breaking_news.headline, breaking_news.summary]
         # Only translate if the current language is not the target

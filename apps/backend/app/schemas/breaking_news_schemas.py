@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Optional, Dict
+from typing import Dict, Optional
 
 from pydantic import BaseModel, ConfigDict
 
@@ -13,7 +13,7 @@ class BreakingNewsItem(BaseModel):
     published_at: Optional[datetime]
     language: Optional[str] = None  # e.g., "en", "de"
     headline: Optional[Dict[str, str]]  # e.g., {"en": "...", "de": "..."}
-    summary: Optional[Dict[str, str]]   # e.g., {"en": "...", "de": "..."}
+    summary: Optional[Dict[str, str]]  # e.g., {"en": "...", "de": "..."}
 
     model_config = ConfigDict(from_attributes=True)
 

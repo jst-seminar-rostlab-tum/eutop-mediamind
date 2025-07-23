@@ -328,11 +328,15 @@ class EmailService:
         headline = None
         summary = None
         if isinstance(news.headline, dict):
-            headline = news.headline.get(language) or next(iter(news.headline.values()), "")
+            headline = news.headline.get(language) or next(
+                iter(news.headline.values()), ""
+            )
         else:
             headline = news.headline or ""
         if isinstance(news.summary, dict):
-            summary = news.summary.get(language) or next(iter(news.summary.values()), "")
+            summary = news.summary.get(language) or next(
+                iter(news.summary.values()), ""
+            )
         else:
             summary = news.summary or ""
 
