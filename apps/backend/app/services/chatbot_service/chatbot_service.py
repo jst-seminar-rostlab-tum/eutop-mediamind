@@ -17,22 +17,22 @@ logger = get_logger(__name__)
 
 class ChatbotService:
     @staticmethod
-    async def extract_report_id_from_subject(
+    async def extract_conversation_id_from_subject(
         subject: str, user: UserEntity
     ) -> UUID:
         """
-        Extracts the report ID from the subject of the chat request
-        in [report_id] format.
+        Extracts the conversation ID from the subject of the chat request
+        in [conversation_id] format.
         """
         try:
-            report_id_match = re.search(r"\[([^\[\]]+)\]", subject)
-            if report_id_match is None:
+            conversation_id_match = re.search(r"\[([^\[\]]+)\]", subject)
+            if conversation_id_match is None:
                 raise Exception(
                     f"Failed to generate chatbot email response for "
-                    f"user_id={user.id}: failed to extract report_id "
+                    f"user_id={user.id}: failed to extract conversation_id "
                     "from subject. Sending default response."
                 )
-            return UUID(report_id_match.group(1))
+            return UUID(conversation_id_match.group(1))
         except Exception as e:
             await ChatbotEmailSending.send_context_not_found_response(
                 user=user,
@@ -46,20 +46,19 @@ class ChatbotService:
 
     @staticmethod
     async def check_max_message_limit(
-        email_conversation_id: UUID,
+        email_conversation: EmailConversation,
         user: UserEntity,
-        subject: str,
     ):
         message_count = await ChatbotRepository.get_message_count(
-            email_conversation_id
+            email_conversation.id
         )
         if message_count >= configs.CHAT_MAX_MESSAGES_PER_CONVERSATION:
             await ChatbotEmailSending.send_message_limit_exceeded_response(
                 user=user,
-                subject=subject,
+                subject=email_conversation.subject,
             )
             raise Exception(
-                f"Conversation {email_conversation_id} has reached the "
+                f"Conversation {email_conversation.id} has reached the "
                 "maximum message limit "
                 f"({configs.CHAT_MAX_MESSAGES_PER_CONVERSATION}). "
                 f"Current count: {message_count}"
@@ -71,31 +70,43 @@ class ChatbotService:
         chat: ChatRequest,
         s3_service: S3Service,
     ):
-        subject = (
-            chat.subject if chat.subject != "" else "MediaMind Email-Chatbot"
-        )
-        report_id = await ChatbotService.extract_report_id_from_subject(
-            chat.subject, user
-        )
-        email_conversation: EmailConversation = (
-            await ChatbotContext.get_or_create_conversation(
-                user_email=user.email,
-                report_id=report_id,
-                subject=subject,
+        conversation_id = (
+            await ChatbotService.extract_conversation_id_from_subject(
+                chat.subject, user
             )
         )
-        await ChatbotService.check_max_message_limit(
-            email_conversation.id, user, subject
+        email_conversation = (
+            await ChatbotRepository.get_conversation_by_id_and_email(
+                conversation_id, user.email
+            )
         )
 
-        report_pdf_file = await ChatbotContext.load_report_pdf_file(
-            s3_service=s3_service, report_id=report_id, user_id=user.id
+        if email_conversation is None:
+            await ChatbotEmailSending.send_context_not_found_response(
+                user=user,
+                subject=chat.subject,
+            )
+            raise Exception(
+                f"No conversation found with id={conversation_id} "
+                f"for user {user.email}"
+            )
+
+        await ChatbotService.check_max_message_limit(email_conversation, user)
+
+        report_file = report_file = (
+            await ChatbotContext.load_report_pdf_file(
+                s3_service=s3_service,
+                report_id=email_conversation.report_id,
+                user_id=user.id,
+            )
+            if email_conversation.report_id is not None
+            else None
         )
         llm_response = await ChatbotResponse.generate(
             email_conversation_id=email_conversation.id,
-            subject=subject,
+            subject=email_conversation.subject,
             chat_body=chat.body,
-            report_file=report_pdf_file,
+            report_file=report_file,
         )
         await ChatbotContext.store_chat_messages(
             email_conversation.id, chat.body, llm_response
@@ -106,6 +117,6 @@ class ChatbotService:
         await ChatbotEmailSending.send_email_response(
             email_conversation_id=email_conversation.id,
             user_email=user.email,
-            subject=subject,
+            subject=chat.subject,
             content=llm_response_as_html,
         )
