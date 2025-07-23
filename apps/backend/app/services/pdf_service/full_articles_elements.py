@@ -69,8 +69,9 @@ def create_full_articles_elements(news_items, dimensions, translator, styles):
         {translator('Published at')}: {news.published_at} |
          {translator('Newspaper')}: {news.newspaper.name} |
          {translator('Words')}: {word_count} |
-         {translator('Keywords')}: {keywords_str} |
          {translator('Category')}: {category_str}
+         <br/>
+         {translator('Keywords')}: {keywords_str}
                 """
         metadata_para = Paragraph(metadata_text, styles["metadata_style"])
         metadata_first = Table(
@@ -83,7 +84,7 @@ def create_full_articles_elements(news_items, dimensions, translator, styles):
                     ("LEFTPADDING", (0, 0), (-1, -1), 6),
                     ("RIGHTPADDING", (0, 0), (-1, -1), 6),
                     ("TOPPADDING", (0, 0), (-1, -1), 0),
-                    ("BOTTOMPADDING", (0, 0), (-1, -1), 2),
+                    ("BOTTOMPADDING", (0, 0), (-1, -1), 6),
                 ]
             ),
         )

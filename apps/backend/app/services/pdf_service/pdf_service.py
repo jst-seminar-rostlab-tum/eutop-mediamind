@@ -178,18 +178,37 @@ class PDFService:
                         language=(
                             article.language if article.language else None
                         ),
-                        category=(
-                            ", ".join(article.categories)
-                            if article.categories
-                            else None
-                        ),
                         summary=summary,
                         subscription_id=article.subscription.id,
                         newspaper=article.subscription
                         or translator("Unknown"),
-                        keywords=[
-                            keyword.name for keyword in article.keywords
-                        ],
+                        # Category: join topic_name and score as 'Topic: XX.XX%'
+                        category=(
+                            ", ".join(
+                                f"{topic.get('topic_name', '')}: {round(topic.get('score', 0)*100, 2):.2f}%"
+                                for topic in getattr(
+                                    article, "topics_data", []
+                                )
+                                if topic.get("topic_name")
+                            )
+                            if hasattr(article, "topics_data")
+                            and article.topics_data
+                            else None
+                        ),
+                        # Keywords: join keyword_name and score as 'keyword: XX.XX%'
+                        keywords=(
+                            [
+                                f"{keyword.get('keyword_name', '')}: {round(keyword.get('score', 0)*100, 2):.2f}%"
+                                for topic in getattr(
+                                    article, "topics_data", []
+                                )
+                                for keyword in topic.get("keywords", [])
+                                if keyword.get("keyword_name")
+                            ]
+                            if hasattr(article, "topics_data")
+                            and article.topics_data
+                            else []
+                        ),
                         persons=persons,
                         organizations=organizations,
                         industries=industries,
