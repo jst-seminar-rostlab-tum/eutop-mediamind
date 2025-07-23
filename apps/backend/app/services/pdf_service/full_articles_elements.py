@@ -355,47 +355,55 @@ def create_full_articles_elements(news_items, dimensions, translator, styles):
         story.append(combined_box)
         story.append(Spacer(1, 0.1 * inch))
 
-        # URL Link Button
+        # Combined row: left = appendix link, right = read at newspaper button
+        appendix_link = Paragraph(
+            f"""<a href="#original_article_{i}">
+            <u>{translator("See original article in appendix")}</u></a>""",
+            styles["link_style"],
+        )
         link_img = Image("assets/link_icon.png", width=16, height=16)
-        button = Table(
+        read_button = Paragraph(
+            f"""<a href="{news.url}">
+            <b>{translator("Read Article at Newspaper")}</b></a>""",
+            styles["link_style"],
+        )
+        button_row = Table(
             [
-                [
-                    link_img,
-                    Paragraph(
-                        f'<a href="{news.url}">'
-                        f'<b>{translator("Read Article at Newspaper")}'
-                        f"</b></a>",
-                        styles["link_style"],
-                    ),
-                ]
+                [appendix_link, link_img, read_button],
             ],
-            colWidths=[0.2 * inch, 2.1 * inch],
+            colWidths=[2.5 * inch, 0.2 * inch, 2.1 * inch],
             hAlign="RIGHT",
         )
-        button.setStyle(
+        button_row.setStyle(
             TableStyle(
                 [
                     ("BACKGROUND", (0, 0), (-1, -1), pdf_colors["white"]),
                     ("TEXTCOLOR", (0, 0), (-1, -1), pdf_colors["blue"]),
-                    ("ALIGN", (0, 0), (-1, -1), "CENTER"),
+                    (
+                        "ALIGN",
+                        (0, 0),
+                        (0, 0),
+                        "LEFT",
+                    ),  # Left-align appendix link
+                    ("ALIGN", (1, 0), (2, 0), "CENTER"),
                     ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
                     ("FONTSIZE", (0, 0), (-1, -1), 10),
                     ("INNERGRID", (0, 0), (-1, -1), 0, pdf_colors["white"]),
                     ("BOX", (0, 0), (-1, -1), 1, pdf_colors["white"]),
                     ("TOPPADDING", (0, 0), (-1, -1), 4),
                     ("BOTTOMPADDING", (0, 0), (-1, -1), 4),
-                    ("LEFTPADDING", (0, 0), (-1, -1), 8),
+                    (
+                        "LEFTPADDING",
+                        (0, 0),
+                        (0, 0),
+                        0,
+                    ),  # No left padding for appendix link
+                    ("LEFTPADDING", (1, 0), (2, 0), 8),
                     ("RIGHTPADDING", (0, 0), (-1, -1), 8),
-                    ("ALIGN", (0, 0), (-1, -1), "CENTER"),
                 ]
             )
         )
-        story.append(button)
-
-        # Design: Helper to add a link
-        # from the full article to the original
-        # Usage in full article: <a href="#original_article_{i}">
-        # {translator("See original article in appendix")}</a>
+        story.append(button_row)
 
         if i != len(news_items) - 1:
             story.append(PageBreak())

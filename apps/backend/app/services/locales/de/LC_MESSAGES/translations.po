@@ -193,6 +193,9 @@ msgstr "Abonnenten"
 msgid "Appendix: Original Articles"
 msgstr "Anhang: Originalartikel"
 
+msgid "See original article in appendix"
+msgstr "Siehe Originalartikel im Anhang"
+
 msgid "Back to translated article"
 msgstr "Zurück zum übersetzten Artikel"
 
