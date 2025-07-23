@@ -17,7 +17,7 @@ from .colors import pdf_colors
 from .markdown_utils import markdown_blocks_to_paragraphs
 from .utils import calculate_reading_time
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("PDF_SERVICE")
 
 
 def create_full_articles_elements(news_items, dimensions, translator, styles):
@@ -163,6 +163,10 @@ def create_full_articles_elements(news_items, dimensions, translator, styles):
         story.append(reading_time_box)
 
         # Translating Content Markdown to Reportlab Paragraphs
+        logger.info(
+            f"Parsing markdown content for article \
+            (id={news.id}) into ReportLab paragraphs."
+        )
         for para in markdown_blocks_to_paragraphs(news.content, styles):
             story.append(para)
         story.append(Spacer(1, 0.3 * inch))
