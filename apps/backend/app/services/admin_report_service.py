@@ -46,7 +46,7 @@ class AdminReportService:
                 )
                 continue
 
-            if superuser and superuser.language in Language._value2member_map_:
+            if superuser.language in Language._value2member_map_:
                 translator_language = superuser.language
             else:
                 translator_language = Language.EN
