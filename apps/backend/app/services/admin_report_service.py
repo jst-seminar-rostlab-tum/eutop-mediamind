@@ -8,6 +8,7 @@ from apps.backend.app.services.crawl_stats_pdf_service import (
     generate_crawl_stats_pdf,
 )
 from apps.backend.app.services.email_service import EmailService
+from app.core.languages import Language
 
 from app.core.config import get_configs
 
@@ -30,20 +31,35 @@ class AdminReportService:
             raise
 
     async def _send_admin_report_to_all_superusers(self, report_filename: str):
-        superuser_emails = await UserRepository.get_all_superuser_emails()
-        if not superuser_emails:
+        superusers = await UserRepository.get_all_superusers()
+        if not superusers:
             logger.warning("No superusers found to send the report.")
             return
 
         with open(report_filename, "rb") as f:
             pdf_bytes = f.read()
 
-        for superuser_email in superuser_emails:
+        if superuser and superuser.language in Language._value2member_map_:
+            translator_language = superuser.language
+        else:
+            translator_language = Language.EN
+
+        content = EmailService._build_admin_report_email_content(
+            superuser.last_name if superuser else None,
+            superuser.gender if superuser else None,
+            translator_language
+        )
+
+        for superuser in superusers:
+            if not superuser.email:
+                logger.warning(f"Superuser {superuser.id} has no email address, skipping.")
+                continue
+                
             email = Email(
                 sender=configs.SMTP_USER,
-                recipient=superuser_email,
+                recipient=superuser.email,
                 subject="Admin Report",
-                content="Hello, please find the attached admin report.",
+                content=content,
             )
 
             await EmailService.send_ses_email(email, pdf_bytes)

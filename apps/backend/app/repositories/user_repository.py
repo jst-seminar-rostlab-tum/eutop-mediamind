@@ -289,14 +289,16 @@ class UserRepository:
             return _to_user_entity(db_user)
 
     @staticmethod
-    async def get_all_superuser_emails() -> List[str]:
+    async def get_all_superusers() -> List[UserEntity]:
         """
-        Return a list of email addresses of all superusers.
+        Return a list of all superusers as UserEntity objects.
         """
         async with async_session() as session:
-            stmt = select(User.email).where(
-                User.is_superuser.is_(True), User.email.isnot(None)
+            stmt = (
+                select(User)
+                .options(selectinload(User.organization))
+                .where(User.is_superuser.is_(True))
             )
             result = await session.execute(stmt)
-            emails = result.scalars().all()
-            return List(emails)
+            users = result.scalars().all()
+            return [_to_user_entity(u) for u in users]
