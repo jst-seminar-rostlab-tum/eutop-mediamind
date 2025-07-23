@@ -413,7 +413,7 @@ class EmailService:
                         report.time_slot.capitalize()
                     )
                     subject = (
-                        f"[MEDIAMIND] {translator('Your')} "
+                        f"MEDIAMIND - {translator('Your')} "
                         f"{time_slot_translated} {translator('Report')} "
                         f"{translator('for')} {search_profile.name}"
                     )
