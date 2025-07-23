@@ -128,13 +128,13 @@ The MediaMind Email Chatbot lets you get quick answers by replying to emails you
 
 **How to use:**
 
-1. Reply directly to any email you received from MediaMind (such as your daily news report).
+1. Reply directly to any email you received from MediaMind (such as your daily news report or breaking news).
 2. Write your question or request in the reply (e.g., "Can you summarize today’s report?" or "Can I get this in another language?").
 3. Wait for a response. You will receive an answer by email, usually within a few minutes.
 
 **Important:**
-Only replies to existing MediaMind emails are supported.
-New emails sent to the chatbot address will not be processed.
+To use the chatbot, you must have a MediaMind account and be assigned to an organization.
+If you respond to a report email, you must have access to the corresponding search profile at the time you send your message.
 This limitation is mainly due to security concerns, but also about performance:
 If you allow users to send emails to the Chatbot asking about a report containing a specific news article, the Chatbot would need to go through countless articles to find it, which would potentially lead to a large increase in costs.
 To limit this, users can only directly respond to email threads, which are linked to the attached report.
