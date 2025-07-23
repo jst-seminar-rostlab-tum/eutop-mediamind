@@ -1,11 +1,23 @@
-import { Calendar, FileClock, User } from "lucide-react";
+import { Calendar, FileClock, Info, User } from "lucide-react";
 import ReactMarkdown from "react-markdown";
+import { useState } from "react";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "~/components/ui/carousel";
+import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
+import { useTranslation } from "react-i18next";
 
 interface ArticleBodyProps {
   title: string;
   content: string;
   published_at: string;
   author?: string;
+  image_urls: string[];
+  onlySummary: boolean;
 }
 
 const calculateReadingTime = (text: string): string => {
@@ -25,8 +37,24 @@ export function ArticleBody({
   content,
   published_at,
   author,
+  image_urls,
+  onlySummary,
 }: ArticleBodyProps) {
   const readingTime = calculateReadingTime(content);
+
+  const { t } = useTranslation();
+  const validImages = image_urls.filter((url) => url && url.trim() !== "");
+  const [loadedImages, setLoadedImages] = useState<string[]>([]);
+
+  const handleImageLoad = (imageUrl: string) => {
+    setLoadedImages((prev) => [...prev, imageUrl]);
+  };
+
+  const handleImageError = (imageUrl: string) => {
+    setLoadedImages((prev) => prev.filter((url) => url !== imageUrl));
+  };
+
+  const displayImages = validImages.filter((url) => loadedImages.includes(url));
 
   return (
     <div className={"space-y-5"}>
@@ -49,6 +77,55 @@ export function ArticleBody({
           {readingTime}
         </div>
       </div>
+      {onlySummary && (
+        <Alert variant="destructive">
+          <Info />
+          <AlertTitle>{t("article-page.limited_content")}</AlertTitle>
+          <AlertDescription>
+            {t("article-page.limited_content_description")}
+          </AlertDescription>
+        </Alert>
+      )}
+
+      <div style={{ display: "none" }}>
+        {validImages.map((image_url, index) => (
+          <img
+            key={`preload-${index}`}
+            src={image_url}
+            alt=""
+            onLoad={() => handleImageLoad(image_url)}
+            onError={() => handleImageError(image_url)}
+          />
+        ))}
+      </div>
+
+      {displayImages.length > 0 && (
+        <div className="flex justify-center">
+          <Carousel className="w-3/4">
+            <CarouselContent>
+              {displayImages.map((image_url, index) => (
+                <CarouselItem key={index}>
+                  <div>
+                    <img
+                      src={image_url}
+                      alt={`Article image ${index + 1}`}
+                      className="w-full h-auto shadow-sm"
+                      loading="lazy"
+                    />
+                  </div>
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            {displayImages.length > 1 && (
+              <>
+                <CarouselPrevious />
+                <CarouselNext />
+              </>
+            )}
+          </Carousel>
+        </div>
+      )}
+
       <section className={"markdown"}>
         <ReactMarkdown>{content}</ReactMarkdown>
       </section>

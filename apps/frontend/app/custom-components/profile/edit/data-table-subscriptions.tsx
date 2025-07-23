@@ -20,14 +20,15 @@ import {
   type VisibilityState,
   type RowData,
 } from "@tanstack/react-table";
-import { Button } from "~/components/ui/button";
-import { ArrowUpDown } from "lucide-react";
+import { ArrowDownUp, Search, SortAsc, SortDesc } from "lucide-react";
 import { Input } from "~/components/ui/input";
 import { Switch } from "~/components/ui/switch";
 import type { Subscription } from "../../../../types/model";
 import { useTranslation } from "react-i18next";
 import type { TFunction } from "i18next";
 import { Skeleton } from "~/components/ui/skeleton";
+import { ScrollArea } from "~/components/ui/scroll-area";
+import { cn } from "~/lib/utils";
 
 export interface MailingTableProps {
   name: string;
@@ -60,18 +61,8 @@ const getColumns = (
   {
     id: "data",
     accessorFn: (row) => row.data.name,
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          {name}
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      );
-    },
-    cell: ({ row }) => <div className="lowercase">{row.getValue("data")}</div>,
+    cell: ({ row }) => <div>{row.getValue("data")}</div>,
+    header: t("subscriptions.source"),
   },
   {
     accessorKey: "active",
@@ -91,6 +82,7 @@ const getColumns = (
       />
     ),
     enableSorting: true,
+    sortingFn: "basic",
   },
 ];
 
@@ -100,7 +92,9 @@ export function DataTableSubscriptions({
   setSubscriptions,
   isLoading = false,
 }: MailingTableProps) {
-  const [sorting, setSorting] = React.useState<SortingState>([]);
+  const [sorting, setSorting] = React.useState<SortingState>([
+    { id: "active", desc: true },
+  ]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     [],
   );
@@ -137,6 +131,11 @@ export function DataTableSubscriptions({
         const existingRow = currentInternalData.find(
           (d) => d.data.id === item.id,
         );
+
+        if (existingRow && existingRow.data === item) {
+          return existingRow;
+        }
+
         return {
           data: item,
           active: existingRow ? existingRow.active : item.is_subscribed,
@@ -221,8 +220,8 @@ export function DataTableSubscriptions({
   }
 
   return (
-    <div className="w-full">
-      <div className="flex items-center py-4 justify-between">
+    <div className="w-full h-full pb-28 overflow-hidden">
+      <div className="relative flex items-center py-4 justify-between">
         <Input
           placeholder={
             "Filter " +
@@ -233,49 +232,93 @@ export function DataTableSubscriptions({
             table.getColumn("data")?.setFilterValue(event.target.value)
           }
         />
+        <Search size={20} className="absolute right-3 text-muted-foreground" />
       </div>
       <Table>
-        <TableHeader>
+        <TableHeader className="bg-blue-100">
           {table.getHeaderGroups().map((headerGroup) => (
-            <TableRow key={headerGroup.id}>
+            <TableRow key={headerGroup.id} className="grid grid-cols-7">
               {headerGroup.headers.map((header) => {
+                const canSort = header.column.getCanSort();
+                const sortingState = header.column.getIsSorted();
+                const sortingIndex = header.column.getSortIndex();
                 return (
-                  <TableHead key={header.id}>
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
+                  <TableHead
+                    key={header.id}
+                    onClick={
+                      canSort
+                        ? header.column.getToggleSortingHandler()
+                        : undefined
+                    }
+                    className={cn(
+                      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                      ((header.column.columnDef.meta as any)?.className ?? "") +
+                        (header.column.getCanSort()
+                          ? " cursor-pointer select-none"
+                          : ""),
+                      "flex items-center",
+                      header.id === "data" ? "col-span-6" : "col-span-1",
+                    )}
+                  >
+                    {header.isPlaceholder ? null : (
+                      <span className="me-1">
+                        {flexRender(
                           header.column.columnDef.header,
                           header.getContext(),
                         )}
+                      </span>
+                    )}
+                    {sortingIndex && sortingIndex >= 0 ? (
+                      <span>{sortingIndex + 1}</span>
+                    ) : undefined}
+                    {canSort ? (
+                      sortingState === "asc" ? (
+                        <SortAsc className="inline size-4" />
+                      ) : sortingState === "desc" ? (
+                        <SortDesc className="inline size-4" />
+                      ) : (
+                        <ArrowDownUp className="inline size-4 opacity-50" />
+                      )
+                    ) : null}
                   </TableHead>
                 );
               })}
             </TableRow>
           ))}
         </TableHeader>
-        <TableBody>
-          {table.getRowModel().rows?.length ? (
-            table.getRowModel().rows.map((row) => (
-              <TableRow
-                key={row.id}
-                data-state={row.getIsSelected() && "selected"}
-              >
-                {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id}>
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </TableCell>
-                ))}
-              </TableRow>
-            ))
-          ) : (
-            <TableRow>
-              <TableCell colSpan={columns.length} className="h-24 text-center">
-                {t("subscriptions.no_results")}
-              </TableCell>
-            </TableRow>
-          )}
-        </TableBody>
       </Table>
+      <ScrollArea className="h-full">
+        <Table>
+          <TableBody>
+            {table.getRowModel().rows?.length ? (
+              table.getRowModel().rows.map((row) => (
+                <TableRow
+                  key={row.id}
+                  data-state={row.getIsSelected() && "selected"}
+                >
+                  {row.getVisibleCells().map((cell) => (
+                    <TableCell key={cell.id}>
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext(),
+                      )}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell
+                  colSpan={columns.length}
+                  className="h-24 text-center"
+                >
+                  {t("subscriptions.no_results")}
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </ScrollArea>
     </div>
   );
 }

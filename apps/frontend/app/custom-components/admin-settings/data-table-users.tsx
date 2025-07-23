@@ -82,7 +82,7 @@ export function DataTableUsers<TData, TValue>({
 
   return (
     <>
-      <div className="flex justify-between gap-4">
+      <div className="flex justify-between gap-4 mb-4">
         <Input
           placeholder={"Filter " + t("general.Users")}
           value={(table.getColumn("email")?.getFilterValue() as string) ?? ""}
@@ -110,9 +110,12 @@ export function DataTableUsers<TData, TValue>({
                   <ChevronsUpDown className="opacity-50" />
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-[250px] p-0">
+              <PopoverContent className="w-fit p-0">
                 <Command>
-                  <CommandInput placeholder="Search user..." className="h-9" />
+                  <CommandInput
+                    placeholder={t("admin.search_user")}
+                    className="h-9"
+                  />
                   <CommandList>
                     <CommandEmpty>{t("admin.no_user")}</CommandEmpty>
                     <CommandGroup>
@@ -175,7 +178,7 @@ export function DataTableUsers<TData, TValue>({
         </div>
       </div>
       <Table>
-        <TableHeader>
+        <TableHeader className="bg-blue-100">
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id} className="grid grid-cols-20">
               {headerGroup.headers.map((header) => {
@@ -205,7 +208,7 @@ export function DataTableUsers<TData, TValue>({
         </TableHeader>
       </Table>
 
-      <ScrollArea className="h-[200px]">
+      <ScrollArea className="h-[400px]">
         <Table>
           <TableBody>
             {table.getRowModel().rows?.length ? (

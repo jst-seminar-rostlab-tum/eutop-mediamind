@@ -70,11 +70,12 @@ module "s3" {
 }
 
 module "alb" {
-  source               = "./modules/alb"
-  vpc_id               = data.aws_vpc.selected.id
-  subnet_ids           = data.aws_subnets.selected.ids
-  certificate_arn_prod = "arn:aws:acm:eu-central-1:313193269185:certificate/ba1c0b9b-2c80-4c0f-acf6-355dfb9ba658"
-  certificate_arn_dev  = "arn:aws:acm:eu-central-1:313193269185:certificate/3f5b9917-f56f-414a-ab56-b751c55733ee"
+  source                 = "./modules/alb"
+  vpc_id                 = data.aws_vpc.selected.id
+  subnet_ids             = data.aws_subnets.selected.ids
+  certificate_arn_prod   = "arn:aws:acm:eu-central-1:313193269185:certificate/ba1c0b9b-2c80-4c0f-acf6-355dfb9ba658"
+  certificate_arn_dev    = "arn:aws:acm:eu-central-1:313193269185:certificate/3f5b9917-f56f-414a-ab56-b751c55733ee"
+  certificate_arn_qdrant = "arn:aws:acm:eu-central-1:313193269185:certificate/3f5b9917-f56f-414a-ab56-b751c55733ee"
 }
 
 module "ecs" {
@@ -117,7 +118,7 @@ module "scheduler" {
   cluster_name    = local.cluster_name
   container_image = module.ecr_scheduler.repository_url
   redis_endpoint  = jsondecode(data.aws_secretsmanager_secret_version.creds.secret_string)["REDIS_URL"]
-  api_base_url    = "https://api.mediamind.csee.tech"
+  api_base_url    = "https://api.mediamind.csee.tech/api"
   subnet_ids      = data.aws_subnets.selected.ids
   vpc_id          = data.aws_vpc.selected.id
   region          = "eu-central-1"
@@ -129,18 +130,21 @@ module "scheduler_dev" {
   cluster_name    = local.cluster_name
   container_image = module.ecr_scheduler.repository_url
   redis_endpoint  = jsondecode(data.aws_secretsmanager_secret_version.dev_creds.secret_string)["REDIS_URL"]
-  api_base_url    = "https://dev.api.mediamind.csee.tech"
+  api_base_url    = "https://dev.api.mediamind.csee.tech/api"
   subnet_ids      = data.aws_subnets.selected.ids
   vpc_id          = data.aws_vpc.selected.id
   region          = "eu-central-1"
 }
 
 module "qdrant" {
-  source         = "./modules/qdrant"
-  service_name   = "mediamind"
-  cluster_name   = local.cluster_name
-  subnet_ids     = data.aws_subnets.selected.ids
-  vpc_id         = data.aws_vpc.selected.id
-  vpc_cidr_block = data.aws_vpc.selected.cidr_block
-  api_key        = jsondecode(data.aws_secretsmanager_secret_version.creds.secret_string)["QDRANT_API_KEY"]
+  source                = "./modules/qdrant"
+  service_name          = "mediamind"
+  cluster_name          = local.cluster_name
+  subnet_ids            = data.aws_subnets.selected.ids
+  vpc_id                = data.aws_vpc.selected.id
+  vpc_cidr_block        = data.aws_vpc.selected.cidr_block
+  api_key               = jsondecode(data.aws_secretsmanager_secret_version.creds.secret_string)["QDRANT_API_KEY"]
+  alb_target_group_arn  = module.alb.alb_target_group_arn_qdrant
+  alb_listener_arn      = module.alb.alb_listener_arn
+  alb_security_group_id = module.alb.alb_security_group_id
 }

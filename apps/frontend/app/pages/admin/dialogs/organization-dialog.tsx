@@ -71,7 +71,7 @@ export function OrganizationDialog({
     data: userData,
     isLoading: usersLoading,
     error: usersError,
-  } = useQuery("/api/v1/users");
+  } = useQuery("/api/v1/users/all");
 
   if (usersError) {
     toast(t("organization-dialog.users_error"));
@@ -289,7 +289,9 @@ export function OrganizationDialog({
               </div>
 
               <DialogFooter>
-                <Button type="submit">{t("save_changes")}</Button>
+                <Button className="mt-2" type="submit">
+                  {t("save_changes")}
+                </Button>
               </DialogFooter>
             </form>
           </Form>
