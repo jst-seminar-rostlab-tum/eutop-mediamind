@@ -21,8 +21,7 @@ def schedule_jobs(service: SchedulerService, cfg: Config) -> None:
 
     pipeline_schedule = {
         cfg.PIPELINE_MORNING_TIME: {"time_period": cfg.PIPELINE_MORNING_LABEL},
-        cfg.PIPELINE_AFTERNOON_TIME: {"time_period":
-                                      cfg.PIPELINE_AFTERNOON_LABEL},
+        cfg.PIPELINE_AFTERNOON_TIME: {"time_period": cfg.PIPELINE_AFTERNOON_LABEL},
         cfg.PIPELINE_EVENING_TIME: {"time_period": cfg.PIPELINE_EVENING_LABEL},
     }
 
