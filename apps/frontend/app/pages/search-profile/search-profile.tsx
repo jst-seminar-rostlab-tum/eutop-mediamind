@@ -41,7 +41,7 @@ export function SearchProfileOverview() {
   const navigate = useNavigate();
 
   const [search, setSearch] = useState("");
-  const [sortBy, setSortBy] = useState<"relevance" | "date">("relevance");
+  const [sortBy, setSortBy] = useState<"relevance" | "date">("date");
 
   const [searchSources, setSearchSources] = useState("");
 
@@ -93,9 +93,9 @@ export function SearchProfileOverview() {
     }
   }, [profileError, navigate]);
 
-  const today = new Date();
-  const yesterday = new Date();
-  yesterday.setDate(today.getDate() - 1);
+  const to = new Date();
+  const from = new Date();
+  from.setDate(to.getDate() - 14);
 
   useEffect(() => {
     if (!profileError && profile && profile.subscriptions && profile.topics) {
@@ -104,8 +104,8 @@ export function SearchProfileOverview() {
       setSelectedSources(subscriptionIds);
       setSelectedTopics(topicsIds);
 
-      setFromDate(yesterday);
-      setToDate(today);
+      setFromDate(from);
+      setToDate(to);
 
       setProfileReady(true);
     }
@@ -118,10 +118,10 @@ export function SearchProfileOverview() {
     const requestBody = {
       startDate: fromDate
         ? fromDate.toISOString().split("T")[0]
-        : yesterday.toISOString().split("T")[0],
+        : from.toISOString().split("T")[0],
       endDate: toDate
         ? toDate.toISOString().split("T")[0]
-        : today.toISOString().split("T")[0],
+        : to.toISOString().split("T")[0],
       sorting: sortBy.toUpperCase() as "DATE" | "RELEVANCE",
       searchTerm: searchTerm,
       topics: selectedTopics,
