@@ -1,7 +1,7 @@
 import { useState } from "react";
 
 import { ChevronDown, ChevronUp, ExternalLink } from "lucide-react";
-import { formatDate } from "~/lib/utils";
+import { formatDate, getLocalizedContent } from "~/lib/utils";
 import { Button } from "~/components/ui/button";
 import type { BreakingNewsItem } from "../../../types/model";
 import { useTranslation } from "react-i18next";
@@ -14,11 +14,17 @@ export function BreakingNewsCard({ news }: NewsCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const maxLength = 142;
 
-  const { t } = useTranslation();
-  const shouldTruncate = news.summary!.length > maxLength;
+  const { t, i18n } = useTranslation();
+
+  const headline = news.headline
+    ? getLocalizedContent(news.headline, i18n)
+    : "";
+  const summary = news.summary ? getLocalizedContent(news.summary, i18n) : "";
+
+  const shouldTruncate = summary.length > maxLength;
   const displayText = isExpanded
-    ? news.summary
-    : news.summary!.slice(0, maxLength) + (shouldTruncate ? "..." : "");
+    ? summary
+    : summary.slice(0, maxLength) + (shouldTruncate ? "..." : "");
 
   return (
     <div className="border p-3 w-full  rounded-lg flex gap-4">
@@ -29,7 +35,7 @@ export function BreakingNewsCard({ news }: NewsCardProps) {
       )}
       <div>
         <div>
-          <h2 className={"text-xl font-bold"}>{news.title}</h2>
+          <h2 className={"text-xl font-bold"}>{headline}</h2>
         </div>
         <div className="flex-grow text-gray-600">
           <p className={"text-sm text-gray-400 mb-1"}>
