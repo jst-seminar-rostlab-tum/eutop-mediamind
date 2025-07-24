@@ -131,8 +131,8 @@
   },
 
   "topics": {
-    "AI_error": "Failed to get AI suggestions.",
-    "topic_error": "Can't add the same topic twice",
+    "AI_error": "Fehler beim Laden der AI suggestions.",
+    "topic_error": "Topics mussen einzigartig sein.",
     "header": "Themen und Schlagwörter",
     "info": "Organisieren sie ihre Themen und Schlagwörter für die Nachrichten Extrahierung",
     "select_topic": "Thema auswählen",
@@ -323,6 +323,7 @@
   "crawler_stats": {
     "title": "Crawler Statistiken",
     "source": "Abonnement",
+    "timeframe": "Zeitraum",
     "date": "Datum",
     "successful": "Erfolgreich",
     "attempted": "Versucht",

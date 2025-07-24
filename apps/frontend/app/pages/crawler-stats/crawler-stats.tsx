@@ -62,7 +62,7 @@ export const CrawlerStatsPage = () => {
       {
         accessorKey: "crawl_date",
         header: t("crawler_stats.date"),
-        cell: (info) => format(info.getValue() as Date, "yyyy-MM-dd HH:mm:ss"),
+        cell: (info) => format(info.getValue() as Date, "yyyy-MM-dd"),
         enableSorting: true,
       },
       {
@@ -188,7 +188,7 @@ export const CrawlerStatsPage = () => {
       <Card className="gap-4 p-6 overflow-hidden h-full mb-4">
         <div className="flex items-center">
           <CalendarFold className="mr-2" />
-          <p className="font-semibold">Timeframe</p>
+          <p className="font-semibold">{t("crawler_stats.timeframe")}</p>
         </div>
         <DatePicker
           startDate={startDate}
