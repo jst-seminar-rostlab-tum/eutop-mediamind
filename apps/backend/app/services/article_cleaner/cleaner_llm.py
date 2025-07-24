@@ -38,7 +38,7 @@ def remove_formatting_marks(text: str) -> str:
 
 
 class ArticleCleaner:
-    def __init__(self, max_concurrency: int = 50):
+    def __init__(self, max_concurrency: int = 10):
         assert configs.OPENAI_API_KEY, "Missing OPENAI_API_KEY"
         self.llm_client = LLMClient(TaskModelMapping.ARTICLE_CLEANER)
         self.semaphore = Semaphore(max_concurrency)
