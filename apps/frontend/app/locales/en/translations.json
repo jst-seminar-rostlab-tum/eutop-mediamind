@@ -150,7 +150,7 @@
 
   "mailing": {
     "header": "Mailing List",
-    "info": "Configure profile contact database for press release distribution",
+    "info": "Manage the list of recipients for press release distribution",
     "Internal": "Internal",
     "External": "External",
     "internal": "internal",
@@ -168,7 +168,7 @@
   "subscriptions": {
     "header": "Subscriptions",
     "source": "Subscription",
-    "info": "Configure web scraping sources used for the external mailing list",
+    "info": "Configure subscriptions used for the external mailing list",
     "no_results": "No results.",
     "active": "Active"
   },
@@ -327,6 +327,7 @@
   "crawler_stats": {
     "title": "Crawler Stats",
     "source": "Subscription",
+    "timeframe": "Timeframe",
     "date": "Date",
     "successful": "Successful",
     "attempted": "Attempted",
