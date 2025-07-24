@@ -1,58 +1,39 @@
-import { useState } from "react";
-
-import { ChevronDown, ChevronUp, ExternalLink } from "lucide-react";
 import { formatDate } from "~/lib/utils";
 import { Button } from "~/components/ui/button";
 import type { BreakingNewsItem } from "../../../types/model";
 import { useTranslation } from "react-i18next";
+import { ExternalLink } from "lucide-react";
 
 interface NewsCardProps {
   news: BreakingNewsItem;
 }
 
 export function BreakingNewsCard({ news }: NewsCardProps) {
-  const [isExpanded, setIsExpanded] = useState(false);
-  const maxLength = 142;
-
   const { t } = useTranslation();
-  const shouldTruncate = news.summary!.length > maxLength;
-  const displayText = isExpanded
-    ? news.summary
-    : news.summary!.slice(0, maxLength) + (shouldTruncate ? "..." : "");
+  const displayText = news.summary + "...";
 
   return (
-    <div className="border p-3 w-full  rounded-lg flex gap-4">
+    <div className="border p-3 w-full rounded-lg flex gap-4">
       {news.image_url && (
-        <div className={"overflow-hidden rounded-lg w-27 h-28 flex-shrink-0"}>
-          <img src={news.image_url!} className="w-full h-full object-cover" />
+        <div className="relative flex-shrink-0 w-[200px]">
+          <div className="absolute inset-0">
+            <img
+              src={news.image_url!}
+              className="w-full h-full object-cover rounded-lg"
+            />
+          </div>
         </div>
       )}
-      <div>
+      <div className="flex flex-col justify-between flex-grow">
         <div>
-          <h2 className={"text-xl font-bold"}>{news.title}</h2>
+          <h2 className="text-xl font-bold">{news.title}</h2>
         </div>
-        <div className="flex-grow text-gray-600">
-          <p className={"text-sm text-gray-400 mb-1"}>
+        <div className="text-gray-600">
+          <p className="text-sm text-gray-400 mb-1">
             {formatDate(formatDate(news.published_at!))}
           </p>
           <p className="mb-2">{displayText}</p>
-          <div className={"flex gap-4"}>
-            {shouldTruncate && (
-              <Button
-                variant="secondary"
-                onClick={() => setIsExpanded(!isExpanded)}
-                className=" font-medium p-1 h-auto"
-              >
-                {isExpanded
-                  ? t("breaking-news.show_less")
-                  : t("breaking-news.show_more")}
-                {isExpanded ? (
-                  <ChevronUp className="w-4 h-4 ml-2" />
-                ) : (
-                  <ChevronDown className="w-4 h-4 ml-2" />
-                )}
-              </Button>
-            )}
+          <div className="flex gap-4">
             {news.url && (
               <Button asChild>
                 <a href={news.url} target="_blank">
