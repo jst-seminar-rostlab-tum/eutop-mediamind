@@ -83,9 +83,32 @@ We use Amazon Simple Email Service (SES) for sending the reports and chatbot mes
 
     ![SES Receipt Rule Configuration](./images/ses-action.png)
 
+- **S3 Event Notification Configuration**:  
+  To trigger the Lambda function only once per incoming email, ensure that only the `Put` event (`s3:ObjectCreated:Put`) is selected in the S3 event notification configuration for the bucket.  
+  Do **not** select `All object create events` or `Multipart upload completed`, as this can result in multiple Lambda invocations for the same email.  
+  The Lambda function should use Redis (with a `rediss://` URL) to cache processed S3 object keys for deduplication and avoid double-handling.  
+  This is more efficient than using S3 object tags and avoids extra S3 API calls.  
+  Make sure the Lambda execution role includes permissions for Redis access.
+
+  ![S3 Event Notification Configuration](./images/s3-notification.png)
+
 ## Lambda
 
 We use AWS Lambda for the chatbot functionality. The Lambda function is triggered by incoming emails to the SES service and processes the emails to generate responses. You can find the Lambda function code in the [/scripts](/scripts/lambda/) together with its AWS SAM template.
+
+![Lambda Trigger](./images/lambda-trigger.png)
+
+**Lambda Details:**
+
+- Set a minimum timeout of 30 seconds for the Lambda function to ensure it has enough time to process incoming emails and generate responses.
+
+  ![Lambda Timeout Configuration](./images/lambda-config.png)
+
+- Increase the Lambda timeout in the AWS Console if you see timeouts.
+- The Lambda function uses Redis to cache processed S3 object keys for deduplication.
+- The Redis key is set after successful processing, with a TTL (e.g., 24 hours).
+- If the Lambda encounters an error (e.g., API failure), it can optionally set a Redis key with a different value to avoid repeated retries.
+
 
 ## Database (PostgreSQL)
 
