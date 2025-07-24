@@ -17,6 +17,7 @@ from app.services.web_harvester.web_harvester_orchestrator import (
 )
 
 logging.getLogger("LiteLLM").setLevel(logging.WARNING)
+logging.getLogger("httpx").setLevel(logging.WARNING)
 
 logger = get_logger(__name__)
 
