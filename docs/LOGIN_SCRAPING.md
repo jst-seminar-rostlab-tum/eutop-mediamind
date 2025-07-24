@@ -8,19 +8,18 @@ The login is done by using the following functions, using selenium:
 * **insert_credential**: to insert a value in an input field
 
 The previous functions are used by the main function **hardcoded_login**, which makes the login process following the common login steps:
-1. Get the subscription credentials, encrypted in the database
-2. Get the login config from the subscription. This is a json containing all the neccesary xpaths
-3. Initialize the website
-4. Accept the cookies. This is important because if the cookies window is not removed it can end up blockig us from scraping. For this step we take into consideration the following possibilities:
+1. **Get Config**: get the login config from the subscription, this is a json containing all the necesary xpaths
+2. **Initialize Website**: website is initialized using selenium
+3. **Accept Cookies**: if the cookies window is not removed it can end up blockig the scraping. For this step we take into consideration the following possibilities:
     - Handle iframes: the cookies window may be in an iframe, therefore we will have to change our driver's frame to interact with its elements
     - Shadow host: in other cases the window is inside a shadow root, for that we use the click_shadow_element function, designed specifically for these cases
-5. Remove notifications. Aafter accepting the cookies is common that a notifications/advertisement/etc window appears
-6. Open login form, that is, navigate to the website's page with the input fields for the credentials
-7. Submit login credentials, for this final step we follow these steps:
+4. **Remove Notifications**: after accepting the cookies is common that a notifications/advertisement/etc window appears
+5. **Open Login Form**: navigate to the website's page with the input fields for the credentials
+6. **Submit Credentials**: for this we follow these steps:
     - Insert username
     - Insert password
     - Click submit button
-    - Click second submit button. In some websites first you have to submit the username, and then a new form opens for the password, for this reason it's necessary to store both buttons for this specific case
+    - Click second submit button: in some websites first you have to submit the username, and then a new form opens for the password, for this reason it's necessary to store both buttons for this specific case
 
 Most of the time a website won't require to follow all the previous steps to complete the login, therefore the login_config json will be different for each one. These are all the possible keys that the login config can have:
 * **shadow_host_cookies**: CSS Selector of the shadow host that contains the shadow DOM content with the accept cookies element
