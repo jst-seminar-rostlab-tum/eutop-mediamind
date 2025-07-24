@@ -9,32 +9,56 @@ export function MockedBreakingNews() {
   const breakingNews = [
     {
       id: "1",
-      title: t("mock_data.breaking_title_1"),
-      summary: t("mock_data.breaking_summary_1"),
+      headline: {
+        en: t("mock_data.breaking_title_1"),
+        de: t("mock_data.breaking_title_1"),
+      },
+      summary: {
+        de: t("mock_data.breaking_summary_1"),
+        en: t("mock_data.breaking_summary_1"),
+      },
       image_url: "https://picsum.photos/800/600?random=1",
       url: "",
       published_at: "2025-07-16T09:00:00Z",
     },
     {
       id: "2",
-      title: t("mock_data.breaking_title_2"),
-      summary: t("mock_data.breaking_summary_2"),
+      headline: {
+        en: t("mock_data.breaking_title_2"),
+        de: t("mock_data.breaking_title_2"),
+      },
+      summary: {
+        de: t("mock_data.breaking_summary_2"),
+        en: t("mock_data.breaking_summary_2"),
+      },
       image_url: "https://picsum.photos/800/600?random=2",
       url: "",
       published_at: "2025-07-15T13:30:00Z",
     },
     {
       id: "3",
-      title: t("mock_data.breaking_title_3"),
-      summary: t("mock_data.breaking_summary_3"),
+      headline: {
+        en: t("mock_data.breaking_title_3"),
+        de: t("mock_data.breaking_title_3"),
+      },
+      summary: {
+        de: t("mock_data.breaking_summary_3"),
+        en: t("mock_data.breaking_summary_3"),
+      },
       image_url: "https://picsum.photos/800/600?random=3",
       url: "",
       published_at: "2025-07-14T08:45:00Z",
     },
     {
       id: "4",
-      title: t("mock_data.breaking_title_4"),
-      summary: t("mock_data.breaking_summary_4"),
+      headline: {
+        en: t("mock_data.breaking_title_4"),
+        de: t("mock_data.breaking_title_4"),
+      },
+      summary: {
+        de: t("mock_data.breaking_summary_4"),
+        en: t("mock_data.breaking_summary_4"),
+      },
       image_url: "https://picsum.photos/800/600?random=4",
       url: "",
       published_at: "2025-07-13T10:15:00Z",
