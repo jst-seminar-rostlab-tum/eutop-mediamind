@@ -41,12 +41,16 @@ async def email_job() -> JobResponse:
 async def trigger_pipeline(
     req: PipelineJobRequest = PipelineJobRequest(),
 ) -> JobResponse:
-    logger.info(f"Triggering pipeline from {req.start} to {req.end}")
+    logger.info(
+        f"Triggering pipeline from {req.start} to {req.end} for"
+        f" {req.time_period}"
+    )
     try:
         asyncio.create_task(
             pipeline.run(
                 datetime_start=req.start,
                 datetime_end=req.end,
+                time_period=req.time_period,
             )
         )
     except Exception as e:

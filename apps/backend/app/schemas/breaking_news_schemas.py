@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Optional
+from typing import Dict, Optional
 
 from pydantic import BaseModel, ConfigDict
 
@@ -8,11 +8,12 @@ from app.models.breaking_news import BreakingNews
 
 class BreakingNewsItem(BaseModel):
     id: str
-    title: Optional[str]
-    summary: Optional[str]
     image_url: Optional[str]
     url: Optional[str]
     published_at: Optional[datetime]
+    language: Optional[str] = None  # e.g., "en", "de"
+    headline: Optional[Dict[str, str]]  # e.g., {"en": "...", "de": "..."}
+    summary: Optional[Dict[str, str]]  # e.g., {"en": "...", "de": "..."}
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -20,11 +21,12 @@ class BreakingNewsItem(BaseModel):
     def from_entity(cls, breaking_news: BreakingNews) -> "BreakingNewsItem":
         return cls(
             id=breaking_news.id,
-            title=breaking_news.title,
-            summary=breaking_news.summary,
             image_url=breaking_news.image_url,
             url=breaking_news.url,
             published_at=breaking_news.published_at,
+            language=breaking_news.language,
+            headline=breaking_news.headline,
+            summary=breaking_news.summary,
         )
 
 

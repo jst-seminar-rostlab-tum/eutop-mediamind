@@ -131,8 +131,8 @@
   },
 
   "topics": {
-    "AI_error": "Failed to get AI suggestions.",
-    "topic_error": "Can't add the same topic twice",
+    "AI_error": "Fehler beim Laden der AI suggestions.",
+    "topic_error": "Topics mussen einzigartig sein.",
     "header": "Themen und Schlagwörter",
     "info": "Organisieren sie ihre Themen und Schlagwörter für die Nachrichten Extrahierung",
     "select_topic": "Thema auswählen",
@@ -317,14 +317,13 @@
     "header": "Breaking News",
     "no_news": "Keine Nachrichten verfügbar.",
     "entry": "Klicke hier, um die neusten globalen Nachrichten anzusehen!",
-    "show_less": "Weniger anzeigen",
-    "show_more": "Mehr anzeigen",
-    "original": "Original"
+    "original": "Weiterlesen"
   },
 
   "crawler_stats": {
     "title": "Crawler Statistiken",
     "source": "Abonnement",
+    "timeframe": "Zeitraum",
     "date": "Datum",
     "successful": "Erfolgreich",
     "attempted": "Versucht",
