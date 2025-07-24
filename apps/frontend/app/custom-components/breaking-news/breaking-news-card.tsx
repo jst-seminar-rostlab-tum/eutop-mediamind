@@ -9,7 +9,6 @@ interface NewsCardProps {
 }
 
 export function BreakingNewsCard({ news }: NewsCardProps) {
-
   const { t, i18n } = useTranslation();
 
   const headline = news.headline
