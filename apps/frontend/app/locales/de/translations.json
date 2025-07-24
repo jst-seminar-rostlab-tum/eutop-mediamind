@@ -98,6 +98,7 @@
     "general": "Allgemein",
     "topics": "Themen",
     "mailing": "Emails",
+
     "subscriptions": "Abonnements",
     "search_user": "Benutzer suchen...",
     "loading": "Laden...",
@@ -150,12 +151,13 @@
 
   "mailing": {
     "header": "Email Liste",
-    "info": "Konfigurieren sie ihre Kontakte für den Pressemitteilungs Verteiler",
+    "info": "Konfigurieren Sie ihre Kontakte für den Pressemitteilungs Verteiler",
     "Internal": "Interne",
     "External": "Externe",
     "internal": "interne",
     "external": "externe",
-    "filter": "Filter {{type}} Emails"
+    "filter": "Filter {{type}} Emails",
+    "cantAddDouble": "Sie können Emails nicht doppelt hinzufügen."
   },
 
   "data-table-mailing": {
@@ -344,7 +346,7 @@
     "reports": "Berichte",
     "header": "Bericht Download Center",
     "pagination": "Zeige {{from}} bis {{to}} von {{total}} Berichten",
-    "download_unavailable": "Nicht verfügbar",
+    "download_unavailable": "Keine Artikel",
     "download": "Herunterladen",
     "no_reports_found": "Keine Berichte gefunden.",
     "no_reports_match_filter": "Keine Berichte gefunden, die den Filtern entsprechen."

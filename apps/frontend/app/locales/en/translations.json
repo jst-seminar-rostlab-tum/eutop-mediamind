@@ -155,7 +155,8 @@
     "External": "External",
     "internal": "internal",
     "external": "external",
-    "filter": "filter {{type}} emails"
+    "filter": "filter {{type}} emails",
+    "cantAddDouble": "You cannot add the same email twice."
   },
 
   "data-table-mailing": {
@@ -348,7 +349,7 @@
     "reports": "Reports",
     "header": "Report Download Center",
     "pagination": "Showing {{from}} to {{to}} of {{total}} reports",
-    "download_unavailable": "Unavailable",
+    "download_unavailable": "No articles",
     "download": "Download",
     "no_reports_found": "No reports found.",
     "no_reports_match_filter": "No reports found that match the filters."
