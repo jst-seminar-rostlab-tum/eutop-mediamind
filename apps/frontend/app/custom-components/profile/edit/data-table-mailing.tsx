@@ -27,6 +27,7 @@ import { Input } from "~/components/ui/input";
 import { useTranslation } from "react-i18next";
 import { ScrollArea } from "~/components/ui/scroll-area";
 import { cn } from "~/lib/utils";
+import { toast } from "sonner";
 
 export interface MailingTableProps {
   name: string;
@@ -158,12 +159,13 @@ export function DataTableMailing({
   const [email, setEmail] = React.useState("");
 
   const handleAddEmail = () => {
-    if (!email) return; // prevent empty
-    if (dataArray.includes(email)) return; // prevent duplicates
-
-    const updatedArray = [...dataArray, email];
-    setDataArray(updatedArray);
-    setEmail(""); // clear input
+    if (dataArray.includes(email)) {
+      toast.info(t("mailing.cantAddDouble"));
+    } else {
+      const updatedArray = [...dataArray, email];
+      setDataArray(updatedArray);
+    }
+    setEmail("");
   };
 
   const { t } = useTranslation();
@@ -191,6 +193,7 @@ export function DataTableMailing({
             <Button
               className={"rounded-l-none"}
               variant={"secondary"}
+              disabled={!email}
               onClick={() => handleAddEmail()}
             >
               <Plus className={"h-4 w-4"} />

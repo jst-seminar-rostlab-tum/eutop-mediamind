@@ -83,8 +83,9 @@ class ChatbotContext:
             breaking_news_raw = get_all_breaking_news()
             breaking_news = "\n".join(
                 [
-                    f"Title: {news.title}\nPublished at: {news.published_at}\n"
-                    f"Summary: {news.summary}\nURL: {news.url}"
+                    f"Headline: {news.headline}\nPublished at: "
+                    f"{news.published_at}\nSummary: "
+                    f"{news.summary}\nURL: {news.url}"
                     for news in breaking_news_raw
                 ]
             )
