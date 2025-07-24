@@ -93,6 +93,8 @@ module "ecs" {
   alb_target_group_arn  = module.alb.alb_target_group_arn_prod
   alb_listener_arn      = module.alb.alb_listener_arn
   alb_security_group_id = module.alb.alb_security_group_id
+  cpu = "2048"
+  memory = "4096"
 }
 
 module "ecs_dev" {
@@ -110,6 +112,8 @@ module "ecs_dev" {
   alb_target_group_arn  = module.alb.alb_target_group_arn_dev
   alb_listener_arn      = module.alb.alb_listener_arn
   alb_security_group_id = module.alb.alb_security_group_id
+  cpu = "256"
+  memory = "1024"
 }
 
 module "scheduler" {
