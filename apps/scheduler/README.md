@@ -133,4 +133,3 @@ The flow is as follows:
    scheduled jobs. When it finds a job that is due to be executed, it moves the
    job to another Redis queue, containing jobs that are ready to be executed.
 3. Finally, the worker consumes the jobs from the execution queue and executes them.
-
