@@ -1,4 +1,4 @@
-import { Calendar, FileClock, Info, User } from "lucide-react";
+import { Calendar, FileClock, Info, Newspaper, User } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { useState } from "react";
 import {
@@ -18,6 +18,7 @@ interface ArticleBodyProps {
   author?: string;
   image_urls: string[];
   onlySummary: boolean;
+  publisher?: string;
 }
 
 const calculateReadingTime = (text: string): string => {
@@ -39,6 +40,7 @@ export function ArticleBody({
   author,
   image_urls,
   onlySummary,
+  publisher,
 }: ArticleBodyProps) {
   const readingTime = calculateReadingTime(content);
 
@@ -68,6 +70,14 @@ export function ArticleBody({
             <span className="mx-4">•</span>
             <div className={"flex items-center gap-2"}>
               <User className={"w-4 h-4"} /> {author}
+            </div>
+          </>
+        )}
+        {publisher && (
+          <>
+            <span className="mx-4">•</span>
+            <div className={"flex items-center gap-2"}>
+              <Newspaper className={"w-4 h-4"} /> {publisher}
             </div>
           </>
         )}

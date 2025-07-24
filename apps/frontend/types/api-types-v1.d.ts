@@ -382,23 +382,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/articles/pdf": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Trigger Pdf Creation */
-        get: operations["trigger_pdf_creation_api_v1_articles_pdf_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/v1/jobs/email": {
         parameters: {
             query?: never;
@@ -427,6 +410,40 @@ export interface paths {
         put?: never;
         /** Trigger Pipeline */
         post: operations["trigger_pipeline_api_v1_jobs_pipeline_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/jobs/rss": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Trigger Rss Crawling */
+        post: operations["trigger_rss_crawling_api_v1_jobs_rss_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/jobs/breaking-news": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Trigger Newsapi Crawling */
+        post: operations["trigger_newsapi_crawling_api_v1_jobs_breaking_news_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -532,23 +549,6 @@ export interface paths {
         put?: never;
         /** Trigger Crawling */
         post: operations["trigger_crawling_api_v1_crawler_trigger_crawling_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/crawler/trigger_rss_crawling": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Trigger Rss Crawling */
-        post: operations["trigger_rss_crawling_api_v1_crawler_trigger_rss_crawling_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -740,16 +740,22 @@ export interface components {
         BreakingNewsItem: {
             /** Id */
             id: string;
-            /** Title */
-            title: string | null;
-            /** Summary */
-            summary: string | null;
             /** Image Url */
             image_url: string | null;
             /** Url */
             url: string | null;
             /** Published At */
             published_at: string | null;
+            /** Language */
+            language?: string | null;
+            /** Headline */
+            headline: {
+                [key: string]: string;
+            } | null;
+            /** Summary */
+            summary: {
+                [key: string]: string;
+            } | null;
         };
         /** BreakingNewsResponse */
         BreakingNewsResponse: {
@@ -885,7 +891,7 @@ export interface components {
             };
             /** Text */
             text: {
-                [key: string]: string;
+                [key: string]: string | null;
             };
             /** Image Urls */
             image_urls: string[];
@@ -908,6 +914,8 @@ export interface components {
             status?: components["schemas"]["ArticleStatus"] | null;
             /** Language */
             language?: string | null;
+            /** Publisher */
+            publisher?: string | null;
         };
         /** MatchDetailResponse */
         MatchDetailResponse: {
@@ -1003,7 +1011,7 @@ export interface components {
             /** Name */
             name: string;
             /** Email */
-            email: string | null;
+            email?: string | null;
             /** Pdf As Link */
             pdf_as_link: boolean;
             /** Users */
@@ -1014,7 +1022,7 @@ export interface components {
             /** Name */
             name: string;
             /** Email */
-            email: string | null;
+            email?: string | null;
             /** Pdf As Link */
             pdf_as_link: boolean;
             /**
@@ -1045,6 +1053,27 @@ export interface components {
              * End
              * Format: date-time
              * @description End time for the pipeline job, defaults to now
+             */
+            end?: string;
+            /**
+             * Time Period
+             * @description Time period for the pipeline job, can be 'morning', 'afternoon' or 'evening'
+             * @default morning
+             */
+            time_period: string;
+        };
+        /** RSSJobRequest */
+        RSSJobRequest: {
+            /**
+             * Start
+             * Format: date-time
+             * @description Start time for the RSS crawling job, defaults to the         start of today
+             */
+            start?: string;
+            /**
+             * End
+             * Format: date-time
+             * @description End time for the RSS crawling job, defaults to now
              */
             end?: string;
         };
@@ -1111,7 +1140,7 @@ export interface components {
          * ReportStatus
          * @enum {string}
          */
-        ReportStatus: "pending" | "uploaded" | "failed";
+        ReportStatus: "pending" | "uploaded" | "failed" | "empty";
         /** SearchProfileCreateRequest */
         SearchProfileCreateRequest: {
             /** Name */
@@ -2189,26 +2218,6 @@ export interface operations {
             };
         };
     };
-    trigger_pdf_creation_api_v1_articles_pdf_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": unknown;
-                };
-            };
-        };
-    };
     email_job_api_v1_jobs_email_post: {
         parameters: {
             query?: never;
@@ -2258,6 +2267,59 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    trigger_rss_crawling_api_v1_jobs_rss_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["RSSJobRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["JobResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    trigger_newsapi_crawling_api_v1_jobs_breaking_news_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["JobResponse"];
                 };
             };
         };
@@ -2456,38 +2518,6 @@ export interface operations {
             query?: {
                 date_start?: string;
                 date_end?: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": unknown;
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    trigger_rss_crawling_api_v1_crawler_trigger_rss_crawling_post: {
-        parameters: {
-            query?: {
-                datetime_start?: string;
-                datetime_end?: string;
             };
             header?: never;
             path?: never;
