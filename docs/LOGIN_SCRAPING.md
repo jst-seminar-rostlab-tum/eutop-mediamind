@@ -37,18 +37,18 @@ Most of the time a website won't require to follow all the previous steps to com
 **Important notes**:
 * After exiting an iframe, you can see that we always use driver.switch_to.default_content(), this is highly important, since otherwise the driver will stay in the iframe's context and won't be able to interact with the website's elements
 * The code cannot use xpaths to interact with elements inside a shadow root. To properly interact with them use CSS Selectors only in this case.
-* The name of the keys of the login config json have to be always the same, since the code looks for those specific names to retrieve the xpaths.
+* The name of the keys in the login config json have to be always the same, since the code looks for those specific names to retrieve the xpaths.
 * Code just executes a step if the xpaths to complete that step are in the login config json
 * If keys are provided for an unexisting step in the website, the code won't break, the attempt will simply fail and a warning will logged
 
 # Logout
 
-If the login is done, it's highly recommended to do the logout as well before leaving the website, otherwise the sessions will remain open and at some point the session limit will be reached, blocking the login to the website. The same logic is repeated in the logout, and the same functions to interact with elements are used. The logout config is stored separately from the login config in the database.
+If the login is done, it's highly recommended to do the logout as well before leaving the website, otherwise the sessions will remain open and at some point the session limit will be reached, blocking the login to the website. The same logic is repeated for the logout, and the same functions to interact with elements are used. The logout config is stored separately from the login config in the database.
 
 The **hardcoded_logout** function follows this general process:
-1. Go to the profile page, which usually contains the logout button
-2. Change to the iframe containing the logout button, if any
-3. Click the logout button
+1. **Go to profile page**: this page usually contains the logout button
+2. **Change to logout iframe**: if any, change to the iframe containing the logout button
+3. **Click the logout button**
 
 Therefore the possible keys for the logout config json are:
 * profile_section
