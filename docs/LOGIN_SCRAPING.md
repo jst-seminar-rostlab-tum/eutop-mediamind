@@ -1,4 +1,4 @@
-# Login
+### Login
 
 The login is done by using the following functions, using selenium:
 * **click_element**: to click a regular html element
@@ -58,30 +58,30 @@ Therefore the possible keys for the logout config json are:
 
 Just like the login config, these names must be kept, since the code looks specifically for them.
 
-# LLM Approach
+### LLM Login Approach
 
 To avoid manual update of every broken subscription login config, we provide an automated LLM-based solution.
 
-The process is the following:
-1. Get the subscription's credentials
-2. Set the number of attempts the LLM will have to complete the process (currently 8 in the code), that is, the number of calls we will make. In the worst case scenario at least four attempts will be needed (send the homepage, send the profile page, send the username form page, send the password form page)
-3. Initialize the new login config json
-4. Start first attempt (currently limited to 8)
-5. Extract the page's html
-6. Extract the html from iframes and shadow roots and merge it with the page's html
-7. Clean the complete html (select the body, remove styles, scripts, SVG instructions)
-8. Take a screenshot of the current page (has proven to give better results)
-9. Send the html and the screenshot to the LLM, mentioning in the instructions all the elements that the login config json can have
-10. Add the responses to the new login config json
-11. Test the responses by following the general login process
-12. Evaluate if the login was completed, for that four things must be true:
+The process works this way:
+1. **Set Attempts**: A number of attempts is set for the LLM to complete the process (currently 8 in the code), the attempts are basically the number of LLM API calls that will be made. In the worst case scenario at least four attempts will be needed to successfully complete the login (send the homepage html, send the profile page, send the username form page, and send the password form page)
+2. **Initialize Config**: a new login config json is initialized, in this variable the returned xpaths of each attempt will be stored
+4. **Start Attempt**: the attempts start, until reaching the limit (currently 8)
+5. **Scraping**: the page's html is extracted using Selenium
+6. **Additional Scraping**: the html from iframes and shadow roots is extracted and merged with the page's html
+7. **Cleaning**: clean the complete html (select the body, remove styles, scripts, SVG instructions). This helps in reducing the tokens to be sent to the LLM
+8. **Screenshot**: a screenshot of the page is taken, to be sent to the LLM with the html (this has proven to give better results)
+9. **LLM Call**: the html and the screenshot is sent to the LLM, mentioning in the instructions all the elements that the login config json can have
+10. **Updating Config**: add the responses to the new login config json as a list for each key, this allows us to keep responses from previous calls stored, so that the next LLM call doesn't repeat the same unsuccessful answers
+11. **Testin**: the xpaths in the response are tested by following the general login process
+12. **Evaluation**: evaluate if the login was completed, for that four things must be true:
     * The username was inserted
     * The password was inserted
     * The submit button was clicked
-    * An 200 OK response was captured by the driver just after clicking the submit button
-13. If the login was not completed, another attempt is started
-14. Whether the service succedeed or not, the date of the run is stored in the the database (llm_login_attempt). This date is used to limit the use of this service
+    * An 200 OK response was captured by the driver just after clicking the submit button (using selenium to catch this)
+13. **Next Attempt**: if the login was not completed, another attempt is started
+14. **Register Attempt**: whether the service succedeed or not, the date of the run is stored in the the database (llm_login_attempt). This date is used to limit the use of this service (currently set to once every 7 days)
 
-Important notes:
+**Important notes**:
 * The login_config is updated in the database only if the login is completed successfully.
 * Since an html can consist of thousands (in some cases more than one million) tokens, this approach can be expensive. For that reason, usage is limited to one use per subscription per week. This is done by registering the date of the latest attempt in the subscriptions table (llm_login_attempt)
+* It is recommended to fix manually newspapers with extremely large htmls since the cost can be too high. For example, FAZ/FASZ - E-Paper can have +1 Million tokens in its html, therefore, completing the attempts would cost aroun 5 dollars even if running one of the mini OpenAI models
