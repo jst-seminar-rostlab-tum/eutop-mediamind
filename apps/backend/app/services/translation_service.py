@@ -29,8 +29,8 @@ base_prompt = (
 
 class ArticleTranslationService:
     _translators_cache = {}
-    _llm_client = LLMClient(TaskModelMapping.TRANSLATION)
-    _semaphore = asyncio.Semaphore(50)
+    _llm_client = LLMClient(TaskModelMapping.TRANSLATION, max_retries=1)
+    _semaphore = asyncio.Semaphore(30)
 
     _completed_count = 0
     _completed_count_lock = asyncio.Lock()
@@ -376,7 +376,6 @@ class ArticleTranslationService:
                 await ArticleRepository.get_articles_without_translations(
                     limit=page_size,
                     datetime_start=datetime_start,
-                    datetime_end=datetime_end,
                 )
             )
             while articles:
@@ -419,7 +418,6 @@ class ArticleTranslationService:
                     await ArticleRepository.get_articles_without_translations(
                         limit=page_size,
                         datetime_start=datetime_start,
-                        datetime_end=datetime_end,
                     )
                 )
             logger.info("No more articles without translation found")
@@ -478,3 +476,47 @@ class ArticleTranslationService:
         except Exception as e:
             logger.exception(f"Error running entity translation workflow: {e}")
             return None
+
+    @staticmethod
+    async def translate_breaking_news_fields(
+        breaking_news, target_language: str
+    ):
+        """
+        Translates the headline and summary of a BreakingNews object
+        to the target language using the LLM.
+        Args:
+            breaking_news: BreakingNews object
+            target_language: 'en' or 'de'
+            use_batch_api: whether to use batch API for translation
+        Returns:
+            dict: {"headline": translated_headl, "summary": translated_sum}
+        """
+        texts = [breaking_news.headline, breaking_news.summary]
+        # Only translate if the current language is not the target
+        if breaking_news.language == target_language:
+            return {
+                "headline": breaking_news.headline,
+                "summary": breaking_news.summary,
+            }
+        # Prepare prompts for translation
+        logger.info(f" {breaking_news.id} Prepare prompts for translation")
+        target_langs = {"en": "English", "de": "German"}
+        prompts = [
+            base_prompt.format(
+                target_lang=target_langs[target_language], content=text
+            )
+            for text in texts
+        ]
+        # Call LLM for translation
+        logger.info(f" {breaking_news.id} Call LLM for translation")
+        responses = []
+        for prompt in prompts:
+            resp = ArticleTranslationService._llm_client.generate_response(
+                prompt
+            )
+            responses.append(
+                resp["choices"][0]["message"]["content"]
+                if "choices" in resp and resp["choices"]
+                else resp
+            )
+        return {"headline": responses[0], "summary": responses[1]}

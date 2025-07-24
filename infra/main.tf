@@ -93,6 +93,8 @@ module "ecs" {
   alb_target_group_arn  = module.alb.alb_target_group_arn_prod
   alb_listener_arn      = module.alb.alb_listener_arn
   alb_security_group_id = module.alb.alb_security_group_id
+  cpu                   = "2048"
+  memory                = "4096"
 }
 
 module "ecs_dev" {
@@ -110,30 +112,40 @@ module "ecs_dev" {
   alb_target_group_arn  = module.alb.alb_target_group_arn_dev
   alb_listener_arn      = module.alb.alb_listener_arn
   alb_security_group_id = module.alb.alb_security_group_id
+  cpu                   = "256"
+  memory                = "1024"
 }
 
 module "scheduler" {
-  source          = "./modules/scheduler"
-  service_name    = "mediamind-scheduler"
-  cluster_name    = local.cluster_name
-  container_image = module.ecr_scheduler.repository_url
-  redis_endpoint  = jsondecode(data.aws_secretsmanager_secret_version.creds.secret_string)["REDIS_URL"]
-  api_base_url    = "https://api.mediamind.csee.tech/api"
-  subnet_ids      = data.aws_subnets.selected.ids
-  vpc_id          = data.aws_vpc.selected.id
-  region          = "eu-central-1"
+  source                     = "./modules/scheduler"
+  service_name               = "mediamind-scheduler"
+  cluster_name               = local.cluster_name
+  container_image            = module.ecr_scheduler.repository_url
+  redis_endpoint             = jsondecode(data.aws_secretsmanager_secret_version.creds.secret_string)["REDIS_URL"]
+  api_base_url               = "https://api.mediamind.csee.tech/api"
+  pipeline_morning_time      = "10:00"
+  pipeline_afternoon_time    = "16:00"
+  pipeline_evening_time      = "21:00"
+  breaking_news_job_interval = "3600"
+  subnet_ids                 = data.aws_subnets.selected.ids
+  vpc_id                     = data.aws_vpc.selected.id
+  region                     = "eu-central-1"
 }
 
 module "scheduler_dev" {
-  source          = "./modules/scheduler"
-  service_name    = "mediamind-scheduler-dev"
-  cluster_name    = local.cluster_name
-  container_image = module.ecr_scheduler.repository_url
-  redis_endpoint  = jsondecode(data.aws_secretsmanager_secret_version.dev_creds.secret_string)["REDIS_URL"]
-  api_base_url    = "https://dev.api.mediamind.csee.tech/api"
-  subnet_ids      = data.aws_subnets.selected.ids
-  vpc_id          = data.aws_vpc.selected.id
-  region          = "eu-central-1"
+  source                     = "./modules/scheduler"
+  service_name               = "mediamind-scheduler-dev"
+  cluster_name               = local.cluster_name
+  container_image            = module.ecr_scheduler.repository_url
+  redis_endpoint             = jsondecode(data.aws_secretsmanager_secret_version.dev_creds.secret_string)["REDIS_URL"]
+  api_base_url               = "https://dev.api.mediamind.csee.tech/api"
+  pipeline_morning_time      = ""
+  pipeline_afternoon_time    = ""
+  pipeline_evening_time      = ""
+  breaking_news_job_interval = "-1"
+  subnet_ids                 = data.aws_subnets.selected.ids
+  vpc_id                     = data.aws_vpc.selected.id
+  region                     = "eu-central-1"
 }
 
 module "qdrant" {

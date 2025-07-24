@@ -17,7 +17,10 @@ logger = get_logger(__name__)
 class ChatbotResponse:
     @staticmethod
     async def create_prompt_from_context(
-        email_conversation_id: UUID, subject: str, chat_body: str
+        email_conversation_id: UUID,
+        subject: str,
+        chat_body: str,
+        breaking_news: str,
     ) -> str:
         conversation_context = await ChatbotContext.load_conversation_context(
             email_conversation_id
@@ -25,9 +28,16 @@ class ChatbotResponse:
         prompt = f"""You are a professional customer support assistant for \
 MediaMind, responding to user emails. Your tone must always be polite, \
 empathetic, and solution-oriented. Your task is to provide a concise, \
-professional, and helpful reply to the user's latest message. Find attached \
-the PDF report related to the conversation, which contains relevant \
-information that can help you answer the user's query.
+professional, and helpful reply to the user's latest message. If available, \
+you will find the PDF report attached, that is related to the conversation, \
+and which contains relevant information that can help you answer the user's \
+query. Otherwise, rely on the conversation context provided below to \
+answer the user's query. You will always get the current breaking news \
+for the last 24h. If related to the user's query, you can use it for your \
+response. If the user wants more information regarding a breaking news item, \
+you should also visit the URL attached to it and read the article, \
+if possible. If the user asks about breaking news older than 24h, you should \
+only use the context you have from the conversation history.
 
 Additionally, you can find the complete conversation history so far below. \
 Messages are labelled as "user" (for user messages) and "assistant" \
@@ -44,6 +54,11 @@ The user's latest message is:
 {chat_body}
 ---
 
+The current breaking news are:
+---
+{breaking_news}
+---
+
 Instructions:
 - Respond only with the body of your reply, in clear and concise paragraphs.
 - Include a salutation. In English, you should use 'Hi [username]'. Leave \
@@ -56,8 +71,9 @@ MediaMind Team'.
 - If the user's message is unclear, politely ask for clarification.
 - If you do not know the answer, reply that to the user and politely ask for \
 more context.
-- Attached you will find the latest report in PDF format. Use it to \
-provide accurate information.
+- If available, you will find the latest report in PDF format attached. \
+Use it to provide accurate information.
+- Use the current breaking news only if the user asks about it. \
 - Focus on providing accurate, actionable, and relevant information to \
 resolve the user's query.
 - Always answer in the language of the user's last message."""
@@ -68,12 +84,14 @@ resolve the user's query.
         email_conversation_id: UUID,
         subject: str,
         chat_body: str,
-        report_file: BytesIO,
+        report_file: BytesIO | None = None,
     ) -> str:
+        breaking_news = ChatbotContext.load_breaking_news()
         prompt = await ChatbotResponse.create_prompt_from_context(
             email_conversation_id=email_conversation_id,
             subject=subject,
             chat_body=chat_body,
+            breaking_news=breaking_news,
         )
 
         llm_client = LLMClient(TaskModelMapping.CHATBOT)

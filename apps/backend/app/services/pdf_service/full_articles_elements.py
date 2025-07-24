@@ -17,7 +17,7 @@ from .colors import pdf_colors
 from .markdown_utils import markdown_blocks_to_paragraphs
 from .utils import calculate_reading_time
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("PDF_SERVICE")
 
 
 def create_full_articles_elements(news_items, dimensions, translator, styles):
@@ -69,8 +69,9 @@ def create_full_articles_elements(news_items, dimensions, translator, styles):
         {translator('Published at')}: {news.published_at} |
          {translator('Newspaper')}: {news.newspaper.name} |
          {translator('Words')}: {word_count} |
-         {translator('Keywords')}: {keywords_str} |
          {translator('Category')}: {category_str}
+         <br/>
+         {translator('Keywords')}: {keywords_str}
                 """
         metadata_para = Paragraph(metadata_text, styles["metadata_style"])
         metadata_first = Table(
@@ -83,7 +84,7 @@ def create_full_articles_elements(news_items, dimensions, translator, styles):
                     ("LEFTPADDING", (0, 0), (-1, -1), 6),
                     ("RIGHTPADDING", (0, 0), (-1, -1), 6),
                     ("TOPPADDING", (0, 0), (-1, -1), 0),
-                    ("BOTTOMPADDING", (0, 0), (-1, -1), 2),
+                    ("BOTTOMPADDING", (0, 0), (-1, -1), 6),
                 ]
             ),
         )
@@ -163,6 +164,10 @@ def create_full_articles_elements(news_items, dimensions, translator, styles):
         story.append(reading_time_box)
 
         # Translating Content Markdown to Reportlab Paragraphs
+        logger.info(
+            f"Parsing markdown content for article \
+            (id={news.id}) into ReportLab paragraphs."
+        )
         for para in markdown_blocks_to_paragraphs(news.content, styles):
             story.append(para)
         story.append(Spacer(1, 0.3 * inch))
@@ -173,6 +178,7 @@ def create_full_articles_elements(news_items, dimensions, translator, styles):
         organizations_str = ", ".join(f"{i}" for i in news.organizations)
         industries_str = ", ".join(f"{i}" for i in news.industries)
         events_str = ", ".join(f"{i}" for i in news.events)
+        citations_str = ", ".join(f"{c}" for c in news.citations)
 
         # Prepare metadata as label-value pairs for two columns
         metadata_rows = [
@@ -298,6 +304,16 @@ def create_full_articles_elements(news_items, dimensions, translator, styles):
                     styles["metadata_style"],
                 ),
             ],
+            [
+                Paragraph(
+                    f"<b>{translator('Citations')}:</b>",
+                    styles["metadata_style"],
+                ),
+                Paragraph(
+                    citations_str if citations_str else translator("None"),
+                    styles["metadata_style"],
+                ),
+            ],
         ]
 
         combined_box = Table(
@@ -340,47 +356,55 @@ def create_full_articles_elements(news_items, dimensions, translator, styles):
         story.append(combined_box)
         story.append(Spacer(1, 0.1 * inch))
 
-        # URL Link Button
+        # Combined row: left = appendix link, right = read at newspaper button
+        appendix_link = Paragraph(
+            f"""<a href="#original_article_{i}">
+            <u>{translator("See original article in appendix")}</u></a>""",
+            styles["link_style"],
+        )
         link_img = Image("assets/link_icon.png", width=16, height=16)
-        button = Table(
+        read_button = Paragraph(
+            f"""<a href="{news.url}">
+            <b>{translator("Read Article at Newspaper")}</b></a>""",
+            styles["link_style"],
+        )
+        button_row = Table(
             [
-                [
-                    link_img,
-                    Paragraph(
-                        f'<a href="{news.url}">'
-                        f'<b>{translator("Read Article at Newspaper")}'
-                        f"</b></a>",
-                        styles["link_style"],
-                    ),
-                ]
+                [appendix_link, link_img, read_button],
             ],
-            colWidths=[0.2 * inch, 2.1 * inch],
+            colWidths=[2.5 * inch, 0.2 * inch, 2.1 * inch],
             hAlign="RIGHT",
         )
-        button.setStyle(
+        button_row.setStyle(
             TableStyle(
                 [
                     ("BACKGROUND", (0, 0), (-1, -1), pdf_colors["white"]),
                     ("TEXTCOLOR", (0, 0), (-1, -1), pdf_colors["blue"]),
-                    ("ALIGN", (0, 0), (-1, -1), "CENTER"),
+                    (
+                        "ALIGN",
+                        (0, 0),
+                        (0, 0),
+                        "LEFT",
+                    ),  # Left-align appendix link
+                    ("ALIGN", (1, 0), (2, 0), "CENTER"),
                     ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
                     ("FONTSIZE", (0, 0), (-1, -1), 10),
                     ("INNERGRID", (0, 0), (-1, -1), 0, pdf_colors["white"]),
                     ("BOX", (0, 0), (-1, -1), 1, pdf_colors["white"]),
                     ("TOPPADDING", (0, 0), (-1, -1), 4),
                     ("BOTTOMPADDING", (0, 0), (-1, -1), 4),
-                    ("LEFTPADDING", (0, 0), (-1, -1), 8),
+                    (
+                        "LEFTPADDING",
+                        (0, 0),
+                        (0, 0),
+                        0,
+                    ),  # No left padding for appendix link
+                    ("LEFTPADDING", (1, 0), (2, 0), 8),
                     ("RIGHTPADDING", (0, 0), (-1, -1), 8),
-                    ("ALIGN", (0, 0), (-1, -1), "CENTER"),
                 ]
             )
         )
-        story.append(button)
-
-        # Design: Helper to add a link
-        # from the full article to the original
-        # Usage in full article: <a href="#original_article_{i}">
-        # {translator("See original article in appendix")}</a>
+        story.append(button_row)
 
         if i != len(news_items) - 1:
             story.append(PageBreak())

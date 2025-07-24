@@ -44,6 +44,7 @@ export default function Header() {
   const redirectUrl = searchParams.get("redirect_url");
   const [openLogin, setOpenLogin] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
+  const [updatingLanguage, setUpdatingLanguage] = useState(false);
 
   useEffect(() => {
     if (searchParams.get(SIGN_UP) === "true") {
@@ -68,6 +69,7 @@ export default function Header() {
   const changeLanguage = async (lng: "en" | "de") => {
     i18n.changeLanguage(lng);
     if (user) {
+      setUpdatingLanguage(true);
       await client.PUT("/api/v1/users/language", {
         params: { query: { language: lng } },
       });
@@ -75,6 +77,7 @@ export default function Header() {
         ...user,
         language: lng,
       });
+      setUpdatingLanguage(false);
     }
   };
 
@@ -95,7 +98,7 @@ export default function Header() {
       </div>
 
       <div className="flex justify-end items-center gap-4">
-        {!isLoaded || (isLoaded && isSignedIn && !user) ? (
+        {updatingLanguage || !isLoaded || (isLoaded && isSignedIn && !user) ? (
           <Skeleton className="h-8 w-20" />
         ) : (
           <DropdownMenu>

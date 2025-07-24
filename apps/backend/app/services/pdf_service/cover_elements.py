@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import List
 
-from reportlab.lib.enums import TA_JUSTIFY
+from reportlab.lib.enums import TA_JUSTIFY, TA_RIGHT
 from reportlab.lib.styles import ParagraphStyle
 from reportlab.lib.units import cm
 from reportlab.platypus import (
@@ -68,7 +68,10 @@ def draw_cover_elements(
         )
     )
     story.append(Spacer(1, 0.3 * 72))
-    total_text = " ".join(news.content for news in news_items)
+    total_text = " ".join(
+        ((news.content or "") + " " + (news.summary or ""))
+        for news in news_items
+    )
     total_minutes = calculate_reading_time(total_text, words_per_minute=180)
 
     class EstimatedReadingTimeFlowable(Flowable):
@@ -144,8 +147,6 @@ def draw_cover_elements(
             f'&nbsp;{translator("Full Article")}&nbsp;'
             "</a>"
         )
-        from reportlab.lib.enums import TA_RIGHT
-
         button_style_right = styles["button_style"].clone("button_style_right")
         button_style_right.alignment = TA_RIGHT
         button_para = Paragraph(

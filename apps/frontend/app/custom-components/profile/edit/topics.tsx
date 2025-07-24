@@ -138,9 +138,16 @@ export function Topics({ profile, setProfile }: TopicsProps) {
             value={selectedTopic}
             onValueChange={(value) => setSelectedTopic(value)}
           >
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder={t("topics.select_topic")} />
+            <SelectTrigger className="w-[180px] ">
+              <SelectValue asChild placeholder={t("topics.select_topic")}>
+                <div className="grow">
+                  <span className="text-ellipsis overflow-hidden whitespace-nowrap">
+                    {selectedTopic || t("topics.select_topic")}
+                  </span>
+                </div>
+              </SelectValue>
             </SelectTrigger>
+
             <SelectContent>
               <SelectGroup>
                 <SelectLabel>Topics</SelectLabel>

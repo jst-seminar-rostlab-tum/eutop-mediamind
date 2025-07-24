@@ -17,13 +17,21 @@ from app.services.web_harvester.web_harvester_orchestrator import (
 )
 
 logging.getLogger("LiteLLM").setLevel(logging.WARNING)
+logging.getLogger("httpx").setLevel(logging.WARNING)
 
 logger = get_logger(__name__)
 
 
-async def run(datetime_start: datetime, datetime_end: datetime):
+async def run(
+    datetime_start: datetime,
+    datetime_end: datetime,
+    time_period: str = "morning",
+) -> None:
     """Run a pipeline for the given date range."""
-    logger.info(f"Running pipeline from {datetime_start} to {datetime_end}")
+    logger.info(
+        f"Running pipeline from {datetime_start} to {datetime_end} "
+        f"for {time_period}"
+    )
 
     logger.info("Running crawler and scraper")
     await run_crawler(
@@ -58,7 +66,7 @@ async def run(datetime_start: datetime, datetime_end: datetime):
     logger.info("Report generation")
     # Returns the Report, presigned URL, dashboard URL and search profile
     reports_info = await ReportService.run(
-        timeslot="morning", languages=[Language.EN, Language.DE]
+        timeslot=time_period, languages=[Language.EN, Language.DE]
     )
     logger.info(f"Generated {len(reports_info)} reports")
 

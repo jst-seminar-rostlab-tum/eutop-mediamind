@@ -19,13 +19,20 @@ def schedule_jobs(service: SchedulerService, cfg: Config) -> None:
             args=[f"{cfg.API_BASE_URL}/v1/jobs/email"],
         )
 
-    if cfg.PIPELINE_JOB_INTERVAL > 0:
-        service.schedule_periodic(
-            id=UUID("4b986edc-360e-4690-8633-ff2f11cdfe3a"),
-            every_seconds=cfg.PIPELINE_JOB_INTERVAL,
-            func=job_request,
-            args=[f"{cfg.API_BASE_URL}/v1/jobs/pipeline"],
-        )
+    pipeline_schedule = {
+        cfg.PIPELINE_MORNING_TIME: {"time_period": cfg.PIPELINE_MORNING_LABEL},
+        cfg.PIPELINE_AFTERNOON_TIME: {"time_period": cfg.PIPELINE_AFTERNOON_LABEL},
+        cfg.PIPELINE_EVENING_TIME: {"time_period": cfg.PIPELINE_EVENING_LABEL},
+    }
+
+    for i, (time, args_dict) in enumerate(pipeline_schedule.items()):
+        if time:
+            service.schedule_daily_at_times(
+                id=UUID(f"4b986edc-360e-4690-8633-ff2f11cdfe{i:02d}"),
+                times=[time],
+                func=job_request,
+                args=[f"{cfg.API_BASE_URL}/v1/jobs/pipeline", args_dict],
+            )
 
     if cfg.RSS_JOB_INTERVAL > 0:
         service.schedule_periodic(
