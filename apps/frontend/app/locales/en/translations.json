@@ -23,19 +23,19 @@
     "header_description": "Your automated press analysis tool",
     "credits": "MediaMind was build in cooperation between EUTOP, the Technical University of Munich and CSEE during the Javascript Technology Practicum.",
     "dashboard_header": "Manage your Search Profiles",
-    "dashboard_text": "Clean interface to manage all profiles in one Dashboard",
+    "dashboard_text": "Clean interface to manage all profiles in one Dashboard. You can edit your profiles here and adjust topics and keywords at anytime",
     "topics_header": "Start creating your Search Profiles",
     "topics_text": "Specify your topics of interest with the desired keywords and get AI suggestions for the best additional keywords",
     "add_topic": "You want to add topics and more? Login and get access to all features!",
     "click_reports": "You want to see reports and more? Login and get access to all features!",
     "search_profile_header": "View your matched articles",
-    "search_profile_text": "Topic and article  matches are rate by relevance based on semantic similarity. Also search in the Vector Database directly via the searchbar",
+    "search_profile_text": "Topic and article matches are rated by relevance based on semantic similarity. You can also search in the Vector Database directly via the searchbar",
     "article_header": "Read articles directly in the application",
-    "article_text": "Get a detailed overview of the article with all topics, keywords and their scores",
+    "article_text": "Get a detailed overview of the article and all its topics with scores and keywords",
     "email_header": "Every morning - directly in your Inbox!",
     "email_text": "Receive your tailored reports daily via email. You can download them or visit the article directly in the application",
     "breaking_header": "Read all breaking news",
-    "breaking_text": "Stay informed with all global breaking news in one spot",
+    "breaking_text": "Stay informed with all global breaking news in one spot. Accessible with just one click from the dashboard",
     "breaking_toast": "You want to see breaking news and more? Check out the breaking news preview or log in!",
     "sp_toast": "You want to create your own Search profile? Log in and enjoy all features",
     "edit_profile_toast": "You want to edit profiles and more? Log in and experience all features!",
@@ -150,7 +150,7 @@
 
   "mailing": {
     "header": "Mailing List",
-    "info": "Configure profile contact database for press release distribution",
+    "info": "Manage the list of recipients for press release distribution",
     "Internal": "Internal",
     "External": "External",
     "internal": "internal",
@@ -168,7 +168,7 @@
   "subscriptions": {
     "header": "Subscriptions",
     "source": "Subscription",
-    "info": "Configure web scraping sources used for the external mailing list",
+    "info": "Configure subscriptions used for the external mailing list",
     "no_results": "No results.",
     "active": "Active"
   },
@@ -321,14 +321,13 @@
     "header": "Breaking News",
     "no_news": "No breaking news available.",
     "entry": "Click here to view the latest breaking news!",
-    "show_less": "Show less",
-    "show_more": "Show more",
-    "original": "Original"
+    "original": "Read more"
   },
 
   "crawler_stats": {
     "title": "Crawler Stats",
     "source": "Subscription",
+    "timeframe": "Timeframe",
     "date": "Date",
     "successful": "Successful",
     "attempted": "Attempted",

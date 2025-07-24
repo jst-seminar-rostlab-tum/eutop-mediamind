@@ -177,7 +177,7 @@ class SearchProfileService:
     async def _build_profile_response(
         profile: SearchProfile, current_user: UserEntity
     ) -> SearchProfileDetailResponse:
-        is_owner = profile.created_by_id == current_user.id
+        is_owner = profile.owner_id == current_user.id
 
         is_editor = (
             current_user.id == profile.owner_id
@@ -223,7 +223,7 @@ class SearchProfileService:
             id=profile.id,
             name=profile.name,
             is_public=profile.is_public,
-            owner_id=profile.created_by_id,
+            owner_id=profile.owner_id,
             is_owner=is_owner,
             can_read_user_ids=profile.can_read_user_ids,
             is_reader=is_reader,
@@ -320,32 +320,51 @@ class SearchProfileService:
         )
 
         if request.searchTerm:
-            # Qdrant vertor search
-            avs = ArticleVectorService()
-            results = await avs.retrieve_by_similarity(
-                query=request.searchTerm
-            )
+            import re
 
-            # extract article IDs and relevance scores
-            article_ids = []
-            for doc, score in results:
-                aid = uuid.UUID(doc.metadata["id"])
-                article_ids.append(aid)
-                relevance_map[aid] = score
+            def split_words(text):
+                if not text:
+                    return []
+                return re.findall(r"[\wäöüßÄÖÜ]+", text.lower())
 
-            # get matches for the profile with the article IDs
+            search_words = split_words(request.searchTerm)
+            min_match = len(search_words)
+
+            def field_match(field):
+                combined_text = " ".join(fields).lower()
+                combined_words = set(split_words(combined_text))
+                return sum(
+                    w in combined_words or w in combined_text
+                    for w in search_words
+                )
+
             all_matches = await MatchRepository.get_matches_by_search_profile(
                 search_profile_id,
             )
-            matches = [
-                m
-                for m in all_matches
-                if m.article_id in article_ids
-                and m.article
-                and request.startDate
-                <= m.article.published_at.date()
-                <= request.endDate
-            ]
+            matches = []
+            for m in all_matches:
+                if not m.article:
+                    continue
+                fields = [
+                    m.article.title_de or "",
+                    m.article.title_en or "",
+                    m.article.summary_de or "",
+                    m.article.summary_en or "",
+                ]
+                found = False
+                for field in fields:
+                    if field:
+                        match_count = field_match(field)
+                        if match_count >= min_match:
+                            found = True
+                            break
+                if (
+                    found
+                    and request.startDate
+                    <= m.article.published_at.date()
+                    <= request.endDate
+                ):
+                    matches.append(m)
         else:
             # no search term: get all matches for the profile
             matches = await MatchRepository.get_matches_by_search_profile(
@@ -539,7 +558,14 @@ class SearchProfileService:
                 "de": None,
                 "en": None,
             }
-
+        publisher = None
+        if article.subscription_id:
+            async with async_session() as session:
+                subscription = await SubscriptionRepository.get_by_id(
+                    subscription_id=article.subscription_id, session=session
+                )
+                if subscription:
+                    publisher = subscription.name
         return MatchDetailResponse(
             match_id=match.id,
             topics=topics,
@@ -563,6 +589,7 @@ class SearchProfileService:
                 categories=article.categories or [],
                 language=article.language,
                 newspaper_id=article.subscription_id,
+                publisher=publisher,
             ),
             entities=entities_dict,
         )

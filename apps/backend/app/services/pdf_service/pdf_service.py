@@ -32,10 +32,39 @@ from .original_elements import create_original_articles_elements
 from .styles import get_pdf_styles
 from .summaries_elements import create_summaries_elements
 
-logger = get_logger(__name__)
+# Hyphenation utilities
+from .utils import hyphenate_text
+
+logger = get_logger("PDF_SERVICE")
 
 
 class PDFService:
+    @staticmethod
+    def _draw_cover_elements(news_items, dimensions, translator):
+        return _draw_cover_elements(
+            news_items, dimensions, PDFService.styles, translator
+        )
+
+    @staticmethod
+    def draw_header_footer(*args, **kwargs):
+        return _draw_header_footer(*args, **kwargs)
+
+    @staticmethod
+    def _create_summaries_elements(news_items, dimensions, translator):
+        return create_summaries_elements(
+            news_items, dimensions, translator, PDFService.styles, pdf_colors
+        )
+
+    @staticmethod
+    def _create_full_articles_elements(*args, **kwargs):
+        return create_full_articles_elements(*args, **kwargs)
+
+    @staticmethod
+    def _create_original_elements(news_items, styles, translator):
+        return create_original_articles_elements(
+            news_items, styles, translator
+        )
+
     # Loading Our custom fonts
     styles = get_pdf_styles(register_fonts())
 
@@ -45,110 +74,159 @@ class PDFService:
         timeslot: str,
         language: str,
     ) -> tuple[bytes, bool]:
-        # Obtain translator for the specified language
-        if timeslot not in ["morning", "afternoon", "evening"]:
+        try:
             logger.info(
-                "Invalid timeslot. Must be one of: ['morning', 'afternoon',"
-                " 'evening']"
+                f"Starting PDF generation for profile={search_profile_id}, timeslot={timeslot}, language={language}"
             )
-
-        articles = await ArticleRepository.get_matched_articles_for_profile_for_create_pdf(
-            search_profile_id
-        )
-
-        empty_pdf = False
-        if not articles:
-            empty_pdf = True
-
-        translator = ArticleTranslationService.get_translator(language)
-        news_items = []
-        for article in articles:
-            entities = await ArticleEntityRepository.get_entities_by_article(
-                article.id, language
-            )
-            persons = entities.get(EntityType.PERSON.value, [])
-            organizations = entities.get(EntityType.ORGANIZATION.value, [])
-            industries = entities.get(EntityType.INDUSTRY.value, [])
-            events = entities.get(EntityType.EVENT.value, [])
-            citations = entities.get(EntityType.CITATION.value, [])
-            if article.published_at:
-                published_at_raw = article.published_at
-                month = published_at_raw.strftime("%B")
-                published_at_str = (
-                    f"{published_at_raw.strftime('%d')} "
-                    f"{translator(month)} {published_at_raw.strftime('%Y')} "
-                    f"– {published_at_raw.strftime('%H:%M')}"
+            # Obtain translator for the specified language
+            if timeslot not in ["morning", "afternoon", "evening"]:
+                logger.error(
+                    "Invalid timeslot. Must be one of: ['morning', 'afternoon',"
+                    " 'evening']"
                 )
-            else:
-                published_at_str = None
-            missing_sub_message = (
-                translator("This content is only available to")
-                + f" {article.subscription.name} "
-                + translator("subscribers")
-                + "."
+
+            articles = await ArticleRepository.get_matched_articles_for_profile_for_create_pdf(
+                search_profile_id
             )
-            news_item = NewsItem(
-                id=article.id,
-                title=(
-                    getattr(article, f"title_{language}", None)
-                    or article.title
-                ),
-                title_original=(
-                    getattr(article, "title_original", None) or article.title
-                ),
-                content=(
-                    getattr(article, f"content_{language}", None)
-                    or (
+
+            empty_pdf = False
+            if not articles:
+                logger.info(
+                    f"No articles found for profile={search_profile_id}, timeslot={timeslot}, language={language}. Generating empty PDF."
+                )
+                empty_pdf = True
+
+            translator = ArticleTranslationService.get_translator(language)
+            news_items = []
+            for article in articles:
+                try:
+                    entities = (
+                        await ArticleEntityRepository.get_entities_by_article(
+                            article.id, language
+                        )
+                    )
+                    persons = entities.get(EntityType.PERSON.value, [])
+                    organizations = entities.get(
+                        EntityType.ORGANIZATION.value, []
+                    )
+                    industries = entities.get(EntityType.INDUSTRY.value, [])
+                    events = entities.get(EntityType.EVENT.value, [])
+                    citations = entities.get(EntityType.CITATION.value, [])
+                    if article.published_at:
+                        published_at_raw = article.published_at
+                        month = published_at_raw.strftime("%B")
+                        published_at_str = (
+                            f"{published_at_raw.strftime('%d')} "
+                            f"{translator(month)} {published_at_raw.strftime('%Y')} "
+                            f"– {published_at_raw.strftime('%H:%M')}"
+                        )
+                    else:
+                        published_at_str = None
+                    missing_sub_message = (
+                        translator("This content is only available to")
+                        + f" {article.subscription.name} "
+                        + translator("subscribers")
+                        + "."
+                    )
+                    # Only hyphenate the summary
+                    content = getattr(
+                        article, f"content_{language}", None
+                    ) or (
                         missing_sub_message
                         if article.content == ""
                         else article.content
                     )
-                ),
-                content_original=(
-                    getattr(article, "content_original", None)
-                    or (
+                    content_original = getattr(
+                        article, "content_original", None
+                    ) or (
                         missing_sub_message
                         if article.content == ""
                         else article.content
                     )
-                ),
-                url=article.url,
-                author=(
-                    ", ".join(article.authors)
-                    if article.authors
-                    else translator("Unknown")
-                ),
-                image_url=(
-                    article.image_url
-                    if hasattr(article, "image_url")
-                    else None
-                ),
-                published_at=published_at_str,
-                language=article.language if article.language else None,
-                category=(
-                    ", ".join(article.categories)
-                    if article.categories
-                    else None
-                ),
-                summary=(
-                    getattr(article, f"summary_{language}", None)
-                    or (
+                    summary = getattr(
+                        article, f"summary_{language}", None
+                    ) or (
                         article.summary
                         if article.summary
                         else translator("No summary available") + "."
                     )
-                ),
-                subscription_id=article.subscription.id,
-                newspaper=article.subscription or translator("Unknown"),
-                keywords=[keyword.name for keyword in article.keywords],
-                persons=persons,
-                organizations=organizations,
-                industries=industries,
-                events=events,
-                citations=citations,
-            )
-            news_items.append(news_item)
-        return PDFService.draw_pdf(news_items, translator), empty_pdf
+                    summary = hyphenate_text(summary, language)
+                    news_item = NewsItem(
+                        id=article.id,
+                        title=(
+                            getattr(article, f"title_{language}", None)
+                            or article.title
+                        ),
+                        title_original=(
+                            getattr(article, "title_original", None)
+                            or article.title
+                        ),
+                        content=content,
+                        content_original=content_original,
+                        url=article.url,
+                        author=(
+                            ", ".join(article.authors)
+                            if article.authors
+                            else translator("Unknown")
+                        ),
+                        image_url=(
+                            article.image_url
+                            if hasattr(article, "image_url")
+                            else None
+                        ),
+                        published_at=published_at_str,
+                        language=(
+                            article.language if article.language else None
+                        ),
+                        summary=summary,
+                        subscription_id=article.subscription.id,
+                        newspaper=article.subscription
+                        or translator("Unknown"),
+                        # Category: join topic_name and score as 'Topic: XX.XX%'
+                        category=(
+                            ", ".join(
+                                f"{topic.get('topic_name', '')}: {round(topic.get('score', 0)*100, 2):.2f}%"
+                                for topic in getattr(
+                                    article, "topics_data", []
+                                )
+                                if topic.get("topic_name")
+                            )
+                            if hasattr(article, "topics_data")
+                            and article.topics_data
+                            else None
+                        ),
+                        # Keywords: join keyword_name and score as 'keyword: XX.XX%'
+                        keywords=(
+                            [
+                                f"{keyword.get('keyword_name', '')}: {round(keyword.get('score', 0)*100, 2):.2f}%"
+                                for topic in getattr(
+                                    article, "topics_data", []
+                                )
+                                for keyword in topic.get("keywords", [])
+                                if keyword.get("keyword_name")
+                            ]
+                            if hasattr(article, "topics_data")
+                            and article.topics_data
+                            else []
+                        ),
+                        persons=persons,
+                        organizations=organizations,
+                        industries=industries,
+                        events=events,
+                        citations=citations,
+                    )
+                    news_items.append(news_item)
+                except Exception as e:
+                    logger.error(
+                        f"Error processing article {getattr(article, 'id', 'unknown')}: {e}"
+                    )
+                    continue
+            logger.info(f"Collected {len(news_items)} news items for PDF.")
+            return PDFService.draw_pdf(news_items, translator), empty_pdf
+        except Exception as e:
+            logger.error(f"Error in create_pdf: {e}")
+            # Return empty PDF bytes and True to indicate empty
+            return b"", True
 
     @staticmethod
     def draw_pdf(
@@ -167,24 +245,48 @@ class PDFService:
                     """
                 )
 
-            # Prepare all flowable elements for the PDF
-            cover_elements = PDFService.__draw_cover_elements(
-                news_items, dimensions, translator
-            )
-            summaries_elements = PDFService.__create_summaries_elements(
-                news_items, dimensions, translator
-            )
-            full_articles_elements = (
-                PDFService.__create_full_articles_elements(
-                    news_items, dimensions, translator, PDFService.styles
+            try:
+                logger.info("Building cover page elements.")
+                cover_elements = PDFService._draw_cover_elements(
+                    news_items, dimensions, translator
                 )
-            )
-            # Add appendix with original articles
-            original_elements = (
-                PDFService._PDFService__create_original_elements(
+            except Exception as e:
+                logger.error(f"Error building cover page elements: {e}")
+                cover_elements = []
+
+            try:
+                logger.info("Building summaries section elements.")
+                summaries_elements = PDFService._create_summaries_elements(
+                    news_items, dimensions, translator
+                )
+            except Exception as e:
+                logger.error(f"Error building summaries section elements: {e}")
+                summaries_elements = []
+
+            try:
+                logger.info("Building full articles section elements.")
+                full_articles_elements = (
+                    PDFService._create_full_articles_elements(
+                        news_items, dimensions, translator, PDFService.styles
+                    )
+                )
+            except Exception as e:
+                logger.error(
+                    f"Error building full articles section elements: {e}"
+                )
+                full_articles_elements = []
+
+            try:
+                logger.info("Building appendix with original articles.")
+                original_elements = PDFService._create_original_elements(
                     news_items, PDFService.styles, translator
                 )
-            )
+            except Exception as e:
+                logger.error(
+                    f"Error building appendix with original articles: {e}"
+                )
+                original_elements = []
+
             # Combine all elements
             all_elements = []
             all_elements.append(NextPageTemplate("Cover"))
@@ -263,34 +365,15 @@ class PDFService:
                     ),
                 ]
             )
-            doc.build(all_elements)
+            try:
+                doc.build(all_elements)
+            except Exception as e:
+                logger.error(f"Error building PDF document: {e}")
+                # Return empty PDF if build fails
+                return b""
             buffer.seek(0)
+            logger.info("PDF generation complete and ready for upload.")
             return buffer.getvalue()
         except Exception as e:
             logger.error(f"Error generating PDF: {e}")
-            raise
-
-
-PDFService._PDFService__draw_cover_elements = staticmethod(
-    lambda news_items, dimensions, translator: _draw_cover_elements(
-        news_items, dimensions, PDFService.styles, translator
-    )
-)
-
-PDFService.draw_header_footer = staticmethod(_draw_header_footer)
-
-PDFService._PDFService__create_summaries_elements = staticmethod(
-    lambda news_items, dimensions, translator: create_summaries_elements(
-        news_items, dimensions, translator, PDFService.styles, pdf_colors
-    )
-)
-
-PDFService._PDFService__create_full_articles_elements = staticmethod(
-    create_full_articles_elements
-)
-
-PDFService._PDFService__create_original_elements = staticmethod(
-    lambda news_items, styles, translator: create_original_articles_elements(
-        news_items, styles, translator
-    )
-)
+            return b""

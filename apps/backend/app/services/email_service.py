@@ -1,4 +1,5 @@
 import os
+import re
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from email.mime.application import MIMEApplication
@@ -17,6 +18,7 @@ from app.core.logger import get_logger
 from app.models.breaking_news import BreakingNews
 from app.models.email import Email, EmailState
 from app.models.user import Gender
+from app.repositories.chatbot_repository import ChatbotRepository
 from app.repositories.email_repository import EmailRepository
 from app.repositories.organization_repository import OrganizationRepository
 from app.services.s3_service import get_s3_service
@@ -128,19 +130,40 @@ class EmailService:
                 )
 
     @staticmethod
+    def extract_conversation_id_from_subject(subject: str) -> UUID | None:
+        """Extracts the conversation ID from the email subject."""
+        conversation_id_match = re.search(r"\[([^\[\]]+)\]", subject)
+        if conversation_id_match is None:
+            return None
+        else:
+            return UUID(conversation_id_match.group(1))
+
+    @staticmethod
     async def send_email(
         email: Email,
         pdf_bytes: bytes | None = None,
-        bcc_recipients: list[str] = [],
     ) -> None:
         """
         Create email message, load attachments if any,
         and send email using SMTP.
         """
+        email_conversation_id = (
+            EmailService.extract_conversation_id_from_subject(email.subject)
+        )
+        if email_conversation_id is None:
+            email_conversation = await ChatbotRepository.create_conversation(
+                user_email=email.recipient,
+                subject=email.subject,
+                report_id=email.report_id,
+            )
+            subject = f"{email.subject} [{email_conversation.id}]"
+        else:
+            subject = email.subject
+
         msg = MIMEMultipart("alternative")
         msg["From"] = email.sender
-        msg["To"] = email.recipient  # BCC not included in headers for privacy
-        msg["Subject"] = email.subject
+        msg["To"] = email.recipient
+        msg["Subject"] = subject
 
         html = MIMEText(email.content, "html")
         msg.attach(html)
@@ -151,22 +174,20 @@ class EmailService:
                 "Content-Disposition", "attachment", filename="report.pdf"
             )
             msg.attach(attachment)
-        all_recipients = [email.recipient] + (bcc_recipients)
-        await EmailService.__send_email(
-            email_id=email.id, message=msg, recipients=all_recipients
-        )
+
+        await EmailService.__send_email(email=email, message=msg)
 
     @staticmethod
     async def __send_email(
-        email_id: UUID,
+        email: Email,
         message: MIMEMultipart,
-        recipients: list[str],
     ) -> None:
         email_server = EmailService.create_ses_email_server()
         smtp_client = SMTP(
             hostname=email_server.hostname,
             port=email_server.port,
             use_tls=email_server.use_tls,
+            timeout=60,  # seconds
         )
         try:
             await smtp_client.connect()
@@ -177,12 +198,12 @@ class EmailService:
             raise Exception(error_message)
         try:
             sendmail_response = await smtp_client.sendmail(
-                email_server.sender, recipients, message.as_string()
+                email_server.sender, [email.recipient], message.as_string()
             )
         except SMTPResponseException as e:
             error_message = (
-                f"Failed to send email with id={email_id} to "
-                f"recipients={str(recipients)} with error: {str(e)}"
+                f"Failed to send email with id={email.id} to "
+                f"recipient={str([email.recipient])} with error: {str(e)}"
             )
             logger.error(error_message)
             raise Exception(error_message)
@@ -193,7 +214,7 @@ class EmailService:
             and sendmail_response[1].startswith("Ok")
         ):
             raise Exception(
-                f"Error sending emails for recipients={str(recipients)}: "
+                f"Error sending emails for recipient={str(email.recipient)}: "
                 f"{sendmail_response}"
             )
 
@@ -290,6 +311,8 @@ class EmailService:
     def _build_breaking_news_email_content(
         news: BreakingNews, language: str = Language.EN.value
     ) -> str:
+        translator = ArticleTranslationService.get_translator(language)
+
         published_at_utc = news.published_at
         if isinstance(published_at_utc, str):
             published_at_utc = datetime.fromisoformat(published_at_utc)
@@ -301,13 +324,38 @@ class EmailService:
         published_at = published_at_utc.strftime("%d.%m.%Y, %H:%M")
         current_time = datetime.now(timezone.utc).strftime("%d.%m.%Y, %H:%M")
 
+        # Select correct language for headline and summary
+        headline = None
+        summary = None
+        if isinstance(news.headline, dict):
+            headline = news.headline.get(language) or next(
+                iter(news.headline.values()), ""
+            )
+        else:
+            headline = news.headline or ""
+        if isinstance(news.summary, dict):
+            summary = news.summary.get(language) or next(
+                iter(news.summary.values()), ""
+            )
+        else:
+            summary = news.summary or ""
+
         context = {
-            "news_title": news.title,
-            "news_summary": news.summary,
+            "news_title": headline,
+            "news_summary": summary,
             "news_date": published_at,
             "news_url": news.url,
             "date_time": current_time,
             "disclaimer_text": EmailService.get_disclaimer_text(language),
+            "title_big": translator("BREAKING NEWS ALERT"),
+            "title": translator("Breaking News Alert"),
+            "Published": translator("Published"),
+            "read_full": translator("Read Full Article"),
+            "text_1": translator(
+                "If the button above does not work, copy and paste this URL "
+                "into your browser"
+            ),
+            "deliver_text": translator("Delivered by MediaMind"),
         }
 
         template_name = "breaking_news_template.html"
@@ -348,8 +396,13 @@ class EmailService:
         for search_profile_id, reports in grouped_reports.items():
             search_profile = reports[0]["search_profile"]
             pdf_as_link = search_profile.organization.pdf_as_link
+            # Internal and external emails
+            all_emails = (
+                search_profile.organization_emails
+                + search_profile.profile_emails
+            )
             try:
-                for email in search_profile.organization_emails:
+                for email in all_emails:
                     user = await UserService.get_by_email(email)
                     report_in_user_lang = (
                         EmailService._get_report_in_user_language(
@@ -358,7 +411,10 @@ class EmailService:
                     )
                     report = report_in_user_lang["report"]
                     presigned_url = report_in_user_lang["presigned_url"]
-                    dashboard_url = report_in_user_lang["dashboard_url"]
+                    if email in search_profile.organization_emails:
+                        dashboard_url = report_in_user_lang["dashboard_url"]
+                    else:
+                        dashboard_url = None
 
                     if user and user.language in Language._value2member_map_:
                         translator_language = user.language
@@ -373,7 +429,7 @@ class EmailService:
                         report.time_slot.capitalize()
                     )
                     subject = (
-                        f"[MEDIAMIND] {translator('Your')} "
+                        f"MEDIAMIND - {translator('Your')} "
                         f"{time_slot_translated} {translator('Report')} "
                         f"{translator('for')} {search_profile.name}"
                     )
