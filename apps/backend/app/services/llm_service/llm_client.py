@@ -37,9 +37,10 @@ class LLMClient:
         >>> response = service.generate_response("Tell me a joke")
     """
 
-    def __init__(self, model: TaskModelMapping):
+    def __init__(self, model: TaskModelMapping, max_retries: int = 1):
         self.model = model.value
         self.api_key = configs.OPENAI_API_KEY
+        self.max_retries = max_retries
 
     def generate_response(
         self,
@@ -115,6 +116,7 @@ class LLMClient:
             "model": self.model,
             "messages": messages,
             "temperature": temperature,
+            "max_retries": self.max_retries,  # Use configurable max retries
         }
 
         if resp_format:

@@ -667,7 +667,7 @@ class SearchProfileService:
                 related_topics=format_related_topics(related_topics),
             )
 
-            llm = LLMClient(TaskModelMapping.KEYWORD_SUGGESTION)
+            llm = LLMClient(TaskModelMapping.KEYWORD_SUGGESTION, max_retries=1)
 
             try:
                 response = llm.generate_typed_response(
