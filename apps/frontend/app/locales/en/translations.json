@@ -321,9 +321,7 @@
     "header": "Breaking News",
     "no_news": "No breaking news available.",
     "entry": "Click here to view the latest breaking news!",
-    "show_less": "Show less",
-    "show_more": "Show more",
-    "original": "Original"
+    "original": "Read more"
   },
 
   "crawler_stats": {

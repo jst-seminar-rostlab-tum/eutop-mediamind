@@ -317,9 +317,7 @@
     "header": "Breaking News",
     "no_news": "Keine Nachrichten verfügbar.",
     "entry": "Klicke hier, um die neusten globalen Nachrichten anzusehen!",
-    "show_less": "Weniger anzeigen",
-    "show_more": "Mehr anzeigen",
-    "original": "Original"
+    "original": "Weiterlesen"
   },
 
   "crawler_stats": {
