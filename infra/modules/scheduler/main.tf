@@ -7,6 +7,8 @@ variable "pipeline_morning_time" { type = string }
 variable "pipeline_afternoon_time" { type = string }
 variable "pipeline_evening_time" { type = string }
 variable "breaking_news_job_interval" { type = string }
+variable "email_job_interval" { type = string }
+variable "rss_job_interval" { type = string }
 variable "subnet_ids" { type = list(string) }
 variable "vpc_id" { type = string }
 variable "region" { type = string }
@@ -60,8 +62,8 @@ resource "aws_ecs_task_definition" "app" {
         { name = "REDIS_URL", value = var.redis_endpoint },
         { name = "QUEUE_NAME", value = "default" },
         { name = "SCHEDULER_INTERVAL", value = "60" },
-        { name = "EMAIL_JOB_INTERVAL", value = "30" },
-        { name = "RSS_JOB_INTERVAL", value = "1800" },
+        { name = "EMAIL_JOB_INTERVAL", value = var.email_job_interval },
+        { name = "RSS_JOB_INTERVAL", value = var.rss_job_interval },
         { name = "BREAKING_NEWS_JOB_INTERVAL", value = var.breaking_news_job_interval },
         { name = "PIPELINE_MORNING_TIME", value = var.pipeline_morning_time },
         { name = "PIPELINE_AFTERNOON_TIME", value = var.pipeline_afternoon_time },
