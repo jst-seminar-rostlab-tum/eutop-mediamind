@@ -95,7 +95,7 @@ export function SearchProfileOverview() {
 
   const to = new Date();
   const from = new Date();
-  from.setDate(to.getDate() - 14);
+  from.setDate(to.getDate() - 15);
 
   useEffect(() => {
     if (!profileError && profile && profile.subscriptions && profile.topics) {
