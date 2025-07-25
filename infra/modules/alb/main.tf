@@ -89,7 +89,7 @@ resource "aws_lb_target_group" "prod" {
     path     = "/api/v1/healthcheck"
     port     = "8000"
     interval = 30
-    timeout  = 60
+    timeout  = 29
   }
 }
 
