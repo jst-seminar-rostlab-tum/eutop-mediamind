@@ -16,7 +16,7 @@ logger = get_logger(__name__)
 
 
 class ArticleSummaryService:
-    _semaphore = asyncio.Semaphore(30)
+    _semaphore = asyncio.Semaphore(50)
     _llm_client = LLMClient(TaskModelMapping.ARTICLE_SUMMARY, max_retries=1)
 
     @staticmethod

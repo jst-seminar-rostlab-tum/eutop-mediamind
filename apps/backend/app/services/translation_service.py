@@ -30,7 +30,7 @@ base_prompt = (
 class ArticleTranslationService:
     _translators_cache = {}
     _llm_client = LLMClient(TaskModelMapping.TRANSLATION, max_retries=1)
-    _semaphore = asyncio.Semaphore(30)
+    _semaphore = asyncio.Semaphore(50)
 
     _completed_count = 0
     _completed_count_lock = asyncio.Lock()
