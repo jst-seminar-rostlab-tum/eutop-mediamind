@@ -8,6 +8,8 @@ variable "vpc_id" { type = string }
 variable "secrets_arn" { type = string }
 variable "s3_backend_bucket" { type = string }
 variable "region" { type = string }
+variable "cpu" { type = string }
+variable "memory" { type = string }
 variable "log_group_name" {
   type    = string
   default = null
@@ -89,8 +91,8 @@ resource "aws_ecs_task_definition" "app" {
   family                   = var.service_name
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
-  cpu                      = "512"
-  memory                   = "4096"
+  cpu                      = var.cpu != null ? var.cpu : "256"
+  memory                   = var.memory != null ? var.memory : "512"
   execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
   container_definitions = jsonencode([
     {

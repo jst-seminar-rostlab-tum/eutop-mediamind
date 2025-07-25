@@ -1,4 +1,4 @@
-import { formatDate } from "~/lib/utils";
+import { formatDate, getLocalizedContent } from "~/lib/utils";
 import { Button } from "~/components/ui/button";
 import type { BreakingNewsItem } from "../../../types/model";
 import { useTranslation } from "react-i18next";
@@ -9,8 +9,14 @@ interface NewsCardProps {
 }
 
 export function BreakingNewsCard({ news }: NewsCardProps) {
-  const { t } = useTranslation();
-  const displayText = news.summary + "...";
+  const { t, i18n } = useTranslation();
+
+  const headline = news.headline
+    ? getLocalizedContent(news.headline, i18n)
+    : "";
+  const summary = news.summary ? getLocalizedContent(news.summary, i18n) : "";
+
+  const displayText = summary + "...";
 
   return (
     <div className="border p-3 w-full rounded-lg flex gap-4">
@@ -26,7 +32,7 @@ export function BreakingNewsCard({ news }: NewsCardProps) {
       )}
       <div className="flex flex-col justify-between flex-grow">
         <div>
-          <h2 className="text-xl font-bold">{news.title}</h2>
+          <h2 className="text-xl font-bold">{headline}</h2>
         </div>
         <div className="text-gray-600">
           <p className="text-sm text-gray-400 mb-1">
