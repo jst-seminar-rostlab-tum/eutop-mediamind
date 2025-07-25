@@ -122,7 +122,7 @@ module "scheduler" {
   cluster_name               = local.cluster_name
   container_image            = module.ecr_scheduler.repository_url
   redis_endpoint             = jsondecode(data.aws_secretsmanager_secret_version.creds.secret_string)["REDIS_URL"]
-  api_base_url               = "https://api.mediamind.csee.tech/api"
+  api_base_url               = "https://example.com"
   pipeline_morning_time      = ""
   pipeline_afternoon_time    = ""
   pipeline_evening_time      = ""
