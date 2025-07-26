@@ -15,6 +15,7 @@ from app.services.web_harvester.web_harvester_orchestrator import (
     run_crawler,
     run_scraper,
 )
+from apps.backend.app.services.admin_report_service import AdminReportService
 
 logging.getLogger("LiteLLM").setLevel(logging.WARNING)
 
@@ -74,3 +75,8 @@ async def run(datetime_start: datetime, datetime_end: datetime):
         f"Article cleanup completed: "
         f"{cleanup_stats['articles_deleted']} articles deleted"
     )
+
+    logger.info("Running admin report generation and sending")
+    admin_report_service = AdminReportService()
+    await admin_report_service.run()
+    logger.info("Admin report generation and sending completed")
