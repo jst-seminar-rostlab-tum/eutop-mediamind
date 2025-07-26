@@ -1,5 +1,5 @@
 import logging
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from app.core.languages import Language
 from app.core.logger import get_logger
@@ -34,12 +34,32 @@ async def run(
     )
 
     logger.info("Running crawler and scraper")
-    await run_crawler(
-        CrawlerType.NewsAPICrawler,
-        date_start=datetime_start,
-        date_end=datetime_end,
-    )
+    if time_period == "morning":
+        # If the time period is morning, we also run the crawler for the
+        # previous day to get the articles that were published overnight
+        # If somebody has time, they could implement a model that tracks
+        # the runs and dynamically adjusts the datetime range based on
+        # the last run
+        await run_crawler(
+            CrawlerType.NewsAPICrawler,
+            date_start=datetime_start - timedelta(days=1),
+            date_end=datetime_end,
+            limit=200,
+        )
+    else:
+        await run_crawler(
+            CrawlerType.NewsAPICrawler,
+            date_start=datetime_start,
+            date_end=datetime_end,
+        )
+    logger.info("Running scraper")
     await run_scraper()
+
+    # Adjust datetime_start to ensure we also get the previous two days to
+    # catch artifacts from previous runs
+    # Newsapi also returns articles from the previous day because
+    # the filter does not work properly
+    datetime_start = datetime_start - timedelta(days=2)
 
     logger.info("Running Summarization and Entity Extraction")
     await ArticleSummaryService.run(

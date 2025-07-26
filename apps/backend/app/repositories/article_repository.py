@@ -1,7 +1,7 @@
 # flake8: noqa: E501
 import json
 import uuid
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from typing import List, Optional, Sequence
 from uuid import UUID
 
@@ -296,7 +296,9 @@ class ArticleRepository:
                 Article.status == "NEW",
                 Article.subscription_id == subscription_id,
                 Article.crawled_at
-                >= datetime.combine(date.today(), datetime.min.time()),
+                >= datetime.combine(
+                    date.today() - timedelta(days=2), datetime.min.time()
+                ),
             )
             articles: Sequence[Article] = (
                 (await session.execute(statement)).scalars().all()
