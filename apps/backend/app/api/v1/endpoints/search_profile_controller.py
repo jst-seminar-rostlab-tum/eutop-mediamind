@@ -99,6 +99,7 @@ async def get_search_profile(
 async def get_search_profile_overview(
     search_profile_id: UUID,
     request: MatchFilterRequest,
+    current_user: UserEntity = Depends(get_authenticated_user),
 ):
     """
     Retrieve an overview of articles for a given search profile.
@@ -116,6 +117,7 @@ async def get_search_profile_overview(
 async def get_match_detail(
     search_profile_id: UUID,
     match_id: UUID,
+    current_user: UserEntity = Depends(get_authenticated_user)
 ) -> MatchDetailResponse:
     """
     Retrieve detailed match information for a specific article match.
@@ -199,7 +201,7 @@ async def update_match_feedback(
 @router.get("/{search_profile_id}/reports", response_model=ReportListResponse)
 async def get_reports(
     search_profile_id: UUID,
-    current_user: User = Depends(get_authenticated_user),
+    current_user: UserEntity = Depends(get_authenticated_user),
 ):
     profile = await SearchProfileService.get_extended_by_id(
         search_profile_id, current_user
