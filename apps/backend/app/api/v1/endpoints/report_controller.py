@@ -5,6 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from app.core.auth import get_authenticated_user
 from app.core.logger import get_logger
 from app.schemas.report_schemas import ReportDetailResponse
+from app.schemas.user_schema import UserEntity
 from app.services.report_service import ReportService
 from app.services.s3_service import (
     S3Service,
@@ -24,6 +25,7 @@ logger = get_logger(__name__)
 async def get_report_by_id(
     report_id: UUID,
     s3_service: S3Service = Depends(get_s3_service),
+    current_user: UserEntity = Depends(get_authenticated_user),
 ):
     report = await ReportService.get_report_by_id(report_id)
     if report is None:
