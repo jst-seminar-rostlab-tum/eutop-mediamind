@@ -587,8 +587,6 @@ def safe_page_load(driver, url, max_retries=2):
     """
     for attempt in range(max_retries):
         try:
-            logger.info(f"Loading {url} (attempt {attempt + 1})")
-
             # Clear any existing page state
             try:
                 driver.execute_script("window.stop();")
@@ -602,8 +600,7 @@ def safe_page_load(driver, url, max_retries=2):
             time.sleep(1)
 
             # Verify we can access the page
-            current_url = driver.current_url
-            logger.info(f"Successfully loaded: {current_url}")
+            driver.current_url
             return True
 
         except Exception as e:
@@ -631,7 +628,7 @@ def safe_page_load(driver, url, max_retries=2):
                     raise e
             else:
                 # Other errors - re-raise immediately
-                logger.warning(f"Page load error: {e} for {url}")
+                logger.warning(f"Page load timeout: {url}")
                 continue
 
     return False

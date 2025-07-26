@@ -139,23 +139,24 @@ class ArticleVectorService:
         Run the functionality to read articles from the database and
         add them to the vector store.
         """
-
-        articles: List[Article] = (
-            await ArticleRepository.list_articles_with_summary(
-                limit=page_size,
-                date_start=datetime_start,
-                date_end=datetime_end,
+        try:
+            articles: List[Article] = (
+                await ArticleRepository.list_articles_with_summary(
+                    limit=page_size, date_start=datetime_start
+                )
             )
-        )
 
-        while len(articles) > 0:
-            await self.add_articles(articles)
+            while len(articles) > 0:
+                await self.add_articles(articles)
 
-            articles = await ArticleRepository.list_articles_with_summary(
-                limit=page_size,
-                date_start=datetime_start,
-                date_end=datetime_end,
+                articles = await ArticleRepository.list_articles_with_summary(
+                    limit=page_size, date_start=datetime_start
+                )
+        except Exception as e:
+            logger.error(
+                f"Error indexing summarized articles to vector store: {e}"
             )
+            raise e
 
     async def add_article(self, article_id: uuid.UUID) -> None:
         """

@@ -190,7 +190,7 @@
                                 </a>
                             </div>
                             {% endif %}
-                            {% if pdf_as_link %}
+                            {% if pdf_as_link and dashboard_link %}
                             <div
                                     style="
                       margin-bottom: 25px;
@@ -204,7 +204,7 @@
                             >{{ click_text }}</a
                             >).
                             </div>
-                            {% else %}
+                            {% elif not pdf_as_link %}
                             <div
                                     style="
                       margin-bottom: 25px;

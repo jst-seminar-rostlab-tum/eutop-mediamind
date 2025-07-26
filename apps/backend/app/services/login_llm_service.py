@@ -451,7 +451,9 @@ class LoginLLM:
         await asyncio.sleep(3)
         website_image = LoginLLM._take_screenshot(driver)
         try:
-            client = LLMClient(TaskModelMapping.LOGIN_AUTOMATION)
+            client = LLMClient(
+                TaskModelMapping.LOGIN_AUTOMATION, max_retries=1
+            )
             html_chunks = LoginLLM._split_html(html, MAX_TOKENS)
             tasks = [
                 LoginLLM._send_chunk_to_llm(

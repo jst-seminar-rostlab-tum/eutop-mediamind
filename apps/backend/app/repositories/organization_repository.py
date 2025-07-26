@@ -1,7 +1,7 @@
 from typing import List
 from uuid import UUID
 
-from sqlalchemy import delete, select
+from sqlalchemy import delete, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -170,7 +170,12 @@ class OrganizationRepository:
                     SearchProfile,
                     Organization.id == SearchProfile.organization_id,
                 )
-                .where(SearchProfile.organization_emails.any(recipient_email))
+                .where(
+                    or_(
+                        SearchProfile.organization_emails.any(recipient_email),
+                        SearchProfile.profile_emails.any(recipient_email),
+                    )
+                )
             )
             result = await session.execute(query)
             pdf_as_link = result.scalar()

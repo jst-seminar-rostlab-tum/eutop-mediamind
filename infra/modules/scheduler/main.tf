@@ -3,6 +3,12 @@ variable "service_name" { type = string }
 variable "container_image" { type = string }
 variable "redis_endpoint" { type = string }
 variable "api_base_url" { type = string }
+variable "pipeline_morning_time" { type = string }
+variable "pipeline_afternoon_time" { type = string }
+variable "pipeline_evening_time" { type = string }
+variable "breaking_news_job_interval" { type = string }
+variable "email_job_interval" { type = string }
+variable "rss_job_interval" { type = string }
 variable "subnet_ids" { type = list(string) }
 variable "vpc_id" { type = string }
 variable "region" { type = string }
@@ -53,14 +59,19 @@ resource "aws_ecs_task_definition" "app" {
       image     = var.container_image
       essential = true
       environment = [
+        { name = "REDIS_URL", value = var.redis_endpoint },
         { name = "QUEUE_NAME", value = "default" },
         { name = "SCHEDULER_INTERVAL", value = "60" },
-        { name = "EMAIL_JOB_INTERVAL", value = "30" },
-        { name = "PIPELINE_JOB_INTERVAL", value = "-1" },
-        { name = "RSS_JOB_INTERVAL", value = "1800" },
-        { name = "BREAKING_NEWS_JOB_INTERVAL", value = "3600" },
+        { name = "EMAIL_JOB_INTERVAL", value = var.email_job_interval },
+        { name = "RSS_JOB_INTERVAL", value = var.rss_job_interval },
+        { name = "BREAKING_NEWS_JOB_INTERVAL", value = var.breaking_news_job_interval },
+        { name = "PIPELINE_MORNING_TIME", value = var.pipeline_morning_time },
+        { name = "PIPELINE_AFTERNOON_TIME", value = var.pipeline_afternoon_time },
+        { name = "PIPELINE_EVENING_TIME", value = var.pipeline_evening_time },
+        { name = "PIPELINE_MORNING_LABEL", value = "morning" },
+        { name = "PIPELINE_AFTERNOON_LABEL", value = "afternoon" },
+        { name = "PIPELINE_EVENING_LABEL", value = "evening" },
         { name = "API_BASE_URL", value = var.api_base_url },
-        { name = "REDIS_URL", value = var.redis_endpoint },
       ]
       logConfiguration = {
         logDriver = "awslogs"

@@ -239,7 +239,7 @@ export function General({ profile, setProfile }: GeneralProps) {
               variant="outline"
               role="combobox"
               aria-expanded={open}
-              className=" justify-between"
+              className="justify-between"
               disabled={isLoading}
             >
               {selectedUserLabel}

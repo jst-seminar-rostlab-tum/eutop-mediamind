@@ -29,7 +29,7 @@ class Report(SQLModel, table=True):
         sa_column=Column(
             TIMESTAMP(timezone=True),
             nullable=False,
-            default=datetime.now(timezone.utc),
+            default=lambda: datetime.now(timezone.utc),
         )
     )
     time_slot: str = Field(
