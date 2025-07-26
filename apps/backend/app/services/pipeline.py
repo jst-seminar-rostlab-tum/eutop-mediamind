@@ -1,6 +1,8 @@
 import logging
 from datetime import datetime, timedelta
 
+from apps.backend.app.services.admin_report_service import AdminReportService
+
 from app.core.languages import Language
 from app.core.logger import get_logger
 from app.services.article_cleanup_service import ArticleCleanupService
@@ -102,3 +104,8 @@ async def run(
         f"Article cleanup completed: "
         f"{cleanup_stats['articles_deleted']} articles deleted"
     )
+
+    logger.info("Running admin report generation and sending")
+    admin_report_service = AdminReportService()
+    await admin_report_service.run()
+    logger.info("Admin report generation and sending completed")

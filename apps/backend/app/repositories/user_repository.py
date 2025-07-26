@@ -287,3 +287,18 @@ class UserRepository:
             await session.refresh(db_user)
 
             return _to_user_entity(db_user)
+
+    @staticmethod
+    async def get_all_superusers() -> List[UserEntity]:
+        """
+        Return a list of all superusers as UserEntity objects.
+        """
+        async with async_session() as session:
+            stmt = (
+                select(User)
+                .options(selectinload(User.organization))
+                .where(User.is_superuser.is_(True))
+            )
+            result = await session.execute(stmt)
+            users = result.scalars().all()
+            return [_to_user_entity(u) for u in users]
