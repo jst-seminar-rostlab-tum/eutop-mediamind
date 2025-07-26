@@ -17,7 +17,7 @@ logger = get_logger(__name__)
 
 class ArticleSummaryService:
     _semaphore = asyncio.Semaphore(50)
-    _llm_client = LLMClient(TaskModelMapping.ARTICLE_SUMMARY)
+    _llm_client = LLMClient(TaskModelMapping.ARTICLE_SUMMARY, max_retries=1)
 
     @staticmethod
     def _build_prompt(article: Article) -> str:
@@ -177,7 +177,6 @@ class ArticleSummaryService:
         articles = await ArticleRepository.list_articles_without_summary(
             limit=page_size,
             datetime_start=datetime_start,
-            datetime_end=datetime_end,
         )
         while articles:
             if use_batch_api:
@@ -200,6 +199,5 @@ class ArticleSummaryService:
             articles = await ArticleRepository.list_articles_without_summary(
                 limit=page_size,
                 datetime_start=datetime_start,
-                datetime_end=datetime_end,
             )
         logger.info("No more articles to summarize")

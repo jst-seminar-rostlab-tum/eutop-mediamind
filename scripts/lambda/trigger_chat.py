@@ -7,6 +7,7 @@ from email.message import Message
 from typing import Any, Dict
 
 import boto3
+import redis
 
 S3_CLIENT = boto3.client("s3")
 API_HOST = os.environ.get("API_HOST")
@@ -15,6 +16,11 @@ if not API_HOST:
 API_URL = f"{API_HOST.rstrip('/')}/api/v1/chatbot/"
 
 API_KEY = os.environ.get("CHAT_API_KEY")
+REDIS_URL = os.environ.get("REDIS_URL")
+if not REDIS_URL:
+    raise RuntimeError("REDIS_URL environment variable is not set.")
+redis_client = redis.Redis.from_url(REDIS_URL)
+
 if not API_KEY:
     raise RuntimeError("CHAT_API_KEY environment variable is not set.")
 
@@ -51,15 +57,20 @@ def call_api(
         }
     ).encode("utf-8")
     headers = {
-        "Content-Type": "application/json",
+        "accept": "application/json",
         "x-api-key": api_key,
+        "Content-Type": "application/json",
     }
     req = urllib.request.Request(
         API_URL, data=payload, headers=headers, method="POST"
     )
-    with urllib.request.urlopen(req) as resp:
-        resp_body = resp.read().decode()
-        print(f"API response: {resp.status} {resp_body}")
+    try:
+        with urllib.request.urlopen(req) as resp:
+            resp_body = resp.read().decode()
+            print(f"API response: {resp.status} {resp_body}")
+    except urllib.error.HTTPError as e:
+        print(f"HTTP Error: {e}")
+        raise
 
 
 def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
@@ -70,9 +81,18 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     key = urllib.parse.unquote_plus(
         record["s3"]["object"]["key"], encoding="utf-8"
     )
+    # Deduplication check using Redis
+    redis_key = f"processed:{key}"
+    print(f"Checking Redis for key: {redis_key}")
+    if redis_client.get(redis_key):
+        print(f"Object {key} already processed (Redis), skipping.")
+        return {"statusCode": 200, "body": json.dumps({"status": "skipped"})}
+
     try:
+        print(f"Fetching object from S3: bucket={bucket}, key={key}")
         response = S3_CLIENT.get_object(Bucket=bucket, Key=key)
         raw_email = response["Body"].read().decode("utf-8", errors="replace")
+        print(f"Raw email size: {len(raw_email)} bytes")
         msg = email.message_from_string(raw_email)
         sender = msg.get("From")
         subject = msg.get("Subject")
@@ -82,13 +102,24 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         print(f"Subject: {subject}")
         print(f"Body (first 500 chars): {body[:500]}")
 
-        call_api(sender, subject, body, API_KEY)
+        try:
+            call_api(sender, subject, body, API_KEY)
+            print("API call succeeded")
+        except Exception as e:
+            print(f"API call failed: {e}")
+            # Optionally: set Redis key to avoid retrying this object
+            redis_client.set(redis_key, "error", ex=86400)
+            raise e
 
+        print(f"Setting Redis key {redis_key} as processed (TTL 86400s)")
+        redis_client.set(redis_key, "true", ex=86400)
+
+        print("Lambda completed successfully.")
         return {
             "statusCode": 200,
             "body": json.dumps({"status": "ok"}),
         }
     except Exception as e:
-        print(e)
+        print(f"Exception occurred: {e}")
         print(f"Error getting object {key} from bucket {bucket}:\n{e}")
         raise e

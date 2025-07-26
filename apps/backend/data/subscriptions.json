@@ -118,8 +118,8 @@
       "cookies_button": "div.cmp-button-accept-all",
       "login_button": "//button[contains(@class, 'login')]",
       "iframe_credentials": "//iframe[@id='plenigoFramecheckout']",
-      "user_input": "//input[@id='login_form__username']",
-      "password_input": "//input[@id='login_form__password']",
+      "user_input": "//input[@id='email']",
+      "password_input": "//input[@id='password']",
       "submit_button": "//button[@type='submit' and contains(text(), 'Anmelden')]"
     },
     "logout_config": {
@@ -166,9 +166,9 @@
     "paywall": true,
     "is_active": true,
     "login_config": {
-      "iframe_cookies": "//iframe[@id='sp_message_iframe_1304391']",
+      "iframe_cookies": "//iframe[starts-with(@id, 'sp_message_iframe_')]",
       "cookies_button": "//button[@title='ALLE AKZEPTIEREN' and contains(@class, 'sp_choice_type_11')]",
-      "login_button": "//button[contains(@class, 'is-login') and span[contains(text(), 'Anmelden')]]",
+      "login_button": "//button[contains(@class, 'is-login')]",
       "user_input": "//input[@id='identifier' and @name='identifier']",
       "password_input": "//input[@id='password' and @name='password']",
       "submit_button": "//button[@type='submit' and @name='method' and @value='password']"
@@ -463,7 +463,7 @@
     "paywall": true,
     "is_active": true,
     "login_config": {
-      "iframe_cookies": "//iframe[@id='sp_message_iframe_1251936']",
+      "iframe_cookies": "//iframe[@id='sp_message_iframe_1251936']", 
       "cookies_button": "//button[contains(text(), 'Alle akzeptieren')]",
       "login_button": "//div[@data-testid='accountLinks']/button[@title='Klicken Sie hier um sich anzumelden']",
       "iframe_credentials": "//iframe[starts-with(@id, 'piano-id-')]",
@@ -511,17 +511,17 @@
     "paywall": true,
     "is_active": true,
     "login_config": {
-      "iframe_cookies": "//iframe[@id='sp_message_iframe_1253152']",
-      "cookies_button": "//button[normalize-space()='Zustimmen']",
-      "refuse_notifications": "//button[contains(@class, 'cleverpush-confirm-btn-deny')]",
-      "path_to_login_button": "//button[@aria-label='Profil']",
-      "login_button": "//button[contains(text(), 'Einloggen')]",
-      "iframe_credentials": "//iframe[starts-with(@id, 'piano-id-')]",
-      "user_input": "//input[@name='email']",
-      "password_input": "//input[@aria-label='password']",
-      "submit_button": "//button[.//t[text()='Anmelden']]",
-      "profile_section": "//button[@aria-label='Profil']",
-      "logout_button": "//button[contains(@class, 'piano-button__logout')]"
+        "iframe_cookies": "//iframe[contains(@id, 'sp_message_iframe')]",
+        "cookies_button": "//button[normalize-space()='Zustimmen']",
+        "refuse_notifications": "//button[contains(@class, 'cleverpush-confirm-btn-deny')]",
+        "path_to_login_button": "//button[@aria-label='Profil']",
+        "login_button": "//button[contains(text(), 'Einloggen')]",
+        "iframe_credentials": "//iframe[starts-with(@id, 'piano-id-')]",
+        "user_input": "//input[@name='email']",
+        "password_input": "//input[@aria-label='password']",
+        "submit_button": "//button[.//t[text()='Anmelden']]",
+        "profile_section": "//button[@aria-label='Profil']",
+        "logout_button": "//button[contains(@class, 'piano-button__logout')]"
     },
     "crawlers": {
       "NewsAPICrawler": {

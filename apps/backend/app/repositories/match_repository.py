@@ -3,6 +3,7 @@ from typing import List
 from uuid import UUID
 
 from sqlalchemy import delete
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy.orm import selectinload
@@ -113,15 +114,18 @@ class MatchRepository:
             return result.scalar_one_or_none() or 0
 
     @staticmethod
-    async def insert_match(match: Match, session) -> Match:
+    async def insert_match(match: Match, session) -> Match | None:
         """
         Insert a new Match into the database.
         """
-
-        session.add(match)
-        await session.commit()
-        await session.refresh(match)
-        return match
+        try:
+            session.add(match)
+            await session.commit()
+            await session.refresh(match)
+            return match
+        except IntegrityError:
+            await session.rollback()
+            return None
 
     @staticmethod
     async def delete_for_search_profile(

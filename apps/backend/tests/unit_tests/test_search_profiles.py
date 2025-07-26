@@ -36,12 +36,12 @@ from app.services.search_profiles_service import SearchProfileService
     new_callable=AsyncMock,
 )
 def test_get_article_overview(
-        mock_get_matches,
-        mock_get_keywords,
-        mock_get_topic_names,
-        mock_get_subscription_id,
-        mock_get_profile,
-        mock_has_subscription_access,
+    mock_get_matches,
+    mock_get_keywords,
+    mock_get_topic_names,
+    mock_get_subscription_id,
+    mock_get_profile,
+    mock_has_subscription_access,
 ):
     search_profile_id = uuid4()
 
@@ -199,6 +199,10 @@ def test_get_match_detail_success():
             "app.repositories.subscription_repository.SubscriptionRepository.has_organization_subscription_access",
             new_callable=AsyncMock,
         ) as mock_has_subscription_access,
+        patch(
+            "app.repositories.subscription_repository.SubscriptionRepository.get_by_id",
+            new_callable=AsyncMock,
+        ) as mock_get_subscription_by_id,
     ):
         mock_get_match.return_value = fake_match
         mock_get_matches.return_value = [fake_match]
@@ -211,6 +215,10 @@ def test_get_match_detail_success():
             "organization": ["BMW"],
         }
         mock_has_subscription_access.return_value = True
+        fake_subscription = type(
+            "Subscription", (), {"name": "Test Publisher"}
+        )()
+        mock_get_subscription_by_id.return_value = fake_subscription
 
         result: MatchDetailResponse = asyncio.run(
             SearchProfileService.get_match_detail(search_profile_id, match_id)
