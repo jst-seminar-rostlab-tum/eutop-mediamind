@@ -29,7 +29,7 @@ base_prompt = (
 
 class ArticleTranslationService:
     _translators_cache = {}
-    _llm_client = LLMClient(TaskModelMapping.TRANSLATION)
+    _llm_client = LLMClient(TaskModelMapping.TRANSLATION, max_retries=1)
     _semaphore = asyncio.Semaphore(50)
 
     _completed_count = 0
@@ -376,7 +376,6 @@ class ArticleTranslationService:
                 await ArticleRepository.get_articles_without_translations(
                     limit=page_size,
                     datetime_start=datetime_start,
-                    datetime_end=datetime_end,
                 )
             )
             while articles:
@@ -419,7 +418,6 @@ class ArticleTranslationService:
                     await ArticleRepository.get_articles_without_translations(
                         limit=page_size,
                         datetime_start=datetime_start,
-                        datetime_end=datetime_end,
                     )
                 )
             logger.info("No more articles without translation found")
@@ -484,20 +482,20 @@ class ArticleTranslationService:
         breaking_news, target_language: str
     ):
         """
-        Translates the title and summary of a BreakingNews object
+        Translates the headline and summary of a BreakingNews object
         to the target language using the LLM.
         Args:
             breaking_news: BreakingNews object
             target_language: 'en' or 'de'
             use_batch_api: whether to use batch API for translation
         Returns:
-            dict: {"title": translated_title, "summary": translated_summary}
+            dict: {"headline": translated_headl, "summary": translated_sum}
         """
-        texts = [breaking_news.title, breaking_news.summary]
+        texts = [breaking_news.headline, breaking_news.summary]
         # Only translate if the current language is not the target
         if breaking_news.language == target_language:
             return {
-                "title": breaking_news.title,
+                "headline": breaking_news.headline,
                 "summary": breaking_news.summary,
             }
         # Prepare prompts for translation
@@ -521,4 +519,4 @@ class ArticleTranslationService:
                 if "choices" in resp and resp["choices"]
                 else resp
             )
-        return {"title": responses[0], "summary": responses[1]}
+        return {"headline": responses[0], "summary": responses[1]}

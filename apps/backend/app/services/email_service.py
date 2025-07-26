@@ -324,9 +324,25 @@ class EmailService:
         published_at = published_at_utc.strftime("%d.%m.%Y, %H:%M")
         current_time = datetime.now(timezone.utc).strftime("%d.%m.%Y, %H:%M")
 
+        # Select correct language for headline and summary
+        headline = None
+        summary = None
+        if isinstance(news.headline, dict):
+            headline = news.headline.get(language) or next(
+                iter(news.headline.values()), ""
+            )
+        else:
+            headline = news.headline or ""
+        if isinstance(news.summary, dict):
+            summary = news.summary.get(language) or next(
+                iter(news.summary.values()), ""
+            )
+        else:
+            summary = news.summary or ""
+
         context = {
-            "news_title": news.title,
-            "news_summary": news.summary,
+            "news_title": headline,
+            "news_summary": summary,
             "news_date": published_at,
             "news_url": news.url,
             "date_time": current_time,

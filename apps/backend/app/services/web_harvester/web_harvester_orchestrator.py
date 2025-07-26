@@ -67,7 +67,7 @@ async def run_crawler(
 
 
 # Configure timeouts
-SELENIUM_TASK_TIMEOUT = 5400  # 90 minutes per subscription
+SELENIUM_TASK_TIMEOUT = 6000  # 100 minutes in total
 EXECUTOR_SHUTDOWN_TIMEOUT = 30  # 30 seconds to shutdown executor
 
 
@@ -382,6 +382,7 @@ def _scrape_articles(scraper, driver, new_articles):
 
             # Load the page with frame detachment handling
             try:
+                logger.info(f"Loading article: {article.url}")
                 if not safe_page_load(driver, article.url):
                     raise ValueError(f"Failed to load page: {article.url}")
 

@@ -150,12 +150,13 @@
 
   "mailing": {
     "header": "Mailing List",
-    "info": "Configure profile contact database for press release distribution",
+    "info": "Manage the list of recipients for press release distribution",
     "Internal": "Internal",
     "External": "External",
     "internal": "internal",
     "external": "external",
-    "filter": "filter {{type}} emails"
+    "filter": "filter {{type}} emails",
+    "cantAddDouble": "You cannot add the same email twice."
   },
 
   "data-table-mailing": {
@@ -168,7 +169,7 @@
   "subscriptions": {
     "header": "Subscriptions",
     "source": "Subscription",
-    "info": "Configure web scraping sources used for the external mailing list",
+    "info": "Configure subscriptions used for the external mailing list",
     "no_results": "No results.",
     "active": "Active"
   },
@@ -321,14 +322,13 @@
     "header": "Breaking News",
     "no_news": "No breaking news available.",
     "entry": "Click here to view the latest breaking news!",
-    "show_less": "Show less",
-    "show_more": "Show more",
-    "original": "Original"
+    "original": "Read more"
   },
 
   "crawler_stats": {
     "title": "Crawler Stats",
     "source": "Subscription",
+    "timeframe": "Timeframe",
     "date": "Date",
     "successful": "Successful",
     "attempted": "Attempted",
@@ -349,7 +349,7 @@
     "reports": "Reports",
     "header": "Report Download Center",
     "pagination": "Showing {{from}} to {{to}} of {{total}} reports",
-    "download_unavailable": "Unavailable",
+    "download_unavailable": "No articles",
     "download": "Download",
     "no_reports_found": "No reports found.",
     "no_reports_match_filter": "No reports found that match the filters."

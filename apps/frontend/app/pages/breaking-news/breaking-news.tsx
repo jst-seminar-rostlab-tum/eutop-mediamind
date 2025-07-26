@@ -29,7 +29,10 @@ export function BreakingNews() {
     return <ErrorPage />;
   }
 
-  const sortedNews = sortBy(breakingNews?.news ?? [], "created_at").reverse();
+  const sortedNews = sortBy(
+    breakingNews?.news ?? [],
+    (n) => n.published_at,
+  ).reverse();
 
   return (
     <Layout>

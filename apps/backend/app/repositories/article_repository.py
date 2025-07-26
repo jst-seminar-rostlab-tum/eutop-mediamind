@@ -1,7 +1,7 @@
 # flake8: noqa: E501
 import json
 import uuid
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from typing import List, Optional, Sequence
 from uuid import UUID
 
@@ -98,10 +98,6 @@ class ArticleRepository:
                         "duplicate key value violates unique "
                         'constraint "articles_url_key"' in error_detail
                     ):
-                        logger.warning(
-                            f"Article with URL {article.url} "
-                            "already exists, skipping."
-                        )
                         return
                 logger.error(f"Failed to insert article: {e}")
                 return
@@ -124,7 +120,6 @@ class ArticleRepository:
                     successful.extend(batch)
                 except Exception:
                     await session.rollback()
-                    logger.warning("Batch failed, inserting individual now")
 
                     # Try inserting articles one-by-one
                     for article in batch:
@@ -170,7 +165,7 @@ class ArticleRepository:
                 select(Article)
                 .where(
                     Article.status == "SCRAPED",
-                    Article.scraped_at.between(datetime_start, datetime_end),
+                    Article.scraped_at >= datetime_start,
                     or_(Article.summary.is_(None), Article.summary == ""),
                 )
                 .limit(limit)
@@ -197,7 +192,7 @@ class ArticleRepository:
                     Article.summary.isnot(None),
                     Article.summary != "",
                     Article.status == "TRANSLATED",
-                    Article.scraped_at.between(date_start, date_end),
+                    Article.scraped_at >= date_start,
                 )
                 .limit(limit)
             )
@@ -300,6 +295,10 @@ class ArticleRepository:
             statement = select(Article).where(
                 Article.status == "NEW",
                 Article.subscription_id == subscription_id,
+                Article.crawled_at
+                >= datetime.combine(
+                    date.today() - timedelta(days=2), datetime.min.time()
+                ),
             )
             articles: Sequence[Article] = (
                 (await session.execute(statement)).scalars().all()
@@ -323,7 +322,7 @@ class ArticleRepository:
                 select(Article)
                 .where(
                     Article.status == "SUMMARIZED",
-                    Article.scraped_at.between(datetime_start, datetime_end),
+                    Article.scraped_at >= datetime_start,
                     or_(
                         Article.title_en.is_(None),
                         Article.title_en == "",

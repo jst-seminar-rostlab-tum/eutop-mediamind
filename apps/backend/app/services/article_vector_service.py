@@ -142,9 +142,7 @@ class ArticleVectorService:
         try:
             articles: List[Article] = (
                 await ArticleRepository.list_articles_with_summary(
-                    limit=page_size,
-                    date_start=datetime_start,
-                    date_end=datetime_end,
+                    limit=page_size, date_start=datetime_start
                 )
             )
 
@@ -152,9 +150,7 @@ class ArticleVectorService:
                 await self.add_articles(articles)
 
                 articles = await ArticleRepository.list_articles_with_summary(
-                    limit=page_size,
-                    date_start=datetime_start,
-                    date_end=datetime_end,
+                    limit=page_size, date_start=datetime_start
                 )
         except Exception as e:
             logger.error(
