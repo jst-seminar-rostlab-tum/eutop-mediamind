@@ -34,7 +34,6 @@ async def run(
     )
 
     logger.info("Running crawler and scraper")
-
     if time_period == "morning":
         # If the time period is morning, we also run the crawler for the
         # previous day to get the articles that were published overnight
@@ -43,7 +42,7 @@ async def run(
         # the last run
         await run_crawler(
             CrawlerType.NewsAPICrawler,
-            date_start=datetime_start - timedelta(day=1),
+            date_start=datetime_start - timedelta(days=1),
             date_end=datetime_end,
             limit=200,
         )
@@ -53,7 +52,7 @@ async def run(
             date_start=datetime_start,
             date_end=datetime_end,
         )
-
+    logger.info("Running scraper")
     await run_scraper()
 
     # Adjust datetime_start to ensure we also get the previous two days to
