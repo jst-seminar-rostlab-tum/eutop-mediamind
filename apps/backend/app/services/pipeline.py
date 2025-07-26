@@ -55,7 +55,6 @@ async def run(
     logger.info("Running scraper")
     await run_scraper()
 
-
     # Run custom crawlers
     for crawler_type in [
         CrawlerType.EuramsCrawler,
@@ -73,7 +72,6 @@ async def run(
     # Newsapi also returns articles from the previous day because
     # the filter does not work properly
     datetime_start = datetime_start - timedelta(days=2)
-
 
     logger.info("Running Summarization and Entity Extraction")
     await ArticleSummaryService.run(
