@@ -1,6 +1,8 @@
 import logging
 from datetime import datetime
 
+from apps.backend.app.services.admin_report_service import AdminReportService
+
 from app.core.languages import Language
 from app.core.logger import get_logger
 from app.services.article_cleanup_service import ArticleCleanupService
@@ -15,7 +17,6 @@ from app.services.web_harvester.web_harvester_orchestrator import (
     run_crawler,
     run_scraper,
 )
-from apps.backend.app.services.admin_report_service import AdminReportService
 
 logging.getLogger("LiteLLM").setLevel(logging.WARNING)
 
