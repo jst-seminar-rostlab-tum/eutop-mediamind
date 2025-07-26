@@ -1,6 +1,3 @@
-
-
-
 # Data Cleaning Overview
 
 Data cleaning is a crucial step in the Eutop MediaMind content pipeline, ensuring that only high-quality, relevant, and well-formatted articles are stored and used for downstream tasks such as search, recommendation, and analytics.
