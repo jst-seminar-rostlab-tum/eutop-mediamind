@@ -52,6 +52,7 @@ export function ArticlePage({
             {...(article.article.authors?.length
               ? { author: article.article.authors.join(", ") }
               : {})}
+            publisher={article.article.publisher ?? undefined}
           />
         </div>
         <div className="w-1/3">

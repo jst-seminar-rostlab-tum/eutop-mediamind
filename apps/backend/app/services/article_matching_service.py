@@ -21,7 +21,7 @@ class ArticleMatchingService:
         self.article_vector_service = ArticleVectorService()
         self.logger = get_logger(__name__)
         self.weights = {"topic": 0.7, "keyword": 0.3}
-        self.topic_score_threshold = 0.5
+        self.topic_score_threshold = 0.45
         self.keyword_score_threshold = 0.1
 
     async def process_article_matching_for_search_profile(

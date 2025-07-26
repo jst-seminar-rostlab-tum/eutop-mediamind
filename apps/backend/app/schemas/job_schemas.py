@@ -33,6 +33,11 @@ class PipelineJobRequest(BaseModel):
         default_factory=datetime.now,
         description="End time for the pipeline job, defaults to now",
     )
+    time_period: str = Field(
+        default="morning",
+        description="Time period for the pipeline job, can be 'morning', '"
+        "afternoon' or 'evening'",
+    )
 
 
 class RSSJobRequest(BaseModel):
