@@ -25,7 +25,7 @@ logger = get_logger(__name__)
 async def get_report_by_id(
     report_id: UUID,
     s3_service: S3Service = Depends(get_s3_service),
-    current_user: UserEntity = Depends(get_authenticated_user)
+    current_user: UserEntity = Depends(get_authenticated_user),
 ):
     report = await ReportService.get_report_by_id(report_id)
     if report is None:

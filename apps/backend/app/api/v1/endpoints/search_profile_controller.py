@@ -117,7 +117,7 @@ async def get_search_profile_overview(
 async def get_match_detail(
     search_profile_id: UUID,
     match_id: UUID,
-    current_user: UserEntity = Depends(get_authenticated_user)
+    current_user: UserEntity = Depends(get_authenticated_user),
 ) -> MatchDetailResponse:
     """
     Retrieve detailed match information for a specific article match.

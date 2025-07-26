@@ -16,7 +16,6 @@ from app.api.v1.endpoints.subscription_controller import (
 )
 from app.api.v1.endpoints.user_controller import router as user_router
 
-
 routers = APIRouter()
 router_list = [
     user_router,

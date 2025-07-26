@@ -4,12 +4,11 @@ This is just a testing controller for crawling and scraping.
 Once we have a proper scheduler, we can remove this controller.
 """
 
-import asyncio
 from datetime import date
 from datetime import date as Date
 from typing import Optional
 
-from fastapi import APIRouter, Query, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 
 from app.core.auth import get_authenticated_user
 from app.core.logger import get_logger
@@ -21,13 +20,7 @@ from app.schemas.crawl_stats_schemas import CrawlStatsResponse
 from app.schemas.user_schema import UserEntity
 from app.services.crawl_stats_service import CrawlStatsService
 from app.services.web_harvester.breaking_news_crawler import (
-    fetch_breaking_news_newsapi,
     get_all_breaking_news,
-)
-from app.services.web_harvester.crawler import CrawlerType
-from app.services.web_harvester.web_harvester_orchestrator import (
-    run_crawler,
-    run_scraper,
 )
 
 router = APIRouter(
@@ -53,7 +46,7 @@ async def get_crawl_stats(
     date_end: Optional[Date] = Query(
         None, description="End date for date range query (YYYY-MM-DD)"
     ),
-    current_user: UserEntity = Depends(get_authenticated_user)
+    current_user: UserEntity = Depends(get_authenticated_user),
 ):
     """
     Get crawler statistics based on date criteria.
