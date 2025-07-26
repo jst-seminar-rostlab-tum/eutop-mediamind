@@ -60,14 +60,13 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: eu-central-1
 
-      # TODO: Uncomment this to enable automatic deployments to production:
-      # - name: Force new ECS deployment (prod)
-      #   run: |
-      #     aws ecs update-service \
-      #       --cluster mediamind-cluster \
-      #       --service mediamind-service \
-      #       --force-new-deployment \
-      #       --region eu-central-1
+      - name: Force new ECS deployment (prod)
+        run: |
+          aws ecs update-service \
+            --cluster mediamind-cluster \
+            --service mediamind-service \
+            --force-new-deployment \
+            --region eu-central-1
 
       - name: Force new ECS deployment (dev)
         run: |
