@@ -22,6 +22,7 @@ class Config(BaseSettings):
     PIPELINE_EVENING_LABEL: str = "evening"
 
     API_BASE_URL: str
+    API_SECRET: str
 
     class Config:
         env_file = ".env"

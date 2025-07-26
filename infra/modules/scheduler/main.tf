@@ -3,6 +3,7 @@ variable "service_name" { type = string }
 variable "container_image" { type = string }
 variable "redis_endpoint" { type = string }
 variable "api_base_url" { type = string }
+variable "api_secret" { type = string }
 variable "pipeline_morning_time" { type = string }
 variable "pipeline_afternoon_time" { type = string }
 variable "pipeline_evening_time" { type = string }
@@ -72,6 +73,7 @@ resource "aws_ecs_task_definition" "app" {
         { name = "PIPELINE_AFTERNOON_LABEL", value = "afternoon" },
         { name = "PIPELINE_EVENING_LABEL", value = "evening" },
         { name = "API_BASE_URL", value = var.api_base_url },
+        { name = "API_SECRET", value = var.api_secret },
       ]
       logConfiguration = {
         logDriver = "awslogs"
