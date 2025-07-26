@@ -1,4 +1,3 @@
-
 # MediaMind PDF Report Flow
 
 ## How it Works
