@@ -28,17 +28,11 @@
   python app/main.py
   ```
 
-## Scheduling jobs
+## Jobs
 
 Job scheduling is relying on the [rq](https://github.com/rq/rq) and
 [rq-scheduler](https://github.com/rq/rq-scheduler) packages.
 
-## Scheduling Jobs
-
-To schedule jobs, you can use the `SchedulerService` class, which is a wrapper
-around the `rq-scheduler` package.
-
-_Note:_ for the scheduler to work, you need to have a Redis server running.
 
 Jobs are simple Python functions, that could take any number of arguments:
 
@@ -47,6 +41,53 @@ def my_function(arg1, arg2):
     # Your job logic here
     print(f"Job executed with arguments: {arg1}, {arg2}")
 ```
+
+To trigger a function on the main `backend` app, you can use the `job_request`
+function in the `job.py` module. With this function, you can schedule an HTTP
+request to the backend app, which can be used to invoke some logic. 
+All endpoints triggered by the scheduler should be under the `/jobs` path.
+See the `job_router` in the backend app for more details. 
+
+Example of a job request:
+
+```python
+from job import job_request
+
+# This will trigger the `/v1/jobs/breaking-news` endpoint in the backend app
+# every 10 seconds
+service.schedule_periodic(
+    id=UUID("cc1dface-9213-4eed-8cb2-0edba6b2159c"),
+    every_seconds=10,
+    func=job_request,
+    args=[f"{cfg.API_BASE_URL}/v1/jobs/breaking-news"],
+)
+```
+## Scheduling Jobs
+
+To schedule jobs, you can use the `SchedulerService` class, which is a wrapper
+around the `rq-scheduler` package.
+
+_Note:_ for the scheduler to work, you need to have a Redis server running.
+
+Schedule a periodic job:
+
+```python
+from app.services.scheduler import SchedulerService
+
+SchedulerService.schedule_periodic(
+    id=UUID("cc1dface-9213-4eed-8cb2-0edba6b2159c"),
+    interval=60,  # Runs every 60 seconds
+    func=my_function,
+    args=(arg1, arg2),
+)
+```
+On periodic jobs, we must provide a unique `id` (uuidv4) to identify
+the job. This is needed that the job is not scheduled multiple times
+when restarting the service.
+Another important note is that the `interval` parameter is in seconds, and
+by convention your code should avoid scheduling a job if the interval is
+negative. You should also make sure to let the user customize the interval
+using environment variables.
 
 Schedule a job to run immediately:
 
@@ -71,18 +112,9 @@ SchedulerService.schedule_at(
     args=(arg1, arg2),
 )
 ```
+**NOTE**: The `execution_time` is a timezone-aware `datetime` object. 
+Please always use UTC for the `execution_time` to avoid issues with timezones.
 
-Schedule a periodic job:
-
-```python
-from app.services.scheduler import SchedulerService
-
-SchedulerService.schedule_periodic(
-    interval=60,  # Runs every 60 seconds
-    func=my_function,
-    args=(arg1, arg2),
-)
-```
 
 Async jobs can also be scheduled, but they need to be wrapped in a synchronous
 function:
@@ -133,3 +165,20 @@ The flow is as follows:
    scheduled jobs. When it finds a job that is due to be executed, it moves the
    job to another Redis queue, containing jobs that are ready to be executed.
 3. Finally, the worker consumes the jobs from the execution queue and executes them.
+
+## How to debug?
+
+To debug the job scheduling process, you can use the [rq-dashboard](https://github.com/Parallels/rq-dashboard)
+package. You can install it with:
+
+```bash
+pip install rq-dashboard
+```
+
+Then, you can run the dashboard with:
+
+```bash
+rq-dashboard
+```
+
+Make sure the dashboard is running on the same Redis server as the scheduler and worker.
