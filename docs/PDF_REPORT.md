@@ -57,4 +57,3 @@
 ## Summary
 
 The PDF service creates privacy-friendly, well-structured reports using ReportLab, and makes them available for a short time via S3. All navigation and layout is handled in modular components for easy maintenance and branding.
-
