@@ -355,9 +355,9 @@ class RSSFeedCrawler(Crawler):
 class CrawlerType(Enum):
     NewsAPICrawler = "NewsAPICrawler"
     RSSFeedCrawler = "RSSFeedCrawler"
-    FtCrawler = "FtCrawler"
     HandelsblattCrawler = "HandelsblattCrawler"
     EnhesaCrawler = "EnhesaCrawler"
+    EuramsCrawler = "EuramsCrawler"
 
 
 def _get_crawler_class(crawler_type: CrawlerType):
@@ -372,16 +372,18 @@ def _get_crawler_class(crawler_type: CrawlerType):
         )
 
         return HandelsblattCrawler
-    elif crawler_type == CrawlerType.FtCrawler:
-        from app.services.web_harvester.crawlers.ft_crawler import FtCrawler
-
-        return FtCrawler
     elif crawler_type == CrawlerType.EnhesaCrawler:
         from app.services.web_harvester.crawlers.enhesa_crawler import (
             EnhesaCrawler,
         )
 
         return EnhesaCrawler
+    elif crawler_type == CrawlerType.EuramsCrawler:
+        from app.services.web_harvester.crawlers.eurams_crawler import (
+            EuramsCrawler,
+        )
+
+        return EuramsCrawler
     else:
         raise ValueError(f"Unknown crawler type: {crawler_type}")
 

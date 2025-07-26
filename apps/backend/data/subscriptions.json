@@ -60,22 +60,22 @@
     "name": "Handelsblatt - ePaper",
     "domain": "https://id.handelsblatt.com/login",
     "paywall": true,
-    "is_active": false,
-    "login_config": {
-      "iframe_cookies": "//iframe[@id='sp_message_iframe_1325677']",
-      "cookies_button": "//button[@title='Zustimmen und weiter']",
-      "user_input": "//input[@type='email' and @placeholder='E-Mail-Adresse']",
-      "password_input": "//input[@type='password' and @placeholder='Ihr Passwort']",
-      "submit_button": "//button[@type='submit' and @class='']",
-      "login_button": "//button[@type='submit' and @class='']"
-    },
+    "is_active": true,
+      "login_config": {
+        "container_selector": "[id^='sp_message_container_']",
+        "cookies_button": "//button[@title='Zustimmen und weiter' and contains(@class, 'sp_choice_type_11')]",
+        "iframe": "//iframe[contains(@id, 'sp_message_iframe')]",
+        "user_input": "form hmg-text-input:nth-of-type(1) input",
+        "password_input": "form hmg-text-input:nth-of-type(2) input",
+        "submit_button": "form hmg-button > button"
+      },
     "logout_config": {
       "profile_section": "//span[contains(@class, 'ng-star-inserted')]",
       "logout_button": "//a[contains(@class, 'menu-item__content-wrapper') and contains(@href, 'logout')]"
     },
     "crawlers": {
       "HandelsblattCrawler": {
-        "filter_category": true,
+        "filter_category": false,
         "sourceUri": "handelsblatt.com"
       }
     }
@@ -351,7 +351,7 @@
     "name": "Chemical Watch - Onlinezugang",
     "domain": "https://product.enhesa.com",
     "paywall": true,
-    "is_active": false,
+    "is_active": true,
     "login_config": {
       "user_input": "input[name='email']",
       "password_input": "input[name='password']",
@@ -362,10 +362,7 @@
       "logout_button": "//div[contains(text(), 'Log out') and contains(@class, 'hoverable')]"
     },
     "crawlers": {
-      "EnhesaCrawler": {
-        "filter_category": true,
-        "sourceUri": "https://www.product.enhesa.com"
-      }
+      "EnhesaCrawler": {}
     }
   },
   {
@@ -775,7 +772,15 @@
     "name": "Euro am Sonntag",
     "domain": "https://www.eurams.de",
     "paywall": false,
-    "is_active": false
+    "is_active": true,
+    "login_config": {
+      "time_selector": "body > section > div > article > header > div.article-meta > div.article-date > time",
+      "iframe_selector": "iframe#sp_message_iframe_879787",
+      "cookie_button_selector": "button[title='AKZEPTIEREN UND WEITER']"
+    },
+    "crawlers": {
+      "EuramsCrawler": {}
+    }
   },
   {
     "name": "Münchner Merkur",

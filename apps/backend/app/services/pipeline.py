@@ -55,6 +55,18 @@ async def run(
     logger.info("Running scraper")
     await run_scraper()
 
+    # Run custom crawlers
+    for crawler_type in [
+        CrawlerType.EuramsCrawler,
+        CrawlerType.EnhesaCrawler,
+        CrawlerType.HandelsblattCrawler,
+    ]:
+        await run_crawler(
+            crawler_type,
+            date_start=datetime_start,
+            date_end=datetime_end,
+        )
+
     # Adjust datetime_start to ensure we also get the previous two days to
     # catch artifacts from previous runs
     # Newsapi also returns articles from the previous day because
